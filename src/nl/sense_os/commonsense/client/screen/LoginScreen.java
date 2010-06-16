@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.screen;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
+import nl.sense_os.commonsense.client.MD5Wrapper;
 import nl.sense_os.commonsense.client.User;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -45,7 +46,7 @@ public class LoginScreen extends Composite {
 		when the button is clicked */
 		btnLogin.addClickListener(new ClickListener(){
 			public void onClick(Widget sender)	{
-				checkLogin(txtLogin.getText(),txtPassword.getText());
+				checkLogin(txtLogin.getText(),MD5Wrapper.toMD5(MD5Wrapper.toMD5(txtPassword.getText())));
 			}
 			
 		});
