@@ -1,4 +1,4 @@
-package com.almende.sense.commonsense.client;
+package nl.sense_os.commonsense.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

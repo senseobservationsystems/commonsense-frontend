@@ -1,6 +1,7 @@
-package com.almende.sense.commonsense.client;
+package nl.sense_os.commonsense.client;
 
-import com.almende.sense.commonsense.shared.FieldVerifier;
+import nl.sense_os.commonsense.shared.FieldVerifier;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;

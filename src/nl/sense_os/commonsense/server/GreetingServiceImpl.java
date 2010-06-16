@@ -1,7 +1,8 @@
-package com.almende.sense.commonsense.server;
+package nl.sense_os.commonsense.server;
 
-import com.almende.sense.commonsense.client.GreetingService;
-import com.almende.sense.commonsense.shared.FieldVerifier;
+import nl.sense_os.commonsense.client.GreetingService;
+import nl.sense_os.commonsense.shared.FieldVerifier;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**

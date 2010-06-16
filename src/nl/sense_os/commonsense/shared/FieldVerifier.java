@@ -1,4 +1,4 @@
-package com.almende.sense.commonsense.shared;
+package nl.sense_os.commonsense.shared;
 
 /**
  * <p>
