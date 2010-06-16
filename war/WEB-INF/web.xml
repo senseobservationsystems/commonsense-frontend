@@ -8,7 +8,7 @@
   <!-- Servlets -->
   <servlet>
     <servlet-name>greetServlet</servlet-name>
-    <servlet-class>com.almende.sense.commonsense.server.GreetingServiceImpl</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.GreetingServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>

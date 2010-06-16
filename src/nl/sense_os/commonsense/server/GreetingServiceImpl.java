@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.server;
 
 import nl.sense_os.commonsense.client.GreetingService;
 import nl.sense_os.commonsense.shared.FieldVerifier;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
