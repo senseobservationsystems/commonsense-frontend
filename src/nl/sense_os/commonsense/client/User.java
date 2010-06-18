@@ -2,11 +2,8 @@ package nl.sense_os.commonsense.client;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class User implements Serializable{
-	/**
-	 * Add this variable for serialization 
-	 */
-	private static final long serialVersionUID = 1L;
 	
 	private String userName;
 	

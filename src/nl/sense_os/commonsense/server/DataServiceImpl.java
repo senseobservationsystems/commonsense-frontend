@@ -5,24 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.servlet.http.HttpSession;
-
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.User;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-/**
- * The server side implementation of the RPC service.
- */
 public class DataServiceImpl extends RemoteServiceServlet implements
 		DataService {
 
     public static final String URL_BASE = "http://demo.almende.com/commonSense/";    
     public static final String URL_LOGIN = URL_BASE + "login.php";
-    
+    public static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
 	private static final String USER_SESSION = "GWTAppUser";
-
 	private static final long serialVersionUID = 1;
 
 	private void setUserInSession(User user) {
@@ -42,10 +36,31 @@ public class DataServiceImpl extends RemoteServiceServlet implements
             String line;
             line = reader.readLine();
             reader.close();
-			User user = new User();
-			user.setUserName(line + password);
-			setUserInSession(user);
-			return user;
+            if (!line.toLowerCase().contains("ok")) {
+            	return null;
+            } else {
+            	User user = new User();
+            	user.setUserName(userName);
+            	setUserInSession(user);
+            	return user;
+            }
+        } catch (MalformedURLException e) {
+        } catch (IOException e) {
+        }
+		return null;
+	}
+
+	public String getPhoneDetails() {
+        try {
+            final URL url = new URL(URL_GET_PHONE_DETAILS);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String jsonText = "";
+            String line;
+            while ((line = reader.readLine()) != null) {
+            	jsonText += line;
+            }
+            reader.close();
+			return jsonText;
         } catch (MalformedURLException e) {
         } catch (IOException e) {
         }
@@ -56,7 +71,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		HttpSession session = getThreadLocalRequest().getSession();
 		if (session != null)
 			session.invalidate();
-
 	}
 
 	public User isSessionAlive() {
