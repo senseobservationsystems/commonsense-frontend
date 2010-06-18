@@ -5,6 +5,8 @@ import java.util.Set;
 
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
+import nl.sense_os.commonsense.client.LoginService;
+import nl.sense_os.commonsense.client.LoginServiceAsync;
 import nl.sense_os.commonsense.client.User;
 
 import com.google.gwt.core.client.GWT;
@@ -14,6 +16,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.jsonp.client.JsonpRequestBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -24,7 +27,9 @@ import com.google.gwt.user.client.ui.ListBox;
 @SuppressWarnings("unchecked")
 public class HomeScreen extends Composite{
 
-	DataServiceAsync svc = (DataServiceAsync) GWT.create(DataService.class);
+	DataServiceAsync dataSvc = (DataServiceAsync) GWT.create(DataService.class);
+	LoginServiceAsync loginSvc = (LoginServiceAsync) GWT.create(LoginService.class);
+	
 	JSONObject phones = null;
 	
 	Grid mainGrid;
@@ -43,7 +48,7 @@ public class HomeScreen extends Composite{
             	showPhoneDetailsFailure();
             }
     	};
-    	svc.getPhoneDetails(callback);
+    	dataSvc.getPhoneDetails(callback);
 	}
 
 	private void showPhoneDetails() {
@@ -106,7 +111,7 @@ public class HomeScreen extends Composite{
 
 		btnLogout.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event)	{
-				svc.logout(new AsyncCallback() {
+				loginSvc.logout(new AsyncCallback() {
 		            public void onSuccess(Object result) {
 		            	mainCallback.onSuccess(result);
 		            }
@@ -125,6 +130,24 @@ public class HomeScreen extends Composite{
 		
 		initWidget(mainGrid);
 
-		getPhoneDetails();
+		//getPhoneDetails();
+		
+
+		AsyncCallback callback = new AsyncCallback() {
+			public void onSuccess(Object result) {
+				JSONObject phoneDetails = (JSONObject) JSONParser.parse((String) result);
+				phones = phoneDetails.get("phones").isObject();
+				showPhoneDetails();
+            }
+            public void onFailure(Throwable ex) {
+            	showPhoneDetailsFailure();
+            }
+    	};
+
+		String url = "http://demo.almende.com/commonSense/get_phone_details.php";
+    	JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
+		jsonp.requestObject(url, callback);
+		
+		
 	}
 }
