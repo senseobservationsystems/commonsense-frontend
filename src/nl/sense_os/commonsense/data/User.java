@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.data;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-public class User implements Serializable{
+public class User implements Serializable {
 	
 	private String userName;
 	private String password;

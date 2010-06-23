@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,8 +17,9 @@ import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
 
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.appengine.repackaged.org.json.JSONArray;
+import com.google.appengine.repackaged.org.json.JSONException;
+import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 @SuppressWarnings("serial")
@@ -51,6 +53,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
             } else {
             	User user = new User();
             	user.setUserName(userName);
+            	user.setPassword(password);
             	setUserInSession(user);
             	return user;
             }
@@ -85,7 +88,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		
 		// Get json object
         try {
-            final URL url = new URL(URL_GET_PHONE_DETAILS + "?email=" + user.getUserName() + "?password=" + user.getPassword());
+            final URL url = new URL(URL_GET_PHONE_DETAILS + "?email=" + user.getUserName() + "&password=" + user.getPassword());
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -97,15 +100,20 @@ public class DataServiceImpl extends RemoteServiceServlet implements
         }
         
         // Convert to object
-		JSONObject phones = ((JSONObject) JSONParser.parse((String) jsonText)).get("phones").isObject();
-		Set keys = phones.keySet();
-		Iterator ki = keys.iterator();
-		while (ki.hasNext()) {
-			String key = (String) ki.next();
-			JSONObject jsonPhone = phones.get(key).isObject();
-			Phone phone = new Phone(key, jsonPhone);
-			phoneList.add(phone);
+		JSONObject phones;
+		try {
+			phones = (JSONObject) new JSONObject(jsonText).get("phones");
+			String[] keys = JSONObject.getNames(phones);
+			if (keys != null) {
+				for (int i = 0; i < keys.length; i++) {
+					JSONObject jsonPhone = (JSONObject) phones.get(keys[i]);
+					Phone phone = PhoneFactory.createPhone(keys[i], jsonPhone);
+					phoneList.add(phone);
+				}
+			}
+		} catch (JSONException e) {
 		}
 		return phoneList;
-	}
+	}	
+	
 }

@@ -16,16 +16,6 @@
     <url-pattern>/commonsense/data</url-pattern>
   </servlet-mapping>
 
-  <servlet>
-    <servlet-name>loginServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.LoginServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>loginServlet</servlet-name>
-    <url-pattern>/commonsense/login</url-pattern>
-  </servlet-mapping>
-
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>CommonSense.html</welcome-file>

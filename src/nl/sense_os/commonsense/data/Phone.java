@@ -1,8 +1,9 @@
 package nl.sense_os.commonsense.data;
 
-import com.google.gwt.json.client.JSONObject;
+import java.io.Serializable;
 
-public class Phone {
+@SuppressWarnings("serial")
+public class Phone implements Serializable {
 	
 	private String id;
 	private String brand;
@@ -12,16 +13,13 @@ public class Phone {
 	private String number;
 	private String date;
 
-	public Phone(String id, JSONObject jsonPhone) {
-		this.id     = id; 
-		this.brand  = jsonPhone.get("brand").toString();
-		this.type   = jsonPhone.get("type").toString();
-		this.imei   = jsonPhone.get("imei").toString();
-		this.ip     = jsonPhone.get("ip").toString();
-		this.number = jsonPhone.get("number").toString();
-		this.date   = jsonPhone.get("date").toString();	
+	public Phone() {
 	}
 
+	public Phone(String id) {
+		this.id = id;
+	}
+		
 	public String getId() {
 		return id;
 	}
@@ -49,5 +47,34 @@ public class Phone {
 	public String getDate() {
 		return date;
 	}
-	
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setImei(String imei) {
+		this.imei = imei;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
 }
