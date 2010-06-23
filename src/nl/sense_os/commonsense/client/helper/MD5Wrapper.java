@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client;
+package nl.sense_os.commonsense.client.helper;
 
 public class MD5Wrapper {
 

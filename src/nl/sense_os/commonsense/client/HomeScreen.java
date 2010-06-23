@@ -1,13 +1,13 @@
-package nl.sense_os.commonsense.client.screen;
+package nl.sense_os.commonsense.client;
 
 import java.util.Iterator;
 import java.util.Set;
 
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.LoginService;
-import nl.sense_os.commonsense.client.LoginServiceAsync;
-import nl.sense_os.commonsense.client.User;
+import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.rpc.DataService;
+import nl.sense_os.commonsense.rpc.DataServiceAsync;
+import nl.sense_os.commonsense.rpc.LoginService;
+import nl.sense_os.commonsense.rpc.LoginServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;

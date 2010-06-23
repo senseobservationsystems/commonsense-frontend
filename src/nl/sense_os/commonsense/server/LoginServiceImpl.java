@@ -6,8 +6,10 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.http.HttpSession;
-import nl.sense_os.commonsense.client.LoginService;
-import nl.sense_os.commonsense.client.User;
+
+import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.rpc.LoginService;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 @SuppressWarnings("serial")

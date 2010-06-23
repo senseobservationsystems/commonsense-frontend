@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client;
+package nl.sense_os.commonsense.data;
 
 import java.io.Serializable;
 

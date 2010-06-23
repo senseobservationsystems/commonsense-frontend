@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client;
 
-import nl.sense_os.commonsense.client.screen.HomeScreen;
-import nl.sense_os.commonsense.client.screen.LoginScreen;
+import nl.sense_os.commonsense.data.User;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;

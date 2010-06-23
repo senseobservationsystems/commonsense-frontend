@@ -1,9 +1,10 @@
-package nl.sense_os.commonsense.client.screen;
+package nl.sense_os.commonsense.client;
 
-import nl.sense_os.commonsense.client.LoginService;
-import nl.sense_os.commonsense.client.LoginServiceAsync;
-import nl.sense_os.commonsense.client.MD5Wrapper;
-import nl.sense_os.commonsense.client.User;
+import nl.sense_os.commonsense.client.helper.MD5Wrapper;
+import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.rpc.LoginService;
+import nl.sense_os.commonsense.rpc.LoginServiceAsync;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
