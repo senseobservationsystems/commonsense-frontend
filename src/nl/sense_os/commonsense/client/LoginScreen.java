@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client;
 
 import nl.sense_os.commonsense.client.helper.MD5Wrapper;
 import nl.sense_os.commonsense.data.User;
-import nl.sense_os.commonsense.rpc.LoginService;
-import nl.sense_os.commonsense.rpc.LoginServiceAsync;
+import nl.sense_os.commonsense.rpc.DataService;
+import nl.sense_os.commonsense.rpc.DataServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.TextBox;
 @SuppressWarnings("unchecked")
 public class LoginScreen extends Composite {
 	
-	LoginServiceAsync svc = (LoginServiceAsync) GWT.create(LoginService.class);
+	DataServiceAsync svc = (DataServiceAsync) GWT.create(DataService.class);
 	
 	private TextBox txtLogin=new TextBox();
 	private PasswordTextBox txtPassword=new PasswordTextBox();

@@ -1,22 +1,17 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
+import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
 import nl.sense_os.commonsense.rpc.DataService;
 import nl.sense_os.commonsense.rpc.DataServiceAsync;
-import nl.sense_os.commonsense.rpc.LoginService;
-import nl.sense_os.commonsense.rpc.LoginServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.jsonp.client.JsonpRequestBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -28,9 +23,8 @@ import com.google.gwt.user.client.ui.ListBox;
 public class HomeScreen extends Composite{
 
 	DataServiceAsync dataSvc = (DataServiceAsync) GWT.create(DataService.class);
-	LoginServiceAsync loginSvc = (LoginServiceAsync) GWT.create(LoginService.class);
 	
-	JSONObject phones = null;
+	List<Phone> phones;
 	
 	Grid mainGrid;
 	Label lblMessage;
@@ -40,8 +34,7 @@ public class HomeScreen extends Composite{
 	private void getPhoneDetails() {
 		AsyncCallback callback = new AsyncCallback() {
 			public void onSuccess(Object result) {
-				JSONObject phoneDetails = (JSONObject) JSONParser.parse((String) result);
-				phones = phoneDetails.get("phones").isObject();
+				phones = (List<Phone>) result;
 				showPhoneDetails();
             }
             public void onFailure(Throwable ex) {
@@ -54,15 +47,13 @@ public class HomeScreen extends Composite{
 	private void showPhoneDetails() {
 		int i = phones.size();
 		if (i > 0) {
+			// add the phone numbers to the item list
 			lblMessage.setText("Found " + i + " registered phones.");
-			Set keys = phones.keySet();
-			Iterator ki = keys.iterator();
-			while (ki.hasNext()) {
-				String key = (String) ki.next();
-				JSONObject phone = phones.get(key).isObject();
-				String phoneEntry = phone.get("number").toString();
-				phoneList.addItem(phoneEntry, key);
+			for (int index = 0; index < phones.size(); index++) {
+				Phone phone = phones.get(index);
+				phoneList.addItem(phone.getNumber(), Integer.toString(index));
 			}
+			// show the phone info of the selected item
 			showSelectedPhoneInfo();
 		} else
 			lblMessage.setText("Error: no registered phones found.");
@@ -74,22 +65,24 @@ public class HomeScreen extends Composite{
 	
 	private void showSelectedPhoneInfo() {
 		if (phones != null) {
-			String key = phoneList.getValue(phoneList.getSelectedIndex());
+			int index = Integer.parseInt(phoneList.getValue(phoneList.getSelectedIndex()));
 			mainGrid.setWidget(2,1, new Label("test"));
+
 			Grid grid = new Grid(6,2);
-			JSONObject phone = phones.get(key).isObject();
+			Phone phone = phones.get(index);
 			grid.setWidget(0,0, new Label("Brand:"));
-			grid.setWidget(0,1, new Label(phone.get("brand").toString()));
+			grid.setWidget(0,1, new Label(phone.getBrand()));
 			grid.setWidget(1,0, new Label("Type:"));
-			grid.setWidget(1,1, new Label(phone.get("type").toString()));
+			grid.setWidget(1,1, new Label(phone.getType()));
 			grid.setWidget(2,0, new Label("IMEI:"));
-			grid.setWidget(2,1, new Label(phone.get("imei").toString()));
+			grid.setWidget(2,1, new Label(phone.getImei()));
 			grid.setWidget(3,0, new Label("IP Address:"));
-			grid.setWidget(3,1, new Label(phone.get("ip").toString()));
+			grid.setWidget(3,1, new Label(phone.getIp()));
 			grid.setWidget(4,0, new Label("Phone Number:"));
-			grid.setWidget(4,1, new Label(phone.get("number").toString()));
+			grid.setWidget(4,1, new Label(phone.getNumber()));
 			grid.setWidget(5,0, new Label("Date added:"));
-			grid.setWidget(5,1, new Label(phone.get("date").toString()));
+			grid.setWidget(5,1, new Label(phone.getDate()));
+			
 			mainGrid.setWidget(2,1, grid);
 		}
 	}
@@ -111,7 +104,7 @@ public class HomeScreen extends Composite{
 
 		btnLogout.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event)	{
-				loginSvc.logout(new AsyncCallback() {
+				dataSvc.logout(new AsyncCallback() {
 		            public void onSuccess(Object result) {
 		            	mainCallback.onSuccess(result);
 		            }
@@ -130,24 +123,7 @@ public class HomeScreen extends Composite{
 		
 		initWidget(mainGrid);
 
-		//getPhoneDetails();
-		
-
-		AsyncCallback callback = new AsyncCallback() {
-			public void onSuccess(Object result) {
-				JSONObject phoneDetails = (JSONObject) JSONParser.parse((String) result);
-				phones = phoneDetails.get("phones").isObject();
-				showPhoneDetails();
-            }
-            public void onFailure(Throwable ex) {
-            	showPhoneDetailsFailure();
-            }
-    	};
-
-		String url = "http://demo.almende.com/commonSense/get_phone_details.php";
-    	JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
-		jsonp.requestObject(url, callback);
-		
+		getPhoneDetails();
 		
 	}
 }
