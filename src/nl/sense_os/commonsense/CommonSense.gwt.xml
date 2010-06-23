@@ -13,7 +13,6 @@
   <!-- Other module inherits                                      -->
   <inherits name='com.google.gwt.json.JSON'/>
   <inherits name='com.google.gwt.jsonp.Jsonp'/>
-  <inherits name='nl.sense_os.commonsense.rpc'/> 
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='nl.sense_os.commonsense.client.CommonSense'/>
@@ -21,5 +20,7 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
+  <source path='client.helper'/>
+  <source path='data'/>
 
 </module>

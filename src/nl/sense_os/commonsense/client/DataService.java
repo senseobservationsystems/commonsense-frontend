@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.rpc;
+package nl.sense_os.commonsense.client;
 
 import java.util.List;
 

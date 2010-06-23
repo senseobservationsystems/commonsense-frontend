@@ -4,8 +4,6 @@ import java.util.List;
 
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
-import nl.sense_os.commonsense.rpc.DataService;
-import nl.sense_os.commonsense.rpc.DataServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;

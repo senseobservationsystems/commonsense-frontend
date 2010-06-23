@@ -2,8 +2,6 @@ package nl.sense_os.commonsense.client;
 
 import nl.sense_os.commonsense.client.helper.MD5Wrapper;
 import nl.sense_os.commonsense.data.User;
-import nl.sense_os.commonsense.rpc.DataService;
-import nl.sense_os.commonsense.rpc.DataServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;

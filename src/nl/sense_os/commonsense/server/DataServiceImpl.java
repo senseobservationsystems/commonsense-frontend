@@ -12,9 +12,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
+import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
-import nl.sense_os.commonsense.rpc.DataService;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
