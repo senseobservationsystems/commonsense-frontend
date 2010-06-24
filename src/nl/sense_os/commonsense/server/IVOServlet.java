@@ -19,9 +19,9 @@ public class IVOServlet extends HttpServlet {
     throws IOException {
 		resp.setContentType("text/plain");
 		try {
-			JSONObject json = new JSONObject(req.getParameter("changes"));
-			resp.getWriter().println(json.toString());
-			resp.getWriter().println(extract(json));
+			JSONArray changes = new JSONArray(req.getParameter("changes"));
+			//resp.getWriter().println(json.toString());
+			resp.getWriter().println(extract(changes));
 		} catch (JSONException e) {
 			resp.getWriter().println("OOPS! sorry, something went wrong here. Did you submit valid JSON?");
 		}		
@@ -33,53 +33,40 @@ public class IVOServlet extends HttpServlet {
 		doGet(req, resp);
 	}
 	
-	private String extract(JSONObject json) {
-		JSONObject result = new JSONObject();
+	private String extract(JSONArray changes) {
+		JSONArray result = new JSONArray();
 		Random rnd = new Random(new Date().getTime());
-		JSONArray ar;
 		int i;
-		
-		// Creates
-		JSONArray creates = new JSONArray(); 
-		try {
-			ar = (JSONArray) json.get("CREATE");
-			for (i = 0; i < ar.length(); i++) {
-				int userId = rnd.nextInt(100)+50;
-				JSONObject create = new JSONObject();
-				create.put("userId", userId);
-				creates.put(create);
-			}
-			result.put("CREATE", creates);
-		} catch (JSONException e) {
-		}
-		
-		// Updates
-		JSONArray updates = new JSONArray();
-		try {
-			ar = (JSONArray) json.get("UPDATE");
-			for (i = 0; i < ar.length(); i++) {
-				int userId = ((JSONObject) ((JSONObject) ar.get(i)).get("old")).getInt("userId");
-				JSONObject update = new JSONObject();
-				update.put("userId", userId);
-				updates.put(update);
-			}
-			result.put("UPDATE", updates);
-		} catch (JSONException e) {
-		}
 
-		// Deletes
-		JSONArray deletes = new JSONArray();
-		try {
-			ar = (JSONArray) json.get("DELETE");
-			for (i = 0; i < ar.length(); i++) {
-				int userId = ((JSONObject) ar.get(i)).getInt("userId");
-				JSONObject delete = new JSONObject();
-				delete.put("userId", userId);
-				deletes.put(delete);
+		for (i = 0; i < changes.length(); i++) {
+			try {
+				JSONObject change = (JSONObject) changes.get(i);
+				JSONObject createContainer = new JSONObject();
+				JSONObject create = new JSONObject();
+				if (change.has("CREATE")) {
+					change = (JSONObject) change.get("CREATE");
+					int userId = rnd.nextInt(100)+50;
+					create.put("userId", userId);
+					createContainer.put("CREATE", create);
+					result.put(createContainer);
+				}
+				if (change.has("UPDATE")) {
+					change = (JSONObject) change.get("UPDATE");
+					int userId = ((JSONObject) change.get("old")).getInt("userId");
+					create.put("userId", userId);
+					createContainer.put("UPDATE", create);
+					result.put(createContainer);
+				}
+				if (change.has("DELETE")) {
+					change = (JSONObject) change.get("DELETE");
+					int userId = change.getInt("userId");
+					create.put("userId", userId);
+					createContainer.put("DELETE", create);
+					result.put(createContainer);
+				}
+			} catch (JSONException e) {
 			}
-			result.put("DELETE", updates);
-		} catch (JSONException e) {
-		}
+		}	
 		return result.toString();
-	}	
+	}
 }
