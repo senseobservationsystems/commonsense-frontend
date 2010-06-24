@@ -3,13 +3,10 @@ package nl.sense_os.commonsense.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -17,7 +14,6 @@ import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
 
-import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -79,7 +75,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<Phone> getPhoneDetails() {
         List<Phone> phoneList = new ArrayList<Phone>();
 		String jsonText = "";
