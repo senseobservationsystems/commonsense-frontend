@@ -23,7 +23,7 @@
     
 	<servlet-mapping>
 		<servlet-name>IVOServlet</servlet-name>
-		<url-pattern>/commonsense/ivo</url-pattern>
+		<url-pattern>/ivo</url-pattern>
 	</servlet-mapping>
 
   <!-- Default page to serve -->

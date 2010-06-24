@@ -19,9 +19,13 @@ public class IVOServlet extends HttpServlet {
     throws IOException {
 		resp.setContentType("text/plain");
 		try {
-			JSONArray changes = new JSONArray(req.getParameter("changes"));
-			//resp.getWriter().println(json.toString());
-			resp.getWriter().println(extract(changes));
+			String s = req.getParameter("changes");
+			if (s != null) {
+				JSONArray changes = new JSONArray(req.getParameter("changes"));
+				resp.getWriter().println(extract(changes));
+			} else {
+				resp.getWriter().println("Ehm... please specify something crunchable.");
+			}
 		} catch (JSONException e) {
 			resp.getWriter().println("OOPS! sorry, something went wrong here. Did you submit valid JSON?");
 		}		
