@@ -9,8 +9,9 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 public class DataFactory {
 
 	public static Phone createPhone(String id, JSONObject jsonPhone) {
-		Phone p = new Phone(id);
+		Phone p = new Phone();
 		try {
+			p.setId(id);
 			p.setBrand((String) jsonPhone.get("brand"));
 			p.setType((String) jsonPhone.get("type"));
 			p.setImei((String) jsonPhone.get("imei"));
@@ -23,8 +24,9 @@ public class DataFactory {
 	}
 	
 	public static Sensor createSensor(String id, JSONObject jsonSensor) {
-		Sensor s = new Sensor(id);
+		Sensor s = new Sensor();
 		try {
+			s.setId(id);
 			s.setName((String) jsonSensor.get("name"));
 		} catch (JSONException e) {
 		}

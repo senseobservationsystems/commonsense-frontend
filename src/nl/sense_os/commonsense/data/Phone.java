@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.data;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class Phone implements Serializable {
@@ -14,12 +14,11 @@ public class Phone implements Serializable {
 	private String number;
 	private String date;
 	
-	private Collection<Sensor> sensors;
+	private List<Sensor> sensors;
 
-	public Phone(String id) {
-		this.id = id;
+	public Phone() {
 	}
-		
+	
 	public String getId() {
 		return id;
 	}
@@ -76,11 +75,11 @@ public class Phone implements Serializable {
 		this.date = date;
 	}
 
-	public Collection<Sensor> getSensors() {
+	public List<Sensor> getSensors() {
 		return sensors;
 	}
 
-	public void setSensors(Collection<Sensor> sensors) {
+	public void setSensors(List<Sensor> sensors) {
 		this.sensors = sensors;
 	}
 }

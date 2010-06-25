@@ -8,10 +8,8 @@ public class SensorValue implements Serializable {
 
 	private Date date;
 	private String value;
-	
+
 	public SensorValue() {
-		this.date = null;
-		this.value = "";
 	}
 
 	public SensorValue(Date date, String value) {
@@ -27,4 +25,12 @@ public class SensorValue implements Serializable {
 		return value;
 	}
 	
+	
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

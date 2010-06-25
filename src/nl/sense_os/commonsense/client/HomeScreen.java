@@ -66,7 +66,7 @@ public class HomeScreen extends Composite{
 			int index = Integer.parseInt(phoneList.getValue(phoneList.getSelectedIndex()));
 			mainGrid.setWidget(2,1, new Label("test"));
 
-			Grid grid = new Grid(6,2);
+			Grid grid = new Grid(7,2);
 			Phone phone = phones.get(index);
 			grid.setWidget(0,0, new Label("Brand:"));
 			grid.setWidget(0,1, new Label(phone.getBrand()));
@@ -80,6 +80,8 @@ public class HomeScreen extends Composite{
 			grid.setWidget(4,1, new Label(phone.getNumber()));
 			grid.setWidget(5,0, new Label("Date added:"));
 			grid.setWidget(5,1, new Label(phone.getDate()));
+			grid.setWidget(5,0, new Label("#Sensors:"));
+			grid.setWidget(5,1, new Label(Integer.toString(phone.getSensors().size())));
 			
 			mainGrid.setWidget(2,1, grid);
 		}
