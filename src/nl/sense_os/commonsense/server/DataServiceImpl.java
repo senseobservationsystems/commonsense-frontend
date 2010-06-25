@@ -11,6 +11,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
+import nl.sense_os.commonsense.data.Sensor;
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
 
@@ -25,6 +26,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
     private static final String URL_BASE = "http://demo.almende.com/commonSense/gae/";    
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
+    private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
 	private static final String USER_SESSION = "GWTAppUser";
 
 	private void setUserInSession(User user) {
@@ -102,13 +104,50 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 			if (keys != null) {
 				for (int i = 0; i < keys.length; i++) {
 					JSONObject jsonPhone = (JSONObject) phones.get(keys[i]);
-					Phone phone = PhoneFactory.createPhone(keys[i], jsonPhone);
+					Phone phone = DataFactory.createPhone(keys[i], jsonPhone);
+					phone.setSensors(getPhoneSensors(phone));
 					phoneList.add(phone);
 				}
 			}
 		} catch (JSONException e) {
 		}
 		return phoneList;
+	}
+
+	private List<Sensor> getPhoneSensors(Phone phone) {
+		List<Sensor> sensorList = new ArrayList<Sensor>();
+		String jsonText = "";
+
+		User user = getUserFromSession();
+		
+		// Get json object
+        try {
+            final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getUserName() + "&password=" + user.getPassword() + "&sp_id=" + phone.getId());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+            	jsonText += line;
+            }
+            reader.close();
+        } catch (MalformedURLException e) {
+        } catch (IOException e) {
+        }
+        
+        // Convert to object
+		JSONObject sensors;
+		try {
+			sensors = (JSONObject) new JSONObject(jsonText).get("sensors");
+			String[] keys = JSONObject.getNames(sensors);
+			if (keys != null) {
+				for (int i = 0; i < keys.length; i++) {
+					JSONObject jsonSensor = (JSONObject) sensors.get(keys[i]);
+					Sensor sensor = DataFactory.createSensor(keys[i], jsonSensor);
+					sensorList.add(sensor);
+				}
+			}
+		} catch (JSONException e) {
+		}
+		return sensorList;
 	}	
 	
 }
