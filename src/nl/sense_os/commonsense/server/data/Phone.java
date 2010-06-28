@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.util.List;
-
 public class Phone {
 	
 	private String id;
@@ -11,7 +9,6 @@ public class Phone {
 	private String ip;
 	private String number;
 	private String date;
-	private List<Sensor> sensors;
 
     public Phone() {	    
 	}
@@ -72,11 +69,4 @@ public class Phone {
 		this.date = date;
 	}
 
-	public List<Sensor> getSensors() {
-		return sensors;
-	}
-
-	public void setSensors(List<Sensor> sensors) {
-		this.sensors = sensors;
-	}
 }

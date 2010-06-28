@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.server;
 
+import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -16,12 +17,13 @@ import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.dto.PhoneModel;
+//import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
-import nl.sense_os.commonsense.server.data.Sensor;
+//import nl.sense_os.commonsense.server.data.Sensor;
 import nl.sense_os.commonsense.server.data.User;
 import nl.sense_os.commonsense.server.utility.PhoneConverter;
-import nl.sense_os.commonsense.server.utility.SensorConverter;
+//import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
 @SuppressWarnings("serial")
@@ -31,7 +33,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
     private static final String URL_BASE = "http://demo.almende.com/commonSense/gae/";    
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
-    private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
+    //private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
 	private static final String USER_SESSION = "GWTAppUser";
 
 	private void setUserInSession(User user) {
@@ -103,25 +105,23 @@ public class DataServiceImpl extends RemoteServiceServlet implements
         }
         
         // Convert to object
-		JSONObject phones;
+		JSONArray phones;
 		try {
-			phones = (JSONObject) new JSONObject(jsonText).get("phones");
-			String[] keys = JSONObject.getNames(phones);
-			if (keys != null) {
-				for (int i = 0; i < keys.length; i++) {
-					JSONObject jsonPhone = (JSONObject) phones.get(keys[i]);
-					Phone phone = PhoneConverter.jsonToEntity(jsonPhone);
-					//phone.setSensors(getPhoneSensors(phone));
-					phoneList.add(PhoneConverter.entityToModel(phone));
-				}
+			phones = (JSONArray) new JSONObject(jsonText).get("phones");
+			for (int i = 0; i < phones.length(); i++) {
+				JSONObject jsonPhone = (JSONObject) phones.get(i);
+				Phone phone = PhoneConverter.jsonToEntity(jsonPhone);
+				//phone.setSensors(getPhoneSensors(phone));
+				phoneList.add(PhoneConverter.entityToModel(phone));
 			}
 		} catch (JSONException e) {
 		}
 		return phoneList;
 	}
 
-	private List<Sensor> getPhoneSensors(Phone phone) {
-		List<Sensor> sensorList = new ArrayList<Sensor>();
+	/*
+	private List<SensorModel> getPhoneSensors(Phone phone) {
+		List<SensorModel> sensorList = new ArrayList<SensorModel>();
 		String jsonText = "";
 
 		User user = getUserFromSession();
@@ -140,20 +140,17 @@ public class DataServiceImpl extends RemoteServiceServlet implements
         }
         
         // Convert to object
-		JSONObject sensors;
+		JSONArray sensors;
 		try {
-			sensors = (JSONObject) new JSONObject(jsonText).get("sensors");
-			String[] keys = JSONObject.getNames(sensors);
-			if (keys != null) {
-				for (int i = 0; i < keys.length; i++) {
-					JSONObject jsonSensor = (JSONObject) sensors.get(keys[i]);
-					Sensor sensor = SensorConverter.jsonToEntity(jsonSensor);
-					sensorList.add(sensor);
-				}
+			sensors = (JSONArray) new JSONObject(jsonText).get("sensors");
+			for (int i = 0; i < sensors.length(); i++) {
+				JSONObject jsonSensor = (JSONObject) sensors.get(i);
+				Sensor sensor = SensorConverter.jsonToEntity(jsonSensor);
+				sensorList.add(SensorConverter.entityToModel(sensor));
 			}
 		} catch (JSONException e) {
 		}
 		return sensorList;
 	}	
-	
+	*/
 }
