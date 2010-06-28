@@ -20,9 +20,9 @@ import nl.sense_os.commonsense.dto.PhoneModel;
 import nl.sense_os.commonsense.dto.SensorConverter;
 import nl.sense_os.commonsense.dto.UserConverter;
 import nl.sense_os.commonsense.dto.UserModel;
-import nl.sense_os.commonsense.pojo.Phone;
-import nl.sense_os.commonsense.pojo.Sensor;
-import nl.sense_os.commonsense.pojo.User;
+import nl.sense_os.commonsense.server.data.Phone;
+import nl.sense_os.commonsense.server.data.Sensor;
+import nl.sense_os.commonsense.server.data.User;
 
 @SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements

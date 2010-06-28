@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client;
 import java.util.List;
 
 import nl.sense_os.commonsense.dto.PhoneModel;
-import nl.sense_os.commonsense.pojo.User;
+import nl.sense_os.commonsense.server.data.User;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;

@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
-import nl.sense_os.commonsense.pojo.User;
+import nl.sense_os.commonsense.server.data.User;
 
 public class UserConverter {
 

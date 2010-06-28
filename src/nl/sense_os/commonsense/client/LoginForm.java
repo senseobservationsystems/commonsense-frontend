@@ -19,7 +19,6 @@ import com.google.gwt.user.client.ui.Label;
 
 import nl.sense_os.commonsense.client.helper.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
-import nl.sense_os.commonsense.pojo.User;
 
 public class LoginForm extends LayoutContainer {
 

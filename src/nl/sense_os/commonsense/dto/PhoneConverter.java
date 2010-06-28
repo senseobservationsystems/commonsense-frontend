@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.dto;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
-import nl.sense_os.commonsense.pojo.Phone;
+import nl.sense_os.commonsense.server.data.Phone;
 
 public class PhoneConverter {
 
