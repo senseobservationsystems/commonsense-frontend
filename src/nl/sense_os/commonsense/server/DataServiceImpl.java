@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.server;
 
+import com.google.appengine.repackaged.org.json.JSONException;
+import com.google.appengine.repackaged.org.json.JSONObject;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,10 +18,6 @@ import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.data.Sensor;
 import nl.sense_os.commonsense.data.Phone;
 import nl.sense_os.commonsense.data.User;
-
-import com.google.appengine.repackaged.org.json.JSONException;
-import com.google.appengine.repackaged.org.json.JSONObject;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 @SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements
@@ -78,6 +78,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 	}
 
 	public List<Phone> getPhoneDetails() {
+	    
         List<Phone> phoneList = new ArrayList<Phone>();
 		String jsonText = "";
 		

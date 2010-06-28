@@ -17,7 +17,6 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 
-@SuppressWarnings("unchecked")
 public class HomeScreen extends Composite{
 
 	DataServiceAsync dataSvc = (DataServiceAsync) GWT.create(DataService.class);
@@ -30,9 +29,9 @@ public class HomeScreen extends Composite{
 	
 	
 	private void getPhoneDetails() {
-		AsyncCallback callback = new AsyncCallback() {
-			public void onSuccess(Object result) {
-				phones = (List<Phone>) result;
+		AsyncCallback<List<Phone>> callback = new AsyncCallback<List<Phone>>() {
+			public void onSuccess(List<Phone> result) {
+				phones = result;
 				showPhoneDetails();
             }
             public void onFailure(Throwable ex) {
@@ -87,7 +86,7 @@ public class HomeScreen extends Composite{
 		}
 	}
 	
-	public HomeScreen(User user, final AsyncCallback mainCallback)	{
+	public HomeScreen(User user, final AsyncCallback<Void> mainCallback)	{
 		Label lblWelcome = new Label();
 		lblWelcome.setText("Hello "+user.getUserName() + "!");
 		Button btnLogout = new Button("logout");
@@ -104,8 +103,8 @@ public class HomeScreen extends Composite{
 
 		btnLogout.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event)	{
-				dataSvc.logout(new AsyncCallback() {
-		            public void onSuccess(Object result) {
+				dataSvc.logout(new AsyncCallback<Void>() {
+		            public void onSuccess(Void result) {
 		            	mainCallback.onSuccess(result);
 		            }
 		            public void onFailure(Throwable ex) {

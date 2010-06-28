@@ -1,12 +1,15 @@
 package nl.sense_os.commonsense.client;
 
-import nl.sense_os.commonsense.data.Phone;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-@SuppressWarnings("unchecked")
+import java.util.List;
+
+import nl.sense_os.commonsense.data.Phone;
+import nl.sense_os.commonsense.data.User;
+
 public interface DataServiceAsync {
-	public void checkLogin(String userName, String password, AsyncCallback callback);
-	public void isSessionAlive(AsyncCallback callback);
-	public void logout(AsyncCallback callback);
-	public void getPhoneDetails(AsyncCallback callback);
+	public void getPhoneDetails(AsyncCallback<List<Phone>> callback);
+	public void checkLogin(String userName, String password, AsyncCallback<User> callback);
+	public void isSessionAlive(AsyncCallback<User> callback);
+	public void logout(AsyncCallback<Void> callback);
 }
