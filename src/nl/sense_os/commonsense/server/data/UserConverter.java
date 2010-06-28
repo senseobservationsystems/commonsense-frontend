@@ -1,6 +1,6 @@
-package nl.sense_os.commonsense.dto;
+package nl.sense_os.commonsense.server.data;
 
-import nl.sense_os.commonsense.server.data.User;
+import nl.sense_os.commonsense.dto.UserModel;
 
 public class UserConverter {
 

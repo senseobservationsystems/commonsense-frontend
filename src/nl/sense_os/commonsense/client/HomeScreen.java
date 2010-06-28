@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client;
 import java.util.List;
 
 import nl.sense_os.commonsense.dto.PhoneModel;
-import nl.sense_os.commonsense.server.data.User;
+import nl.sense_os.commonsense.dto.UserModel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -86,9 +86,9 @@ public class HomeScreen extends Composite{
 		}
 	}
 	
-	public HomeScreen(User user, final AsyncCallback<Void> mainCallback)	{
+	public HomeScreen(UserModel userModel, final AsyncCallback<Void> mainCallback)	{
 		Label lblWelcome = new Label();
-		lblWelcome.setText("Hello "+user.getName() + "!");
+		lblWelcome.setText("Hello "+userModel.getName() + "!");
 		Button btnLogout = new Button("logout");
 		lblMessage = new Label();
 		phoneList = new ListBox();

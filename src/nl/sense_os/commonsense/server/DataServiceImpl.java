@@ -15,14 +15,14 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.dto.PhoneConverter;
 import nl.sense_os.commonsense.dto.PhoneModel;
-import nl.sense_os.commonsense.dto.SensorConverter;
-import nl.sense_os.commonsense.dto.UserConverter;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
+import nl.sense_os.commonsense.server.data.PhoneConverter;
 import nl.sense_os.commonsense.server.data.Sensor;
+import nl.sense_os.commonsense.server.data.SensorConverter;
 import nl.sense_os.commonsense.server.data.User;
+import nl.sense_os.commonsense.server.data.UserConverter;
 
 @SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements

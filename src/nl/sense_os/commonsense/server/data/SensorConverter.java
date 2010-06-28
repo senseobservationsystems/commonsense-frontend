@@ -1,6 +1,5 @@
-package nl.sense_os.commonsense.dto;
+package nl.sense_os.commonsense.server.data;
 
-import nl.sense_os.commonsense.server.data.Sensor;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
