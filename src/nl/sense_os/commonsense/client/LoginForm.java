@@ -18,26 +18,27 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 
 import nl.sense_os.commonsense.client.helper.MD5Wrapper;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.pojo.User;
 
 public class LoginForm extends LayoutContainer {
 
-    private AsyncCallback<User> callback;
+    private AsyncCallback<UserModel> callback;
     private Label errorLbl;
     DataServiceAsync svc;
     
-    public LoginForm(AsyncCallback<User> callback) {
+    public LoginForm(AsyncCallback<UserModel> callback) {
         this.callback = callback;
         this.svc = (DataServiceAsync) GWT.create(DataService.class);
     }
     
-    private void checkLogin(String userName,String password, final AsyncCallback<User> mainCallback) {
+    private void checkLogin(String name,String password, final AsyncCallback<UserModel> mainCallback) {
 
-        AsyncCallback<User> callback = new AsyncCallback<User>() {
-            public void onSuccess(User user) {
-                if (user != null) {
+        AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+            public void onSuccess(UserModel userModel) {
+                if (userModel != null) {
                     setErrorText("");
-                    mainCallback.onSuccess(user);
+                    mainCallback.onSuccess(userModel);
                 } else {
                     setErrorText("Invalid UserName or Password");                    
                 }
@@ -46,7 +47,7 @@ public class LoginForm extends LayoutContainer {
                 setErrorText("Error: "+ex.getMessage());
             }
         };
-        svc.checkLogin(userName, password, callback);
+        svc.checkLogin(name, password, callback);
     }
     
     private FormPanel createForm() {

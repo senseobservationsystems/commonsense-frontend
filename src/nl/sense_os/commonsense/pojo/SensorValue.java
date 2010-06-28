@@ -1,10 +1,8 @@
-package nl.sense_os.commonsense.data;
+package nl.sense_os.commonsense.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-@SuppressWarnings("serial")
-public class SensorValue implements Serializable {
+public class SensorValue {
 
 	private Date date;
 	private String value;

@@ -1,15 +1,13 @@
-package nl.sense_os.commonsense.data;
+package nl.sense_os.commonsense.pojo;
 
-import java.io.Serializable;
-import java.util.List;
+//import java.util.List;
 
-@SuppressWarnings("serial")
-public class Sensor implements Serializable {
+public class Sensor {
 
 	private String id;
 	private String name;
 
-	private List<SensorValue> values;
+	//private List<SensorValue> values;
 	
 	public Sensor() {
 	}
@@ -30,6 +28,7 @@ public class Sensor implements Serializable {
 		this.id = id;
 	}
 
+	/*
 	public List<SensorValue> getValues() {
 		return values;
 	}
@@ -37,4 +36,5 @@ public class Sensor implements Serializable {
 	public void setValues(List<SensorValue> values) {
 		this.values = values;
 	}
+	*/
 }

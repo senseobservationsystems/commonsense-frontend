@@ -31,31 +31,31 @@ import com.google.gwt.user.client.ui.Label;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.data.Phone;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.dto.UserModel;
 
 public class HomeContainer extends LayoutContainer {
 
     DataServiceAsync dataSvc;
     AsyncCallback<Void> mainCallback;
-    User user;
+    UserModel userModel;
     ContentPanel contentPanel;
     LayoutContainer centerContainer;
     LayoutContainer westContainer;
     Label phoneMsg;
-    ListStore<Phone> phoneStore;
+    ListStore<PhoneModel> phoneStore;
     Grid phoneValues;
 
-    ComboBox<Phone> phoneCombo;
-    List<Phone> phones; // legacy from HomeScreen.java
+    ComboBox<PhoneModel> phoneCombo;
+    List<PhoneModel> phones; // legacy from HomeScreen.java
 
-    public HomeContainer(User user, AsyncCallback<Void> callback) {
+    public HomeContainer(UserModel userModel, AsyncCallback<Void> callback) {
         this.dataSvc = (DataServiceAsync) GWT.create(DataService.class);
         this.mainCallback = callback;
-        this.user = user;
+        this.userModel = userModel;
 
-        this.phoneCombo = new ComboBox<Phone>();
-        this.phoneStore = new ListStore<Phone>();
+        this.phoneCombo = new ComboBox<PhoneModel>();
+        this.phoneStore = new ListStore<PhoneModel>();
     }
 
     private LayoutContainer createCenterPanel() {
@@ -82,7 +82,7 @@ public class HomeContainer extends LayoutContainer {
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
 
-        panel.add(new Label("Hello, " + this.user.getUserName() + "!"), new VBoxLayoutData(new Margins(
+        panel.add(new Label("Hello, " + this.userModel.getName() + "!"), new VBoxLayoutData(new Margins(
                 10, 0, 10, 0)));
         
         if (this.phoneMsg == null) {
@@ -90,7 +90,7 @@ public class HomeContainer extends LayoutContainer {
         }
         panel.add(this.phoneMsg, new VBoxLayoutData(new Margins(10, 0, 10, 0)));
 
-        this.phoneCombo = new ComboBox<Phone>();
+        this.phoneCombo = new ComboBox<PhoneModel>();
         this.phoneCombo.setEmptyText("Select a phone...");
         this.phoneCombo.setStore(this.phoneStore);
         this.phoneCombo.setDisplayField("type");
@@ -127,13 +127,13 @@ public class HomeContainer extends LayoutContainer {
     }
 
     private void getPhoneDetails() {
-        AsyncCallback<List<Phone>> callback = new AsyncCallback<List<Phone>>() {
+        AsyncCallback<List<PhoneModel>> callback = new AsyncCallback<List<PhoneModel>>() {
             public void onFailure(Throwable ex) {
                 System.out.println("Phone details fetching failed: " + ex.getMessage());
                 showPhoneDetailsFailure();
             }
 
-            public void onSuccess(List<Phone> result) {
+            public void onSuccess(List<PhoneModel> result) {
                 System.out.println("Phone details received");
                 HomeContainer.this.phones = result;
                 showPhoneDetails();
@@ -176,18 +176,18 @@ public class HomeContainer extends LayoutContainer {
             // add the phone numbers to the item list
             phoneMsg.setText("Found " + phones.size() + " registered phones.");
             
-            this.phoneStore = new ListStore<Phone>();
+            this.phoneStore = new ListStore<PhoneModel>();
             this.phoneStore.add(phones);
             
-            ComboBox<Phone> combo = new ComboBox<Phone>();
+            ComboBox<PhoneModel> combo = new ComboBox<PhoneModel>();
             combo.setEmptyText("Select a phone...");
             combo.setStore(this.phoneStore);
             combo.setDisplayField("type");
             combo.setTriggerAction(TriggerAction.ALL);
-            combo.addSelectionChangedListener(new SelectionChangedListener<Phone>() {
+            combo.addSelectionChangedListener(new SelectionChangedListener<PhoneModel>() {
                 
                 @Override
-                public void selectionChanged(SelectionChangedEvent<Phone> se) {
+                public void selectionChanged(SelectionChangedEvent<PhoneModel> se) {
                     showPhoneInfo(se.getSelectedItem());
                 }
             });
@@ -206,7 +206,7 @@ public class HomeContainer extends LayoutContainer {
         // do nothing
     }
 
-    private void showPhoneInfo(Phone phone) {
+    private void showPhoneInfo(PhoneModel phoneModel) {
         System.out.println("showSelectedPhoneInfo");
 
         if (phones != null) {
@@ -227,17 +227,17 @@ public class HomeContainer extends LayoutContainer {
             
             Grid grid = new Grid(6, 2);
             grid.setWidget(0, 0, new Label("Brand:"));
-            grid.setWidget(0, 1, new Label(phone.getBrand()));
+            grid.setWidget(0, 1, new Label(phoneModel.getBrand()));
             grid.setWidget(1, 0, new Label("Type:"));
-            grid.setWidget(1, 1, new Label(phone.getType()));
+            grid.setWidget(1, 1, new Label(phoneModel.getType()));
             grid.setWidget(2, 0, new Label("IMEI:"));
-            grid.setWidget(2, 1, new Label(phone.getImei()));
+            grid.setWidget(2, 1, new Label(phoneModel.getImei()));
             grid.setWidget(3, 0, new Label("IP Address:"));
-            grid.setWidget(3, 1, new Label(phone.getIp()));
+            grid.setWidget(3, 1, new Label(phoneModel.getIp()));
             grid.setWidget(4, 0, new Label("Phone Number:"));
-            grid.setWidget(4, 1, new Label(phone.getNumber()));
+            grid.setWidget(4, 1, new Label(phoneModel.getNumber()));
             grid.setWidget(5, 0, new Label("Date added:"));
-            grid.setWidget(5, 1, new Label(phone.getDate()));
+            grid.setWidget(5, 1, new Label(phoneModel.getDate()));
 
             // add new grid to main panel, replacing old one
             this.westContainer.remove(this.phoneValues);

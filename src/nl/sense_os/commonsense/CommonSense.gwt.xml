@@ -20,8 +20,8 @@
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
-  <source path='shared'/>
   <source path='client.helper'/>
-  <source path='data'/>
+  <source path='dto'/>
+  <!-- <source path='shared'/> -->
 
 </module>

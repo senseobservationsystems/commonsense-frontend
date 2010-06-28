@@ -5,13 +5,13 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.data.Phone;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.dto.UserModel;
 
 @RemoteServiceRelativePath("data")
 public interface DataService extends RemoteService {
-	public User checkLogin(String userName, String password);
-	public User isSessionAlive();
+	public UserModel checkLogin(String name, String password);
+	public UserModel isSessionAlive();
 	public void logout();
-	public List<Phone> getPhoneDetails();
+	public List<PhoneModel> getPhoneDetails();
 }

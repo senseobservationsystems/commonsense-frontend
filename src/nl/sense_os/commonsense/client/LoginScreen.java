@@ -12,7 +12,7 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 import nl.sense_os.commonsense.client.helper.MD5Wrapper;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.UserModel;
 
 public class LoginScreen extends Composite {
 	
@@ -22,7 +22,7 @@ public class LoginScreen extends Composite {
 	private PasswordTextBox txtPassword=new PasswordTextBox();
 	private Label lblError=new Label();
 	
-	public LoginScreen(final AsyncCallback<User> callback) {
+	public LoginScreen(final AsyncCallback<UserModel> callback) {
 		Grid grid = new Grid(4, 2);
 		grid.setWidget(0,1, lblError);
 		grid.setWidget(1,0, new Label("Username"));
@@ -40,13 +40,13 @@ public class LoginScreen extends Composite {
 		initWidget(grid);
 	}
 	
-	private void checkLogin(String userName,String password, final AsyncCallback<User> mainCallback) {
+	private void checkLogin(String name,String password, final AsyncCallback<UserModel> mainCallback) {
 
-		AsyncCallback<User> callback = new AsyncCallback<User>() {
-            public void onSuccess(User user) {
-                if (user != null) {
+		AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+            public void onSuccess(UserModel userModel) {
+                if (userModel != null) {
                 	setErrorText("");
-                	mainCallback.onSuccess(user);
+                	mainCallback.onSuccess(userModel);
                 } else {
                     setErrorText("Invalid UserName or Password");                    
                 }
@@ -55,7 +55,7 @@ public class LoginScreen extends Composite {
                 setErrorText("Error: "+ex.getMessage());
             }
         };
-        svc.checkLogin(userName, password, callback);
+        svc.checkLogin(name, password, callback);
     }
 
 	private void setErrorText(String errorMessage)	{

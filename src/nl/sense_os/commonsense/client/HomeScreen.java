@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.data.Phone;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.pojo.User;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -21,7 +21,7 @@ public class HomeScreen extends Composite{
 
 	DataServiceAsync dataSvc = (DataServiceAsync) GWT.create(DataService.class);
 	
-	List<Phone> phones;
+	List<PhoneModel> phones;
 	
 	Grid mainGrid;
 	Label lblMessage;
@@ -29,8 +29,8 @@ public class HomeScreen extends Composite{
 	
 	
 	private void getPhoneDetails() {
-		AsyncCallback<List<Phone>> callback = new AsyncCallback<List<Phone>>() {
-			public void onSuccess(List<Phone> result) {
+		AsyncCallback<List<PhoneModel>> callback = new AsyncCallback<List<PhoneModel>>() {
+			public void onSuccess(List<PhoneModel> result) {
 				phones = result;
 				showPhoneDetails();
             }
@@ -47,8 +47,8 @@ public class HomeScreen extends Composite{
 			// add the phone numbers to the item list
 			lblMessage.setText("Found " + i + " registered phones.");
 			for (int index = 0; index < phones.size(); index++) {
-				Phone phone = phones.get(index);
-				phoneList.addItem(phone.getNumber(), Integer.toString(index));
+				PhoneModel phoneModel = phones.get(index);
+				phoneList.addItem(phoneModel.getNumber(), Integer.toString(index));
 			}
 			// show the phone info of the selected item
 			showSelectedPhoneInfo();
@@ -66,21 +66,21 @@ public class HomeScreen extends Composite{
 			mainGrid.setWidget(2,1, new Label("test"));
 
 			Grid grid = new Grid(7,2);
-			Phone phone = phones.get(index);
+			PhoneModel phoneModel = phones.get(index);
 			grid.setWidget(0,0, new Label("Brand:"));
-			grid.setWidget(0,1, new Label(phone.getBrand()));
+			grid.setWidget(0,1, new Label(phoneModel.getBrand()));
 			grid.setWidget(1,0, new Label("Type:"));
-			grid.setWidget(1,1, new Label(phone.getType()));
+			grid.setWidget(1,1, new Label(phoneModel.getType()));
 			grid.setWidget(2,0, new Label("IMEI:"));
-			grid.setWidget(2,1, new Label(phone.getImei()));
+			grid.setWidget(2,1, new Label(phoneModel.getImei()));
 			grid.setWidget(3,0, new Label("IP Address:"));
-			grid.setWidget(3,1, new Label(phone.getIp()));
+			grid.setWidget(3,1, new Label(phoneModel.getIp()));
 			grid.setWidget(4,0, new Label("Phone Number:"));
-			grid.setWidget(4,1, new Label(phone.getNumber()));
+			grid.setWidget(4,1, new Label(phoneModel.getNumber()));
 			grid.setWidget(5,0, new Label("Date added:"));
-			grid.setWidget(5,1, new Label(phone.getDate()));
-			grid.setWidget(5,0, new Label("#Sensors:"));
-			grid.setWidget(5,1, new Label(Integer.toString(phone.getSensors().size())));
+			grid.setWidget(5,1, new Label(phoneModel.getDate()));
+			//grid.setWidget(5,0, new Label("#Sensors:"));
+			//grid.setWidget(5,1, new Label(Integer.toString(phoneModel.getSensors().size())));
 			
 			mainGrid.setWidget(2,1, grid);
 		}
@@ -88,7 +88,7 @@ public class HomeScreen extends Composite{
 	
 	public HomeScreen(User user, final AsyncCallback<Void> mainCallback)	{
 		Label lblWelcome = new Label();
-		lblWelcome.setText("Hello "+user.getUserName() + "!");
+		lblWelcome.setText("Hello "+user.getName() + "!");
 		Button btnLogout = new Button("logout");
 		lblMessage = new Label();
 		phoneList = new ListBox();

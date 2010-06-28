@@ -15,9 +15,14 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.data.Sensor;
-import nl.sense_os.commonsense.data.Phone;
-import nl.sense_os.commonsense.data.User;
+import nl.sense_os.commonsense.dto.PhoneConverter;
+import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.dto.SensorConverter;
+import nl.sense_os.commonsense.dto.UserConverter;
+import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.pojo.Phone;
+import nl.sense_os.commonsense.pojo.Sensor;
+import nl.sense_os.commonsense.pojo.User;
 
 @SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements
@@ -39,9 +44,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		return (User) session.getAttribute(USER_SESSION);
 	}
 	
-	public User checkLogin(String userName, String password) {
+	public UserModel checkLogin(String name, String password) {
         try {
-            final URL url = new URL(URL_LOGIN + "?email=" + userName + "&password=" + password);
+            final URL url = new URL(URL_LOGIN + "?email=" + name + "&password=" + password);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             line = reader.readLine();
@@ -50,10 +55,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements
             	return null;
             } else {
             	User user = new User();
-            	user.setUserName(userName);
+            	user.setName(name);
             	user.setPassword(password);
             	setUserInSession(user);
-            	return user;
+            	return UserConverter.entityToModel(user);
             }
         } catch (MalformedURLException e) {
         } catch (IOException e) {
@@ -67,26 +72,26 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 			session.invalidate();
 	}
 
-	public User isSessionAlive() {
+	public UserModel isSessionAlive() {
 		User user = getUserFromSession();
-		if ((user != null) && (user.getUserName().length() != 0)) {
-			System.out.println("User " + user.getUserName()
+		if ((user != null) && (user.getName().length() != 0)) {
+			System.out.println("User " + user.getName()
 					+ " is already logged in");
-			return user;
+			return UserConverter.entityToModel(user);
 		}
 		return null;
 	}
 
-	public List<Phone> getPhoneDetails() {
+	public List<PhoneModel> getPhoneDetails() {
 	    
-        List<Phone> phoneList = new ArrayList<Phone>();
+        List<PhoneModel> phoneList = new ArrayList<PhoneModel>();
 		String jsonText = "";
 		
 		User user = getUserFromSession();
 		
 		// Get json object
         try {
-            final URL url = new URL(URL_GET_PHONE_DETAILS + "?email=" + user.getUserName() + "&password=" + user.getPassword());
+            final URL url = new URL(URL_GET_PHONE_DETAILS + "?email=" + user.getName() + "&password=" + user.getPassword());
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -105,9 +110,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 			if (keys != null) {
 				for (int i = 0; i < keys.length; i++) {
 					JSONObject jsonPhone = (JSONObject) phones.get(keys[i]);
-					Phone phone = DataFactory.createPhone(keys[i], jsonPhone);
-					phone.setSensors(getPhoneSensors(phone));
-					phoneList.add(phone);
+					Phone phone = PhoneConverter.jsonToEntity(jsonPhone);
+					//phone.setSensors(getPhoneSensors(phone));
+					phoneList.add(PhoneConverter.entityToModel(phone));
 				}
 			}
 		} catch (JSONException e) {
@@ -123,7 +128,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		
 		// Get json object
         try {
-            final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getUserName() + "&password=" + user.getPassword() + "&sp_id=" + phone.getId());
+            final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getName() + "&password=" + user.getPassword() + "&sp_id=" + phone.getId());
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -142,7 +147,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 			if (keys != null) {
 				for (int i = 0; i < keys.length; i++) {
 					JSONObject jsonSensor = (JSONObject) sensors.get(keys[i]);
-					Sensor sensor = DataFactory.createSensor(keys[i], jsonSensor);
+					Sensor sensor = SensorConverter.jsonToEntity(jsonSensor);
 					sensorList.add(sensor);
 				}
 			}
