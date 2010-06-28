@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
@@ -15,7 +16,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
 
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
@@ -23,7 +23,7 @@ import nl.sense_os.commonsense.dto.UserModel;
 public class LoginForm extends LayoutContainer {
 
     private AsyncCallback<UserModel> callback;
-    private Label errorLbl;
+    private Text errorTxt;
     DataServiceAsync svc;
     
     public LoginForm(AsyncCallback<UserModel> callback) {
@@ -97,9 +97,9 @@ public class LoginForm extends LayoutContainer {
         VerticalPanel panel = new VerticalPanel();
         
         // create error label and add to wrapper panel
-        errorLbl = new Label();
-        errorLbl.setVisible(false);
-        panel.add(errorLbl); 
+        errorTxt = new Text();
+        errorTxt.setVisible(false);
+        panel.add(errorTxt); 
         
         // create form and add to wrapper panel
         FormPanel form = createForm();
@@ -111,7 +111,7 @@ public class LoginForm extends LayoutContainer {
     }
     
     private void setErrorText(String errorMessage)  {
-        errorLbl.setText(errorMessage);
-        errorLbl.setVisible(true);
+        errorTxt.setText(errorMessage);
+        errorTxt.setVisible(true);
     }
 }
