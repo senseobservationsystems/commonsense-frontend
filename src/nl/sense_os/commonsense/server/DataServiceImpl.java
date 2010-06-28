@@ -18,11 +18,11 @@ import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.dto.PhoneModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
-import nl.sense_os.commonsense.server.data.PhoneConverter;
 import nl.sense_os.commonsense.server.data.Sensor;
-import nl.sense_os.commonsense.server.data.SensorConverter;
 import nl.sense_os.commonsense.server.data.User;
-import nl.sense_os.commonsense.server.data.UserConverter;
+import nl.sense_os.commonsense.server.utility.PhoneConverter;
+import nl.sense_os.commonsense.server.utility.SensorConverter;
+import nl.sense_os.commonsense.server.utility.UserConverter;
 
 @SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements

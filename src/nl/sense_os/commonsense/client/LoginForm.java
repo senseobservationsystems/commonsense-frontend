@@ -17,7 +17,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 
-import nl.sense_os.commonsense.client.helper.MD5Wrapper;
+import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
 
 public class LoginForm extends LayoutContainer {

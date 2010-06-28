@@ -1,9 +1,10 @@
-package nl.sense_os.commonsense.server.data;
+package nl.sense_os.commonsense.server.utility;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
 import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.server.data.Phone;
 
 public class PhoneConverter {
 
