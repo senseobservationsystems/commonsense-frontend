@@ -38,39 +38,43 @@ public class IVOServlet extends HttpServlet {
 	}
 	
 	private String extract(JSONArray changes) {
-		JSONArray result = new JSONArray();
+		//JSONArray result = new JSONArray();
+		String result = "";
 		Random rnd = new Random(new Date().getTime());
 		int i;
 
 		for (i = 0; i < changes.length(); i++) {
 			try {
 				JSONObject change = (JSONObject) changes.get(i);
-				JSONObject createContainer = new JSONObject();
-				JSONObject create = new JSONObject();
+				//JSONObject createContainer = new JSONObject();
+				//JSONObject create = new JSONObject();
 				if (change.has("CREATE")) {
 					change = (JSONObject) change.get("CREATE");
 					int userId = rnd.nextInt(100)+50;
-					create.put("userId", userId);
-					createContainer.put("CREATE", create);
-					result.put(createContainer);
-				}
-				if (change.has("UPDATE")) {
+					//create.put("userId", userId);
+					//createContainer.put("CREATE", create);
+					//result.put(createContainer);
+					result += Integer.toString(userId);
+				} else if (change.has("UPDATE")) {
 					change = (JSONObject) change.get("UPDATE");
 					int userId = ((JSONObject) change.get("old")).getInt("userId");
-					create.put("userId", userId);
-					createContainer.put("UPDATE", create);
-					result.put(createContainer);
-				}
-				if (change.has("DELETE")) {
+					//create.put("userId", userId);
+					//createContainer.put("UPDATE", create);
+					//result.put(createContainer);
+					result += Integer.toString(userId);
+				} else if (change.has("DELETE")) {
 					change = (JSONObject) change.get("DELETE");
 					int userId = change.getInt("userId");
-					create.put("userId", userId);
-					createContainer.put("DELETE", create);
-					result.put(createContainer);
+					//create.put("userId", userId);
+					//createContainer.put("DELETE", create);
+					//result.put(createContainer);
+					result += Integer.toString(userId);
 				}
+				result += ",";
 			} catch (JSONException e) {
 			}
 		}	
-		return result.toString();
+		//return result.toString();
+		return result;
 	}
 }
