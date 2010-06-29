@@ -17,12 +17,15 @@ import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.dto.PhoneModel;
+import nl.sense_os.commonsense.dto.SensorModel;
 //import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
+import nl.sense_os.commonsense.server.data.Sensor;
 //import nl.sense_os.commonsense.server.data.Sensor;
 import nl.sense_os.commonsense.server.data.User;
 import nl.sense_os.commonsense.server.utility.PhoneConverter;
+import nl.sense_os.commonsense.server.utility.SensorConverter;
 //import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
@@ -33,7 +36,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
     private static final String URL_BASE = "http://demo.almende.com/commonSense/gae/";    
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
-    //private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
+    private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
 	private static final String USER_SESSION = "GWTAppUser";
 
 	private void setUserInSession(User user) {
@@ -119,27 +122,26 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		return phoneList;
 	}
 
-	/*
-	private List<SensorModel> getPhoneSensors(Phone phone) {
+	public List<SensorModel> getSensors(String phoneId) {
 		List<SensorModel> sensorList = new ArrayList<SensorModel>();
 		String jsonText = "";
-
+	
 		User user = getUserFromSession();
 		
 		// Get json object
-        try {
-            final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getName() + "&password=" + user.getPassword() + "&sp_id=" + phone.getId());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-            	jsonText += line;
-            }
-            reader.close();
-        } catch (MalformedURLException e) {
-        } catch (IOException e) {
-        }
-        
-        // Convert to object
+	    try {
+	        final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getName() + "&password=" + user.getPassword() + "&sp_id=" + phoneId);
+	        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	        	jsonText += line;
+	        }
+	        reader.close();
+	    } catch (MalformedURLException e) {
+	    } catch (IOException e) {
+	    }
+	    
+	    // Convert to object
 		JSONArray sensors;
 		try {
 			sensors = (JSONArray) new JSONObject(jsonText).get("sensors");
@@ -151,6 +153,5 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		} catch (JSONException e) {
 		}
 		return sensorList;
-	}	
-	*/
+	}
 }
