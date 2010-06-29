@@ -93,11 +93,7 @@ public class Home extends LayoutContainer {
         layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
         panel.setLayout(layout);
         panel.setStyleAttribute("backgroundColor", "white");
-        panel.setBorders(true);
-
-        // Welcome message
-        panel.add(new Text("Hello, " + this.user.getName() + "!"), new VBoxLayoutData(new Margins(
-                10, 0, 10, 0)));
+        panel.setBorders(true);       
 
         // Number of phones message
         if (this.phoneMsg == null) {
