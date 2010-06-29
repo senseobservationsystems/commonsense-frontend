@@ -5,82 +5,98 @@ import com.extjs.gxt.ui.client.data.BaseModel;
 @SuppressWarnings("serial")
 public class PhoneModel extends BaseModel {
 
-	    public PhoneModel() {   
-		}
+    public PhoneModel() {
+    }
 
-		public PhoneModel(String id, String brand, String type, String imei, String ip, String number, String date) {
-		    setId(id);
-		    setBrand(brand);
-		    setType(type);
-		    setImei(imei);
-		    setIp(ip);
-		    setNumber(number);
-		    setDate(date);
-		}
-			
-		public String getId() {
-			return get("id");
-		}
+    public PhoneModel(String id, String brand, String type, String imei, String ip, String number,
+            String date) {
+        setId(id);
+        setBrand(brand);
+        setType(type);
+        setImei(imei);
+        setIp(ip);
+        setNumber(number);
+        setDate(date);
+    }
 
-		public String getBrand() {
-			return get("brand");
-		}
+    public String getBrand() {
+        return get("brand");
+    }
 
-		public String getType() {
-			return get("type");
-		}
+    public String getDate() {
+        return get("date");
+    }
 
-		public String getImei() {
-			return get("imei");
-		}
+    public String getId() {
+        return get("id");
+    }
 
-		public String getIp() {
-			return get("ip");
-		}
+    public String getImei() {
+        return get("imei");
+    }
 
-		public String getNumber() {
-			return get("number");
-		}
+    public String getIp() {
+        return get("ip");
+    }
 
-		public String getDate() {
-			return get("date");
-		}
+    public String getNumber() {
+        return get("number");
+    }
 
-		public void setId(String id) {
-	        set("id", id);
-		}
+    public String getType() {
+        return get("type");
+    }
 
-		public void setBrand(String brand) {
-	        set("brand", brand);
-		}
+    public void setBrand(String brand) {
+        set("brand", brand);
+    }
 
-		public void setType(String type) {
-	        set("type", type);
-		}
+    public void setDate(String date) {
+        set("date", date);
+    }
 
-		public void setImei(String imei) {
-	        set("imei", imei);
-		}
+    public void setId(String id) {
+        set("id", id);
 
-		public void setIp(String ip) {
-	        set("ip", ip);
-		}
+        if (null == getType()) {
+            setText(id);
+        } else {
+            setText(id + ". " + getType());
+        }
+    }
 
-		public void setNumber(String number) {
-	        set("number", number);
-		}
+    public void setImei(String imei) {
+        set("imei", imei);
+    }
 
-		public void setDate(String date) {
-	        set("date", date);
-		}
+    public void setIp(String ip) {
+        set("ip", ip);
+    }
 
-		/*
-		public List<Sensor> getSensors() {
-			return sensors;
-		}
+    public void setNumber(String number) {
+        set("number", number);
+    }
 
-		public void setSensors(List<Sensor> sensors) {
-			this.sensors = sensors;
-		}
-		*/
-	}	
+    public void setText(String text) {
+        set("text", text);
+    }
+
+    public void setType(String type) {
+        set("type", type);
+
+        if (null == getId()) {
+            setText(type);
+        } else {
+            setText(getId() + ". " + type);
+        }
+    }
+
+//    public List<Sensor> getSensors() {
+//        return sensors;
+//    }
+//
+//    public void setSensors(List<Sensor> sensors) {
+//        this.sensors = sensors;
+//    }
+
+}

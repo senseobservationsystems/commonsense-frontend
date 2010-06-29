@@ -20,13 +20,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
 
-public class LoginForm extends LayoutContainer {
+public class Login extends LayoutContainer {
 
     private AsyncCallback<UserModel> callback;
     private Text errorTxt;
     DataServiceAsync svc;
     
-    public LoginForm(AsyncCallback<UserModel> callback) {
+    public Login(AsyncCallback<UserModel> callback) {
         this.callback = callback;
         this.svc = (DataServiceAsync) GWT.create(DataService.class);
     }

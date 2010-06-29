@@ -1,21 +1,24 @@
 package nl.sense_os.commonsense.client;
 
-import nl.sense_os.commonsense.dto.UserModel;
-
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.dto.UserModel;
+
 public class CommonSense implements EntryPoint {
 
+    private static final String TAG = "CommonSense";
+    
     public void onModuleLoad() {
         setLoginScreen();
     }
 
     private void setHomeScreen(UserModel userModel) {
-        System.out.println("Show home screen...");
+        Log.d(TAG, "Show home screen...");
         
         RootPanel.get().clear();
 
@@ -29,7 +32,7 @@ public class CommonSense implements EntryPoint {
                 setLoginScreen();
             }  
         };
-        HomeContainer home = new HomeContainer(userModel, callback);
+        Home home = new Home(userModel, callback);
         
         // set up viewport
         Viewport vp = new Viewport();
@@ -40,7 +43,8 @@ public class CommonSense implements EntryPoint {
     }
 
     private void setLoginScreen() {
-        System.out.println("Show login screen...");
+        Log.d(TAG,"Show login screen...");
+        
         RootPanel.get().clear();
 
         // create login form widget
@@ -54,7 +58,7 @@ public class CommonSense implements EntryPoint {
                 setHomeScreen(result);
             }
         };
-        LoginForm login = new LoginForm(callback);
+        Login login = new Login(callback);
         
         // set up viewport
         Viewport vp = new Viewport();
