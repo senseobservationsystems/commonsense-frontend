@@ -168,31 +168,20 @@ public class Home extends LayoutContainer {
         this.dataSvc.getPhoneDetails(callback);
     }
     
-	private void getSensorDetails(PhoneModel phone) {
+	private void getSensorDetails(final PhoneModel phone) {
         AsyncCallback<List<SensorModel>> callback = new AsyncCallback<List<SensorModel>>() {
             public void onFailure(Throwable ex) {
                 Log.e(TAG, "Phone details fetching failed: " + ex.getMessage());
-                onSensorsReceived(false);
+                onSensorsReceived(false, null);
             }
 
             public void onSuccess(List<SensorModel> result) {
                 Home.this.sensors = result;                
-                onSensorsReceived(true);
+                onSensorsReceived(true, phone);
             }
         };
 
         this.dataSvc.getSensors(phone.getId(), callback);
-        
-        // TEST
-        this.dataSvc.getSensorValues(phone.getId(), "1", new Timestamp((new Date().getTime()-560000000)), new Timestamp (new Date().getTime()), new AsyncCallback<List<SensorValueModel>>() {
-            public void onFailure(Throwable ex) {
-            }
-            public void onSuccess(List<SensorValueModel> result) {
-            	Log.e(TAG, "Received "+ result.size() + " sensor values.");
-            }
-        });
-        
-
     }
 
     @Override
@@ -246,7 +235,7 @@ public class Home extends LayoutContainer {
         }
     }
     
-    private void onSensorsReceived(boolean success) {
+    private void onSensorsReceived(boolean success, PhoneModel phone) {
         Log.d(TAG, "onSensorsReceived");
         
         if (success) {
@@ -265,13 +254,20 @@ public class Home extends LayoutContainer {
                 for (SensorModel sensor : this.sensors) {
                     Log.d(TAG, "Sensor: " + sensor.getId() + " " + sensor.getName());                    
                     
-                    TabItem item = new TabItem(sensor.getName());
+                    final TabItem item = new TabItem(sensor.getName());
                     item.addText(sensor.getId() + ". " + sensor.getName());
                     item.setHeight("100%");                    
 
+                    // sensor test stuff
+                    this.dataSvc.getSensorValues(phone.getId(), sensor.getId(), new Timestamp((new Date().getTime()-1000000000)), new Timestamp (new Date().getTime()), new AsyncCallback<List<SensorValueModel>>() {
+                        public void onFailure(Throwable ex) {
+                        }
+                        public void onSuccess(List<SensorValueModel> result) {
+                        	item.addText("Received " + result.size() + " sensor values");
+                        }
+                    });
+                    
                     /*
-                     * Chart test stuff
-                     */                    
                     ContentPanel cp = new ContentPanel();                    
                     cp.setHeading("Chart ContentPanel");  
                     cp.setFrame(true);  
@@ -302,6 +298,7 @@ public class Home extends LayoutContainer {
                     cp.add(chart);
                     
                     item.add(cp);
+                    */
                     
                     this.tabPanel.add(item);
                 }
