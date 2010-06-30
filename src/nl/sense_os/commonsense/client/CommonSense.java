@@ -34,10 +34,11 @@ public class CommonSense implements EntryPoint {
         };
         Home home = new Home(userModel, callback);
         
-        // set up viewport
+        // set up viewport to fill entire browser screen
         Viewport vp = new Viewport();
         vp.setLayout(new FitLayout());
         vp.add(home);
+        RootPanel.get().setLayoutData(new FitLayout());
         RootPanel.get().add(vp);
         vp.layout(true);
     }

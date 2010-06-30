@@ -1,4 +1,5 @@
-#Wed Jun 16 14:31:38 CEST 2010
+#Wed Jun 30 13:59:22 CEST 2010
 eclipse.preferences.version=1
+jarsExcludedFromWebInfLib=/media/Data/workspace/gwt/CommonSense/lib/gxt.jar
 warSrcDir=war
 warSrcDirIsOutput=true

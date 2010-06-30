@@ -1,11 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import com.extjs.gxt.charts.client.Chart;
-import com.extjs.gxt.charts.client.model.ChartModel;
-import com.extjs.gxt.charts.client.model.axis.XAxis;
-import com.extjs.gxt.charts.client.model.charts.DataConfig;
-import com.extjs.gxt.charts.client.model.charts.LineChart;
-import com.extjs.gxt.charts.client.model.charts.dots.Dot;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -25,19 +19,21 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.gwt.visualization.client.visualizations.PieChart;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
@@ -60,14 +56,29 @@ public class Home extends LayoutContainer {
     private ListStore<PhoneModel> phoneStore;
     private PhoneStateGrid phoneGrid;
     private List<PhoneModel> phones;
+    // private PhoneModel visiblePhone;
+    // private SensorModel visibleSensor;
     private List<SensorModel> sensors;
     private TabPanel tabPanel;
-    
+    private boolean isVizLoaded;
+
     public Home(UserModel user, AsyncCallback<Void> callback) {
         this.dataSvc = (DataServiceAsync) GWT.create(DataService.class);
         this.mainCallback = callback;
         this.user = user;
         this.phoneStore = new ListStore<PhoneModel>();
+
+        // Load the visualization api, passing the onLoadCallback to be called
+        // when loading is done.
+        Runnable vizCallback = new Runnable() {
+
+            @Override
+            public void run() {
+                Log.d(TAG, "Visualization loaded");
+                Home.this.isVizLoaded = true;
+            }
+        };
+        VisualizationUtils.loadVisualizationApi(vizCallback, PieChart.PACKAGE);
     }
 
     private LayoutContainer createCenterPanel() {
@@ -82,18 +93,18 @@ public class Home extends LayoutContainer {
         panel.setBorders(true);
 
         // Tabs
-        this.tabPanel = new TabPanel();  
+        this.tabPanel = new TabPanel();
         this.tabPanel.setAutoHeight(true);
         this.tabPanel.setAutoWidth(true);
         this.tabPanel.setPlain(true);
-        
+
         // Welcome tab item
         TabItem item = new TabItem("Welcome");
         item.add(new WelcomeTab(this.user.getName()));
         item.setClosable(true);
         this.tabPanel.add(item);
-        panel.add(this.tabPanel, new VBoxLayoutData(0, 0, 0, 0));        
-        
+        panel.add(this.tabPanel, new VBoxLayoutData(0, 0, 0, 0));
+
         return panel;
     }
 
@@ -105,7 +116,7 @@ public class Home extends LayoutContainer {
         layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
         panel.setLayout(layout);
         panel.setStyleAttribute("backgroundColor", "white");
-        panel.setBorders(true);       
+        panel.setBorders(true);
 
         // Number of phones message
         if (this.phoneMsg == null) {
@@ -156,7 +167,7 @@ public class Home extends LayoutContainer {
     private void getPhoneDetails() {
         AsyncCallback<List<PhoneModel>> callback = new AsyncCallback<List<PhoneModel>>() {
             public void onFailure(Throwable ex) {
-                Log.e(TAG, "Phone details fetching failed: " + ex.getMessage());
+                Log.e(TAG, "Failure in getPhoneDetails: " + ex.getMessage());
                 onPhonesReceived(false);
             }
 
@@ -167,21 +178,37 @@ public class Home extends LayoutContainer {
         };
         this.dataSvc.getPhoneDetails(callback);
     }
-    
-	private void getSensorDetails(final PhoneModel phone) {
+
+    private void getSensors(final PhoneModel phone) {
         AsyncCallback<List<SensorModel>> callback = new AsyncCallback<List<SensorModel>>() {
             public void onFailure(Throwable ex) {
-                Log.e(TAG, "Phone details fetching failed: " + ex.getMessage());
-                onSensorsReceived(false, null);
+                Log.e(TAG, "Failure in getSensors: " + ex.getMessage());
+                onSensorsReceived(false, null, null);
             }
 
             public void onSuccess(List<SensorModel> result) {
-                Home.this.sensors = result;                
-                onSensorsReceived(true, phone);
+                Home.this.sensors = result;
+                onSensorsReceived(true, result, phone);
             }
         };
 
         this.dataSvc.getSensors(phone.getId(), callback);
+    }
+
+    private void getSensorValues(PhoneModel phone, final SensorModel sensor) {
+        AsyncCallback<List<SensorValueModel>> callback = new AsyncCallback<List<SensorValueModel>>() {
+            public void onFailure(Throwable ex) {
+                Log.e(TAG, "Failure in getSensorValues: " + ex.getMessage());
+                onSensorValuesReceived(false, null, null);
+            }
+
+            public void onSuccess(List<SensorValueModel> result) {
+                onSensorValuesReceived(true, sensor, result);
+            }
+        };
+        this.dataSvc.getSensorValues(phone.getId(), sensor.getId(),
+                new Timestamp((new Date().getTime() - 365 * 24 * 60 * 60 * 1000)), new Timestamp(
+                        new Date().getTime()), callback);
     }
 
     @Override
@@ -192,7 +219,7 @@ public class Home extends LayoutContainer {
         ContentPanel contentPanel = new ContentPanel();
         contentPanel.setHeading("CommonSense");
         contentPanel.setLayout(new BorderLayout());
-        contentPanel.setSize(1024, 768);
+        contentPanel.setSize("100%", "100%");
         contentPanel.setFrame(true);
         contentPanel.setCollapsible(false);
 
@@ -206,7 +233,7 @@ public class Home extends LayoutContainer {
         center.setMargins(new Margins(5));
         contentPanel.add(this.centerContainer, center);
 
-        this.setLayout(new CenterLayout());
+        this.setLayout(new FitLayout());
         this.add(contentPanel);
 
         getPhoneDetails();
@@ -234,11 +261,44 @@ public class Home extends LayoutContainer {
             this.doLayout();
         }
     }
-    
-    private void onSensorsReceived(boolean success, PhoneModel phone) {
-        Log.d(TAG, "onSensorsReceived");
-        
+
+    private void onSensorValuesReceived(boolean success, SensorModel sensor,
+            List<SensorValueModel> values) {
+
+        if (true == success) {
+            Log.d(TAG, "Received sensor values");
+
+            TabItem item = new TabItem(sensor.getName());
+            if (isVizLoaded) {
+                DataTable data = DataTable.create();
+                data.addColumn(ColumnType.DATETIME, "Date");
+                data.addColumn(ColumnType.NUMBER, "Things per Day");
+
+                data.addRows(values.size());
+                for (int i = 0; i < values.size(); i++) {
+                    SensorValueModel value = values.get(i);
+                    Log.d(TAG, "SensorValue: " + value.getTimestamp() + ", " + value.getValue());
+                    data.setValue(i, 0, value.getTimestamp());
+                    data.setValue(i, 1, value.getValue());
+                }
+
+                LineChart.Options options = LineChart.Options.create();
+                options.setWidth(400);
+                options.setHeight(240);
+                options.setTitle("Chart");
+
+                LineChart lineChart = new LineChart(data, options);
+                item.add(lineChart);
+            }
+
+            this.tabPanel.add(item);
+        }
+    }
+
+    private void onSensorsReceived(boolean success, List<SensorModel> sensors, PhoneModel phone) {
+
         if (success) {
+            Log.d(TAG, "onSensorsReceived");
 
             this.tabPanel.removeAll();
 
@@ -247,60 +307,14 @@ public class Home extends LayoutContainer {
             welcome.add(new WelcomeTab(this.user.getName()));
             welcome.setClosable(true);
             this.tabPanel.add(welcome);
-            
+
             // sensor tabs
             if (this.sensors.size() > 0) {
-                
-                for (SensorModel sensor : this.sensors) {
-                    Log.d(TAG, "Sensor: " + sensor.getId() + " " + sensor.getName());                    
-                    
-                    final TabItem item = new TabItem(sensor.getName());
-                    item.addText(sensor.getId() + ". " + sensor.getName());
-                    item.setHeight("100%");                    
 
-                    // sensor test stuff
-                    /*
-                    this.dataSvc.getSensorValues(phone.getId(), sensor.getId(), new Timestamp((new Date().getTime()-1000000000)), new Timestamp (new Date().getTime()), new AsyncCallback<List<SensorValueModel>>() {
-                        public void onFailure(Throwable ex) {
-                        }
-                        public void onSuccess(List<SensorValueModel> result) {
-                        	item.addText("Received " + result.size() + " sensor values");
-                        }
-                    });
-                    */
-                    
-                    ContentPanel cp = new ContentPanel();                    
-                    cp.setHeading("Chart ContentPanel");  
-                    cp.setFrame(true);  
-                    cp.setSize(400, 400);  
-                    cp.setLayout(new FitLayout());
-                    
-                    Chart chart = new Chart("gxt/chart/open-flash-chart.swf");
-                    
-                    ChartModel chartModel = new ChartModel("ChartModel");
-                    XAxis xAxis = new XAxis();
-                    xAxis.setLabels("0", "1", "2", "3", "4");
-                    xAxis.setRange(0, 8);
-                    chartModel.setXAxis(xAxis);
-                    
-                    LineChart lineChart = new LineChart();
-                    
-                    ArrayList<DataConfig> values = new ArrayList<DataConfig>();
-                    for (int i=0; i<5; i++) {
-                        Dot dot = new Dot();
-                        dot.setXY(i, Random.nextDouble());
-                        values.add(dot);
-                    }
-                    lineChart.setValues(values);
-                    chartModel.addChartConfig(lineChart);
+                for (SensorModel sensor : sensors) {
+                    Log.d(TAG, "Sensor: " + sensor.getId() + " " + sensor.getName());
 
-                    chart.setChartModel(chartModel);
-                    
-                    cp.add(chart);
-                    
-                    item.add(cp);
-                    
-                    this.tabPanel.add(item);
+                    getSensorValues(phone, sensor);
                 }
             } else {
                 // Dummy tab item
@@ -308,6 +322,8 @@ public class Home extends LayoutContainer {
                 dummy.setEnabled(false);
                 this.tabPanel.add(dummy);
             }
+        } else {
+            Log.e(TAG, "Failed gettings Sensors");
         }
     }
 
@@ -323,6 +339,6 @@ public class Home extends LayoutContainer {
             this.phoneGrid.setPhone(phone);
         }
 
-        getSensorDetails(phone);
+        getSensors(phone);
     }
 }
