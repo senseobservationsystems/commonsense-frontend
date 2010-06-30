@@ -19,9 +19,9 @@ public class SensorValueConverter {
 	public static SensorValue jsonToEntity(JSONObject jsonSensorValue) {
 		SensorValue s = new SensorValue();
 		try {
-			String ts = (String) jsonSensorValue.get("timestamp");
+			String ts = (String) jsonSensorValue.get("t");
 			s.setTimestamp(TimestampConverter.microEpochToTimestamp(ts));
-			s.setValue((String) jsonSensorValue.get("value"));
+			s.setValue((String) jsonSensorValue.get("v"));
 		} catch (JSONException e) {
 		}
 		return s;

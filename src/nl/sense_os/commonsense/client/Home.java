@@ -279,7 +279,12 @@ public class Home extends LayoutContainer {
                     SensorValueModel value = values.get(i);
                     Log.d(TAG, "SensorValue: " + value.getTimestamp() + ", " + value.getValue());
                     data.setValue(i, 0, value.getTimestamp());
-                    data.setValue(i, 1, value.getValue());
+                    Double d = 0.0;
+                    try	{
+                    	d = Double.valueOf(value.getValue());
+                    } catch (NumberFormatException e) {
+                    }
+                    data.setValue(i, 1, d);
                 }
 
                 LineChart.Options options = LineChart.Options.create();

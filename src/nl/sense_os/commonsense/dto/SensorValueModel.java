@@ -15,7 +15,7 @@ public class SensorValueModel extends BaseModel {
 		    setValue(value);
 		}
 			
-		public String getTimestamp() {
+		public Timestamp getTimestamp() {
 			return get("timestamp");
 		}
 
