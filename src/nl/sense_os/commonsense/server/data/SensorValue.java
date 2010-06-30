@@ -1,22 +1,22 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class SensorValue {
 
-	private Date date;
+	private Timestamp timestamp;
 	private String value;
 
 	public SensorValue() {
 	}
 
-	public SensorValue(Date date, String value) {
-		this.date = date;
+	public SensorValue(Timestamp timestamp, String value) {
+		this.timestamp = timestamp;
 		this.value = value;
 	}
 	
-	public Date getDate() {
-		return date;
+	public Timestamp getTimestamp() {
+		return timestamp;
 	}
 
 	public String getValue() {
@@ -24,8 +24,8 @@ public class SensorValue {
 	}
 	
 	
-	public void setDate(Date date) {
-		this.date = date;
+	public void setTimestamp(Timestamp timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public void setValue(String value) {

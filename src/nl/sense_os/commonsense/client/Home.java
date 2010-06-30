@@ -35,6 +35,8 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,7 @@ import nl.sense_os.commonsense.client.widgets.PhoneStateGrid;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.PhoneModel;
 import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.UserModel;
 
 public class Home extends LayoutContainer {
@@ -165,7 +168,7 @@ public class Home extends LayoutContainer {
         this.dataSvc.getPhoneDetails(callback);
     }
     
-    private void getSensorDetails(PhoneModel phone) {
+	private void getSensorDetails(PhoneModel phone) {
         AsyncCallback<List<SensorModel>> callback = new AsyncCallback<List<SensorModel>>() {
             public void onFailure(Throwable ex) {
                 Log.e(TAG, "Phone details fetching failed: " + ex.getMessage());
@@ -173,12 +176,23 @@ public class Home extends LayoutContainer {
             }
 
             public void onSuccess(List<SensorModel> result) {
-                Home.this.sensors = result;
+                Home.this.sensors = result;                
                 onSensorsReceived(true);
             }
         };
 
         this.dataSvc.getSensors(phone.getId(), callback);
+        
+        // TEST
+        this.dataSvc.getSensorValues(phone.getId(), "1", new Timestamp((new Date().getTime()-560000000)), new Timestamp (new Date().getTime()), new AsyncCallback<List<SensorValueModel>>() {
+            public void onFailure(Throwable ex) {
+            }
+            public void onSuccess(List<SensorValueModel> result) {
+            	Log.e(TAG, "Received "+ result.size() + " sensor values.");
+            }
+        });
+        
+
     }
 
     @Override
