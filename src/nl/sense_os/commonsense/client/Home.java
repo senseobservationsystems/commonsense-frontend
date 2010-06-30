@@ -259,6 +259,7 @@ public class Home extends LayoutContainer {
                     item.setHeight("100%");                    
 
                     // sensor test stuff
+                    /*
                     this.dataSvc.getSensorValues(phone.getId(), sensor.getId(), new Timestamp((new Date().getTime()-1000000000)), new Timestamp (new Date().getTime()), new AsyncCallback<List<SensorValueModel>>() {
                         public void onFailure(Throwable ex) {
                         }
@@ -266,8 +267,8 @@ public class Home extends LayoutContainer {
                         	item.addText("Received " + result.size() + " sensor values");
                         }
                     });
+                    */
                     
-                    /*
                     ContentPanel cp = new ContentPanel();                    
                     cp.setHeading("Chart ContentPanel");  
                     cp.setFrame(true);  
@@ -298,7 +299,6 @@ public class Home extends LayoutContainer {
                     cp.add(chart);
                     
                     item.add(cp);
-                    */
                     
                     this.tabPanel.add(item);
                 }
