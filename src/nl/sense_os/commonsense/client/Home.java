@@ -1,5 +1,11 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.charts.client.Chart;
+import com.extjs.gxt.charts.client.model.ChartModel;
+import com.extjs.gxt.charts.client.model.axis.XAxis;
+import com.extjs.gxt.charts.client.model.charts.DataConfig;
+import com.extjs.gxt.charts.client.model.charts.LineChart;
+import com.extjs.gxt.charts.client.model.charts.dots.Dot;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -20,13 +26,16 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
@@ -244,7 +253,42 @@ public class Home extends LayoutContainer {
                     
                     TabItem item = new TabItem(sensor.getName());
                     item.addText(sensor.getId() + ". " + sensor.getName());
-                    item.setHeight("100%");
+                    item.setHeight("100%");                    
+
+                    /*
+                     * Chart test stuff
+                     */                    
+                    ContentPanel cp = new ContentPanel();                    
+                    cp.setHeading("Chart ContentPanel");  
+                    cp.setFrame(true);  
+                    cp.setSize(400, 400);  
+                    cp.setLayout(new FitLayout());
+                    
+                    Chart chart = new Chart("gxt/chart/open-flash-chart.swf");
+                    
+                    ChartModel chartModel = new ChartModel("ChartModel");
+                    XAxis xAxis = new XAxis();
+                    xAxis.setLabels("0", "1", "2", "3", "4");
+                    xAxis.setRange(0, 8);
+                    chartModel.setXAxis(xAxis);
+                    
+                    LineChart lineChart = new LineChart();
+                    
+                    ArrayList<DataConfig> values = new ArrayList<DataConfig>();
+                    for (int i=0; i<5; i++) {
+                        Dot dot = new Dot();
+                        dot.setXY(i, Random.nextDouble());
+                        values.add(dot);
+                    }
+                    lineChart.setValues(values);
+                    chartModel.addChartConfig(lineChart);
+
+                    chart.setChartModel(chartModel);
+                    
+                    cp.add(chart);
+                    
+                    item.add(cp);
+                    
                     this.tabPanel.add(item);
                 }
             } else {
@@ -261,7 +305,7 @@ public class Home extends LayoutContainer {
 
         if (null == this.phoneGrid) {
             this.phoneGrid = new PhoneStateGrid(phone);
-            this.westContainer.insert(this.phoneGrid, 3, new VBoxLayoutData(new Margins(10, 0, 10,
+            this.westContainer.insert(this.phoneGrid, 2, new VBoxLayoutData(new Margins(10, 0, 10,
                     0)));
             this.layout();
         } else {
