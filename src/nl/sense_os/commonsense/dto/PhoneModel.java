@@ -1,11 +1,11 @@
 package nl.sense_os.commonsense.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
+public class PhoneModel extends SenseTreeModel {
 
-@SuppressWarnings("serial")
-public class PhoneModel extends BaseModel {
+    private static final long serialVersionUID = 1L;
 
     public PhoneModel() {
+
     }
 
     public PhoneModel(String id, String brand, String type, String imei, String ip, String number,
@@ -25,10 +25,6 @@ public class PhoneModel extends BaseModel {
 
     public String getDate() {
         return get("date");
-    }
-
-    public String getId() {
-        return get("id");
     }
 
     public String getImei() {
@@ -55,16 +51,6 @@ public class PhoneModel extends BaseModel {
         set("date", date);
     }
 
-    public void setId(String id) {
-        set("id", id);
-
-        if (null == getType()) {
-            setText(id);
-        } else {
-            setText(id + ". " + getType());
-        }
-    }
-
     public void setImei(String imei) {
         set("imei", imei);
     }
@@ -83,20 +69,6 @@ public class PhoneModel extends BaseModel {
 
     public void setType(String type) {
         set("type", type);
-
-        if (null == getId()) {
-            setText(type);
-        } else {
-            setText(getId() + ". " + type);
-        }
+        setText(type);
     }
-
-//    public List<Sensor> getSensors() {
-//        return sensors;
-//    }
-//
-//    public void setSensors(List<Sensor> sensors) {
-//        this.sensors = sensors;
-//    }
-
 }

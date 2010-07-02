@@ -1,31 +1,33 @@
 package nl.sense_os.commonsense.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
+public class SensorModel extends SenseTreeModel {
 
-@SuppressWarnings("serial")
-public class SensorModel extends BaseModel {
+    private static final long serialVersionUID = 1L;
 
-	    public SensorModel() {   
-		}
+    public SensorModel() {
+        // empty constructor
+    }
 
-		public SensorModel(String id, String name) {
-		    setId(id);
-		    setName(name);
-		}
-			
-		public String getId() {
-			return get("id");
-		}
+    public SensorModel(String id, String name, String phone) {
+        setId(id);
+        setName(name);
+        setPhone(phone);
+    }
 
-		public String getName() {
-			return get("name");
-		}
+    public String getName() {
+        return get("name", "NAME");
+    }
+    
+    public String getPhone() {
+        return get("phone", "PHONE");
+    }
 
-		public void setId(String id) {
-	        set("id", id);
-		}
-
-		public void setName(String name) {
-	        set("name", name);
-		}
-	}	
+    public void setName(String name) {
+        set("name", name);
+        set("text", name);
+    }
+    
+    public void setPhone(String phoneId) {
+        set("phone", phoneId);
+    }
+}

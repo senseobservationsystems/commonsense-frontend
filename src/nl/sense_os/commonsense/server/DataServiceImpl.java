@@ -17,8 +17,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.dto.PhoneModel;
-import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.SenseTreeModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
@@ -90,9 +89,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		return null;
 	}
 
-	public List<PhoneModel> getPhoneDetails() {
+	public List<SenseTreeModel> getPhoneDetails() {
 	    
-        List<PhoneModel> phoneList = new ArrayList<PhoneModel>();
+        List<SenseTreeModel> phoneList = new ArrayList<SenseTreeModel>();
 		String jsonText = "";
 		
 		User user = getUserFromSession();
@@ -125,8 +124,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 		return phoneList;
 	}
 
-	public List<SensorModel> getSensors(String phoneId) {
-		List<SensorModel> sensorList = new ArrayList<SensorModel>();
+	public List<SenseTreeModel> getSensors(String phoneId) {
+		List<SenseTreeModel> sensorList = new ArrayList<SenseTreeModel>();
 		String jsonText = "";
 	
 		User user = getUserFromSession();
@@ -150,7 +149,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements
 			sensors = (JSONArray) new JSONObject(jsonText).get("sensors");
 			for (int i = 0; i < sensors.length(); i++) {
 				JSONObject jsonSensor = (JSONObject) sensors.get(i);
-				Sensor sensor = SensorConverter.jsonToEntity(jsonSensor);
+				Sensor sensor = SensorConverter.jsonToEntity(jsonSensor, phoneId);
 				sensorList.add(SensorConverter.entityToModel(sensor));
 			}
 		} catch (JSONException e) {

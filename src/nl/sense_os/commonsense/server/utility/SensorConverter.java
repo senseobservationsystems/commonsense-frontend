@@ -12,15 +12,17 @@ public class SensorConverter {
 	public static SensorModel entityToModel(Sensor sensor) {  
 		   SensorModel sensorModel = new SensorModel(
 				   sensor.getId(),
-				   sensor.getName());
+				   sensor.getName(),
+		           sensor.getPhone());
 		   return sensorModel;  
 		}
 
-	public static Sensor jsonToEntity(JSONObject jsonSensor) {
+	public static Sensor jsonToEntity(JSONObject jsonSensor, String phone) {
 		Sensor s = new Sensor();
 		try {
 			s.setId((String) jsonSensor.get("id"));
 			s.setName((String) jsonSensor.get("name"));
+			s.setPhone(phone);
 		} catch (JSONException e) {
 		}
 		return s;

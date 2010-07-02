@@ -8,7 +8,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +22,11 @@ public class PhoneStateGrid extends LayoutContainer {
     
     public PhoneStateGrid(PhoneModel phone) {
         this.store = new ListStore<BaseModel>();
-        
-        // create ListStore for the current phone info
-        this.store = createListStore(phone);
 
         this.setLayout(new FitLayout());
+        
+        // create ListStore for the current phone info
+        createListStore(phone);
         
         Grid<BaseModel> grid = createGrid();
         this.add(grid, new FitData(0));
@@ -62,56 +61,52 @@ public class PhoneStateGrid extends LayoutContainer {
         return grid;
     }
     
-    private ListStore<BaseModel> createListStore(PhoneModel phone) {
+    private void createListStore(PhoneModel phone) {
 
-        store.removeAll();
+        if (null == this.store) {
+            this.store = new ListStore<BaseModel>();
+        } else {
+            this.store.removeAll();
+        }
         
         BaseModel id = new BaseModel();
         id.set("key", "ID");
         id.set("value", phone.getId());
-        store.add(id);
+        this.store.add(id);
 
         BaseModel brand = new BaseModel();
         brand.set("key", "Brand");
         brand.set("value", phone.getBrand());
-        store.add(brand);
+        this.store.add(brand);
 
         BaseModel type = new BaseModel();
         type.set("key", "Type");
         type.set("value", phone.getType());
-        store.add(type);
+        this.store.add(type);
 
         BaseModel number = new BaseModel();
         number.set("key", "Number");
         number.set("value", phone.getNumber());
-        store.add(number);
+        this.store.add(number);
 
         BaseModel imei = new BaseModel();
         imei.set("key", "IMEI");
         imei.set("value", phone.getImei());
-        store.add(imei);
+        this.store.add(imei);
 
         BaseModel ip = new BaseModel();
         ip.set("key", "IP");
         ip.set("value", phone.getIp());
-        store.add(ip);
+        this.store.add(ip);
 
         BaseModel date = new BaseModel();
         date.set("key", "Date");
         date.set("value", phone.getDate());
-        store.add(date);
-        
-        return store;
+        this.store.add(date);
     }
     
     public void setPhone(PhoneModel phone) {
         Log.d(TAG, "setPhone");        
         createListStore(phone);
-    }
-    
-    @Override
-    protected void onRender(Element parent, int index) {
-        super.onRender(parent, index);        
-        Log.d(TAG, "onRender");        
     }
 }
