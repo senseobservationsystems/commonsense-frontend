@@ -24,27 +24,33 @@ import nl.sense_os.commonsense.dto.UserModel;
 
 public class Login extends LayoutContainer {
 
-    private AsyncCallback<UserModel> callback;
+    private final AsyncCallback<UserModel> mainCallback;
     private Text errorTxt;
-    ProgressBar progressBar = new ProgressBar();
-
-    DataServiceAsync svc;
+    private DataServiceAsync service;
 
     public Login(AsyncCallback<UserModel> callback) {
-        this.callback = callback;
-        this.svc = (DataServiceAsync) GWT.create(DataService.class);
+        this.mainCallback = callback;
+        this.service = (DataServiceAsync) GWT.create(DataService.class);
     }
-
+    
     private void checkLogin(String name, String password,
             final AsyncCallback<UserModel> mainCallback) {
 
-        AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+        // show progress dialog
+        final MessageBox box = MessageBox.progress("Please wait", "Logging in...", "");
+        final ProgressBar bar = box.getProgressBar();
+        bar.auto();
+        box.show();
+
+        final AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+            @Override
             public void onFailure(Throwable ex) {
                 setErrorText("Error: " + ex.getMessage());
 
                 box.close();
             }
 
+            @Override
             public void onSuccess(UserModel userModel) {
                 if (userModel != null) {
                     setErrorText("");
@@ -56,18 +62,11 @@ public class Login extends LayoutContainer {
                 box.close();
             }
         };
-        svc.checkLogin(name, password, callback);
-
-        box = MessageBox.progress("Please wait", "Logging in...", "");
-        ProgressBar bar = box.getProgressBar();
-        bar.auto();
-        box.show();
+        this.service.checkLogin(name, password, callback);
     }
-    
-    MessageBox box;
 
     private FormPanel createForm() {
-        FormData formData = new FormData("-20");
+        final FormData formData = new FormData("-20");
 
         final FormPanel form = new FormPanel();
         form.setBodyStyle("padding: 6px");
@@ -88,19 +87,20 @@ public class Login extends LayoutContainer {
         pass.setPassword(true);
         form.add(pass, formData);
 
-        Button b = new Button("Submit");
+        final Button b = new Button("Submit");
         b.addListener(Events.Select, new Listener<ButtonEvent>() {
+            @Override
             public void handleEvent(ButtonEvent be) {
                 final String mailString = email.getValue();
                 final String passString = MD5Wrapper.toMD5(pass.getValue());
-                checkLogin(mailString, passString, callback);
+                checkLogin(mailString, passString, Login.this.mainCallback);
             }
         });
         form.addButton(b);
 
         form.setButtonAlign(HorizontalAlignment.CENTER);
 
-        FormButtonBinding binding = new FormButtonBinding(form);
+        final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(b);
 
         return form;
@@ -111,24 +111,24 @@ public class Login extends LayoutContainer {
         super.onRender(parent, index);
 
         // prepare wrapper panel
-        VerticalPanel panel = new VerticalPanel();
+        final VerticalPanel panel = new VerticalPanel();
 
         // create error label and add to wrapper panel
-        errorTxt = new Text();
-        errorTxt.setVisible(false);
-        panel.add(errorTxt);
+        this.errorTxt = new Text();
+        this.errorTxt.setVisible(false);
+        panel.add(this.errorTxt);
 
         // create form and add to wrapper panel
-        FormPanel form = createForm();
+        final FormPanel form = createForm();
         panel.add(form);
 
         // add panel to layout container
-        this.setLayout(new CenterLayout());
+        setLayout(new CenterLayout());
         this.add(panel);
     }
 
     private void setErrorText(String errorMessage) {
-        errorTxt.setText(errorMessage);
-        errorTxt.setVisible(true);
+        this.errorTxt.setText(errorMessage);
+        this.errorTxt.setVisible(true);
     }
 }
