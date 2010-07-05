@@ -56,6 +56,7 @@ public class LineChartTab extends TabItem {
 
         Timestamp start = new Timestamp((new Date().getTime() - (365 * 24 * 60 * 60 * 1000)));
         Timestamp end = new Timestamp(new Date().getTime());
+        Log.d(TAG, "getSensorValues. Phone: " + sensor.getPhone() + ", Sensor: " + sensor.getId() + ".");
         service.getSensorValues(sensor.getPhone(), sensor.getId(), start, end, callback);
     }
 
