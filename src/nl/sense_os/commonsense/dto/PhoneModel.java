@@ -72,7 +72,7 @@ public class PhoneModel extends SenseTreeModel {
         
         String id = getId();
         if (null != id) {
-            setText(type + "(" + id + ")");
+            setText(type + " (" + id + ")");
         } else {
             setText(type);
         }

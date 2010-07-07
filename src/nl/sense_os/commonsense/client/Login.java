@@ -19,6 +19,10 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
 
@@ -109,7 +113,11 @@ public class Login extends LayoutContainer {
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
-
+        
+        Timestamp start = new Timestamp((new Date().getTime() - (365 * 24 * 60 * 60 * 1000)));
+        Log.d("Login", "Timestamp: " + start.toString() + " microEpoch: " + timestampToMicroEpoch(start));
+        Timestamp end = new Timestamp(new Date().getTime());
+        
         // prepare wrapper panel
         final VerticalPanel panel = new VerticalPanel();
 
@@ -125,6 +133,14 @@ public class Login extends LayoutContainer {
         // add panel to layout container
         setLayout(new CenterLayout());
         this.add(panel);
+    }
+    
+    public static String timestampToMicroEpoch(Timestamp t) {
+        Long l = t.getTime() / 1000;
+        Double d = ((double) t.getNanos()) / 1000000000; 
+//        String s = String.format("%.8f", d) + "%20" + l.toString();
+        String s = (t.getTime() / 1000) + "";
+        return s;
     }
 
     private void setErrorText(String errorMessage) {

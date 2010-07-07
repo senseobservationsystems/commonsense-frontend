@@ -1,7 +1,9 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -10,18 +12,22 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
@@ -46,17 +52,16 @@ public class MyriaTab extends LayoutContainer {
     private class MyriaNode extends BaseModel {
 
         private static final long serialVersionUID = 1L;
-        DataTable data; 
-        
+        DataTable data;
+        String sensorName;
+
         public MyriaNode(String nodeId) {
             setNodeId(nodeId);
-            
+
             this.data = DataTable.create();
             this.data.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
-            this.data.addColumn(ColumnType.NUMBER, "Node ID", "node_id");
-            this.data.addColumn(ColumnType.STRING, "Sensor name", "sensor");
-            this.data.addColumn(ColumnType.NUMBER, "Value", "value");
-            this.data.addColumn(ColumnType.NUMBER, "Variance", "variance");
+            this.data.addColumn(ColumnType.NUMBER, "MyriaNed node #" + nodeId, "value");
+            // this.data.addColumn(ColumnType.NUMBER, "Variance", "variance");
         }
 
         public String getNodeId() {
@@ -70,30 +75,36 @@ public class MyriaTab extends LayoutContainer {
 
     private static final String TAG = "MyriaTab";
     private LayoutContainer chartPanel;
+    private LayoutContainer nodeSelectPanel;
     private SensorModel sensor;
     HashMap<MyriaNode, AnnotatedTimeLine> shownCharts;
 
     private ListStore<MyriaNode> store;
-    
+
     public MyriaTab(SensorModel sensor) {
         this.sensor = sensor;
         this.shownCharts = new HashMap<MyriaNode, AnnotatedTimeLine>();
     }
 
-    private LayoutContainer createChartPanel() {
+    private LayoutContainer createCenterPanel() {
         final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new FlowLayout());
+        panel.setLayout(new FitLayout());
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
-        panel.setScrollMode(Scroll.AUTOY);
 
+        this.chartPanel = new VerticalPanel();
+        this.chartPanel.setScrollMode(Scroll.AUTOY);
+        this.chartPanel.setLayoutOnChange(true);
+        
+        panel.add(this.chartPanel, new FitData(10));
+        
         return panel;
     }
 
     private ColumnModel createNodeCols(CheckBoxSelectionModel<MyriaNode> selectMdl) {
         ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        
-        // check box selection column        
+
+        // check box selection column
         configs.add(selectMdl.getColumn());
 
         // node id column
@@ -111,7 +122,7 @@ public class MyriaTab extends LayoutContainer {
         final LayoutContainer panel = new LayoutContainer();
         final VBoxLayout layout = new VBoxLayout();
         layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
-        panel.setLayout(layout);
+        panel.setLayout(new FitLayout());
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
 
@@ -127,35 +138,35 @@ public class MyriaTab extends LayoutContainer {
 
                 final List<MyriaNode> newSelection = se.getSelection();
                 final Set<MyriaNode> oldSelection = shownCharts.keySet();
-                
+
                 // find newly selected items
                 List<MyriaNode> toAdd = new ArrayList<MyriaNode>();
-                for (MyriaNode m : newSelection) {                    
-                    
+                for (MyriaNode m : newSelection) {
+
                     if (false == oldSelection.contains(m)) {
                         toAdd.add(m);
-                    } 
+                    }
                 }
-                
+
                 // find newly deselected items
                 List<MyriaNode> toRemove = new ArrayList<MyriaNode>();
-                for (MyriaNode m : oldSelection) {                    
-                    
+                for (MyriaNode m : oldSelection) {
+
                     if (false == newSelection.contains(m)) {
                         toRemove.add(m);
-                    } 
+                    }
                 }
-                
+
                 for (MyriaNode mn : toAdd) {
                     addChart(mn);
                 }
-                
+
                 for (MyriaNode mn : toRemove) {
                     removeChart(mn);
                 }
             }
         });
-        
+
         ColumnModel columnMdl = createNodeCols(selectMdl);
 
         this.store = new ListStore<MyriaNode>();
@@ -163,7 +174,6 @@ public class MyriaTab extends LayoutContainer {
         ContentPanel cp = new ContentPanel();
         cp.setHeading("MyriaNed nodes");
         cp.setLayout(new FitLayout());
-        cp.setSize(200, 300);
 
         Grid<MyriaNode> grid = new Grid<MyriaNode>(this.store, columnMdl);
         grid.setSelectionModel(selectMdl);
@@ -210,62 +220,67 @@ public class MyriaTab extends LayoutContainer {
 
     private ArrayList<SensorValueModel> mockValues() {
 
-        ArrayList<SensorValueModel> result = new ArrayList<SensorValueModel>();
+        ArrayList<SensorValueModel> result = new ArrayList<SensorValueModel>(100);
 
-        /* node 1 */
-        Timestamp ts = new Timestamp(new Date().getTime() - 3 * 15 * 60 * 1000);
-        String nodeId = "" + 1;
         String sensorName = "smb380";
-        String value = "" + 2;
-        String variance = "" + 20;
-        SensorValueModel v1 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v1);
-        ts = new Timestamp(new Date().getTime() - 2 * 15 * 60 * 1000);
-        value = "" + 1;
-        variance = "" + 10;
-        SensorValueModel v2 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v2);
-        ts = new Timestamp(new Date().getTime() - 1 * 15 * 60 * 1000);
-        value = "" + 3;
-        variance = "" + 15;
-        SensorValueModel v3 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v3);
 
-        /* node 2 */
-        ts = new Timestamp(new Date().getTime() - 3 * 15 * 60 * 1000);
-        nodeId = "" + 2;
-        value = "" + 20;
-        variance = "" + 10;
-        SensorValueModel v4 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v4);
-        ts = new Timestamp(new Date().getTime() - 2 * 15 * 60 * 1000);
-        value = "" + 25;
-        variance = "" + 10;
-        SensorValueModel v5 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v5);
-        ts = new Timestamp(new Date().getTime() - 1 * 15 * 60 * 1000);
-        value = "" + 26;
-        variance = "" + 15;
-        SensorValueModel v6 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v6);
+        // initial value for random temperature values
+        double temperature = 20;
 
-        /* node 3 */
-        ts = new Timestamp(new Date().getTime() - 3 * 15 * 60 * 1000);
-        nodeId = "" + 3;
-        value = "" + 10;
-        variance = "" + 10;
-        SensorValueModel v7 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v7);
-        ts = new Timestamp(new Date().getTime() - 2 * 15 * 60 * 1000);
-        value = "" + 5;
-        variance = "" + 10;
-        SensorValueModel v8 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v8);
-        ts = new Timestamp(new Date().getTime() - 1 * 15 * 60 * 1000);
-        value = "" + 16;
-        variance = "" + 15;
-        SensorValueModel v9 = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        result.add(v9);
+        // for 10*10 nodes
+        for (int j = 1; j <= 10; j++) {
+            String nodeId1 = "" + j;
+            // String nodeId2 = "" + (j + 10);
+            // String nodeId3 = "" + (j + 20);
+            // String nodeId4 = "" + (j + 30);
+            // String nodeId5 = "" + (j + 40);
+            // String nodeId6 = "" + (j + 50);
+            // String nodeId7 = "" + (j + 60);
+            // String nodeId8 = "" + (j + 70);
+            // String nodeId9 = "" + (j + 80);
+            // String nodeId10 = "" + (j + 90);
+
+            // for 1 week measurements
+            for (int i = 1; i < (4 * 24 * 7); i++) {
+                // generate random temperature
+                Timestamp ts = new Timestamp(new Date().getTime() - i * 15 * 60 * 1000);
+                temperature += (10 * Random.nextDouble()) - 5;
+                String value = "" + temperature;
+                String variance = "" + 5;// (5 * Random.nextDouble());
+
+                // save mock sensor values
+                SensorValueModel v1 = new SnifferValueModel(ts, value, nodeId1, sensorName,
+                        variance);
+                result.add(v1);
+                // SensorValueModel v2 = new SnifferValueModel(ts, value, nodeId2, sensorName,
+                // variance);
+                // result.add(v2);
+                // SensorValueModel v3 = new SnifferValueModel(ts, value, nodeId3, sensorName,
+                // variance);
+                // result.add(v3);
+                // SensorValueModel v4 = new SnifferValueModel(ts, value, nodeId4, sensorName,
+                // variance);
+                // result.add(v4);
+                // SensorValueModel v5 = new SnifferValueModel(ts, value, nodeId5, sensorName,
+                // variance);
+                // result.add(v5);
+                // SensorValueModel v6 = new SnifferValueModel(ts, value, nodeId6, sensorName,
+                // variance);
+                // result.add(v6);
+                // SensorValueModel v7 = new SnifferValueModel(ts, value, nodeId7, sensorName,
+                // variance);
+                // result.add(v7);
+                // SensorValueModel v8 = new SnifferValueModel(ts, value, nodeId8, sensorName,
+                // variance);
+                // result.add(v8);
+                // SensorValueModel v9 = new SnifferValueModel(ts, value, nodeId9, sensorName,
+                // variance);
+                // result.add(v9);
+                // SensorValueModel v10 = new SnifferValueModel(ts, value, nodeId10, sensorName,
+                // variance);
+                // result.add(v10);
+            }
+        }
 
         return result;
     }
@@ -277,20 +292,20 @@ public class MyriaTab extends LayoutContainer {
 
         this.setLayout(new BorderLayout());
 
-        final LayoutContainer nodeSelectPanel = createNodeSelector();
+        LayoutContainer nodeSelectPanel = createNodeSelector();
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST);
         westLayout.setMargins(new Margins(5));
         this.add(nodeSelectPanel, westLayout);
 
-        this.chartPanel = createChartPanel();
+        LayoutContainer centerPanel = createCenterPanel();
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
-        this.add(this.chartPanel, centerLayout);
+        this.add(centerPanel, centerLayout);
 
         // mock
         onSensorValuesReceived(true, mockValues());
     }
-    
+
     /**
      * Puts the newly received sensor values in a DataTable and draws the chart.
      * 
@@ -303,7 +318,7 @@ public class MyriaTab extends LayoutContainer {
         Log.d(TAG, "onSensorValuesReceived");
 
         ArrayList<MyriaNode> list = new ArrayList<MyriaNode>();
-        
+
         // fill table if values are present
         if ((true == success) && (values.size() > 0)) {
 
@@ -328,11 +343,9 @@ public class MyriaTab extends LayoutContainer {
                 node.data.addRow();
                 int index = node.data.getNumberOfRows() - 1;
                 node.data.setValue(index, 0, v.getTimestamp());
-                node.data.setValue(index, 1, Integer.parseInt(v.getNodeId()));
-                node.data.setValue(index, 2, v.getSensorName());
-                node.data.setValue(index, 3, Double.parseDouble(v.getValue()));
-                node.data.setValue(index, 4, Double.parseDouble(v.getVariance()));
-                
+                node.data.setValue(index, 1, Double.parseDouble(v.getValue()));
+                // node.data.setValue(index, 2, Double.parseDouble(v.getVariance()));
+
                 list.add(node);
             }
         } else {
@@ -347,27 +360,28 @@ public class MyriaTab extends LayoutContainer {
         }
         this.store.add(list);
     }
-    
+
     private void addChart(MyriaNode m) {
-        
+
         AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
         options.setDisplayAnnotations(true);
         options.setDisplayZoomButtons(true);
         options.setScaleType(AnnotatedTimeLine.ScaleType.ALLFIXED);
-        
+
         AnnotatedTimeLine chart = new AnnotatedTimeLine(m.data, options, "600px", "200px");
-        this.chartPanel.add(chart);
+        this.chartPanel.add(chart, new TableData(HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE));
+//        this.chartPanel.layout();
 
         this.shownCharts.put(m, chart);
-        
-        this.chartPanel.layout();
     }
-    
+
     private void removeChart(MyriaNode m) {
+
         AnnotatedTimeLine chart = this.shownCharts.get(m);
-        
+
         this.chartPanel.remove(chart);
-        
+//        this.chartPanel.layout();
+
         this.shownCharts.remove(m);
     }
 }
