@@ -10,24 +10,47 @@ public class SensorModel extends SenseTreeModel {
 
     public SensorModel(String id, String name, String phone) {
         setId(id);
+        setPhoneId(phone);
         setName(name);
-        setPhone(phone);
-    }
-
-    public String getName() {
-        return get("name", "NAME");
     }
     
-    public String getPhone() {
-        return get("phone", "PHONE");
+    /**
+     * @return the sensor's name, or null if it was not set.
+     */
+    public String getName() {
+        return get("name");
+    }
+    
+    /**
+     * @return the sensor's phone id, or null if it was not set.
+     */
+    public String getPhoneId() {
+        return get("phone_id");
     }
 
+    /**
+     * Sets the sensor's name and also its "text" property, which is often used in the UI.
+     * @param name the name.
+     */
     public void setName(String name) {
         set("name", name);
-        set("text", name);
+        
+        String phoneId = getPhoneId();
+        if (null != phoneId) {
+            setText(phoneId + ". " + name);
+        } else {
+            setText(name);
+        }
     }
     
-    public void setPhone(String phoneId) {
-        set("phone", phoneId);
+    public void setPhoneId(String phoneId) {
+        set("phone_id", phoneId);
+    }
+    
+    /**
+     * @param text String describing the sensor model, often used in the UI.
+     */
+    public void setText(String text) {
+        set("text", text);
     }
 }

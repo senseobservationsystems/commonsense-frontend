@@ -4,30 +4,31 @@ import java.sql.Timestamp;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 
-@SuppressWarnings("serial")
 public class SensorValueModel extends BaseModel {
 
-	    public SensorValueModel() {   
-		}
+    private static final long serialVersionUID = 1L;
 
-		public SensorValueModel(Timestamp timestamp, String value) {
-		    setTimestamp(timestamp);
-		    setValue(value);
-		}
-			
-		public Timestamp getTimestamp() {
-			return get("timestamp");
-		}
+    public SensorValueModel() {
+    }
 
-		public String getValue() {
-			return get("value");
-		}
+    public SensorValueModel(Timestamp timestamp, String value) {
+        setTimestamp(timestamp);
+        setValue(value);
+    }
 
-		public void setTimestamp(Timestamp timestamp) {
-	        set("timestamp", timestamp);
-		}
+    public Timestamp getTimestamp() {
+        return get("timestamp");
+    }
 
-		public void setValue(String value) {
-	        set("value", value);
-		}
-	}	
+    public String getValue() {
+        return get("value");
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        set("timestamp", timestamp);
+    }
+
+    public void setValue(String value) {
+        set("value", value);
+    }
+}

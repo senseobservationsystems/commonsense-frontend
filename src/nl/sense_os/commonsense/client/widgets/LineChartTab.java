@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
@@ -20,7 +20,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 
-public class LineChartTab extends TabItem {
+public class LineChartTab extends LayoutContainer {
 
     private static final String TAG = "LineChartTab";
     private SensorModel sensor;
@@ -28,14 +28,16 @@ public class LineChartTab extends TabItem {
     private DataTable data;
 
     public LineChartTab(SensorModel sensor) {
-        super(sensor.getName());
-
         this.sensor = sensor;
     }
 
+    /**
+     * Requests the sensor values from the service. <code>onSensorValuesReceived</code> is invoked
+     * by the request's callback.
+     */
     private void getSensorValues() {
 
-        final MessageBox progress = MessageBox.progress("Please wait", "Getting data...", "");
+        final MessageBox progress = MessageBox.progress("Please wait", "Requesting data...", "");
         progress.getProgressBar().auto();
         progress.show();
 
@@ -56,8 +58,8 @@ public class LineChartTab extends TabItem {
 
         Timestamp start = new Timestamp((new Date().getTime() - (365 * 24 * 60 * 60 * 1000)));
         Timestamp end = new Timestamp(new Date().getTime());
-        Log.d(TAG, "getSensorValues. Phone: " + sensor.getPhone() + ", Sensor: " + sensor.getId() + ".");
-        service.getSensorValues(sensor.getPhone(), sensor.getId(), start, end, callback);
+
+        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
     }
 
     @Override
@@ -65,12 +67,13 @@ public class LineChartTab extends TabItem {
         super.onRender(parent, index);
         Log.d(TAG, "onRender");
 
-        getSensorValues(); 
-        
+        // request data from service
+        getSensorValues();
+
         // create data table for chart
-        data = DataTable.create();
-        data.addColumn(ColumnType.DATETIME, "Date/Time");
-        data.addColumn(ColumnType.NUMBER, "Value");
+        this.data = DataTable.create();
+        this.data.addColumn(ColumnType.DATETIME, "Date/Time");
+        this.data.addColumn(ColumnType.NUMBER, "Value");
 
         // create options
         AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
@@ -79,39 +82,45 @@ public class LineChartTab extends TabItem {
         options.setScaleType(AnnotatedTimeLine.ScaleType.ALLFIXED);
 
         // create linechart
-        this.chart = new AnnotatedTimeLine(data, options, "600px", "200px"); 
-        
+        this.chart = new AnnotatedTimeLine(this.data, options, "600px", "200px");
+
         // set up this TabItem
         this.setLayout(new FitLayout());
         this.add(this.chart);
     }
 
+    /**
+     * Puts the newly received sensor values in a DataTable and draws the chart.
+     * 
+     * @param success
+     *            boolean indicating if the values were successfully received.
+     * @param values
+     *            the values.
+     */
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
         Log.d(TAG, "onSensorValuesReceived");
 
         // fill table if values are present
-        if (true == success) {
-            if (values.size() > 0) {
-                
-                data.addRows(values.size());
-                for (int i = 0; i < values.size(); i++) {
-                    SensorValueModel value = values.get(i);
-                    data.setValue(i, 0, value.getTimestamp());
-                    Double d = 0.0;
-                    try {
-                        d = Double.valueOf(value.getValue());
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "NumberFormatException putting sensor values in line chart: "
-                                + value.getValue());
-                    }
-                    data.setValue(i, 1, d);
-                    Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
+        if ((true == success) && (values.size() > 0)) {
+
+            this.data.addRows(values.size());
+            for (int i = 0; i < values.size(); i++) {
+                SensorValueModel value = values.get(i);
+                this.data.setValue(i, 0, value.getTimestamp());
+                Double d = 0.0;
+                try {
+                    d = Double.valueOf(value.getValue());
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "NumberFormatException putting sensor values in line chart: "
+                            + value.getValue());
                 }
-            } else {
-                Log.w(TAG, "Zero values received!");
+                this.data.setValue(i, 1, d);
+                Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
             }
+        } else {
+            Log.w(TAG, "Zero values received!");
         }
 
-        this.chart.draw(data);
+        this.chart.draw(this.data);
     }
 }

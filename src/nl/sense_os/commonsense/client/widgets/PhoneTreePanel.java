@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.data.TreeLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -118,11 +119,13 @@ public class PhoneTreePanel extends LayoutContainer {
         store.setKeyProvider(new ModelKeyProvider<SenseTreeModel>() {
             public String getKey(SenseTreeModel model) {
                 if (model instanceof SensorModel) {
-                    return "node_" + model.get("phone") + "-" + model.get("id");
+                    SensorModel sensor = (SensorModel) model;
+                    return "node_" + sensor.getPhoneId() + "-" + sensor.getId();
                 } else if (model instanceof PhoneModel) {
-                    return "phone_" + model.<String> get("id");
+                    PhoneModel phone = (PhoneModel) model;
+                    return "phone_" + phone.getId();
                 } else {
-                    return "foo";
+                    return "UNKNOWN_INSTANCE";
                 }
             }
         });
@@ -131,6 +134,7 @@ public class PhoneTreePanel extends LayoutContainer {
         tree.setStateful(true);
         tree.setId("idNecessaryForStatefulSetting");
         tree.setDisplayProperty("text");
+        tree.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
         
         
         ContentPanel cp = new ContentPanel();

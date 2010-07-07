@@ -76,13 +76,13 @@ public class Login extends LayoutContainer {
 
         final TextField<String> email = new TextField<String>();
         email.setFieldLabel("Email");
-//        email.setValue("steven@sense-os.nl");
+        email.setValue("vestia@sense-os.nl");
         email.setAllowBlank(false);
         form.add(email, formData);
 
         final TextField<String> pass = new TextField<String>();
         pass.setFieldLabel("Password");
-//        pass.setValue("1234");
+        pass.setValue("vestia_delfgauw");
         pass.setAllowBlank(false);
         pass.setPassword(true);
         form.add(pass, formData);

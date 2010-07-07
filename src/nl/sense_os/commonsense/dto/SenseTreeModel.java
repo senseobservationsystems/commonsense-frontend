@@ -10,6 +10,9 @@ public class SenseTreeModel extends BaseTreeModel {
         set("id", id);
     }
     
+    /**
+     * @return the ID, or null if it was not set.
+     */
     public String getId() {
         return get("id");
     }

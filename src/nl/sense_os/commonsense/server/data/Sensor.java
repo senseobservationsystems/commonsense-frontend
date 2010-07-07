@@ -4,7 +4,7 @@ public class Sensor {
 
 	private String id;
 	private String name;
-	private String phone;
+	private String phoneId;
 
 	public Sensor() {
 	}
@@ -17,8 +17,8 @@ public class Sensor {
 		return name;
 	}
 
-	public String getPhone() {
-        return this.phone;
+	public String getPhoneId() {
+        return this.phoneId;
     }
 
 	public void setId(String id) {
@@ -29,7 +29,7 @@ public class Sensor {
 		this.name = name;
 	}
 	
-    public void setPhone(String phone) {
-	    this.phone = phone;
+    public void setPhoneId(String phoneId) {
+	    this.phoneId = phoneId;
 	}
 }

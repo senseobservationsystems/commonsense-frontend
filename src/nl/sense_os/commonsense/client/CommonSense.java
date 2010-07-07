@@ -14,15 +14,15 @@ public class CommonSense implements EntryPoint {
     private static final String TAG = "CommonSense";
     
     public void onModuleLoad() {
-
+        Log.d(TAG, "========== Module Load ==========");
+        
         // make the root panel as big as the browser view
         RootPanel.get().setLayoutData(new FitLayout());
         
         setLoginScreen();
     }
 
-    private void setHomeScreen(UserModel userModel) {
-        Log.d(TAG, "Show home screen...");
+    private void setHomeScreen(UserModel userModel) {        
 
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {            
             public void onFailure(Throwable ex) {
@@ -46,7 +46,6 @@ public class CommonSense implements EntryPoint {
     }
 
     private void setLoginScreen() {
-        Log.d(TAG,"Show login screen...");  
 
         // create login form widget
         AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {

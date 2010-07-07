@@ -13,7 +13,7 @@ public class SensorConverter {
 		   SensorModel sensorModel = new SensorModel(
 				   sensor.getId(),
 				   sensor.getName(),
-		           sensor.getPhone());
+		           sensor.getPhoneId());
 		   return sensorModel;  
 		}
 
@@ -22,7 +22,7 @@ public class SensorConverter {
 		try {
 			s.setId((String) jsonSensor.get("id"));
 			s.setName((String) jsonSensor.get("name"));
-			s.setPhone(phone);
+			s.setPhoneId(phone);
 		} catch (JSONException e) {
 		}
 		return s;

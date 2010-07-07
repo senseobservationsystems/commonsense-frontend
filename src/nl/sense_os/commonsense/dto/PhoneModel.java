@@ -69,6 +69,12 @@ public class PhoneModel extends SenseTreeModel {
 
     public void setType(String type) {
         set("type", type);
-        setText(type);
+        
+        String id = getId();
+        if (null != id) {
+            setText(type + "(" + id + ")");
+        } else {
+            setText(type);
+        }
     }
 }

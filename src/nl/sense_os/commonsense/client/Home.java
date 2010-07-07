@@ -4,9 +4,9 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TreePanelEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -19,14 +19,15 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.LineChartTab;
+import nl.sense_os.commonsense.client.widgets.MyriaTab;
 import nl.sense_os.commonsense.client.widgets.PhoneTreePanel;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.SenseTreeModel;
@@ -35,6 +36,7 @@ import nl.sense_os.commonsense.dto.UserModel;
 
 public class Home extends LayoutContainer {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "Home";
     private final AsyncCallback<Void> mainCallback;
     private PhoneTreePanel phoneTreePanel;
@@ -52,10 +54,11 @@ public class Home extends LayoutContainer {
 
             @Override
             public void run() {
-                Log.d(TAG, "Visualization loaded");
+                // do nothing
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, LineChart.PACKAGE, AnnotatedTimeLine.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(vizCallback, LineChart.PACKAGE,
+                AnnotatedTimeLine.PACKAGE);
 
         final ContentPanel contentPanel = new ContentPanel();
         contentPanel.setHeading("CommonSense");
@@ -85,12 +88,8 @@ public class Home extends LayoutContainer {
      * @return the panel's LayoutContainer.
      */
     private LayoutContainer createCenterPanel() {
-        Log.d(TAG, "createCenterPanel");
 
         final LayoutContainer panel = new LayoutContainer();
-        final VBoxLayout layout = new VBoxLayout();
-        layout.setPadding(new Padding(10));
-        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
         panel.setLayout(new FitLayout());
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
@@ -125,20 +124,21 @@ public class Home extends LayoutContainer {
         panel.setBorders(true);
 
         this.phoneTreePanel = new PhoneTreePanel();
-        this.phoneTreePanel.getTree().addListener(Events.OnClick,
-                new Listener<TreePanelEvent<SenseTreeModel>>() {
+        TreePanelSelectionModel<SenseTreeModel> selectMdl = new TreePanelSelectionModel<SenseTreeModel>();
+        selectMdl.addSelectionChangedListener(new SelectionChangedListener<SenseTreeModel>() {
 
-                    @Override
-                    public void handleEvent(TreePanelEvent<SenseTreeModel> be) {
-                        final SenseTreeModel node = be.getTreePanel().getSelectionModel()
-                                .getSelectedItem();
-                        Log.d(TAG, "SelectionChange: " + node.get("text"));
+            @Override
+            public void selectionChanged(SelectionChangedEvent<SenseTreeModel> se) {
+                SenseTreeModel node = se.getSelectedItem();
+                // Log.d(TAG, "SelectionChanged. Selected node: " + node.get("text"));
 
-                        if (node instanceof SensorModel) {
-                            onSensorClick((SensorModel) node);
-                        }
-                    }
-                });
+                if (node instanceof SensorModel) {
+                    onSensorClick((SensorModel) node);
+                }
+            }
+        });
+        selectMdl.bindTree(this.phoneTreePanel.getTree());
+
         panel.add(this.phoneTreePanel, new VBoxLayoutData());
 
         // spacer
@@ -179,10 +179,17 @@ public class Home extends LayoutContainer {
     private void onSensorClick(SensorModel sensor) {
 
         // try to reuse TabItem for this sensor
-        String id = sensor.getPhone() + ". " + sensor.getName();
+        String id = sensor.getPhoneId() + ". " + sensor.getName();
         TabItem item = this.tabPanel.getItemByItemId(id);
         if (null == item) {
-            item = new LineChartTab(sensor);
+            item = new TabItem(sensor.getName());
+            item.setLayout(new FitLayout());
+
+            if (sensor.getName().equals("temperature")) {
+                item.add(new MyriaTab(sensor));
+            } else {
+                item.add(new LineChartTab(sensor));
+            }
             item.setClosable(true);
             item.setId(id);
             this.tabPanel.add(item);
