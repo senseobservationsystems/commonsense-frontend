@@ -1,33 +1,33 @@
 package nl.sense_os.commonsense.client;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.widgets.LineChartTab;
 import nl.sense_os.commonsense.client.widgets.MyriaTab;
+import nl.sense_os.commonsense.client.widgets.PeriodSelection;
 import nl.sense_os.commonsense.client.widgets.PhoneTreePanel;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.SenseTreeModel;
@@ -39,6 +39,7 @@ public class Home extends LayoutContainer {
     @SuppressWarnings("unused")
     private static final String TAG = "Home";
     private final AsyncCallback<Void> mainCallback;
+    private final PeriodSelection periodSelection = new PeriodSelection();
     private PhoneTreePanel phoneTreePanel;
     private final DataServiceAsync service;
     private TabPanel tabPanel;
@@ -116,38 +117,28 @@ public class Home extends LayoutContainer {
      */
     private LayoutContainer createWestPanel() {
 
-        final LayoutContainer panel = new LayoutContainer();
-        final VBoxLayout layout = new VBoxLayout();
-        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
-        panel.setLayout(layout);
-        panel.setStyleAttribute("backgroundColor", "white");
-        panel.setBorders(true);
-
         this.phoneTreePanel = new PhoneTreePanel();
-        TreePanelSelectionModel<SenseTreeModel> selectMdl = new TreePanelSelectionModel<SenseTreeModel>();
-        selectMdl.addSelectionChangedListener(new SelectionChangedListener<SenseTreeModel>() {
 
+        // Sensor period selection panel
+        // this.periodSelection = new PeriodSelection();
+
+        // Generate button
+        final Button generateBtn = new Button("Generate charts");
+        generateBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
             @Override
-            public void selectionChanged(SelectionChangedEvent<SenseTreeModel> se) {
-                SenseTreeModel node = se.getSelectedItem();
-                // Log.d(TAG, "SelectionChanged. Selected node: " + node.get("text"));
-
-                if (node instanceof SensorModel) {
-                    onSensorClick((SensorModel) node);
+            public void handleEvent(ButtonEvent be) {
+                List<SensorModel> sensors = new ArrayList<SensorModel>();
+                for (SenseTreeModel model : phoneTreePanel.getSelection()) {
+                    if (model instanceof SensorModel) {
+                        sensors.add((SensorModel) model);
+                    }
                 }
+                onGenerate(sensors);
             }
         });
-        selectMdl.bindTree(this.phoneTreePanel.getTree());
-
-        panel.add(this.phoneTreePanel, new VBoxLayoutData());
-
-        // spacer
-        final VBoxLayoutData flex = new VBoxLayoutData();
-        flex.setFlex(1);
-        panel.add(new Text(), flex);
 
         // Log out button
-        final Button logoutBtn = new Button("logout");
+        final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
             @Override
             public void handleEvent(ButtonEvent be) {
@@ -164,7 +155,14 @@ public class Home extends LayoutContainer {
                 });
             }
         });
-        panel.add(logoutBtn, new VBoxLayoutData(new Margins(0, 10, 10, 10)));
+
+        final LayoutContainer panel = new LayoutContainer();
+        panel.setLayout(new RowLayout(Orientation.VERTICAL));
+        panel.setStyleAttribute("backgroundColor", "white");
+        panel.add(this.phoneTreePanel, new RowData(1, -1, new Margins(0)));
+        panel.add(periodSelection, new RowData(1, -1, new Margins(0)));
+        panel.add(generateBtn, new RowData(1, -1, new Margins(5)));
+        panel.add(logoutBtn, new RowData(1, -1, new Margins(5)));
 
         return panel;
     }
@@ -173,29 +171,34 @@ public class Home extends LayoutContainer {
      * Handles clicks on sensors in the TreePanel of the west panel. Selects the sensor's tab is it
      * is already present, otherwise the sensor's tab is created.
      * 
-     * @param sensor
-     *            the SensorModel of the sensor that was clicked.
+     * @param sensors
+     *            list of the sensors that are selected
      */
-    private void onSensorClick(SensorModel sensor) {
+    private void onGenerate(List<SensorModel> sensors) {
 
-        // try to reuse TabItem for this sensor
-        String id = sensor.getPhoneId() + ". " + sensor.getName();
-        TabItem item = this.tabPanel.getItemByItemId(id);
-        if (null == item) {
-            item = new TabItem(sensor.getName());
+        for (SensorModel sensor : sensors) {
+            // close TabItem for this sensor
+            String id = sensor.getPhoneId() + ". " + sensor.getName();
+//            TabItem item = this.tabPanel.getItemByItemId(id);
+//            if (null != item) {
+//                item.close();
+//            }
+            
+            TabItem item = new TabItem(sensor.getName());
             item.setLayout(new FitLayout());
 
             if (sensor.getName().equals("temperature")) {
-                item.add(new MyriaTab(sensor));
+                long[] timeRange = this.periodSelection.getTimeRange();
+                item.add(new MyriaTab(sensor, timeRange));
             } else {
                 item.add(new LineChartTab(sensor));
             }
             item.setClosable(true);
             item.setId(id);
             this.tabPanel.add(item);
-        }
 
-        // select the appropriate tab item
-        this.tabPanel.setSelection(item);
+            // select the appropriate tab item
+            this.tabPanel.setSelection(item);
+        }
     }
 }

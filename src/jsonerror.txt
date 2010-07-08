@@ -1,0 +1,26 @@
+Expected a ',' or '}' at character 1016 of 
+{
+    "sensor_data": 
+    [
+        {
+            "t": "1278572953",
+            "v": {"node_id":"297","sensor":"smb380","value":"2435","variance":"21"}
+        ,
+        {
+            "t": "1278572997",
+            "v": {"node_id":"193","sensor":"smb380","value":"2595","variance":"9"}
+        ,
+        {
+            "t": "1278572999",
+            "v": {"node_id":"132","sensor":"smb380","value":"2420","variance":"24"}
+        ,
+        {"t": "1278573043","v": {"node_id":"260","sensor":"smb380","value":"2220","variance":"24"},
+        {"t": "1278573049","v": {"node_id":"141","sensor":"smb380","value":"2160","variance":"16"},
+        {"t": "1278573091","v": {"node_id":"372","sensor":"smb380","value":"2965","variance":"95"},
+        {"t": "1278573097","v": {"node_id":"107","sensor":"smb380","value":"2085","variance":"28"},
+        {"t": "1278573141","v": {"node_id":"220","sensor":"smb380","value":"2560","variance":"16"},
+        {"t": "1278573145","v": {"node_id":"95","sensor":"smb380","value":"2520","variance":"24"},
+        {"t": "1278573187","v": {"node_id":"295","sensor":"smb380","value":"2615","variance":"21"},
+        {"t": "1278573193","v": {"node_id":"240","sensor":"smb380","value":"2450","variance":"10"}
+    ]
+}

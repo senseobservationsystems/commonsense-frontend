@@ -24,18 +24,16 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
+import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -52,38 +50,48 @@ public class MyriaTab extends LayoutContainer {
     private class MyriaNode extends BaseModel {
 
         private static final long serialVersionUID = 1L;
-        DataTable data;
-        String sensorName;
-
-        public MyriaNode(String nodeId) {
+        
+        public MyriaNode(int nodeId, int colIndex) {
             setNodeId(nodeId);
-
-            this.data = DataTable.create();
-            this.data.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
-            this.data.addColumn(ColumnType.NUMBER, "MyriaNed node #" + nodeId, "value");
-            // this.data.addColumn(ColumnType.NUMBER, "Variance", "variance");
+            setColIndex(colIndex);
         }
 
-        public String getNodeId() {
-            return get("node_id");
+        public int getColIndex() {
+            return get("column_index", -1);
+        }
+        
+        public int getNodeId() {
+            return get("node_id", -1);
         }
 
-        public void setNodeId(String nodeId) {
+        public void setColIndex(int colIndex) {
+            set("column_index", colIndex);
+        }
+        
+        public void setNodeId(int nodeId) {
             set("node_id", nodeId);
         }
     }
 
     private static final String TAG = "MyriaTab";
+    private AnnotatedTimeLine chart;
     private LayoutContainer chartPanel;
-    private LayoutContainer nodeSelectPanel;
     private SensorModel sensor;
-    HashMap<MyriaNode, AnnotatedTimeLine> shownCharts;
-
+    private HashMap<MyriaNode, AnnotatedTimeLine> shownCharts;
     private ListStore<MyriaNode> store;
+    private long[] timeRange;
 
-    public MyriaTab(SensorModel sensor) {
+    public MyriaTab(SensorModel sensor, long[] timeRange) {
         this.sensor = sensor;
         this.shownCharts = new HashMap<MyriaNode, AnnotatedTimeLine>();
+        this.timeRange = timeRange;
+    }
+
+    private void addChart(MyriaNode m) {       
+
+        chart.showDataColumns(m.getColIndex() -1);
+        
+        this.shownCharts.put(m, chart);
     }
 
     private LayoutContainer createCenterPanel() {
@@ -95,9 +103,9 @@ public class MyriaTab extends LayoutContainer {
         this.chartPanel = new VerticalPanel();
         this.chartPanel.setScrollMode(Scroll.AUTOY);
         this.chartPanel.setLayoutOnChange(true);
-        
+
         panel.add(this.chartPanel, new FitData(10));
-        
+
         return panel;
     }
 
@@ -127,7 +135,7 @@ public class MyriaTab extends LayoutContainer {
         panel.setBorders(true);
 
         // request sensor values from service
-        // getSensorValues();
+        getSensorValues(this.timeRange);
 
         // selection model using check boxes
         final CheckBoxSelectionModel<MyriaNode> selectMdl = new CheckBoxSelectionModel<MyriaNode>();
@@ -161,7 +169,7 @@ public class MyriaTab extends LayoutContainer {
                     addChart(mn);
                 }
 
-                for (MyriaNode mn : toRemove) {
+                for (MyriaNode mn : toRemove) {                    
                     removeChart(mn);
                 }
             }
@@ -190,7 +198,7 @@ public class MyriaTab extends LayoutContainer {
      * Requests the sensor values from the service. <code>onSensorValuesReceived</code> is invoked
      * by the request's callback.
      */
-    private void getSensorValues() {
+    private void getSensorValues(long[] timeRange) {
 
         // show progress dialog
         final MessageBox progress = MessageBox.progress("Please wait", "Requesting data...", "");
@@ -212,83 +220,15 @@ public class MyriaTab extends LayoutContainer {
             }
         };
 
-        Timestamp start = new Timestamp((new Date().getTime() - (365 * 24 * 60 * 60 * 1000)));
-        Timestamp end = new Timestamp(new Date().getTime());
+        Timestamp start = new Timestamp(timeRange[0]);
+        Timestamp end = new Timestamp(timeRange[1]);
 
         service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
-    }
-
-    private ArrayList<SensorValueModel> mockValues() {
-
-        ArrayList<SensorValueModel> result = new ArrayList<SensorValueModel>(100);
-
-        String sensorName = "smb380";
-
-        // initial value for random temperature values
-        double temperature = 20;
-
-        // for 10*10 nodes
-        for (int j = 1; j <= 10; j++) {
-            String nodeId1 = "" + j;
-            // String nodeId2 = "" + (j + 10);
-            // String nodeId3 = "" + (j + 20);
-            // String nodeId4 = "" + (j + 30);
-            // String nodeId5 = "" + (j + 40);
-            // String nodeId6 = "" + (j + 50);
-            // String nodeId7 = "" + (j + 60);
-            // String nodeId8 = "" + (j + 70);
-            // String nodeId9 = "" + (j + 80);
-            // String nodeId10 = "" + (j + 90);
-
-            // for 1 week measurements
-            for (int i = 1; i < (4 * 24 * 7); i++) {
-                // generate random temperature
-                Timestamp ts = new Timestamp(new Date().getTime() - i * 15 * 60 * 1000);
-                temperature += (10 * Random.nextDouble()) - 5;
-                String value = "" + temperature;
-                String variance = "" + 5;// (5 * Random.nextDouble());
-
-                // save mock sensor values
-                SensorValueModel v1 = new SnifferValueModel(ts, value, nodeId1, sensorName,
-                        variance);
-                result.add(v1);
-                // SensorValueModel v2 = new SnifferValueModel(ts, value, nodeId2, sensorName,
-                // variance);
-                // result.add(v2);
-                // SensorValueModel v3 = new SnifferValueModel(ts, value, nodeId3, sensorName,
-                // variance);
-                // result.add(v3);
-                // SensorValueModel v4 = new SnifferValueModel(ts, value, nodeId4, sensorName,
-                // variance);
-                // result.add(v4);
-                // SensorValueModel v5 = new SnifferValueModel(ts, value, nodeId5, sensorName,
-                // variance);
-                // result.add(v5);
-                // SensorValueModel v6 = new SnifferValueModel(ts, value, nodeId6, sensorName,
-                // variance);
-                // result.add(v6);
-                // SensorValueModel v7 = new SnifferValueModel(ts, value, nodeId7, sensorName,
-                // variance);
-                // result.add(v7);
-                // SensorValueModel v8 = new SnifferValueModel(ts, value, nodeId8, sensorName,
-                // variance);
-                // result.add(v8);
-                // SensorValueModel v9 = new SnifferValueModel(ts, value, nodeId9, sensorName,
-                // variance);
-                // result.add(v9);
-                // SensorValueModel v10 = new SnifferValueModel(ts, value, nodeId10, sensorName,
-                // variance);
-                // result.add(v10);
-            }
-        }
-
-        return result;
     }
 
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
-        Log.d(TAG, "onRender");
 
         this.setLayout(new BorderLayout());
 
@@ -301,11 +241,8 @@ public class MyriaTab extends LayoutContainer {
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
         this.add(centerPanel, centerLayout);
-
-        // mock
-        onSensorValuesReceived(true, mockValues());
     }
-
+    
     /**
      * Puts the newly received sensor values in a DataTable and draws the chart.
      * 
@@ -321,33 +258,50 @@ public class MyriaTab extends LayoutContainer {
 
         // fill table if values are present
         if ((true == success) && (values.size() > 0)) {
+            Log.d(TAG, "Received " + values.size() + " values");
 
+            DataTable data = DataTable.create();
+            data.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
+            
+            // keep track of number of columns in
+            HashMap<Integer, Integer> colIndexes = new HashMap<Integer, Integer>(30);
             for (int i = 0; i < values.size(); i++) {
                 SnifferValueModel v = (SnifferValueModel) values.get(i);
+                final int nodeId = Integer.parseInt(v.getNodeId());
+                final double value = Double.parseDouble(v.getValue()) / 100;
+
+                // look up node in list of known nodes
+                Integer colIndex = colIndexes.get(nodeId);
+
+                // add new column in table if node is new
+                if (colIndex == null) {
+                    data.addColumn(ColumnType.NUMBER, "MyriaNed node #" + nodeId, "node_"
+                            + nodeId);
+                    colIndex = data.getNumberOfColumns() - 1;
+                    colIndexes.put(nodeId, colIndex);
+                }
+
+                // add data to the table
+                data.addRow();
+                data.setValue(data.getNumberOfRows() - 1, colIndex, value);
+                data.setValue(data.getNumberOfRows() - 1, 0, v.getTimestamp());
 
                 // get node
                 MyriaNode node = null;
                 for (MyriaNode mn : list) {
-                    if (mn.getNodeId().equals(v.getNodeId())) {
+                    if (mn.getNodeId() == nodeId) {
                         node = mn;
                         break;
                     }
                 }
                 if (node == null) {
-                    node = new MyriaNode(v.getNodeId());
-                } else {
-                    list.remove(node);
+                    node = new MyriaNode(nodeId, colIndex);
+                    list.add(node);
                 }
-
-                // add row to node's data table
-                node.data.addRow();
-                int index = node.data.getNumberOfRows() - 1;
-                node.data.setValue(index, 0, v.getTimestamp());
-                node.data.setValue(index, 1, Double.parseDouble(v.getValue()));
-                // node.data.setValue(index, 2, Double.parseDouble(v.getVariance()));
-
-                list.add(node);
-            }
+            }  
+            
+            showChart(data);
+            
         } else {
             Log.w(TAG, "Zero values received!");
         }
@@ -358,30 +312,32 @@ public class MyriaTab extends LayoutContainer {
         } else {
             this.store.removeAll();
         }
-        this.store.add(list);
-    }
-
-    private void addChart(MyriaNode m) {
-
-        AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
-        options.setDisplayAnnotations(true);
-        options.setDisplayZoomButtons(true);
-        options.setScaleType(AnnotatedTimeLine.ScaleType.ALLFIXED);
-
-        AnnotatedTimeLine chart = new AnnotatedTimeLine(m.data, options, "600px", "200px");
-        this.chartPanel.add(chart, new TableData(HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE));
-//        this.chartPanel.layout();
-
-        this.shownCharts.put(m, chart);
+        this.store.add(list);      
     }
 
     private void removeChart(MyriaNode m) {
 
-        AnnotatedTimeLine chart = this.shownCharts.get(m);
-
-        this.chartPanel.remove(chart);
-//        this.chartPanel.layout();
-
+        this.chart.hideDataColumns(m.getColIndex() -1);
+        
         this.shownCharts.remove(m);
+    }
+    
+    private void showChart(DataTable data) {
+
+        AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
+        options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
+        options.setMin(15);
+        options.setMax(50);
+
+        this.chart = new AnnotatedTimeLine(data, options, "800px", "600px");
+        this.chartPanel.add(this.chart, new TableData(HorizontalAlignment.CENTER,
+                VerticalAlignment.MIDDLE));
+        
+        // initially hide all data from chart
+        int[] cols = new int[data.getNumberOfColumns()-1];
+        for (int i = 0; i < data.getNumberOfColumns() - 1; i++) {
+            cols[i] = i;
+        }
+        this.chart.hideDataColumns(cols);
     }
 }

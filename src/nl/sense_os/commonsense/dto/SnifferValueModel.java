@@ -6,6 +6,10 @@ public class SnifferValueModel extends SensorValueModel {
 
     private static final long serialVersionUID = 1L;
 
+    public SnifferValueModel() {
+        // empty constructor for Serialization
+    }
+    
     public SnifferValueModel(Timestamp timestamp, String value, String nodeId, String sensorName,
             String variance) {
         super(timestamp, value);

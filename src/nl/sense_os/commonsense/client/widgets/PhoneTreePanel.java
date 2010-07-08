@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.widgets;
 
 import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.RpcProxy;
@@ -9,16 +10,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,38 +30,37 @@ import nl.sense_os.commonsense.dto.PhoneModel;
 import nl.sense_os.commonsense.dto.SenseTreeModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 
-public class PhoneTreePanel extends LayoutContainer {
+public class PhoneTreePanel extends ContentPanel {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "PhoneTreePanel";    
-    private TreePanel<SenseTreeModel> tree;      
+    private static final String TAG = "PhoneTreePanel";
+    private TreePanel<SenseTreeModel> tree;
 
     /**
      * Constructs the ContentPanel with a TreePanel and Buttons to expand and collapse the tree.
      */
     public PhoneTreePanel() {
-                
-        VBoxLayout layout = new VBoxLayout();
-        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
-        this.setLayout(new FlowLayout());
-        this.setSize(315, 400);
-        
-        ContentPanel cp = createTreePanel();        
-        cp.setHeading("Device explorer");  
-        cp.setLayout(new FitLayout());
-        cp.setSize(200, 400);
-        
-        ButtonBar buttonBar = createButtonBar(tree);
-        
-        this.add(buttonBar, new FlowData(10));
-        this.add(cp);
+
+        this.tree = createTreePanel();
+
+        TreePanelSelectionModel<SenseTreeModel> selectMdl = new TreePanelSelectionModel<SenseTreeModel>();
+        selectMdl.bindTree(this.tree);
+        // ButtonBar buttonBar = createButtonBar(this.tree);
+
+        this.setLayout(new RowLayout(Orientation.VERTICAL));
+        this.setHeading("Device explorer");
+        this.setCollapsible(true);
+        this.add(this.tree, new RowData(1, -1, new Margins(0, 0, 10, 0)));
+        // this.add(buttonBar, new RowData(1, -1, new Margins(10,0,10,0)));
     }
-    
+
     /**
      * Creates bar with buttons to expand and collapse all tree elements
+     * 
      * @param tree
      * @return the button bar
      */
+    @SuppressWarnings("unused")
     private ButtonBar createButtonBar(final TreePanel<SenseTreeModel> tree) {
         ButtonBar bar = new ButtonBar();
         bar.setAlignment(Style.HorizontalAlignment.CENTER);
@@ -76,16 +74,17 @@ public class PhoneTreePanel extends LayoutContainer {
                 tree.collapseAll();
             }
         }));
-        
+
         return bar;
     }
-    
+
     /**
      * Creates an tree of PhoneModels and SensorModels, which are fetched asynchronously.
+     * 
      * @return the tree
      */
-    private ContentPanel createTreePanel() {
-        
+    private TreePanel<SenseTreeModel> createTreePanel() {
+
         final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
 
         // data proxy
@@ -99,7 +98,7 @@ public class PhoneTreePanel extends LayoutContainer {
                     String phoneId = ((PhoneModel) loadConfig).getId();
                     service.getSensors(phoneId, callback);
                 } else if (loadConfig instanceof SensorModel) {
-                    
+
                 } else {
                     Log.e("RpcProxy", "loadConfig unexpected type");
                 }
@@ -130,20 +129,17 @@ public class PhoneTreePanel extends LayoutContainer {
             }
         });
 
-        tree = new TreePanel<SenseTreeModel>(store);
-        tree.setStateful(true);
-        tree.setId("idNecessaryForStatefulSetting");
-        tree.setDisplayProperty("text");
-        tree.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
-        
-        
-        ContentPanel cp = new ContentPanel();
-        cp.add(tree);  
-        
-        return cp;
+        TreePanel<SenseTreeModel> treePanel = new TreePanel<SenseTreeModel>(store);
+        treePanel.setStateful(true);
+        treePanel.setId("idNecessaryForStatefulSetting");
+        treePanel.setDisplayProperty("text");
+        treePanel.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
+        treePanel.setCheckable(true);
+
+        return treePanel;
     }
-    
-    public TreePanel<SenseTreeModel> getTree() {
-        return tree;
+
+    public List<SenseTreeModel> getSelection() {
+        return this.tree.getCheckedSelection();
     }
 }
