@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client;
 
 import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -61,8 +62,8 @@ public class CommonSense implements EntryPoint {
         Login login = new Login(callback);
         
         // set up viewport
-        Viewport vp = new Viewport();
-        vp.setLayout(new FitLayout());
+        final Viewport vp = new Viewport();
+        vp.setLayout(new CenterLayout());
         vp.add(login);
         
         RootPanel.get().clear();

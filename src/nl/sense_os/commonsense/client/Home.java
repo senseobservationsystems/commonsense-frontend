@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -13,14 +14,22 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.gwt.visualization.client.visualizations.MotionChart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +49,7 @@ public class Home extends LayoutContainer {
     private static final String TAG = "Home";
     private final AsyncCallback<Void> mainCallback;
     private final PeriodSelection periodSelection = new PeriodSelection();
-    private PhoneTreePanel phoneTreePanel;
+    private final PhoneTreePanel phoneTreePanel = new PhoneTreePanel();
     private final DataServiceAsync service;
     private TabPanel tabPanel;
     private final UserModel user;
@@ -58,11 +67,10 @@ public class Home extends LayoutContainer {
                 // do nothing
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, LineChart.PACKAGE,
-                AnnotatedTimeLine.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE, MotionChart.PACKAGE);
 
         final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setHeading("CommonSense");
+        contentPanel.setHeading("CommonSense Web Application");
         contentPanel.setLayout(new BorderLayout());
         contentPanel.setSize("100%", "100%");
         contentPanel.setFrame(true);
@@ -90,20 +98,23 @@ public class Home extends LayoutContainer {
      */
     private LayoutContainer createCenterPanel() {
 
+        // Welcome tab item
+        final TabItem item = new TabItem("Welcome");
+        item.setLayout(new FitLayout());
+        item.add(new WelcomeTab(this.user.getName()));
+        item.setClosable(false);
+        item.setScrollMode(Scroll.AUTO);
+
+        // Tabs
+        this.tabPanel = new TabPanel();
+        this.tabPanel.setPlain(true);
+        this.tabPanel.add(item);
+
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new FitLayout());
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
 
-        // Tabs
-        this.tabPanel = new TabPanel();
-        this.tabPanel.setPlain(true);
-
-        // Welcome tab item
-        final TabItem item = new TabItem("Welcome");
-        item.add(new WelcomeTab(this.user.getName()));
-        item.setClosable(false);
-        this.tabPanel.add(item);
         panel.add(this.tabPanel);
 
         return panel;
@@ -117,10 +128,16 @@ public class Home extends LayoutContainer {
      */
     private LayoutContainer createWestPanel() {
 
-        this.phoneTreePanel = new PhoneTreePanel();
-
-        // Sensor period selection panel
-        // this.periodSelection = new PeriodSelection();
+        final Image logo = new Image("/img/logo_sense-150.png");
+        final LayoutContainer logoContainer = new LayoutContainer();
+        logoContainer.setLayout(new CenterLayout());
+        logo.addLoadHandler(new LoadHandler() {            
+            @Override
+            public void onLoad(LoadEvent event) {
+                logoContainer.setHeight(logo.getHeight());
+            }
+        });
+        logoContainer.add(logo);
 
         // Generate button
         final Button generateBtn = new Button("Generate charts");
@@ -138,6 +155,7 @@ public class Home extends LayoutContainer {
         });
 
         // Log out button
+        final LayoutContainer logoutContainer = new LayoutContainer(new VBoxLayout());
         final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
             @Override
@@ -155,16 +173,24 @@ public class Home extends LayoutContainer {
                 });
             }
         });
-
-        final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout(Orientation.VERTICAL));
+        
+        VBoxLayout layout = new VBoxLayout();
+        layout.setVBoxLayoutAlign(VBoxLayoutAlign.CENTER);
+        final LayoutContainer panel = new LayoutContainer(layout);
+//        panel.setLayout(new RowLayout(Orientation.VERTICAL));
         panel.setStyleAttribute("backgroundColor", "white");
-        panel.add(this.phoneTreePanel, new RowData(1, -1, new Margins(0)));
-        panel.add(periodSelection, new RowData(1, -1, new Margins(0)));
-        panel.add(generateBtn, new RowData(1, -1, new Margins(5)));
-        panel.add(logoutBtn, new RowData(1, -1, new Margins(5)));
+        panel.setScrollMode(Scroll.AUTO);
+        panel.add(logoContainer, new VBoxLayoutData(0,0,0,0));//, new RowData(1, -1, new Margins(0)));
+        panel.add(this.phoneTreePanel, new VBoxLayoutData(10,0,10,0));//, new RowData(1, -1, new Margins(0)));
+        panel.add(this.periodSelection, new VBoxLayoutData(10,0,10,0));//, new RowData(1, -1, new Margins(0)));
+        panel.add(generateBtn, new VBoxLayoutData(10,10,10,10));//, new RowData(1, -1, new Margins(5)));
+        panel.add(logoutBtn, new VBoxLayoutData(10,10,10,10));//, new RowData(1, -1, new Margins(5)));
 
-        return panel;
+        LayoutContainer wrapper = new LayoutContainer(new FitLayout());
+        wrapper.setSize("100%", "100%");
+        wrapper.add(panel);
+        
+        return wrapper;
     }
 
     /**
@@ -179,15 +205,11 @@ public class Home extends LayoutContainer {
         for (SensorModel sensor : sensors) {
             // close TabItem for this sensor
             String id = sensor.getPhoneId() + ". " + sensor.getName();
-//            TabItem item = this.tabPanel.getItemByItemId(id);
-//            if (null != item) {
-//                item.close();
-//            }
             
             TabItem item = new TabItem(sensor.getName());
             item.setLayout(new FitLayout());
 
-            if (sensor.getName().equals("temperature")) {
+            if ((sensor.getName().equals("temperature")) || sensor.getName().equals("humidity")) {
                 long[] timeRange = this.periodSelection.getTimeRange();
                 item.add(new MyriaTab(sensor, timeRange));
             } else {

@@ -31,9 +31,9 @@ import nl.sense_os.commonsense.server.utility.SensorValueConverter;
 import nl.sense_os.commonsense.server.utility.TimestampConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
-@SuppressWarnings("serial")
 public class DataServiceImpl extends RemoteServiceServlet implements DataService {
 
+    private static final long serialVersionUID = 1L;
     private static final String URL_BASE = "http://demo.almende.com/commonSense/gae/";
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
@@ -68,7 +68,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 return UserConverter.entityToModel(user);
             }
         } catch (MalformedURLException e) {
+            log.warning("MalFormedUrlException in checkLogin");
+            log.warning(e.getMessage());
         } catch (IOException e) {
+            log.warning("IOException in checkLogin");   
+            log.warning(e.getMessage());         
         }
         return null;
     }
@@ -106,7 +110,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             }
             reader.close();
         } catch (MalformedURLException e) {
+            log.warning("MalFormedUrlException in getPhoneDetails");
+            log.warning(e.getMessage());
         } catch (IOException e) {
+            log.warning("IOException in getPhoneDetails");
+            log.warning(e.getMessage());
         }
 
         // Convert to object
@@ -120,6 +128,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 phoneList.add(PhoneConverter.entityToModel(phone));
             }
         } catch (JSONException e) {
+            log.warning("JSONException in getPhoneDetails");
+            log.warning(e.getMessage());
         }
         return phoneList;
     }
@@ -141,7 +151,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             }
             reader.close();
         } catch (MalformedURLException e) {
+            log.warning("MalFormedUrlException in getSensors");
+            log.warning(e.getMessage());
         } catch (IOException e) {
+            log.warning("IOException in getSensors");
+            log.warning(e.getMessage());
         }
 
         // Convert to object
@@ -154,6 +168,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 sensorList.add(SensorConverter.entityToModel(sensor));
             }
         } catch (JSONException e) {
+            log.warning("JSONException in getSensors");
+            log.warning(e.getMessage());
         }
         return sensorList;
     }

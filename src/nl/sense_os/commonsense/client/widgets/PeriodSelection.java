@@ -32,9 +32,9 @@ public class PeriodSelection extends ContentPanel {
         radio1d.setBoxLabel("1d");
         radio1d.setValue(true);
       
-        Radio radio5d = new Radio();
-        radio5d.setId("5d");
-        radio5d.setBoxLabel("5d");
+        Radio radio7d = new Radio();
+        radio7d.setId("7d");
+        radio7d.setBoxLabel("7d");
       
         Radio radio1m = new Radio();
         radio1m.setId("1m");
@@ -45,7 +45,7 @@ public class PeriodSelection extends ContentPanel {
         radio3m.setBoxLabel("3m");
          
         radioGroup.add(radio1d);
-        radioGroup.add(radio5d);
+        radioGroup.add(radio7d);
         radioGroup.add(radio1m);
         radioGroup.add(radio3m);
         
@@ -60,13 +60,13 @@ public class PeriodSelection extends ContentPanel {
     
     public long[] getTimeRange() {
         
-        final long end = this.picker.getValue().getTime();
+        final long end = this.picker.getValue().getTime() + 24 * 60 * 60 * 1000;
         long start = 0;
         final String radioId = radioGroup.getValue().getId();
         if (radioId.equals("1d")) {
             start = end - 1 * 24 * 60 * 60 * 1000;
-        } else if (radioId.equals("5d")) {
-            start = end - 5 * 24 * 60 * 60 * 1000;
+        } else if (radioId.equals("7d")) {
+            start = end - 7 * 24 * 60 * 60 * 1000;
         } else if (radioId.equals("1m")) {
             start = end - 31 * 24 * 60 * 60 * 1000;
         } else if (radioId.equals("3m")) {
