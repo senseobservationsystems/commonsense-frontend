@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -10,13 +12,10 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
-import java.util.Date;
-
-import nl.sense_os.commonsense.client.utility.Log;
-
 public class PeriodSelection extends ContentPanel {
 
-    private static final String TAG = "PeriodSelection";
+    @SuppressWarnings("unused")
+	private static final String TAG = "PeriodSelection";
     private final DatePicker picker = new DatePicker();
     private final RadioGroup radioGroup = new RadioGroup();  
     
@@ -56,25 +55,5 @@ public class PeriodSelection extends ContentPanel {
         this.add(radioGroup, new RowData(1, -1, new Margins(5)));
         this.add(textDate, new RowData(1, -1, new Margins(10,10,0,10)));
         this.add(this.picker, new RowData(1, -1, new Margins(5)));
-    }
-    
-    public long[] getTimeRange() {
-        
-        final long end = this.picker.getValue().getTime() + 24 * 60 * 60 * 1000;
-        long start = 0;
-        final String radioId = radioGroup.getValue().getId();
-        if (radioId.equals("1d")) {
-            start = end - 1 * 24 * 60 * 60 * 1000;
-        } else if (radioId.equals("7d")) {
-            start = end - 7 * 24 * 60 * 60 * 1000;
-        } else if (radioId.equals("1m")) {
-            start = end - 31 * 24 * 60 * 60 * 1000;
-        } else if (radioId.equals("3m")) {
-            start = end - 3* 31 * 24 * 60 * 60 * 1000;
-        } else {
-            Log.w(TAG, "Unexpected time range: " + radioId);
-        }
-        
-        return new long[] {start, end};
     }
 }

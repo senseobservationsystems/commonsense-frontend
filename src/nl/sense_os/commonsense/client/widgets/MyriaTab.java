@@ -1,9 +1,20 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.DataService;
+import nl.sense_os.commonsense.client.DataServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.SensorValueModel;
+import nl.sense_os.commonsense.dto.SnifferValueModel;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -19,31 +30,17 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.SnifferValueModel;
 
 public class MyriaTab extends LayoutContainer {
 
@@ -94,19 +91,20 @@ public class MyriaTab extends LayoutContainer {
     public MyriaTab(SensorModel sensor, long[] timeRange) {
         this.sensor = sensor;
         this.shownCharts = new HashMap<MyriaNode, AnnotatedTimeLine>();
-        this.timeRange = timeRange;
+        this.timeRange = timeRange; 
 
-        this.setLayout(new BorderLayout());
-
-        LayoutContainer nodeSelectPanel = createNodeSelector();
-        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST);
-        westLayout.setMargins(new Margins(5));
-        this.add(nodeSelectPanel, westLayout);
-
-        LayoutContainer centerPanel = createCenterPanel();
+        final TabPanel centerPanel = createCenterPanel();
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
-        this.add(centerPanel, centerLayout);
+
+        final ContentPanel nodeSelectPanel = createNodeSelector();
+        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 200, 300);
+        westLayout.setMargins(new Margins(5));
+        westLayout.setSplit(true);
+        
+        this.setLayout(new BorderLayout());
+        this.add(nodeSelectPanel, westLayout);
+        this.add(centerPanel, centerLayout); 
     }
 
     private void addChart(MyriaNode m) {
@@ -116,22 +114,13 @@ public class MyriaTab extends LayoutContainer {
         this.shownCharts.put(m, chart);
     }
 
-    private LayoutContainer createCenterPanel() {
-
-        TabItem foo = new TabItem("foo");
+    private TabPanel createCenterPanel() {
 
         this.chartPanel = new TabPanel();
+        this.chartPanel.setSize("100%", "100%");
         this.chartPanel.setPlain(true);
-        this.chartPanel.add(foo);
-
-        final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new FitLayout());
-        panel.setSize("100%", "100%");
-        panel.setStyleAttribute("backgroundColor", "white");
-        panel.setBorders(true);
-        panel.add(this.chartPanel, new FitData(10));
-
-        return panel;
+        
+        return this.chartPanel;
     }
 
     private ColumnModel createNodeCols(CheckBoxSelectionModel<MyriaNode> selectMdl) {
@@ -157,71 +146,69 @@ public class MyriaTab extends LayoutContainer {
         return new ColumnModel(configs);
     }
 
-    private LayoutContainer createNodeSelector() {
-
-        final LayoutContainer panel = new LayoutContainer();
-        final VBoxLayout layout = new VBoxLayout();
-        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
-        panel.setLayout(new FitLayout());
-        panel.setStyleAttribute("backgroundColor", "white");
-        panel.setBorders(true);
+    private ContentPanel createNodeSelector() {
 
         // request sensor values from service
         getSensorValues(this.timeRange);
 
         // selection model using check boxes
         final CheckBoxSelectionModel<MyriaNode> selectMdl = new CheckBoxSelectionModel<MyriaNode>();
-        selectMdl.addSelectionChangedListener(new SelectionChangedListener<MyriaTab.MyriaNode>() {
-
-            @Override
-            public void selectionChanged(SelectionChangedEvent<MyriaNode> se) {
-
-                final List<MyriaNode> newSelection = se.getSelection();
-                final Set<MyriaNode> oldSelection = shownCharts.keySet();
-
-                // find newly selected items
-                List<MyriaNode> toAdd = new ArrayList<MyriaNode>();
-                for (MyriaNode m : newSelection) {
-
-                    if (false == oldSelection.contains(m)) {
-                        toAdd.add(m);
-                    }
-                }
-
-                // find newly deselected items
-                List<MyriaNode> toRemove = new ArrayList<MyriaNode>();
-                for (MyriaNode m : oldSelection) {
-
-                    if (false == newSelection.contains(m)) {
-                        toRemove.add(m);
-                    }
-                }
-
-                for (MyriaNode mn : toAdd) {
-                    addChart(mn);
-                }
-
-                for (MyriaNode mn : toRemove) {
-                    removeChart(mn);
-                }
-            }
-        });
+        // selectMdl.addSelectionChangedListener(new SelectionChangedListener<MyriaTab.MyriaNode>()
+        // {
+        //
+        // @Override
+        // public void selectionChanged(SelectionChangedEvent<MyriaNode> se) {
+        //
+        // final List<MyriaNode> newSelection = se.getSelection();
+        // final Set<MyriaNode> oldSelection = shownCharts.keySet();
+        //
+        // // find newly selected items
+        // List<MyriaNode> toAdd = new ArrayList<MyriaNode>();
+        // for (MyriaNode m : newSelection) {
+        //
+        // if (false == oldSelection.contains(m)) {
+        // toAdd.add(m);
+        // }
+        // }
+        //
+        // // find newly deselected items
+        // List<MyriaNode> toRemove = new ArrayList<MyriaNode>();
+        // for (MyriaNode m : oldSelection) {
+        //
+        // if (false == newSelection.contains(m)) {
+        // toRemove.add(m);
+        // }
+        // }
+        //
+        // for (MyriaNode mn : toAdd) {
+        // addChart(mn);
+        // }
+        //
+        // for (MyriaNode mn : toRemove) {
+        // removeChart(mn);
+        // }
+        // }
+        // });
 
         ColumnModel columnMdl = createNodeCols(selectMdl);
 
-        this.store = new ListStore<MyriaNode>();
-
-        ContentPanel cp = new ContentPanel();
-        cp.setHeading("MyriaNed nodes");
-        cp.setLayout(new FitLayout());
+        if (null == this.store){ 
+            this.store = new ListStore<MyriaNode>();
+        }
 
         Grid<MyriaNode> grid = new Grid<MyriaNode>(this.store, columnMdl);
         grid.setSelectionModel(selectMdl);
         grid.addPlugin(selectMdl);
 
-        cp.add(grid);
-
-        panel.add(cp);
+        final ContentPanel panel = new ContentPanel();
+        final VBoxLayout layout = new VBoxLayout();
+        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
+        panel.setSize("100%", "100%");
+        panel.setHeading("MyriaNed nodes");
+        panel.setLayout(new FitLayout());
+        panel.setStyleAttribute("backgroundColor", "white");
+        panel.setBorders(true);
+        panel.add(grid);
 
         return panel;
     }
@@ -255,11 +242,16 @@ public class MyriaTab extends LayoutContainer {
         Timestamp end = new Timestamp(timeRange[1]);
 
         service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
-    }
-
-    @Override
-    protected void onRender(Element parent, int index) {
-        super.onRender(parent, index);
+        
+//        ArrayList<SensorValueModel> values = new ArrayList<SensorValueModel>();
+//        values.add(new SnifferValueModel(new Timestamp(0 * 24 * 60 * 60 * 1000), "2000", "1", "foo", ""));
+//        values.add(new SnifferValueModel(new Timestamp(0 * 24 * 60 * 60 * 1000), "2500", "2", "bar", ""));
+//        values.add(new SnifferValueModel(new Timestamp(1 * 24 * 60 * 60 * 1000), "1500", "1", "foo", ""));
+//        values.add(new SnifferValueModel(new Timestamp(2 * 24 * 60 * 60 * 1000), "2000", "2", "bar", ""));
+//        values.add(new SnifferValueModel(new Timestamp(3 * 24 * 60 * 60 * 1000), "2200", "2", "bar", ""));
+//        values.add(new SnifferValueModel(new Timestamp(3 * 24 * 60 * 60 * 1000), "2200", "1", "foo", ""));
+//        
+//        onSensorValuesReceived(true, values);
     }
 
     /**
@@ -284,54 +276,46 @@ public class MyriaTab extends LayoutContainer {
             motionData.addColumn(ColumnType.NUMBER, "Value", "value");
 
             DataTable timeChartData = DataTable.create();
-            timeChartData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
-            timeChartData.addColumn(ColumnType.NUMBER, "Value", "value");
+            timeChartData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");            
 
             // keep track of number of columns in
             HashMap<String, Integer> colIndexes = new HashMap<String, Integer>(30);
-            // for (int i = 0; i < values.size(); i++) {
-            // SnifferValueModel v = (SnifferValueModel) values.get(i);
-            // final int nodeId = Integer.parseInt(v.getNodeId());
-            // final String sensorName = v.getSensorName();
-            // final double value = this.sensor.getName().equals("temperature") ? Double
-            // .parseDouble(v.getValue()) / 100 : Double.parseDouble(v.getValue()) / 10;
-            //
-            // // look up node in list of known nodes
-            // Integer colIndex = colIndexes.get(nodeId + sensorName);
-            //
-            // // add new column in table if node is new
-            // if (colIndex == null) {
-            // timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
-            // + ")",
-            // "node_" + nodeId);
-            // colIndex = timeChartData.getNumberOfColumns() - 1;
-            // colIndexes.put(nodeId + sensorName, colIndex);
-            // }
-            //
-            // // add data to the table
-            // final int rowIndex = timeChartData.getNumberOfRows();
-            // timeChartData.addRow();
-            // timeChartData.setValue(rowIndex, 1, v.getTimestamp());
-            // timeChartData.setValue(rowIndex, colIndex, value);
-            //
-            // motionData.addRow();
-            // motionData.setValue(rowIndex, 0, nodeId + " (" + sensorName + ")");
-            // motionData.setValue(rowIndex, 1, v.getTimestamp());
-            // motionData.setValue(rowIndex, 2, value);
-            //
-            // // get node
-            // MyriaNode node = null;
-            // for (MyriaNode mn : list) {
-            // if ((mn.getNodeId() == nodeId) && (mn.getSensorName().equals(sensorName))) {
-            // node = mn;
-            // break;
-            // }
-            // }
-            // if (node == null) {
-            // node = new MyriaNode(nodeId, sensorName, colIndex);
-            // list.add(node);
-            // }
-            // }
+            for (int i = 0; i < values.size(); i++) {
+                SnifferValueModel v = (SnifferValueModel) values.get(i);
+                final int nodeId = Integer.parseInt(v.getNodeId());
+                final String sensorName = v.getSensorName();
+                final double value = this.sensor.getName().equals("temperature") ? Double
+                        .parseDouble(v.getValue()) / 100 : Double.parseDouble(v.getValue()) / 10;
+
+                // look up node in list of known nodes
+                Integer colIndex = colIndexes.get(nodeId + sensorName);
+
+                // add new column in table if node is new
+                if (colIndex == null) {
+                    // create new column for this node
+                    colIndex = timeChartData.getNumberOfColumns();
+                    timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
+                            + ")", "node_" + nodeId);
+                    colIndexes.put(nodeId + sensorName, colIndex);
+                    
+                    // add new node to list for MyriaNode grid
+                    MyriaNode node = new MyriaNode(nodeId, sensorName, colIndex);
+                    list.add(node);
+
+                    Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: "  + colIndex);
+                }
+
+                // add data to the table
+                final int rowIndex = timeChartData.getNumberOfRows();
+                timeChartData.addRow();
+                timeChartData.setValue(rowIndex, 0, v.getTimestamp());
+                timeChartData.setValue(rowIndex, colIndex.intValue(), value);
+
+                motionData.addRow();
+                motionData.setValue(rowIndex, 0, nodeId + " (" + sensorName + ")");
+                motionData.setValue(rowIndex, 1, v.getTimestamp());
+                motionData.setValue(rowIndex, 2, value);
+            }
 
             showChart(timeChartData);
 
@@ -359,15 +343,15 @@ public class MyriaTab extends LayoutContainer {
     }
 
     private void showChart(DataTable data) {
-        
-        Log.d(TAG, "addChart");
+
+        Log.d(TAG, "showChart");
         
         TabItem item = new TabItem("Time plot");
         item.setLayout(new CenterLayout());
         item.setClosable(true);
         item.setId("time");
 
-        if (null == data) {
+        if ((null == data) || (data.getNumberOfRows() == 0)) {
             item.add(new Text("No data to display. Did you select the proper time range?"));
         } else {
             final int min = this.sensor.getName().equals("temperature") ? 15 : 0;
@@ -380,11 +364,11 @@ public class MyriaTab extends LayoutContainer {
             this.chart = new AnnotatedTimeLine(data, options, "800px", "600px");
 
             // initially hide all data from chart
-            int[] cols = new int[data.getNumberOfColumns() - 1];
-            for (int i = 0; i < data.getNumberOfColumns() - 1; i++) {
-                cols[i] = i;
-            }
-            this.chart.hideDataColumns(cols);
+//            int[] cols = new int[data.getNumberOfColumns() - 1];
+//            for (int i = 0; i < data.getNumberOfColumns() - 1; i++) {
+//                cols[i] = i;
+//            }
+//            this.chart.hideDataColumns(cols);
 
             item.add(this.chart);
         }
@@ -393,12 +377,15 @@ public class MyriaTab extends LayoutContainer {
     }
 
     private void showMChart(DataTable data) {
+
+        Log.d(TAG, "showMChart");
+        
         TabItem item = new TabItem("Motion plot");
         item.setLayout(new CenterLayout());
         item.setClosable(true);
         item.setId("motion");
-        
-        if (null == data) {
+
+        if ((null == data) || (data.getNumberOfRows() == 0)) {
             item.add(new Text("No data to display. Did you select the proper time range?"));
         } else {
             final MotionChart.Options mOptions = MotionChart.Options.create();

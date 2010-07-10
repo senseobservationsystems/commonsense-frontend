@@ -39,6 +39,7 @@ public class CommonSense implements EntryPoint {
         
         // set up viewport to fill entire browser screen
         Viewport vp = new Viewport();
+        vp.setSize("100%", "100%");
         vp.setLayout(new FitLayout());
         vp.add(home);
         

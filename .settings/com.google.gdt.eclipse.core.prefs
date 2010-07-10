@@ -1,5 +1,5 @@
-#Mon Jul 05 11:53:00 CEST 2010
+#Sat Jul 10 14:33:07 CEST 2010
 eclipse.preferences.version=1
-jarsExcludedFromWebInfLib=/media/Data/workspace/gwt/CommonSense/lib/gxt.jar|/media/Data/workspace/gwt/sdks/gwt-visualization-1.1.0/gwt-visualization.jar
+jarsExcludedFromWebInfLib=/media/Data/workspace/gwt/CommonSense/lib/gxt.jar|/media/Data/workspace/gwt/sdks/gwt-visualization-1.1.0/gwt-visualization.jar|/media/data/workspace/google/CommonSense/lib/gwt-visualization.jar
 warSrcDir=war
 warSrcDirIsOutput=true
