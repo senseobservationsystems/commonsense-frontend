@@ -12,8 +12,10 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.visualization.client.DataTable;
 
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
@@ -61,13 +63,13 @@ public class Login extends LayoutContainer {
         // email field
         final TextField<String> email = new TextField<String>();
         email.setFieldLabel("Email");
-        email.setValue("vestia@sense-os.nl");
+//        email.setValue("vestia@sense-os.nl");
         email.setAllowBlank(false);
 
         // password field
         final TextField<String> pass = new TextField<String>();
         pass.setFieldLabel("Password");
-        pass.setValue("vestia_delfgauw");
+//        pass.setValue("vestia_delfgauw");
         pass.setAllowBlank(false);
         pass.setPassword(true);
 
@@ -105,8 +107,8 @@ public class Login extends LayoutContainer {
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
 
-        final FormPanel form = createForm();
-
+        final FormPanel form = createForm();        
+        
         this.add(form);
     }
 }

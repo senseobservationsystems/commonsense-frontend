@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
@@ -15,6 +16,8 @@ import nl.sense_os.commonsense.dto.SnifferValueModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -37,7 +40,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
@@ -153,42 +155,41 @@ public class MyriaTab extends LayoutContainer {
 
         // selection model using check boxes
         final CheckBoxSelectionModel<MyriaNode> selectMdl = new CheckBoxSelectionModel<MyriaNode>();
-        // selectMdl.addSelectionChangedListener(new SelectionChangedListener<MyriaTab.MyriaNode>()
-        // {
-        //
-        // @Override
-        // public void selectionChanged(SelectionChangedEvent<MyriaNode> se) {
-        //
-        // final List<MyriaNode> newSelection = se.getSelection();
-        // final Set<MyriaNode> oldSelection = shownCharts.keySet();
-        //
-        // // find newly selected items
-        // List<MyriaNode> toAdd = new ArrayList<MyriaNode>();
-        // for (MyriaNode m : newSelection) {
-        //
-        // if (false == oldSelection.contains(m)) {
-        // toAdd.add(m);
-        // }
-        // }
-        //
-        // // find newly deselected items
-        // List<MyriaNode> toRemove = new ArrayList<MyriaNode>();
-        // for (MyriaNode m : oldSelection) {
-        //
-        // if (false == newSelection.contains(m)) {
-        // toRemove.add(m);
-        // }
-        // }
-        //
-        // for (MyriaNode mn : toAdd) {
-        // addChart(mn);
-        // }
-        //
-        // for (MyriaNode mn : toRemove) {
-        // removeChart(mn);
-        // }
-        // }
-        // });
+        selectMdl.addSelectionChangedListener(new SelectionChangedListener<MyriaTab.MyriaNode>() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent<MyriaNode> se) {
+
+                final List<MyriaNode> newSelection = se.getSelection();
+                final Set<MyriaNode> oldSelection = shownCharts.keySet();
+
+                // find newly selected items
+                List<MyriaNode> toAdd = new ArrayList<MyriaNode>();
+                for (MyriaNode m : newSelection) {
+
+                    if (false == oldSelection.contains(m)) {
+                        toAdd.add(m);
+                    }
+                }
+
+                // find newly deselected items
+                List<MyriaNode> toRemove = new ArrayList<MyriaNode>();
+                for (MyriaNode m : oldSelection) {
+
+                    if (false == newSelection.contains(m)) {
+                        toRemove.add(m);
+                    }
+                }
+
+                for (MyriaNode mn : toAdd) {
+                    addChart(mn);
+                }
+
+                for (MyriaNode mn : toRemove) {
+                    removeChart(mn);
+                }
+            }
+        });
 
         ColumnModel columnMdl = createNodeCols(selectMdl);
 
@@ -211,6 +212,12 @@ public class MyriaTab extends LayoutContainer {
         panel.add(grid);
 
         return panel;
+    }
+    
+    private Timestamp getNextQuarterHour(Timestamp now) {
+        final long period = 15 * 60 * 1000;
+        final long remainder = now.getTime() % period;
+        return new Timestamp(now.getTime() - remainder + period);
     }
 
     /**
@@ -274,14 +281,18 @@ public class MyriaTab extends LayoutContainer {
             motionData.addColumn(ColumnType.STRING, "Node", "node");
             motionData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
             motionData.addColumn(ColumnType.NUMBER, "Value", "value");
-
+            
             DataTable timeChartData = DataTable.create();
-            timeChartData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");            
+            timeChartData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
 
+            HashMap<Timestamp, Double> max = new HashMap<Timestamp, Double>();
+            HashMap<Timestamp, Double> min = new HashMap<Timestamp, Double>();
+            
             // keep track of number of columns in
             HashMap<String, Integer> colIndexes = new HashMap<String, Integer>(30);
             for (int i = 0; i < values.size(); i++) {
                 SnifferValueModel v = (SnifferValueModel) values.get(i);
+                final Timestamp time = getNextQuarterHour(v.getTimestamp());
                 final int nodeId = Integer.parseInt(v.getNodeId());
                 final String sensorName = v.getSensorName();
                 final double value = this.sensor.getName().equals("temperature") ? Double
@@ -304,22 +315,51 @@ public class MyriaTab extends LayoutContainer {
 
                     Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: "  + colIndex);
                 }
+                
+                // check if this value is the new maximum
+                Double currentMax = max.get(time);                
+                if ((null == currentMax) || (currentMax.doubleValue() < value)) {
+                    max.put(time, value);
+                }
+                
+                // check if this value is the new minimum
+                Double currentMin = min.get(time);                
+                if ((null == currentMin) || (currentMin.doubleValue() > value)) {
+                    min.put(time, value);
+                }
 
                 // add data to the table
                 final int rowIndex = timeChartData.getNumberOfRows();
                 timeChartData.addRow();
-                timeChartData.setValue(rowIndex, 0, v.getTimestamp());
+                timeChartData.setValue(rowIndex, 0, time);
                 timeChartData.setValue(rowIndex, colIndex.intValue(), value);
 
                 motionData.addRow();
                 motionData.setValue(rowIndex, 0, nodeId + " (" + sensorName + ")");
-                motionData.setValue(rowIndex, 1, v.getTimestamp());
+                motionData.setValue(rowIndex, 1, time);
                 motionData.setValue(rowIndex, 2, value);
             }
+            
+            // put maximum in data table
+            timeChartData.addColumn(ColumnType.NUMBER, "MAX");
+            timeChartData.addColumn(ColumnType.NUMBER, "MIN");
+            int colMax = timeChartData.getNumberOfColumns() - 2;
+            int colMin = timeChartData.getNumberOfColumns() - 1;
+            for (int i = 0; i<timeChartData.getNumberOfRows(); i++) {
+                Date time = timeChartData.getValueDate(i, 0);
+                Timestamp t = new Timestamp(time.getTime());
+                double maxVal = max.get(t);
+                double minVal = min.get(t);
+
+                timeChartData.setValue(i, colMax, maxVal);
+                timeChartData.setValue(i, colMin, minVal);
+            }
+            list.add(new MyriaNode(-1, "MAX", colMax));
+            list.add(new MyriaNode(-1, "MIN", colMin));
 
             showChart(timeChartData);
 
-            showMChart(motionData);
+//            showMChart(motionData);
 
         } else {
             Log.w(TAG, "Zero values received!");
@@ -364,10 +404,10 @@ public class MyriaTab extends LayoutContainer {
             this.chart = new AnnotatedTimeLine(data, options, "800px", "600px");
 
             // initially hide all data from chart
-//            int[] cols = new int[data.getNumberOfColumns() - 1];
-//            for (int i = 0; i < data.getNumberOfColumns() - 1; i++) {
-//                cols[i] = i;
-//            }
+            int[] cols = new int[data.getNumberOfColumns() - 1];
+            for (int i = 0; i < data.getNumberOfColumns() - 1; i++) {
+                cols[i] = i;
+            }
 //            this.chart.hideDataColumns(cols);
 
             item.add(this.chart);
