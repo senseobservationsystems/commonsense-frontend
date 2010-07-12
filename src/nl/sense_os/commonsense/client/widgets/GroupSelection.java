@@ -210,15 +210,19 @@ public class GroupSelection extends ContentPanel {
         
         final long end = this.picker.getValue().getTime() + 24 * 60 * 60 * 1000;
         long start = 0;
+        long day = 1 * 24 * 60 * 60 * 1000;
+        long week = 7 * 24 * 60 * 60 * 1000;
+        long month = 31l * 24 * 60 * 60 * 1000;   // explicit calculation in long type
+        long quarter = 3l * 31 * 24 * 60 * 60 * 1000;
         final String radioId = radioGroup.getValue().getId();
         if (radioId.equals("1d")) {
-            start = end - 1 * 24 * 60 * 60 * 1000;
+            start = end - day;
         } else if (radioId.equals("7d")) {
-            start = end - 7 * 24 * 60 * 60 * 1000;
+            start = end - week;
         } else if (radioId.equals("1m")) {
-            start = end - 31 * 24 * 60 * 60 * 1000;
+            start = end - month;
         } else if (radioId.equals("3m")) {
-            start = end - 3* 31 * 24 * 60 * 60 * 1000;
+            start = end - quarter;
         } else {
             Log.w(TAG, "Unexpected time range: " + radioId);
         }

@@ -1,19 +1,5 @@
 package nl.sense_os.commonsense.client.widgets;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.SnifferValueModel;
-
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -44,6 +30,20 @@ import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import nl.sense_os.commonsense.client.DataService;
+import nl.sense_os.commonsense.client.DataServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.SensorValueModel;
+import nl.sense_os.commonsense.dto.SnifferValueModel;
+
 public class MyriaTab extends LayoutContainer {
 
     private class MyriaNode extends BaseModel {
@@ -54,6 +54,7 @@ public class MyriaTab extends LayoutContainer {
             setNodeId(nodeId);
             setSensorName(sensorName);
             setColIndex(colIndex);
+            incPointCount();
         }
 
         public int getColIndex() {
@@ -67,6 +68,12 @@ public class MyriaTab extends LayoutContainer {
         public String getSensorName() {
             return get("sensor_name");
         }
+        
+        public int incPointCount() {
+            int count = get("point_count", 0);
+            set("point_count", ++count);
+            return count;
+        }
 
         public void setColIndex(int colIndex) {
             set("column_index", colIndex);
@@ -74,6 +81,10 @@ public class MyriaTab extends LayoutContainer {
 
         public void setNodeId(int nodeId) {
             set("node_id", nodeId);
+        }
+        
+        public void setPointCount(int count) {
+            set("point_count", count);
         }
 
         public void setSensorName(String sensorName) {
@@ -89,6 +100,7 @@ public class MyriaTab extends LayoutContainer {
     private HashMap<MyriaNode, AnnotatedTimeLine> shownCharts;
     private ListStore<MyriaNode> store;
     private long[] timeRange;
+    private Grid<MyriaNode> nodeSelector;
 
     public MyriaTab(SensorModel sensor, long[] timeRange) {
         this.sensor = sensor;
@@ -142,7 +154,14 @@ public class MyriaTab extends LayoutContainer {
         column = new ColumnConfig();
         column.setId("sensor_name");
         column.setHeader("Sensor");
-        column.setWidth(150);
+        column.setWidth(60);
+        configs.add(column);
+
+        // datapoint count column
+        column = new ColumnConfig();
+        column.setId("point_count");
+        column.setHeader("# points");
+        column.setWidth(90);
         configs.add(column);
 
         return new ColumnModel(configs);
@@ -197,9 +216,9 @@ public class MyriaTab extends LayoutContainer {
             this.store = new ListStore<MyriaNode>();
         }
 
-        Grid<MyriaNode> grid = new Grid<MyriaNode>(this.store, columnMdl);
-        grid.setSelectionModel(selectMdl);
-        grid.addPlugin(selectMdl);
+        this.nodeSelector = new Grid<MyriaNode>(this.store, columnMdl);
+        this.nodeSelector.setSelectionModel(selectMdl);
+        this.nodeSelector.addPlugin(selectMdl);
 
         final ContentPanel panel = new ContentPanel();
         final VBoxLayout layout = new VBoxLayout();
@@ -209,13 +228,13 @@ public class MyriaTab extends LayoutContainer {
         panel.setLayout(new FitLayout());
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
-        panel.add(grid);
+        panel.add(nodeSelector);
 
         return panel;
     }
     
     private Timestamp getNextQuarterHour(Timestamp now) {
-        final long period = 15 * 60 * 1000;
+        final long period = 10 * 60 * 1000;
         final long remainder = now.getTime() % period;
         return new Timestamp(now.getTime() - remainder + period);
     }
@@ -271,7 +290,7 @@ public class MyriaTab extends LayoutContainer {
      */
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
 
-        ArrayList<MyriaNode> list = new ArrayList<MyriaNode>();
+        HashMap<String, MyriaNode> nodes = new HashMap<String, MyriaNode>();
 
         // fill table if values are present
         if ((true == success) && (values.size() > 0)) {
@@ -289,7 +308,6 @@ public class MyriaTab extends LayoutContainer {
             HashMap<Timestamp, Double> min = new HashMap<Timestamp, Double>();
             
             // keep track of number of columns in
-            HashMap<String, Integer> colIndexes = new HashMap<String, Integer>(30);
             for (int i = 0; i < values.size(); i++) {
                 SnifferValueModel v = (SnifferValueModel) values.get(i);
                 final Timestamp time = getNextQuarterHour(v.getTimestamp());
@@ -299,22 +317,20 @@ public class MyriaTab extends LayoutContainer {
                         .parseDouble(v.getValue()) / 100 : Double.parseDouble(v.getValue()) / 10;
 
                 // look up node in list of known nodes
-                Integer colIndex = colIndexes.get(nodeId + sensorName);
-
-                // add new column in table if node is new
-                if (colIndex == null) {
-                    // create new column for this node
-                    colIndex = timeChartData.getNumberOfColumns();
+                MyriaNode node = nodes.get(nodeId + sensorName);
+                if (node == null) {
+                    // add new column in table if node is new
+                    int colIndex = timeChartData.getNumberOfColumns();
                     timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
                             + ")", "node_" + nodeId);
-                    colIndexes.put(nodeId + sensorName, colIndex);
                     
-                    // add new node to list for MyriaNode grid
-                    MyriaNode node = new MyriaNode(nodeId, sensorName, colIndex);
-                    list.add(node);
+                    node = new MyriaNode(nodeId, sensorName, colIndex);                    
+                    node.setColIndex(colIndex);
+                    nodes.put(nodeId + sensorName, node);
 
-                    Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: "  + colIndex);
+//                    Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: "  + colIndex);
                 }
+                node.incPointCount();
                 
                 // check if this value is the new maximum
                 Double currentMax = max.get(time);                
@@ -332,7 +348,7 @@ public class MyriaTab extends LayoutContainer {
                 final int rowIndex = timeChartData.getNumberOfRows();
                 timeChartData.addRow();
                 timeChartData.setValue(rowIndex, 0, time);
-                timeChartData.setValue(rowIndex, colIndex.intValue(), value);
+                timeChartData.setValue(rowIndex, node.getColIndex(), value);
 
                 motionData.addRow();
                 motionData.setValue(rowIndex, 0, nodeId + " (" + sensorName + ")");
@@ -354,8 +370,12 @@ public class MyriaTab extends LayoutContainer {
                 timeChartData.setValue(i, colMax, maxVal);
                 timeChartData.setValue(i, colMin, minVal);
             }
-            list.add(new MyriaNode(-1, "MAX", colMax));
-            list.add(new MyriaNode(-1, "MIN", colMin));
+            MyriaNode maxNode = new MyriaNode(-1, "MAX", colMax);
+            maxNode.setPointCount(timeChartData.getNumberOfRows());
+            nodes.put("MAX", maxNode);
+            MyriaNode minNode = new MyriaNode(-1, "MIN", colMin);
+            minNode.setPointCount(timeChartData.getNumberOfRows());
+            nodes.put("MIN", minNode);
 
             showChart(timeChartData);
 
@@ -372,7 +392,8 @@ public class MyriaTab extends LayoutContainer {
         } else {
             this.store.removeAll();
         }
-        this.store.add(list);
+        this.store.add(new ArrayList<MyriaNode>(nodes.values()));
+        this.nodeSelector.getSelectionModel().selectAll();
     }
 
     private void removeChart(MyriaNode m) {
