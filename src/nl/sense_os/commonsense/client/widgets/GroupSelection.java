@@ -125,11 +125,11 @@ public class GroupSelection extends ContentPanel {
         final Radio radio1d = new Radio();
         radio1d.setId("1d");
         radio1d.setBoxLabel("1d");
-        radio1d.setValue(true);
 
         final Radio radio7d = new Radio();
         radio7d.setId("7d");
         radio7d.setBoxLabel("7d");
+        radio7d.setValue(true);
 
         final Radio radio1m = new Radio();
         radio1m.setId("1m");
@@ -143,6 +143,7 @@ public class GroupSelection extends ContentPanel {
         this.radioGroup.add(radio7d);
         this.radioGroup.add(radio1m);
         this.radioGroup.add(radio3m);
+        this.radioGroup.setOriginalValue(radio7d);
     }
 
     /**

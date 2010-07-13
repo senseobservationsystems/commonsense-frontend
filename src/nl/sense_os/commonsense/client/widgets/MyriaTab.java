@@ -486,6 +486,11 @@ public class MyriaTab extends LayoutContainer {
         } else {            
             AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
             options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
+            if (this.sensor.getName().equals("temperature")) {
+                max = max > 45 ? 45 : max;
+            } else if (this.sensor.getName().equals("humidity")) {
+                max = max > 110 ? 110 : max;
+            }
             double padding = (max - min) / 10;
             options.setMin((int) (min - padding));
             options.setMax((int) (max + padding));
