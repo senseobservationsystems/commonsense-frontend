@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -51,7 +52,7 @@ public class Home extends LayoutContainer {
         this.service = (DataServiceAsync) GWT.create(DataService.class);
         this.mainCallback = callback;
         this.user = user;
-        
+
         // Load the visualization api, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
 
@@ -60,7 +61,8 @@ public class Home extends LayoutContainer {
                 Log.d(TAG, "Visualization loaded...");
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE, MotionChart.PACKAGE);        
+        VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE,
+                MotionChart.PACKAGE);
 
         // west panel with controls
         final ContentPanel west = createWestPanel();
@@ -79,10 +81,10 @@ public class Home extends LayoutContainer {
         contentPanel.setLayout(new BorderLayout());
         contentPanel.setFrame(true);
         contentPanel.setCollapsible(false);
-        
+
         contentPanel.add(west, westLayout);
         contentPanel.add(center, centerLayout);
-        
+
         this.setLayout(new FitLayout());
         this.add(contentPanel);
     }
@@ -118,7 +120,7 @@ public class Home extends LayoutContainer {
 
         return this.tabPanel;
     }
-    
+
     GroupSelection groupSelection = new GroupSelection();
 
     /**
@@ -132,30 +134,31 @@ public class Home extends LayoutContainer {
         final Image logo = new Image("/img/logo_sense-150.png");
         final LayoutContainer logoContainer = new LayoutContainer();
         logoContainer.setLayout(new CenterLayout());
-        logo.addLoadHandler(new LoadHandler() {            
+        logo.addLoadHandler(new LoadHandler() {
             @Override
             public void onLoad(LoadEvent event) {
                 logoContainer.setHeight(logo.getHeight());
             }
         });
         logoContainer.add(logo);
-        
-        // add listener to group selection panel, to display content when the Generate button is pressed
+
+        // add listener to group selection panel, to display content when the Generate button is
+        // pressed
         this.groupSelection.addListener(Events.Activate, new Listener<AppEvent>() {
 
-			@Override
-			public void handleEvent(AppEvent be) {
-				
-				Object[] data = be.<Object[]> getData();
-				@SuppressWarnings("unchecked")
-				List<SensorModel> sensors = (List<SensorModel>) data[0];
-				long[] timeRange = (long[]) data[1];
-				onGenerate(sensors, timeRange);
-			}
-        	
-		});
+            @Override
+            public void handleEvent(AppEvent be) {
 
-        // Log out button with flexible white space above it 
+                Object[] data = be.<Object[]> getData();
+                @SuppressWarnings("unchecked")
+                List<SensorModel> sensors = (List<SensorModel>) data[0];
+                long[] timeRange = (long[]) data[1];
+                onGenerate(sensors, timeRange);
+            }
+
+        });
+
+        // Log out button with flexible white space above it
         final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
             @Override
@@ -173,16 +176,16 @@ public class Home extends LayoutContainer {
                 });
             }
         });
-        
+
         final ContentPanel panel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
         panel.setHeaderVisible(false);
         panel.setBorders(true);
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setScrollMode(Scroll.AUTO);
         panel.add(logoContainer, new RowData(1, -1, new Margins(0)));
-        panel.add(groupSelection, new RowData(1, -1, new Margins(0)));
+        panel.add(this.groupSelection, new RowData(1, -1, new Margins(0)));
         panel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-        
+
         return panel;
     }
 
@@ -195,24 +198,29 @@ public class Home extends LayoutContainer {
      */
     private void onGenerate(List<SensorModel> sensors, long[] timeRange) {
 
-        for (SensorModel sensor : sensors) {
-            // close TabItem for this sensor
-            String id = sensor.getPhoneId() + ". " + sensor.getName();
-            
-            TabItem item = new TabItem(sensor.getName());
-            item.setLayout(new FitLayout());
+        if (sensors.size() > 0) {
+            for (SensorModel sensor : sensors) {
+                // close TabItem for this sensor
+                String id = sensor.getPhoneId() + ". " + sensor.getName();
 
-            if ((sensor.getName().equals("temperature")) || sensor.getName().equals("humidity")) {                
-                item.add(new MyriaTab(sensor, timeRange));
-            } else {
-                item.add(new LineChartTab(sensor));
+                TabItem item = new TabItem(sensor.getName());
+                item.setLayout(new FitLayout());
+
+                if ((sensor.getName().equals("temperature")) || sensor.getName().equals("humidity")) {
+                    item.add(new MyriaTab(sensor, timeRange));
+                } else {
+                    item.add(new LineChartTab(sensor));
+                }
+                item.setClosable(true);
+                item.setId(id);
+                this.tabPanel.add(item);
+
+                // select the appropriate tab item
+                this.tabPanel.setSelection(item);
             }
-            item.setClosable(true);
-            item.setId(id);
-            this.tabPanel.add(item);
-
-            // select the appropriate tab item
-            this.tabPanel.setSelection(item);
+        } else {
+            MessageBox
+                    .info("CommonSense Web Interface", "No sensor selected! Please select a sensor to display its values.", null);
         }
     }
 }
