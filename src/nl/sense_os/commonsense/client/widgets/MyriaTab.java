@@ -43,12 +43,14 @@ import java.util.Set;
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.dto.MyriaTempValueModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.SnifferValueModel;
+import nl.sense_os.commonsense.server.data.SensorValue;
 
 public class MyriaTab extends LayoutContainer {
 
+    @SuppressWarnings("unused")
     private class MyriaNode extends BaseModel {
 
         private static final long serialVersionUID = 1L;
@@ -141,7 +143,7 @@ public class MyriaTab extends LayoutContainer {
             shownCharts.put(mn, chart);
         }
         chart.showDataColumns(showCols);
-        
+
         int[] hideCols = new int[toHide.size()];
         for (int i = 0; i < toHide.size(); i++) {
             MyriaNode mn = toHide.get(i);
@@ -165,14 +167,14 @@ public class MyriaTab extends LayoutContainer {
         ColumnConfig group = new ColumnConfig("group", "Floor", 10);
         ColumnConfig node = new ColumnConfig("node_id", "Node ID", 60);
         ColumnConfig sensor = new ColumnConfig("sensor_name", "Sensor", 60);
-        ColumnConfig count = new ColumnConfig("point_count", "# points", 90);        
+        ColumnConfig count = new ColumnConfig("point_count", "# points", 90);
 
         ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(selectMdl.getColumn());
         configs.add(group);
         configs.add(node);
         configs.add(sensor);
-        configs.add(count);        
+        configs.add(count);
 
         return new ColumnModel(configs);
     }
@@ -221,17 +223,17 @@ public class MyriaTab extends LayoutContainer {
             this.store = new GroupingStore<MyriaNode>();
         }
 
-        GroupingView view = new GroupingView();  
-        view.setShowGroupedColumn(false);  
-        view.setForceFit(true);  
-        view.setGroupRenderer(new GridGroupRenderer() {  
-          public String render(GroupColumnData data) {  
-            String l = data.models.size() == 1 ? "Node" : "Nodes";  
-            return data.group + " (" + data.models.size() + " " + l + ")";  
-          }  
-        });  
+        GroupingView view = new GroupingView();
+        view.setShowGroupedColumn(false);
+        view.setForceFit(true);
+        view.setGroupRenderer(new GridGroupRenderer() {
+            public String render(GroupColumnData data) {
+                String l = data.models.size() == 1 ? "Node" : "Nodes";
+                return data.group + " (" + data.models.size() + " " + l + ")";
+            }
+        });
         this.store.groupBy("group");
-        
+
         this.nodeSelector = new Grid<MyriaNode>(this.store, columnMdl);
         this.nodeSelector.setView(view);
         this.nodeSelector.setSelectionModel(selectMdl);
@@ -371,20 +373,21 @@ public class MyriaTab extends LayoutContainer {
             DataTable timeChartData = DataTable.create();
             timeChartData.addColumn(ColumnType.DATETIME, "Date/Time", "timestamp");
 
-            HashMap<Timestamp, Double> max = new HashMap<Timestamp, Double>();
-            HashMap<Timestamp, Double> min = new HashMap<Timestamp, Double>();
+            HashMap<Timestamp, Float> max = new HashMap<Timestamp, Float>();
+            HashMap<Timestamp, Float> min = new HashMap<Timestamp, Float>();
 
             // keep track of number of columns in
             double totalMax = 0;
             double totalMin = 100;
             HashMap<Timestamp, Integer> rowNrs = new HashMap<Timestamp, Integer>();
             for (int i = 0; i < values.size(); i++) {
-                SnifferValueModel v = (SnifferValueModel) values.get(i);
+                MyriaTempValueModel v = (MyriaTempValueModel) values.get(i);
                 final Timestamp time = getNextQuarterHour(v.getTimestamp());
-                final int nodeId = Integer.parseInt(v.getNodeId());
+                final int nodeId = v.getNodeId();
+                final int sensorType = v.getType();
                 final String sensorName = v.getSensorName();
-                final double value = this.sensor.getName().equals("temperature") ? Double
-                        .parseDouble(v.getValue()) / 100 : Double.parseDouble(v.getValue()) / 10;
+                final float value = sensorType == SensorValue.MYRIA_TEMPERATURE ? v.getFloatValue() / 100
+                        : v.getFloatValue() / 10;
 
                 // look up node in list of known nodes
                 MyriaNode node = nodes.get(nodeId + sensorName);
@@ -403,16 +406,16 @@ public class MyriaTab extends LayoutContainer {
                 node.incPointCount();
 
                 // check if this value is the new maximum
-                Double currentMax = max.get(time);
-                totalMax = totalMax < value ? value : totalMax; 
-                if ((null == currentMax) || (currentMax.doubleValue() < value)) {
+                Float currentMax = max.get(time);
+                totalMax = totalMax < value ? value : totalMax;
+                if ((null == currentMax) || (currentMax.floatValue() < value)) {
                     max.put(time, value);
                 }
 
                 // check if this value is the new minimum
-                Double currentMin = min.get(time);
-                totalMin = totalMin > value ? value : totalMin; 
-                if ((null == currentMin) || (currentMin.doubleValue() > value)) {
+                Float currentMin = min.get(time);
+                totalMin = totalMin > value ? value : totalMin;
+                if ((null == currentMin) || (currentMin.floatValue() > value)) {
                     min.put(time, value);
                 }
 
@@ -483,7 +486,7 @@ public class MyriaTab extends LayoutContainer {
 
         if ((null == data) || (data.getNumberOfRows() == 0)) {
             item.add(new Text("No data to display. Did you select the proper time range?"));
-        } else {            
+        } else {
             AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
             options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
             if (this.sensor.getName().equals("temperature")) {

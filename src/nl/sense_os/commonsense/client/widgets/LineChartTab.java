@@ -107,15 +107,15 @@ public class LineChartTab extends LayoutContainer {
             for (int i = 0; i < values.size(); i++) {
                 SensorValueModel value = values.get(i);
                 this.data.setValue(i, 0, value.getTimestamp());
-                Double d = 0.0;
+                Float f = 0.0f;
                 try {
-                    d = Double.valueOf(value.getValue());
+                    f = value.getFloatValue();
                 } catch (NumberFormatException e) {
                     Log.e(TAG, "NumberFormatException putting sensor values in line chart: "
-                            + value.getValue());
+                            + value.getFloatValue());
                 }
-                this.data.setValue(i, 1, d);
-                Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
+                this.data.setValue(i, 1, f);
+                Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getFloatValue());
             }
         } else {
             Log.w(TAG, "Zero values received!");

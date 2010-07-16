@@ -41,7 +41,6 @@ import com.google.gwt.visualization.client.visualizations.MotionChart;
 
 public class Home extends LayoutContainer {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "Home";
     private final AsyncCallback<Void> mainCallback;
     private final DataServiceAsync service;

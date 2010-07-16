@@ -163,6 +163,8 @@ public class GroupSelection extends ContentPanel {
                 if (loadConfig == null) {
                     service.getPhoneDetails(callback);
                 } else if (loadConfig instanceof PhoneModel) {
+                    PhoneModel p = ((PhoneModel) loadConfig);
+                    Log.d(TAG, "Received phone: " + p.get("id") + ". " + p.get("type") + ". IMEI: " + p.get("imei") + ", date: " + p.get("date"));
                     final String phoneId = ((PhoneModel) loadConfig).getId();
                     service.getSensors(phoneId, callback);
                 } else if (loadConfig instanceof SensorModel) {
@@ -215,7 +217,7 @@ public class GroupSelection extends ContentPanel {
         // contants
         final long day = 1 * 24 * 60 * 60 * 1000;
         final long week = 7 * day;
-        final long month = 31 * day; // explicit calculation in long type
+        final long month = 31 * day; 
         final long quarter = 3 * month;
 
         // read off selected date

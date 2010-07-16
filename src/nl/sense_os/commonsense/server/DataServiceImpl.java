@@ -33,23 +33,14 @@ import nl.sense_os.commonsense.server.utility.UserConverter;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService {
 
+    private static final Logger log = Logger.getLogger("DataServiceImpl");
     private static final long serialVersionUID = 1L;
-    private static final String URL_BASE = "http://demo.almende.com/commonSense/gae/";
-    private static final String URL_LOGIN = URL_BASE + "login.php";
+    private static final String URL_BASE = "http://demo.almende.com/commonSense2/gae/";
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
     private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
     private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data.php";
+    private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String USER_SESSION = "GWTAppUser";
-
-    private void setUserInSession(User user) {
-        HttpSession session = getThreadLocalRequest().getSession();
-        session.setAttribute(USER_SESSION, user);
-    }
-
-    private User getUserFromSession() {
-        HttpSession session = getThreadLocalRequest().getSession();
-        return (User) session.getAttribute(USER_SESSION);
-    }
 
     public UserModel checkLogin(String name, String password) {
         try {
@@ -73,21 +64,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         } catch (IOException e) {
             log.warning("IOException in checkLogin");   
             log.warning(e.getMessage());         
-        }
-        return null;
-    }
-
-    public void logout() {
-        HttpSession session = getThreadLocalRequest().getSession();
-        if (session != null)
-            session.invalidate();
-    }
-
-    public UserModel isSessionAlive() {
-        User user = getUserFromSession();
-        if ((user != null) && (user.getName().length() != 0)) {
-            System.out.println("User " + user.getName() + " is already logged in");
-            return UserConverter.entityToModel(user);
         }
         return null;
     }
@@ -143,7 +119,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         // Get json object
         try {
             final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getName()
-                    + "&password=" + user.getPassword() + "&sp_id=" + phoneId);
+                    + "&password=" + user.getPassword() + "&device_id=" + phoneId);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -174,8 +150,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return sensorList;
     }
 
-    private static final Logger log = Logger.getLogger("DataServiceImpl");
-
     @Override
     public List<SensorValueModel> getSensorValues(String phoneId, String sensorId, Timestamp begin,
             Timestamp end) {
@@ -194,7 +168,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             String endTime = TimestampConverter.timestampToMicroEpoch(end);
 
             final URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&sp_id=" + phoneId + "&sensor_type=" + sensorId
+                    + user.getPassword() + "&device_id=" + phoneId + "&sensor_type=" + sensorId
                     + "&ts_begin=" + beginTime + "&ts_end=" + endTime);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
@@ -225,6 +199,20 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return sensorValueList;
     }
 
+    private User getUserFromSession() {
+        HttpSession session = getThreadLocalRequest().getSession();
+        return (User) session.getAttribute(USER_SESSION);
+    }
+
+    public UserModel isSessionAlive() {
+        User user = getUserFromSession();
+        if ((user != null) && (user.getName().length() != 0)) {
+            System.out.println("User " + user.getName() + " is already logged in");
+            return UserConverter.entityToModel(user);
+        }
+        return null;
+    }
+
     /**
      * Writes very long strings in chunks of 500 characters to the log. Used to overcome the log
      * overwriting itself in Eclipse.
@@ -241,5 +229,16 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             String s = msg.substring(500 * i, msgend);
             log.warning(s);
         }
+    }
+
+    public void logout() {
+        HttpSession session = getThreadLocalRequest().getSession();
+        if (session != null)
+            session.invalidate();
+    }
+
+    private void setUserInSession(User user) {
+        HttpSession session = getThreadLocalRequest().getSession();
+        session.setAttribute(USER_SESSION, user);
     }
 }

@@ -6,39 +6,56 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 import java.sql.Timestamp;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.dto.MyriaHumValueModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.SnifferValueModel;
+import nl.sense_os.commonsense.dto.MyriaTempValueModel;
 import nl.sense_os.commonsense.server.data.SensorValue;
 
 public class SensorValueConverter {
 
     @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger("SensorValueConverter");
-    
+
+    @SuppressWarnings("deprecation")
     public static SensorValueModel entityToModel(SensorValue sensorValue) throws JSONException {
         SensorValueModel sensorValueModel = null;
 
-        // ugly hack to send SnifferValues when required
-        if (sensorValue.getValue().contains("node_id")) {
+        // find out the sensor type
+        final Timestamp ts = sensorValue.getTimestamp();
+        final int sensorType = sensorValue.getType();
+        final String value = sensorValue.getValue();
+        switch (sensorType) {
+        case SensorValue.AUDIOSTREAM:
+            sensorValueModel = new SensorValueModel(ts, sensorType, value);
+            break;
+        case SensorValue.BLUETOOTH_ADDR:
             // log.warning("SensorValueConverter... Found myria sensor value");
-            
-            // parse snifferValues from JSON
-            Timestamp ts = sensorValue.getTimestamp();
-            String nodeId = "", sensorName = "", value = "", variance = "";
 
-            JSONObject obj = new JSONObject(sensorValue.getValue());
-            nodeId = obj.getString("node_id");
-            sensorName = obj.getString("sensor");
-            value = obj.getString("value");
-            variance = obj.getString("variance");
-
-            sensorValueModel = new SnifferValueModel(ts, value, nodeId, sensorName, variance);
-        } else {            
+        case SensorValue.MYRIA_TEMPERATURE:
+            JSONObject myriaTemp = new JSONObject(value);
+            int myriaTempNodeId = myriaTemp.getInt("node_id");
+            String myriaTempSensorName = myriaTemp.getString("sensor");
+            int myriaTempVal = myriaTemp.getInt("value");
+            int myriaTempVar = myriaTemp.getInt("variance");
+            sensorValueModel = new MyriaTempValueModel(ts, myriaTempNodeId, myriaTempSensorName,
+                    myriaTempVal, myriaTempVar);
+            break;
+        case SensorValue.MYRIA_HUMIDITY:
+            JSONObject myriaHum = new JSONObject(value);
+            int myriaHumNodeId = myriaHum.getInt("node_id");
+            String myriaHumSensorName = myriaHum.getString("sensor");
+            int myriaHumVal = myriaHum.getInt("value");
+            int myriaHumVar = myriaHum.getInt("variance");
+            sensorValueModel = new MyriaHumValueModel(ts, myriaHumNodeId, myriaHumSensorName,
+                    myriaHumVal, myriaHumVar);
+            break;
+        case SensorValue.NOISE:
             // log.warning("SensorValueConverter... Found regular sensor value");
-            
+
             // regular sensor value
             sensorValueModel = new SensorValueModel(sensorValue.getTimestamp(),
-                    sensorValue.getValue());
+                    sensorValue.getType(), sensorValue.getValue());
+
         }
         return sensorValueModel;
     }
@@ -59,5 +76,4 @@ public class SensorValueConverter {
 
         return s;
     }
-
 }
