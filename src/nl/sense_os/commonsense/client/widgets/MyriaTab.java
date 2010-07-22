@@ -46,7 +46,6 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.dto.MyriaTempValueModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.server.data.SensorValue;
 
 public class MyriaTab extends LayoutContainer {
 
@@ -386,8 +385,8 @@ public class MyriaTab extends LayoutContainer {
                 final int nodeId = v.getNodeId();
                 final int sensorType = v.getType();
                 final String sensorName = v.getSensorName();
-                final float value = sensorType == SensorValue.MYRIA_TEMPERATURE ? v.getFloatValue() / 100
-                        : v.getFloatValue() / 10;
+                final float value = sensorType == SensorValueModel.MYRIA_TEMPERATURE ? v.getValue() / 100
+                        : v.getValue() / 10;
 
                 // look up node in list of known nodes
                 MyriaNode node = nodes.get(nodeId + sensorName);

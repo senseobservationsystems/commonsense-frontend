@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.server.data;
 
 import java.sql.Timestamp;
 
-public class SensorValue {
+public abstract class SensorValue {
 
     /**
      * Noise sensor.
@@ -67,6 +67,7 @@ public class SensorValue {
     /**
      * Phone call state, JSON object.
      * state: String (idle / calling / ringing)
+     * incomingNumber: String
      */
     public static final int CALLSTATE = 11;
     /**
@@ -86,18 +87,19 @@ public class SensorValue {
      * altitude: float
      * latitude: float
      * longitude: float
+     * speed: float
      */
-    public static final int POSITION = 14; //  position    json
+    public static final int POSITION = 14;
 	private Timestamp timestamp;
 	private int type;
-	private String value;
 
 	public SensorValue() {
+	    
 	}
 
-	public SensorValue(Timestamp timestamp, int type, String value) {
+	public SensorValue(Timestamp timestamp, int type) {
 		this.timestamp = timestamp;
-		this.value = value;
+		this.type = type;
 	}
 	
 	public Timestamp getTimestamp() {
@@ -107,10 +109,6 @@ public class SensorValue {
 	public int getType() {
 	    return type;
 	}
-
-	public String getValue() {
-		return value;
-	}	
 	
 	public void setTimestamp(Timestamp timestamp) {
 		this.timestamp = timestamp;
@@ -118,9 +116,5 @@ public class SensorValue {
 	
 	public void setType(int type) {
 	    this.type = type;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
 	}
 }

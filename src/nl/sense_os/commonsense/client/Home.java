@@ -1,15 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.List;
-
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.widgets.GroupSelection;
-import nl.sense_os.commonsense.client.widgets.LineChartTab;
-import nl.sense_os.commonsense.client.widgets.MyriaTab;
-import nl.sense_os.commonsense.client.widgets.WelcomeTab;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.UserModel;
-
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -27,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -38,6 +29,18 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
+
+import java.util.List;
+
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.widgets.GridTab;
+import nl.sense_os.commonsense.client.widgets.GroupSelection;
+import nl.sense_os.commonsense.client.widgets.LineChartTab;
+import nl.sense_os.commonsense.client.widgets.MyriaTab;
+import nl.sense_os.commonsense.client.widgets.WelcomeTab;
+import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.SensorValueModel;
+import nl.sense_os.commonsense.dto.UserModel;
 
 public class Home extends LayoutContainer {
 
@@ -97,17 +100,17 @@ public class Home extends LayoutContainer {
     private TabPanel createCenterPanel() {
 
         // Welcome tab item
-        final TabItem item = new TabItem("Welcome");
-        item.setLayout(new FitLayout());
-        item.add(new WelcomeTab(this.user.getName()));
-        item.setClosable(false);
-        item.setScrollMode(Scroll.AUTO);
+        final TabItem welcome = new TabItem("Welcome");
+        welcome.setLayout(new FitLayout());
+        welcome.add(new WelcomeTab(this.user.getName()));
+        welcome.setClosable(false);
+        welcome.setScrollMode(Scroll.AUTO);
 
         // Tabs
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
-        this.tabPanel.add(item);
+        this.tabPanel.add(welcome);
 
         final ContentPanel panel = new ContentPanel();
         panel.setHeaderVisible(false);
@@ -115,7 +118,7 @@ public class Home extends LayoutContainer {
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
 
-        panel.add(this.tabPanel);
+        panel.add(this.tabPanel, new FitData());
 
         return this.tabPanel;
     }
@@ -195,20 +198,33 @@ public class Home extends LayoutContainer {
      * @param sensors
      *            list of the sensors that are selected
      */
+    @SuppressWarnings("deprecation")
     private void onGenerate(List<SensorModel> sensors, long[] timeRange) {
 
         if (sensors.size() > 0) {
             for (SensorModel sensor : sensors) {
-                // close TabItem for this sensor
+
                 String id = sensor.getPhoneId() + ". " + sensor.getName();
 
                 TabItem item = new TabItem(sensor.getName());
                 item.setLayout(new FitLayout());
 
-                if ((sensor.getName().equals("temperature")) || sensor.getName().equals("humidity")) {
+                // open different tabs for different sensors
+                switch (sensor.getId()) {
+                case SensorValueModel.MYRIA_HUMIDITY:
+                case SensorValueModel.MYRIA_TEMPERATURE:
                     item.add(new MyriaTab(sensor, timeRange));
-                } else {
-                    item.add(new LineChartTab(sensor));
+                    break;
+                case SensorValueModel.NOISE:
+                    item.add(new LineChartTab(sensor, timeRange));
+                    break;
+                case SensorValueModel.AUDIOSTREAM:
+                case SensorValueModel.BLUETOOTH_ADDR:
+                case SensorValueModel.DATA_CONNECTION:
+                case SensorValueModel.IP:
+                case SensorValueModel.MIC:
+                    item.add(new GridTab(sensor, timeRange), new FitData(0));
+                    break;
                 }
                 item.setClosable(true);
                 item.setId(id);
@@ -218,8 +234,8 @@ public class Home extends LayoutContainer {
                 this.tabPanel.setSelection(item);
             }
         } else {
-            MessageBox
-                    .info("CommonSense Web Interface", "No sensor selected! Please select a sensor to display its values.", null);
+            MessageBox.info("CommonSense Web Interface",
+                    "No sensor selected! Please select a sensor to display its values.", null);
         }
     }
 }

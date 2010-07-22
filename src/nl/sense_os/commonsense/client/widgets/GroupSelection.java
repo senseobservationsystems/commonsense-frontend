@@ -162,10 +162,8 @@ public class GroupSelection extends ContentPanel {
 
                 if (loadConfig == null) {
                     service.getPhoneDetails(callback);
-                } else if (loadConfig instanceof PhoneModel) {
-                    PhoneModel p = ((PhoneModel) loadConfig);
-                    Log.d(TAG, "Received phone: " + p.get("id") + ". " + p.get("type") + ". IMEI: " + p.get("imei") + ", date: " + p.get("date"));
-                    final String phoneId = ((PhoneModel) loadConfig).getId();
+                } else if (loadConfig instanceof PhoneModel) {                
+                    final int phoneId = ((PhoneModel) loadConfig).getId();
                     service.getSensors(phoneId, callback);
                 } else if (loadConfig instanceof SensorModel) {
 

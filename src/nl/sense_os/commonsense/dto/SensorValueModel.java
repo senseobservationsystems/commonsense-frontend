@@ -1,57 +1,83 @@
 package nl.sense_os.commonsense.dto;
 
-import java.sql.Timestamp;
-
-import nl.sense_os.commonsense.server.data.SensorValue;
-
 import com.extjs.gxt.ui.client.data.BaseModel;
 
-public class SensorValueModel extends BaseModel {
+import java.sql.Timestamp;
 
+public abstract class SensorValueModel extends BaseModel {
+    /**
+     * Audio stream location. value: String (direct connection URI)
+     * 
+     * @deprecated
+     */
+    @Deprecated
+    public static final int AUDIOSTREAM = 2;
+    /**
+     * Bluetooth address. value: String (UUID)
+     */
+    public static final int BLUETOOTH_ADDR = 3;
+    /**
+     * Bluetooth discovery information, JSON object. local_bt_address: String (MAC address);
+     * bt_devices: List of BtDevices.
+     */
+    public static final int BLUETOOTH_DISC = 4;
+    /**
+     * Phone call state, JSON object. state: String (idle / calling / ringing) incomingNumber:
+     * String
+     */
+    public static final int CALLSTATE = 11;
+    /**
+     * Data connection state. value: String (connected / disconnected)
+     */
+    public static final int DATA_CONNECTION = 10;
+    /**
+     * Device properties, JSON object. brand: String type: String
+     */
+    public static final int DEVICE_PROPS = 12;
+    /**
+     * IP address. value: String
+     */
+    public static final int IP = 13;
+    /**
+     * Microphone stream value: String (stream URL)
+     */
+    public static final int MIC = 5;
+    /**
+     * MyriaNed humidity measurement, JSON object. node_id: int; sensor: String (sensor name);
+     * value: int (1/1000 Degrees); variance: int
+     */
+    public static final int MYRIA_HUMIDITY = 7;
+    /**
+     * MyriaNed temperature measurement, JSON object. node_id: int; sensor: String (sensor name);
+     * value: int (1/100 Celsius); variance: int
+     */
+    public static final int MYRIA_TEMPERATURE = 6;
+    /**
+     * Noise sensor. value: float
+     */
+    public static final int NOISE = 1;
+    /**
+     * Position, JSON object. accuracy: float altitude: float latitude: float longitude: float
+     * speed: float
+     */
+    public static final int POSITION = 14;
     private static final long serialVersionUID = 1L;
+    /**
+     * Sense service state, JSON object. state: String manualSet: boolean phone number: String
+     */
+    public static final int SERVICE_STATE = 8;
+    /**
+     * Unread text messages. value: boolean
+     */
+    public static final int UNREAD_MSG = 9;
 
     public SensorValueModel() {
         // empty constructor necessary for serializing
     }
 
-    @SuppressWarnings("deprecation")
-    public SensorValueModel(Timestamp timestamp, int type, Object value) {
+    public SensorValueModel(Timestamp timestamp, int type) {
         setTimestamp(timestamp);
         setType(type);
-
-        // different value types for different sensor types (types with JSON values have separate
-        // SensorValueModel implementations.)
-        switch (type) {
-        case SensorValue.UNREAD_MSG:
-            setBooleanValue((Boolean) value);
-            break;
-        case SensorValue.NOISE:
-            setFloatValue((Float) value);
-            break;
-        case SensorValue.AUDIOSTREAM:
-        case SensorValue.BLUETOOTH_ADDR:
-        case SensorValue.DATA_CONNECTION:
-        case SensorValue.IP:
-        case SensorValue.MIC:
-            setStringValue((String) value);
-            break;
-        }
-    }
-
-    public boolean getBooleanValue() {
-        return get("value", false);
-    }
-
-    public float getFloatValue() {
-        return get("value", -1f);
-    }
-
-    public int getIntValue() {
-        return get("value", -1);
-    }
-
-    public String getStringValue() {
-        return get("value");
     }
 
     public Timestamp getTimestamp() {
@@ -60,22 +86,6 @@ public class SensorValueModel extends BaseModel {
 
     public int getType() {
         return get("type", -1);
-    }
-
-    public void setBooleanValue(boolean value) {
-        set("value", value);
-    }
-
-    public void setFloatValue(float value) {
-        set("value", value);
-    }
-
-    public void setIntValue(int value) {
-        set("value", value);
-    }
-
-    public void setStringValue(String value) {
-        set("value", value);
     }
 
     public void setTimestamp(Timestamp timestamp) {

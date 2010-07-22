@@ -2,8 +2,6 @@ package nl.sense_os.commonsense.dto;
 
 import java.sql.Timestamp;
 
-import nl.sense_os.commonsense.server.data.SensorValue;
-
 public class MyriaHumValueModel extends SensorValueModel {
 
     private static final long serialVersionUID = 1L;
@@ -14,9 +12,10 @@ public class MyriaHumValueModel extends SensorValueModel {
     
     public MyriaHumValueModel(Timestamp timestamp, int nodeId, String sensorName, int value,
             int variance) {
-        super(timestamp, SensorValue.MYRIA_TEMPERATURE, null);
+        super(timestamp, SensorValueModel.MYRIA_HUMIDITY);
         setNodeId(nodeId);
         setSensorName(sensorName);
+        setValue(value);
         setVariance(variance);
     }
     
@@ -32,7 +31,7 @@ public class MyriaHumValueModel extends SensorValueModel {
         return get("variance", -1);
     }
     
-    public int getIntValue() {
+    public int getValue() {
         return get("value", -1);
     }
 
@@ -42,6 +41,10 @@ public class MyriaHumValueModel extends SensorValueModel {
 
     public void setSensorName(String sensorName) {
         set("sensor_name", sensorName);
+    }
+    
+    public void setValue(int value) {
+        set("value", value);
     }
 
     public void setVariance(int variance) {

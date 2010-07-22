@@ -7,8 +7,12 @@ import nl.sense_os.commonsense.server.data.Sensor;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
+import java.util.logging.Logger;
+
 public class SensorConverter {
 
+    private static final Logger log = Logger.getLogger("SensorConverter");
+    
 	public static SensorModel entityToModel(Sensor sensor) {  
 		   SensorModel sensorModel = new SensorModel(
 				   sensor.getId(),
@@ -17,13 +21,14 @@ public class SensorConverter {
 		   return sensorModel;  
 		}
 
-	public static Sensor jsonToEntity(JSONObject jsonSensor, String phone) {
+	public static Sensor jsonToEntity(JSONObject jsonSensor, int phoneId) {
 		Sensor s = new Sensor();
 		try {
-			s.setId((String) jsonSensor.get("id"));
-			s.setName((String) jsonSensor.get("name"));
-			s.setPhoneId(phone);
+			s.setId(jsonSensor.getInt("id"));
+			s.setName(jsonSensor.getString("name"));
+			s.setPhoneId(phoneId);
 		} catch (JSONException e) {
+		    log.warning("JSONException in jsonToEntity");
 		}
 		return s;
 	}

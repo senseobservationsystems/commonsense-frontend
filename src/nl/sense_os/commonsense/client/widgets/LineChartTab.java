@@ -11,12 +11,12 @@ import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.dto.DoubleValueModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 
@@ -26,9 +26,11 @@ public class LineChartTab extends LayoutContainer {
     private SensorModel sensor;
     private AnnotatedTimeLine chart;
     private DataTable data;
+    private long[] timeRange;
 
-    public LineChartTab(SensorModel sensor) {
+    public LineChartTab(SensorModel sensor, long[] timeRange) {
         this.sensor = sensor;
+        this.timeRange = timeRange;
     }
 
     /**
@@ -56,8 +58,8 @@ public class LineChartTab extends LayoutContainer {
             }
         };
 
-        Timestamp start = new Timestamp((new Date().getTime() - (365 * 24 * 60 * 60 * 1000)));
-        Timestamp end = new Timestamp(new Date().getTime());
+        Timestamp start = new Timestamp(this.timeRange[0]);
+        Timestamp end = new Timestamp(this.timeRange[1]);
 
         service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
     }
@@ -65,7 +67,6 @@ public class LineChartTab extends LayoutContainer {
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
-        Log.d(TAG, "onRender");
 
         // request data from service
         getSensorValues();
@@ -98,27 +99,23 @@ public class LineChartTab extends LayoutContainer {
      *            the values.
      */
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
-        Log.d(TAG, "onSensorValuesReceived");
+        // Log.d(TAG, "onSensorValuesReceived");
 
         // fill table if values are present
         if ((true == success) && (values.size() > 0)) {
 
+            Log.d(TAG, "Received " + values.size() + " sensor values...");
+
             this.data.addRows(values.size());
             for (int i = 0; i < values.size(); i++) {
-                SensorValueModel value = values.get(i);
+                DoubleValueModel value = (DoubleValueModel) values.get(i);
+                
                 this.data.setValue(i, 0, value.getTimestamp());
-                Float f = 0.0f;
-                try {
-                    f = value.getFloatValue();
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "NumberFormatException putting sensor values in line chart: "
-                            + value.getFloatValue());
-                }
-                this.data.setValue(i, 1, f);
-                Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getFloatValue());
+                this.data.setValue(i, 1, value.getValue());
+//                Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
             }
         } else {
-            Log.w(TAG, "Zero values received!");
+            Log.d(TAG, "Zero values received!");
         }
 
         this.chart.draw(this.data);

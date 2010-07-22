@@ -2,14 +2,14 @@ package nl.sense_os.commonsense.server.data;
 
 public class Sensor {
 
-	private String id;
+	private int id;
 	private String name;
-	private String phoneId;
+	private int phoneId;
 
 	public Sensor() {
 	}
 
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -17,11 +17,11 @@ public class Sensor {
 		return name;
 	}
 
-	public String getPhoneId() {
+	public int getPhoneId() {
         return this.phoneId;
     }
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -29,7 +29,7 @@ public class Sensor {
 		this.name = name;
 	}
 	
-    public void setPhoneId(String phoneId) {
+    public void setPhoneId(int phoneId) {
 	    this.phoneId = phoneId;
 	}
 }

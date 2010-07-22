@@ -95,7 +95,7 @@ public class PhoneTreePanel extends ContentPanel {
                 if (loadConfig == null) {
                     service.getPhoneDetails(callback);
                 } else if (loadConfig instanceof PhoneModel) {
-                    String phoneId = ((PhoneModel) loadConfig).getId();
+                    int phoneId = ((PhoneModel) loadConfig).getId();
                     service.getSensors(phoneId, callback);
                 } else if (loadConfig instanceof SensorModel) {
 

@@ -13,9 +13,9 @@ import nl.sense_os.commonsense.dto.UserModel;
 @RemoteServiceRelativePath("data")
 public interface DataService extends RemoteService {
 	public UserModel checkLogin(String name, String password);
+	public List<SenseTreeModel> getPhoneDetails();
+	public List<SenseTreeModel> getSensors(int phoneId);
+	public List<SensorValueModel> getSensorValues(int phoneId, int sensorId, Timestamp begin, Timestamp end);
 	public UserModel isSessionAlive();
 	public void logout();
-	public List<SenseTreeModel> getPhoneDetails();
-	public List<SenseTreeModel> getSensors(String phoneId);
-	public List<SensorValueModel> getSensorValues(String phoneId, String sensorId, Timestamp begin, Timestamp end);
 }

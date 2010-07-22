@@ -8,7 +8,7 @@ public class PhoneModel extends SenseTreeModel {
 
     }
 
-    public PhoneModel(String id, String brand, String type, String imei, String ip, String number,
+    public PhoneModel(int id, String brand, String type, String imei, String ip, String number,
             String date) {
         setId(id);
         setBrand(brand);
@@ -70,7 +70,7 @@ public class PhoneModel extends SenseTreeModel {
     public void setType(String type) {
         set("type", type);
         
-        String textLabel = getId() == null ? type : type + " (" + getId() + ")"; 
+        String textLabel = (getId() == -1) ? type : type + " (" + getId() + ")"; 
         setText(textLabel);
     }
 }

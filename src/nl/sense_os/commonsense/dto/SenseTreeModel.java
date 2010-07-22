@@ -6,14 +6,14 @@ public class SenseTreeModel extends BaseTreeModel {
     
     private static final long serialVersionUID = 1L;
 
-    public void setId(String id) {
+    public void setId(int id) {
         set("id", id);
     }
     
     /**
-     * @return the ID, or null if it was not set.
+     * @return the ID, or -1 if it was not set.
      */
-    public String getId() {
-        return get("id");
+    public int getId() {
+        return get("id", -1);
     }
 }

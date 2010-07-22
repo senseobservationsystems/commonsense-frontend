@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.server.data;
 
 public class Phone {
 	
-	private String id;
+	private int id;
 	private String brand;
 	private String type;
 	private String imei;
@@ -10,10 +10,11 @@ public class Phone {
 	private String number;
 	private String date;
 
-    public Phone() {	    
+    public Phone() {	
+        
 	}
 
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -41,7 +42,7 @@ public class Phone {
 		return date;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
         this.id = id;
 	}
 

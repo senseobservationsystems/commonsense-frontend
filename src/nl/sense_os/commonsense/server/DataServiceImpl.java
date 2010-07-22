@@ -110,7 +110,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return phoneList;
     }
 
-    public List<SenseTreeModel> getSensors(String phoneId) {
+    public List<SenseTreeModel> getSensors(int phoneId) {
         List<SenseTreeModel> sensorList = new ArrayList<SenseTreeModel>();
         String jsonText = "";
 
@@ -151,7 +151,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     }
 
     @Override
-    public List<SensorValueModel> getSensorValues(String phoneId, String sensorId, Timestamp begin,
+    public List<SensorValueModel> getSensorValues(int phoneId, int sensorId, Timestamp begin,
             Timestamp end) {
         List<SensorValueModel> sensorValueList = new ArrayList<SensorValueModel>();
         String jsonText = "";
@@ -164,8 +164,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             begin.setNanos(0);
             end.setNanos(0);
 
-            String beginTime = TimestampConverter.timestampToMicroEpoch(begin);
-            String endTime = TimestampConverter.timestampToMicroEpoch(end);
+            String beginTime = TimestampConverter.timestampToEpochSecs(begin);
+            String endTime = TimestampConverter.timestampToEpochSecs(end);
 
             final URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
                     + user.getPassword() + "&device_id=" + phoneId + "&sensor_type=" + sensorId
@@ -189,7 +189,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
             for (int i = 0; i < sensorValues.length(); i++) {
                 JSONObject jsonSensorValue = (JSONObject) sensorValues.get(i);
-                SensorValue sensorValue = SensorValueConverter.jsonToEntity(jsonSensorValue);
+                SensorValue sensorValue = SensorValueConverter.jsonToEntity(jsonSensorValue, sensorId);
                 sensorValueList.add(SensorValueConverter.entityToModel(sensorValue));
             }
         } catch (JSONException e) {

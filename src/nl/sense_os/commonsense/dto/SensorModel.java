@@ -8,9 +8,9 @@ public class SensorModel extends SenseTreeModel {
         // empty constructor
     }
 
-    public SensorModel(String id, String name, String phone) {
-        setId(id);
-        setPhoneId(phone);
+    public SensorModel(int type, String name, int phoneId) {
+        setId(type);
+        setPhoneId(phoneId);
         setName(name);
     }
     
@@ -24,8 +24,8 @@ public class SensorModel extends SenseTreeModel {
     /**
      * @return the sensor's phone id, or null if it was not set.
      */
-    public String getPhoneId() {
-        return get("phone_id");
+    public int getPhoneId() {
+        return get("phone_id", -1);
     }
 
     /**
@@ -35,15 +35,15 @@ public class SensorModel extends SenseTreeModel {
     public void setName(String name) {
         set("name", name);
         
-        String phoneId = getPhoneId();
-        if (null != phoneId) {
+        int phoneId = getPhoneId();
+        if (-1 != phoneId) {
             setText(phoneId + ". " + name);
         } else {
             setText(name);
         }
     }
     
-    public void setPhoneId(String phoneId) {
+    public void setPhoneId(int phoneId) {
         set("phone_id", phoneId);
     }
     

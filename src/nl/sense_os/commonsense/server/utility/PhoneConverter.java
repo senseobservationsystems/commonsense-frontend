@@ -26,12 +26,11 @@ public class PhoneConverter {
 	
 	public static Phone jsonToEntity(JSONObject jsonPhone) {
 		Phone p = new Phone();
-		try {
-			
-		    p.setId((String) jsonPhone.get("id"));
-			p.setType((String) jsonPhone.get("type"));
-			p.setImei((String) jsonPhone.get("imei"));
-			p.setDate((String) jsonPhone.get("date"));	
+		try {			
+		    p.setId(jsonPhone.getInt("id"));
+			p.setType(jsonPhone.getString("type"));
+			p.setImei(jsonPhone.getString("imei"));
+			p.setDate(jsonPhone.getString("date"));	
 		} catch (JSONException e) {
 		    log.warning("JSONException deserializing phone");
 		}
