@@ -10,13 +10,14 @@ public class BooleanValue extends SensorValue {
         
     }
     
-    public BooleanValue(Timestamp timestamp, int type, boolean value) {
-        super(timestamp, type);
+    public BooleanValue(Timestamp timestamp, String name, boolean value) {
+        super(timestamp, name, SensorValue.BOOL);
         setValue(value);
     }
     
-    public void setValue(boolean value) {
+    public BooleanValue setValue(boolean value) {
         this.value = value;
+        return this;
     }
     
     public boolean getValue() {

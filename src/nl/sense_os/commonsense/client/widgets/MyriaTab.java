@@ -43,7 +43,6 @@ import java.util.Set;
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.MyriaTempValueModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 
@@ -329,7 +328,7 @@ public class MyriaTab extends LayoutContainer {
         Timestamp start = new Timestamp(timeRange[0]);
         Timestamp end = new Timestamp(timeRange[1]);
 
-        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
+//        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
 
         // ArrayList<SensorValueModel> values = new ArrayList<SensorValueModel>();
         // values.add(new SnifferValueModel(new Timestamp(0 * 24 * 60 * 60 * 1000), "2000", "1",
@@ -380,57 +379,57 @@ public class MyriaTab extends LayoutContainer {
             double totalMin = 100;
             HashMap<Timestamp, Integer> rowNrs = new HashMap<Timestamp, Integer>();
             for (int i = 0; i < values.size(); i++) {
-                MyriaTempValueModel v = (MyriaTempValueModel) values.get(i);
-                final Timestamp time = getNextQuarterHour(v.getTimestamp());
-                final int nodeId = v.getNodeId();
-                final int sensorType = v.getType();
-                final String sensorName = v.getSensorName();
-                final float value = sensorType == SensorValueModel.MYRIA_TEMPERATURE ? v.getValue() / 100
-                        : v.getValue() / 10;
-
-                // look up node in list of known nodes
-                MyriaNode node = nodes.get(nodeId + sensorName);
-                if (node == null) {
-                    // add new column in table if node is new
-                    int colIndex = timeChartData.getNumberOfColumns();
-                    timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
-                            + ")", "node_" + nodeId);
-
-                    node = new MyriaNode(nodeId, sensorName, colIndex, getGroup(nodeId));
-                    node.setColIndex(colIndex);
-                    nodes.put(nodeId + sensorName, node);
-
-                    // Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: " + colIndex);
-                }
-                node.incPointCount();
-
-                // check if this value is the new maximum
-                Float currentMax = max.get(time);
-                totalMax = totalMax < value ? value : totalMax;
-                if ((null == currentMax) || (currentMax.floatValue() < value)) {
-                    max.put(time, value);
-                }
-
-                // check if this value is the new minimum
-                Float currentMin = min.get(time);
-                totalMin = totalMin > value ? value : totalMin;
-                if ((null == currentMin) || (currentMin.floatValue() > value)) {
-                    min.put(time, value);
-                }
-
-                // add data to the table
-                Integer rowIndex = rowNrs.get(time);
-                if (null == rowIndex) {
-                    rowIndex = timeChartData.addRow();
-                    rowNrs.put(time, rowIndex);
-                }
-                timeChartData.setValue(rowIndex, 0, time);
-                timeChartData.setValue(rowIndex, node.getColIndex(), value);
-
-                int motionRow = motionData.addRow();
-                motionData.setValue(motionRow, 0, nodeId + " (" + sensorName + ")");
-                motionData.setValue(motionRow, 1, time);
-                motionData.setValue(motionRow, 2, value);
+//                MyriaTempValueModel v = (MyriaTempValueModel) values.get(i);
+//                final Timestamp time = getNextQuarterHour(v.getTimestamp());
+//                final int nodeId = v.getNodeId();
+//                final int sensorType = v.getType();
+//                final String sensorName = v.getSensorName();
+//                final float value = sensorType == SensorValueModel.MYRIA_TEMPERATURE ? v.getValue() / 100
+//                        : v.getValue() / 10;
+//
+//                // look up node in list of known nodes
+//                MyriaNode node = nodes.get(nodeId + sensorName);
+//                if (node == null) {
+//                    // add new column in table if node is new
+//                    int colIndex = timeChartData.getNumberOfColumns();
+//                    timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
+//                            + ")", "node_" + nodeId);
+//
+//                    node = new MyriaNode(nodeId, sensorName, colIndex, getGroup(nodeId));
+//                    node.setColIndex(colIndex);
+//                    nodes.put(nodeId + sensorName, node);
+//
+//                    // Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: " + colIndex);
+//                }
+//                node.incPointCount();
+//
+//                // check if this value is the new maximum
+//                Float currentMax = max.get(time);
+//                totalMax = totalMax < value ? value : totalMax;
+//                if ((null == currentMax) || (currentMax.floatValue() < value)) {
+//                    max.put(time, value);
+//                }
+//
+//                // check if this value is the new minimum
+//                Float currentMin = min.get(time);
+//                totalMin = totalMin > value ? value : totalMin;
+//                if ((null == currentMin) || (currentMin.floatValue() > value)) {
+//                    min.put(time, value);
+//                }
+//
+//                // add data to the table
+//                Integer rowIndex = rowNrs.get(time);
+//                if (null == rowIndex) {
+//                    rowIndex = timeChartData.addRow();
+//                    rowNrs.put(time, rowIndex);
+//                }
+//                timeChartData.setValue(rowIndex, 0, time);
+//                timeChartData.setValue(rowIndex, node.getColIndex(), value);
+//
+//                int motionRow = motionData.addRow();
+//                motionData.setValue(motionRow, 0, nodeId + " (" + sensorName + ")");
+//                motionData.setValue(motionRow, 1, time);
+//                motionData.setValue(motionRow, 2, value);
             }
 
             // put maximum in data table

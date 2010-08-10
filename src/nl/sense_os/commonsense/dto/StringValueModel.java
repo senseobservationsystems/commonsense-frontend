@@ -7,19 +7,20 @@ public class StringValueModel extends SensorValueModel {
     private static final long serialVersionUID = 1L;
 
     public StringValueModel() {
-        
+        // empty constructor for serializing
     }
     
-    public StringValueModel(Timestamp timestamp, int type, String value) {
-        super(timestamp, type);
+    public StringValueModel(Timestamp timestamp, String name, String value) {
+        super(timestamp, name, SensorValueModel.STRING);
         setValue(value);
-    }
-    
-    public void setValue(String value) {
-        set("value", value);
     }
     
     public String getValue() {
         return get("value");
+    }
+    
+    public StringValueModel setValue(String value) {
+        set("value", value);
+        return this;
     }
 }

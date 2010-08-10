@@ -10,16 +10,17 @@ public class BooleanValueModel extends SensorValueModel {
         
     }
     
-    public BooleanValueModel(Timestamp timestamp, int type, boolean value) {
-        super(timestamp, type);
+    public BooleanValueModel(Timestamp timestamp, String name, boolean value) {
+        super(timestamp, name, SensorValueModel.BOOL);
         setValue(value);
-    }
-    
-    public void setValue(boolean value) {
-        set("value", value);
     }
     
     public boolean getValue() {
         return get("value", false);
+    }
+    
+    public BooleanValueModel setValue(boolean value) {
+        set("value", value);
+        return this;
     }
 }

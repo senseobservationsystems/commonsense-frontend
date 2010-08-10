@@ -25,15 +25,8 @@ import java.util.List;
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.BluetoothValueModel;
-import nl.sense_os.commonsense.dto.BooleanValueModel;
-import nl.sense_os.commonsense.dto.CallStateValueModel;
-import nl.sense_os.commonsense.dto.DoubleValueModel;
-import nl.sense_os.commonsense.dto.PositionValueModel;
 import nl.sense_os.commonsense.dto.SensorModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.ServiceStateValueModel;
-import nl.sense_os.commonsense.dto.StringValueModel;
 
 public class GridTab extends LayoutContainer {
 
@@ -71,8 +64,8 @@ public class GridTab extends LayoutContainer {
 //                if (loadConfig == null) {
                     Timestamp start = new Timestamp(timeRange[0]);
                     Timestamp end = new Timestamp(timeRange[1]);
-                    service.getSensorValues(sensor.getPhoneId(), sensor.getId(), start, end,
-                            callback);
+//                    service.getSensorValues(sensor.getPhoneId(), sensor.getId(), start, end,
+//                            callback);
 //                } else {
 //                    Log.e("RpcProxy", "loadConfig unexpected type: " + loadConfig);
 //                }
@@ -133,7 +126,7 @@ public class GridTab extends LayoutContainer {
         Timestamp start = new Timestamp(this.timeRange[0]);
         Timestamp end = new Timestamp(this.timeRange[1]);
 
-        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
+//        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
     }
 
     @Override
@@ -154,7 +147,6 @@ public class GridTab extends LayoutContainer {
      * @param values
      *            the values.
      */
-    @SuppressWarnings("deprecation")
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
 
         // fill table if values are present
@@ -169,67 +161,7 @@ public class GridTab extends LayoutContainer {
             this.data.addRows(values.size());
 
             switch (this.sensor.getId()) {
-            case SensorValueModel.AUDIOSTREAM:
-            case SensorValueModel.BLUETOOTH_ADDR:
-            case SensorValueModel.DATA_CONNECTION:
-            case SensorValueModel.IP:
-            case SensorValueModel.MIC:
-                for (int i = 0; i < values.size(); i++) {
-                    StringValueModel value = (StringValueModel) values.get(i);
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1, value.getValue());
-                }
-                break;
-            case SensorValueModel.BLUETOOTH_DISC:
-                for (int i = 0; i < values.size(); i++) {
-                    BluetoothValueModel value = (BluetoothValueModel) values.get(i);
-                    String names = "";
-                    for (int j = 0; j < value.getNames().length; j++) {
-                        names += value.getNames()[j] + "; ";
-                    }
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1, names);
-                }
-                break;
-            case SensorValueModel.CALLSTATE:
-                for (int i = 0; i < values.size(); i++) {
-                    CallStateValueModel value = (CallStateValueModel) values.get(i);
-                    String s = value.getCallState().equals("ringing") ? value.getCallState() + " ("
-                            + value.getNumber() + ")" : value.getCallState();
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1, s);
-                }
-                break;
-            case SensorValueModel.NOISE:
-                for (int i = 0; i < values.size(); i++) {
-                    DoubleValueModel value = (DoubleValueModel) values.get(i);
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1, "" + value.getValue());
-                }
-                break;
-            case SensorValueModel.POSITION:
-                for (int i = 0; i < values.size(); i++) {
-                    PositionValueModel value = (PositionValueModel) values.get(i);
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1,
-                            "(" + value.getLatitude() + ", " + value.getLongitude() + ")");
-                }
-                break;
-            case SensorValueModel.SERVICE_STATE:
-                for (int i = 0; i < values.size(); i++) {
-                    ServiceStateValueModel value = (ServiceStateValueModel) values.get(i);
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data
-                            .setValue(i, 1, value.getState() + " (" + value.getPhoneNumber() + ")");
-                }
-                break;
-            case SensorValueModel.UNREAD_MSG:
-                for (int i = 0; i < values.size(); i++) {
-                    BooleanValueModel value = (BooleanValueModel) values.get(i);
-                    this.data.setValue(i, 0, value.getTimestamp());
-                    this.data.setValue(i, 1, "" + value.getValue());
-                }
-                break;
+                // TODO
             }
         } else {
             Log.d(TAG, "Zero values received!");

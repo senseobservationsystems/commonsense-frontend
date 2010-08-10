@@ -12,20 +12,37 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.Date;
+
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
 
 public class Login extends LayoutContainer {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "LoginForm";
     private final AsyncCallback<UserModel> callback;
+    private boolean autoLogin;
+    private String cookieName;
+    private String cookiePass;
 
     public Login(AsyncCallback<UserModel> callback) {
         this.callback = callback;
+
+        // get user from Cookie
+        this.cookieName = Cookies.getCookie("user_name");
+        this.cookiePass = Cookies.getCookie("user_pass");
+        if ((null != cookieName) && (null != cookiePass) && (cookieName.length() > 0)
+                && (cookiePass.length() > 0)) {
+            Log.d(TAG, "Autologin");
+            this.autoLogin = true;
+        } else {
+            this.autoLogin = false;
+        }
     }
 
     private void checkLogin(String name, String password) {
@@ -42,10 +59,16 @@ public class Login extends LayoutContainer {
             }
 
             @Override
-            public void onSuccess(UserModel userModel) {
-                waitBox.close();                
-                if (userModel != null) {
-                    Login.this.callback.onSuccess(userModel);
+            public void onSuccess(UserModel user) {
+                waitBox.close();
+                if (user != null) {
+
+                    final long DURATION = 1000 * 60 * 60 * 24 * 14; // 2 weeks
+                    Date expires = new Date(System.currentTimeMillis() + DURATION);
+                    Cookies.setCookie("user_name", user.getName(), expires, null, "/", false);
+                    Cookies.setCookie("user_pass", user.getPassword(), expires, null, "/", false);
+
+                    Login.this.callback.onSuccess(user);
                 } else {
                     MessageBox.alert("Login failure!", "Invalid username or password.", null);
                 }
@@ -61,13 +84,17 @@ public class Login extends LayoutContainer {
         // email field
         final TextField<String> email = new TextField<String>();
         email.setFieldLabel("Email");
-//        email.setValue("vestia-delfgauw");
+        if (this.autoLogin) {
+            email.setValue(this.cookieName);
+        }
         email.setAllowBlank(false);
 
         // password field
         final TextField<String> pass = new TextField<String>();
         pass.setFieldLabel("Password");
-//        pass.setValue("atrium");
+        if (this.autoLogin) {
+            pass.setValue("********");
+        }
         pass.setAllowBlank(false);
         pass.setPassword(true);
 
@@ -79,6 +106,8 @@ public class Login extends LayoutContainer {
             public void handleEvent(ButtonEvent be) {
                 final String mailString = email.getValue();
                 final String passString = MD5Wrapper.toMD5(pass.getValue());
+                pass.setValue("********");
+
                 checkLogin(mailString, passString);
             }
         });
@@ -105,8 +134,12 @@ public class Login extends LayoutContainer {
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
 
-        final FormPanel form = createForm();        
-        
+        final FormPanel form = createForm();
+
         this.add(form);
+
+        if (this.autoLogin) {
+            checkLogin(this.cookieName, this.cookiePass);
+        }
     }
 }

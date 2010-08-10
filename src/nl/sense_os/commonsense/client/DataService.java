@@ -8,6 +8,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.dto.SenseTreeModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
+import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.UserModel;
 
 @RemoteServiceRelativePath("data")
@@ -15,7 +16,8 @@ public interface DataService extends RemoteService {
 	public UserModel checkLogin(String name, String password);
 	public List<SenseTreeModel> getPhoneDetails();
 	public List<SenseTreeModel> getSensors(int phoneId);
-	public List<SensorValueModel> getSensorValues(int phoneId, int sensorId, Timestamp begin, Timestamp end);
+    public List<SensorValueModel> getSensorValues(TagModel tag, Timestamp begin, Timestamp end);
+	public List<TagModel> getTags(String rootTag);
 	public UserModel isSessionAlive();
 	public void logout();
 }

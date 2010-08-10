@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.data.BaseTreeLoader;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeLoader;
+import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -26,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -37,9 +37,9 @@ import java.util.List;
 import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.client.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.PhoneModel;
 import nl.sense_os.commonsense.dto.SenseTreeModel;
 import nl.sense_os.commonsense.dto.SensorModel;
+import nl.sense_os.commonsense.dto.TagModel;
 
 public class GroupSelection extends ContentPanel {
 
@@ -53,7 +53,7 @@ public class GroupSelection extends ContentPanel {
     }
 
     private static final String TAG = "GroupSelection";
-    private final TreePanel<SenseTreeModel> tree;
+    private final TreePanel<TagModel> tree;
     private final DatePicker picker = new DatePicker();
     private final RadioGroup radioGroup = new RadioGroup();
 
@@ -85,13 +85,13 @@ public class GroupSelection extends ContentPanel {
             }
         });
 
-        this.add(this.tree, new RowData(1, -1, new Margins(0, 0, 10, 0)));
+        this.add(this.tree, new RowData(1, 150, new Margins(0, 0, 10, 0)));
         // this.add(buttonBar, new RowData(1, -1, new Margins(10,0,10,0)));
         this.add(textRange, new RowData(1, -1, new Margins(10, 5, 0, 5)));
-        this.add(this.radioGroup, new RowData(1, -1, new Margins(0, 5, 10, 5)));
+        this.add(this.radioGroup, new RowData(1, -1, new Margins(0, 5, 0, 5)));
         this.add(textDate, new RowData(1, -1, new Margins(10, 5, 0, 5)));
-        this.add(this.picker, new RowData(1, -1, new Margins(0, 5, 10, 5)));
-        this.add(generateBtn, new RowData(1, -1, new Margins(5, 5, 10, 5)));
+        this.add(this.picker, new RowData(1, -1, new Margins(0, 5, 0, 5)));
+        this.add(generateBtn, new RowData(1, -1, new Margins(5,5,0,5)));
     }
 
     /**
@@ -151,22 +151,20 @@ public class GroupSelection extends ContentPanel {
      * 
      * @return the tree
      */
-    private TreePanel<SenseTreeModel> createTreePanel() {
+    private TreePanel<TagModel> createTreePanel() {
 
         final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
 
         // data proxy
-        final RpcProxy<List<SenseTreeModel>> proxy = new RpcProxy<List<SenseTreeModel>>() {
+        final RpcProxy<List<TagModel>> proxy = new RpcProxy<List<TagModel>>() {
             @Override
-            protected void load(Object loadConfig, AsyncCallback<List<SenseTreeModel>> callback) {
+            protected void load(Object loadConfig, AsyncCallback<List<TagModel>> callback) {
 
                 if (loadConfig == null) {
-                    service.getPhoneDetails(callback);
-                } else if (loadConfig instanceof PhoneModel) {                
-                    final int phoneId = ((PhoneModel) loadConfig).getId();
-                    service.getSensors(phoneId, callback);
-                } else if (loadConfig instanceof SensorModel) {
-
+                    service.getTags(null, callback);
+                } else if (loadConfig instanceof TagModel) {
+                    TagModel tag = (TagModel) loadConfig;                                     
+                    service.getTags(tag.getPath(), callback);
                 } else {
                     Log.e("RpcProxy", "loadConfig unexpected type");
                 }
@@ -174,39 +172,31 @@ public class GroupSelection extends ContentPanel {
         };
 
         // tree loader
-        final TreeLoader<SenseTreeModel> loader = new BaseTreeLoader<SenseTreeModel>(proxy) {
+        final TreeLoader<TagModel> loader = new BaseTreeLoader<TagModel>(proxy) {
             @Override
-            public boolean hasChildren(SenseTreeModel parent) {
-                return parent instanceof PhoneModel;
+            public boolean hasChildren(TagModel parent) {
+                return (parent.getType() != TagModel.TYPE_SENSOR);
             }
         };
 
         // trees store
-        final TreeStore<SenseTreeModel> store = new TreeStore<SenseTreeModel>(loader);
-        store.setKeyProvider(new ModelKeyProvider<SenseTreeModel>() {
+        final TreeStore<TagModel> store = new TreeStore<TagModel>(loader);
+        store.setKeyProvider(new ModelKeyProvider<TagModel>() {
             @Override
-            public String getKey(SenseTreeModel model) {
-                if (model instanceof SensorModel) {
-                    final SensorModel sensor = (SensorModel) model;
-                    return "node_" + sensor.getPhoneId() + "-" + sensor.getId();
-                } else if (model instanceof PhoneModel) {
-                    final PhoneModel phone = (PhoneModel) model;
-                    return "phone_" + phone.getId();
-                } else {
-                    return "UNKNOWN_INSTANCE";
-                }
+            public String getKey(TagModel tag) {
+                return tag.getPath();
             }
         });
 
-        final TreePanel<SenseTreeModel> treePanel = new TreePanel<SenseTreeModel>(store);
+        final TreePanel<TagModel> treePanel = new TreePanel<TagModel>(store);
+        treePanel.setBorders(true);
         treePanel.setStateful(true);
         treePanel.setId("idNecessaryForStatefulSetting");
         treePanel.setDisplayProperty("text");
         treePanel.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
-        treePanel.setCheckable(true);
-        final TreePanelSelectionModel<SenseTreeModel> selectMdl = new TreePanelSelectionModel<SenseTreeModel>();
-        selectMdl.bindTree(treePanel);
 
+        new TreePanelDragSource(treePanel); 
+        
         return treePanel;
     }
 
@@ -244,11 +234,11 @@ public class GroupSelection extends ContentPanel {
     private void onGenerate() {
 
         // get selected sensors
-        final List<SenseTreeModel> selected = this.tree.getCheckedSelection();
+        final List<TagModel> selected = this.tree.getCheckedSelection();
         final List<SensorModel> sensors = new ArrayList<SensorModel>();
-        for (final SenseTreeModel model : selected) {
-            if (model instanceof SensorModel) {
-                sensors.add((SensorModel) model);
+        for (final TagModel model : selected) {
+            if (false) {
+//                sensors.add((SensorModel) model);
             }
         }
 

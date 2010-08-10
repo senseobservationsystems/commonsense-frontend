@@ -10,13 +10,14 @@ public class StringValue extends SensorValue {
         
     }
     
-    public StringValue(Timestamp timestamp, int type, String value) {
-        super(timestamp, type);
+    public StringValue(Timestamp timestamp, String name, String value) {
+        super(timestamp, name, SensorValue.STRING);
         setValue(value);
     }
     
-    public void setValue(String value) {
+    public StringValue setValue(String value) {
         this.value = value;
+        return this;
     }
     
     public String getValue() {

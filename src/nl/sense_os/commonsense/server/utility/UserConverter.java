@@ -7,6 +7,7 @@ public class UserConverter {
 
 	public static UserModel entityToModel(User user) {  
 	   UserModel userModel = new UserModel(
+	           user.getId(),
 			   user.getName(),
 			   user.getPassword());
 	   return userModel;  

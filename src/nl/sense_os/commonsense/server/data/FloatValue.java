@@ -2,21 +2,22 @@ package nl.sense_os.commonsense.server.data;
 
 import java.sql.Timestamp;
 
-public class DoubleValue extends SensorValue {
+public class FloatValue extends SensorValue {
 
     private double value; 
     
-    public DoubleValue() {
+    public FloatValue() {
         
     }
     
-    public DoubleValue(Timestamp timestamp, int type, double value) {
-        super(timestamp, type);
+    public FloatValue(Timestamp timestamp, String name, double value) {
+        super(timestamp, name, SensorValue.FLOAT);
         setValue(value);
     }
     
-    public void setValue(double value) {
+    public FloatValue setValue(double value) {
         this.value = value;
+        return this;
     }
     
     public double getValue() {
