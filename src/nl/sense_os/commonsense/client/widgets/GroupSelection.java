@@ -1,48 +1,9 @@
 package nl.sense_os.commonsense.client.widgets;
 
-import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.data.TreeLoader;
-import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.DatePicker;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.SenseTreeModel;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.TagModel;
 
 public class GroupSelection extends ContentPanel {
-
+    /*
     public class GenerateEvent extends BaseEvent {
 
         public List<SensorModel> sensors;
@@ -94,12 +55,12 @@ public class GroupSelection extends ContentPanel {
         this.add(generateBtn, new RowData(1, -1, new Margins(5,5,0,5)));
     }
 
-    /**
-     * Creates bar with buttons to expand and collapse all tree elements
-     * 
-     * @param tree
-     * @return the button bar
-     */
+    
+//     Creates bar with buttons to expand and collapse all tree elements
+//     
+//     @param tree
+//     @return the button bar
+    
     @SuppressWarnings("unused")
     private ButtonBar createButtonBar(final TreePanel<SenseTreeModel> tree) {
         final ButtonBar bar = new ButtonBar();
@@ -146,11 +107,11 @@ public class GroupSelection extends ContentPanel {
         this.radioGroup.setOriginalValue(radio7d);
     }
 
-    /**
-     * Creates an tree of PhoneModels and SensorModels, which are fetched asynchronously.
-     * 
-     * @return the tree
-     */
+    
+//     Creates an tree of PhoneModels and SensorModels, which are fetched asynchronously.
+//     
+//     @return the tree
+    
     private TreePanel<TagModel> createTreePanel() {
 
         final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
@@ -248,4 +209,5 @@ public class GroupSelection extends ContentPanel {
         fireEvent(Events.Activate, new AppEvent(Events.Activate,
                 new Object[] { sensors, timeRange }));
     }
+    */
 }

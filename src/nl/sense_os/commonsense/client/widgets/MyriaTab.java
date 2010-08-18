@@ -1,53 +1,10 @@
 package nl.sense_os.commonsense.client.widgets;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.store.GroupingStore;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
-import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
-import com.google.gwt.visualization.client.visualizations.MotionChart;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
 
 public class MyriaTab extends LayoutContainer {
 
+    /*
     @SuppressWarnings("unused")
     private class MyriaNode extends BaseModel {
 
@@ -300,10 +257,6 @@ public class MyriaTab extends LayoutContainer {
         return new Timestamp(now.getTime() - remainder + period);
     }
 
-    /**
-     * Requests the sensor values from the service. <code>onSensorValuesReceived</code> is invoked
-     * by the request's callback.
-     */
     private void getSensorValues(long[] timeRange) {
 
         // show progress dialog
@@ -328,7 +281,7 @@ public class MyriaTab extends LayoutContainer {
         Timestamp start = new Timestamp(timeRange[0]);
         Timestamp end = new Timestamp(timeRange[1]);
 
-//        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
+        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
 
         // ArrayList<SensorValueModel> values = new ArrayList<SensorValueModel>();
         // values.add(new SnifferValueModel(new Timestamp(0 * 24 * 60 * 60 * 1000), "2000", "1",
@@ -347,14 +300,7 @@ public class MyriaTab extends LayoutContainer {
         // onSensorValuesReceived(true, values);
     }
 
-    /**
-     * Puts the newly received sensor values in a DataTable and draws the chart.
-     * 
-     * @param success
-     *            boolean indicating if the values were successfully received.
-     * @param values
-     *            the values.
-     */
+
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
 
         HashMap<String, MyriaNode> nodes = new HashMap<String, MyriaNode>();
@@ -379,57 +325,57 @@ public class MyriaTab extends LayoutContainer {
             double totalMin = 100;
             HashMap<Timestamp, Integer> rowNrs = new HashMap<Timestamp, Integer>();
             for (int i = 0; i < values.size(); i++) {
-//                MyriaTempValueModel v = (MyriaTempValueModel) values.get(i);
-//                final Timestamp time = getNextQuarterHour(v.getTimestamp());
-//                final int nodeId = v.getNodeId();
-//                final int sensorType = v.getType();
-//                final String sensorName = v.getSensorName();
-//                final float value = sensorType == SensorValueModel.MYRIA_TEMPERATURE ? v.getValue() / 100
-//                        : v.getValue() / 10;
-//
-//                // look up node in list of known nodes
-//                MyriaNode node = nodes.get(nodeId + sensorName);
-//                if (node == null) {
-//                    // add new column in table if node is new
-//                    int colIndex = timeChartData.getNumberOfColumns();
-//                    timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
-//                            + ")", "node_" + nodeId);
-//
-//                    node = new MyriaNode(nodeId, sensorName, colIndex, getGroup(nodeId));
-//                    node.setColIndex(colIndex);
-//                    nodes.put(nodeId + sensorName, node);
-//
-//                    // Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: " + colIndex);
-//                }
-//                node.incPointCount();
-//
-//                // check if this value is the new maximum
-//                Float currentMax = max.get(time);
-//                totalMax = totalMax < value ? value : totalMax;
-//                if ((null == currentMax) || (currentMax.floatValue() < value)) {
-//                    max.put(time, value);
-//                }
-//
-//                // check if this value is the new minimum
-//                Float currentMin = min.get(time);
-//                totalMin = totalMin > value ? value : totalMin;
-//                if ((null == currentMin) || (currentMin.floatValue() > value)) {
-//                    min.put(time, value);
-//                }
-//
-//                // add data to the table
-//                Integer rowIndex = rowNrs.get(time);
-//                if (null == rowIndex) {
-//                    rowIndex = timeChartData.addRow();
-//                    rowNrs.put(time, rowIndex);
-//                }
-//                timeChartData.setValue(rowIndex, 0, time);
-//                timeChartData.setValue(rowIndex, node.getColIndex(), value);
-//
-//                int motionRow = motionData.addRow();
-//                motionData.setValue(motionRow, 0, nodeId + " (" + sensorName + ")");
-//                motionData.setValue(motionRow, 1, time);
-//                motionData.setValue(motionRow, 2, value);
+                MyriaTempValueModel v = (MyriaTempValueModel) values.get(i);
+                final Timestamp time = getNextQuarterHour(v.getTimestamp());
+                final int nodeId = v.getNodeId();
+                final int sensorType = v.getType();
+                final String sensorName = v.getSensorName();
+                final float value = sensorType == SensorValueModel.MYRIA_TEMPERATURE ? v.getValue() / 100
+                        : v.getValue() / 10;
+
+                // look up node in list of known nodes
+                MyriaNode node = nodes.get(nodeId + sensorName);
+                if (node == null) {
+                    // add new column in table if node is new
+                    int colIndex = timeChartData.getNumberOfColumns();
+                    timeChartData.addColumn(ColumnType.NUMBER, "node " + nodeId + " (" + sensorName
+                            + ")", "node_" + nodeId);
+
+                    node = new MyriaNode(nodeId, sensorName, colIndex, getGroup(nodeId));
+                    node.setColIndex(colIndex);
+                    nodes.put(nodeId + sensorName, node);
+
+                    // Log.d(TAG, "New node: " + nodeId + " " + sensorName + ", col: " + colIndex);
+                }
+                node.incPointCount();
+
+                // check if this value is the new maximum
+                Float currentMax = max.get(time);
+                totalMax = totalMax < value ? value : totalMax;
+                if ((null == currentMax) || (currentMax.floatValue() < value)) {
+                    max.put(time, value);
+                }
+
+                // check if this value is the new minimum
+                Float currentMin = min.get(time);
+                totalMin = totalMin > value ? value : totalMin;
+                if ((null == currentMin) || (currentMin.floatValue() > value)) {
+                    min.put(time, value);
+                }
+
+                // add data to the table
+                Integer rowIndex = rowNrs.get(time);
+                if (null == rowIndex) {
+                    rowIndex = timeChartData.addRow();
+                    rowNrs.put(time, rowIndex);
+                }
+                timeChartData.setValue(rowIndex, 0, time);
+                timeChartData.setValue(rowIndex, node.getColIndex(), value);
+
+                int motionRow = motionData.addRow();
+                motionData.setValue(motionRow, 0, nodeId + " (" + sensorName + ")");
+                motionData.setValue(motionRow, 1, time);
+                motionData.setValue(motionRow, 2, value);
             }
 
             // put maximum in data table
@@ -533,4 +479,5 @@ public class MyriaTab extends LayoutContainer {
 
         this.chartPanel.add(item);
     }
+    */
 }

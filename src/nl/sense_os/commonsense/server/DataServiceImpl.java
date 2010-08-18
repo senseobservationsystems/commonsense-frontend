@@ -26,6 +26,7 @@ import nl.sense_os.commonsense.client.DataService;
 import nl.sense_os.commonsense.dto.SenseTreeModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
+import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.server.data.Phone;
 import nl.sense_os.commonsense.server.data.Sensor;
@@ -229,48 +230,56 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return sensorList;
     }
 
-    public List<SensorValueModel> getSensorValues(TagModel tag, Timestamp begin, Timestamp end) {
-        List<SensorValueModel> sensorValueList = new ArrayList<SensorValueModel>();
-        String response = "";
+    public TaggedDataModel getSensorValues(TagModel tag, Timestamp begin, Timestamp end) {        
 
         User user = getUserFromSession();
 
         // Get JSON response from CommonSense
+        String response = "";
         try {
             String beginTime = TimestampConverter.timestampToEpochSecs(begin);
             String endTime = TimestampConverter.timestampToEpochSecs(end);
 
-            URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName()
-                    + "&password=" + user.getPassword() + "&tag=" + tag.getPath() + "&ts_begin="
-                    + beginTime + "&ts_end=" + endTime);
-            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();            
+            String path = URLEncoder.encode(tag.getPath(), "UTF8");
+            URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
+                    + user.getPassword() + "&tag=" + path + "&ts_begin=" + beginTime + "&ts_end="
+                    + endTime);
+            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
             HTTPResponse httpResponse = fetcher.fetch(url);
-            
+
             response = new String(httpResponse.getContent());
         } catch (MalformedURLException e) {
             log.warning("MalformedUrlException in getSensorValues");
+            return null;
         } catch (IOException e) {
             log.warning("IOException in getSensorValues");
+            log.warning(e.getMessage());
+            return null;
         }
 
         // Convert to sensor value objects
-        JSONArray sensorValues;
         try {
             JSONObject json = new JSONObject(response);
             String name = json.getString("name");
             String dataType = json.getString("data_type");
-            sensorValues = json.getJSONArray("data");
-            for (int i = 0; i < sensorValues.length(); i++) {
-                JSONObject jsonSensorValue = (JSONObject) sensorValues.get(i);
+            JSONArray jsonSensorValues = json.getJSONArray("data");
+            SensorValueModel[] sensorValues = new SensorValueModel[jsonSensorValues.length()];
+
+            for (int i = 0; i < jsonSensorValues.length(); i++) {
+                JSONObject jsonSensorValue = (JSONObject) jsonSensorValues.get(i);
                 SensorValue sensorValue = SensorValueConverter.jsonToEntity(jsonSensorValue, name,
                         dataType);
-                sensorValueList.add(SensorValueConverter.entityToModel(sensorValue));
+                sensorValues[i] = SensorValueConverter.entityToModel(sensorValue);
             }
+
+            // return the result
+            return new TaggedDataModel(tag, sensorValues);
+
         } catch (JSONException e) {
             log.warning("JSONException in getSensorValues:");
             logLongString(e.getMessage());
+            return null;
         }
-        return sensorValueList;
     }
 
     private User getUserFromSession() {

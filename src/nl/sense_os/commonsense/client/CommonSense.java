@@ -21,7 +21,7 @@ public class CommonSense implements EntryPoint {
         Log.d(TAG, "========== Module Load ==========");
         
         // make the root panel as big as the browser view
-        RootPanel.get().setLayoutData(new FitLayout());
+        RootPanel.get().setLayoutData(new FitLayout());        
         
         setLoginScreen();
     }

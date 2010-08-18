@@ -17,13 +17,12 @@ public class JsonValueModel extends SensorValueModel {
         setFields(fields);
     }
     
-    public Map<String, String> getFields() {
-        // TODO
-        return null;
+    public Map<String, String> getFields() {        
+        return get("fields");
     }
     
     public JsonValueModel setFields(Map<String, String> fields) {
-        // TODO
+        set("fields", fields);
         return this;
     }
 }

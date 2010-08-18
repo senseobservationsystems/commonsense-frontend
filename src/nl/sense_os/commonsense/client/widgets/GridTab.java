@@ -1,35 +1,10 @@
 package nl.sense_os.commonsense.client.widgets;
 
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.DataService;
-import nl.sense_os.commonsense.client.DataServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.SensorModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
 
 public class GridTab extends LayoutContainer {
 
+    /*
     private static final String TAG = "TableTab";
     private DataTable data;
     private Grid<SensorValueModel> grid;
@@ -64,8 +39,8 @@ public class GridTab extends LayoutContainer {
 //                if (loadConfig == null) {
                     Timestamp start = new Timestamp(timeRange[0]);
                     Timestamp end = new Timestamp(timeRange[1]);
-//                    service.getSensorValues(sensor.getPhoneId(), sensor.getId(), start, end,
-//                            callback);
+                    service.getSensorValues(sensor.getPhoneId(), sensor.getId(), start, end,
+                            callback);
 //                } else {
 //                    Log.e("RpcProxy", "loadConfig unexpected type: " + loadConfig);
 //                }
@@ -98,10 +73,6 @@ public class GridTab extends LayoutContainer {
 
     }
 
-    /**
-     * Requests the sensor values from the service. <code>onSensorValuesReceived</code> is invoked
-     * by the request's callback.
-     */
     private void getSensorValues() {
 
         final MessageBox progress = MessageBox.progress("Please wait", "Requesting data...", "");
@@ -126,7 +97,7 @@ public class GridTab extends LayoutContainer {
         Timestamp start = new Timestamp(this.timeRange[0]);
         Timestamp end = new Timestamp(this.timeRange[1]);
 
-//        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
+        service.getSensorValues(this.sensor.getPhoneId(), this.sensor.getId(), start, end, callback);
     }
 
     @Override
@@ -134,19 +105,11 @@ public class GridTab extends LayoutContainer {
         super.onRender(parent, index);
 
         // request data from service
-        // getSensorValues();
+         getSensorValues();
 
         // set up this TabItem
     }
 
-    /**
-     * Puts the newly received sensor values in a DataTable and draws the chart.
-     * 
-     * @param success
-     *            boolean indicating if the values were successfully received.
-     * @param values
-     *            the values.
-     */
     private void onSensorValuesReceived(boolean success, List<SensorValueModel> values) {
 
         // fill table if values are present
@@ -169,4 +132,5 @@ public class GridTab extends LayoutContainer {
 
         displayData();
     }
+    */
 }
