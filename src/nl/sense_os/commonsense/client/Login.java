@@ -32,7 +32,7 @@ public class Login extends LayoutContainer {
 
     public Login(AsyncCallback<UserModel> callback) {
         this.callback = callback;
-
+        
         // get user from Cookie
         this.cookieName = Cookies.getCookie("user_name");
         this.cookiePass = Cookies.getCookie("user_pass");

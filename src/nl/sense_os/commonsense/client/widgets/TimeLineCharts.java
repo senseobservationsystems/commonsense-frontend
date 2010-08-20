@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.widgets;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -19,7 +19,7 @@ import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 
-public class TimeLineCharts extends LayoutContainer {
+public class TimeLineCharts extends ContentPanel {
 
     private static final String TAG = "TimeLineCharts";
     private Map<TagModel, SensorValueModel[]> booleanData;
@@ -29,6 +29,9 @@ public class TimeLineCharts extends LayoutContainer {
 
     public TimeLineCharts(List<TaggedDataModel> data) {
 
+        this.setHeaderVisible(false);
+        this.setStyleAttribute("backgroundColor", "#FF0000");
+        
         // separate the data types from the different sensors that will be charted
         separateDataTypes(data);
 

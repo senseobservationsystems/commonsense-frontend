@@ -21,6 +21,7 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.AnnotatedLegendPosition;
+import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine.WindowMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class TimeLineChart extends LayoutContainer {
         centerLayout.setMargins(new Margins(5));
 
         final ContentPanel tagSelectPanel = createTagSelector();
+        tagSelectPanel.setStyleAttribute("backgroundColor", "rgba(255,0,255,0.7)");
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 200, 300);
         westLayout.setMargins(new Margins(5));
         westLayout.setSplit(true);
@@ -91,13 +93,13 @@ public class TimeLineChart extends LayoutContainer {
         // create line chart
         AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
         options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
-        options.setScaleType(AnnotatedTimeLine.ScaleType.ALLFIXED);
+        options.setWindowMode(WindowMode.OPAQUE);
         this.chart = new AnnotatedTimeLine(this.dataTable, options, "95%", "95%");
 
         ContentPanel panel = new ContentPanel(new CenterLayout());
         panel.setHeaderVisible(false);
         panel.setBorders(true);
-        panel.setStyleAttribute("backgroundColor", "white");
+        panel.setStyleAttribute("backgroundColor", "black");
         panel.add(this.chart);
 
         return panel;
@@ -167,7 +169,7 @@ public class TimeLineChart extends LayoutContainer {
         panel.setSize("100%", "100%");
         panel.setHeaderVisible(false);
         panel.setLayout(new FitLayout());
-        panel.setStyleAttribute("backgroundColor", "white");
+//        panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
         panel.add(this.grid);
 

@@ -30,8 +30,10 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
@@ -71,7 +73,7 @@ public class Home extends LayoutContainer {
     public Home(UserModel user, AsyncCallback<Void> callback) {
         this.mainCallback = callback;
         this.user = user;
-
+        
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
 
@@ -84,20 +86,32 @@ public class Home extends LayoutContainer {
                 MotionChart.PACKAGE);
 
         // west panel with controls
-        final ContentPanel west = createWestPanel();
-        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225, 200, 300);
-        westLayout.setMargins(new Margins(5));
-        westLayout.setSplit(true);
+        final ContentPanel west = new ContentPanel(new FitLayout());
+        west.setHeaderVisible(false);
+        west.setBodyStyle("background:url('img/bg/bottom_left.jpg') no-repeat bottom left;");
+        west.setStyleAttribute("backgroundColor", "white");
+        west.add(createWestPanel(), new FitData(5));
+        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
+        westLayout.setMargins(new Margins(0));
+        westLayout.setSplit(false);
 
         // center panel with content
-        final TabPanel center = createCenterPanel();
+        final ContentPanel center = new ContentPanel(new FitLayout());
+        center.setHeaderVisible(false);
+        center.setBodyStyle("background:url('img/bg/top_right.jpg') no-repeat top right;");
+        center.setStyleAttribute("backgroundColor", "white");
+        final ContentPanel center2 = new ContentPanel(new FitLayout());
+        center2.setHeaderVisible(false);
+        center2.setBodyStyle("background:url('img/bg/bottom_center.jpg') no-repeat bottom left;");
+        center2.add(createCenterPanel(), new FitData(5));
+        center.add(center2, new FitData(0));
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayout.setMargins(new Margins(5));
+        centerLayout.setMargins(new Margins(0));
 
         // main content panel containing the west and center panels
         final ContentPanel contentPanel = new ContentPanel();
         contentPanel.setHeading("CommonSense Web Application");
-        contentPanel.setHeaderVisible(true);
+        contentPanel.setHeaderVisible(false);
         contentPanel.setLayout(new BorderLayout());
         contentPanel.setFrame(true);
         contentPanel.setCollapsible(false);
@@ -105,8 +119,10 @@ public class Home extends LayoutContainer {
         contentPanel.add(west, westLayout);
         contentPanel.add(center, centerLayout);
 
+        contentPanel.setStyleAttribute("backgroundColor", "white");
+        
         this.setLayout(new FitLayout());
-        this.add(contentPanel);
+        this.add(contentPanel, new FitData(0));
 
         setupDragDrop();
     }
@@ -125,6 +141,7 @@ public class Home extends LayoutContainer {
         welcome.add(new WelcomeTab(this.user.getName()));
         welcome.setClosable(false);
         welcome.setScrollMode(Scroll.AUTO);
+        welcome.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.70)");
 
         // Tabs
         this.tabPanel = new TabPanel();
@@ -268,13 +285,13 @@ public class Home extends LayoutContainer {
         final ContentPanel panel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
         panel.setHeaderVisible(false);
         panel.setBorders(true);
-        panel.setStyleAttribute("backgroundColor", "white");
+        panel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
         panel.setScrollMode(Scroll.AUTOY);
         panel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         panel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
         panel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
         panel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-
+        
         return panel;
     }
 
@@ -329,6 +346,7 @@ public class Home extends LayoutContainer {
                 item.setLayout(new FitLayout());
                 item.setClosable(true);
                 item.add(new TimeLineCharts(this.receivedData));
+                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.70)");
                 this.tabPanel.add(item);
                 this.tabPanel.setSelection(item);
             } else {

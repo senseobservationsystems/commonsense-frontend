@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 
 public class WelcomeTab extends LayoutContainer {
@@ -19,22 +20,19 @@ public class WelcomeTab extends LayoutContainer {
 
     @Override
     protected void onRender(Element parent, int index) {
-        super.onRender(parent, index);        
-        
-        final Image logo = new Image("/img/logo_sense-800.png");
-        logo.setPixelSize(800, 600);  
+        super.onRender(parent, index);         
 
         Html h = new Html(
-                "<div class=text style='width:600px; margin-left:auto; margin-right:auto; text-align:left; padding:10px; '>"
+                "<div class=text style='width:600px; margin-left:auto; margin-right:auto; text-align:left; padding:10px;'>"
                 + "<h1>Welcome to CommonSense, " + this.username + "! </h1>"
                 + "<br><br>"
                 + "<div style='text-align:center;'><img src='/img/logo_sense-800.png' alt='Sense logo'/></div>"
-                + "<br><br>"
-                + "<h2>Notice: Performance Issues</h2>"
-                + "<hr>"
-                + "<br>"
-                + "<p>CommonSense's database is suffering from performance problems, which results in problems requesting sensor data for visualization. "
-                + "Please hang in there, we are working vigorously to address the issue.</p>"
+//                + "<br><br>"
+//                + "<h2>Notice: Performance Issues</h2>"
+//                + "<hr>"
+//                + "<br>"
+//                + "<p>CommonSense's database is suffering from performance problems, which results in problems requesting sensor data for visualization. "
+//                + "Please hang in there, we are working vigorously to address the issue.</p>"
                 + "<br><br>"
                 + "<h2>Frequently Asked Questions</h2>"
                 + "<hr>"
@@ -70,10 +68,11 @@ public class WelcomeTab extends LayoutContainer {
                 + "</ol>"
                 + "<br>"
                 + "<p>Report more bugs or suggestions to <a href='mailto:info@sense-os.nl'>info@sense-os.nl</a>."
-                + "</div>");        
+                + "</div>");
         
         this.setLayout(new FitLayout());
         this.setScrollMode(Scroll.AUTOY);
         this.add(h);
+//        this.add(new Frame("http://www.sense-os.nl"));
     }
 }
