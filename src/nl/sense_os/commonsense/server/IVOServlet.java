@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.server;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 
 @SuppressWarnings("serial")
 public class IVOServlet extends HttpServlet {
+
+	private static final Logger log = Logger.getLogger("IVOServlet");
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
 		resp.setContentType("text/plain");
@@ -22,7 +26,8 @@ public class IVOServlet extends HttpServlet {
 			String s = req.getParameter("changes");
 			if (s != null) {
 				JSONArray changes = new JSONArray(req.getParameter("changes"));
-				resp.getWriter().println(extract(changes));
+				log.warning("Got some stuff to process...");
+				//resp.getWriter().println(extract(changes));
 			} else {
 				resp.getWriter().println("Ehm... please specify something crunchable.");
 			}
