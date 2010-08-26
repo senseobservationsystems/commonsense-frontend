@@ -56,7 +56,7 @@ public class CommonSense implements EntryPoint {
     }
 
     private void setLoginScreen() {
-        
+
         // create login form widget
         AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
             public void onFailure(Throwable ex) {

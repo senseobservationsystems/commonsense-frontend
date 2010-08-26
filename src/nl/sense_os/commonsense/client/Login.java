@@ -29,8 +29,11 @@ public class Login extends LayoutContainer {
     private boolean autoLogin;
     private String cookieName;
     private String cookiePass;
+    private final TextField<String> email = new TextField<String>();
+    private final TextField<String> pass = new TextField<String>();
 
     public Login(AsyncCallback<UserModel> callback) {
+
         this.callback = callback;
         
         // get user from Cookie
@@ -56,6 +59,7 @@ public class Login extends LayoutContainer {
             public void onFailure(Throwable ex) {
                 waitBox.close();
                 MessageBox.alert("Login failure!", "Server-side failure.", null);
+                pass.clear();
             }
 
             @Override
@@ -69,8 +73,10 @@ public class Login extends LayoutContainer {
                     Cookies.setCookie("user_pass", user.getPassword(), expires, null, "/", false);
 
                     Login.this.callback.onSuccess(user);
+
                 } else {
                     MessageBox.alert("Login failure!", "Invalid username or password.", null);
+                    pass.clear();
                 }
             }
         };
@@ -81,8 +87,7 @@ public class Login extends LayoutContainer {
     private FormPanel createForm() {
         final FormData formData = new FormData("-20");
 
-        // email field
-        final TextField<String> email = new TextField<String>();
+        // email field        
         email.setFieldLabel("Email");
         if (this.autoLogin) {
             email.setValue(this.cookieName);
@@ -90,7 +95,6 @@ public class Login extends LayoutContainer {
         email.setAllowBlank(false);
 
         // password field
-        final TextField<String> pass = new TextField<String>();
         pass.setFieldLabel("Password");
         if (this.autoLogin) {
             pass.setValue("********");

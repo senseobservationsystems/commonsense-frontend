@@ -18,7 +18,7 @@ public interface DataService extends RemoteService {
 	public List<SenseTreeModel> getSensors(int phoneId);
     public TaggedDataModel getSensorValues(TagModel tag, Timestamp begin, 
             Timestamp end);
-	public List<TagModel> getTags(String rootTag);
+	public List<TagModel> getTags(TagModel rootTag);
 	public UserModel isSessionAlive();
 	public void logout();
 }

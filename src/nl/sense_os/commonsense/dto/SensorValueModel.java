@@ -23,10 +23,10 @@ public abstract class SensorValueModel extends BaseModel {
      */
     public static final int STRING = 4;
 
+
     public SensorValueModel() {
         // empty constructor necessary for serializing
     }
-
     public SensorValueModel(Timestamp timestamp, String name, int type) {
         setTimestamp(timestamp);
         setName(name);
@@ -40,7 +40,7 @@ public abstract class SensorValueModel extends BaseModel {
     public Timestamp getTimestamp() {
         return get("timestamp");
     }
-
+    
     public int getType() {
         return get("type", -1);
     }
@@ -49,7 +49,7 @@ public abstract class SensorValueModel extends BaseModel {
         set("name", name);
         return this;
     }
-
+    
     public SensorValueModel setTimestamp(Timestamp timestamp) {
         set("timestamp", timestamp);
         return this;
@@ -60,3 +60,4 @@ public abstract class SensorValueModel extends BaseModel {
         return this;
     }
 }
+

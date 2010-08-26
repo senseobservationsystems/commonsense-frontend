@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.server;
 
+import com.google.appengine.api.urlfetch.FetchOptions;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
@@ -11,7 +14,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -46,8 +48,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
     private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
     private static final String URL_GET_TAGS = URL_BASE + "get_tags.php";
-    private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data2.php";
-    private static final String URL_LOGIN = URL_BASE + "login2.php";
+    private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data.php";
+    private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String USER_SESSION = "GWTAppUser";
 
     public UserModel checkLogin(String name, String password) {
@@ -59,12 +61,12 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             response = reader.readLine();
             reader.close();
         } catch (MalformedURLException e) {
-            log.warning("MalFormedUrlException in checkLogin");
-            log.warning(e.getMessage());
+            log.severe("MalFormedUrlException in checkLogin");
+            log.severe(e.getMessage());
             return null;
         } catch (IOException e) {
-            log.warning("IOException in checkLogin");
-            log.warning(e.getMessage());
+            log.severe("IOException in checkLogin");
+            log.severe(e.getMessage());
             return null;
         }
 
@@ -77,8 +79,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             setUserInSession(user);
             return UserConverter.entityToModel(user);
         } catch (JSONException e) {
-            log.warning("JSONException parsing login response");
-            log.warning(e.getMessage());
+            log.severe("JSONException parsing login response");
+            log.severe(e.getMessage());
             return null;
         }
     }
@@ -101,11 +103,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             }
             reader.close();
         } catch (MalformedURLException e) {
-            log.warning("MalFormedUrlException in getPhoneDetails");
-            log.warning(e.getMessage());
+            log.severe("MalFormedUrlException in getPhoneDetails");
+            log.severe(e.getMessage());
         } catch (IOException e) {
-            log.warning("IOException in getPhoneDetails");
-            log.warning(e.getMessage());
+            log.severe("IOException in getPhoneDetails");
+            log.severe(e.getMessage());
         }
 
         // Convert to object
@@ -119,32 +121,27 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 phoneList.add(PhoneConverter.entityToModel(phone));
             }
         } catch (JSONException e) {
-            log.warning("JSONException in getPhoneDetails");
-            log.warning(e.getMessage());
+            log.severe("JSONException in getPhoneDetails");
+            log.severe(e.getMessage());
         }
         return phoneList;
     }
 
-    public List<TagModel> getTags(String rootTag) {
+    public List<TagModel> getTags(TagModel rootTag) {
         List<TagModel> tagsList = new ArrayList<TagModel>();
 
         User user = getUserFromSession();
         if (rootTag == null) {
-            rootTag = "/" + user.getId() + "/";
-        } else {
-            try {
-                rootTag = URLEncoder.encode(rootTag, "UTF8");
-            } catch (UnsupportedEncodingException e) {
-                log.warning("UnsupportedEncodingException encoding login url");
-                return null;
-            }
-        }
+            final int userId = user.getId();
+            rootTag = new TagModel("/" + userId + "/", userId, 0, TagModel.TYPE_USER);
+        } 
 
         // Get json object
         String response = "";
         try {
+            final String root = URLEncoder.encode(rootTag.getPath(), "UTF8");
             final URL url = new URL(URL_GET_TAGS + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&root=" + rootTag);
+                    + user.getPassword() + "&root=" + root);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -152,12 +149,12 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             }
             reader.close();
         } catch (MalformedURLException e) {
-            log.warning("MalFormedUrlException in getTags");
-            log.warning(e.getMessage());
+            log.severe("MalFormedUrlException in getTags");
+            log.severe(e.getMessage());
             return null;
         } catch (IOException e) {
-            log.warning("IOException in getTags");
-            log.warning(e.getMessage());
+            log.severe("IOException in getTags");
+            log.severe(e.getMessage());
             return null;
         }
 
@@ -167,25 +164,28 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             tags = (JSONArray) new JSONObject(response).get("tags");
             for (int i = 0; i < tags.length(); i++) {
                 JSONObject tag = tags.getJSONObject(i);
-                String typeString = tag.getString("type");
 
-                // recognize type of the tagged thing
+                // get child tag's properties
+                String path = tag.getString("path");
+                int taggedId = tag.getInt("t_id");
+                int parentId = tag.getInt("p_id");
+                String typeString = tag.getString("type");
                 int type = -1;
-                if (typeString.equals("device")) {
+                if (typeString.equals("devices")) {
                     type = TagModel.TYPE_DEVICE;
                 } else if (typeString.equals("group")) {
                     type = TagModel.TYPE_GROUP;
                 } else if (typeString.equals("sensor_type")) {
                     type = TagModel.TYPE_SENSOR;
-                } else if (typeString.equals("user")) {
+                } else if (typeString.equals("users")) {
                     type = TagModel.TYPE_USER;
                 }
 
-                tagsList.add(new TagModel(tag.getString("path"), type));
+                tagsList.add(new TagModel(path, taggedId, parentId, type));
             }
         } catch (JSONException e) {
-            log.warning("JSONException in getTags");
-            log.warning(e.getMessage());
+            log.severe("JSONException in getTags");
+            log.severe(e.getMessage());
         }
         return tagsList;
     }
@@ -207,11 +207,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             }
             reader.close();
         } catch (MalformedURLException e) {
-            log.warning("MalFormedUrlException in getSensors");
-            log.warning(e.getMessage());
+            log.severe("MalFormedUrlException in getSensors");
+            log.severe(e.getMessage());
         } catch (IOException e) {
-            log.warning("IOException in getSensors");
-            log.warning(e.getMessage());
+            log.severe("IOException in getSensors");
+            log.severe(e.getMessage());
         }
 
         // Convert to object
@@ -224,8 +224,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 sensorList.add(SensorConverter.entityToModel(sensor));
             }
         } catch (JSONException e) {
-            log.warning("JSONException in getSensors");
-            log.warning(e.getMessage());
+            log.severe("JSONException in getSensors");
+            log.severe(e.getMessage());
         }
         return sensorList;
     }
@@ -240,20 +240,23 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             String beginTime = TimestampConverter.timestampToEpochSecs(begin);
             String endTime = TimestampConverter.timestampToEpochSecs(end);
 
-            String path = URLEncoder.encode(tag.getPath(), "UTF8");
             URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&tag=" + path + "&ts_begin=" + beginTime + "&ts_end="
+                    + user.getPassword() + "&d_id=" + tag.getParentId() + "&s_id=" + tag.getTaggedId() + "&t_begin=" + beginTime + "&t_end="
                     + endTime);
+            
+            FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
+            
+            HTTPRequest httpReq = new HTTPRequest(url, HTTPMethod.GET, fetchOptions);
             URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
-            HTTPResponse httpResponse = fetcher.fetch(url);
-
+            HTTPResponse httpResponse = fetcher.fetch(httpReq);
+            
             response = new String(httpResponse.getContent());
         } catch (MalformedURLException e) {
-            log.warning("MalformedUrlException in getSensorValues");
+            log.severe("MalformedUrlException in getSensorValues");
             return null;
         } catch (IOException e) {
-            log.warning("IOException in getSensorValues");
-            log.warning(e.getMessage());
+            log.severe("IOException in getSensorValues");
+            log.severe(e.getMessage());
             return null;
         }
 
@@ -276,7 +279,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             return new TaggedDataModel(tag, sensorValues);
 
         } catch (JSONException e) {
-            log.warning("JSONException in getSensorValues:");
+            log.severe("JSONException in getSensorValues:");
             logLongString(e.getMessage());
             return null;
         }
@@ -310,7 +313,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
                 msgend = msg.length();
             }
             String s = msg.substring(500 * i, msgend);
-            log.warning(s);
+            log.severe(s);
         }
     }
 

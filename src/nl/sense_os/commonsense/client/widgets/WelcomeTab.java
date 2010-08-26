@@ -5,8 +5,6 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.Image;
 
 public class WelcomeTab extends LayoutContainer {
 

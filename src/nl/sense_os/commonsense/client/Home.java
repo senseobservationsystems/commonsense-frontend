@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
@@ -59,7 +58,6 @@ import nl.sense_os.commonsense.dto.UserModel;
 public class Home extends LayoutContainer {
 
     private static final String TAG = "Home";
-    GroupSelection groupSelection = new GroupSelection();
     private final AsyncCallback<Void> mainCallback;
     private RadioGroup timeSelector;
     private final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
@@ -199,7 +197,7 @@ public class Home extends LayoutContainer {
                     service.getTags(null, callback);
                 } else if (loadConfig instanceof TagModel) {
                     TagModel tag = (TagModel) loadConfig;
-                    service.getTags(tag.getPath(), callback);
+                    service.getTags(tag, callback);
                 } else {
                     Log.e("RpcProxy", "loadConfig unexpected type");
                 }
@@ -237,6 +235,8 @@ public class Home extends LayoutContainer {
 
         return panel;
     }
+
+    GroupSelection groupSelection = new GroupSelection();
 
     /**
      * Creates the "west" panel of the main BorderLayout. Contains the TreePanel with phones and
@@ -294,6 +294,7 @@ public class Home extends LayoutContainer {
         
         return panel;
     }
+
 
     private long[] getTimeRange() {
 
