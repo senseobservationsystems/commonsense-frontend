@@ -49,6 +49,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.GroupSelection;
+import nl.sense_os.commonsense.client.widgets.NoorderzonChart;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.TagModel;
@@ -58,20 +59,22 @@ import nl.sense_os.commonsense.dto.UserModel;
 public class Home extends LayoutContainer {
 
     private static final String TAG = "Home";
+    GroupSelection groupSelection = new GroupSelection();
     private final AsyncCallback<Void> mainCallback;
     private RadioGroup timeSelector;
     private final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
     private TabPanel tabPanel;
     private TreePanel<TagModel> tagTree;
-    private final UserModel user;
     private TagModel[] outstandingReqs;
-    private List<TaggedDataModel> receivedData;
+    private List<TaggedDataModel> rxData;
+    private int rxFailures;
     private MessageBox progressBox;
+    private UserModel user;
 
     public Home(UserModel user, AsyncCallback<Void> callback) {
         this.mainCallback = callback;
         this.user = user;
-        
+
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
 
@@ -86,8 +89,8 @@ public class Home extends LayoutContainer {
         // west panel with controls
         final ContentPanel west = new ContentPanel(new FitLayout());
         west.setHeaderVisible(false);
-        west.setBodyStyle("background:url('img/bg/bottom_left.jpg') no-repeat bottom left;");
-        west.setStyleAttribute("backgroundColor", "white");
+        west.setBodyStyle("background:url('img/bg/left_bot_corner.png') no-repeat bottom left;");
+        west.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
         west.add(createWestPanel(), new FitData(5));
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
         westLayout.setMargins(new Margins(0));
@@ -96,11 +99,10 @@ public class Home extends LayoutContainer {
         // center panel with content
         final ContentPanel center = new ContentPanel(new FitLayout());
         center.setHeaderVisible(false);
-        center.setBodyStyle("background:url('img/bg/top_right.jpg') no-repeat top right;");
-        center.setStyleAttribute("backgroundColor", "white");
+        center.setBodyStyle("background:url('img/bg/right_top_pre.png') no-repeat top right;");
         final ContentPanel center2 = new ContentPanel(new FitLayout());
         center2.setHeaderVisible(false);
-        center2.setBodyStyle("background:url('img/bg/bottom_center.jpg') no-repeat bottom left;");
+        center2.setBodyStyle("background:url('img/bg/left_bot.png') no-repeat bottom left;");
         center2.add(createCenterPanel(), new FitData(5));
         center.add(center2, new FitData(0));
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
@@ -117,12 +119,52 @@ public class Home extends LayoutContainer {
         contentPanel.add(west, westLayout);
         contentPanel.add(center, centerLayout);
 
-        contentPanel.setStyleAttribute("backgroundColor", "white");
-        
+        // >>>>
+        // this.setLayout(new BorderLayout());
+        // this.setIntStyleAttribute("border", 0);
+        // this.add(west, westLayout);
+        // this.add(center, centerLayout);
+        // <<<<
+
+        // contentPanel.setStyleAttribute("backgroundColor", "white");
         this.setLayout(new FitLayout());
-        this.add(contentPanel, new FitData(0));
+        this.add(contentPanel);
 
         setupDragDrop();
+    }
+
+    private boolean addChartTab() {
+        if (this.progressBox.isVisible()) {
+            this.progressBox.close();
+        }
+
+        if (this.rxData.size() > 0) {
+            Log.d(TAG, "Creating tab item");
+            TabItem item = new TabItem("Time line");
+            item.setLayout(new FitLayout());
+            item.setClosable(true);
+            if (this.user.getId() == 341) {
+                item.add(new NoorderzonChart(this.rxData));
+            } else {
+                item.add(new TimeLineCharts(this.rxData));
+            }
+            item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+            this.tabPanel.add(item);
+            this.tabPanel.setSelection(item);
+
+            if (this.rxFailures > 0) {
+                MessageBox.info("CommonSense Web Application", "The data of " + this.rxFailures
+                        + " tags was not correctly received. "
+                        + "This is probably caused by connection problems with the server."
+                        + "\n\nOnly usable data is displayed.", null);
+            }
+        } else {
+            MessageBox.alert("CommonSense Web Application", "No data received from database."
+                    + "\n\nEither there is no data for selected time range, "
+                    + "or the service is having connection problems.", null);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -138,12 +180,13 @@ public class Home extends LayoutContainer {
         welcome.setLayout(new FitLayout());
         welcome.add(new WelcomeTab());
         welcome.setClosable(false);
-        welcome.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.70)");
+        welcome.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
 
         // Tabs
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
+        this.tabPanel.addStyleName("transparent");
         this.tabPanel.add(welcome);
 
         return this.tabPanel;
@@ -151,29 +194,55 @@ public class Home extends LayoutContainer {
 
     public RadioGroup createTimeSelector() {
 
-        final Radio radio1d = new Radio();
-        radio1d.setId("1d");
-        radio1d.setBoxLabel("1d");
-
-        final Radio radio7d = new Radio();
-        radio7d.setId("7d");
-        radio7d.setBoxLabel("7d");
-        radio7d.setValue(true);
-
-        final Radio radio1m = new Radio();
-        radio1m.setId("1m");
-        radio1m.setBoxLabel("1m");
-
-        final Radio radio3m = new Radio();
-        radio3m.setId("3m");
-        radio3m.setBoxLabel("3m");
-
         RadioGroup result = new RadioGroup();
-        result.add(radio1d);
-        result.add(radio7d);
-        result.add(radio1m);
-        result.add(radio3m);
-        result.setOriginalValue(radio7d);
+
+        if (this.user.getId() == 341) {
+            final Radio radio1Hr = new Radio();
+            radio1Hr.setId("1hr");
+            radio1Hr.setBoxLabel("1hr");
+            radio1Hr.setValue(true);
+
+            final Radio radio6Hr = new Radio();
+            radio6Hr.setId("6hr");
+            radio6Hr.setBoxLabel("6hr");
+
+            final Radio radioDay = new Radio();
+            radioDay.setId("24hr");
+            radioDay.setBoxLabel("24hr");
+
+            final Radio radioWeek = new Radio();
+            radioWeek.setId("1wk");
+            radioWeek.setBoxLabel("week");
+
+            result.add(radio1Hr);
+            result.add(radio6Hr);
+            result.add(radioDay);
+            result.add(radioWeek);
+            result.setOriginalValue(radio1Hr);
+        } else {
+            final Radio radio1Hr = new Radio();
+            radio1Hr.setId("1hr");
+            radio1Hr.setBoxLabel("1hr");
+            
+            final Radio radioDay = new Radio();
+            radioDay.setId("24hr");
+            radioDay.setBoxLabel("24hr");
+            radioDay.setValue(true);
+
+            final Radio radioWeek = new Radio();
+            radioWeek.setId("1wk");
+            radioWeek.setBoxLabel("1wk");
+            
+            final Radio radioMonth = new Radio();
+            radioMonth.setId("4wk");
+            radioMonth.setBoxLabel("4wk");
+
+            result.add(radio1Hr);
+            result.add(radioDay);
+            result.add(radioWeek);
+            result.add(radioMonth);
+            result.setOriginalValue(radioDay);
+        }        
 
         return result;
     }
@@ -235,8 +304,6 @@ public class Home extends LayoutContainer {
         return panel;
     }
 
-    GroupSelection groupSelection = new GroupSelection();
-
     /**
      * Creates the "west" panel of the main BorderLayout. Contains the TreePanel with phones and
      * sensor, and the logout button.
@@ -284,37 +351,37 @@ public class Home extends LayoutContainer {
         final ContentPanel panel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
         panel.setHeaderVisible(false);
         panel.setBorders(true);
-        panel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
         panel.setScrollMode(Scroll.AUTOY);
         panel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         panel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
         panel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
         panel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-        
+        panel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+
         return panel;
     }
-
 
     private long[] getTimeRange() {
 
         // constants
-        final long day = 1 * 24 * 60 * 60 * 1000;
+        final long hour = 1000 * 60 * 60;
+        final long day = 24 * hour;
         final long week = 7 * day;
-        final long month = 31 * day;
-        final long quarter = 3 * month;
 
         // read off selected time range
         final long end = System.currentTimeMillis();
         long start = 0;
         final String radioId = this.timeSelector.getValue().getId();
-        if (radioId.equals("1d")) {
+        if (radioId.equals("1hr")) {
+            start = end - hour;
+        } else if (radioId.equals("6hr")) {
+            start = end - (6 * hour);
+        } else if (radioId.equals("24hr")) {
             start = end - day;
-        } else if (radioId.equals("7d")) {
+        } else if (radioId.equals("1wk")) {
             start = end - week;
-        } else if (radioId.equals("1m")) {
-            start = end - month;
-        } else if (radioId.equals("3m")) {
-            start = end - quarter;
+        } else if (radioId.equals("4wk")) {
+            start = end - (4 * week);
         } else {
             Log.w(TAG, "Unexpected time range: " + radioId);
         }
@@ -323,43 +390,33 @@ public class Home extends LayoutContainer {
     }
 
     private void onSensorValuesReceived(TaggedDataModel data) {
-        Log.d(TAG, "Received response from service!");        
-        
+        Log.d(TAG, "Received response from service!");
+
         // remove the tag from outstandingReqs
         TagModel[] temp = new TagModel[this.outstandingReqs.length - 1];
         System.arraycopy(outstandingReqs, 1, temp, 0, temp.length);
-        this.outstandingReqs = temp;        
+        this.outstandingReqs = temp;
 
-        if ((null != data) && (data.getData().length > 0)) {
-            this.receivedData.add(data);
-            Log.d(TAG, "Added received data to the list");
+        if (null != data) {
+            if (data.getData().length > 0) {
+                this.rxData.add(data);
+                Log.d(TAG, "Added received data to the list");
+            }
+        } else {
+            this.rxFailures++;
         }
 
         if (this.outstandingReqs.length == 0) {
-            if (this.progressBox.isVisible()) {
-                this.progressBox.close();
-            }
 
-            if (this.receivedData.size() > 0) {
-                Log.d(TAG, "Creating tab item");
-                TabItem item = new TabItem("Time line");
-                item.setLayout(new FitLayout());
-                item.setClosable(true);
-                item.add(new TimeLineCharts(this.receivedData));
-                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.70)");
-                this.tabPanel.add(item);
-                this.tabPanel.setSelection(item);
-            } else {
-                MessageBox.alert("CommonSense Web Application", "No data received from database",
-                        null);
-            }
+            addChartTab();
+
         } else {
             Log.d(TAG, "New request for data: " + this.outstandingReqs[0].get("text"));
-            
+
             AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
                 @Override
-                public void onFailure(Throwable caught) {                    
+                public void onFailure(Throwable caught) {
                     onSensorValuesReceived(null);
                 }
 
@@ -372,7 +429,7 @@ public class Home extends LayoutContainer {
             final long[] range = getTimeRange();
             final Timestamp start = new Timestamp(range[0]);
             final Timestamp end = new Timestamp(range[1]);
-            this.service.getSensorValues(this.outstandingReqs[0], start, end, callback);        
+            this.service.getSensorValues(this.outstandingReqs[0], start, end, callback);
         }
     }
 
@@ -385,19 +442,20 @@ public class Home extends LayoutContainer {
             if (tag.getType() == TagModel.TYPE_SENSOR) {
                 TagModel[] temp = new TagModel[tags.length + 1];
                 System.arraycopy(tags, 0, temp, 0, tags.length);
-                temp[temp.length-1] = tag;
+                temp[temp.length - 1] = tag;
                 tags = temp;
             }
         }
-        
+
         if (tags.length == 0) {
-            MessageBox.info("CommonSense Web Application", "No sensor types selected, nothing to display.", null);
+            MessageBox.info("CommonSense Web Application",
+                    "No sensor types selected, nothing to display.", null);
             return;
         }
 
         // select the Welcome tab
         this.tabPanel.setSelection(this.tabPanel.getItem(0));
-        
+
         this.progressBox = MessageBox.progress("Please wait", "Requesting data...", "");
         this.progressBox.getProgressBar().auto();
         this.progressBox.show();
@@ -405,7 +463,9 @@ public class Home extends LayoutContainer {
         AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
             @Override
-            public void onFailure(Throwable caught) {                
+            public void onFailure(Throwable caught) {
+                Home.this.rxFailures++;
+
                 onSensorValuesReceived(null);
             }
 
@@ -419,8 +479,9 @@ public class Home extends LayoutContainer {
         final Timestamp start = new Timestamp(range[0]);
         final Timestamp end = new Timestamp(range[1]);
         this.outstandingReqs = tags;
-        this.receivedData = new ArrayList<TaggedDataModel>();        
-        this.service.getSensorValues(tags[0], start, end, callback);        
+        this.rxData = new ArrayList<TaggedDataModel>();
+        this.rxFailures = 0;
+        this.service.getSensorValues(tags[0], start, end, callback);
     }
 
     private void setupDragDrop() {
