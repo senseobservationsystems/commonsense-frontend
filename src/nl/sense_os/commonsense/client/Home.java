@@ -136,9 +136,8 @@ public class Home extends LayoutContainer {
         // Welcome tab item
         final TabItem welcome = new TabItem("Welcome");
         welcome.setLayout(new FitLayout());
-        welcome.add(new WelcomeTab(this.user.getName()));
+        welcome.add(new WelcomeTab());
         welcome.setClosable(false);
-        welcome.setScrollMode(Scroll.AUTO);
         welcome.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.70)");
 
         // Tabs

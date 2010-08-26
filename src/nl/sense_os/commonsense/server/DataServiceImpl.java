@@ -4,6 +4,7 @@ import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.ResponseTooLargeException;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.repackaged.org.json.JSONArray;
@@ -256,6 +257,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             return null;
         } catch (IOException e) {
             log.severe("IOException in getSensorValues");
+            log.severe(e.getMessage());
+            return null;
+        } catch (ResponseTooLargeException e) {
+            log.severe("ResponseTooLargeException in getSensorValues");
             log.severe(e.getMessage());
             return null;
         }
