@@ -31,12 +31,12 @@ import nl.sense_os.commonsense.dto.FloatValueModel;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 
-public class TimeLineChart extends LayoutContainer {
+public class TimeLineChart extends ContentPanel {
 
     @SuppressWarnings("unused")
     private static final String TAG = "TimeLineChart";
     private AnnotatedTimeLine chart;
-    private Map<TagModel, SensorValueModel[]> data;
+    private final Map<TagModel, SensorValueModel[]> data;
     private DataTable dataTable;
     private Grid<TagModel> grid;
     private List<TagModel> shownCharts;
@@ -44,62 +44,45 @@ public class TimeLineChart extends LayoutContainer {
     public TimeLineChart(Map<TagModel, SensorValueModel[]> data, String title) {
         this.data = data;
 
-        ContentPanel chartPanel = createChartPanel();
-        if (null != title) {
-            chartPanel.setHeading(title);
-            chartPanel.setHeaderVisible(true);
-        }
+        prepareChartData();
+
+        final LayoutContainer chartPanel = createChartPanel();
+        
+        chartPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.0)");
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
 
         final ContentPanel tagSelectPanel = createTagSelector();
-        tagSelectPanel.setStyleAttribute("backgroundColor", "rgba(255,0,255,0.7)");
+        tagSelectPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.0)");
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 200, 300);
         westLayout.setMargins(new Margins(5));
         westLayout.setSplit(true);
 
-        this.setLayout(new BorderLayout());
+        if (null != title) {
+            setHeading(title);
+            setHeaderVisible(true);
+        } else {
+            setHeaderVisible(false);
+        }
+        setLayout(new BorderLayout());
         this.add(tagSelectPanel, westLayout);
         this.add(chartPanel, centerLayout);
     }
 
-    private ContentPanel createChartPanel() {
-        // create data table for chart
-        this.dataTable = DataTable.create();
-        this.dataTable.addColumn(ColumnType.DATETIME, "Date/Time");
-
-        for (Map.Entry<TagModel, SensorValueModel[]> entry : this.data.entrySet()) {
-            TagModel tag = entry.getKey();
-            SensorValueModel[] values = entry.getValue();
-
-            this.dataTable.addColumn(ColumnType.NUMBER, tag.<String> get("text"));
-
-            // fill table with values of next tag
-            this.dataTable.addRows(values.length);
-            int offset = this.dataTable.getNumberOfRows() - values.length;
-            int colIndex = this.dataTable.getNumberOfColumns() - 1;
-
-            for (int i = 0; i < values.length; i++) {
-                FloatValueModel value = (FloatValueModel) values[i];
-
-                this.dataTable.setValue(i + offset, 0, value.getTimestamp());
-                this.dataTable.setValue(i + offset, colIndex, value.getValue());
-                // Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
-            }
-
-            tag.set("original_column", colIndex - 1);
-        }
+    /**
+     * @return content panel containing the chart
+     */
+    private LayoutContainer createChartPanel() {
 
         // create line chart
-        AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
+        final AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
         options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
+//        options.setScaleType(AnnotatedTimeLine.ScaleType.ALLMAXIMIZE);
         options.setWindowMode(WindowMode.OPAQUE);
-        this.chart = new AnnotatedTimeLine(this.dataTable, options, "95%", "95%");
+        this.chart = new AnnotatedTimeLine(this.dataTable, options, "95%", "100%");
 
-        ContentPanel panel = new ContentPanel(new CenterLayout());
-        panel.setHeaderVisible(false);
-        panel.setBorders(true);
-        panel.setStyleAttribute("backgroundColor", "black");
+        final LayoutContainer panel = new LayoutContainer(new CenterLayout());
+        panel.setBorders(false);
         panel.add(this.chart);
 
         return panel;
@@ -118,8 +101,8 @@ public class TimeLineChart extends LayoutContainer {
                 final List<TagModel> oldSelection = TimeLineChart.this.shownCharts;
 
                 // find newly selected items
-                List<TagModel> toAdd = new ArrayList<TagModel>();
-                for (TagModel m : newSelection) {
+                final List<TagModel> toAdd = new ArrayList<TagModel>();
+                for (final TagModel m : newSelection) {
 
                     if (false == oldSelection.contains(m)) {
                         toAdd.add(m);
@@ -127,8 +110,8 @@ public class TimeLineChart extends LayoutContainer {
                 }
 
                 // find newly deselected items
-                List<TagModel> toRemove = new ArrayList<TagModel>();
-                for (TagModel m : oldSelection) {
+                final List<TagModel> toRemove = new ArrayList<TagModel>();
+                for (final TagModel m : oldSelection) {
 
                     if (false == newSelection.contains(m)) {
                         toRemove.add(m);
@@ -139,17 +122,17 @@ public class TimeLineChart extends LayoutContainer {
                 updateChart(toAdd, toRemove);
             }
         });
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(selectMdl.getColumn());
         configs.add(new ColumnConfig("text", "Tag", 175));
-        ColumnModel columns = new ColumnModel(configs);
+        final ColumnModel columns = new ColumnModel(configs);
 
         // list store
-        List<TagModel> tagList = new ArrayList<TagModel>(this.data.size());
-        for (Map.Entry<TagModel, SensorValueModel[]> entry : this.data.entrySet()) {
+        final List<TagModel> tagList = new ArrayList<TagModel>(this.data.size());
+        for (final Map.Entry<TagModel, SensorValueModel[]> entry : this.data.entrySet()) {
             tagList.add(entry.getKey());
         }
-        ListStore<TagModel> store = new ListStore<TagModel>();
+        final ListStore<TagModel> store = new ListStore<TagModel>();
         store.add(tagList);
 
         this.grid = new Grid<TagModel>(store, columns);
@@ -157,38 +140,72 @@ public class TimeLineChart extends LayoutContainer {
         this.grid.setSelectionModel(selectMdl);
         this.grid.addPlugin(selectMdl);
 
+        // keep a list of charts that are shown
         this.shownCharts = new ArrayList<TagModel>();
+        
+        // first select all charts without triggering events
         this.grid.getSelectionModel().setFiresEvents(false);
         this.grid.getSelectionModel().selectAll();
         this.grid.getSelectionModel().setFiresEvents(true);
         this.shownCharts.addAll(this.data.keySet());
 
-        ContentPanel panel = new ContentPanel();
+        final ContentPanel panel = new ContentPanel();
         final VBoxLayout layout = new VBoxLayout();
         layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
         panel.setSize("100%", "100%");
         panel.setHeaderVisible(false);
         panel.setLayout(new FitLayout());
-//        panel.setStyleAttribute("backgroundColor", "white");
         panel.setBorders(true);
         panel.add(this.grid);
 
         return panel;
     }
 
+    /**
+     * Prepares the data for visualization in a chart. Puts the data from the SensorValueModel[] in
+     * a DataTable that is usable by the chart.
+     */
+    private void prepareChartData() {
+        // create data table for chart
+        this.dataTable = DataTable.create();
+        this.dataTable.addColumn(ColumnType.DATETIME, "Date/Time");
+
+        for (final Map.Entry<TagModel, SensorValueModel[]> entry : this.data.entrySet()) {
+            final TagModel tag = entry.getKey();
+            final SensorValueModel[] values = entry.getValue();
+
+            this.dataTable.addColumn(ColumnType.NUMBER, tag.<String> get("text"));
+
+            // fill table with values of next tag
+            this.dataTable.addRows(values.length);
+            final int offset = this.dataTable.getNumberOfRows() - values.length;
+            final int colIndex = this.dataTable.getNumberOfColumns() - 1;
+
+            for (int i = 0; i < values.length; i++) {
+                final FloatValueModel value = (FloatValueModel) values[i];
+
+                this.dataTable.setValue(i + offset, 0, value.getTimestamp());
+                this.dataTable.setValue(i + offset, colIndex, value.getValue());
+                // Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
+            }
+
+            tag.set("original_column", colIndex - 1);
+        }
+    }
+
     private void updateChart(List<TagModel> toAdd, List<TagModel> toRemove) {
-        int[] showCols = new int[toAdd.size()];
+        final int[] showCols = new int[toAdd.size()];
         for (int i = 0; i < toAdd.size(); i++) {
-            TagModel mn = toAdd.get(i);
+            final TagModel mn = toAdd.get(i);
             showCols[i] = mn.get("original_column");
             // Log.d(TAG, "show " + mn.get("original_column"));
             this.shownCharts.add(mn);
         }
         this.chart.showDataColumns(showCols);
 
-        int[] hideCols = new int[toRemove.size()];
+        final int[] hideCols = new int[toRemove.size()];
         for (int i = 0; i < toRemove.size(); i++) {
-            TagModel mn = toRemove.get(i);
+            final TagModel mn = toRemove.get(i);
             hideCols[i] = mn.get("original_column");
             // Log.d(TAG, "hide " + mn.get("original_column"));
             this.shownCharts.remove(mn);

@@ -48,32 +48,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.widgets.GroupSelection;
 import nl.sense_os.commonsense.client.widgets.NoorderzonChart;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
+import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
+import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 
 public class Home extends LayoutContainer {
 
+    private static boolean NOORDERZONMODE;
     private static final String TAG = "Home";
-    GroupSelection groupSelection = new GroupSelection();
     private final AsyncCallback<Void> mainCallback;
-    private RadioGroup timeSelector;
+    private TagModel[] outstandingReqs;
+    private MessageBox progressBox;
+    private List<TaggedDataModel> rxData;
+    private int rxDbConnectionExceptions;
+    private int rxTooMuchDataExceptions;
+    private int rxWrongDataExceptions;
     private final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
     private TabPanel tabPanel;
     private TreePanel<TagModel> tagTree;
-    private TagModel[] outstandingReqs;
-    private List<TaggedDataModel> rxData;
-    private int rxFailures;
-    private MessageBox progressBox;
-    private UserModel user;
+    private RadioGroup timeSelector;
 
     public Home(UserModel user, AsyncCallback<Void> callback) {
         this.mainCallback = callback;
-        this.user = user;
+        NOORDERZONMODE = (user.getId() == 341);
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
@@ -119,51 +122,28 @@ public class Home extends LayoutContainer {
         contentPanel.add(west, westLayout);
         contentPanel.add(center, centerLayout);
 
-        // >>>>
-        // this.setLayout(new BorderLayout());
-        // this.setIntStyleAttribute("border", 0);
-        // this.add(west, westLayout);
-        // this.add(center, centerLayout);
-        // <<<<
-
         // contentPanel.setStyleAttribute("backgroundColor", "white");
-        this.setLayout(new FitLayout());
+        setLayout(new FitLayout());
         this.add(contentPanel);
 
         setupDragDrop();
     }
 
     private boolean addChartTab() {
-        if (this.progressBox.isVisible()) {
-            this.progressBox.close();
-        }
 
-        if (this.rxData.size() > 0) {
-            Log.d(TAG, "Creating tab item");
-            TabItem item = new TabItem("Time line");
-            item.setLayout(new FitLayout());
-            item.setClosable(true);
-            if (this.user.getId() == 341) {
-                item.add(new NoorderzonChart(this.rxData));
-            } else {
-                item.add(new TimeLineCharts(this.rxData));
-            }
-            item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-            this.tabPanel.add(item);
-            this.tabPanel.setSelection(item);
-
-            if (this.rxFailures > 0) {
-                MessageBox.info("CommonSense Web Application", "The data of " + this.rxFailures
-                        + " tags was not correctly received. "
-                        + "This is probably caused by connection problems with the server."
-                        + "\n\nOnly usable data is displayed.", null);
-            }
+        Log.d(TAG, "Creating tab item");
+        final TabItem item = new TabItem("Time line");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        if (NOORDERZONMODE) {
+            item.add(new NoorderzonChart(this.rxData));
         } else {
-            MessageBox.alert("CommonSense Web Application", "No data received from database."
-                    + "\n\nEither there is no data for selected time range, "
-                    + "or the service is having connection problems.", null);
-            return false;
+            item.add(new TimeLineCharts(this.rxData));
         }
+        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
+
         return true;
     }
 
@@ -192,61 +172,6 @@ public class Home extends LayoutContainer {
         return this.tabPanel;
     }
 
-    public RadioGroup createTimeSelector() {
-
-        RadioGroup result = new RadioGroup();
-
-        if (this.user.getId() == 341) {
-            final Radio radio1Hr = new Radio();
-            radio1Hr.setId("1hr");
-            radio1Hr.setBoxLabel("1hr");
-            radio1Hr.setValue(true);
-
-            final Radio radio6Hr = new Radio();
-            radio6Hr.setId("6hr");
-            radio6Hr.setBoxLabel("6hr");
-
-            final Radio radioDay = new Radio();
-            radioDay.setId("24hr");
-            radioDay.setBoxLabel("24hr");
-
-            final Radio radioWeek = new Radio();
-            radioWeek.setId("1wk");
-            radioWeek.setBoxLabel("week");
-
-            result.add(radio1Hr);
-            result.add(radio6Hr);
-            result.add(radioDay);
-            result.add(radioWeek);
-            result.setOriginalValue(radio1Hr);
-        } else {
-            final Radio radio1Hr = new Radio();
-            radio1Hr.setId("1hr");
-            radio1Hr.setBoxLabel("1hr");
-            
-            final Radio radioDay = new Radio();
-            radioDay.setId("24hr");
-            radioDay.setBoxLabel("24hr");
-            radioDay.setValue(true);
-
-            final Radio radioWeek = new Radio();
-            radioWeek.setId("1wk");
-            radioWeek.setBoxLabel("1wk");
-            
-            final Radio radioMonth = new Radio();
-            radioMonth.setId("4wk");
-            radioMonth.setBoxLabel("4wk");
-
-            result.add(radio1Hr);
-            result.add(radioDay);
-            result.add(radioWeek);
-            result.add(radioMonth);
-            result.setOriginalValue(radioDay);
-        }        
-
-        return result;
-    }
-
     /**
      * Creates an tree of PhoneModels and SensorModels, which are fetched asynchronously.
      * 
@@ -264,7 +189,7 @@ public class Home extends LayoutContainer {
                 if (loadConfig == null) {
                     service.getTags(null, callback);
                 } else if (loadConfig instanceof TagModel) {
-                    TagModel tag = (TagModel) loadConfig;
+                    final TagModel tag = (TagModel) loadConfig;
                     service.getTags(tag, callback);
                 } else {
                     Log.e("RpcProxy", "loadConfig unexpected type");
@@ -296,12 +221,67 @@ public class Home extends LayoutContainer {
         this.tagTree.setDisplayProperty("text");
         this.tagTree.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
 
-        ContentPanel panel = new ContentPanel(new FitLayout());
+        final ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeading("Tag tree");
         panel.setCollapsible(true);
         panel.add(this.tagTree);
 
         return panel;
+    }
+
+    public RadioGroup createTimeSelector() {
+
+        final RadioGroup result = new RadioGroup();
+
+        if (NOORDERZONMODE) {
+            final Radio radio1Hr = new Radio();
+            radio1Hr.setId("1hr");
+            radio1Hr.setBoxLabel("1hr");
+            radio1Hr.setValue(true);
+
+            final Radio radio6Hr = new Radio();
+            radio6Hr.setId("6hr");
+            radio6Hr.setBoxLabel("6hr");
+
+            final Radio radioDay = new Radio();
+            radioDay.setId("24hr");
+            radioDay.setBoxLabel("24hr");
+
+            final Radio radioWeek = new Radio();
+            radioWeek.setId("1wk");
+            radioWeek.setBoxLabel("week");
+
+            result.add(radio1Hr);
+            result.add(radio6Hr);
+            result.add(radioDay);
+            result.add(radioWeek);
+            result.setOriginalValue(radio1Hr);
+        } else {
+            final Radio radio1Hr = new Radio();
+            radio1Hr.setId("1hr");
+            radio1Hr.setBoxLabel("1hr");
+
+            final Radio radioDay = new Radio();
+            radioDay.setId("24hr");
+            radioDay.setBoxLabel("24hr");
+            radioDay.setValue(true);
+
+            final Radio radioWeek = new Radio();
+            radioWeek.setId("1wk");
+            radioWeek.setBoxLabel("1wk");
+
+            final Radio radioMonth = new Radio();
+            radioMonth.setId("4wk");
+            radioMonth.setBoxLabel("4wk");
+
+            result.add(radio1Hr);
+            result.add(radioDay);
+            result.add(radioWeek);
+            result.add(radioMonth);
+            result.setOriginalValue(radioDay);
+        }
+
+        return result;
     }
 
     /**
@@ -321,7 +301,7 @@ public class Home extends LayoutContainer {
         logoContainer.add(logo);
 
         // Content panel with the tree of tags
-        ContentPanel tagPanel = createTagPanel();
+        final ContentPanel tagPanel = createTagPanel();
 
         // Log out button with flexible white space above it
         final Button logoutBtn = new Button("Log out");
@@ -390,46 +370,46 @@ public class Home extends LayoutContainer {
     }
 
     private void onSensorValuesReceived(TaggedDataModel data) {
-        Log.d(TAG, "Received response from service!");
 
         // remove the tag from outstandingReqs
-        TagModel[] temp = new TagModel[this.outstandingReqs.length - 1];
-        System.arraycopy(outstandingReqs, 1, temp, 0, temp.length);
+        final TagModel[] temp = new TagModel[this.outstandingReqs.length - 1];
+        System.arraycopy(this.outstandingReqs, 1, temp, 0, temp.length);
         this.outstandingReqs = temp;
 
         if (null != data) {
-            if (data.getData().length > 0) {
-                this.rxData.add(data);
-                Log.d(TAG, "Added received data to the list");
-            }
-        } else {
-            this.rxFailures++;
+            Log.d(TAG, "Received sensor data from service!");
+            this.rxData.add(data);
         }
 
+        // show the results or request more data if there are still tags left
         if (this.outstandingReqs.length == 0) {
 
-            addChartTab();
+            if (this.progressBox.isVisible()) {
+                this.progressBox.close();
+            }
 
+            String errorMsg = "Not all data was received.\n";
+            if (this.rxDbConnectionExceptions > 0) {
+                errorMsg += "Connection to the database failed for "
+                        + this.rxDbConnectionExceptions + " tag(s).\n";
+            }
+            if (this.rxTooMuchDataExceptions > 0) {
+                errorMsg += "Too much data requested for " + this.rxTooMuchDataExceptions
+                        + " tag(s).\n";
+            }
+            if (this.rxWrongDataExceptions > 0) {
+                errorMsg += "Unexpected data received from the database for "
+                        + this.rxWrongDataExceptions + " tag(s).";
+            }
+            if (errorMsg.length() > 30) {
+                MessageBox.alert("CommonSense Web Application", errorMsg, null);
+            }
+
+            if (this.rxData.size() > 0) {
+                addChartTab();
+            }
         } else {
-            Log.d(TAG, "New request for data: " + this.outstandingReqs[0].get("text"));
-
-            AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
-
-                @Override
-                public void onFailure(Throwable caught) {
-                    onSensorValuesReceived(null);
-                }
-
-                @Override
-                public void onSuccess(TaggedDataModel data) {
-                    onSensorValuesReceived(data);
-                }
-            };
-
-            final long[] range = getTimeRange();
-            final Timestamp start = new Timestamp(range[0]);
-            final Timestamp end = new Timestamp(range[1]);
-            this.service.getSensorValues(this.outstandingReqs[0], start, end, callback);
+            requestSensorValues(this.outstandingReqs[0]);
         }
     }
 
@@ -438,15 +418,16 @@ public class Home extends LayoutContainer {
         // create array to send as parameter in RPC
         TagModel[] tags = new TagModel[0];
         for (int i = 0; i < treeStoreModel.size(); i++) {
-            TagModel tag = (TagModel) treeStoreModel.get(i).getModel();
+            final TagModel tag = (TagModel) treeStoreModel.get(i).getModel();
             if (tag.getType() == TagModel.TYPE_SENSOR) {
-                TagModel[] temp = new TagModel[tags.length + 1];
+                final TagModel[] temp = new TagModel[tags.length + 1];
                 System.arraycopy(tags, 0, temp, 0, tags.length);
                 temp[temp.length - 1] = tag;
                 tags = temp;
             }
         }
 
+        // check whether there are any tags at all
         if (tags.length == 0) {
             MessageBox.info("CommonSense Web Application",
                     "No sensor types selected, nothing to display.", null);
@@ -456,15 +437,38 @@ public class Home extends LayoutContainer {
         // select the Welcome tab
         this.tabPanel.setSelection(this.tabPanel.getItem(0));
 
+        // show message to indicate progress
         this.progressBox = MessageBox.progress("Please wait", "Requesting data...", "");
         this.progressBox.getProgressBar().auto();
         this.progressBox.show();
 
-        AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
+        // start requesting data for the list of tags
+        this.outstandingReqs = tags;
+        this.rxData = new ArrayList<TaggedDataModel>();
+        this.rxWrongDataExceptions = 0;
+        requestSensorValues(tags[0]);
+    }
+
+    private void requestSensorValues(TagModel tag) {
+        Log.d(TAG, "New request for data: " + tag.get("text"));
+
+        final AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
             @Override
             public void onFailure(Throwable caught) {
-                Home.this.rxFailures++;
+
+                if (caught instanceof TooMuchDataException) {
+                    Home.this.rxTooMuchDataExceptions++;
+                    Log.d(TAG, "Too much data requested: " + caught.getMessage());
+                } else if (caught instanceof WrongResponseException) {
+                    Home.this.rxWrongDataExceptions++;
+                    Log.d(TAG, "Problem with received response: " + caught.getMessage());
+                } else if (caught instanceof DbConnectionException) {
+                    Home.this.rxDbConnectionExceptions++;
+                    Log.d(TAG, "Error in connection to database: " + caught.getMessage());
+                } else {
+                    Log.d(TAG, "Generic exception: " + caught.getMessage());
+                }
 
                 onSensorValuesReceived(null);
             }
@@ -478,24 +482,21 @@ public class Home extends LayoutContainer {
         final long[] range = getTimeRange();
         final Timestamp start = new Timestamp(range[0]);
         final Timestamp end = new Timestamp(range[1]);
-        this.outstandingReqs = tags;
-        this.rxData = new ArrayList<TaggedDataModel>();
-        this.rxFailures = 0;
-        this.service.getSensorValues(tags[0], start, end, callback);
+        this.service.getSensorValues(tag, start, end, callback);
     }
 
     private void setupDragDrop() {
 
         new TreePanelDragSource(this.tagTree);
 
-        DropTarget dropTarget = new DropTarget(this.tabPanel);
+        final DropTarget dropTarget = new DropTarget(this.tabPanel);
         dropTarget.setOperation(Operation.COPY);
         dropTarget.addDNDListener(new DNDListener() {
             @Override
             public void dragDrop(DNDEvent e) {
                 super.dragDrop(e);
 
-                ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
+                final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
                 onTagsDropped(data);
             }
         });

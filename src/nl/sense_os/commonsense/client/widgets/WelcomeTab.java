@@ -12,12 +12,11 @@ public class WelcomeTab extends LayoutContainer {
     private static final String TAG = "WelcomeTab";
 
     public WelcomeTab() {
-        
-        this.setLayout(new FitLayout());
-        this.setBorders(false);
-        this.setScrollMode(Scroll.NONE);
-        
-        Frame f = new Frame("http://welcome.sense-os.nl");
+        setLayout(new FitLayout());
+        setBorders(false);
+        setScrollMode(Scroll.NONE);
+
+        final Frame f = new Frame("http://welcome.sense-os.nl");
         f.setStylePrimaryName("senseFrame");
         this.add(f, new FitData(0));
     }

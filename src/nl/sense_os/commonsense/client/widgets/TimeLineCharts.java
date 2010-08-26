@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.widgets;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -19,7 +19,7 @@ import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 
-public class TimeLineCharts extends ContentPanel {
+public class TimeLineCharts extends LayoutContainer {
 
     private static final String TAG = "TimeLineCharts";
     private Map<TagModel, SensorValueModel[]> booleanData;
@@ -29,35 +29,34 @@ public class TimeLineCharts extends ContentPanel {
 
     public TimeLineCharts(List<TaggedDataModel> data) {
 
-        this.setHeaderVisible(false);
-        this.setStyleAttribute("backgroundColor", "#FF0000");
-        
         // separate the data types from the different sensors that will be charted
         separateDataTypes(data);
 
         // convert non-float data types to floats
-        Map<String, Map<TagModel, SensorValueModel[]>> jsonCharts = floatsFromJsons();
-        Map<TagModel, SensorValueModel[]> convertedStrings = floatsFromStrings();
-        Map<TagModel, SensorValueModel[]> convertedBooleans = floatsFromBooleans();
+        final Map<String, Map<TagModel, SensorValueModel[]>> jsonCharts = floatsFromJsons();
+        final Map<TagModel, SensorValueModel[]> convertedStrings = floatsFromStrings();
+        final Map<TagModel, SensorValueModel[]> convertedBooleans = floatsFromBooleans();
 
         // determine how many charts will be drawn, to get the proper height of one chart
         double nrOfCharts = (this.floatData.size() > 0) ? 1 : 0;
         nrOfCharts += jsonCharts.size();
         nrOfCharts += (this.booleanData.size() > 0) ? 1 : 0;
         nrOfCharts += (this.stringData.size() > 0) ? 1 : 0;
-        nrOfCharts = (nrOfCharts > 3) ? 3 : nrOfCharts;
+        nrOfCharts = (nrOfCharts > 2) ? 2.5 : nrOfCharts;
 
         // put charts in the layout
-        this.setLayout(new RowLayout());
-        this.setScrollMode(Scroll.AUTOY);
         if (nrOfCharts == 0) {
-            this.setLayout(new CenterLayout());
+            setLayout(new CenterLayout());
             this.add(new Text("No numerical data to visualize..."));
         } else {
+            setLayout(new RowLayout());
+            setScrollMode(Scroll.AUTOY);
+
             if (this.floatData.size() > 0) {
                 this.add(new TimeLineChart(this.floatData, null), new RowData(-1, 1 / nrOfCharts));
             }
-            for (Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : jsonCharts.entrySet()) {
+            for (final Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : jsonCharts
+                    .entrySet()) {
                 this.add(new TimeLineChart(chart.getValue(), chart.getKey()), new RowData(-1,
                         1 / nrOfCharts));
             }
@@ -78,22 +77,22 @@ public class TimeLineCharts extends ContentPanel {
 
     private Map<String, Map<TagModel, SensorValueModel[]>> floatsFromJsons() {
 
-        Map<String, Map<TagModel, SensorValueModel[]>> sortedFields = new HashMap<String, Map<TagModel, SensorValueModel[]>>();
-        for (Map.Entry<TagModel, SensorValueModel[]> entry : this.jsonData.entrySet()) {
-            TagModel tag = entry.getKey();
-            SensorValueModel[] values = entry.getValue();
+        final Map<String, Map<TagModel, SensorValueModel[]>> sortedFields = new HashMap<String, Map<TagModel, SensorValueModel[]>>();
+        for (final Map.Entry<TagModel, SensorValueModel[]> entry : this.jsonData.entrySet()) {
+            final TagModel tag = entry.getKey();
+            final SensorValueModel[] values = entry.getValue();
 
             // get the fields for this data type
-            JsonValueModel testValue = (JsonValueModel) values[0];
-            Map<String, String> testFields = testValue.getFields();
+            final JsonValueModel testValue = (JsonValueModel) values[0];
+            final Map<String, String> testFields = testValue.getFields();
 
             // iterate over the fields to see if there is anything visualizable
-            List<String> validFields = new ArrayList<String>();
-            for (Map.Entry<String, String> field : testFields.entrySet()) {
+            final List<String> validFields = new ArrayList<String>();
+            for (final Map.Entry<String, String> field : testFields.entrySet()) {
                 try {
                     Double.parseDouble(field.getValue());
                     validFields.add(field.getKey());
-                } catch (NumberFormatException e) {
+                } catch (final NumberFormatException e) {
                     // not a valid field
                     Log.d(TAG,
                             "field " + field.getKey() + " is not valid! Value: " + field.getValue());
@@ -101,12 +100,12 @@ public class TimeLineCharts extends ContentPanel {
             }
 
             // extract the values of any float type fields and put them in sortedFields
-            for (String field : validFields) {
-                FloatValueModel[] extractedValues = new FloatValueModel[values.length];
+            for (final String field : validFields) {
+                final FloatValueModel[] extractedValues = new FloatValueModel[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    JsonValueModel value = (JsonValueModel) values[i];
+                    final JsonValueModel value = (JsonValueModel) values[i];
 
-                    double val = Double.parseDouble(value.getFields().get(field));
+                    final double val = Double.parseDouble(value.getFields().get(field));
                     extractedValues[i] = new FloatValueModel(value.getTimestamp(), field, val);
                 }
 
@@ -119,7 +118,8 @@ public class TimeLineCharts extends ContentPanel {
             }
         }
 
-        for (Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : sortedFields.entrySet()) {
+        for (final Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : sortedFields
+                .entrySet()) {
             Log.d(TAG, "Chart " + chart.getKey() + ": " + chart.getValue().size() + " tags");
         }
 
@@ -137,26 +137,26 @@ public class TimeLineCharts extends ContentPanel {
         this.booleanData = new HashMap<TagModel, SensorValueModel[]>();
         this.stringData = new HashMap<TagModel, SensorValueModel[]>();
 
-        for (TaggedDataModel dataEntry : data) {
-            SensorValueModel[] values = dataEntry.getData();
-            TagModel tag = dataEntry.getTag();
+        for (final TaggedDataModel dataEntry : data) {
+            final SensorValueModel[] values = dataEntry.getData();
+            final TagModel tag = dataEntry.getTag();
 
             if (values.length > 0) {
 
-                SensorValueModel s = values[0];
+                final SensorValueModel s = values[0];
 
                 switch (s.getType()) {
                 case SensorValueModel.BOOL:
-                    booleanData.put(tag, values);
+                    this.booleanData.put(tag, values);
                     break;
                 case SensorValueModel.FLOAT:
-                    floatData.put(tag, values);
+                    this.floatData.put(tag, values);
                     break;
                 case SensorValueModel.JSON:
-                    jsonData.put(tag, values);
+                    this.jsonData.put(tag, values);
                     break;
                 case SensorValueModel.STRING:
-                    stringData.put(tag, values);
+                    this.stringData.put(tag, values);
                     break;
                 default:
                     Log.w(TAG, "Unexpected data type");
