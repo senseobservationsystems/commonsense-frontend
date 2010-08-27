@@ -55,14 +55,12 @@ public class Login extends LayoutContainer {
                 "Logging in, please wait...", "Logging in...");
 
         final AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
-            @Override
             public void onFailure(Throwable ex) {
                 waitBox.close();
                 MessageBox.alert("Login failure!", "Server-side failure.", null);
                 pass.clear();
             }
 
-            @Override
             public void onSuccess(UserModel user) {
                 waitBox.close();
                 if (user != null) {
@@ -106,7 +104,6 @@ public class Login extends LayoutContainer {
         final Button b = new Button("Submit");
         b.setType("submit");
         b.addListener(Events.Select, new Listener<ButtonEvent>() {
-            @Override
             public void handleEvent(ButtonEvent be) {
                 final String mailString = email.getValue();
                 final String passString = MD5Wrapper.toMD5(pass.getValue());

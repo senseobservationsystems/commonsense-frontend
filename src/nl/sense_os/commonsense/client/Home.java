@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
@@ -48,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
 import nl.sense_os.commonsense.client.widgets.NoorderzonChart;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
@@ -81,7 +83,6 @@ public class Home extends LayoutContainer {
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
 
-            @Override
             public void run() {
                 Log.d(TAG, "Visualization loaded...");
             }
@@ -208,7 +209,6 @@ public class Home extends LayoutContainer {
         // trees store
         final TreeStore<TagModel> store = new TreeStore<TagModel>(loader);
         store.setKeyProvider(new ModelKeyProvider<TagModel>() {
-            @Override
             public String getKey(TagModel tag) {
                 return tag.getPath();
             }
@@ -306,15 +306,12 @@ public class Home extends LayoutContainer {
         // Log out button with flexible white space above it
         final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
-            @Override
             public void handleEvent(ButtonEvent be) {
                 Home.this.service.logout(new AsyncCallback<Void>() {
-                    @Override
                     public void onFailure(Throwable ex) {
                         Home.this.mainCallback.onFailure(ex);
                     }
 
-                    @Override
                     public void onSuccess(Void result) {
                         Home.this.mainCallback.onSuccess(null);
                     }
@@ -417,6 +414,7 @@ public class Home extends LayoutContainer {
 
         // create array to send as parameter in RPC
         TagModel[] tags = new TagModel[0];
+        TagModel[] deviceTags = new TagModel[0];
         for (int i = 0; i < treeStoreModel.size(); i++) {
             final TagModel tag = (TagModel) treeStoreModel.get(i).getModel();
             if (tag.getType() == TagModel.TYPE_SENSOR) {
@@ -425,12 +423,18 @@ public class Home extends LayoutContainer {
                 temp[temp.length - 1] = tag;
                 tags = temp;
             }
+            if (tag.getType() == TagModel.TYPE_DEVICE) {
+                final TagModel[] temp = new TagModel[tags.length + 1];
+                System.arraycopy(tags, 0, temp, 0, tags.length);
+                temp[temp.length - 1] = tag;
+                deviceTags = temp;
+            }
         }
 
         // check whether there are any tags at all
-        if (tags.length == 0) {
+        if (tags.length == 0 && deviceTags.length == 0) {
             MessageBox.info("CommonSense Web Application",
-                    "No sensor types selected, nothing to display.", null);
+                    "No sensor types or devices selected, nothing to display.", null);
             return;
         }
 
@@ -445,16 +449,38 @@ public class Home extends LayoutContainer {
         // start requesting data for the list of tags
         this.outstandingReqs = tags;
         this.rxData = new ArrayList<TaggedDataModel>();
-        this.rxWrongDataExceptions = 0;
-        requestSensorValues(tags[0]);
+        this.rxWrongDataExceptions = 0; 
+        
+        if(deviceTags.length > 0)
+        	deviceLocationView(deviceTags);
+        if(tags.length > 0)
+        	requestSensorValues(tags[0]);
     }
 
+    private void deviceLocationView(TagModel[] tags)
+    {    	  	
+    	for (int i = 0; i < tags.length; i++) {
+			TagModel tagModel = tags[i];				
+		
+    	  if (this.progressBox.isVisible())
+              this.progressBox.close();
+    	  
+    	  Log.d(TAG, "Creating tab item");
+          final TabItem item = new TabItem("Google Street View");
+          item.setLayout(new FitLayout());
+          item.setClosable(true);          
+          item.add(new GoogleStreetView(tagModel.getTaggedId()));          
+          item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+          this.tabPanel.add(item);
+          this.tabPanel.setSelection(item);
+    	}
+          
+    }
     private void requestSensorValues(TagModel tag) {
         Log.d(TAG, "New request for data: " + tag.get("text"));
 
         final AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
-            @Override
             public void onFailure(Throwable caught) {
 
                 if (caught instanceof TooMuchDataException) {
@@ -473,7 +499,6 @@ public class Home extends LayoutContainer {
                 onSensorValuesReceived(null);
             }
 
-            @Override
             public void onSuccess(TaggedDataModel data) {
                 onSensorValuesReceived(data);
             }
