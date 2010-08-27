@@ -26,8 +26,7 @@ public class IVOServlet extends HttpServlet {
 			String s = req.getParameter("changes");
 			if (s != null) {
 				JSONArray changes = new JSONArray(req.getParameter("changes"));
-				log.warning("Got some stuff to process...");
-				//resp.getWriter().println(extract(changes));
+				resp.getWriter().println(extract(changes));
 			} else {
 				resp.getWriter().println("Ehm... please specify something crunchable.");
 			}
