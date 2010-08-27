@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -59,6 +60,7 @@ import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.server.data.User;
 
 public class Home extends LayoutContainer {
 
@@ -468,8 +470,8 @@ public class Home extends LayoutContainer {
     	  Log.d(TAG, "Creating tab item");
           final TabItem item = new TabItem("Google Street View");
           item.setLayout(new FitLayout());
-          item.setClosable(true);          
-          item.add(new GoogleStreetView(tagModel.getTaggedId()));          
+          item.setClosable(true);
+          item.add(new GoogleStreetView(tagModel.getTaggedId(), Cookies.getCookie("user_name"), Cookies.getCookie("user_pass")));          
           item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
           this.tabPanel.add(item);
           this.tabPanel.setSelection(item);
