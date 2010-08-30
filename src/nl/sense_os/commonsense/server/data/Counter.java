@@ -32,7 +32,5 @@ public class Counter {
 	public Key getKey() {
 		return key;
 	}
-
-    
     
 }
