@@ -24,10 +24,12 @@ public abstract class IVOServlet extends HttpServlet {
 				JSONArray changes = new JSONArray(req.getParameter("changes"));
 				resp.getWriter().println(applyChanges(changes));
 			} else {
-				resp.getWriter().println("Ehm... please specify something crunchable.");
+				resp.getWriter().println("Error");
+				log.warning("Got something non-crunchable");
 			}
 		} catch (JSONException e) {
-			resp.getWriter().println("OOPS! sorry, something went wrong here. Did you submit valid JSON?");
+			resp.getWriter().println("Error");
+			log.warning("Got something non-crunchable");
 		}		
 	}
 
@@ -58,6 +60,9 @@ public abstract class IVOServlet extends HttpServlet {
 			} catch (JSONException e) {
 			}
 		}	
+
+		log.info("Processed " + changes.length() + " changes!");
+		
 		return result;
 	}
 
