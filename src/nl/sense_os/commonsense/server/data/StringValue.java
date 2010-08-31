@@ -1,17 +1,22 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+
+@PersistenceCapable
 public class StringValue extends SensorValue {
     
+    @Persistent
     private String value;
     
     public StringValue() {
         
     }
     
-    public StringValue(int deviceId, int sensorType, Timestamp timestamp, String name, String value) {
-        super(deviceId, sensorType, timestamp, name, SensorValue.STRING);
+    public StringValue(int deviceId, int sensorType, Date timestamp, String value) {
+        super(deviceId, sensorType, timestamp, SensorValue.STRING);
         setValue(value);
     }
     

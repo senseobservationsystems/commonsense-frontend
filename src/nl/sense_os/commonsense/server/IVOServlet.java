@@ -11,9 +11,10 @@ import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
+@SuppressWarnings("serial")
 public abstract class IVOServlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger("IVOServlet");
+	protected static final Logger log = Logger.getLogger("IVOServlet");
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {

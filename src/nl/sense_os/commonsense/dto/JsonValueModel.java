@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 
 public class JsonValueModel extends SensorValueModel {
@@ -11,8 +11,8 @@ public class JsonValueModel extends SensorValueModel {
         // empty constructor for serializing
     }
     
-    public JsonValueModel(Timestamp timestamp, String name, Map<String, String> fields) {
-        super(timestamp, name, SensorValueModel.JSON);
+    public JsonValueModel(Date timestamp, Map<String, String> fields) {
+        super(timestamp, SensorValueModel.JSON);
         
         setFields(fields);
     }

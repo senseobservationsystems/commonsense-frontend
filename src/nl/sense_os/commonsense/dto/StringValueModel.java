@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class StringValueModel extends SensorValueModel {
 
@@ -10,8 +10,8 @@ public class StringValueModel extends SensorValueModel {
         // empty constructor for serializing
     }
     
-    public StringValueModel(Timestamp timestamp, String name, String value) {
-        super(timestamp, name, SensorValueModel.STRING);
+    public StringValueModel(Date timestamp, String value) {
+        super(timestamp, SensorValueModel.STRING);
         setValue(value);
     }
     

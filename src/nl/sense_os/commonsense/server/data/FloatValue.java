@@ -1,17 +1,22 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+
+@PersistenceCapable
 public class FloatValue extends SensorValue {
 
+    @Persistent
     private double value; 
     
     public FloatValue() {
         
     }
     
-    public FloatValue(int deviceId, int sensorType, Timestamp timestamp, String name, double value) {
-        super(deviceId, sensorType, timestamp, name, SensorValue.FLOAT);
+    public FloatValue(int deviceId, int sensorType, Date timestamp, double value) {
+        super(deviceId, sensorType, timestamp, SensorValue.FLOAT);
         setValue(value);
     }
     

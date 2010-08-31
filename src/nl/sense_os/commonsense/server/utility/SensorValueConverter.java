@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.server.utility;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.dto.BooleanValueModel;
@@ -14,6 +14,7 @@ import nl.sense_os.commonsense.dto.StringValueModel;
 import nl.sense_os.commonsense.server.data.BooleanValue;
 import nl.sense_os.commonsense.server.data.FloatValue;
 import nl.sense_os.commonsense.server.data.JsonValue;
+import nl.sense_os.commonsense.server.data.SensorType;
 import nl.sense_os.commonsense.server.data.SensorValue;
 import nl.sense_os.commonsense.server.data.StringValue;
 
@@ -25,49 +26,71 @@ public class SensorValueConverter {
         SensorValueModel sensorValueModel = null;
 
         // find out the sensor type
-        final Timestamp ts = sensorValue.getTimestamp();
-        final String name = sensorValue.getName();
+        final Date ts = sensorValue.getTimestamp();
         final int dataType = sensorValue.getType();
         switch (dataType) {
         case SensorValue.BOOL:
             BooleanValue bv = (BooleanValue) sensorValue;
-            sensorValueModel = new BooleanValueModel(ts, name, bv.getValue());
+            sensorValueModel = new BooleanValueModel(ts, bv.getValue());
             break;
         case SensorValue.FLOAT:
             FloatValue fv = (FloatValue) sensorValue;
-            sensorValueModel = new FloatValueModel(ts, name, fv.getValue());
+            sensorValueModel = new FloatValueModel(ts, fv.getValue());
             break;
         case SensorValue.JSON:
             JsonValue jv = (JsonValue) sensorValue;
-            sensorValueModel = new JsonValueModel(ts, name, jv.getFields());
+            sensorValueModel = new JsonValueModel(ts, jv.getFields());
             break;
         case SensorValue.STRING:
             StringValue sv = (StringValue) sensorValue;
-            sensorValueModel = new StringValueModel(ts, name, sv.getValue());
+            sensorValueModel = new StringValueModel(ts, sv.getValue());
             break;
         }
         return sensorValueModel;
     }
 
-    public static SensorValue jsonToEntity(int deviceId, int sensorType, JSONObject jsonSensorValue, String name, String dataType)
+    // compatibility method
+    public static SensorValue jsonToEntity(int deviceId, int sensorType, JSONObject jsonSensorValue, String dataType)
             throws JSONException {
         SensorValue s = null;
 
-        Timestamp ts = TimestampConverter.epochSecsToTimestamp(jsonSensorValue.getString("t"));
+        Date ts = TimestampConverter.epochSecsToTimestamp(jsonSensorValue.getString("t"));
         String value = jsonSensorValue.getString("v");
 
         if (dataType.equals("string")) {
-            s = new StringValue(deviceId, sensorType, ts, name, value);
+            s = new StringValue(deviceId, sensorType, ts, value);
         } else if (dataType.equals("json")) {
-            s = new JsonValue(deviceId, sensorType, ts, name, value);
+            s = new JsonValue(deviceId, sensorType, ts, value);
         } else if (dataType.equals("float")) {
-            s = new FloatValue(deviceId, sensorType, ts, name, Double.parseDouble(value));
+            s = new FloatValue(deviceId, sensorType, ts, Double.parseDouble(value));
         } else if (dataType.equals("bool")) {
-            s = new BooleanValue(deviceId, sensorType, ts, name, Boolean.parseBoolean(value));
+            s = new BooleanValue(deviceId, sensorType, ts, Boolean.parseBoolean(value));
         } else {
             log.warning("Error converting sensor value: Unknown data type.");
         }
 
         return s;
+    }
+
+    public static SensorValue jsonToEntity(JSONObject jsonSensorValue, int dataType) throws JSONException {
+    	SensorValue s = null;
+
+        Date ts = TimestampConverter.epochSecsToTimestamp(jsonSensorValue.getString("t"));
+    	String value = jsonSensorValue.getString("sensor_value");
+
+    	switch (dataType) {
+    		case SensorType.STRING:
+    			s = new StringValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    		case SensorType.JSON:
+    			s = new JsonValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    		case SensorType.FLOAT:
+    			s = new FloatValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Double.parseDouble(value));
+    		case SensorType.BOOL:
+    			s = new BooleanValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Boolean.parseBoolean(value));
+    		default:
+        		log.warning("Error converting sensor value: Unknown data type.");
+    	}
+    	
+    	return s;
     }
 }

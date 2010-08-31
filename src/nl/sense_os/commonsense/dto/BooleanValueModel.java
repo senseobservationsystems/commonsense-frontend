@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class BooleanValueModel extends SensorValueModel {
 
@@ -10,8 +10,8 @@ public class BooleanValueModel extends SensorValueModel {
         
     }
     
-    public BooleanValueModel(Timestamp timestamp, String name, boolean value) {
-        super(timestamp, name, SensorValueModel.BOOL);
+    public BooleanValueModel(Date timestamp, boolean value) {
+        super(timestamp, SensorValueModel.BOOL);
         setValue(value);
     }
     

@@ -10,7 +10,7 @@ public class SensorTypeConverter {
     private static final Logger log = Logger.getLogger("SensorTypeConverter");
 
     public static SensorType jsonToEntity(JSONObject jsonSensorType) throws JSONException {
-		String jsonDataType = (String) jsonSensorType.get("data_type");
+		String jsonDataType = jsonSensorType.getString("data_type");
 		int dataType = -1;
 		if (jsonDataType.equals("string")) {
 			dataType = SensorType.STRING;
@@ -24,7 +24,7 @@ public class SensorTypeConverter {
 		    log.warning("Error converting sensor value: Unknown data type.");
 		}
 
-		SensorType sensorType = new SensorType(Integer.parseInt((String) jsonSensorType.get("id")), dataType);
+		SensorType sensorType = new SensorType(jsonSensorType.getInt("id"), jsonSensorType.getString("name"), dataType);
 
 		return sensorType;
     }

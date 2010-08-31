@@ -4,16 +4,21 @@ import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+
+@PersistenceCapable
 public class JsonValue extends SensorValue {
 
+    @Persistent
     Map<String, String> fields;
     
-    public JsonValue(int deviceId, int sensorType, Timestamp timestamp, String name, String fields) throws JSONException {
-        super(deviceId, sensorType, timestamp, name, SensorValue.JSON);
+    public JsonValue(int deviceId, int sensorType, Date timestamp, String fields) throws JSONException {
+        super(deviceId, sensorType, timestamp, SensorValue.JSON);
         
         setFields(fields);
     }

@@ -1,7 +1,18 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
+import javax.jdo.annotations.Inheritance;
+import javax.jdo.annotations.InheritanceStrategy;
+
+import com.google.appengine.api.datastore.Key;
+
+@PersistenceCapable
+@Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public abstract class SensorValue {
     /**
      * Boolean sensor value.
@@ -20,19 +31,28 @@ public abstract class SensorValue {
      */
     public static final int STRING = 4;
     
+    @PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private Key key;
+
+    @Persistent
     private int deviceId;
-	private int sensorType;
-    private String name;
-    private Timestamp timestamp;
+    
+    @Persistent
+    private int sensorType;
+    
+    @Persistent
+    private Date timestamp;
+    
+    @Persistent
     private int type;
 
     public SensorValue() {
         
     }
 
-    public SensorValue(int deviceId, int sensorType, Timestamp timestamp, String name, int type) {
+    public SensorValue(int deviceId, int sensorType, Date timestamp, int type) {
         setTimestamp(timestamp);
-        setName(name);
         setType(type);
     }
     
@@ -52,11 +72,7 @@ public abstract class SensorValue {
 		this.sensorType = sensorType;
 	}
 
-    public String getName() {
-        return this.name;
-    }
-    
-    public Timestamp getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
     
@@ -64,12 +80,7 @@ public abstract class SensorValue {
         return type;
     }
     
-    public SensorValue setName(String name) {
-        this.name = name;
-        return this;
-    }
-    
-    public SensorValue setTimestamp(Timestamp timestamp) {
+    public SensorValue setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
         return this;
     }

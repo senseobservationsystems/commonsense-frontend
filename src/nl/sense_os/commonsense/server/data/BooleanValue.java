@@ -1,17 +1,22 @@
 package nl.sense_os.commonsense.server.data;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+
+@PersistenceCapable
 public class BooleanValue extends SensorValue {
     
+    @Persistent
     private boolean value;
     
     public BooleanValue() {
         
     }
     
-    public BooleanValue(int deviceId, int sensorType, Timestamp timestamp, String name, boolean value) {
-        super(deviceId, sensorType, timestamp, name, SensorValue.BOOL);
+    public BooleanValue(int deviceId, int sensorType, Date timestamp, boolean value) {
+        super(deviceId, sensorType, timestamp, SensorValue.BOOL);
         setValue(value);
     }
     

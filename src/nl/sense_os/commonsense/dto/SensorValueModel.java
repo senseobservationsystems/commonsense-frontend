@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.dto;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public abstract class SensorValueModel extends BaseModel {
     /**
@@ -27,17 +27,12 @@ public abstract class SensorValueModel extends BaseModel {
     public SensorValueModel() {
         // empty constructor necessary for serializing
     }
-    public SensorValueModel(Timestamp timestamp, String name, int type) {
+    public SensorValueModel(Date timestamp, int type) {
         setTimestamp(timestamp);
-        setName(name);
         setType(type);
     }
     
-    public String getName() {
-        return get("name");
-    }
-
-    public Timestamp getTimestamp() {
+    public Date getTimestamp() {
         return get("timestamp");
     }
     
@@ -45,12 +40,7 @@ public abstract class SensorValueModel extends BaseModel {
         return get("type", -1);
     }
     
-    public SensorValueModel setName(String name) {
-        set("name", name);
-        return this;
-    }
-    
-    public SensorValueModel setTimestamp(Timestamp timestamp) {
+    public SensorValueModel setTimestamp(Date timestamp) {
         set("timestamp", timestamp);
         return this;
     }

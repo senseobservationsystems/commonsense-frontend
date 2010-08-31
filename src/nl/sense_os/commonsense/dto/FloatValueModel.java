@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class FloatValueModel extends SensorValueModel {
 
@@ -10,8 +10,8 @@ public class FloatValueModel extends SensorValueModel {
         
     }
     
-    public FloatValueModel(Timestamp timestamp, String name, double value) {
-        super(timestamp, name, SensorValueModel.FLOAT);
+    public FloatValueModel(Date timestamp, double value) {
+        super(timestamp, SensorValueModel.FLOAT);
         setValue(value);
     }
     

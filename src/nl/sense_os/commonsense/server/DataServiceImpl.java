@@ -114,15 +114,13 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         // Convert JSON response to sensor value objects
         try {
             JSONObject json = new JSONObject(response);
-            String name = json.getString("name");
             String dataType = json.getString("data_type");
             JSONArray jsonSensorValues = json.getJSONArray("data");
             SensorValueModel[] sensorValues = new SensorValueModel[jsonSensorValues.length()];
 
             for (int i = 0; i < jsonSensorValues.length(); i++) {
                 JSONObject jsonSensorValue = (JSONObject) jsonSensorValues.get(i);
-                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(), tag.getTaggedId(), jsonSensorValue, name,
-                        dataType);
+                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(), tag.getTaggedId(), jsonSensorValue, dataType);
                 sensorValues[i] = SensorValueConverter.entityToModel(sensorValue);
             }
 
