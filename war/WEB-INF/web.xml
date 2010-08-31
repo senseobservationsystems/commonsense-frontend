@@ -17,13 +17,23 @@
   </servlet-mapping>
 
 	<servlet>
-	    <servlet-name>IVOServlet</servlet-name>
-    	<servlet-class>nl.sense_os.commonsense.server.IVOServlet</servlet-class>
+	    <servlet-name>IVODataServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.IVODataServlet</servlet-class>
 	</servlet>
     
 	<servlet-mapping>
-		<servlet-name>IVOServlet</servlet-name>
-		<url-pattern>/ivo</url-pattern>
+		<servlet-name>IVODataServlet</servlet-name>
+		<url-pattern>/ivo/sensordata</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+	    <servlet-name>IVOSensorServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.IVOSensorServlet</servlet-class>
+	</servlet>
+    
+	<servlet-mapping>
+		<servlet-name>IVOSensorServlet</servlet-name>
+		<url-pattern>/ivo/sensortype</url-pattern>
 	</servlet-mapping>
 
   <!-- Default page to serve -->
