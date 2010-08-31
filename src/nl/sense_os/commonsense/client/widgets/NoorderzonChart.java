@@ -133,7 +133,7 @@ public class NoorderzonChart extends LayoutContainer {
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            xVals[xCount] = new FloatValueModel(s.getTimestamp(), "x", val);
+                            xVals[xCount] = new FloatValueModel(s.getTimestamp(), val);
                             xCount++;
 
                         } else if (fields.containsKey("y")) {
@@ -142,7 +142,7 @@ public class NoorderzonChart extends LayoutContainer {
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            yVals[yCount] = new FloatValueModel(s.getTimestamp(), "y", val);
+                            yVals[yCount] = new FloatValueModel(s.getTimestamp(), val);
                             yCount++;
 
                         } else if (fields.containsKey("z")) {
@@ -151,14 +151,13 @@ public class NoorderzonChart extends LayoutContainer {
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            zVals[zCount] = new FloatValueModel(s.getTimestamp(), "z", val);
+                            zVals[zCount] = new FloatValueModel(s.getTimestamp(), val);
                             zCount++;
 
                         } else if (fields.containsKey("value")) {
                             double val = Double.parseDouble(fields.get("value"));
 
-                            tempVals[tempCount] = new FloatValueModel(s.getTimestamp(),
-                                    "temperature", val / 100);
+                            tempVals[tempCount] = new FloatValueModel(s.getTimestamp(), val / 100);
                             tempCount++;
                             
                         } else if (fields.containsKey("x-axis")) {
@@ -166,9 +165,9 @@ public class NoorderzonChart extends LayoutContainer {
                             double yval = Double.parseDouble(fields.get("y-axis"));
                             double zval = Double.parseDouble(fields.get("z-axis"));
                             
-                            telxVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), "telx", xval);
-                            telyVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), "tely", yval);
-                            telzVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), "telz", zval);
+                            telxVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), xval);
+                            telyVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), yval);
+                            telzVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), zval);
                             telMotionCount++;
                         } else {
                             Log.d(TAG, "Unexpected data");

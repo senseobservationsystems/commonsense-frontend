@@ -106,7 +106,7 @@ public class TimeLineCharts extends LayoutContainer {
                     final JsonValueModel value = (JsonValueModel) values[i];
 
                     final double val = Double.parseDouble(value.getFields().get(field));
-                    extractedValues[i] = new FloatValueModel(value.getTimestamp(), field, val);
+                    extractedValues[i] = new FloatValueModel(value.getTimestamp(), val);
                 }
 
                 Map<TagModel, SensorValueModel[]> similarValues = sortedFields.get(field);
