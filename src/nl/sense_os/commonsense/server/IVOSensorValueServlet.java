@@ -7,7 +7,7 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 
 
 @SuppressWarnings("serial")
-public class IVODataServlet extends IVOServlet {
+public class IVOSensorValueServlet extends IVOServlet {
 	
 	protected String create(JSONObject change) throws JSONException {
 	    PersistenceManager pm = PMF.get().getPersistenceManager();

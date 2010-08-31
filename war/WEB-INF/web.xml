@@ -26,6 +26,7 @@
 		<url-pattern>/ivo/sensordata</url-pattern>
 	</servlet-mapping>
 
+	<!--
 	<servlet>
 	    <servlet-name>IVOSensorServlet</servlet-name>
     	<servlet-class>nl.sense_os.commonsense.server.IVOSensorServlet</servlet-class>
@@ -36,6 +37,17 @@
 		<url-pattern>/ivo/sensortype</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+	    <servlet-name>IVOTagServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.IVOTagServlet</servlet-class>
+	</servlet>
+    
+	<servlet-mapping>
+		<servlet-name>IVOTagServlet</servlet-name>
+		<url-pattern>/ivo/tag</url-pattern>
+	</servlet-mapping>
+	-->
+	
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>CommonSense.html</welcome-file>
