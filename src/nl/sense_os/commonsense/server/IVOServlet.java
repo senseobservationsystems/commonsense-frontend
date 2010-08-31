@@ -18,8 +18,9 @@ public abstract class IVOServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
 		resp.setContentType("text/plain");
+		String s = req.getParameter("changes");
+		log.warning(s);
 		try {
-			String s = req.getParameter("changes");
 			if (s != null) {
 				JSONArray changes = new JSONArray(req.getParameter("changes"));
 				resp.getWriter().println(applyChanges(changes));

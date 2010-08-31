@@ -24,7 +24,7 @@ public class SensorTypeConverter {
 		    log.warning("Error converting sensor value: Unknown data type.");
 		}
 
-		SensorType sensorType = new SensorType((Integer) jsonSensorType.get("id"), dataType);
+		SensorType sensorType = new SensorType(Integer.parseInt((String) jsonSensorType.get("id")), dataType);
 
 		return sensorType;
     }

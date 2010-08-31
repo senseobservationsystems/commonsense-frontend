@@ -1,5 +1,13 @@
 package nl.sense_os.commonsense.server.data;
 
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
+
+import com.google.appengine.api.datastore.Key;
+
+@PersistenceCapable
 public class SensorType {
     /**
      * Boolean sensor value.
@@ -23,7 +31,14 @@ public class SensorType {
     	this.type = type;
     }
     
-	private int id;
+    @PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private Key key;
+    
+    @Persistent
+    private int id;
+
+    @Persistent
 	private int type;
 	
 	public int getId() {
