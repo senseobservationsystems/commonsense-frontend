@@ -17,24 +17,23 @@
   </servlet-mapping>
 
 	<servlet>
-	    <servlet-name>IVODataServlet</servlet-name>
-    	<servlet-class>nl.sense_os.commonsense.server.IVODataServlet</servlet-class>
+	    <servlet-name>IVOSensorValueServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.IVOSensorValueServlet</servlet-class>
 	</servlet>
     
 	<servlet-mapping>
-		<servlet-name>IVODataServlet</servlet-name>
-		<url-pattern>/ivo/sensordata</url-pattern>
+		<servlet-name>IVOSensorValueServlet</servlet-name>
+		<url-pattern>/ivo/sensorvalues</url-pattern>
 	</servlet-mapping>
 
-	<!--
 	<servlet>
-	    <servlet-name>IVOSensorServlet</servlet-name>
-    	<servlet-class>nl.sense_os.commonsense.server.IVOSensorServlet</servlet-class>
+	    <servlet-name>IVOSensorTypeServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.IVOSensorTypeServlet</servlet-class>
 	</servlet>
     
 	<servlet-mapping>
-		<servlet-name>IVOSensorServlet</servlet-name>
-		<url-pattern>/ivo/sensortype</url-pattern>
+		<servlet-name>IVOSensorTypeServlet</servlet-name>
+		<url-pattern>/ivo/sensortypes</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -44,9 +43,8 @@
     
 	<servlet-mapping>
 		<servlet-name>IVOTagServlet</servlet-name>
-		<url-pattern>/ivo/tag</url-pattern>
+		<url-pattern>/ivo/tags</url-pattern>
 	</servlet-mapping>
-	-->
 	
   <!-- Default page to serve -->
   <welcome-file-list>

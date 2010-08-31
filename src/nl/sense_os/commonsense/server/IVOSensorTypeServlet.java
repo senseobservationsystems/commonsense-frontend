@@ -2,17 +2,21 @@ package nl.sense_os.commonsense.server;
 
 import javax.jdo.PersistenceManager;
 import nl.sense_os.commonsense.server.data.PMF;
+import nl.sense_os.commonsense.server.data.SensorType;
+import nl.sense_os.commonsense.server.utility.SensorTypeConverter;
+
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
 
 @SuppressWarnings("serial")
-public class IVOSensorValueServlet extends IVOServlet {
+public class IVOSensorTypeServlet extends IVOServlet {
 	
 	protected String create(JSONObject change) throws JSONException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		SensorType sensorType = SensorTypeConverter.jsonToEntity(change);
    	    try {
-            // pm.makePersistent(s);
+            pm.makePersistent(sensorType);
         } finally {
             pm.close();
         }
