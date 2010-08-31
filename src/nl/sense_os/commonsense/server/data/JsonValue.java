@@ -12,8 +12,8 @@ public class JsonValue extends SensorValue {
 
     Map<String, String> fields;
     
-    public JsonValue(Timestamp timestamp, String name, String fields) throws JSONException {
-        super(timestamp, name, SensorValue.JSON);
+    public JsonValue(int deviceId, int sensorType, Timestamp timestamp, String name, String fields) throws JSONException {
+        super(deviceId, sensorType, timestamp, name, SensorValue.JSON);
         
         setFields(fields);
     }

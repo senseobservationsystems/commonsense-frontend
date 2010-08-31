@@ -20,6 +20,8 @@ public abstract class SensorValue {
      */
     public static final int STRING = 4;
     
+    private int deviceId;
+	private int sensorType;
     private String name;
     private Timestamp timestamp;
     private int type;
@@ -28,12 +30,28 @@ public abstract class SensorValue {
         
     }
 
-    public SensorValue(Timestamp timestamp, String name, int type) {
+    public SensorValue(int deviceId, int sensorType, Timestamp timestamp, String name, int type) {
         setTimestamp(timestamp);
         setName(name);
         setType(type);
     }
     
+    public int getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(int deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public int getSensorType() {
+		return sensorType;
+	}
+
+	public void setSensorType(int sensorType) {
+		this.sensorType = sensorType;
+	}
+
     public String getName() {
         return this.name;
     }

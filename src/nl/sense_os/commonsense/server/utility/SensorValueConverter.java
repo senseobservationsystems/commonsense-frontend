@@ -49,7 +49,7 @@ public class SensorValueConverter {
         return sensorValueModel;
     }
 
-    public static SensorValue jsonToEntity(JSONObject jsonSensorValue, String name, String dataType)
+    public static SensorValue jsonToEntity(int deviceId, int sensorType, JSONObject jsonSensorValue, String name, String dataType)
             throws JSONException {
         SensorValue s = null;
 
@@ -57,13 +57,13 @@ public class SensorValueConverter {
         String value = jsonSensorValue.getString("v");
 
         if (dataType.equals("string")) {
-            s = new StringValue(ts, name, value);
+            s = new StringValue(deviceId, sensorType, ts, name, value);
         } else if (dataType.equals("json")) {
-            s = new JsonValue(ts, name, value);
+            s = new JsonValue(deviceId, sensorType, ts, name, value);
         } else if (dataType.equals("float")) {
-            s = new FloatValue(ts, name, Double.parseDouble(value));
+            s = new FloatValue(deviceId, sensorType, ts, name, Double.parseDouble(value));
         } else if (dataType.equals("bool")) {
-            s = new BooleanValue(ts, name, Boolean.parseBoolean(value));
+            s = new BooleanValue(deviceId, sensorType, ts, name, Boolean.parseBoolean(value));
         } else {
             log.warning("Error converting sensor value: Unknown data type.");
         }

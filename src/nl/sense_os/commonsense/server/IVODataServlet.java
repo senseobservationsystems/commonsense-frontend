@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.sense_os.commonsense.server.data.Counter;
 import nl.sense_os.commonsense.server.data.PMF;
 
 import com.google.appengine.repackaged.org.json.JSONArray;
@@ -20,9 +19,9 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 
 
 @SuppressWarnings("serial")
-public class IVOServlet extends HttpServlet {
+public class IVODataServlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger("IVOServlet");
+	//private static final Logger log = Logger.getLogger("IVODataServlet");
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
@@ -46,53 +45,53 @@ public class IVOServlet extends HttpServlet {
 		doGet(req, resp);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private String extract(JSONArray changes) {
 		String result = "";
-		Random rnd = new Random(new Date().getTime());
 		int i;
-		int total = 0;
 
 		for (i = 0; i < changes.length(); i++) {
 			try {
 				JSONObject change = (JSONObject) changes.get(i);
 				if (change.has("CREATE")) {
 					change = (JSONObject) change.get("CREATE");
-					int userId = rnd.nextInt(100)+50;
-					result += Integer.toString(userId);
-					total++;
+					if (create(change)) {
+						result += Integer.toString(change.getInt("id"));
+					}
 				} else if (change.has("UPDATE")) {
 					change = (JSONObject) change.get("UPDATE");
-					int userId = ((JSONObject) change.get("old")).getInt("userId");
-					result += Integer.toString(userId);
+					if (update(change)) {
+						result += Integer.toString(((JSONObject) change.get("old")).getInt("id"));
+					}
 				} else if (change.has("DELETE")) {
 					change = (JSONObject) change.get("DELETE");
-					int userId = change.getInt("userId");
-					result += Integer.toString(userId);
-					total--;
+					if (delete(change)) {
+						result += Integer.toString(change.getInt("id"));
+					}
 				}
 				result += ",";
 			} catch (JSONException e) {
 			}
 		}	
-
-		
-		Counter c;
+		return result;
+	}
+	
+	private boolean create(JSONObject change) {
 	    PersistenceManager pm = PMF.get().getPersistenceManager();
-	    String query = "select from " + Counter.class.getName();
-	    List<Counter> counters = (List<Counter>) pm.newQuery(query).execute();
-	    if (counters.isEmpty()) {
-	    	c = new Counter(total);
-	    } else {
-	    	c = counters.get(0);
-	    	c.setValue(c.getValue()+total);
-	    }
         try {
-            pm.makePersistent(c);
+            // pm.makePersistent(s);
         } finally {
             pm.close();
         }
-		
-		return result;
+
+        return true;
 	}
+		
+	private boolean update(JSONObject change) {
+		return true;
+	}
+
+	private boolean delete(JSONObject change) {
+		return true;
+	}
+
 }

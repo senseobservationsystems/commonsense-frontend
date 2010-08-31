@@ -121,7 +121,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
             for (int i = 0; i < jsonSensorValues.length(); i++) {
                 JSONObject jsonSensorValue = (JSONObject) jsonSensorValues.get(i);
-                SensorValue sensorValue = SensorValueConverter.jsonToEntity(jsonSensorValue, name,
+                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(), tag.getTaggedId(), jsonSensorValue, name,
                         dataType);
                 sensorValues[i] = SensorValueConverter.entityToModel(sensorValue);
             }

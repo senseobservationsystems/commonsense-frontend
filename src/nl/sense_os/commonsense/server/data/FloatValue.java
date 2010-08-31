@@ -10,8 +10,8 @@ public class FloatValue extends SensorValue {
         
     }
     
-    public FloatValue(Timestamp timestamp, String name, double value) {
-        super(timestamp, name, SensorValue.FLOAT);
+    public FloatValue(int deviceId, int sensorType, Timestamp timestamp, String name, double value) {
+        super(deviceId, sensorType, timestamp, name, SensorValue.FLOAT);
         setValue(value);
     }
     
