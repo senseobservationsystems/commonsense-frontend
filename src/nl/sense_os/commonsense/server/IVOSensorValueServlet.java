@@ -24,6 +24,7 @@ public class IVOSensorValueServlet extends IVOServlet {
 			if (sensorTypes.size() > 0) {
 				SensorType sensorType = sensorTypes.get(0);
 				SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
+				// WARNING: need to explicitly differentiate between sensor value types... 
 				pm.makePersistent(sensorValue);
 			} else
 				log.warning("Could not find corresponding sensor type in datastore.");
