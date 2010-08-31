@@ -22,15 +22,15 @@ public class IVOSensorValueServlet extends IVOServlet {
 			String query = "select from " + SensorType.class.getName() + " WHERE id == " + change.getString("sensor_type");
 			List<SensorType> sensorTypes = (List<SensorType>) pm.newQuery(query).execute();
 			if (sensorTypes.size() > 0) {
-	    	SensorType sensorType = sensorTypes.get(0);
-			SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
+				SensorType sensorType = sensorTypes.get(0);
+				SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
 				pm.makePersistent(sensorValue);
 			} else
 				log.warning("Could not find corresponding sensor type in datastore.");
 		} finally {
 			pm.close();
 		}
-        return Integer.toString(change.getInt("id"));
+        return change.getString("id");
 	}
 		
 	protected String update(JSONObject change) throws JSONException {

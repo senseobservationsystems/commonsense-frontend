@@ -75,7 +75,7 @@ public class SensorValueConverter {
     public static SensorValue jsonToEntity(JSONObject jsonSensorValue, int dataType) throws JSONException {
     	SensorValue s = null;
 
-        Date ts = TimestampConverter.epochSecsToTimestamp(jsonSensorValue.getString("t"));
+        Date ts = TimestampConverter.epochSecsToTimestamp(jsonSensorValue.getString("date"));
     	String value = jsonSensorValue.getString("sensor_value");
 
     	switch (dataType) {
@@ -87,10 +87,10 @@ public class SensorValueConverter {
     			s = new FloatValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Double.parseDouble(value));
     		case SensorType.BOOL:
     			s = new BooleanValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Boolean.parseBoolean(value));
+    			break;
     		default:
-        		log.warning("Error converting sensor value: Unknown data type.");
+        		log.warning("Error converting sensor value: Unknown data type: " + dataType);
     	}
-    	
     	return s;
     }
 }
