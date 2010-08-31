@@ -50,6 +50,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String USER_SESSION = "GWTAppUser";
 
+    @Override
     public UserModel checkLogin(String name, String password) throws DbConnectionException,
             WrongResponseException {
         
@@ -81,6 +82,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         }
     }
 
+    @Override
     public TaggedDataModel getSensorValues(TagModel tag, Timestamp begin, Timestamp end)
             throws TooMuchDataException, DbConnectionException, WrongResponseException {
 
@@ -132,6 +134,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         }
     }
 
+    @Override
     public List<TagModel> getTags(TagModel rootTag) throws DbConnectionException,
             WrongResponseException {
 
@@ -198,6 +201,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return (User) session.getAttribute(USER_SESSION);
     }
 
+    @Override
     public UserModel isSessionAlive() {
         User user = getUserFromSession();
         if ((user != null) && (user.getName().length() != 0)) {
@@ -207,6 +211,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return null;
     }
 
+    @Override
     public void logout() {
         HttpSession session = getThreadLocalRequest().getSession();
         if (session != null)

@@ -9,7 +9,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,14 +23,14 @@ import nl.sense_os.commonsense.dto.TaggedDataModel;
 public class NoorderzonChart extends LayoutContainer {
 
     private static final String TAG = "NoorderzonCharts";
-    private Map<TagModel, SensorValueModel[]> xData;
-    private Map<TagModel, SensorValueModel[]> yData;
-    private Map<TagModel, SensorValueModel[]> zData;
-    private Map<TagModel, SensorValueModel[]> tempData;
-    private Map<TagModel, SensorValueModel[]> telxData;
-    private Map<TagModel, SensorValueModel[]> telyData;
-    private Map<TagModel, SensorValueModel[]> telzData;
-    private Map<TagModel, SensorValueModel[]> telNoiseData;
+    private List<TaggedDataModel> xData;
+    private List<TaggedDataModel> yData;
+    private List<TaggedDataModel> zData;
+    private List<TaggedDataModel> tempData;
+    private List<TaggedDataModel> telxData;
+    private List<TaggedDataModel> telyData;
+    private List<TaggedDataModel> telzData;
+    private List<TaggedDataModel>telNoiseData;
 
     public NoorderzonChart(List<TaggedDataModel> data) {
 
@@ -92,14 +92,14 @@ public class NoorderzonChart extends LayoutContainer {
 
     private void separateDataTypes(List<TaggedDataModel> data) {
 
-        this.xData = new HashMap<TagModel, SensorValueModel[]>();
-        this.yData = new HashMap<TagModel, SensorValueModel[]>();
-        this.zData = new HashMap<TagModel, SensorValueModel[]>();
-        this.tempData = new HashMap<TagModel, SensorValueModel[]>();
-        this.telNoiseData = new HashMap<TagModel, SensorValueModel[]>();
-        this.telxData = new HashMap<TagModel, SensorValueModel[]>();
-        this.telyData = new HashMap<TagModel, SensorValueModel[]>();
-        this.telzData = new HashMap<TagModel, SensorValueModel[]>();
+        this.xData = new ArrayList<TaggedDataModel>();
+        this.yData = new ArrayList<TaggedDataModel>();
+        this.zData = new ArrayList<TaggedDataModel>();
+        this.tempData = new ArrayList<TaggedDataModel>();
+        this.telNoiseData = new ArrayList<TaggedDataModel>();
+        this.telxData = new ArrayList<TaggedDataModel>();
+        this.telyData = new ArrayList<TaggedDataModel>();
+        this.telzData = new ArrayList<TaggedDataModel>();
 
         for (TaggedDataModel dataEntry : data) {
             SensorValueModel[] values = dataEntry.getData();
@@ -107,9 +107,11 @@ public class NoorderzonChart extends LayoutContainer {
             if (values.length > 0) {
                 TagModel tag = dataEntry.getTag();
 
-                if (values[0] instanceof FloatValueModel) {
-                    this.telNoiseData.put(tag, values);
+                if (values[0] instanceof FloatValueModel) {                    
+                    // hurray, simple float data
+                    this.telNoiseData.add(new TaggedDataModel(tag, values));
                 } else {
+                    // parse JSON data
                     SensorValueModel[] xVals = new SensorValueModel[values.length];
                     SensorValueModel[] yVals = new SensorValueModel[values.length];
                     SensorValueModel[] zVals = new SensorValueModel[values.length];
@@ -123,51 +125,51 @@ public class NoorderzonChart extends LayoutContainer {
                     int tempCount = 0;
                     int telMotionCount = 0;
 
-                    for (SensorValueModel mdl : values) {
-                        JsonValueModel s = (JsonValueModel) mdl;
-                        Map<String, String> fields = s.getFields();
+                    for (SensorValueModel sensorValue : values) {
+                        JsonValueModel json = (JsonValueModel) sensorValue;
+                        Map<String, Object> fields = json.getFields();
 
                         if (fields.containsKey("x")) {
-                            String myriaMsg = fields.get("x");
+                            String myriaMsg = (String) fields.get("x");
                             JSONObject obj = JSONParser.parse(myriaMsg).isObject();
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            xVals[xCount] = new FloatValueModel(s.getTimestamp(), val);
+                            xVals[xCount] = new FloatValueModel(json.getTimestamp(), val);
                             xCount++;
 
                         } else if (fields.containsKey("y")) {
-                            String myriaMsg = fields.get("y");
+                            String myriaMsg = (String) fields.get("y");
                             JSONObject obj = JSONParser.parse(myriaMsg).isObject();
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            yVals[yCount] = new FloatValueModel(s.getTimestamp(), val);
+                            yVals[yCount] = new FloatValueModel(json.getTimestamp(), val);
                             yCount++;
 
                         } else if (fields.containsKey("z")) {
-                            String myriaMsg = fields.get("z");
+                            String myriaMsg = (String) fields.get("z");
                             JSONObject obj = JSONParser.parse(myriaMsg).isObject();
                             double val = Double.parseDouble(obj.get("value").isString()
                                     .stringValue());
 
-                            zVals[zCount] = new FloatValueModel(s.getTimestamp(), val);
+                            zVals[zCount] = new FloatValueModel(json.getTimestamp(), val);
                             zCount++;
 
                         } else if (fields.containsKey("value")) {
-                            double val = Double.parseDouble(fields.get("value"));
+                            double val = Double.parseDouble((String) fields.get("value"));
 
-                            tempVals[tempCount] = new FloatValueModel(s.getTimestamp(), val / 100);
+                            tempVals[tempCount] = new FloatValueModel(json.getTimestamp(), val / 100);
                             tempCount++;
                             
                         } else if (fields.containsKey("x-axis")) {
-                            double xval = Double.parseDouble(fields.get("x-axis"));
-                            double yval = Double.parseDouble(fields.get("y-axis"));
-                            double zval = Double.parseDouble(fields.get("z-axis"));
+                            double xval = Double.parseDouble((String) fields.get("x-axis"));
+                            double yval = Double.parseDouble((String) fields.get("y-axis"));
+                            double zval = Double.parseDouble((String) fields.get("z-axis"));
                             
-                            telxVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), xval);
-                            telyVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), yval);
-                            telzVals[telMotionCount] = new FloatValueModel(s.getTimestamp(), zval);
+                            telxVals[telMotionCount] = new FloatValueModel(json.getTimestamp(), xval);
+                            telyVals[telMotionCount] = new FloatValueModel(json.getTimestamp(), yval);
+                            telzVals[telMotionCount] = new FloatValueModel(json.getTimestamp(), zval);
                             telMotionCount++;
                         } else {
                             Log.d(TAG, "Unexpected data");
@@ -177,27 +179,27 @@ public class NoorderzonChart extends LayoutContainer {
                     if (xCount > 0) {
                         SensorValueModel[] xValsFinal = new SensorValueModel[xCount];
                         System.arraycopy(xVals, 0, xValsFinal, 0, xCount);
-                        this.xData.put(tag, xValsFinal);
+                        this.xData.add(new TaggedDataModel(tag, xValsFinal));
                     }
                     if (yCount > 0) {
                         SensorValueModel[] yValsFinal = new SensorValueModel[yCount];
                         System.arraycopy(yVals, 0, yValsFinal, 0, yCount);
-                        this.yData.put(tag, yValsFinal);
+                        this.yData.add(new TaggedDataModel(tag, yValsFinal));
                     }
                     if (zCount > 0) {
                         SensorValueModel[] zValsFinal = new SensorValueModel[zCount];
                         System.arraycopy(zVals, 0, zValsFinal, 0, zCount);
-                        this.zData.put(tag, zValsFinal);
+                        this.zData.add(new TaggedDataModel(tag, zValsFinal));
                     }
                     if (tempCount > 0) {
                         SensorValueModel[] tempValsFinal = new SensorValueModel[tempCount];
                         System.arraycopy(tempVals, 0, tempValsFinal, 0, tempCount);
-                        this.tempData.put(tag, tempValsFinal);
+                        this.tempData.add(new TaggedDataModel(tag, tempValsFinal));
                     }
                     if (telMotionCount > 0) {
-                        this.telxData.put(tag, telxVals);
-                        this.telyData.put(tag, telyVals);
-                        this.telzData.put(tag, telzVals);
+                        this.telxData.add(new TaggedDataModel(tag, telxVals));
+                        this.telyData.add(new TaggedDataModel(tag, telyVals));
+                        this.telzData.add(new TaggedDataModel(tag, telzVals));
                     }
                 }
             }

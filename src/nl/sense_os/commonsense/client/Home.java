@@ -40,7 +40,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
@@ -51,8 +50,9 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
-import nl.sense_os.commonsense.client.widgets.NoorderzonChart;
+import nl.sense_os.commonsense.client.widgets.GridTab;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
+import nl.sense_os.commonsense.client.widgets.VisualizationTab;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
@@ -60,7 +60,6 @@ import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
-import nl.sense_os.commonsense.server.data.User;
 
 public class Home extends LayoutContainer {
 
@@ -85,6 +84,7 @@ public class Home extends LayoutContainer {
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
 
+            @Override
             public void run() {
                 Log.d(TAG, "Visualization loaded...");
             }
@@ -132,6 +132,8 @@ public class Home extends LayoutContainer {
         setupDragDrop();
     }
 
+    TimeLineCharts timeLineCharts;
+
     private boolean addChartTab() {
 
         Log.d(TAG, "Creating tab item");
@@ -139,9 +141,10 @@ public class Home extends LayoutContainer {
         item.setLayout(new FitLayout());
         item.setClosable(true);
         if (NOORDERZONMODE) {
-            item.add(new NoorderzonChart(this.rxData));
+            // item.add(new NoorderzonChart(this.rxData));
         } else {
             item.add(new TimeLineCharts(this.rxData));
+            // item.add(new GridTab(this.rxData.get(0)));
         }
         item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
         this.tabPanel.add(item);
@@ -151,7 +154,7 @@ public class Home extends LayoutContainer {
     }
 
     /**
-     * Creates the "center" panel of the main BorderLayout. Contains only the tabPanel for the
+     * Creates the big "center" panel of the main BorderLayout. Contains only the tabPanel for the
      * sensor values.
      * 
      * @return the panel's LayoutContainer.
@@ -211,6 +214,7 @@ public class Home extends LayoutContainer {
         // trees store
         final TreeStore<TagModel> store = new TreeStore<TagModel>(loader);
         store.setKeyProvider(new ModelKeyProvider<TagModel>() {
+            @Override
             public String getKey(TagModel tag) {
                 return tag.getPath();
             }
@@ -308,12 +312,15 @@ public class Home extends LayoutContainer {
         // Log out button with flexible white space above it
         final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
+            @Override
             public void handleEvent(ButtonEvent be) {
                 Home.this.service.logout(new AsyncCallback<Void>() {
+                    @Override
                     public void onFailure(Throwable ex) {
                         Home.this.mainCallback.onFailure(ex);
                     }
 
+                    @Override
                     public void onSuccess(Void result) {
                         Home.this.mainCallback.onSuccess(null);
                     }
@@ -377,15 +384,18 @@ public class Home extends LayoutContainer {
 
         if (null != data) {
             Log.d(TAG, "Received sensor data from service!");
-            this.rxData.add(data);
+
+            VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            charts.addData(data);
         }
 
         // show the results or request more data if there are still tags left
-        if (this.outstandingReqs.length == 0) {
+        if (this.outstandingReqs.length > 0) {
+            requestSensorValues(this.outstandingReqs[0]);
+        } else {
 
-            if (this.progressBox.isVisible()) {
-                this.progressBox.close();
-            }
+            VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            charts.setWaitingText(false);
 
             String errorMsg = "Not all data was received.\n";
             if (this.rxDbConnectionExceptions > 0) {
@@ -407,8 +417,6 @@ public class Home extends LayoutContainer {
             if (this.rxData.size() > 0) {
                 addChartTab();
             }
-        } else {
-            requestSensorValues(this.outstandingReqs[0]);
         }
     }
 
@@ -440,49 +448,61 @@ public class Home extends LayoutContainer {
             return;
         }
 
-        // select the Welcome tab
-        this.tabPanel.setSelection(this.tabPanel.getItem(0));
+        final TabItem item = new TabItem("Time line");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        VisualizationTab charts = new GridTab();
+        charts.setWaitingText(true);
+        item.add(charts);
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
 
-        // show message to indicate progress
-        this.progressBox = MessageBox.progress("Please wait", "Requesting data...", "");
-        this.progressBox.getProgressBar().auto();
-        this.progressBox.show();
+        // // show message to indicate progress
+        // this.progressBox = MessageBox.progress("Please wait", "Requesting data...", "");
+        // this.progressBox.getProgressBar().auto();
+        // this.progressBox.show();
 
         // start requesting data for the list of tags
         this.outstandingReqs = tags;
+        this.unfinishedTab = this.tabPanel.getSelectedItem();
         this.rxData = new ArrayList<TaggedDataModel>();
-        this.rxWrongDataExceptions = 0; 
-        
-        if(deviceTags.length > 0)
-        	deviceLocationView(deviceTags);
-        if(tags.length > 0)
-        	requestSensorValues(tags[0]);
+        this.rxWrongDataExceptions = 0;
+
+        if (deviceTags.length > 0)
+            deviceLocationView(deviceTags);
+        if (tags.length > 0)
+            requestSensorValues(tags[0]);
     }
 
-    private void deviceLocationView(TagModel[] tags)
-    {    	  	
-    	for (int i = 0; i < tags.length; i++) {
-			TagModel tagModel = tags[i];				
-		
-    	  if (this.progressBox.isVisible())
-              this.progressBox.close();
-    	  
-    	  Log.d(TAG, "Creating tab item");
-          final TabItem item = new TabItem("Google Street View");
-          item.setLayout(new FitLayout());
-          item.setClosable(true);
-          item.add(new GoogleStreetView(tagModel.getTaggedId(), Cookies.getCookie("user_name"), Cookies.getCookie("user_pass")));          
-          item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-          this.tabPanel.add(item);
-          this.tabPanel.setSelection(item);
-    	}
-          
+    private TabItem unfinishedTab;
+
+    private void deviceLocationView(TagModel[] tags) {
+        for (int i = 0; i < tags.length; i++) {
+            TagModel tagModel = tags[i];
+
+            if (this.progressBox.isVisible())
+                this.progressBox.close();
+
+            Log.d(TAG, "Creating tab item");
+            final TabItem item = new TabItem("Google Street View");
+            item.setLayout(new FitLayout());
+            item.setClosable(true);
+            item.add(new GoogleStreetView(tagModel.getTaggedId(), Cookies.getCookie("user_name"),
+                    Cookies.getCookie("user_pass")));
+            item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+            this.tabPanel.add(item);
+            this.tabPanel.setSelection(item);
+        }
+
     }
+
     private void requestSensorValues(TagModel tag) {
         Log.d(TAG, "New request for data: " + tag.get("text"));
 
         final AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
+            @Override
             public void onFailure(Throwable caught) {
 
                 if (caught instanceof TooMuchDataException) {
@@ -501,6 +521,7 @@ public class Home extends LayoutContainer {
                 onSensorValuesReceived(null);
             }
 
+            @Override
             public void onSuccess(TaggedDataModel data) {
                 onSensorValuesReceived(data);
             }
@@ -509,6 +530,9 @@ public class Home extends LayoutContainer {
         final long[] range = getTimeRange();
         final Timestamp start = new Timestamp(range[0]);
         final Timestamp end = new Timestamp(range[1]);
+        this.rxDbConnectionExceptions = 0;
+        this.rxTooMuchDataExceptions = 0;
+        this.rxWrongDataExceptions = 0;
         this.service.getSensorValues(tag, start, end, callback);
     }
 

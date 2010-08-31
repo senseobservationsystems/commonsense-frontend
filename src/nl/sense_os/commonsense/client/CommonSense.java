@@ -16,7 +16,8 @@ import nl.sense_os.commonsense.dto.UserModel;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    
+
+    @Override
     public void onModuleLoad() {
         Log.d(TAG, "========== Module Load ==========");
         
@@ -28,11 +29,14 @@ public class CommonSense implements EntryPoint {
 
     private void setHomeScreen(UserModel userModel) {        
 
-        AsyncCallback<Void> callback = new AsyncCallback<Void>() {            
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+            @Override
             public void onFailure(Throwable ex) {
                 // do nothing
             }     
-            
+
+            @Override
             public void onSuccess(Void result) {
                 
                 final long DURATION = 1000 * 60 * 60 * 24 * 14; // 2 weeks
@@ -59,10 +63,12 @@ public class CommonSense implements EntryPoint {
 
         // create login form widget
         AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+            @Override
             public void onFailure(Throwable ex) {
                 // do nothing
             }
 
+            @Override
             public void onSuccess(UserModel result) {
                 // logged in successfully, continue to home screen
                 setHomeScreen(result);

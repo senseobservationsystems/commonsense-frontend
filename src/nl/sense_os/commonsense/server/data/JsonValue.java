@@ -15,7 +15,7 @@ import javax.jdo.annotations.Persistent;
 public class JsonValue extends SensorValue {
 
     @Persistent
-    Map<String, String> fields;
+    Map<String, Object> fields;
     
     public JsonValue(int deviceId, int sensorType, Date timestamp, String fields) throws JSONException {
         super(deviceId, sensorType, timestamp, SensorValue.JSON);
@@ -24,19 +24,32 @@ public class JsonValue extends SensorValue {
     }
     
     public JsonValue setFields(String fields) throws JSONException {
-        this.fields = new HashMap<String, String>();
+        this.fields = new HashMap<String, Object>();
         JSONObject json = new JSONObject(fields);
         
         JSONArray names = json.names(); 
         for (int i = 0; i < names.length(); i++) {
             String name = names.getString(i);
-            this.fields.put(name, json.getString(name));
+            
+            Object property = json.get(name);
+            if (property instanceof JSONObject) {
+                JSONObject subJson = (JSONObject) property;
+                JSONArray subNames = subJson.names();
+                for (int j = 0; j < subNames.length(); j++) {
+                    String subName = subNames.getString(j);
+                    
+                    Object subProperty = subJson.get(subName);
+                    this.fields.put(name + "." + subName, subProperty);
+                }
+            } else {
+                this.fields.put(name, property);
+            }
         }
         
         return this;
     }
     
-    public Map<String, String> getFields() {
+    public Map<String, Object> getFields() {
         return this.fields;
     }
 }

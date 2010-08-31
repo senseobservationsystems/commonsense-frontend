@@ -1,11 +1,6 @@
 package nl.sense_os.commonsense.client.widgets;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,149 +14,222 @@ import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 
-public class TimeLineCharts extends LayoutContainer {
+public class TimeLineCharts extends VisualizationTab {
 
     private static final String TAG = "TimeLineCharts";
-    private Map<TagModel, SensorValueModel[]> booleanData;
-    private Map<TagModel, SensorValueModel[]> floatData;
-    private Map<TagModel, SensorValueModel[]> jsonData;
-    private Map<TagModel, SensorValueModel[]> stringData;
+    // private double nrOfCharts;
+    private TimeLineChart floatChart;
+    private final Map<String, TimeLineChart> jsonCharts;
 
-    public TimeLineCharts(List<TaggedDataModel> data) {
+    public TimeLineCharts() {
+        super();
+        
+        this.jsonCharts = new HashMap<String, TimeLineChart>();        
+    }
+    
+    public TimeLineCharts(List<TaggedDataModel> dataList) {
+        this();
 
-        // separate the data types from the different sensors that will be charted
-        separateDataTypes(data);
+        // add data to charts
+        for (final TaggedDataModel data : dataList) {
+            addData(data);
+        }
+    }
 
-        // convert non-float data types to floats
-        final Map<String, Map<TagModel, SensorValueModel[]>> jsonCharts = floatsFromJsons();
-        final Map<TagModel, SensorValueModel[]> convertedStrings = floatsFromStrings();
-        final Map<TagModel, SensorValueModel[]> convertedBooleans = floatsFromBooleans();
+    public TimeLineCharts(TaggedDataModel data) {
+        this();        
+        
+        // add data to charts
+        addData(data);
+    }
 
-        // determine how many charts will be drawn, to get the proper height of one chart
-        double nrOfCharts = (this.floatData.size() > 0) ? 1 : 0;
-        nrOfCharts += jsonCharts.size();
-        nrOfCharts += (this.booleanData.size() > 0) ? 1 : 0;
-        nrOfCharts += (this.stringData.size() > 0) ? 1 : 0;
-        nrOfCharts = (nrOfCharts > 2) ? 2.5 : nrOfCharts;
+    /**
+     * Adds a chart to the charts that are already displayed, resizing them if necessary.
+     * 
+     * @param chart
+     */
+    private void addChart(TimeLineChart chart) {
 
-        // put charts in the layout
-        if (nrOfCharts == 0) {
-            setLayout(new CenterLayout());
-            this.add(new Text("No numerical data to visualize..."));
+        // TODO return of the variable chart size 
+
+        // if (this.getItemCount() > 2) {
+        // all charts are already the right size
+        this.add(chart, new RowData(-1, 0.4));
+        // } else {
+        // List<Component> oldItems = this.getItems();
+        //
+        // double nrOfCharts = oldItems.size() + 1;
+        // nrOfCharts = (nrOfCharts > 2.5) ? 2.5 : nrOfCharts;
+        // this.
+        //
+        // // re-add old charts with new height
+        // for (Component oldItem : oldItems) {
+        // this.add(oldItem, new RowData(-1, 1 / nrOfCharts));
+        // }
+        //
+        // // add new chart
+        // this.add(chart, new RowData(-1, 1 / nrOfCharts));
+        // }
+
+        this.doLayout();
+    }
+
+    /**
+     * Convenience method for adding data from more than one tag at a time.
+     * 
+     * @see #addData(TaggedDataModel)
+     * @param datas
+     *            list of tagged data to display
+     */
+    @Override
+    public void addData(List<TaggedDataModel> datas) {
+
+        for (final TaggedDataModel data : datas) {
+            addData(data);
+        }
+    }
+
+    /**
+     * Adds extra tagged sensor value data to the already visible charts.
+     * 
+     * @param data
+     *            the sensor values to display.
+     */
+    @Override
+    public void addData(TaggedDataModel data) {        
+
+        // see of there are any data points before making chart
+        final SensorValueModel[] values = data.getData();
+        if (values.length > 0) {
+
+            // different charts for different data types
+            switch (values[0].getType()) {
+            case SensorValueModel.FLOAT:
+                addFloatChart(data);
+                break;
+            case SensorValueModel.JSON:
+                addJsonCharts(data);
+                break;
+            default:
+                Log.w(TAG, "Unexpected data type");
+            }
+            // TODO: boolean and String handling in TimeLineCharts
+        }
+    }
+
+    /**
+     * Adds a chart for simple float sensor values.
+     * 
+     * @param data
+     *            the sensor values to display
+     */
+    private void addFloatChart(TaggedDataModel data) {
+        if (null == this.floatChart) {
+            this.floatChart = new TimeLineChart(data, null);
+            addChart(this.floatChart);
         } else {
-            setLayout(new RowLayout());
-            setScrollMode(Scroll.AUTOY);
+            this.floatChart.addData(data);
+        }
+    }
 
-            if (this.floatData.size() > 0) {
-                this.add(new TimeLineChart(this.floatData, null), new RowData(-1, 1 / nrOfCharts));
-            }
-            for (final Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : jsonCharts
-                    .entrySet()) {
-                this.add(new TimeLineChart(chart.getValue(), chart.getKey()), new RowData(-1,
-                        1 / nrOfCharts));
-            }
-            if (this.booleanData.size() > 0) {
-                this.add(new TimeLineChart(convertedBooleans, "True/false"), new RowData(-1,
-                        1 / nrOfCharts));
-            }
-            if (this.stringData.size() > 0) {
-                this.add(new TimeLineChart(convertedStrings, "Strings"), new RowData(-1,
-                        1 / nrOfCharts));
+    /**
+     * Adds one or more charts from the fields of JSON sensor values.
+     * 
+     * @param data
+     *            the sensor values to display
+     */
+    private void addJsonCharts(TaggedDataModel data) {
+        // get numerical fields on the json object
+        final Map<String, TaggedDataModel> numFields = jsonToFloats(data);
+
+        for (final Map.Entry<String, TaggedDataModel> field : numFields.entrySet()) {
+            final String chartName = field.getKey();
+            final TaggedDataModel taggedData = field.getValue();
+
+            TimeLineChart chart = this.jsonCharts.get(chartName);
+            if (null == chart) {
+                Log.d(TAG, "New chart for JSON field " + chartName);
+
+                chart = new TimeLineChart(taggedData, chartName);
+                addChart(chart);
+                this.jsonCharts.put(chartName, chart);
+            } else {
+                Log.d(TAG, "Reuse existing chart for JSON field " + chartName);
+                chart.addData(taggedData);
             }
         }
     }
 
-    private Map<TagModel, SensorValueModel[]> floatsFromBooleans() {
-        return null;
+    /**
+     * Retrieves fields with numerical values from JSON sensor values by trying to parse them as
+     * doubles.
+     * 
+     * @param data
+     *            the tagged json data to convert to numerical data
+     * @return a Map with the retrieved pairs of field names and numerical data from the input
+     */
+    private Map<String, TaggedDataModel> jsonToFloats(TaggedDataModel data) {       
+
+        final TagModel tag = data.getTag();
+        final SensorValueModel[] values = data.getData();
+
+        // slowly take each individual JSON value apart and put the field contents in a separate list
+        final Map<String, ArrayList<SensorValueModel>> sortedValues = sortJsonFields(values);
+        
+        // convert the ArrayLists into TaggedDataModel types
+        final Map<String, TaggedDataModel> sortedData = new HashMap<String, TaggedDataModel>();
+        for (final Map.Entry<String, ArrayList<SensorValueModel>> fieldData : sortedValues.entrySet()) {
+            final SensorValueModel[] fieldValues = fieldData.getValue().toArray(new SensorValueModel[0]);
+            sortedData.put(fieldData.getKey(), new TaggedDataModel(tag, fieldValues));
+        }
+
+        return sortedData;
     }
-
-    private Map<String, Map<TagModel, SensorValueModel[]>> floatsFromJsons() {
-
-        final Map<String, Map<TagModel, SensorValueModel[]>> sortedFields = new HashMap<String, Map<TagModel, SensorValueModel[]>>();
-        for (final Map.Entry<TagModel, SensorValueModel[]> entry : this.jsonData.entrySet()) {
-            final TagModel tag = entry.getKey();
-            final SensorValueModel[] values = entry.getValue();
-
-            // get the fields for this data type
-            final JsonValueModel testValue = (JsonValueModel) values[0];
-            final Map<String, String> testFields = testValue.getFields();
-
-            // iterate over the fields to see if there is anything visualizable
-            final List<String> validFields = new ArrayList<String>();
-            for (final Map.Entry<String, String> field : testFields.entrySet()) {
-                try {
-                    Double.parseDouble(field.getValue());
-                    validFields.add(field.getKey());
-                } catch (final NumberFormatException e) {
+    
+    private Map<String, ArrayList<SensorValueModel>> sortJsonFields(SensorValueModel[] unsorted) {
+        final Map<String, ArrayList<SensorValueModel>> sortedValues = new HashMap<String, ArrayList<SensorValueModel>>();
+        for (final SensorValueModel genericValue : unsorted) {
+            final JsonValueModel value = (JsonValueModel) genericValue;
+            final Map<String, Object> fields = value.getFields();
+            
+            for (final Map.Entry<String, Object> field : fields.entrySet()) {
+                final String fieldName = field.getKey();
+                final Object fieldValue = field.getValue();
+                if (fieldValue instanceof Double) {
+                    // simple double field!
+                    ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
+                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(), (Double) fieldValue);
+                    if (null != list) {
+                        list.add(floatValue);
+                    } else {
+                        list = new ArrayList<SensorValueModel>();
+                        list.add(floatValue);
+                    }
+                    sortedValues.put(fieldName, list);
+                } else if (fieldValue instanceof String) {
+                    // Strings might be parsed as doubles
+                    try {
+                        final double parsed = Double.parseDouble((String) fieldValue);                        
+                        ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
+                        final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(), parsed);
+                        if (null != list) {
+                            list.add(floatValue);
+                        } else {
+                            list = new ArrayList<SensorValueModel>();
+                            list.add(floatValue);
+                        }
+                        sortedValues.put(fieldName, list);
+                    } catch (final NumberFormatException e) {
+                        // not a valid field
+                        Log.d(TAG, "field " + fieldName + " is not parsable! Value: "
+                                + fieldValue);
+                    }
+                } else {
                     // not a valid field
-                    Log.d(TAG,
-                            "field " + field.getKey() + " is not valid! Value: " + field.getValue());
-                }
-            }
-
-            // extract the values of any float type fields and put them in sortedFields
-            for (final String field : validFields) {
-                final FloatValueModel[] extractedValues = new FloatValueModel[values.length];
-                for (int i = 0; i < values.length; i++) {
-                    final JsonValueModel value = (JsonValueModel) values[i];
-
-                    final double val = Double.parseDouble(value.getFields().get(field));
-                    extractedValues[i] = new FloatValueModel(value.getTimestamp(), val);
-                }
-
-                Map<TagModel, SensorValueModel[]> similarValues = sortedFields.get(field);
-                if (null == similarValues) {
-                    similarValues = new HashMap<TagModel, SensorValueModel[]>();
-                }
-                similarValues.put(tag, extractedValues);
-                sortedFields.put(field, similarValues);
-            }
-        }
-
-        for (final Map.Entry<String, Map<TagModel, SensorValueModel[]>> chart : sortedFields
-                .entrySet()) {
-            Log.d(TAG, "Chart " + chart.getKey() + ": " + chart.getValue().size() + " tags");
-        }
-
-        return sortedFields;
-    }
-
-    private Map<TagModel, SensorValueModel[]> floatsFromStrings() {
-        return null;
-    }
-
-    private void separateDataTypes(List<TaggedDataModel> data) {
-
-        this.floatData = new HashMap<TagModel, SensorValueModel[]>();
-        this.jsonData = new HashMap<TagModel, SensorValueModel[]>();
-        this.booleanData = new HashMap<TagModel, SensorValueModel[]>();
-        this.stringData = new HashMap<TagModel, SensorValueModel[]>();
-
-        for (final TaggedDataModel dataEntry : data) {
-            final SensorValueModel[] values = dataEntry.getData();
-            final TagModel tag = dataEntry.getTag();
-
-            if (values.length > 0) {
-
-                final SensorValueModel s = values[0];
-
-                switch (s.getType()) {
-                case SensorValueModel.BOOL:
-                    this.booleanData.put(tag, values);
-                    break;
-                case SensorValueModel.FLOAT:
-                    this.floatData.put(tag, values);
-                    break;
-                case SensorValueModel.JSON:
-                    this.jsonData.put(tag, values);
-                    break;
-                case SensorValueModel.STRING:
-                    this.stringData.put(tag, values);
-                    break;
-                default:
-                    Log.w(TAG, "Unexpected data type");
+                    Log.d(TAG, "field " + field.getKey() + " is not valid! Value: " + fieldValue);
                 }
             }
         }
+        return sortedValues;
     }
 }

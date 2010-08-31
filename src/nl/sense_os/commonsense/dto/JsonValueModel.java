@@ -11,17 +11,18 @@ public class JsonValueModel extends SensorValueModel {
         // empty constructor for serializing
     }
     
-    public JsonValueModel(Date timestamp, Map<String, String> fields) {
+
+    public JsonValueModel(Date timestamp, Map<String, Object> fields) {
         super(timestamp, SensorValueModel.JSON);
         
         setFields(fields);
     }
     
-    public Map<String, String> getFields() {        
+    public Map<String, Object> getFields() {        
         return get("fields");
     }
     
-    public JsonValueModel setFields(Map<String, String> fields) {
+    public JsonValueModel setFields(Map<String, Object> fields) {
         set("fields", fields);
         return this;
     }
