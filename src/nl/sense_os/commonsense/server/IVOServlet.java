@@ -61,7 +61,7 @@ public abstract class IVOServlet extends HttpServlet {
 			}
 		}	
 
-		log.info("Processed " + changes.length() + " changes!");
+		log.warning("Processed " + changes.length() + " changes!");
 		
 		return result;
 	}
