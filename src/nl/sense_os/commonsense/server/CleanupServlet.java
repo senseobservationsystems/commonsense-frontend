@@ -17,7 +17,7 @@ import nl.sense_os.commonsense.server.data.SensorType;
 import nl.sense_os.commonsense.server.data.StringValue;
 
 @SuppressWarnings("serial")
-public abstract class CleanupServlet extends HttpServlet {
+public class CleanupServlet extends HttpServlet {
 
 	protected static final Logger log = Logger.getLogger("IVOServlet");
 
@@ -32,10 +32,6 @@ public abstract class CleanupServlet extends HttpServlet {
 			List<SensorType> sensorTypes = (List<SensorType>) pm.newQuery(query).execute();
 			pm.deletePersistentAll(sensorTypes);
 
-			query = "select from " + BooleanValue.class.getName();
-			List<BooleanValue> booleanValues = (List<BooleanValue>) pm.newQuery(query).execute();
-			pm.deletePersistentAll(booleanValues);
-
 			query = "select from " + FloatValue.class.getName();
 			List<FloatValue> floatValues = (List<FloatValue>) pm.newQuery(query).execute();
 			pm.deletePersistentAll(floatValues);
@@ -47,7 +43,11 @@ public abstract class CleanupServlet extends HttpServlet {
 			query = "select from " + JsonValue.class.getName();
 			List<JsonValue> jsonValues = (List<JsonValue>) pm.newQuery(query).execute();
 			pm.deletePersistentAll(jsonValues);
-		
+
+			query = "select from " + BooleanValue.class.getName();
+			List<BooleanValue> booleanValues = (List<BooleanValue>) pm.newQuery(query).execute();
+			pm.deletePersistentAll(booleanValues);
+			
 		} finally {
 			pm.close();
 		}

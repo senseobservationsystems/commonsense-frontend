@@ -52,7 +52,9 @@ public abstract class SensorValue {
     }
 
     public SensorValue(int deviceId, int sensorType, Date timestamp, int type) {
-        setTimestamp(timestamp);
+        setDeviceId(deviceId);
+        setSensorType(sensorType);
+    	setTimestamp(timestamp);
         setType(type);
     }
     
@@ -80,13 +82,11 @@ public abstract class SensorValue {
         return type;
     }
     
-    public SensorValue setTimestamp(Date timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
-        return this;
     }
     
-    public SensorValue setType(int type) {
+    public void setType(int type) {
         this.type = type;
-        return this;
     }
 }
