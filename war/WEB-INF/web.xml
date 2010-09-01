@@ -46,6 +46,16 @@
 		<url-pattern>/ivo/tags</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+	    <servlet-name>CleanupServlet</servlet-name>
+    	<servlet-class>nl.sense_os.commonsense.server.CleanupServlet</servlet-class>
+	</servlet>
+    
+	<servlet-mapping>
+		<servlet-name>CleanupServlet</servlet-name>
+		<url-pattern>/ivo/cleanup</url-pattern>
+	</servlet-mapping>
+	
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>CommonSense.html</welcome-file>

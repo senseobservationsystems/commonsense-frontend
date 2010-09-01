@@ -3,6 +3,11 @@ package nl.sense_os.commonsense.server;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
+
+import nl.sense_os.commonsense.server.data.BooleanValue;
+import nl.sense_os.commonsense.server.data.FloatValue;
+import nl.sense_os.commonsense.server.data.JsonValue;
+import nl.sense_os.commonsense.server.data.StringValue;
 import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.SensorType;
 import nl.sense_os.commonsense.server.data.SensorValue;
@@ -24,8 +29,25 @@ public class IVOSensorValueServlet extends IVOServlet {
 			if (sensorTypes.size() > 0) {
 				SensorType sensorType = sensorTypes.get(0);
 				SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
-				// WARNING: need to explicitly differentiate between sensor value types... 
-				pm.makePersistent(sensorValue);
+				// for storage, we need to explicitly differentiate between sensor value types... 
+				switch (sensorType.getType()) {
+					case SensorType.BOOL: 
+						BooleanValue bv = (BooleanValue) sensorValue;
+						pm.makePersistent(bv);
+						break;
+					case SensorType.FLOAT: 
+						FloatValue fv = (FloatValue) sensorValue;
+						pm.makePersistent(fv);
+						break;
+					case SensorType.JSON: 
+						JsonValue jv = (JsonValue) sensorValue;
+						pm.makePersistent(jv);
+						break;
+					case SensorType.STRING: 
+						StringValue sv = (StringValue) sensorValue;
+						pm.makePersistent(sv);						
+						break;
+				}
 			} else
 				log.warning("Could not find corresponding sensor type in datastore.");
 		} finally {

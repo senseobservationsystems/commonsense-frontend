@@ -81,10 +81,13 @@ public class SensorValueConverter {
     	switch (dataType) {
     		case SensorType.STRING:
     			s = new StringValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    			break;
     		case SensorType.JSON:
     			s = new JsonValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    			break;
     		case SensorType.FLOAT:
     			s = new FloatValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Double.parseDouble(value));
+    			break;
     		case SensorType.BOOL:
     			s = new BooleanValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Boolean.parseBoolean(value));
     			break;
