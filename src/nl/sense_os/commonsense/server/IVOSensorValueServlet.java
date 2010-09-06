@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,10 +24,10 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 public class IVOSensorValueServlet extends IVOServlet {
 	
 	private HashMap<Integer, SensorType> sensorTypes;
-	private List<BooleanValue> booleanValues;
-	private List<FloatValue> floatValues;
-	private List<JsonValue> jsonValues;
-	private List<StringValue> stringValues;
+	private Collection<BooleanValue> booleanValues;
+	private Collection<FloatValue> floatValues;
+	private Collection<JsonValue> jsonValues;
+	private Collection<StringValue> stringValues;
 	
 	public IVOSensorValueServlet() {
 		super();
@@ -93,6 +94,10 @@ public class IVOSensorValueServlet extends IVOServlet {
 			pm.makePersistentAll(floatValues);
 			pm.makePersistentAll(jsonValues);
 			pm.makePersistentAll(stringValues);
+			booleanValues.clear();
+			floatValues.clear();
+			jsonValues.clear();
+			stringValues.clear();
 		} finally {
 			pm.close();	
 		}
