@@ -44,6 +44,8 @@ public abstract class IVOServlet extends HttpServlet {
 		String result = "";
 		int i;
 
+		initialize();
+		
 		for (i = 0; i < changes.length(); i++) {
 			try {
 				JSONObject change = (JSONObject) changes.get(i);
@@ -62,11 +64,15 @@ public abstract class IVOServlet extends HttpServlet {
 			}
 		}	
 
-		log.warning("Processed " + changes.length() + " changes!");
+		finalize();
+
+		//log.warning("Processed " + changes.length() + " changes!");
 		
 		return result;
 	}
 
+	protected abstract void initialize();
+	protected abstract void finalize();
 	protected abstract String create(JSONObject change) throws JSONException;
 	protected abstract String update(JSONObject change) throws JSONException;
 	protected abstract String delete(JSONObject change) throws JSONException;

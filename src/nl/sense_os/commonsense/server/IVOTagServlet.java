@@ -9,6 +9,12 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 @SuppressWarnings("serial")
 public class IVOTagServlet extends IVOServlet {
 	
+	protected void initialize() {
+	}
+
+	protected void finalize() {
+	}
+
 	protected String create(JSONObject change) throws JSONException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
    	    try {

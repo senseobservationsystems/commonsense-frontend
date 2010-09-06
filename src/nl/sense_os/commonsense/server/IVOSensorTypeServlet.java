@@ -12,6 +12,12 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 @SuppressWarnings("serial")
 public class IVOSensorTypeServlet extends IVOServlet {
 	
+	protected void initialize() {
+	}
+
+	protected void finalize() {
+	}
+
 	protected String create(JSONObject change) throws JSONException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SensorType sensorType = SensorTypeConverter.jsonToEntity(change);

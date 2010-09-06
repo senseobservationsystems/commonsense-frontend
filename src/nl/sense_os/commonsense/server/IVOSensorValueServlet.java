@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.server;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
@@ -20,14 +21,25 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 @SuppressWarnings("serial")
 public class IVOSensorValueServlet extends IVOServlet {
 	
+	private HashMap<Integer, SensorType> sensorTypes;
+	private PersistenceManager pm;
+	
 	@SuppressWarnings("unchecked")
+	protected void initialize() {
+		sensorTypes = new HashMap<Integer, SensorType>();
+		pm = PMF.get().getPersistenceManager();
+			String query = "select from " + SensorType.class.getName() + " order by id";
+			List<SensorType> rawList = (List<SensorType>) pm.newQuery(query).execute();
+			SensorType s;
+			for (int i = 0; i < rawList.size(); i++) {
+				s = rawList.get(i);
+				sensorTypes.put(s.getId(), s);
+			}
+	}
+	
 	protected String create(JSONObject change) throws JSONException {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
-			String query = "select from " + SensorType.class.getName() + " WHERE id == " + change.getString("sensor_type");
-			List<SensorType> sensorTypes = (List<SensorType>) pm.newQuery(query).execute();
 			if (sensorTypes.size() > 0) {
-				SensorType sensorType = sensorTypes.get(0);
+				SensorType sensorType = sensorTypes.get(change.getInt("sensor_type"));
 				SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
 				// for storage, we need to explicitly differentiate between sensor value types... 
 				switch (sensorType.getType()) {
@@ -50,9 +62,6 @@ public class IVOSensorValueServlet extends IVOServlet {
 				}
 			} else
 				log.warning("Could not find corresponding sensor type in datastore.");
-		} finally {
-			pm.close();
-		}
         return change.getString("id");
 	}
 		
@@ -62,6 +71,10 @@ public class IVOSensorValueServlet extends IVOServlet {
 
 	protected String delete(JSONObject change) throws JSONException {
         return Integer.toString(change.getInt("id"));
+	}
+	
+	protected void finalize() {
+		pm.close();	
 	}
 
 }
