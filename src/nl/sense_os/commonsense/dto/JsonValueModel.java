@@ -9,8 +9,7 @@ public class JsonValueModel extends SensorValueModel {
     
     public JsonValueModel() {
         // empty constructor for serializing
-    }
-    
+    }    
 
     public JsonValueModel(Date timestamp, Map<String, Object> fields) {
         super(timestamp, SensorValueModel.JSON);

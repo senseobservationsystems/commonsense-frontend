@@ -24,6 +24,7 @@ import nl.sense_os.commonsense.dto.TaggedDataModel;
 
 public class GridTab extends VisualizationTab {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "GridTab";
     private List<BaseModel> baseModelData;
 

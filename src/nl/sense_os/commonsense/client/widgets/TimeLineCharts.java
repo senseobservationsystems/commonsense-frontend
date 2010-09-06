@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 
 import java.util.ArrayList;
@@ -20,13 +24,15 @@ public class TimeLineCharts extends VisualizationTab {
     // private double nrOfCharts;
     private TimeLineChart floatChart;
     private final Map<String, TimeLineChart> jsonCharts;
+    private int nrOfCharts;
 
     public TimeLineCharts() {
         super();
-        
-        this.jsonCharts = new HashMap<String, TimeLineChart>();        
+
+        this.jsonCharts = new HashMap<String, TimeLineChart>();
+        this.nrOfCharts = 0;
     }
-    
+
     public TimeLineCharts(List<TaggedDataModel> dataList) {
         this();
 
@@ -37,8 +43,8 @@ public class TimeLineCharts extends VisualizationTab {
     }
 
     public TimeLineCharts(TaggedDataModel data) {
-        this();        
-        
+        this();
+
         // add data to charts
         addData(data);
     }
@@ -50,27 +56,29 @@ public class TimeLineCharts extends VisualizationTab {
      */
     private void addChart(TimeLineChart chart) {
 
-        // TODO return of the variable chart size 
+        if (0 == this.nrOfCharts) {
+            // remove empty text message
+            Component emptyText = this.getItemByItemId("empty_text");
+            if (null != emptyText) {
+                this.remove(emptyText);
+            }
 
-        // if (this.getItemCount() > 2) {
-        // all charts are already the right size
-        this.add(chart, new RowData(-1, 0.4));
-        // } else {
-        // List<Component> oldItems = this.getItems();
-        //
-        // double nrOfCharts = oldItems.size() + 1;
-        // nrOfCharts = (nrOfCharts > 2.5) ? 2.5 : nrOfCharts;
-        // this.
-        //
-        // // re-add old charts with new height
-        // for (Component oldItem : oldItems) {
-        // this.add(oldItem, new RowData(-1, 1 / nrOfCharts));
-        // }
-        //
-        // // add new chart
-        // this.add(chart, new RowData(-1, 1 / nrOfCharts));
-        // }
+            chart.setId("chart_" + this.nrOfCharts);
+            this.add(chart, new RowData(-1, 0.9));
+        } else if (1 == this.nrOfCharts) {
+            // re-add first chart with new size
+            TimeLineChart firstChart = (TimeLineChart) this.getItemByItemId("chart_" + 0);
+            this.remove(firstChart);
 
+            // re-layout the first chart with new size
+            this.add(firstChart, new RowData(-1, 0.4));
+            firstChart.layout(true);
+
+            this.add(chart, new RowData(-1, 0.4));
+        } else {
+            this.add(chart, new RowData(-1, 0.4));
+        }
+        this.nrOfCharts++;
         this.doLayout();
     }
 
@@ -96,7 +104,7 @@ public class TimeLineCharts extends VisualizationTab {
      *            the sensor values to display.
      */
     @Override
-    public void addData(TaggedDataModel data) {        
+    public void addData(TaggedDataModel data) {
 
         // see of there are any data points before making chart
         final SensorValueModel[] values = data.getData();
@@ -148,13 +156,10 @@ public class TimeLineCharts extends VisualizationTab {
 
             TimeLineChart chart = this.jsonCharts.get(chartName);
             if (null == chart) {
-                Log.d(TAG, "New chart for JSON field " + chartName);
-
                 chart = new TimeLineChart(taggedData, chartName);
                 addChart(chart);
                 this.jsonCharts.put(chartName, chart);
             } else {
-                Log.d(TAG, "Reuse existing chart for JSON field " + chartName);
                 chart.addData(taggedData);
             }
         }
@@ -168,37 +173,41 @@ public class TimeLineCharts extends VisualizationTab {
      *            the tagged json data to convert to numerical data
      * @return a Map with the retrieved pairs of field names and numerical data from the input
      */
-    private Map<String, TaggedDataModel> jsonToFloats(TaggedDataModel data) {       
+    private Map<String, TaggedDataModel> jsonToFloats(TaggedDataModel data) {
 
         final TagModel tag = data.getTag();
         final SensorValueModel[] values = data.getData();
 
-        // slowly take each individual JSON value apart and put the field contents in a separate list
+        // slowly take each individual JSON value apart and put the field contents in a separate
+        // list
         final Map<String, ArrayList<SensorValueModel>> sortedValues = sortJsonFields(values);
-        
+
         // convert the ArrayLists into TaggedDataModel types
         final Map<String, TaggedDataModel> sortedData = new HashMap<String, TaggedDataModel>();
-        for (final Map.Entry<String, ArrayList<SensorValueModel>> fieldData : sortedValues.entrySet()) {
-            final SensorValueModel[] fieldValues = fieldData.getValue().toArray(new SensorValueModel[0]);
+        for (final Map.Entry<String, ArrayList<SensorValueModel>> fieldData : sortedValues
+                .entrySet()) {
+            final SensorValueModel[] fieldValues = fieldData.getValue().toArray(
+                    new SensorValueModel[0]);
             sortedData.put(fieldData.getKey(), new TaggedDataModel(tag, fieldValues));
         }
 
         return sortedData;
     }
-    
+
     private Map<String, ArrayList<SensorValueModel>> sortJsonFields(SensorValueModel[] unsorted) {
         final Map<String, ArrayList<SensorValueModel>> sortedValues = new HashMap<String, ArrayList<SensorValueModel>>();
         for (final SensorValueModel genericValue : unsorted) {
             final JsonValueModel value = (JsonValueModel) genericValue;
             final Map<String, Object> fields = value.getFields();
-            
+
             for (final Map.Entry<String, Object> field : fields.entrySet()) {
                 final String fieldName = field.getKey();
                 final Object fieldValue = field.getValue();
                 if (fieldValue instanceof Double) {
                     // simple double field!
                     ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
-                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(), (Double) fieldValue);
+                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(),
+                            (Double) fieldValue);
                     if (null != list) {
                         list.add(floatValue);
                     } else {
@@ -209,9 +218,10 @@ public class TimeLineCharts extends VisualizationTab {
                 } else if (fieldValue instanceof String) {
                     // Strings might be parsed as doubles
                     try {
-                        final double parsed = Double.parseDouble((String) fieldValue);                        
+                        final double parsed = Double.parseDouble((String) fieldValue);
                         ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
-                        final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(), parsed);
+                        final FloatValueModel floatValue = new FloatValueModel(
+                                value.getTimestamp(), parsed);
                         if (null != list) {
                             list.add(floatValue);
                         } else {
@@ -221,8 +231,7 @@ public class TimeLineCharts extends VisualizationTab {
                         sortedValues.put(fieldName, list);
                     } catch (final NumberFormatException e) {
                         // not a valid field
-                        Log.d(TAG, "field " + fieldName + " is not parsable! Value: "
-                                + fieldValue);
+                        Log.d(TAG, "field " + fieldName + " is not parsable! Value: " + fieldValue);
                     }
                 } else {
                     // not a valid field
@@ -231,5 +240,17 @@ public class TimeLineCharts extends VisualizationTab {
             }
         }
         return sortedValues;
+    }
+
+    @Override
+    public void setWaitingText(boolean visible) {
+        super.setWaitingText(visible);
+
+        if ((visible = false) && (this.nrOfCharts == 0)) {
+            LayoutContainer c = new LayoutContainer(new CenterLayout());
+            c.add(new Text("Waiting for data..."));
+            c.setId("empty_text");
+            this.add(c, new RowData(1, 1));
+        }
     }
 }

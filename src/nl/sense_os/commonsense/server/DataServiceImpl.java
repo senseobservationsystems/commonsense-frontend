@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.servlet.http.HttpSession;
 
 import nl.sense_os.commonsense.client.DataService;
@@ -33,6 +35,8 @@ import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.server.data.FloatValue;
+import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.SensorValue;
 import nl.sense_os.commonsense.server.data.User;
 import nl.sense_os.commonsense.server.utility.SensorValueConverter;
@@ -53,7 +57,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     @Override
     public UserModel checkLogin(String name, String password) throws DbConnectionException,
             WrongResponseException {
-        
+
         // get response from server
         String response = "";
         try {
@@ -74,9 +78,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             final int id = json.getInt("user_id");
             User user = new User(id, name, password);
             setUserInSession(user);
-            
+
             return UserConverter.entityToModel(user);
-            
+
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
         }
@@ -122,7 +126,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
             for (int i = 0; i < jsonSensorValues.length(); i++) {
                 JSONObject jsonSensorValue = (JSONObject) jsonSensorValues.get(i);
-                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(), tag.getTaggedId(), jsonSensorValue, dataType);
+                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(),
+                        tag.getTaggedId(), jsonSensorValue, dataType);
                 sensorValues[i] = SensorValueConverter.entityToModel(sensorValue);
             }
 
@@ -132,6 +137,43 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public TaggedDataModel getIvoSensorValues(TagModel tag, Timestamp begin, Timestamp end) throws WrongResponseException {
+
+        final PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        final Query query = pm.newQuery(FloatValue.class);
+        int sensorType = tag.getTaggedId();
+        int deviceId = 12; // tag.getParentId();
+        query.setFilter("deviceId == \"" + deviceId + "\" && sensorType == \"" + sensorType + "\""
+                ); // + " && timestamp > " + begin.getTime()
+
+        log.warning(query.toString());
+        
+        TaggedDataModel result = null;
+        try {
+            List<FloatValue> queryResult = (List<FloatValue>) query.execute();
+            
+            log.warning("Query result: " + queryResult.size() + " entries");
+            
+            SensorValueModel[] values = new SensorValueModel[queryResult.size()];
+            for (int i = 0; i < values.length; i++) {
+                values[i] = SensorValueConverter.entityToModel(queryResult.get(i));
+            }
+            
+            result = new TaggedDataModel(tag, values);
+            
+        } catch (JSONException e) {
+            log.severe("JSONException converting persisted sensor values to DTO");
+            throw(new WrongResponseException("JSONException converting persisted sensor values to DTO"));
+        } finally {
+            query.closeAll();
+            pm.close();
+        }
+        return result;
     }
 
     @Override
@@ -187,10 +229,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
                 tagsList.add(new TagModel(path, taggedId, parentId, type));
             }
-            
+
             // return list of tags
             return tagsList;
-            
+
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
         }

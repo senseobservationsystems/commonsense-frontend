@@ -11,9 +11,9 @@ import nl.sense_os.commonsense.dto.UserModel;
 
 public interface DataServiceAsync {
 	public void checkLogin(String name, String password, AsyncCallback<UserModel> callback);
-//	public void getPhoneDetails(AsyncCallback<List<SenseTreeModel>> callback);
-//	public void getSensors(int phoneId, AsyncCallback<List<SenseTreeModel>> callback);
-    public void getSensorValues(TagModel tag, Timestamp begin, Timestamp end, 
+	public void getIvoSensorValues(TagModel tag, Timestamp begin, Timestamp end, 
+            AsyncCallback<TaggedDataModel> callback);
+	public void getSensorValues(TagModel tag, Timestamp begin, Timestamp end, 
             AsyncCallback<TaggedDataModel> callback);
 	public void getTags(TagModel rootTag, AsyncCallback<List<TagModel>> callback);
 	public void isSessionAlive(AsyncCallback<UserModel> callback);

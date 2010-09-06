@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -15,16 +16,20 @@ import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -37,7 +42,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -63,12 +67,9 @@ import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 
 public class Home extends LayoutContainer {
 
-    private static boolean NOORDERZONMODE;
     private static final String TAG = "Home";
     private final AsyncCallback<Void> mainCallback;
     private TagModel[] outstandingReqs;
-    private MessageBox progressBox;
-    private List<TaggedDataModel> rxData;
     private int rxDbConnectionExceptions;
     private int rxTooMuchDataExceptions;
     private int rxWrongDataExceptions;
@@ -76,10 +77,12 @@ public class Home extends LayoutContainer {
     private TabPanel tabPanel;
     private TreePanel<TagModel> tagTree;
     private RadioGroup timeSelector;
+    private TabItem unfinishedTab;
+    private final UserModel user;
 
     public Home(UserModel user, AsyncCallback<Void> callback) {
         this.mainCallback = callback;
-        NOORDERZONMODE = (user.getId() == 341);
+        this.user = user;
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
@@ -132,27 +135,6 @@ public class Home extends LayoutContainer {
         setupDragDrop();
     }
 
-    TimeLineCharts timeLineCharts;
-
-    private boolean addChartTab() {
-
-        Log.d(TAG, "Creating tab item");
-        final TabItem item = new TabItem("Time line");
-        item.setLayout(new FitLayout());
-        item.setClosable(true);
-        if (NOORDERZONMODE) {
-            // item.add(new NoorderzonChart(this.rxData));
-        } else {
-            item.add(new TimeLineCharts(this.rxData));
-            // item.add(new GridTab(this.rxData.get(0)));
-        }
-        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
-
-        return true;
-    }
-
     /**
      * Creates the big "center" panel of the main BorderLayout. Contains only the tabPanel for the
      * sensor values.
@@ -176,6 +158,77 @@ public class Home extends LayoutContainer {
         this.tabPanel.add(welcome);
 
         return this.tabPanel;
+    }
+
+    private Dialog createTabTypeDialog(final TagModel[] tags) {
+        final Dialog d = new Dialog();
+        d.setHeading("CommonSense Web Application");
+        d.setButtons("");
+
+        final ContentPanel panel = new ContentPanel();
+        panel.setHeaderVisible(false);
+        panel.setSize(320, 120);
+        panel.add(new Text("Please select the desired visualization type."), new FlowData(10));
+
+        final ButtonBar buttons = new ButtonBar();
+        buttons.setAlignment(HorizontalAlignment.CENTER);
+        buttons.setMinButtonWidth(75);
+        buttons.add(new Button("Line chart", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                d.hide();
+
+                // add line chart tab item
+                final TabItem item = new TabItem("Time line");
+                item.setLayout(new FitLayout());
+                item.setClosable(true);
+                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+                final VisualizationTab charts = new TimeLineCharts();
+                charts.setWaitingText(true);
+                item.add(charts);
+                Home.this.tabPanel.add(item);
+                Home.this.tabPanel.setSelection(item);
+                Home.this.unfinishedTab = item;
+
+                startRequests(tags);
+            }
+        }));
+        buttons.add(new Button("Table", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                d.hide();
+
+                // add table tab item
+                final TabItem item = new TabItem("Table");
+                item.setLayout(new FitLayout());
+                item.setClosable(true);
+                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+                final VisualizationTab charts = new GridTab();
+                charts.setWaitingText(true);
+                item.add(charts);
+                Home.this.tabPanel.add(item);
+                Home.this.tabPanel.setSelection(item);
+                Home.this.unfinishedTab = item;
+
+                startRequests(tags);
+            }
+        }));
+        buttons.add(new Button("Street view", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                d.hide();
+
+                deviceLocationView(tags);
+            }
+        }));
+
+        panel.setBottomComponent(buttons);
+
+        d.add(panel);
+        return d;
     }
 
     /**
@@ -239,53 +292,28 @@ public class Home extends LayoutContainer {
 
         final RadioGroup result = new RadioGroup();
 
-        if (NOORDERZONMODE) {
-            final Radio radio1Hr = new Radio();
-            radio1Hr.setId("1hr");
-            radio1Hr.setBoxLabel("1hr");
-            radio1Hr.setValue(true);
+        final Radio radio1Hr = new Radio();
+        radio1Hr.setId("1hr");
+        radio1Hr.setBoxLabel("1hr");
 
-            final Radio radio6Hr = new Radio();
-            radio6Hr.setId("6hr");
-            radio6Hr.setBoxLabel("6hr");
+        final Radio radioDay = new Radio();
+        radioDay.setId("24hr");
+        radioDay.setBoxLabel("24hr");
+        radioDay.setValue(true);
 
-            final Radio radioDay = new Radio();
-            radioDay.setId("24hr");
-            radioDay.setBoxLabel("24hr");
+        final Radio radioWeek = new Radio();
+        radioWeek.setId("1wk");
+        radioWeek.setBoxLabel("1wk");
 
-            final Radio radioWeek = new Radio();
-            radioWeek.setId("1wk");
-            radioWeek.setBoxLabel("week");
+        final Radio radioMonth = new Radio();
+        radioMonth.setId("4wk");
+        radioMonth.setBoxLabel("4wk");
 
-            result.add(radio1Hr);
-            result.add(radio6Hr);
-            result.add(radioDay);
-            result.add(radioWeek);
-            result.setOriginalValue(radio1Hr);
-        } else {
-            final Radio radio1Hr = new Radio();
-            radio1Hr.setId("1hr");
-            radio1Hr.setBoxLabel("1hr");
-
-            final Radio radioDay = new Radio();
-            radioDay.setId("24hr");
-            radioDay.setBoxLabel("24hr");
-            radioDay.setValue(true);
-
-            final Radio radioWeek = new Radio();
-            radioWeek.setId("1wk");
-            radioWeek.setBoxLabel("1wk");
-
-            final Radio radioMonth = new Radio();
-            radioMonth.setId("4wk");
-            radioMonth.setBoxLabel("4wk");
-
-            result.add(radio1Hr);
-            result.add(radioDay);
-            result.add(radioWeek);
-            result.add(radioMonth);
-            result.setOriginalValue(radioDay);
-        }
+        result.add(radio1Hr);
+        result.add(radioDay);
+        result.add(radioWeek);
+        result.add(radioMonth);
+        result.setOriginalValue(radioDay);
 
         return result;
     }
@@ -347,6 +375,22 @@ public class Home extends LayoutContainer {
         return panel;
     }
 
+    private void deviceLocationView(TagModel[] tags) {
+        // for (int i = 0; i < tags.length; i++) {
+        // TagModel tagModel = tags[i];
+        final TagModel tagModel = tags[0];
+
+        final TabItem item = new TabItem("Street View");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        item.add(new GoogleStreetView(tagModel.getParentId(), this.user.getName(), this.user
+                .getPassword()));
+        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
+        // }
+    }
+
     private long[] getTimeRange() {
 
         // constants
@@ -385,7 +429,7 @@ public class Home extends LayoutContainer {
         if (null != data) {
             Log.d(TAG, "Received sensor data from service!");
 
-            VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
             charts.addData(data);
         }
 
@@ -394,7 +438,7 @@ public class Home extends LayoutContainer {
             requestSensorValues(this.outstandingReqs[0]);
         } else {
 
-            VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
             charts.setWaitingText(false);
 
             String errorMsg = "Not all data was received.\n";
@@ -413,10 +457,6 @@ public class Home extends LayoutContainer {
             if (errorMsg.length() > 30) {
                 MessageBox.alert("CommonSense Web Application", errorMsg, null);
             }
-
-            if (this.rxData.size() > 0) {
-                addChartTab();
-            }
         }
     }
 
@@ -424,7 +464,6 @@ public class Home extends LayoutContainer {
 
         // create array to send as parameter in RPC
         TagModel[] tags = new TagModel[0];
-        TagModel[] deviceTags = new TagModel[0];
         for (int i = 0; i < treeStoreModel.size(); i++) {
             final TagModel tag = (TagModel) treeStoreModel.get(i).getModel();
             if (tag.getType() == TagModel.TYPE_SENSOR) {
@@ -433,68 +472,17 @@ public class Home extends LayoutContainer {
                 temp[temp.length - 1] = tag;
                 tags = temp;
             }
-            if (tag.getType() == TagModel.TYPE_DEVICE) {
-                final TagModel[] temp = new TagModel[tags.length + 1];
-                System.arraycopy(tags, 0, temp, 0, tags.length);
-                temp[temp.length - 1] = tag;
-                deviceTags = temp;
-            }
         }
 
         // check whether there are any tags at all
-        if (tags.length == 0 && deviceTags.length == 0) {
+        if (tags.length == 0) {
             MessageBox.info("CommonSense Web Application",
                     "No sensor types or devices selected, nothing to display.", null);
             return;
         }
 
-        final TabItem item = new TabItem("Time line");
-        item.setLayout(new FitLayout());
-        item.setClosable(true);
-        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-        VisualizationTab charts = new GridTab();
-        charts.setWaitingText(true);
-        item.add(charts);
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
-
-        // // show message to indicate progress
-        // this.progressBox = MessageBox.progress("Please wait", "Requesting data...", "");
-        // this.progressBox.getProgressBar().auto();
-        // this.progressBox.show();
-
-        // start requesting data for the list of tags
-        this.outstandingReqs = tags;
-        this.unfinishedTab = this.tabPanel.getSelectedItem();
-        this.rxData = new ArrayList<TaggedDataModel>();
-        this.rxWrongDataExceptions = 0;
-
-        if (deviceTags.length > 0)
-            deviceLocationView(deviceTags);
-        if (tags.length > 0)
-            requestSensorValues(tags[0]);
-    }
-
-    private TabItem unfinishedTab;
-
-    private void deviceLocationView(TagModel[] tags) {
-        for (int i = 0; i < tags.length; i++) {
-            TagModel tagModel = tags[i];
-
-            if (this.progressBox.isVisible())
-                this.progressBox.close();
-
-            Log.d(TAG, "Creating tab item");
-            final TabItem item = new TabItem("Google Street View");
-            item.setLayout(new FitLayout());
-            item.setClosable(true);
-            item.add(new GoogleStreetView(tagModel.getTaggedId(), Cookies.getCookie("user_name"),
-                    Cookies.getCookie("user_pass")));
-            item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-            this.tabPanel.add(item);
-            this.tabPanel.setSelection(item);
-        }
-
+        final Dialog d = createTabTypeDialog(tags);
+        d.show();
     }
 
     private void requestSensorValues(TagModel tag) {
@@ -533,7 +521,7 @@ public class Home extends LayoutContainer {
         this.rxDbConnectionExceptions = 0;
         this.rxTooMuchDataExceptions = 0;
         this.rxWrongDataExceptions = 0;
-        this.service.getSensorValues(tag, start, end, callback);
+        this.service.getIvoSensorValues(tag, start, end, callback);
     }
 
     private void setupDragDrop() {
@@ -551,5 +539,18 @@ public class Home extends LayoutContainer {
                 onTagsDropped(data);
             }
         });
+    }
+
+    private void startRequests(TagModel[] tags) {
+        // start requesting data for the list of tags
+        this.outstandingReqs = tags;
+        this.unfinishedTab = this.tabPanel.getSelectedItem();
+        this.rxWrongDataExceptions = 0;
+        this.rxDbConnectionExceptions = 0;
+        this.rxTooMuchDataExceptions = 0;
+
+        if (tags.length > 0) {
+            requestSensorValues(tags[0]);
+        }
     }
 }

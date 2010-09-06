@@ -26,12 +26,12 @@ public class SensorType {
      */
     public static final int STRING = 4;
     
+    @Persistent
+    private int id;
+    
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;
-    
-    @Persistent
-    private int id;
 
     @Persistent
     private String name;
@@ -49,23 +49,31 @@ public class SensorType {
 		return id;
 	}
 	
-	public void setId(int id) {
-		this.id = id;
-	}
+	public Key getKey() {
+        return key;
+    }
     
     public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public int getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setKey(Key key) {
+        this.key = key;
+    }
+
+    public void setName(String name) {
+		this.name = name;
+	}
+
+    public void setType(int type) {
 		this.type = type;
 	}	
 }

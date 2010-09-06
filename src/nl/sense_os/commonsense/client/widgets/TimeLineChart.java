@@ -42,8 +42,16 @@ public class TimeLineChart extends ContentPanel {
     private DataTable dataTable;
     private Grid<TagModel> grid;
     private final List<TagModel> shownCharts = new ArrayList<TagModel>();
-
     private final ListStore<TagModel> store = new ListStore<TagModel>();
+
+    public TimeLineChart(List<TaggedDataModel> taggedDatas, String title) {
+
+        for (final TaggedDataModel taggedData : taggedDatas) {
+            addData(taggedData);
+        }
+
+        setupLayout(title);
+    }
 
     public TimeLineChart(TaggedDataModel taggedData, String title) {
 
@@ -51,15 +59,12 @@ public class TimeLineChart extends ContentPanel {
 
         setupLayout(title);
     }
-    
-    public TimeLineChart(List<TaggedDataModel> taggedDatas, String title) {
-        for (final TaggedDataModel taggedData : taggedDatas) {
-            addData(taggedData);
-        }
-        
-        setupLayout(title);
-    }
 
+    /**
+     * Adds data to the collection of displayed data.
+     * 
+     * @param taggedData
+     */
     public void addData(TaggedDataModel taggedData) {
 
         // add data to data table
@@ -74,6 +79,11 @@ public class TimeLineChart extends ContentPanel {
         }
     }
 
+    /**
+     * Adds a new column to the data table that is backing the chart.
+     * 
+     * @param taggedData
+     */
     private void addDataColumn(TaggedDataModel taggedData) {
         final TagModel tag = taggedData.getTag();
         final SensorValueModel[] values = taggedData.getData();
@@ -121,17 +131,21 @@ public class TimeLineChart extends ContentPanel {
         // create line chart
         final AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
         options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
-        // options.setScaleType(AnnotatedTimeLine.ScaleType.ALLMAXIMIZE);
         options.setWindowMode(WindowMode.OPAQUE);
         this.chart = new AnnotatedTimeLine(this.dataTable, options, "95%", "100%");
 
         final LayoutContainer panel = new LayoutContainer(new CenterLayout());
         panel.setBorders(false);
         panel.add(this.chart);
-
+        panel.setId("chartPanel");
         return panel;
     }
 
+    /**
+     * Creates the left panel with tag selector grid.
+     * 
+     * @return the panel
+     */
     private ContentPanel createTagSelector() {
 
         // column config model
@@ -194,6 +208,35 @@ public class TimeLineChart extends ContentPanel {
         return panel;
     }
 
+    /**
+     * Recreates the annotated time line chart after the chart panel is resized. The time line
+     * widget does not seem to be able to resize after being created.
+     */
+    @Override
+    protected void onResize(int width, int height) {
+        super.onResize(width, height);
+
+        LayoutContainer chartPanel = (LayoutContainer) this.getItemByItemId("chartPanel");
+        if (null != chartPanel) {
+
+            chartPanel.remove(this.chart);
+            
+            // recreate line chart
+            final AnnotatedTimeLine.Options options = AnnotatedTimeLine.Options.create();
+            options.setLegendPosition(AnnotatedLegendPosition.NEW_ROW);
+            options.setWindowMode(WindowMode.OPAQUE);
+            this.chart = new AnnotatedTimeLine(this.dataTable, options, "95%", "100%");
+            
+            chartPanel.add(this.chart);
+        }
+    }
+
+    /**
+     * Sets up the initial layout with the chart panel and tag panel.
+     * 
+     * @param title
+     *            (optional) title of this chart
+     */
     private void setupLayout(String title) {
         final LayoutContainer chartPanel = createChartPanel();
 
@@ -218,6 +261,14 @@ public class TimeLineChart extends ContentPanel {
         this.add(chartPanel, centerLayout);
     }
 
+    /**
+     * Updates the chart after a tag has been (de)selected in the tag panel.
+     * 
+     * @param toAdd
+     *            list of tags to show in the chart
+     * @param toRemove
+     *            list of tags to remove from the chart
+     */
     private void updateChart(List<TagModel> toAdd, List<TagModel> toRemove) {
         final int[] showCols = new int[toAdd.size()];
         for (int i = 0; i < toAdd.size(); i++) {
