@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,12 +23,24 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 public class IVOSensorValueServlet extends IVOServlet {
 	
 	private HashMap<Integer, SensorType> sensorTypes;
-	private PersistenceManager pm;
+	private List<BooleanValue> booleanValues;
+	private List<FloatValue> floatValues;
+	private List<JsonValue> jsonValues;
+	private List<StringValue> stringValues;
+	
+	public IVOSensorValueServlet() {
+		super();
+		booleanValues = new ArrayList<BooleanValue>();
+		floatValues = new ArrayList<FloatValue>();
+		jsonValues = new ArrayList<JsonValue>();
+		stringValues = new ArrayList<StringValue>();
+	}
 	
 	@SuppressWarnings("unchecked")
 	protected void initialize() {
 		sensorTypes = new HashMap<Integer, SensorType>();
-		pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
 			String query = "select from " + SensorType.class.getName() + " order by id";
 			List<SensorType> rawList = (List<SensorType>) pm.newQuery(query).execute();
 			SensorType s;
@@ -35,6 +48,10 @@ public class IVOSensorValueServlet extends IVOServlet {
 				s = rawList.get(i);
 				sensorTypes.put(s.getId(), s);
 			}
+		} finally {
+			pm.close();
+		}
+		
 	}
 	
 	protected String create(JSONObject change) throws JSONException {
@@ -44,20 +61,16 @@ public class IVOSensorValueServlet extends IVOServlet {
 				// for storage, we need to explicitly differentiate between sensor value types... 
 				switch (sensorType.getType()) {
 					case SensorType.BOOL: 
-						BooleanValue bv = (BooleanValue) sensorValue;
-						pm.makePersistent(bv);
+						booleanValues.add((BooleanValue) sensorValue);
 						break;
 					case SensorType.FLOAT: 
-						FloatValue fv = (FloatValue) sensorValue;
-						pm.makePersistent(fv);
+						floatValues.add((FloatValue) sensorValue);
 						break;
 					case SensorType.JSON: 
-						JsonValue jv = (JsonValue) sensorValue;
-						pm.makePersistent(jv);
+						jsonValues.add((JsonValue) sensorValue);
 						break;
 					case SensorType.STRING: 
-						StringValue sv = (StringValue) sensorValue;
-						pm.makePersistent(sv);						
+						stringValues.add((StringValue) sensorValue);
 						break;
 				}
 			} else
@@ -74,7 +87,15 @@ public class IVOSensorValueServlet extends IVOServlet {
 	}
 	
 	protected void finalize() {
-		pm.close();	
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			pm.makePersistentAll(booleanValues);
+			pm.makePersistentAll(floatValues);
+			pm.makePersistentAll(jsonValues);
+			pm.makePersistentAll(stringValues);
+		} finally {
+			pm.close();	
+		}
 	}
 
 }
