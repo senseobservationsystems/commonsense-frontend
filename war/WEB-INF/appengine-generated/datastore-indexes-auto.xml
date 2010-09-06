@@ -1,4 +1,12 @@
-<!-- Indices written at Mon, 6 Sep 2010 08:24:58 UTC -->
+<!-- Indices written at Mon, 6 Sep 2010 13:57:18 CEST -->
 
-<datastore-indexes/>
+<datastore-indexes>
 
+    <!-- Used 3 times in query history -->
+    <datastore-index kind="FloatValue" ancestor="false" source="auto">
+        <property name="deviceId" direction="asc"/>
+        <property name="sensorType" direction="asc"/>
+        <property name="timestamp" direction="asc"/>
+    </datastore-index>
+
+</datastore-indexes>

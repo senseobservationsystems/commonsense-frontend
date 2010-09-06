@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.dto.TagModel;
@@ -18,9 +18,9 @@ public interface DataService extends RemoteService {
     public UserModel checkLogin(String name, String password) throws DbConnectionException,
             WrongResponseException;
 
-    public TaggedDataModel getIvoSensorValues(TagModel tag, Timestamp begin, Timestamp end) throws WrongResponseException;
+    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end) throws WrongResponseException;
 
-    public TaggedDataModel getSensorValues(TagModel tag, Timestamp begin, Timestamp end)
+    public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
             throws TooMuchDataException, DbConnectionException, WrongResponseException;
 
     public List<TagModel> getTags(TagModel rootTag) throws DbConnectionException,

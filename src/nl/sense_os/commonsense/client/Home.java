@@ -48,8 +48,8 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
@@ -516,8 +516,8 @@ public class Home extends LayoutContainer {
         };
 
         final long[] range = getTimeRange();
-        final Timestamp start = new Timestamp(range[0]);
-        final Timestamp end = new Timestamp(range[1]);
+        final Date start = new Date(range[0]);
+        final Date end = new Date(range[1]);
         this.rxDbConnectionExceptions = 0;
         this.rxTooMuchDataExceptions = 0;
         this.rxWrongDataExceptions = 0;

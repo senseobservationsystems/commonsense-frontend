@@ -18,8 +18,10 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -87,7 +89,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     }
 
     @Override
-    public TaggedDataModel getSensorValues(TagModel tag, Timestamp begin, Timestamp end)
+    public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
             throws TooMuchDataException, DbConnectionException, WrongResponseException {
 
         User user = getUserFromSession();
@@ -141,34 +143,43 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
     @SuppressWarnings("unchecked")
     @Override
-    public TaggedDataModel getIvoSensorValues(TagModel tag, Timestamp begin, Timestamp end) throws WrongResponseException {
+    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end)
+            throws WrongResponseException {
 
         final PersistenceManager pm = PMF.get().getPersistenceManager();
 
         final Query query = pm.newQuery(FloatValue.class);
         int sensorType = tag.getTaggedId();
         int deviceId = 12; // tag.getParentId();
-        query.setFilter("deviceId == \"" + deviceId + "\" && sensorType == \"" + sensorType + "\""
-                ); // + " && timestamp > " + begin.getTime()
-
-        log.warning(query.toString());
+        try {
+            begin = DateFormat.getInstance().parse("01/01/1900");
+        } catch (ParseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        log.warning(begin.toGMTString());
+        query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId + " && timestamp > begin");
+        query.declareParameters("java.util.Date begin");
         
+        log.warning(query.toString());
+
         TaggedDataModel result = null;
         try {
-            List<FloatValue> queryResult = (List<FloatValue>) query.execute();
-            
+            List<FloatValue> queryResult = (List<FloatValue>) query.execute(begin);
+
             log.warning("Query result: " + queryResult.size() + " entries");
-            
+
             SensorValueModel[] values = new SensorValueModel[queryResult.size()];
             for (int i = 0; i < values.length; i++) {
                 values[i] = SensorValueConverter.entityToModel(queryResult.get(i));
             }
-            
+
             result = new TaggedDataModel(tag, values);
-            
+
         } catch (JSONException e) {
             log.severe("JSONException converting persisted sensor values to DTO");
-            throw(new WrongResponseException("JSONException converting persisted sensor values to DTO"));
+            throw (new WrongResponseException(
+                    "JSONException converting persisted sensor values to DTO"));
         } finally {
             query.closeAll();
             pm.close();
