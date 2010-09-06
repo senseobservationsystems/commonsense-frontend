@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -58,6 +60,7 @@ import nl.sense_os.commonsense.client.widgets.GridTab;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.VisualizationTab;
 import nl.sense_os.commonsense.client.widgets.WelcomeTab;
+import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
@@ -74,10 +77,12 @@ public class Home extends LayoutContainer {
     private int rxTooMuchDataExceptions;
     private int rxWrongDataExceptions;
     private final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
+    private Date startTime;
     private TabPanel tabPanel;
     private TreePanel<TagModel> tagTree;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
+
     private final UserModel user;
 
     public Home(UserModel user, AsyncCallback<Void> callback) {
@@ -164,10 +169,12 @@ public class Home extends LayoutContainer {
         final Dialog d = new Dialog();
         d.setHeading("CommonSense Web Application");
         d.setButtons("");
+        d.setWidth(350);
 
         final ContentPanel panel = new ContentPanel();
         panel.setHeaderVisible(false);
-        panel.setSize(320, 120);
+        panel.setSize(340, 100);
+        panel.setBorders(false);
         panel.add(new Text("Please select the desired visualization type."), new FlowData(10));
 
         final ButtonBar buttons = new ButtonBar();
@@ -222,6 +229,16 @@ public class Home extends LayoutContainer {
                 d.hide();
 
                 deviceLocationView(tags);
+            }
+        }));
+        buttons.add(new Button("Speed test", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                d.hide();
+
+                Home.this.speedTestCounter = 0;
+                testSpeed();
             }
         }));
 
@@ -457,6 +474,7 @@ public class Home extends LayoutContainer {
             if (errorMsg.length() > 30) {
                 MessageBox.alert("CommonSense Web Application", errorMsg, null);
             }
+
         }
     }
 
@@ -485,6 +503,8 @@ public class Home extends LayoutContainer {
         d.show();
     }
 
+    private int speedTestCounter;
+
     private void requestSensorValues(TagModel tag) {
         Log.d(TAG, "New request for data: " + tag.get("text"));
 
@@ -511,17 +531,20 @@ public class Home extends LayoutContainer {
 
             @Override
             public void onSuccess(TaggedDataModel data) {
+
                 onSensorValuesReceived(data);
             }
         };
 
-        final long[] range = getTimeRange();
-        final Date start = new Date(range[0]);
-        final Date end = new Date(range[1]);
+        // reset error counters
         this.rxDbConnectionExceptions = 0;
         this.rxTooMuchDataExceptions = 0;
         this.rxWrongDataExceptions = 0;
-        this.service.getIvoSensorValues(tag, start, end, callback);
+
+        final long[] range = getTimeRange();
+        final Date start = new Date(range[0]);
+        final Date end = new Date(range[1]);
+        this.service.getSensorValues(tag, start, end, callback);
     }
 
     private void setupDragDrop() {
@@ -551,6 +574,85 @@ public class Home extends LayoutContainer {
 
         if (tags.length > 0) {
             requestSensorValues(tags[0]);
+        }
+    }
+    private long speedNivo;
+    private long speedIvo;
+
+    private void testSpeed() {
+        final AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+
+                if (caught instanceof TooMuchDataException) {
+                    Home.this.rxTooMuchDataExceptions++;
+                    Log.d(TAG, "Too much data requested: " + caught.getMessage());
+                } else if (caught instanceof WrongResponseException) {
+                    Home.this.rxWrongDataExceptions++;
+                    Log.d(TAG, "Problem with received response: " + caught.getMessage());
+                } else if (caught instanceof DbConnectionException) {
+                    Home.this.rxDbConnectionExceptions++;
+                    Log.d(TAG, "Error in connection to database: " + caught.getMessage());
+                } else {
+                    Log.d(TAG, "Generic exception: " + caught.getMessage());
+                }
+
+                // for speed testing:
+                Date delay = new Date(new Date().getTime() - Home.this.startTime.getTime());
+                Info.display("Speed data", "Request failed after "
+                        + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
+                
+                if(Home.this.speedTestCounter <= 10) {
+                    Home.this.speedNivo += delay.getTime();
+                } else {
+                    Home.this.speedIvo += delay.getTime();
+                }
+                testSpeed();
+            }
+
+            @Override
+            public void onSuccess(TaggedDataModel data) {
+
+                // for speed testing:
+                Date delay = new Date(new Date().getTime() - Home.this.startTime.getTime());
+                Info.display("Speed data", "Request took "
+                        + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
+
+                if(Home.this.speedTestCounter <= 10) {
+                    Home.this.speedNivo += delay.getTime();
+                } else {
+                    Home.this.speedIvo += delay.getTime();
+                }
+                
+                testSpeed();
+            }
+        };
+
+        // reset error counters
+        this.rxDbConnectionExceptions = 0;
+        this.rxTooMuchDataExceptions = 0;
+        this.rxWrongDataExceptions = 0;
+
+        final Date start = new Date(1280620800000L); // new Date(range[0]);
+        final Date end = new Date(1283299200000L); // new Date(range[1]);
+        TagModel tag = new TagModel("/78/Nexus One/noise_sensor/", 1, 12, SensorValueModel.FLOAT);
+
+        if (this.speedTestCounter < 10) {
+            this.startTime = new Date();
+            this.service.getSensorValues(tag, start, end, callback);
+            this.speedTestCounter++;
+        } else if (this.speedTestCounter < 20){
+            this.startTime = new Date();
+            this.service.getIvoSensorValues(tag, start, end, callback);
+            this.speedTestCounter++;
+        } else {
+            Date nivo = new Date(this.speedNivo / 10);
+            Date ivo = new Date(this.speedIvo / 10);
+            DateTimeFormat dtf = DateTimeFormat.getFormat("s.SSS");
+            String msg = "non-IVO avg: " + dtf.format(nivo) + " sec. \n\nIVO avg: " + dtf.format(ivo) + " sec.";
+            MessageBox.info("IVO vs. non-IVO", msg, null);
+            this.speedTestCounter = 0;
         }
     }
 }

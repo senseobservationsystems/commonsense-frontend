@@ -18,8 +18,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -92,17 +90,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
             throws TooMuchDataException, DbConnectionException, WrongResponseException {
 
-        User user = getUserFromSession();
-
+        final User user = getUserFromSession();        
+        final int sensorType = tag.getTaggedId();
+        final int deviceId = tag.getParentId();
+        final String beginTime = TimestampConverter.timestampToEpochSecs(begin);
+        final String endTime = TimestampConverter.timestampToEpochSecs(end);
+        
         // Get response from CommonSense
         String response = "";
         try {
-            String beginTime = TimestampConverter.timestampToEpochSecs(begin);
-            String endTime = TimestampConverter.timestampToEpochSecs(end);
-
             URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&d_id=" + tag.getParentId() + "&s_id="
-                    + tag.getTaggedId() + "&t_begin=" + beginTime + "&t_end=" + endTime);
+                    + user.getPassword() + "&d_id=" + deviceId + "&s_id="
+                    + sensorType + "&t_begin=" + beginTime + "&t_end=" + endTime);
 
             FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
 
@@ -148,16 +147,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
         final PersistenceManager pm = PMF.get().getPersistenceManager();
 
-        final Query query = pm.newQuery(FloatValue.class);
+        final Query query = pm.newQuery(FloatValue.class);        
         int sensorType = tag.getTaggedId();
-        int deviceId = 12; // tag.getParentId();
-        try {
-            begin = DateFormat.getInstance().parse("01/01/1900");
-        } catch (ParseException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        log.warning(begin.toGMTString());
+        int deviceId = tag.getParentId();        
         query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId + " && timestamp > begin");
         query.declareParameters("java.util.Date begin");
         
