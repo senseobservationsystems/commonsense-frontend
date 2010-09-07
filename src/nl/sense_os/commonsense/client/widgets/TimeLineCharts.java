@@ -64,19 +64,19 @@ public class TimeLineCharts extends VisualizationTab {
             }
 
             chart.setId("chart_" + this.nrOfCharts);
-            this.add(chart, new RowData(-1, 0.9));
+            this.add(chart, new RowData(-1, 0.95));
         } else if (1 == this.nrOfCharts) {
             // re-add first chart with new size
             TimeLineChart firstChart = (TimeLineChart) this.getItemByItemId("chart_" + 0);
             this.remove(firstChart);
 
             // re-layout the first chart with new size
-            this.add(firstChart, new RowData(-1, 0.4));
+            this.add(firstChart, new RowData(-1, 0.45));
             firstChart.layout(true);
 
-            this.add(chart, new RowData(-1, 0.4));
+            this.add(chart, new RowData(-1, 0.45));
         } else {
-            this.add(chart, new RowData(-1, 0.4));
+            this.add(chart, new RowData(-1, 0.45));
         }
         this.nrOfCharts++;
         this.doLayout();
@@ -195,19 +195,38 @@ public class TimeLineCharts extends VisualizationTab {
     }
 
     private Map<String, ArrayList<SensorValueModel>> sortJsonFields(SensorValueModel[] unsorted) {
+        
+        // for every sensor value in the list
         final Map<String, ArrayList<SensorValueModel>> sortedValues = new HashMap<String, ArrayList<SensorValueModel>>();
         for (final SensorValueModel genericValue : unsorted) {
             final JsonValueModel value = (JsonValueModel) genericValue;
             final Map<String, Object> fields = value.getFields();
 
+            // for every JSON field in the sensor value
             for (final Map.Entry<String, Object> field : fields.entrySet()) {
+                
+                // try to parse the field properties to doubles
                 final String fieldName = field.getKey();
                 final Object fieldValue = field.getValue();
-                if (fieldValue instanceof Double) {
-                    // simple double field!
+                if (fieldValue instanceof Integer) {
+                    // simple int field!
+                    final int parsed = (Integer) fieldValue;
                     ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
                     final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(),
-                            (Double) fieldValue);
+                            parsed);
+                    if (null != list) {
+                        list.add(floatValue);
+                    } else {
+                        list = new ArrayList<SensorValueModel>();
+                        list.add(floatValue);
+                    }
+                    sortedValues.put(fieldName, list);
+                } else if (fieldValue instanceof Double) { 
+                    // simple double field!
+                    final double parsed = (Double) fieldValue;
+                    ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
+                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(),
+                            parsed);
                     if (null != list) {
                         list.add(floatValue);
                     } else {
