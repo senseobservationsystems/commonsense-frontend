@@ -16,7 +16,7 @@ public class BooleanValue extends SensorValue {
     }
     
     public BooleanValue(int deviceId, int sensorType, Date timestamp, boolean value) {
-        super(deviceId, sensorType, timestamp, SensorValue.BOOL);
+        super(deviceId, sensorType, timestamp);
         setValue(value);
     }
     

@@ -37,15 +37,16 @@ import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 import nl.sense_os.commonsense.server.data.FloatValue;
 import nl.sense_os.commonsense.server.data.PMF;
-import nl.sense_os.commonsense.server.data.SensorValue;
 import nl.sense_os.commonsense.server.data.User;
-import nl.sense_os.commonsense.server.utility.SensorValueConverter;
+import nl.sense_os.commonsense.server.utility.BooleanValueConverter;
+import nl.sense_os.commonsense.server.utility.FloatValueConverter;
+import nl.sense_os.commonsense.server.utility.JsonValueConverter;
+import nl.sense_os.commonsense.server.utility.StringValueConverter;
 import nl.sense_os.commonsense.server.utility.TimestampConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService {
 
-    @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger("DataServiceImpl");
     private static final long serialVersionUID = 1L;
     private static final String URL_BASE = "http://demo.almende.com/commonSense2/gae/";
@@ -123,14 +124,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             JSONObject json = new JSONObject(response);
             String dataType = json.getString("data_type");
             JSONArray jsonSensorValues = json.getJSONArray("data");
-            SensorValueModel[] sensorValues = new SensorValueModel[jsonSensorValues.length()];
+            SensorValueModel[] sensorValues;
 
-            for (int i = 0; i < jsonSensorValues.length(); i++) {
-                JSONObject jsonSensorValue = (JSONObject) jsonSensorValues.get(i);
-                SensorValue sensorValue = SensorValueConverter.jsonToEntity(tag.getParentId(),
-                        tag.getTaggedId(), jsonSensorValue, dataType);
-                sensorValues[i] = SensorValueConverter.entityToModel(sensorValue);
-            }
+            if (dataType.equals("json")) {
+            	sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("string")) {
+            	sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("bool")) {
+            	sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("float")) {
+            	sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+            } else
+            	sensorValues = new SensorValueModel[0];
 
             // return the result
             return new TaggedDataModel(tag, sensorValues);
@@ -163,7 +168,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
             SensorValueModel[] values = new SensorValueModel[queryResult.size()];
             for (int i = 0; i < values.length; i++) {
-                values[i] = SensorValueConverter.entityToModel(queryResult.get(i));
+                values[i] = FloatValueConverter.entityToModel(queryResult.get(i));
             }
 
             result = new TaggedDataModel(tag, values);

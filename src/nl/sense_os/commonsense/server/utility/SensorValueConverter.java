@@ -1,27 +1,8 @@
 package nl.sense_os.commonsense.server.utility;
 
-import com.google.appengine.repackaged.org.json.JSONException;
-import com.google.appengine.repackaged.org.json.JSONObject;
+public abstract class SensorValueConverter {
 
-import java.util.Date;
-import java.util.logging.Logger;
-
-import nl.sense_os.commonsense.dto.BooleanValueModel;
-import nl.sense_os.commonsense.dto.FloatValueModel;
-import nl.sense_os.commonsense.dto.JsonValueModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
-import nl.sense_os.commonsense.dto.StringValueModel;
-import nl.sense_os.commonsense.server.data.BooleanValue;
-import nl.sense_os.commonsense.server.data.FloatValue;
-import nl.sense_os.commonsense.server.data.JsonValue;
-import nl.sense_os.commonsense.server.data.SensorType;
-import nl.sense_os.commonsense.server.data.SensorValue;
-import nl.sense_os.commonsense.server.data.StringValue;
-
-public class SensorValueConverter {
-
-    private static final Logger log = Logger.getLogger("SensorValueConverter");
-
+    /*
     public static SensorValueModel entityToModel(SensorValue sensorValue) throws JSONException {
         SensorValueModel sensorValueModel = null;
 
@@ -80,10 +61,10 @@ public class SensorValueConverter {
 
     	switch (dataType) {
     		case SensorType.STRING:
-    			s = new StringValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    			s = new StringValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value.replace("\\\"", "\""));
     			break;
     		case SensorType.JSON:
-    			s = new JsonValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value);
+    			s = new JsonValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, value.replace("\\\"", "\""));
     			break;
     		case SensorType.FLOAT:
     			s = new FloatValue(jsonSensorValue.getInt("device_id"), jsonSensorValue.getInt("sensor_type"), ts, Double.parseDouble(value));
@@ -96,4 +77,5 @@ public class SensorValueConverter {
     	}
     	return s;
     }
+    */
 }

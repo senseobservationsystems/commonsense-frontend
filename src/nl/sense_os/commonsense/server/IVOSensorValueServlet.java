@@ -5,14 +5,12 @@ import java.util.List;
 
 import javax.jdo.PersistenceManager;
 
-import nl.sense_os.commonsense.server.data.BooleanValue;
-import nl.sense_os.commonsense.server.data.FloatValue;
-import nl.sense_os.commonsense.server.data.JsonValue;
-import nl.sense_os.commonsense.server.data.StringValue;
 import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.SensorType;
-import nl.sense_os.commonsense.server.data.SensorValue;
-import nl.sense_os.commonsense.server.utility.SensorValueConverter;
+import nl.sense_os.commonsense.server.utility.BooleanValueConverter;
+import nl.sense_os.commonsense.server.utility.FloatValueConverter;
+import nl.sense_os.commonsense.server.utility.JsonValueConverter;
+import nl.sense_os.commonsense.server.utility.StringValueConverter;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
@@ -40,20 +38,18 @@ public class IVOSensorValueServlet extends IVOServlet {
 	protected String create(JSONObject change) throws JSONException {
 			if (sensorTypes.size() > 0) {
 				SensorType sensorType = sensorTypes.get(change.getInt("sensor_type"));
-				SensorValue sensorValue = SensorValueConverter.jsonToEntity(change, sensorType.getType());
-				// for storage, we need to explicitly differentiate between sensor value types... 
 				switch (sensorType.getType()) {
 					case SensorType.BOOL: 
-						pm.makePersistent((BooleanValue) sensorValue);
+						pm.makePersistent(BooleanValueConverter.jsonToEntity(change));
 						break;
 					case SensorType.FLOAT: 
-						pm.makePersistent((FloatValue) sensorValue);
+						pm.makePersistent(FloatValueConverter.jsonToEntity(change));
 						break;
 					case SensorType.JSON: 
-						pm.makePersistent((JsonValue) sensorValue);
+						pm.makePersistent(JsonValueConverter.jsonToEntity(change));
 						break;
 					case SensorType.STRING: 
-						pm.makePersistent((StringValue) sensorValue);
+						pm.makePersistent(StringValueConverter.jsonToEntity(change));
 						break;
 				}
 			} else

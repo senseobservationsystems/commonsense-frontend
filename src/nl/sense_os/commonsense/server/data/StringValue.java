@@ -16,7 +16,7 @@ public class StringValue extends SensorValue {
     }
     
     public StringValue(int deviceId, int sensorType, Date timestamp, String value) {
-        super(deviceId, sensorType, timestamp, SensorValue.STRING);
+        super(deviceId, sensorType, timestamp);
         setValue(value);
     }
     

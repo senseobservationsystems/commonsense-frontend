@@ -31,31 +31,27 @@ public abstract class SensorValue {
      */
     public static final int STRING = 4;
     
-    @Persistent
-    private int deviceId;
-
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;
     
+    @Persistent
+    private int deviceId;
+
     @Persistent
     private int sensorType;
     
     @Persistent
     private Date timestamp;
     
-    @Persistent
-    private int type;
-
     public SensorValue() {
         
     }
 
-    public SensorValue(int deviceId, int sensorType, Date timestamp, int type) {
+    public SensorValue(int deviceId, int sensorType, Date timestamp) {
         setDeviceId(deviceId);
         setSensorType(sensorType);
     	setTimestamp(timestamp);
-        setType(type);
     }
     
     public int getDeviceId() {
@@ -74,10 +70,6 @@ public abstract class SensorValue {
         return timestamp;
     }
 
-    public int getType() {
-        return type;
-    }
-    
     public void setDeviceId(int deviceId) {
 		this.deviceId = deviceId;
 	}
@@ -94,7 +86,4 @@ public abstract class SensorValue {
         this.timestamp = timestamp;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
 }
