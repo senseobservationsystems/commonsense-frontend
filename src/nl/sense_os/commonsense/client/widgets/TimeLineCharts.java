@@ -265,11 +265,13 @@ public class TimeLineCharts extends VisualizationTab {
     public void setWaitingText(boolean visible) {
         super.setWaitingText(visible);
 
-        if ((visible = false) && (this.nrOfCharts == 0)) {
+        if ((false == visible) && (this.nrOfCharts == 0)) {
+            Log.d(TAG, "No data to display...");
             LayoutContainer c = new LayoutContainer(new CenterLayout());
-            c.add(new Text("Waiting for data..."));
+            c.add(new Text("No data to display..."));
             c.setId("empty_text");
             this.add(c, new RowData(1, 1));
+            this.doLayout();
         }
     }
 }

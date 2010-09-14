@@ -45,6 +45,7 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
@@ -59,7 +60,6 @@ import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
 import nl.sense_os.commonsense.client.widgets.GridTab;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.VisualizationTab;
-import nl.sense_os.commonsense.client.widgets.WelcomeTab;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
@@ -100,25 +100,13 @@ public class Home extends LayoutContainer {
         VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE,
                 MotionChart.PACKAGE);
 
-        // west panel with controls
-        final ContentPanel west = new ContentPanel(new FitLayout());
-        west.setHeaderVisible(false);
-        west.setBodyStyle("background:url('img/bg/left_bot_corner.png') no-repeat bottom left;");
-        west.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-        west.add(createWestPanel(), new FitData(5));
+        // layouts for the different panels 
+        final BorderLayoutData northLayout = new BorderLayoutData(LayoutRegion.NORTH, 20);
+        northLayout.setMargins(new Margins(0));
+        northLayout.setSplit(false);
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
         westLayout.setMargins(new Margins(0));
         westLayout.setSplit(false);
-
-        // center panel with content
-        final ContentPanel center = new ContentPanel(new FitLayout());
-        center.setHeaderVisible(false);
-        center.setBodyStyle("background:url('img/bg/right_top_pre.png') no-repeat top right;");
-        final ContentPanel center2 = new ContentPanel(new FitLayout());
-        center2.setHeaderVisible(false);
-        center2.setBodyStyle("background:url('img/bg/left_bot.png') no-repeat bottom left;");
-        center2.add(createCenterPanel(), new FitData(5));
-        center.add(center2, new FitData(0));
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(0));
 
@@ -130,8 +118,9 @@ public class Home extends LayoutContainer {
         contentPanel.setFrame(true);
         contentPanel.setCollapsible(false);
 
-        contentPanel.add(west, westLayout);
-        contentPanel.add(center, centerLayout);
+        contentPanel.add(createNorthPanel(), northLayout);
+        contentPanel.add(createWestPanel(), westLayout);
+        contentPanel.add(createCenterPanel(), centerLayout);
 
         // contentPanel.setStyleAttribute("backgroundColor", "white");
         setLayout(new FitLayout());
@@ -146,23 +135,50 @@ public class Home extends LayoutContainer {
      * 
      * @return the panel's LayoutContainer.
      */
-    private TabPanel createCenterPanel() {
+    private LayoutContainer createCenterPanel() {
 
         // Welcome tab item
-        final TabItem welcome = new TabItem("Welcome");
-        welcome.setLayout(new FitLayout());
-        welcome.add(new WelcomeTab());
-        welcome.setClosable(false);
-        welcome.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-
+        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl");
+        welcomeFrame.setStylePrimaryName("senseFrame");
+        final TabItem welcomeItem = new TabItem("Welcome");
+        welcomeItem.setLayout(new FitLayout());
+        welcomeItem.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        welcomeItem.add(welcomeFrame);
+        
         // Tabs
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
         this.tabPanel.addStyleName("transparent");
-        this.tabPanel.add(welcome);
+        this.tabPanel.add(welcomeItem);
 
-        return this.tabPanel;
+        /* NB: there are two containers to handle the background! */
+        // Inner container with top right background
+        LayoutContainer innerContainer = new LayoutContainer(new FitLayout());
+        innerContainer.setStyleAttribute("background", "url('img/bg/center_panel_right_top.png') no-repeat top right;");
+        innerContainer.add(tabPanel);
+        // Outer container with bottom left background
+        LayoutContainer outerContainer = new LayoutContainer(new FitLayout());
+        outerContainer.setStyleAttribute("background", "url('img/bg/center_panel_left_bot.png') no-repeat bottom left;");
+        outerContainer.setStyleAttribute("backgroundColor", "white");
+        outerContainer.add(innerContainer);
+        
+        return outerContainer;
+    }
+    
+    private LayoutContainer createNorthPanel() {
+        LayoutContainer bg = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
+        bg.setStyleAttribute("background", "url('img/bg/right_top_pre.png') no-repeat top right;");
+        bg.setStyleAttribute("backgroundColor", "white");
+        bg.add(new Text("home"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("visualizations"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("share data"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("training data"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text(""), new RowData(1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("settings"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("help"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        bg.add(new Text("sign out"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
+        return bg;
     }
 
     private Dialog createTabTypeDialog(final TagModel[] tags) {
@@ -341,7 +357,7 @@ public class Home extends LayoutContainer {
      * 
      * @return the panel's LayoutContainer
      */
-    private ContentPanel createWestPanel() {
+    private LayoutContainer createWestPanel() {
 
         final Image logo = new Image("/img/logo_sense-150.png");
         // logo.setSize("131", "68");
@@ -353,7 +369,24 @@ public class Home extends LayoutContainer {
 
         // Content panel with the tree of tags
         final ContentPanel tagPanel = createTagPanel();
-
+        
+        // Log out button with flexible white space above it
+        final Button trackTraceBtn = new Button("Track & Trace");
+        trackTraceBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
+            @Override
+            public void handleEvent(ButtonEvent be) {
+                final TabItem trackTraceItem = new TabItem("Track & Trace");
+                trackTraceItem.setLayout(new FitLayout());
+                trackTraceItem.setClosable(true);
+                trackTraceItem.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+                final Frame welcomeFrame = new Frame("http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
+                welcomeFrame.setStylePrimaryName("senseFrame");
+                trackTraceItem.add(welcomeFrame);
+                tabPanel.add(trackTraceItem);
+                tabPanel.setSelection(trackTraceItem);
+            }
+        });
+        
         // Log out button with flexible white space above it
         final Button logoutBtn = new Button("Log out");
         logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
@@ -379,17 +412,22 @@ public class Home extends LayoutContainer {
         timeRangePanel.setCollapsible(true);
         timeRangePanel.add(this.timeSelector, new FlowData(0, 0, 0, 5));
 
-        final ContentPanel panel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
-        panel.setHeaderVisible(false);
-        panel.setBorders(true);
-        panel.setScrollMode(Scroll.AUTOY);
-        panel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
-        panel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
-        panel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
-        panel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-        panel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-
-        return panel;
+        final ContentPanel translucentPanel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
+        translucentPanel.setHeaderVisible(false);
+        translucentPanel.setScrollMode(Scroll.AUTOY);
+        translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
+        translucentPanel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+        translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));        
+        translucentPanel.add(trackTraceBtn, new RowData(1, -1, new Margins(5, 5, 0, 5)));
+        translucentPanel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
+        translucentPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        
+        LayoutContainer backgroundContainer = new LayoutContainer(new FitLayout());
+        backgroundContainer.setStyleAttribute("background", "url('img/bg/left_bot_corner.png') no-repeat bottom right;");
+        backgroundContainer.setStyleAttribute("backgroundColor", "white");
+        backgroundContainer.add(translucentPanel);
+        
+        return backgroundContainer;
     }
 
     private void deviceLocationView(TagModel[] tags) {
