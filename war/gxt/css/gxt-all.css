@@ -12,14 +12,6 @@ ol,ul {list-style:none;}
 caption,th {text-align:left;}
 h1,h2,h3,h4,h5,h6{font-size:120%;}
 q:before,q:after{content:'';}
-/* special style for Frame objects without borders */
-.senseFrame {
-    border: 0px;
-}
-/* special transparent style for see-through tag panel */
-.transparent .x-tab-panel-body-top {
-    background-color: transparent !important;
-}
 .ext-el-mask {
     z-index: 100;
     position: absolute;
@@ -368,7 +360,7 @@ q:before,q:after{content:'';}
 }
 
 .x-border {
-  border: 1px solid #99BBE8;
+  border: 5px solid #99BBE8;
 }
 
 .x-border-top {
@@ -4010,7 +4002,7 @@ a.x-menu-item {
     background: transparent repeat-x 0 -1px;
 }
 .x-panel-body {
-    border:1px solid;
+    border:0px solid;
     border-top:0 none;
     overflow:hidden;
     position: relative;  
@@ -4026,7 +4018,7 @@ a.x-menu-item {
     border-bottom: 0 none;
 }
 .x-panel-body-noheader, .x-panel-mc .x-panel-body {
-    border-top:1px solid;
+    border-top:0px solid;
 }
 .x-panel-header {
     overflow:hidden;

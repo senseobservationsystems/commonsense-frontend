@@ -20,7 +20,7 @@ public abstract class VisualizationTab extends LayoutContainer {
         setLayout(new RowLayout());
         setScrollMode(Scroll.AUTOY);
         
-        // show "waiting..." textbox
+        // show "waiting..." bar
         Text waiting = new Text("Waiting for data...");
         waiting.setStyleAttribute("color", "white");
         waiting.setStyleAttribute("background-color", "#FF7700");

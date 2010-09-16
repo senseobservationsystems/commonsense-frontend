@@ -1,87 +1,188 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.RootPanel;
-
-import java.util.Date;
+import com.google.gwt.user.client.ui.Widget;
 
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.widgets.NavBar;
 import nl.sense_os.commonsense.dto.UserModel;
 
-public class CommonSense implements EntryPoint {
+public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
     private static final String TAG = "CommonSense";
+    private LayoutContainer content;
+    private final NavBar topNavBar = new NavBar();
+    private UserModel user;
+
+    private LayoutContainer createMainPanel() {
+
+        // layouts for the different panels
+        final BorderLayoutData northLayout = new BorderLayoutData(LayoutRegion.NORTH, 25);
+        northLayout.setMargins(new Margins(0));
+        northLayout.setSplit(false);
+
+        content = new LayoutContainer(new BorderLayout());
+        content.setStyleAttribute("backgroundColor", "rgba(0,0,0,0)");
+        content.setStyleAttribute("border-width", "0px");
+        content.add(topNavBar, northLayout);
+
+        // main content panel containing the west and center panels
+        /* NB: there are two containers to handle the background! */
+        // Inner container with top right background
+        LayoutContainer innerContainer = new LayoutContainer(new FitLayout());
+        innerContainer.setStyleAttribute("background",
+                "url('img/bg/right_top_pre-light.png') no-repeat top right;");
+        innerContainer.add(content);
+        // Outer container with bottom left background
+        LayoutContainer outerContainer = new LayoutContainer(new FitLayout());
+        outerContainer.setStyleAttribute("background",
+                "url('img/bg/left_bot_pre-light.png') no-repeat bottom left;");
+        outerContainer.setStyleAttribute("backgroundColor", "white");
+        outerContainer.add(innerContainer, new FlowData(0));
+
+        return outerContainer;
+    }
+
+    private void onLogin(UserModel user) {
+        this.user = user;
+
+        topNavBar.setUser(user);
+        topNavBar.setLogin(true);
+
+        // continue to home screen
+        History.newItem(NavBar.VISUALIZATION);
+    }
+
+    private void onLogout() {
+        this.user = null;
+        Cookies.removeCookie("user_name");
+        Cookies.removeCookie("user_pass");
+
+        topNavBar.setUser(null);
+        topNavBar.setLogin(false);
+        content.layout();
+
+        // continue to home screen
+        History.newItem(NavBar.HOME);
+    }
 
     @Override
     public void onModuleLoad() {
         Log.d(TAG, "========== Module Load ==========");
-        
-        // make the root panel as big as the browser view
-        RootPanel.get().setLayoutData(new FitLayout());        
-        
-        setLoginScreen();
-    }
 
-    private void setHomeScreen(UserModel userModel) {        
+        // check for initial token
+        String token = History.getToken();
+        if ((token.length() == 0)
+                || (!(token.equals(NavBar.HOME) || token.equals(NavBar.HELP) || token
+                        .equals(NavBar.SIGN_IN)))) {
+            History.newItem("home");
+        }
 
-        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
-
-            @Override
-            public void onFailure(Throwable ex) {
-                // do nothing
-            }     
-
-            @Override
-            public void onSuccess(Void result) {
-                
-                final long DURATION = 1000 * 60 * 60 * 24 * 14; // 2 weeks
-                Date expires = new Date(System.currentTimeMillis() + DURATION);
-                Cookies.setCookie("user_pass", "", expires, null, "/", false);
-                
-                // logged out from the home screen, login form again
-                setLoginScreen();
-            }  
-        };
-        Home home = new Home(userModel, callback);
-        
-        // set up viewport to fill entire browser screen
         Viewport vp = new Viewport();
         vp.setSize("100%", "100%");
         vp.setLayout(new FitLayout());
-        vp.add(home);
-        
-        RootPanel.get().clear();
+        vp.add(createMainPanel());
+
         RootPanel.get().add(vp);
+
+        History.addValueChangeHandler(this);
+        History.fireCurrentHistoryState();
     }
 
-    private void setLoginScreen() {
+    /**
+     * Changes the component in the content panel when a History Event occurs. Usually these are
+     * generated by the navigation links in the top panel.
+     * 
+     * @param event
+     *            the event to respond to, containing the history token String
+     */
+    @Override
+    public void onValueChange(ValueChangeEvent<String> event) {
+        final String token = event.getValue();
+
+        // remove the component that is currently displayed in the content panel
+        if (content.getItemCount() > 1) {
+            Component c = content.getItem(1);
+            content.remove(c);
+        }
+
+        final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
+        centerLayout.setMargins(new Margins(0));
+
+        // create the right widget for this history token
+        Widget w = new Text("");
+        if (token.equals(NavBar.HOME)) {
+            w = showHomeScreen();
+        } else if (token.equals(NavBar.SIGN_IN)) {
+            w = showLoginScreen();
+        } else if (token.equals(NavBar.VISUALIZATION)) {
+            w = showVizScreen();
+        } else if (token.equals(NavBar.SIGN_OUT)) {
+            onLogout();
+            return;
+        } else if (token.equals(NavBar.HELP)) {
+            w = showHelpScreen();
+        } else {
+            LayoutContainer lc = new LayoutContainer(new CenterLayout());
+            lc.add(new Text("Under construction..."));
+            w = lc;
+        }
+        content.add(w, centerLayout);
+        content.layout();
+    }
+
+    private Widget showHomeScreen() {
+        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl");
+        welcomeFrame.setStylePrimaryName("senseFrame");
+
+        return welcomeFrame;
+    }
+
+    private Widget showHelpScreen() {
+        final Frame helpFrame = new Frame("http://welcome.sense-os.nl/node/6");
+        helpFrame.setStylePrimaryName("senseFrame");
+
+        return helpFrame;
+    }
+
+    private Widget showLoginScreen() {
 
         // create login form widget
         AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
             @Override
             public void onFailure(Throwable ex) {
-                // do nothing
+                onLogout();
             }
 
             @Override
             public void onSuccess(UserModel result) {
-                // logged in successfully, continue to home screen
-                setHomeScreen(result);
+                onLogin(result);
             }
         };
         Login login = new Login(callback);
-        
-        // set up viewport
-        final Viewport vp = new Viewport();
-        vp.setLayout(new CenterLayout());
-        vp.add(login);
-        
-        RootPanel.get().clear();
-        RootPanel.get().add(vp);
+
+        return login;
+    }
+
+    private Widget showVizScreen() {
+        return new Visualization(this.user);
     }
 }

@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -47,6 +46,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 import com.google.gwt.visualization.client.visualizations.MotionChart;
@@ -68,10 +68,9 @@ import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 
-public class Home extends LayoutContainer {
+public class Visualization extends LayoutContainer {
 
     private static final String TAG = "Home";
-    private final AsyncCallback<Void> mainCallback;
     private TagModel[] outstandingReqs;
     private int rxDbConnectionExceptions;
     private int rxTooMuchDataExceptions;
@@ -82,11 +81,9 @@ public class Home extends LayoutContainer {
     private TreePanel<TagModel> tagTree;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
-
     private final UserModel user;
 
-    public Home(UserModel user, AsyncCallback<Void> callback) {
-        this.mainCallback = callback;
+    public Visualization(UserModel user) {
         this.user = user;
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
@@ -101,31 +98,17 @@ public class Home extends LayoutContainer {
                 MotionChart.PACKAGE);
 
         // layouts for the different panels 
-        final BorderLayoutData northLayout = new BorderLayoutData(LayoutRegion.NORTH, 20);
-        northLayout.setMargins(new Margins(0));
-        northLayout.setSplit(false);
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
-        westLayout.setMargins(new Margins(0));
+        westLayout.setMargins(new Margins(5));
         westLayout.setSplit(false);
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayout.setMargins(new Margins(0));
-
-        // main content panel containing the west and center panels
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setHeading("CommonSense Web Application");
-        contentPanel.setHeaderVisible(false);
-        contentPanel.setLayout(new BorderLayout());
-        contentPanel.setFrame(true);
-        contentPanel.setCollapsible(false);
-
-        contentPanel.add(createNorthPanel(), northLayout);
-        contentPanel.add(createWestPanel(), westLayout);
-        contentPanel.add(createCenterPanel(), centerLayout);
-
-        // contentPanel.setStyleAttribute("backgroundColor", "white");
-        setLayout(new FitLayout());
-        this.add(contentPanel);
-
+        centerLayout.setMargins(new Margins(5));
+        
+        this.setLayout(new BorderLayout());
+        this.add(createWestPanel(), westLayout);
+        this.add(createCenterPanel(), centerLayout);
+        this.setStyleAttribute("backgroundColor", "rgba(0,0,0,0)");
+        
         setupDragDrop();
     }
 
@@ -135,14 +118,14 @@ public class Home extends LayoutContainer {
      * 
      * @return the panel's LayoutContainer.
      */
-    private LayoutContainer createCenterPanel() {
+    private Widget createCenterPanel() {
 
         // Welcome tab item
-        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl");
+        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
         welcomeItem.setLayout(new FitLayout());
-        welcomeItem.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        welcomeItem.setStyleAttribute("backgroundColor", "transparent");
         welcomeItem.add(welcomeFrame);
         
         // Tabs
@@ -151,34 +134,8 @@ public class Home extends LayoutContainer {
         this.tabPanel.setPlain(true);
         this.tabPanel.addStyleName("transparent");
         this.tabPanel.add(welcomeItem);
-
-        /* NB: there are two containers to handle the background! */
-        // Inner container with top right background
-        LayoutContainer innerContainer = new LayoutContainer(new FitLayout());
-        innerContainer.setStyleAttribute("background", "url('img/bg/center_panel_right_top.png') no-repeat top right;");
-        innerContainer.add(tabPanel);
-        // Outer container with bottom left background
-        LayoutContainer outerContainer = new LayoutContainer(new FitLayout());
-        outerContainer.setStyleAttribute("background", "url('img/bg/center_panel_left_bot.png') no-repeat bottom left;");
-        outerContainer.setStyleAttribute("backgroundColor", "white");
-        outerContainer.add(innerContainer);
         
-        return outerContainer;
-    }
-    
-    private LayoutContainer createNorthPanel() {
-        LayoutContainer bg = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
-        bg.setStyleAttribute("background", "url('img/bg/right_top_pre.png') no-repeat top right;");
-        bg.setStyleAttribute("backgroundColor", "white");
-        bg.add(new Text("home"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("visualizations"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("share data"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("training data"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text(""), new RowData(1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("settings"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("help"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        bg.add(new Text("sign out"), new RowData(-1, 1, new Margins(0, 5, 0, 5)));
-        return bg;
+        return tabPanel;
     }
 
     private Dialog createTabTypeDialog(final TagModel[] tags) {
@@ -210,9 +167,9 @@ public class Home extends LayoutContainer {
                 final VisualizationTab charts = new TimeLineCharts();
                 charts.setWaitingText(true);
                 item.add(charts);
-                Home.this.tabPanel.add(item);
-                Home.this.tabPanel.setSelection(item);
-                Home.this.unfinishedTab = item;
+                Visualization.this.tabPanel.add(item);
+                Visualization.this.tabPanel.setSelection(item);
+                Visualization.this.unfinishedTab = item;
 
                 startRequests(tags);
             }
@@ -231,9 +188,9 @@ public class Home extends LayoutContainer {
                 final VisualizationTab charts = new GridTab();
                 charts.setWaitingText(true);
                 item.add(charts);
-                Home.this.tabPanel.add(item);
-                Home.this.tabPanel.setSelection(item);
-                Home.this.unfinishedTab = item;
+                Visualization.this.tabPanel.add(item);
+                Visualization.this.tabPanel.setSelection(item);
+                Visualization.this.unfinishedTab = item;
 
                 startRequests(tags);
             }
@@ -253,7 +210,7 @@ public class Home extends LayoutContainer {
             public void componentSelected(ButtonEvent ce) {
                 d.hide();
 
-                Home.this.speedTestCounter = 0;
+                Visualization.this.speedTestCounter = 0;
                 testSpeed();
             }
         }));
@@ -315,6 +272,7 @@ public class Home extends LayoutContainer {
 
         final ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeading("Tag tree");
+        panel.setBodyStyle("backgroundColor: transparent");
         panel.setCollapsible(true);
         panel.add(this.tagTree);
 
@@ -360,10 +318,8 @@ public class Home extends LayoutContainer {
     private LayoutContainer createWestPanel() {
 
         final Image logo = new Image("/img/logo_sense-150.png");
-        // logo.setSize("131", "68");
         logo.setPixelSize(131, 68);
-        final ContentPanel logoContainer = new ContentPanel(new CenterLayout());
-        logoContainer.setHeaderVisible(false);
+        final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
         logoContainer.setHeight(68);
         logoContainer.add(logo);
 
@@ -386,48 +342,24 @@ public class Home extends LayoutContainer {
                 tabPanel.setSelection(trackTraceItem);
             }
         });
-        
-        // Log out button with flexible white space above it
-        final Button logoutBtn = new Button("Log out");
-        logoutBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
-            @Override
-            public void handleEvent(ButtonEvent be) {
-                Home.this.service.logout(new AsyncCallback<Void>() {
-                    @Override
-                    public void onFailure(Throwable ex) {
-                        Home.this.mainCallback.onFailure(ex);
-                    }
-
-                    @Override
-                    public void onSuccess(Void result) {
-                        Home.this.mainCallback.onSuccess(null);
-                    }
-                });
-            }
-        });
 
         this.timeSelector = createTimeSelector();
         final ContentPanel timeRangePanel = new ContentPanel();
+        timeRangePanel.setBodyStyle("backgroundColor: transparent");
         timeRangePanel.setHeading("Time range");
         timeRangePanel.setCollapsible(true);
         timeRangePanel.add(this.timeSelector, new FlowData(0, 0, 0, 5));
 
-        final ContentPanel translucentPanel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
-        translucentPanel.setHeaderVisible(false);
+        final LayoutContainer translucentPanel = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
         translucentPanel.setScrollMode(Scroll.AUTOY);
         translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));        
-        translucentPanel.add(trackTraceBtn, new RowData(1, -1, new Margins(5, 5, 0, 5)));
-        translucentPanel.add(logoutBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-        translucentPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        translucentPanel.add(trackTraceBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
+        translucentPanel.setStyleAttribute("backgroundColor", "rgba(255,0,255,0)");
+        translucentPanel.setBorders(false);
         
-        LayoutContainer backgroundContainer = new LayoutContainer(new FitLayout());
-        backgroundContainer.setStyleAttribute("background", "url('img/bg/left_bot_corner.png') no-repeat bottom right;");
-        backgroundContainer.setStyleAttribute("backgroundColor", "white");
-        backgroundContainer.add(translucentPanel);
-        
-        return backgroundContainer;
+        return translucentPanel;
     }
 
     private void deviceLocationView(TagModel[] tags) {
@@ -552,13 +484,13 @@ public class Home extends LayoutContainer {
             public void onFailure(Throwable caught) {
 
                 if (caught instanceof TooMuchDataException) {
-                    Home.this.rxTooMuchDataExceptions++;
+                    Visualization.this.rxTooMuchDataExceptions++;
                     Log.d(TAG, "Too much data requested: " + caught.getMessage());
                 } else if (caught instanceof WrongResponseException) {
-                    Home.this.rxWrongDataExceptions++;
+                    Visualization.this.rxWrongDataExceptions++;
                     Log.d(TAG, "Problem with received response: " + caught.getMessage());
                 } else if (caught instanceof DbConnectionException) {
-                    Home.this.rxDbConnectionExceptions++;
+                    Visualization.this.rxDbConnectionExceptions++;
                     Log.d(TAG, "Error in connection to database: " + caught.getMessage());
                 } else {
                     Log.d(TAG, "Generic exception: " + caught.getMessage());
@@ -624,27 +556,27 @@ public class Home extends LayoutContainer {
             public void onFailure(Throwable caught) {
 
                 if (caught instanceof TooMuchDataException) {
-                    Home.this.rxTooMuchDataExceptions++;
+                    Visualization.this.rxTooMuchDataExceptions++;
                     Log.d(TAG, "Too much data requested: " + caught.getMessage());
                 } else if (caught instanceof WrongResponseException) {
-                    Home.this.rxWrongDataExceptions++;
+                    Visualization.this.rxWrongDataExceptions++;
                     Log.d(TAG, "Problem with received response: " + caught.getMessage());
                 } else if (caught instanceof DbConnectionException) {
-                    Home.this.rxDbConnectionExceptions++;
+                    Visualization.this.rxDbConnectionExceptions++;
                     Log.d(TAG, "Error in connection to database: " + caught.getMessage());
                 } else {
                     Log.d(TAG, "Generic exception: " + caught.getMessage());
                 }
 
                 // for speed testing:
-                Date delay = new Date(new Date().getTime() - Home.this.startTime.getTime());
+                Date delay = new Date(new Date().getTime() - Visualization.this.startTime.getTime());
                 Info.display("Speed data", "Request failed after "
                         + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
                 
-                if(Home.this.speedTestCounter <= 10) {
-                    Home.this.speedNivo += delay.getTime();
+                if(Visualization.this.speedTestCounter <= 10) {
+                    Visualization.this.speedNivo += delay.getTime();
                 } else {
-                    Home.this.speedIvo += delay.getTime();
+                    Visualization.this.speedIvo += delay.getTime();
                 }
                 testSpeed();
             }
@@ -653,14 +585,14 @@ public class Home extends LayoutContainer {
             public void onSuccess(TaggedDataModel data) {
 
                 // for speed testing:
-                Date delay = new Date(new Date().getTime() - Home.this.startTime.getTime());
+                Date delay = new Date(new Date().getTime() - Visualization.this.startTime.getTime());
                 Info.display("Speed data", "Request took "
                         + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
 
-                if(Home.this.speedTestCounter <= 10) {
-                    Home.this.speedNivo += delay.getTime();
+                if(Visualization.this.speedTestCounter <= 10) {
+                    Visualization.this.speedNivo += delay.getTime();
                 } else {
-                    Home.this.speedIvo += delay.getTime();
+                    Visualization.this.speedIvo += delay.getTime();
                 }
                 
                 testSpeed();
