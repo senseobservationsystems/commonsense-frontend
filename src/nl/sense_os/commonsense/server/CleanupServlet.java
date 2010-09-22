@@ -18,7 +18,8 @@ public class CleanupServlet extends HttpServlet {
 
 	protected static final Logger log = Logger.getLogger("IVOServlet");
 
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
 		resp.setContentType("text/plain");

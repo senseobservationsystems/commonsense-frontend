@@ -14,8 +14,6 @@ import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
@@ -49,7 +47,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
-import com.google.gwt.visualization.client.visualizations.MotionChart;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,6 +65,9 @@ import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 
+/**
+ * Component with the visualization part of the web application.
+ */
 public class Visualization extends LayoutContainer {
 
     private static final String TAG = "Home";
@@ -76,12 +76,17 @@ public class Visualization extends LayoutContainer {
     private int rxTooMuchDataExceptions;
     private int rxWrongDataExceptions;
     private final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
-    private Date startTime;
     private TabPanel tabPanel;
     private TreePanel<TagModel> tagTree;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
     private final UserModel user;
+
+    // fields for the temporary speed test
+    private long speedIvo;
+    private long speedNivo;
+    private int speedTestCounter;
+    private Date startTime;
 
     public Visualization(UserModel user) {
         this.user = user;
@@ -91,25 +96,10 @@ public class Visualization extends LayoutContainer {
 
             @Override
             public void run() {
-                Log.d(TAG, "Visualization loaded...");
+                onVisualizationLoad();
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE,
-                MotionChart.PACKAGE);
-
-        // layouts for the different panels 
-        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
-        westLayout.setMargins(new Margins(5));
-        westLayout.setSplit(false);
-        final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayout.setMargins(new Margins(5));
-        
-        this.setLayout(new BorderLayout());
-        this.add(createWestPanel(), westLayout);
-        this.add(createCenterPanel(), centerLayout);
-        this.setStyleAttribute("backgroundColor", "rgba(0,0,0,0)");
-        
-        setupDragDrop();
+        VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE);
     }
 
     /**
@@ -127,17 +117,37 @@ public class Visualization extends LayoutContainer {
         welcomeItem.setLayout(new FitLayout());
         welcomeItem.setStyleAttribute("backgroundColor", "transparent");
         welcomeItem.add(welcomeFrame);
-        
+
+        // Track trace
+        final TabItem trackTraceItem = new TabItem("Track & Trace demo");
+        trackTraceItem.setLayout(new FitLayout());
+        trackTraceItem.setClosable(true);
+        trackTraceItem.setStyleAttribute("backgroundColor", "transparent");
+        final Frame trackTrace = new Frame(
+                "http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
+        trackTrace.setStylePrimaryName("senseFrame");
+        trackTraceItem.add(trackTrace);
+
         // Tabs
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
         this.tabPanel.addStyleName("transparent");
         this.tabPanel.add(welcomeItem);
-        
+        this.tabPanel.add(trackTraceItem);
+
         return tabPanel;
     }
 
+    /**
+     * Creates a dialog which asks for the desired action to take after the user drag and dropped
+     * one or more tags from the tag tree. The dialog calls through to the proper follow-up method.
+     * 
+     * @param tags
+     *            the tags that were dropped
+     * @return the dialog
+     * @see #onTagsDropped(ArrayList)
+     */
     private Dialog createTabTypeDialog(final TagModel[] tags) {
         final Dialog d = new Dialog();
         d.setHeading("CommonSense Web Application");
@@ -163,7 +173,7 @@ public class Visualization extends LayoutContainer {
                 final TabItem item = new TabItem("Time line");
                 item.setLayout(new FitLayout());
                 item.setClosable(true);
-                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+                item.setStyleAttribute("backgroundColor", "transparent");
                 final VisualizationTab charts = new TimeLineCharts();
                 charts.setWaitingText(true);
                 item.add(charts);
@@ -184,7 +194,7 @@ public class Visualization extends LayoutContainer {
                 final TabItem item = new TabItem("Table");
                 item.setLayout(new FitLayout());
                 item.setClosable(true);
-                item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+                item.setStyleAttribute("backgroundColor", "transparent");
                 final VisualizationTab charts = new GridTab();
                 charts.setWaitingText(true);
                 item.add(charts);
@@ -222,7 +232,8 @@ public class Visualization extends LayoutContainer {
     }
 
     /**
-     * Creates an tree of PhoneModels and SensorModels, which are fetched asynchronously.
+     * Creates a tree of TagModels, which are fetched asynchronously. The TagModels represent users,
+     * devices or sensor types.
      * 
      * @return the tree
      */
@@ -279,6 +290,13 @@ public class Visualization extends LayoutContainer {
         return panel;
     }
 
+    /**
+     * Creates a content panel for the time range selection, containing only a radio group and a
+     * header.
+     * 
+     * @return the content panel
+     * @see #getTimeRange()
+     */
     public RadioGroup createTimeSelector() {
 
         final RadioGroup result = new RadioGroup();
@@ -325,23 +343,6 @@ public class Visualization extends LayoutContainer {
 
         // Content panel with the tree of tags
         final ContentPanel tagPanel = createTagPanel();
-        
-        // Log out button with flexible white space above it
-        final Button trackTraceBtn = new Button("Track & Trace");
-        trackTraceBtn.addListener(Events.Select, new Listener<ButtonEvent>() {
-            @Override
-            public void handleEvent(ButtonEvent be) {
-                final TabItem trackTraceItem = new TabItem("Track & Trace");
-                trackTraceItem.setLayout(new FitLayout());
-                trackTraceItem.setClosable(true);
-                trackTraceItem.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
-                final Frame welcomeFrame = new Frame("http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
-                welcomeFrame.setStylePrimaryName("senseFrame");
-                trackTraceItem.add(welcomeFrame);
-                tabPanel.add(trackTraceItem);
-                tabPanel.setSelection(trackTraceItem);
-            }
-        });
 
         this.timeSelector = createTimeSelector();
         final ContentPanel timeRangePanel = new ContentPanel();
@@ -350,21 +351,27 @@ public class Visualization extends LayoutContainer {
         timeRangePanel.setCollapsible(true);
         timeRangePanel.add(this.timeSelector, new FlowData(0, 0, 0, 5));
 
-        final LayoutContainer translucentPanel = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
+        final LayoutContainer translucentPanel = new LayoutContainer(new RowLayout(
+                Orientation.VERTICAL));
         translucentPanel.setScrollMode(Scroll.AUTOY);
         translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
-        translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));        
-        translucentPanel.add(trackTraceBtn, new RowData(1, -1, new Margins(5, 5, 5, 5)));
-        translucentPanel.setStyleAttribute("backgroundColor", "rgba(255,0,255,0)");
+        translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
+        translucentPanel.setStyleAttribute("backgroundColor", "transparent");
         translucentPanel.setBorders(false);
-        
+
         return translucentPanel;
     }
 
+    /**
+     * Opens a Google street view tab.
+     * 
+     * @param tags
+     *            the tags that were dropped. NB: only the first tag in the array is actually used.
+     * @see GoogleStreetView
+     */
     private void deviceLocationView(TagModel[] tags) {
-        // for (int i = 0; i < tags.length; i++) {
-        // TagModel tagModel = tags[i];
+
         final TagModel tagModel = tags[0];
 
         final TabItem item = new TabItem("Street View");
@@ -372,12 +379,17 @@ public class Visualization extends LayoutContainer {
         item.setClosable(true);
         item.add(new GoogleStreetView(tagModel.getParentId(), this.user.getName(), this.user
                 .getPassword()));
-        item.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.7)");
+        item.setStyleAttribute("backgroundColor", "transparent");
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
-        // }
     }
 
+    /**
+     * Gets the time range from the radio buttons in the west panel.
+     * 
+     * @return array with start and end time in milliseconds.
+     * @see #createTimeSelector()
+     */
     private long[] getTimeRange() {
 
         // constants
@@ -386,7 +398,11 @@ public class Visualization extends LayoutContainer {
         final long week = 7 * day;
 
         // read off selected time range
-        final long end = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
+        if (user.getId() == 134) {
+            Log.d(TAG, "delfgauw time hack");
+            end = 1283603962000l;
+        }
         long start = 0;
         final String radioId = this.timeSelector.getValue().getId();
         if (radioId.equals("1hr")) {
@@ -406,6 +422,15 @@ public class Visualization extends LayoutContainer {
         return new long[] { start, end };
     }
 
+    /**
+     * Handles the callback from the sensor data RPC request. Adds the received data to the open
+     * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
+     * requests. Otherwise removes the "waiting for data" label from the tab and displays any errors
+     * that might have occurred during the series of requests.
+     * 
+     * @param data
+     *            the received TaggedDataModel
+     */
     private void onSensorValuesReceived(TaggedDataModel data) {
 
         // remove the tag from outstandingReqs
@@ -444,10 +469,16 @@ public class Visualization extends LayoutContainer {
             if (errorMsg.length() > 30) {
                 MessageBox.alert("CommonSense Web Application", errorMsg, null);
             }
-
         }
     }
 
+    /**
+     * Handles a drag-drop event by displaying a dialog for the preferred action to take.
+     * 
+     * @param treeStoreModel
+     *            list of dropped tags
+     * @see #setupDragDrop()
+     */
     private void onTagsDropped(ArrayList<TreeStoreModel> treeStoreModel) {
 
         // create array to send as parameter in RPC
@@ -473,8 +504,34 @@ public class Visualization extends LayoutContainer {
         d.show();
     }
 
-    private int speedTestCounter;
+    /**
+     * Shows the final layout after the Google Visualization API has been loaded.
+     */
+    private void onVisualizationLoad() {
+        // layouts for the different panels
+        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
+        westLayout.setMargins(new Margins(5));
+        westLayout.setSplit(false);
+        final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
+        centerLayout.setMargins(new Margins(5));
 
+        this.setLayout(new BorderLayout());
+        this.add(createWestPanel(), westLayout);
+        this.add(createCenterPanel(), centerLayout);
+        this.setStyleAttribute("backgroundColor", "transparent");
+
+        setupDragDrop();
+
+        layout();
+    }
+
+    /**
+     * Requests the sensor values for a given tagged sensor type.
+     * 
+     * @param tag
+     *            the tag to request data for
+     * @see #startRequests(TagModel[])
+     */
     private void requestSensorValues(TagModel tag) {
         Log.d(TAG, "New request for data: " + tag.get("text"));
 
@@ -506,17 +563,17 @@ public class Visualization extends LayoutContainer {
             }
         };
 
-        // reset error counters
-        this.rxDbConnectionExceptions = 0;
-        this.rxTooMuchDataExceptions = 0;
-        this.rxWrongDataExceptions = 0;
-
         final long[] range = getTimeRange();
         final Date start = new Date(range[0]);
         final Date end = new Date(range[1]);
         this.service.getSensorValues(tag, start, end, callback);
     }
 
+    /**
+     * Sets up the tag tree panel and the tab panel for drag and drop of the tags.
+     * 
+     * @see #onTagsDropped(ArrayList)
+     */
     private void setupDragDrop() {
 
         new TreePanelDragSource(this.tagTree);
@@ -534,21 +591,32 @@ public class Visualization extends LayoutContainer {
         });
     }
 
+    /**
+     * Prepares for a series of RPC requests for data from a list of tags. Initializes some
+     * constants and starts the first request with <code>requestSensorValues</code>.
+     * 
+     * @param tags
+     *            the list of tagged sensors
+     */
     private void startRequests(TagModel[] tags) {
         // start requesting data for the list of tags
         this.outstandingReqs = tags;
         this.unfinishedTab = this.tabPanel.getSelectedItem();
-        this.rxWrongDataExceptions = 0;
+
+        // reset error counters
         this.rxDbConnectionExceptions = 0;
         this.rxTooMuchDataExceptions = 0;
+        this.rxWrongDataExceptions = 0;
 
         if (tags.length > 0) {
             requestSensorValues(tags[0]);
         }
     }
-    private long speedNivo;
-    private long speedIvo;
 
+    /**
+     * Quick hack to test the request time for data from demo.almende.com vs data from the Google
+     * datastore (synced with IVO).
+     */
     private void testSpeed() {
         final AsyncCallback<TaggedDataModel> callback = new AsyncCallback<TaggedDataModel>() {
 
@@ -570,10 +638,11 @@ public class Visualization extends LayoutContainer {
 
                 // for speed testing:
                 Date delay = new Date(new Date().getTime() - Visualization.this.startTime.getTime());
-                Info.display("Speed data", "Request failed after "
-                        + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
-                
-                if(Visualization.this.speedTestCounter <= 10) {
+                Info.display("Speed data",
+                        "Request failed after "
+                                + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
+
+                if (Visualization.this.speedTestCounter <= 10) {
                     Visualization.this.speedNivo += delay.getTime();
                 } else {
                     Visualization.this.speedIvo += delay.getTime();
@@ -589,12 +658,12 @@ public class Visualization extends LayoutContainer {
                 Info.display("Speed data", "Request took "
                         + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
 
-                if(Visualization.this.speedTestCounter <= 10) {
+                if (Visualization.this.speedTestCounter <= 10) {
                     Visualization.this.speedNivo += delay.getTime();
                 } else {
                     Visualization.this.speedIvo += delay.getTime();
                 }
-                
+
                 testSpeed();
             }
         };
@@ -612,7 +681,7 @@ public class Visualization extends LayoutContainer {
             this.startTime = new Date();
             this.service.getSensorValues(tag, start, end, callback);
             this.speedTestCounter++;
-        } else if (this.speedTestCounter < 20){
+        } else if (this.speedTestCounter < 20) {
             this.startTime = new Date();
             this.service.getIvoSensorValues(tag, start, end, callback);
             this.speedTestCounter++;
@@ -620,7 +689,8 @@ public class Visualization extends LayoutContainer {
             Date nivo = new Date(this.speedNivo / 10);
             Date ivo = new Date(this.speedIvo / 10);
             DateTimeFormat dtf = DateTimeFormat.getFormat("s.SSS");
-            String msg = "non-IVO avg: " + dtf.format(nivo) + " sec. \n\nIVO avg: " + dtf.format(ivo) + " sec.";
+            String msg = "non-IVO avg: " + dtf.format(nivo) + " sec. \n\nIVO avg: "
+                    + dtf.format(ivo) + " sec.";
             MessageBox.info("IVO vs. non-IVO", msg, null);
             this.speedTestCounter = 0;
         }

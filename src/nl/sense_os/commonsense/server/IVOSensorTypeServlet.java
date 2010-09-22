@@ -12,13 +12,16 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 @SuppressWarnings("serial")
 public class IVOSensorTypeServlet extends IVOServlet {
 	
-	protected void initialize() {
+	@Override
+    protected void initialize() {
 	}
 
-	protected void finalize() {
+	@Override
+    protected void finalize() {
 	}
 
-	protected String create(JSONObject change) throws JSONException {
+	@Override
+    protected String create(JSONObject change) throws JSONException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SensorType sensorType = SensorTypeConverter.jsonToEntity(change);
    	    try {
@@ -29,11 +32,13 @@ public class IVOSensorTypeServlet extends IVOServlet {
         return Integer.toString(change.getInt("id"));
 	}
 		
-	protected String update(JSONObject change) throws JSONException {
+	@Override
+    protected String update(JSONObject change) throws JSONException {
 		return Integer.toString(((JSONObject) change.get("old")).getInt("id"));
 	}
 
-	protected String delete(JSONObject change) throws JSONException {
+	@Override
+    protected String delete(JSONObject change) throws JSONException {
         return Integer.toString(change.getInt("id"));
 	}
 

@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.widgets;
 
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -15,6 +14,9 @@ import com.google.gwt.user.client.ui.Hyperlink;
 
 import nl.sense_os.commonsense.dto.UserModel;
 
+/**
+ * Component with the top navigation bar, updates itself as the user navigates the application.
+ */
 public class NavBar extends LayoutContainer implements ValueChangeHandler<String> {
 
     public static final String HELP = "help";
@@ -32,44 +34,49 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
     private boolean isLoggedIn;
     private final Hyperlink login = new Hyperlink("sign in", SIGN_IN);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
-    private final Margins margins = new Margins(5);
+    private final Margins margins = new Margins(0, 7, 0, 7);
     private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
     private final Hyperlink share = new Hyperlink("share data", SHARE_DATA);
     private final Text stretch = new Text();
     private final Hyperlink train = new Hyperlink("training data", TRAINING_DATA);
     private final Text userName = new Text();
     private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
-    
-    public NavBar() {       
-        
+
+    public NavBar() {
         this.userName.setStyleAttribute("font-weight", "bold");
-        this.userName.setStyleAttribute("text-align", "right"); 
-        
-        this.current = home;
+        this.userName.setStyleAttribute("text-align", "right");
+
+        this.current = this.home;
         this.isLoggedIn = false;
-                
+
         // container for the horizontal box layout
-        final HBoxLayout boxLayout = new HBoxLayout();  
-        boxLayout.setPadding(new Padding(3, 5, 0, 5));  
-        boxLayout.setHBoxLayoutAlign(HBoxLayoutAlign.TOP);  
+        final HBoxLayout boxLayout = new HBoxLayout();
+        boxLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
         this.container = new LayoutContainer(new HBoxLayout());
-        this.container.setLayout(boxLayout);  
-        
+        this.container.setLayout(boxLayout);
+
         setLayout(new FitLayout());
         add(this.container);
-        
+
         History.addValueChangeHandler(this);
-        
+
         relayout();
     }
-    
+
+    /**
+     * Updates the layout when the user navigates to a different part of the application.
+     * 
+     * @param event
+     *            ValueChangeEvent containing the new History token
+     * @see History
+     */
     @Override
     public void onValueChange(ValueChangeEvent<String> event) {
         final String token = event.getValue();
-        
-        // reset style of previously selected navigation label 
+
+        // reset style of previously selected navigation label
         this.current.setStyleName("sense-nav-deselected");
-        
+
         // set new navigation label selected
         if (token.equals(HOME)) {
             this.current = this.home;
@@ -87,19 +94,22 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
             this.current = this.logout;
         } else if (token.equals(SIGN_IN)) {
             this.current = this.login;
-        }        
+        }
         this.current.setStyleName("sense-nav-selected");
-        
+
         relayout();
     }
 
-    private void relayout() {        
-        
-        this.container.removeAll(); 
-        
+    /**
+     * Updates the layout to display only the public or also the private parts of the application.  
+     */
+    private void relayout() {
+
+        this.container.removeAll();
+
         final HBoxLayoutData boxData = new HBoxLayoutData(this.margins);
-        final HBoxLayoutData flexData = new HBoxLayoutData(this.margins);  
-        flexData.setFlex(1);  
+        final HBoxLayoutData flexData = new HBoxLayoutData(this.margins);
+        flexData.setFlex(1);
 
         if (this.isLoggedIn) {
             this.container.add(this.home, boxData);

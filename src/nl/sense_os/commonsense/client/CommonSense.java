@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -12,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
@@ -25,6 +27,10 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.NavBar;
 import nl.sense_os.commonsense.dto.UserModel;
 
+/**
+ * Entry point for the CommonSense web application. Holds the background and controls the navigation
+ * to other parts of the application.
+ */
 public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
     private static final String TAG = "CommonSense";
@@ -40,10 +46,10 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         northLayout.setSplit(false);
 
         content = new LayoutContainer(new BorderLayout());
-        content.setStyleAttribute("backgroundColor", "rgba(0,0,0,0)");
+        content.setStyleAttribute("backgroundColor", "transparent");
         content.setStyleAttribute("border-width", "0px");
         content.add(topNavBar, northLayout);
-
+        
         // main content panel containing the west and center panels
         /* NB: there are two containers to handle the background! */
         // Inner container with top right background
@@ -57,7 +63,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
                 "url('img/bg/left_bot_pre-light.png') no-repeat bottom left;");
         outerContainer.setStyleAttribute("backgroundColor", "white");
         outerContainer.add(innerContainer, new FlowData(0));
-
+        
         return outerContainer;
     }
 
@@ -67,7 +73,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         topNavBar.setUser(user);
         topNavBar.setLogin(true);
 
-        // continue to home screen
+        // continue to visualization screen
         History.newItem(NavBar.VISUALIZATION);
     }
 
@@ -95,13 +101,16 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
                         .equals(NavBar.SIGN_IN)))) {
             History.newItem("home");
         }
+        
+        tryAutoSignIn();
 
         Viewport vp = new Viewport();
         vp.setSize("100%", "100%");
         vp.setLayout(new FitLayout());
         vp.add(createMainPanel());
 
-        RootPanel.get().add(vp);
+        RootPanel root = RootPanel.get();
+        root.add(vp);
 
         History.addValueChangeHandler(this);
         History.fireCurrentHistoryState();
@@ -184,5 +193,39 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
     private Widget showVizScreen() {
         return new Visualization(this.user);
+    }
+    
+    private void tryAutoSignIn() {
+        // get user from Cookie
+        String cookieName = Cookies.getCookie("user_name");
+        String cookiePass = Cookies.getCookie("user_pass");
+        if ((null != cookieName) && (null != cookiePass) && (cookieName.length() > 0)
+                && (cookiePass.length() > 0)) {
+            Log.d(TAG, "Autologin");
+            
+            // show progress dialog
+            final MessageBox waitBox = MessageBox.wait("CommonSense Login",
+                    "Logging in, please wait...", "Logging in...");
+
+            final AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+                @Override
+                public void onFailure(Throwable ex) {
+                    waitBox.close();
+                    MessageBox.alert("Login failure!", "Server-side failure.", null);
+                }
+
+                @Override
+                public void onSuccess(UserModel user) {
+                    waitBox.close();
+                    if (user != null) {
+                        onLogin(user);
+                    } else {
+                        MessageBox.alert("Login failure!", "Invalid username or password.", null);
+                    }
+                }
+            };
+            final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
+            service.checkLogin(cookieName, cookiePass, callback);
+        } 
     }
 }

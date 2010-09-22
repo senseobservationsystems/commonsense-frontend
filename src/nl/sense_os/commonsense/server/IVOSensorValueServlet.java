@@ -22,7 +22,8 @@ public class IVOSensorValueServlet extends IVOServlet {
 	private HashMap<Integer, SensorType> sensorTypes;
 	private PersistenceManager pm;
 	
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	protected void initialize() {
 		sensorTypes = new HashMap<Integer, SensorType>();
 		pm = PMF.get().getPersistenceManager();
@@ -35,7 +36,8 @@ public class IVOSensorValueServlet extends IVOServlet {
 			}
 	}
 	
-	protected String create(JSONObject change) throws JSONException {
+	@Override
+    protected String create(JSONObject change) throws JSONException {
 			if (sensorTypes.size() > 0) {
 				SensorType sensorType = sensorTypes.get(change.getInt("sensor_type"));
 				switch (sensorType.getType()) {
@@ -57,15 +59,18 @@ public class IVOSensorValueServlet extends IVOServlet {
         return change.getString("id");
 	}
 		
-	protected String update(JSONObject change) throws JSONException {
+	@Override
+    protected String update(JSONObject change) throws JSONException {
 		return Integer.toString(((JSONObject) change.get("old")).getInt("id"));
 	}
 
-	protected String delete(JSONObject change) throws JSONException {
+	@Override
+    protected String delete(JSONObject change) throws JSONException {
         return Integer.toString(change.getInt("id"));
 	}
 	
-	protected void finalize() {
+	@Override
+    protected void finalize() {
 		pm.close();
 	}
 

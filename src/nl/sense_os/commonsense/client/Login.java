@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -28,15 +29,16 @@ public class Login extends LayoutContainer {
     private static final String TAG = "LoginForm";
     private final AsyncCallback<UserModel> callback;
     private boolean autoLogin;
-    private String cookieName;
-    private String cookiePass;
+    private final String cookieName;
+    private final String cookiePass;
     private final TextField<String> email = new TextField<String>();
     private final TextField<String> pass = new TextField<String>();
+    private final CheckBox rememberMe = new CheckBox();
 
     public Login(AsyncCallback<UserModel> callback) {
 
         this.callback = callback;
-        
+
         // get user from Cookie
         this.cookieName = Cookies.getCookie("user_name");
         this.cookiePass = Cookies.getCookie("user_pass");
@@ -67,11 +69,13 @@ public class Login extends LayoutContainer {
             public void onSuccess(UserModel user) {
                 waitBox.close();
                 if (user != null) {
-
-                    final long DURATION = 1000 * 60 * 60 * 24 * 14; // 2 weeks
-                    Date expires = new Date(System.currentTimeMillis() + DURATION);
-                    Cookies.setCookie("user_name", user.getName(), expires, null, "/", false);
-                    Cookies.setCookie("user_pass", user.getPassword(), expires, null, "/", false);
+                    if (rememberMe.getValue()) {
+                        final long DURATION = 1000 * 60 * 60 * 24 * 14; // 2 weeks
+                        Date expires = new Date(System.currentTimeMillis() + DURATION);
+                        Cookies.setCookie("user_name", user.getName(), expires, null, "/", false);
+                        Cookies.setCookie("user_pass", user.getPassword(), expires, null, "/",
+                                false);
+                    }
 
                     Login.this.callback.onSuccess(user);
 
@@ -86,9 +90,9 @@ public class Login extends LayoutContainer {
     }
 
     private FormPanel createForm() {
-        final FormData formData = new FormData("-20");
+        final FormData formData = new FormData();
 
-        // email field        
+        // email field
         email.setFieldLabel("Email");
         if (this.autoLogin) {
             email.setValue(this.cookieName);
@@ -103,14 +107,20 @@ public class Login extends LayoutContainer {
         pass.setAllowBlank(false);
         pass.setPassword(true);
 
+        rememberMe.setBoxLabel("Remember me");
+        rememberMe.setValue(true);
+
         // submit button
         final Button b = new Button("Submit");
         b.setType("submit");
         b.addListener(Events.Select, new Listener<ButtonEvent>() {
             @Override
             public void handleEvent(ButtonEvent be) {
+                // get values from the fields
                 final String mailString = email.getValue();
                 final String passString = MD5Wrapper.toMD5(pass.getValue());
+                
+                // replace pass field with 8 characters by default
                 pass.setValue("********");
 
                 checkLogin(mailString, passString);
@@ -119,14 +129,15 @@ public class Login extends LayoutContainer {
 
         // main form panel
         final FormPanel form = new FormPanel();
-        form.setBodyStyle("padding: 6px");
         form.setButtonAlign(HorizontalAlignment.CENTER);
         form.setFrame(true);
         form.setHeading("CommonSense Login");
-        form.setWidth(350);
+        form.setLabelWidth(100);
+        form.setFieldWidth(250);
 
         form.add(email, formData);
         form.add(pass, formData);
+        form.add(rememberMe, formData);
         form.addButton(b);
 
         final FormButtonBinding binding = new FormButtonBinding(form);

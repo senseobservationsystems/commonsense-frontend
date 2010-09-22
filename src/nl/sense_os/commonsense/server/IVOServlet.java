@@ -16,7 +16,8 @@ public abstract class IVOServlet extends HttpServlet {
 
 	protected static final Logger log = Logger.getLogger("IVOServlet");
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+	@Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
 		try {
 			resp.setContentType("text/plain");
@@ -34,7 +35,8 @@ public abstract class IVOServlet extends HttpServlet {
 		}		
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	@Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
     throws IOException {
 		resp.setContentType("text/plain");
 		doGet(req, resp);
@@ -72,7 +74,8 @@ public abstract class IVOServlet extends HttpServlet {
 	}
 
 	protected abstract void initialize();
-	protected abstract void finalize();
+	@Override
+    protected abstract void finalize();
 	protected abstract String create(JSONObject change) throws JSONException;
 	protected abstract String update(JSONObject change) throws JSONException;
 	protected abstract String delete(JSONObject change) throws JSONException;

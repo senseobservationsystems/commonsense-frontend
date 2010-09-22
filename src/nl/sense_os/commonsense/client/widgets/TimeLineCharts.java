@@ -71,12 +71,12 @@ public class TimeLineCharts extends VisualizationTab {
             this.remove(firstChart);
 
             // re-layout the first chart with new size
-            this.add(firstChart, new RowData(-1, 0.45));
+            this.add(firstChart, new RowData(-1, 0.8));
             firstChart.layout(true);
 
-            this.add(chart, new RowData(-1, 0.45));
+            this.add(chart, new RowData(-1, 0.8));
         } else {
-            this.add(chart, new RowData(-1, 0.45));
+            this.add(chart, new RowData(-1, 0.8));
         }
         this.nrOfCharts++;
         this.doLayout();

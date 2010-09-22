@@ -240,12 +240,12 @@ public class TimeLineChart extends ContentPanel {
     private void setupLayout(String title) {
         final LayoutContainer chartPanel = createChartPanel();
 
-        chartPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.0)");
+        chartPanel.setStyleAttribute("backgroundColor", "transparent");
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
 
         final ContentPanel tagSelectPanel = createTagSelector();
-        tagSelectPanel.setStyleAttribute("backgroundColor", "rgba(255,255,255,0.0)");
+        tagSelectPanel.setStyleAttribute("backgroundColor", "transparent");
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 200, 300);
         westLayout.setMargins(new Margins(5));
         westLayout.setSplit(true);
