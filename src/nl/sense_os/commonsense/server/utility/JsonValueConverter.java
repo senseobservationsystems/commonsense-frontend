@@ -12,7 +12,7 @@ public class JsonValueConverter extends SensorValueConverter {
     public static JsonValueModel entityToModel(JsonValue jv) throws JSONException {
         return new JsonValueModel(
         		jv.getTimestamp(),
-        		jv.getFields());
+        		jv.getFieldMap());
     }
 
     public static JsonValue jsonToEntity(int deviceId, int sensorType, JSONObject jsonSensorValue) throws JSONException {

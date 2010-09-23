@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
