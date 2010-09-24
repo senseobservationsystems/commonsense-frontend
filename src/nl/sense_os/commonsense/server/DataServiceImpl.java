@@ -51,6 +51,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     private static final long serialVersionUID = 1L;
     private static final String URL_BASE = "http://demo.almende.com/commonSense2/gae/";
     private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data.php";
+    private static final String URL_GET_SENSOR_DATA_PAGED = URL_BASE + "get_sensor_data_paged.php";
     private static final String URL_GET_TAGS = URL_BASE + "get_tags.php";
     private static final String URL_LOGIN = URL_BASE + "login.php";
     private static final String USER_SESSION = "GWTAppUser";
@@ -88,21 +89,83 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     }
 
     @Override
+    public TaggedDataModel getSensorValuesPaged(TagModel tag, int offset, int limit)
+            throws TooMuchDataException, DbConnectionException, WrongResponseException {
+
+        final User user = getUserFromSession();
+        final int sensorType = tag.getTaggedId();
+        final int deviceId = tag.getParentId();
+
+        // Get response from CommonSense
+        String response = "";
+        try {
+            URL url = new URL(URL_GET_SENSOR_DATA_PAGED + "?email=" + user.getName() + "&password="
+                    + user.getPassword() + "&d_id=" + deviceId + "&s_id=" + sensorType + "&limit="
+                    + limit + "&offset=" + offset);
+
+            FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
+
+            HTTPRequest httpReq = new HTTPRequest(url, HTTPMethod.GET, fetchOptions);
+            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+            HTTPResponse httpResponse = fetcher.fetch(httpReq);
+
+            response = new String(httpResponse.getContent());
+        } catch (MalformedURLException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (IOException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (ResponseTooLargeException e) {
+            throw (new TooMuchDataException(e.getMessage()));
+        }
+
+        // Convert JSON response to sensor value objects
+        try {
+            JSONObject json = new JSONObject(response);
+            String dataType = json.getString("data_type");
+            int totalCount = json.getInt("total");
+            JSONArray jsonSensorValues = json.getJSONArray("data");
+            SensorValueModel[] sensorValues;
+
+            if (dataType.equals("json")) {
+                sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("string")) {
+                sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("bool")) {
+                sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("float")) {
+                sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else
+                sensorValues = new SensorValueModel[0];
+
+            // return the result
+            // TODO return a pagingloadresult ?
+            return null;
+
+        } catch (JSONException e) {
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
+
+    @Override
     public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
             throws TooMuchDataException, DbConnectionException, WrongResponseException {
 
-        final User user = getUserFromSession();        
+        final User user = getUserFromSession();
         final int sensorType = tag.getTaggedId();
         final int deviceId = tag.getParentId();
         final String beginTime = TimestampConverter.timestampToEpochSecs(begin);
         final String endTime = TimestampConverter.timestampToEpochSecs(end);
-        
+
         // Get response from CommonSense
         String response = "";
         try {
             URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&d_id=" + deviceId + "&s_id="
-                    + sensorType + "&t_begin=" + beginTime + "&t_end=" + endTime);
+                    + user.getPassword() + "&d_id=" + deviceId + "&s_id=" + sensorType
+                    + "&t_begin=" + beginTime + "&t_end=" + endTime);
 
             FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
 
@@ -127,15 +190,19 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             SensorValueModel[] sensorValues;
 
             if (dataType.equals("json")) {
-            	sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+                sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
             } else if (dataType.equals("string")) {
-            	sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+                sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
             } else if (dataType.equals("bool")) {
-            	sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+                sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
             } else if (dataType.equals("float")) {
-            	sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues, tag.getParentId(), tag.getTaggedId());
+                sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
             } else
-            	sensorValues = new SensorValueModel[0];
+                sensorValues = new SensorValueModel[0];
 
             // return the result
             return new TaggedDataModel(tag, sensorValues);
@@ -152,12 +219,13 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
         final PersistenceManager pm = PMF.get().getPersistenceManager();
 
-        final Query query = pm.newQuery(FloatValue.class);        
+        final Query query = pm.newQuery(FloatValue.class);
         int sensorType = tag.getTaggedId();
-        int deviceId = tag.getParentId();        
-        query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId + " && timestamp > begin");
+        int deviceId = tag.getParentId();
+        query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId
+                + " && timestamp > begin");
         query.declareParameters("java.util.Date begin");
-        
+
         log.warning(query.toString());
 
         TaggedDataModel result = null;

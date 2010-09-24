@@ -18,9 +18,13 @@ public interface DataService extends RemoteService {
     public UserModel checkLogin(String name, String password) throws DbConnectionException,
             WrongResponseException;
 
-    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end) throws WrongResponseException;
+    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end)
+            throws WrongResponseException;
 
     public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
+            throws TooMuchDataException, DbConnectionException, WrongResponseException;
+
+    public TaggedDataModel getSensorValuesPaged(TagModel tag, int offset, int limit)
             throws TooMuchDataException, DbConnectionException, WrongResponseException;
 
     public List<TagModel> getTags(TagModel rootTag) throws DbConnectionException,
