@@ -224,14 +224,13 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         int deviceId = tag.getParentId();
         query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId
                 + " && timestamp > begin && timestamp < end");
-        query.declareParameters("java.util.Date begin");
-        query.declareParameters("java.util.Date end");
+        query.declareParameters("java.util.Date begin, java.util.Date end");
 
         log.warning(query.toString());
 
         TaggedDataModel result = null;
         try {
-            List<JsonValue> queryResult = (List<JsonValue>) query.execute(begin);
+            List<JsonValue> queryResult = (List<JsonValue>) query.execute(begin,end);
 
             log.warning("Query result: " + queryResult.size() + " entries");
 

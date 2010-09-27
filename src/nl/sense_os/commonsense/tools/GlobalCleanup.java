@@ -14,8 +14,8 @@ import nl.sense_os.commonsense.server.data.StringValue;
 
 public class GlobalCleanup {
 
-	//private static String URL = "http://common-sense-test.appspot.com/ivo/cleanup";
-	private static String URL = "http://localhost:8888/ivo/cleanup";
+	private static String URL = "http://common-sense-test.appspot.com/ivo/cleanup";
+	//private static String URL = "http://localhost:8888/ivo/cleanup";
 	private static String entityNameVar = "?entityName=";
 	private static String amountVar = "&amount=";
 	private static String basicAmount = "250";
