@@ -35,7 +35,7 @@ import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
-import nl.sense_os.commonsense.server.data.FloatValue;
+import nl.sense_os.commonsense.server.data.JsonValue;
 import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.User;
 import nl.sense_os.commonsense.server.utility.BooleanValueConverter;
@@ -219,24 +219,25 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
         final PersistenceManager pm = PMF.get().getPersistenceManager();
 
-        final Query query = pm.newQuery(FloatValue.class);
+        final Query query = pm.newQuery(JsonValue.class);
         int sensorType = tag.getTaggedId();
         int deviceId = tag.getParentId();
         query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId
-                + " && timestamp > begin");
+                + " && timestamp > begin && timestamp < end");
         query.declareParameters("java.util.Date begin");
+        query.declareParameters("java.util.Date end");
 
         log.warning(query.toString());
 
         TaggedDataModel result = null;
         try {
-            List<FloatValue> queryResult = (List<FloatValue>) query.execute(begin);
+            List<JsonValue> queryResult = (List<JsonValue>) query.execute(begin);
 
             log.warning("Query result: " + queryResult.size() + " entries");
 
             SensorValueModel[] values = new SensorValueModel[queryResult.size()];
             for (int i = 0; i < values.length; i++) {
-                values[i] = FloatValueConverter.entityToModel(queryResult.get(i));
+                values[i] = JsonValueConverter.entityToModel(queryResult.get(i));
             }
 
             result = new TaggedDataModel(tag, values);

@@ -642,7 +642,7 @@ public class Visualization extends LayoutContainer {
                         "Request failed after "
                                 + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
 
-                if (Visualization.this.speedTestCounter <= 10) {
+                if (Visualization.this.speedTestCounter <= 2) {
                     Visualization.this.speedNivo += delay.getTime();
                 } else {
                     Visualization.this.speedIvo += delay.getTime();
@@ -655,10 +655,10 @@ public class Visualization extends LayoutContainer {
 
                 // for speed testing:
                 Date delay = new Date(new Date().getTime() - Visualization.this.startTime.getTime());
-                Info.display("Speed data", "Request took "
+                Info.display("Speed data", data.getData().length + " values returned.\n\nRequest took "
                         + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
 
-                if (Visualization.this.speedTestCounter <= 10) {
+                if (Visualization.this.speedTestCounter <= 2) {
                     Visualization.this.speedNivo += delay.getTime();
                 } else {
                     Visualization.this.speedIvo += delay.getTime();
@@ -673,21 +673,22 @@ public class Visualization extends LayoutContainer {
         this.rxTooMuchDataExceptions = 0;
         this.rxWrongDataExceptions = 0;
 
-        final Date start = new Date(1280620800000L); // new Date(range[0]);
-        final Date end = new Date(1283299200000L); // new Date(range[1]);
-        TagModel tag = new TagModel("/78/Nexus One/noise_sensor/", 1, 12, SensorValueModel.FLOAT);
+        // 10.000 JSON values
+        final Date start = new Date(1280751310910L); // new Date(range[0]);
+        final Date end = new Date(1280927810010L); // new Date(range[1]);
+        TagModel tag = new TagModel("/79/Nexus One/accelerometer/", 22, 78, SensorValueModel.JSON);
 
-        if (this.speedTestCounter < 10) {
+        if (this.speedTestCounter < 2) {
             this.startTime = new Date();
             this.service.getSensorValues(tag, start, end, callback);
             this.speedTestCounter++;
-        } else if (this.speedTestCounter < 20) {
+        } else if (this.speedTestCounter < 4) {
             this.startTime = new Date();
             this.service.getIvoSensorValues(tag, start, end, callback);
             this.speedTestCounter++;
         } else {
-            Date nivo = new Date(this.speedNivo / 10);
-            Date ivo = new Date(this.speedIvo / 10);
+            Date nivo = new Date(this.speedNivo / 2);
+            Date ivo = new Date(this.speedIvo / 2);
             DateTimeFormat dtf = DateTimeFormat.getFormat("s.SSS");
             String msg = "non-IVO avg: " + dtf.format(nivo) + " sec. \n\nIVO avg: "
                     + dtf.format(ivo) + " sec.";
