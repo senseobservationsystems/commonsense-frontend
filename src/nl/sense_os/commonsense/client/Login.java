@@ -20,6 +20,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.Date;
 
+import nl.sense_os.commonsense.client.services.DataService;
+import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;

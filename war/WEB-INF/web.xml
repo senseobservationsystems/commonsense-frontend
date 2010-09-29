@@ -56,6 +56,26 @@
 		<url-pattern>/ivo/cleanup</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+        <servlet-name>userImageServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.UserImageServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>uploadServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.UploadServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>userImageServlet</servlet-name>
+        <url-pattern>/commonsense/images</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+       <servlet-name>uploadServlet</servlet-name>
+       <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+    
   <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

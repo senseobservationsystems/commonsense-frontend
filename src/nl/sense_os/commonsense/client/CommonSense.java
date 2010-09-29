@@ -23,8 +23,11 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import nl.sense_os.commonsense.client.services.DataService;
+import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.NavBar;
+import nl.sense_os.commonsense.client.widgets.UploadPhoto;
 import nl.sense_os.commonsense.dto.UserModel;
 
 /**
@@ -149,6 +152,8 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
             return;
         } else if (token.equals(NavBar.HELP)) {
             w = showHelpScreen();
+        } else if (token.equals(NavBar.IMAGE_UPLOAD)) {
+            w = showImageUpload();
         } else {
             LayoutContainer lc = new LayoutContainer(new CenterLayout());
             lc.add(new Text("Under construction..."));
@@ -165,6 +170,11 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         return welcomeFrame;
     }
 
+    private Widget showImageUpload() {
+        final LayoutContainer imgUpload = new UploadPhoto();
+        return imgUpload;
+    }
+    
     private Widget showHelpScreen() {
         final Frame helpFrame = new Frame("http://welcome.sense-os.nl/node/6");
         helpFrame.setStylePrimaryName("senseFrame");

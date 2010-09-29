@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
@@ -52,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.services.DataService;
+import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
 import nl.sense_os.commonsense.client.widgets.GridTab;
@@ -70,7 +74,7 @@ import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
  */
 public class Visualization extends LayoutContainer {
 
-    private static final String TAG = "Home";
+    private static final String TAG = "Visualization";
     private TagModel[] outstandingReqs;
     private int rxDbConnectionExceptions;
     private int rxTooMuchDataExceptions;
@@ -118,23 +122,37 @@ public class Visualization extends LayoutContainer {
         welcomeItem.setStyleAttribute("backgroundColor", "transparent");
         welcomeItem.add(welcomeFrame);
 
-        // Track trace
-        final TabItem trackTraceItem = new TabItem("Track & Trace demo");
-        trackTraceItem.setLayout(new FitLayout());
-        trackTraceItem.setClosable(true);
-        trackTraceItem.setStyleAttribute("backgroundColor", "transparent");
-        final Frame trackTrace = new Frame(
-                "http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
-        trackTrace.setStylePrimaryName("senseFrame");
-        trackTraceItem.add(trackTrace);
-
         // Tabs
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
         this.tabPanel.addStyleName("transparent");
         this.tabPanel.add(welcomeItem);
-        this.tabPanel.add(trackTraceItem);
+
+        // Track trace
+        if (user.getId() != 142) {
+            final TabItem trackTraceItem = new TabItem("Track & Trace demo");
+            trackTraceItem.setLayout(new FitLayout());
+            trackTraceItem.setClosable(true);
+            trackTraceItem.setStyleAttribute("backgroundColor", "transparent");
+            final Frame trackTrace = new Frame(
+                    "http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
+            trackTrace.setStylePrimaryName("senseFrame");
+            trackTraceItem.add(trackTrace);
+            this.tabPanel.add(trackTraceItem);
+        }
+
+        // add greenhouse building chart to please Freek
+        if (user.getId() == 142) {
+            final TabItem greenhouseItem = new TabItem("Greenhouse nodes");
+            greenhouseItem.setLayout(new FitLayout());
+            greenhouseItem.setClosable(true);
+            greenhouseItem.setStyleAttribute("backgroundColor", "transparent");
+            final Image greenhouse = new Image("img/storm/storm_building.png");
+            greenhouse.setPixelSize(1122, 793);
+            greenhouseItem.add(greenhouse);
+            this.tabPanel.add(greenhouseItem);
+        }
 
         return tabPanel;
     }
@@ -337,6 +355,14 @@ public class Visualization extends LayoutContainer {
 
         final Image logo = new Image("/img/logo_sense-150.png");
         logo.setPixelSize(131, 68);
+        logo.addMouseDownHandler(new MouseDownHandler() {
+
+            @Override
+            public void onMouseDown(MouseDownEvent event) {
+                Log.d(TAG, "relative x: " + event.getRelativeX(logo.getElement()));
+                Log.d(TAG, "relative y: " + event.getRelativeY(logo.getElement()));
+            }
+        });
         final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
         logoContainer.setHeight(68);
         logoContainer.add(logo);
@@ -655,8 +681,9 @@ public class Visualization extends LayoutContainer {
 
                 // for speed testing:
                 Date delay = new Date(new Date().getTime() - Visualization.this.startTime.getTime());
-                Info.display("Speed data", data.getData().length + " values returned.\n\nRequest took "
-                        + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
+                Info.display("Speed data",
+                        data.getData().length + " values returned.\n\nRequest took "
+                                + DateTimeFormat.getFormat("m:ss.SSS").format(delay) + " secs");
 
                 if (Visualization.this.speedTestCounter <= 2) {
                     Visualization.this.speedNivo += delay.getTime();

@@ -27,7 +27,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.servlet.http.HttpSession;
 
-import nl.sense_os.commonsense.client.DataService;
+import nl.sense_os.commonsense.client.services.DataService;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
@@ -122,8 +122,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         try {
             JSONObject json = new JSONObject(response);
             String dataType = json.getString("data_type");
+            @SuppressWarnings("unused")
             int totalCount = json.getInt("total");
             JSONArray jsonSensorValues = json.getJSONArray("data");
+            @SuppressWarnings("unused")
             SensorValueModel[] sensorValues;
 
             if (dataType.equals("json")) {
@@ -341,88 +343,4 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         session.setAttribute(USER_SESSION, user);
     }
 
-    // private static final String URL_GET_PHONE_DETAILS = URL_BASE + "get_phone_details.php";
-    // private static final String URL_GET_PHONE_SENSORS = URL_BASE + "get_phone_sensors.php";
-
-    // public List<SenseTreeModel> getSensors(int phoneId) {
-    // List<SenseTreeModel> sensorList = new ArrayList<SenseTreeModel>();
-    // String jsonText = "";
-    //
-    // User user = getUserFromSession();
-    //
-    // // Get json object
-    // try {
-    // final URL url = new URL(URL_GET_PHONE_SENSORS + "?email=" + user.getName()
-    // + "&password=" + user.getPassword() + "&device_id=" + phoneId);
-    // BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-    // String line;
-    // while ((line = reader.readLine()) != null) {
-    // jsonText += line;
-    // }
-    // reader.close();
-    // } catch (MalformedURLException e) {
-    // log.severe("MalFormedUrlException in getSensors");
-    // log.severe(e.getMessage());
-    // } catch (IOException e) {
-    // log.severe("IOException in getSensors");
-    // log.severe(e.getMessage());
-    // }
-    //
-    // // Convert to object
-    // JSONArray sensors;
-    // try {
-    // sensors = (JSONArray) new JSONObject(jsonText).get("sensors");
-    // for (int i = 0; i < sensors.length(); i++) {
-    // JSONObject jsonSensor = (JSONObject) sensors.get(i);
-    // Sensor sensor = SensorConverter.jsonToEntity(jsonSensor, phoneId);
-    // sensorList.add(SensorConverter.entityToModel(sensor));
-    // }
-    // } catch (JSONException e) {
-    // log.severe("JSONException in getSensors");
-    // log.severe(e.getMessage());
-    // }
-    // return sensorList;
-    // }
-
-    // public List<SenseTreeModel> getPhoneDetails() {
-    //
-    // List<SenseTreeModel> phoneList = new ArrayList<SenseTreeModel>();
-    // String jsonText = "";
-    //
-    // User user = getUserFromSession();
-    //
-    // // Get json object
-    // try {
-    // final URL url = new URL(URL_GET_PHONE_DETAILS + "?email=" + user.getName()
-    // + "&password=" + user.getPassword());
-    // BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-    // String line;
-    // while ((line = reader.readLine()) != null) {
-    // jsonText += line;
-    // }
-    // reader.close();
-    // } catch (MalformedURLException e) {
-    // log.severe("MalFormedUrlException in getPhoneDetails");
-    // log.severe(e.getMessage());
-    // } catch (IOException e) {
-    // log.severe("IOException in getPhoneDetails");
-    // log.severe(e.getMessage());
-    // }
-    //
-    // // Convert to object
-    // JSONArray phones;
-    // try {
-    // phones = (JSONArray) new JSONObject(jsonText).get("phones");
-    // for (int i = 0; i < phones.length(); i++) {
-    // JSONObject jsonPhone = (JSONObject) phones.get(i);
-    // Phone phone = PhoneConverter.jsonToEntity(jsonPhone);
-    // // phone.setSensors(getPhoneSensors(phone));
-    // phoneList.add(PhoneConverter.entityToModel(phone));
-    // }
-    // } catch (JSONException e) {
-    // log.severe("JSONException in getPhoneDetails");
-    // log.severe(e.getMessage());
-    // }
-    // return phoneList;
-    // }
 }
