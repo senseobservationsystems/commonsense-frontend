@@ -18,10 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import nl.sense_os.commonsense.dto.UploadedImage;
-import nl.sense_os.commonsense.server.data.User;
+import nl.sense_os.commonsense.dto.building.Floor;
 
 /**
  * This is the servlet that handles the callback after the blobstore upload has completed. After the
@@ -39,6 +37,7 @@ import nl.sense_os.commonsense.server.data.User;
  */
 public class UploadServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger(UploadServlet.class.getName());
     private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
@@ -61,13 +60,11 @@ public class UploadServlet extends HttpServlet {
             // For the sake of clarity, we'll use low-level entities
             Entity uploadedImage = new Entity("UploadedImage");
             uploadedImage.setProperty("blobKey", blobKey);
-            uploadedImage.setProperty(UploadedImage.CREATED_AT, new Date());
-
-            HttpSession session = getThreadLocalRequest().getSession();
-            return (User) session.getAttribute(USER_SESSION);
+            uploadedImage.setProperty(Floor.CREATED_AT, new Date());
+            uploadedImage.setProperty(Floor.OWNER_ID, req.getParameter("owner"));
             
             // Highly unlikely we'll ever filter on this property
-            uploadedImage.setUnindexedProperty(UploadedImage.SERVING_URL, imageUrl);
+            uploadedImage.setUnindexedProperty(Floor.SERVING_URL, imageUrl);
 
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             datastore.put(uploadedImage);

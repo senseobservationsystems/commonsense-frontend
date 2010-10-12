@@ -27,7 +27,7 @@ import nl.sense_os.commonsense.client.services.DataService;
 import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.NavBar;
-import nl.sense_os.commonsense.client.widgets.UploadPhoto;
+import nl.sense_os.commonsense.client.widgets.ImageUploadForm;
 import nl.sense_os.commonsense.dto.UserModel;
 
 /**
@@ -171,7 +171,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
     }
 
     private Widget showImageUpload() {
-        final LayoutContainer imgUpload = new UploadPhoto();
+        final LayoutContainer imgUpload = new ImageUploadForm();
         return imgUpload;
     }
     

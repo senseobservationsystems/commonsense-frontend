@@ -25,6 +25,8 @@ import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.MD5Wrapper;
 import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
+import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
 
 public class Login extends LayoutContainer {
 
@@ -63,8 +65,15 @@ public class Login extends LayoutContainer {
             @Override
             public void onFailure(Throwable ex) {
                 waitBox.close();
-                MessageBox.alert("Login failure!", "Server-side failure.", null);
                 pass.clear();
+                
+                if (ex instanceof WrongResponseException) {
+                    MessageBox.alert("Login failed!", "Invalid username or password.", null);
+                } else if (ex instanceof DbConnectionException) {
+                    MessageBox.alert("Login failed!", "Failed to connect to CommonSense database.", null);
+                } else {
+                    MessageBox.alert("Login failed!", "Server-side failure: " + ex.getMessage(), null);
+                }
             }
 
             @Override

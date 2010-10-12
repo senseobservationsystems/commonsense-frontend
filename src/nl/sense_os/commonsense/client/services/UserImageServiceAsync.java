@@ -4,7 +4,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.UploadedImage;
+import nl.sense_os.commonsense.dto.building.Floor;
 
 /**
  * See <a href=
@@ -14,9 +14,9 @@ import nl.sense_os.commonsense.dto.UploadedImage;
 public interface UserImageServiceAsync {
     public void getBlobstoreUploadUrl(AsyncCallback<String> callback);
 
-    void get(String key, AsyncCallback<UploadedImage> callback);
+    void get(String key, AsyncCallback<Floor> callback);
 
-    void getRecentlyUploaded(AsyncCallback<List<UploadedImage>> callback);
+    void getRecentlyUploaded(AsyncCallback<List<Floor>> callback);
 
     void deleteImage(String key, AsyncCallback<Void> callback);
 }

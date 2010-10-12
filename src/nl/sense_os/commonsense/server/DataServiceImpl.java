@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.server;
 
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -15,6 +17,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -32,6 +35,7 @@ import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.dto.building.Floor;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
@@ -43,6 +47,7 @@ import nl.sense_os.commonsense.server.utility.FloatValueConverter;
 import nl.sense_os.commonsense.server.utility.JsonValueConverter;
 import nl.sense_os.commonsense.server.utility.StringValueConverter;
 import nl.sense_os.commonsense.server.utility.TimestampConverter;
+import nl.sense_os.commonsense.server.utility.UploadedImageDao;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService {
@@ -50,11 +55,65 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
     private static final Logger log = Logger.getLogger("DataServiceImpl");
     private static final long serialVersionUID = 1L;
     private static final String URL_BASE = "http://demo.almende.com/commonSense2/gae/";
+    private static final String URL_ADD_LOCATION = URL_BASE + "add_location_data.php";
     private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data.php";
+    private static final String URL_GET_LOC_DATA = URL_BASE + "get_location_data.php";
     private static final String URL_GET_SENSOR_DATA_PAGED = URL_BASE + "get_sensor_data_paged.php";
     private static final String URL_GET_TAGS = URL_BASE + "get_tags.php";
     private static final String URL_LOGIN = URL_BASE + "login.php";
-    private static final String USER_SESSION = "GWTAppUser";
+    public static final String USER_SESSION = "GWTAppUser";
+
+    @Override
+    public void addLocationValues(int x, int y, int deviceId, String blobKey)
+            throws DbConnectionException, WrongResponseException, InternalError {
+
+        // prepare data to add
+        User user = getUserFromSession();
+        String name = user.getName();
+        String password = user.getPassword();
+        JSONObject jsonLoc = new JSONObject();
+        try {
+            jsonLoc.put("x", x);
+            jsonLoc.put("y", y);
+            jsonLoc.put("type", "fixed");
+        } catch (JSONException e) {
+            throw new InternalError(e.getMessage());
+        }
+        String location;
+        try {
+            location = URLEncoder.encode(jsonLoc.toString(), "UTF8");
+        } catch (UnsupportedEncodingException e1) {
+            throw new InternalError(e1.getMessage());
+        }
+
+        // get response from server
+        String response = "";
+        try {
+            final URL url = new URL(URL_ADD_LOCATION + "?email=" + name + "&password=" + password
+                    + "&loc=" + location + "&loc_code=" + blobKey + "&device_id=" + deviceId);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            response = reader.readLine();
+            reader.close();
+        } catch (MalformedURLException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (IOException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        }
+
+        // read user id from JSON response
+        try {
+            JSONObject json = new JSONObject(response);
+
+            if (json.getString("status").equals("ok")) {
+                return;
+            }
+
+            throw (new WrongResponseException(json.getString("msg")));
+
+        } catch (JSONException e) {
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
 
     @Override
     public UserModel checkLogin(String name, String password) throws DbConnectionException,
@@ -82,6 +141,199 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
             setUserInSession(user);
 
             return UserConverter.entityToModel(user);
+
+        } catch (JSONException e) {
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
+
+    /**
+     * @see <a
+     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
+     *      image service</a>
+     */
+    @Override
+    public void deleteImage(String key) {
+        User user = getUserFromSession();
+        UploadedImageDao dao = new UploadedImageDao();
+        Floor image = dao.get(key);
+        if (image.getOwnerId().equals("" + user.getId())) {
+            dao.delete(key);
+        }
+    }
+
+    /**
+     * @see <a
+     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
+     *      image service</a>
+     */
+    @Override
+    public Floor get(String key) {
+        UploadedImageDao dao = new UploadedImageDao();
+        Floor image = dao.get(key);
+        return image;
+    }
+
+    /**
+     * @see <a
+     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
+     *      image service</a>
+     */
+    @Override
+    public String getBlobstoreUploadUrl() {
+        User user = getUserFromSession();
+
+        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+        return blobstoreService.createUploadUrl("/upload?owner=" + user.getId());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end)
+            throws WrongResponseException {
+
+        final PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        final Query query = pm.newQuery(JsonValue.class);
+        int sensorType = tag.getTaggedId();
+        int deviceId = tag.getParentId();
+        query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId
+                + " && timestamp > begin && timestamp < end");
+        query.declareParameters("java.util.Date begin, java.util.Date end");
+
+        log.warning(query.toString());
+
+        TaggedDataModel result = null;
+        try {
+            List<JsonValue> queryResult = (List<JsonValue>) query.execute(begin, end);
+
+            log.warning("Query result: " + queryResult.size() + " entries");
+
+            SensorValueModel[] values = new SensorValueModel[queryResult.size()];
+            for (int i = 0; i < values.length; i++) {
+                values[i] = JsonValueConverter.entityToModel(queryResult.get(i));
+            }
+
+            result = new TaggedDataModel(tag, values);
+
+        } catch (JSONException e) {
+            log.severe("JSONException converting persisted sensor values to DTO");
+            throw (new WrongResponseException(
+                    "JSONException converting persisted sensor values to DTO"));
+        } finally {
+            query.closeAll();
+            pm.close();
+        }
+        return result;
+    }
+
+    public TaggedDataModel getLocationData(String blobKey) throws WrongResponseException, DbConnectionException, TooMuchDataException {
+        final User user = getUserFromSession();
+
+        // Get response from CommonSense
+        String response = "";
+        try {
+            URL url = new URL(URL_GET_LOC_DATA + "?email=" + user.getName() + "&password="
+                    + user.getPassword() + "&loc_code=" + blobKey);
+
+            FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
+
+            HTTPRequest httpReq = new HTTPRequest(url, HTTPMethod.GET, fetchOptions);
+            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+            HTTPResponse httpResponse = fetcher.fetch(httpReq);
+
+            response = new String(httpResponse.getContent());
+        } catch (MalformedURLException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (IOException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (ResponseTooLargeException e) {
+            throw (new TooMuchDataException(e.getMessage()));
+        }
+
+        // Convert JSON response to sensor value objects
+        try {
+            JSONObject json = new JSONObject(response);
+            JSONArray jsonSensorValues = json.getJSONArray("data");
+            SensorValueModel[] sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues,
+                    user.getId(), 0);
+
+            // return the result
+            return new TaggedDataModel(null, sensorValues);
+
+        } catch (JSONException e) {
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
+
+    /**
+     * @see <a
+     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
+     *      image service</a>
+     */
+    @Override
+    public List<Floor> getRecentImages() {
+        UploadedImageDao dao = new UploadedImageDao();
+        List<Floor> images = dao.getRecent(getUserFromSession());
+        return images;
+    }
+
+    @Override
+    public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
+            throws TooMuchDataException, DbConnectionException, WrongResponseException {
+
+        final User user = getUserFromSession();
+        final int sensorType = tag.getTaggedId();
+        final int deviceId = tag.getParentId();
+        final String beginTime = TimestampConverter.timestampToEpochSecs(begin);
+        final String endTime = TimestampConverter.timestampToEpochSecs(end);
+
+        // Get response from CommonSense
+        String response = "";
+        try {
+            URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
+                    + user.getPassword() + "&d_id=" + deviceId + "&s_id=" + sensorType
+                    + "&t_begin=" + beginTime + "&t_end=" + endTime);
+
+            FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
+
+            HTTPRequest httpReq = new HTTPRequest(url, HTTPMethod.GET, fetchOptions);
+            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+            HTTPResponse httpResponse = fetcher.fetch(httpReq);
+
+            response = new String(httpResponse.getContent());
+        } catch (MalformedURLException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (IOException e) {
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (ResponseTooLargeException e) {
+            throw (new TooMuchDataException(e.getMessage()));
+        }
+
+        // Convert JSON response to sensor value objects
+        try {
+            JSONObject json = new JSONObject(response);
+            String dataType = json.getString("data_type");
+            JSONArray jsonSensorValues = json.getJSONArray("data");
+            SensorValueModel[] sensorValues;
+
+            if (dataType.equals("json")) {
+                sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("string")) {
+                sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("bool")) {
+                sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else if (dataType.equals("float")) {
+                sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues,
+                        tag.getParentId(), tag.getTaggedId());
+            } else
+                sensorValues = new SensorValueModel[0];
+
+            // return the result
+            return new TaggedDataModel(tag, sensorValues);
 
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
@@ -150,108 +402,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
         }
-    }
-
-    @Override
-    public TaggedDataModel getSensorValues(TagModel tag, Date begin, Date end)
-            throws TooMuchDataException, DbConnectionException, WrongResponseException {
-
-        final User user = getUserFromSession();
-        final int sensorType = tag.getTaggedId();
-        final int deviceId = tag.getParentId();
-        final String beginTime = TimestampConverter.timestampToEpochSecs(begin);
-        final String endTime = TimestampConverter.timestampToEpochSecs(end);
-
-        // Get response from CommonSense
-        String response = "";
-        try {
-            URL url = new URL(URL_GET_SENSOR_DATA + "?email=" + user.getName() + "&password="
-                    + user.getPassword() + "&d_id=" + deviceId + "&s_id=" + sensorType
-                    + "&t_begin=" + beginTime + "&t_end=" + endTime);
-
-            FetchOptions fetchOptions = FetchOptions.Builder.withDefaults().setDeadline(30d);
-
-            HTTPRequest httpReq = new HTTPRequest(url, HTTPMethod.GET, fetchOptions);
-            URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
-            HTTPResponse httpResponse = fetcher.fetch(httpReq);
-
-            response = new String(httpResponse.getContent());
-        } catch (MalformedURLException e) {
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (IOException e) {
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (ResponseTooLargeException e) {
-            throw (new TooMuchDataException(e.getMessage()));
-        }
-
-        // Convert JSON response to sensor value objects
-        try {
-            JSONObject json = new JSONObject(response);
-            String dataType = json.getString("data_type");
-            JSONArray jsonSensorValues = json.getJSONArray("data");
-            SensorValueModel[] sensorValues;
-
-            if (dataType.equals("json")) {
-                sensorValues = JsonValueConverter.jsonsToModels(jsonSensorValues,
-                        tag.getParentId(), tag.getTaggedId());
-            } else if (dataType.equals("string")) {
-                sensorValues = StringValueConverter.jsonsToModels(jsonSensorValues,
-                        tag.getParentId(), tag.getTaggedId());
-            } else if (dataType.equals("bool")) {
-                sensorValues = BooleanValueConverter.jsonsToModels(jsonSensorValues,
-                        tag.getParentId(), tag.getTaggedId());
-            } else if (dataType.equals("float")) {
-                sensorValues = FloatValueConverter.jsonsToModels(jsonSensorValues,
-                        tag.getParentId(), tag.getTaggedId());
-            } else
-                sensorValues = new SensorValueModel[0];
-
-            // return the result
-            return new TaggedDataModel(tag, sensorValues);
-
-        } catch (JSONException e) {
-            throw (new WrongResponseException(e.getMessage()));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end)
-            throws WrongResponseException {
-
-        final PersistenceManager pm = PMF.get().getPersistenceManager();
-
-        final Query query = pm.newQuery(JsonValue.class);
-        int sensorType = tag.getTaggedId();
-        int deviceId = tag.getParentId();
-        query.setFilter("sensorType == " + sensorType + " && deviceId == " + deviceId
-                + " && timestamp > begin && timestamp < end");
-        query.declareParameters("java.util.Date begin, java.util.Date end");
-
-        log.warning(query.toString());
-
-        TaggedDataModel result = null;
-        try {
-            List<JsonValue> queryResult = (List<JsonValue>) query.execute(begin,end);
-
-            log.warning("Query result: " + queryResult.size() + " entries");
-
-            SensorValueModel[] values = new SensorValueModel[queryResult.size()];
-            for (int i = 0; i < values.length; i++) {
-                values[i] = JsonValueConverter.entityToModel(queryResult.get(i));
-            }
-
-            result = new TaggedDataModel(tag, values);
-
-        } catch (JSONException e) {
-            log.severe("JSONException converting persisted sensor values to DTO");
-            throw (new WrongResponseException(
-                    "JSONException converting persisted sensor values to DTO"));
-        } finally {
-            query.closeAll();
-            pm.close();
-        }
-        return result;
     }
 
     @Override
@@ -342,5 +492,4 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         HttpSession session = getThreadLocalRequest().getSession();
         session.setAttribute(USER_SESSION, user);
     }
-
 }

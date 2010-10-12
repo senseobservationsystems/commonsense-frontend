@@ -5,7 +5,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.UploadedImage;
+import nl.sense_os.commonsense.dto.building.Floor;
 
 /**
  * See <a href=
@@ -15,7 +15,7 @@ import nl.sense_os.commonsense.dto.UploadedImage;
 @RemoteServiceRelativePath("images")
 public interface UserImageService extends RemoteService  {
     public String getBlobstoreUploadUrl();
-    public UploadedImage get(String key);
-    public List<UploadedImage> getRecentlyUploaded();
+    public Floor get(String key);
+    public List<Floor> getRecentlyUploaded();
     public void deleteImage(String key);
 }

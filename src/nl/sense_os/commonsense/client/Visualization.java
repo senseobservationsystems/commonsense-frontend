@@ -57,6 +57,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.services.DataService;
 import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.widgets.BuildingMgmt;
 import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
 import nl.sense_os.commonsense.client.widgets.GridTab;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
@@ -152,6 +153,16 @@ public class Visualization extends LayoutContainer {
             greenhouse.setPixelSize(1122, 793);
             greenhouseItem.add(greenhouse);
             this.tabPanel.add(greenhouseItem);
+        }
+        
+        if (user.getId() == 79) {
+            final TabItem buildingItem = new TabItem("Building");
+            buildingItem.setLayout(new FitLayout());
+            buildingItem.setClosable(true);
+            buildingItem.setStyleAttribute("backgroundColor", "transparent");
+            final BuildingMgmt building = new BuildingMgmt();
+            buildingItem.add(building);
+            this.tabPanel.add(buildingItem);            
         }
 
         return tabPanel;

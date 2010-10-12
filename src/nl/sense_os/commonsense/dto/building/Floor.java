@@ -1,11 +1,11 @@
-package nl.sense_os.commonsense.dto;
+package nl.sense_os.commonsense.dto.building;
 
 import java.io.Serializable;
 import java.util.Date;
 
-@SuppressWarnings("serial")
-public class UploadedImage implements Serializable {
+public class Floor implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     public static final String SERVING_URL = "servingUrl";
     public static final String CREATED_AT = "createdAt";
     public static final String OWNER_ID = "ownerId";
