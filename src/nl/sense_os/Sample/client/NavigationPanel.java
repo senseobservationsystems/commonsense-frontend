@@ -53,7 +53,7 @@ public class NavigationPanel extends ContentPanel {
 		gridPanel.setAutoHeight(true);
 		gridPanel.setAutoWidth(true);
 		
-		gridPanel.getGrid().addListener(Events.CellClick, new Listener<BaseEvent>() {
+		gridPanel.addListener(Events.CellClick, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				GridEvent<?> gr = (GridEvent<?>) be;
 				String value = gr.getModel().get("name");
@@ -69,11 +69,10 @@ public class NavigationPanel extends ContentPanel {
 				w.setSize(650, 450);
 				w.setMaximizable(true);
 				w.setToolTip("The ExtGWT product page...");
-				//w.setUrl("http://www.google.com");
+				w.setUrl("http://www.google.com");
 				w.show();
 				*/
 				UserProfileWin profile = new UserProfileWin(300, 150, params);
-				//profile.setMaximizable(true);
 				profile.show();
 
 			}

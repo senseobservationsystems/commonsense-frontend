@@ -3,23 +3,23 @@ package nl.sense_os.Sample.client.widgets;
 import java.util.HashMap;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.JsonPagingLoadResultReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.ScriptTagProxy;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
 /**
- * An object of this class renders a grid and a tool bar in a content panel.
+ * An object of this class renders a grid and a tool bar into a content panel.
  * 
  * @author fede
  *
@@ -71,16 +71,20 @@ public class PaginationGridPanel extends ContentPanel {
 		// Adds the tool bar to the bottom of the content panel.
 		toolBar = new PagingToolBar(pageSize);
 		toolBar.bind(loader);		
-		setBottomComponent(toolBar);
-		
-		// Loads the data store by getting the data from the url.
-		//loader.load();		
+		setBottomComponent(toolBar);				
 	}
 	
+	/**
+	 * 	Loads the data store by getting the data from the url. 
+	 */
 	public void load() {
 		store.getLoader().load();
 	}
 
+	/**
+	 * 
+	 * @param conf
+	 */
 	public void loadConf(HashMap<Integer, Object> conf) {
 		if (conf.containsKey(HEIGHT)) {
 			grid.setHeight((Integer) conf.get(HEIGHT));
@@ -130,5 +134,9 @@ public class PaginationGridPanel extends ContentPanel {
 	
 	public Grid<ModelData> getGrid() {
 		return grid;
+	}
+	
+	public void addListener(EventType eventType, Listener<?> listener) {
+		getGrid().addListener(eventType, listener);
 	}
 }
