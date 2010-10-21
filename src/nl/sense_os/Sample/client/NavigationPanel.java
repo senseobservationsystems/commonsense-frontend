@@ -110,7 +110,7 @@ public class NavigationPanel extends ContentPanel {
 		model.addField("name");
 		
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
-				"http://dev2.almende.com/commonsense/test.php", 
+				"http://dev.almende.com/commonsense/users_nav_test.php", 
 				model, 
 				colConf, 
 				5);
