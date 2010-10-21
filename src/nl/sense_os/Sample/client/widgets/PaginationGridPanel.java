@@ -26,8 +26,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
  */
 public class PaginationGridPanel extends ContentPanel {
 
-	Grid<ModelData> grid;
-
+	private Grid<ModelData> grid;
+	private ListStore<ModelData> store;
+	private PagingToolBar toolBar;
+	
 	// Grid properties.
 	public static final int WIDTH = 1;
 	public static final int AUTO_WIDTH = 2;
@@ -55,7 +57,7 @@ public class PaginationGridPanel extends ContentPanel {
 			new BasePagingLoader<PagingLoadResult<ModelData>>(proxy, reader);
 
 		// Data store
-		ListStore<ModelData> store = new ListStore<ModelData>(loader);				
+		store = new ListStore<ModelData>(loader);				
 			
 		// Column model
 		ColumnModel cm = new ColumnModel(colConf);
@@ -67,16 +69,19 @@ public class PaginationGridPanel extends ContentPanel {
 		add(grid);
 		
 		// Adds the tool bar to the bottom of the content panel.
-		PagingToolBar toolBar = new PagingToolBar(pageSize);
-		//toolBar.bind((BasePagingLoader<PagingLoadResult<ModelData>>)store.getLoader());
+		toolBar = new PagingToolBar(pageSize);
 		toolBar.bind(loader);		
 		setBottomComponent(toolBar);
 		
 		// Loads the data store by getting the data from the url.
-		loader.load();
+		//loader.load();		
+	}
+	
+	public void load() {
+		store.getLoader().load();
 	}
 
-	void loadConf(HashMap<Integer, Object> conf) {
+	public void loadConf(HashMap<Integer, Object> conf) {
 		if (conf.containsKey(HEIGHT)) {
 			grid.setHeight((Integer) conf.get(HEIGHT));
 		}
@@ -123,7 +128,7 @@ public class PaginationGridPanel extends ContentPanel {
 		super.setHeading(title);
 	}
 	
-	public Grid getGrid() {
+	public Grid<ModelData> getGrid() {
 		return grid;
 	}
 }

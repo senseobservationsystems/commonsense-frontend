@@ -9,28 +9,14 @@ package nl.sense_os.Sample.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 
 import nl.sense_os.Sample.client.widgets.PaginationGridPanel;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.JsonPagingLoadResultReader;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.ScriptTagProxy;
 import com.extjs.gxt.ui.client.fx.Draggable;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+
 
 public class SensorDataGrid extends LayoutContainer {
 
@@ -80,6 +66,8 @@ public class SensorDataGrid extends LayoutContainer {
 		gridPanel.setCollapsible(true);
 		gridPanel.setBodyBorder(true);
 
+		gridPanel.load();
+		
 		new Draggable(gridPanel);
 		
 		add(gridPanel);
