@@ -16,17 +16,18 @@ import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 
 public class SensorDataGrid extends LayoutContainer {
 
 	public SensorDataGrid(){
 		// Data store structure.
-		ModelType model = new ModelType();
-		model.setTotalName("total");
-		model.setRoot("data");
-		model.addField("t");
-		model.addField("v");
+		ModelType dataModel = new ModelType();
+		dataModel.setTotalName("total");
+		dataModel.setRoot("data");
+		dataModel.addField("t");
+		dataModel.addField("v");
 		
 		// Column model.
 		List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
@@ -45,12 +46,14 @@ public class SensorDataGrid extends LayoutContainer {
 		column.setWidth(200);
 		colConf.add(column);
 		
+		ColumnModel cm = new ColumnModel(colConf);
+		
 		// Grid.
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
 				"http://dev.almende.com/commonsense/get_sensor_data_paged.php" +
 				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id=78&s_id=1",
-				model, 
-				colConf,
+				dataModel, 
+				cm,
 				10);
 		
 		// Grid config.

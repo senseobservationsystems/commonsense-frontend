@@ -15,10 +15,10 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
-//public class NavigationPanel extends LayoutContainer {
 public class NavigationPanel extends ContentPanel {
 	
 	public NavigationPanel() {
@@ -37,17 +37,18 @@ public class NavigationPanel extends ContentPanel {
 		column.setDataIndex("name");
 		column.setWidth(198);
 		colConf.add(column);
+		ColumnModel cm = new ColumnModel(colConf);
 
-		ModelType model = new ModelType();
-		model.setTotalName("total");
-		model.setRoot("users");
-		model.addField("id");
-		model.addField("name");
+		ModelType dataModel = new ModelType();
+		dataModel.setTotalName("total");
+		dataModel.setRoot("users");
+		dataModel.addField("id");
+		dataModel.addField("name");
 		
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
 				"http://dev.almende.com/commonsense/sample/users_nav_test.php", 
-				model, 
-				colConf, 
+				dataModel, 
+				cm, 
 				5);
 
 		gridPanel.setAutoHeight(true);
@@ -57,7 +58,7 @@ public class NavigationPanel extends ContentPanel {
 			public void handleEvent(BaseEvent be) {
 				GridEvent<?> gr = (GridEvent<?>) be;
 				String value = gr.getModel().get("name");
-				System.out.println("name: " + value);
+				//System.out.println("name: " + value);
 				
 				HashMap<String, String> params = new HashMap<String, String>();
 				params.put("name", value);
@@ -74,7 +75,6 @@ public class NavigationPanel extends ContentPanel {
 				*/
 				UserProfileWin profile = new UserProfileWin(300, 150, params);
 				profile.show();
-
 			}
 		});
 		
