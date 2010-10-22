@@ -54,7 +54,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 
     private static final Logger log = Logger.getLogger("DataServiceImpl");
     private static final long serialVersionUID = 1L;
-    private static final String URL_BASE = "http://demo.almende.com/commonSense2/gae/";
+    private static final String URL_BASE = "http://data.sense-os.nl/commonsense/gae/";
     private static final String URL_ADD_LOCATION = URL_BASE + "add_location_data.php";
     private static final String URL_GET_SENSOR_DATA = URL_BASE + "get_sensor_data.php";
     private static final String URL_GET_LOC_DATA = URL_BASE + "get_location_data.php";
