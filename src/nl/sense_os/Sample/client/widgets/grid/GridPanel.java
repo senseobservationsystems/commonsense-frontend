@@ -19,6 +19,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
  */
 public class GridPanel extends ContentPanel {
 
+	// Grid properties.
 	protected Grid<ModelData> grid;
 	protected DataStore dataStore;
 
@@ -49,6 +50,12 @@ public class GridPanel extends ContentPanel {
 		add(grid);
 	}
 	
+	/**
+	 * Adds a listener for an event type.
+	 * 
+	 * @param eventType
+	 * @param listener
+	 */
 	public void addListener(EventType eventType, Listener<?> listener) {
 		grid.addListener(eventType, listener);
 	}
@@ -69,7 +76,8 @@ public class GridPanel extends ContentPanel {
 	}	
 	
 	/**
-	 * 
+	 * Sets panel and grid properties.
+	 *  
 	 * @param conf
 	 */
 	public void loadConf(HashMap<Integer, Object> conf) {
