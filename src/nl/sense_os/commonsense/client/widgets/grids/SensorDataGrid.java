@@ -7,10 +7,8 @@
  */
 package nl.sense_os.commonsense.client.widgets.grids;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
-import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -100,7 +98,7 @@ public class SensorDataGrid extends LayoutContainer {
         gridPanel.setCollapsible(true);
         gridPanel.setBodyBorder(true);
 
-        new Draggable(gridPanel);
+        // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
         
         add(gridPanel);
     }

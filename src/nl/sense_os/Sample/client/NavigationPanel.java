@@ -1,13 +1,6 @@
 package nl.sense_os.Sample.client;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import nl.sense_os.Sample.client.widgets.PaginationGridPanel;
-import nl.sense_os.Sample.client.widgets.UserProfileWin;
-
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -18,6 +11,13 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import nl.sense_os.Sample.client.widgets.UserProfileWin;
+import nl.sense_os.Sample.client.widgets.grid.PaginationGridPanel;
 
 public class NavigationPanel extends ContentPanel {
 	
@@ -55,7 +55,8 @@ public class NavigationPanel extends ContentPanel {
 		gridPanel.setAutoWidth(true);
 		
 		gridPanel.addListener(Events.CellClick, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+			@Override
+            public void handleEvent(BaseEvent be) {
 				GridEvent<?> gr = (GridEvent<?>) be;
 				String value = gr.getModel().get("name");
 				//System.out.println("name: " + value);
