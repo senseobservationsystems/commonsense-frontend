@@ -105,7 +105,7 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
     }
 
     /**
-     * Updates the layout to display only the public or also the private parts of the application.  
+     * Updates the layout to display only the public or also the private parts of the application.
      */
     private void relayout() {
 

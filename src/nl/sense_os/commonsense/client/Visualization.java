@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeLoader;
@@ -59,9 +60,9 @@ import nl.sense_os.commonsense.client.services.DataServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.BuildingMgmt;
 import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
-import nl.sense_os.commonsense.client.widgets.GridTab;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.VisualizationTab;
+import nl.sense_os.commonsense.client.widgets.grids.SensorDataGrid;
 import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
@@ -154,7 +155,7 @@ public class Visualization extends LayoutContainer {
             greenhouseItem.add(greenhouse);
             this.tabPanel.add(greenhouseItem);
         }
-        
+
         if (user.getId() == 79) {
             final TabItem buildingItem = new TabItem("Building");
             buildingItem.setLayout(new FitLayout());
@@ -162,7 +163,7 @@ public class Visualization extends LayoutContainer {
             buildingItem.setStyleAttribute("backgroundColor", "transparent");
             final BuildingMgmt building = new BuildingMgmt();
             buildingItem.add(building);
-            this.tabPanel.add(buildingItem);            
+            this.tabPanel.add(buildingItem);
         }
 
         return tabPanel;
@@ -221,17 +222,12 @@ public class Visualization extends LayoutContainer {
 
                 // add table tab item
                 final TabItem item = new TabItem("Table");
-                item.setLayout(new FitLayout());
                 item.setClosable(true);
                 item.setStyleAttribute("backgroundColor", "transparent");
-                final VisualizationTab charts = new GridTab();
-                charts.setWaitingText(true);
-                item.add(charts);
+                item.add(new SensorDataGrid(tags, user));
+                item.setScrollMode(Scroll.AUTO);
                 Visualization.this.tabPanel.add(item);
-                Visualization.this.tabPanel.setSelection(item);
-                Visualization.this.unfinishedTab = item;
-
-                startRequests(tags);
+                tabPanel.setSelection(item);
             }
         }));
         buttons.add(new Button("Street view", new SelectionListener<ButtonEvent>() {
@@ -512,32 +508,54 @@ public class Visualization extends LayoutContainer {
     /**
      * Handles a drag-drop event by displaying a dialog for the preferred action to take.
      * 
-     * @param treeStoreModel
+     * @param treeStoreModels
      *            list of dropped tags
      * @see #setupDragDrop()
      */
-    private void onTagsDropped(ArrayList<TreeStoreModel> treeStoreModel) {
+    private void onTagsDropped(ArrayList<TreeStoreModel> treeStoreModels) {
+
+        // get the children of node tags
+        List<TagModel> tags = new ArrayList<TagModel>();
+        for (TreeStoreModel tsm : treeStoreModels) {
+            final TagModel tag = (TagModel) tsm.getModel();
+            if (false == tags.contains(tag)) {
+                if (tag.getType() == TagModel.TYPE_SENSOR) {
+                    tags.add(tag);
+                } else {
+                    // add any children
+                    for (ModelData model : tsm.getChildren()) {
+                        TreeStoreModel tm = (TreeStoreModel) model;
+                        TagModel child = (TagModel) tm.getModel();
+                        if (false == tags.contains(child)) {
+                            tags.add(child);
+                        }
+                    }
+                }
+            }
+        }
 
         // create array to send as parameter in RPC
-        TagModel[] tags = new TagModel[0];
-        for (int i = 0; i < treeStoreModel.size(); i++) {
-            final TagModel tag = (TagModel) treeStoreModel.get(i).getModel();
+        TagModel[] tagsArray = new TagModel[0];
+        for (TagModel tag : tags) {
+            // final TagModel tag = (TagModel) tsm.getModel();
             if (tag.getType() == TagModel.TYPE_SENSOR) {
-                final TagModel[] temp = new TagModel[tags.length + 1];
-                System.arraycopy(tags, 0, temp, 0, tags.length);
+                final TagModel[] temp = new TagModel[tagsArray.length + 1];
+                System.arraycopy(tagsArray, 0, temp, 0, tagsArray.length);
                 temp[temp.length - 1] = tag;
-                tags = temp;
+                tagsArray = temp;
+            } else {
+                // do nothing
             }
         }
 
         // check whether there are any tags at all
-        if (tags.length == 0) {
+        if (tagsArray.length == 0) {
             MessageBox.info("CommonSense Web Application",
                     "No sensor types or devices selected, nothing to display.", null);
             return;
         }
 
-        final Dialog d = createTabTypeDialog(tags);
+        final Dialog d = createTabTypeDialog(tagsArray);
         d.show();
     }
 
@@ -613,19 +631,17 @@ public class Visualization extends LayoutContainer {
      */
     private void setupDragDrop() {
 
-        new TreePanelDragSource(this.tagTree);
-
-        final DropTarget dropTarget = new DropTarget(this.tabPanel);
-        dropTarget.setOperation(Operation.COPY);
-        dropTarget.addDNDListener(new DNDListener() {
+        TreePanelDragSource source = new TreePanelDragSource(this.tagTree);
+        source.setTreeStoreState(true);
+        source.addDNDListener(new DNDListener() {            
             @Override
             public void dragDrop(DNDEvent e) {
-                super.dragDrop(e);
-
                 final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
                 onTagsDropped(data);
             }
         });
+        final DropTarget dropTarget = new DropTarget(this.tabPanel);
+        dropTarget.setOperation(Operation.COPY);
     }
 
     /**

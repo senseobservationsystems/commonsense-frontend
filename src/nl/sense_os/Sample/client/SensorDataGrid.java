@@ -7,53 +7,63 @@
  */
 package nl.sense_os.Sample.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.sense_os.Sample.client.widgets.PaginationGridPanel;
-
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class SensorDataGrid extends LayoutContainer {
 
 	public SensorDataGrid(){
 		// Data store structure.
-		ModelType dataModel = new ModelType();
-		dataModel.setTotalName("total");
-		dataModel.setRoot("data");
-		dataModel.addField("t");
-		dataModel.addField("v");
+		ModelType model = new ModelType();
+		model.setTotalName("total");
+		model.setRoot("data");
+        model.addField("d");
+        model.addField("s");
+        model.addField("t");
+		model.addField("v");
 		
 		// Column model.
-		List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
+		List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();        
+        
+        ColumnConfig timeCol = new ColumnConfig();
+        timeCol.setId("t");
+        timeCol.setHeader("time");
+        timeCol.setDataIndex("t");
+        timeCol.setWidth(200);           
+        colConf.add(timeCol);     
 		
-		ColumnConfig column = new ColumnConfig();
-		column.setId("t");
-		column.setHeader("time");
-		column.setDataIndex("t");
-		column.setWidth(200);			
-		colConf.add(column);		
-		
-		column = new ColumnConfig();
-		column.setId("v");
-		column.setHeader("value");
-		column.setDataIndex("v");		
-		column.setWidth(200);
-		colConf.add(column);
-		
-		ColumnModel cm = new ColumnModel(colConf);
+		ColumnConfig deviceCol = new ColumnConfig();
+        deviceCol.setId("d");
+        deviceCol.setHeader("device_id");
+        deviceCol.setDataIndex("d");
+        deviceCol.setWidth(200);           
+        colConf.add(deviceCol);
+        
+        ColumnConfig sensorCol = new ColumnConfig();
+        sensorCol.setId("s");
+        sensorCol.setHeader("sensor_id");
+        sensorCol.setDataIndex("s");       
+        sensorCol.setWidth(200);
+        colConf.add(sensorCol);  
+        
+        ColumnConfig valueCol = new ColumnConfig();
+        valueCol.setId("v");
+        valueCol.setHeader("value");
+        valueCol.setDataIndex("v");       
+        valueCol.setWidth(200);
+        colConf.add(valueCol);
 		
 		// Grid.
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
-				"http://dev.almende.com/commonsense/get_sensor_data_paged.php" +
-				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id=78&s_id=1",
-				dataModel, 
-				cm,
+				"http://data.sense-os.nl/commonsense/gae/get_sensor_data_paged.php" +
+				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id[]=78&s_id[]=1",
+				model, 
+				colConf,
 				10);
 		
 		// Grid config.
@@ -63,14 +73,12 @@ public class SensorDataGrid extends LayoutContainer {
 		gridConf.put(grid.AUTO_HEIGHT, true);
 		grid.loadConf(gridConf);
 		*/
-		gridPanel.setWidth(402);
+		gridPanel.setWidth(802);
 		gridPanel.setAutoHeight(true);
 		gridPanel.setTitle("sensor data");
 		gridPanel.setCollapsible(true);
 		gridPanel.setBodyBorder(true);
 
-		gridPanel.load();
-		
 		new Draggable(gridPanel);
 		
 		add(gridPanel);

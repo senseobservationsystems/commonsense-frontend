@@ -25,7 +25,7 @@ public class JsonValue extends SensorValue {
     
     public JsonValue setFields(String fields) {
     	this.fields = fields;
-    	System.out.println("Fields set: " + fields);
+    	// System.out.println("Fields set: " + fields);
     	return this;
     }
     
