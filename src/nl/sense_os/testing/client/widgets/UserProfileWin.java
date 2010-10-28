@@ -25,7 +25,6 @@ public class UserProfileWin extends Window {
 		HBoxLayout layout = new HBoxLayout();
 		//layout.setPadding(new Padding(2));
 		container.setLayout(layout);
-		//container.set
 				
 		final Image logo = new Image("/img/avatar.jpg");
         logo.setPixelSize(96, 96);

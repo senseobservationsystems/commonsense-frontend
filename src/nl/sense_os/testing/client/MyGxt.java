@@ -1,6 +1,8 @@
 package nl.sense_os.testing.client;
 
 
+import nl.sense_os.testing.client.widgets.SensorDataGrid;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;

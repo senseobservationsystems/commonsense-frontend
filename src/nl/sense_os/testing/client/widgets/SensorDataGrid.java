@@ -5,7 +5,7 @@
  *
  * http://extjs.com/license
  */
-package nl.sense_os.testing.client;
+package nl.sense_os.testing.client.widgets;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,7 @@
 package nl.sense_os.testing.client;
 
+import nl.sense_os.testing.client.widgets.SensorDataGrid;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.util.Margins;
