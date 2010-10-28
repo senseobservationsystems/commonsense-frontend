@@ -5,12 +5,12 @@
  *
  * http://extjs.com/license
  */
-package nl.sense_os.Sample.client;
+package nl.sense_os.testing.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.Sample.client.widgets.grid.PaginationGridPanel;
+import nl.sense_os.testing.client.widgets.grid.PaginationGridPanel;
 
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.fx.Draggable;

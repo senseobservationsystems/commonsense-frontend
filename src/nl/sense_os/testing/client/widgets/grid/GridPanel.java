@@ -1,4 +1,4 @@
-package nl.sense_os.Sample.client.widgets.grid;
+package nl.sense_os.testing.client.widgets.grid;
 
 import java.util.HashMap;
 

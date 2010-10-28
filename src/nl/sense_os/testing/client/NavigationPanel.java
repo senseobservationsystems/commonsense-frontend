@@ -1,12 +1,12 @@
-package nl.sense_os.Sample.client;
+package nl.sense_os.testing.client;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.sense_os.Sample.client.widgets.UserProfileWin;
-import nl.sense_os.Sample.client.widgets.grid.PaginationGridPanel;
+import nl.sense_os.testing.client.widgets.UserProfileWin;
+import nl.sense_os.testing.client.widgets.grid.PaginationGridPanel;
 
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -18,13 +18,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import nl.sense_os.Sample.client.widgets.UserProfileWin;
-import nl.sense_os.Sample.client.widgets.grid.PaginationGridPanel;
 
 public class NavigationPanel extends ContentPanel {
 	

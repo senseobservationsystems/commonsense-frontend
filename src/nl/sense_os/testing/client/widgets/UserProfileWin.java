@@ -1,4 +1,4 @@
-package nl.sense_os.Sample.client.widgets;
+package nl.sense_os.testing.client.widgets;
 
 import java.util.HashMap;
 

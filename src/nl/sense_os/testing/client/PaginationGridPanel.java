@@ -1,4 +1,4 @@
-package nl.sense_os.Sample.client;
+package nl.sense_os.testing.client;
 
 import java.util.HashMap;
 import java.util.List;

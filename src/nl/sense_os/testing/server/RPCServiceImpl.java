@@ -1,4 +1,4 @@
-package nl.sense_os.Sample.server;
+package nl.sense_os.testing.server;
 
 public class RPCServiceImpl {
 

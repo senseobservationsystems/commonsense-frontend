@@ -1,4 +1,4 @@
-package nl.sense_os.Sample.client;
+package nl.sense_os.testing.client;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.fx.Draggable;
