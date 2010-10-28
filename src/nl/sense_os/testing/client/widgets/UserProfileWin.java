@@ -2,12 +2,10 @@ package nl.sense_os.testing.client.widgets;
 
 import java.util.HashMap;
 
-import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -17,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.google.gwt.user.client.ui.Image;
 
 public class UserProfileWin extends Window {
+//public class UserProfileWin extends ContentPanel {
 
 	public UserProfileWin(int width, int height, HashMap<String, String> param) {
 		setWidth(width);
@@ -29,7 +28,7 @@ public class UserProfileWin extends Window {
 		//container.set
 				
 		final Image logo = new Image("/img/avatar.jpg");
-        logo.setPixelSize(94, 120);
+        logo.setPixelSize(96, 96);
         container.add(logo);
         
         Margins margins = new Margins(10, 0, 0, 10);
@@ -52,7 +51,7 @@ public class UserProfileWin extends Window {
 		setBodyStyle("background: #fff");
 		setBodyBorder(false);
 
-		getHeader().setStyleName("x-sense-win-hdr");
+		//getHeader().setStyleName("x-sense-win-hdr");
 		
 		//bwrap.applyStyles("backgroundColor: white");
 		//bwrapStyle = "backgroundColor: white";
