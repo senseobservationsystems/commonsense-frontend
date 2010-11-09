@@ -1,11 +1,10 @@
-package nl.sense_os.testing.client;
+package nl.sense_os.testing.client.widgets;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.sense_os.testing.client.widgets.UserProfileWin;
 import nl.sense_os.testing.client.widgets.grid.PaginationGridPanel;
 
 import com.extjs.gxt.ui.client.data.ModelType;
