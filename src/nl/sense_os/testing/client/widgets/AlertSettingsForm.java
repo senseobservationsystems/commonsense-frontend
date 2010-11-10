@@ -3,6 +3,7 @@ package nl.sense_os.testing.client.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.charts.client.model.axis.Label;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -17,9 +18,11 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BoxLayout.BoxLayoutPack;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
@@ -48,6 +51,8 @@ public class AlertSettingsForm extends ContentPanel {
 		form.setLabelSeparator("");
 		form.setHeading("Alert settings");
 		form.setWidth(350);
+		FormLayout formLayout = new FormLayout();
+		form.setLayout(formLayout);
 		
 		// Sensor combo
 		ListStore<AlertSettingsForm.Sensor> sensorStore = new ListStore<AlertSettingsForm.Sensor>();
@@ -77,13 +82,17 @@ public class AlertSettingsForm extends ContentPanel {
 		checkGroup.add(check2);
 		checkGroup.add(check3);	
 		
-		// Combobox and text field 
-		LayoutContainer comboContainer = new LayoutContainer();
+		// Threshold container 
+		LayoutContainer thresholdContainer = new LayoutContainer();
 		HBoxLayout comboLayout = new HBoxLayout();
 		comboLayout.setPadding(new Padding(5));
 		comboLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
 		comboLayout.setPack(BoxLayoutPack.START);
-		comboContainer.setLayout(comboLayout);
+		thresholdContainer.setLayout(comboLayout);
+		
+		LabelField thresholdLabel = new LabelField("threshold");
+		
+		thresholdContainer.add(thresholdLabel, new HBoxLayoutData(0, 5, 0, -5));
 		
 		ListStore<AlertSettingsForm.Operator> store = new ListStore<AlertSettingsForm.Operator>();
 		store.add(getOperators());
@@ -94,13 +103,13 @@ public class AlertSettingsForm extends ContentPanel {
 		combo.setDisplayField("name");		
 		combo.setWidth(100);
 		
-		comboContainer.add(combo, new HBoxLayoutData(new Margins(0, 5, 0, -5)));
+		thresholdContainer.add(combo, new HBoxLayoutData(new Margins(0, 5, 0, 0)));
 		
-		TextField<String> threshold = new TextField<String>();
-		threshold.setFieldLabel("value");
-		threshold.setAutoWidth(true);
+		TextField<String> thresholdValue = new TextField<String>();
+		thresholdValue.setFieldLabel("value");
+		thresholdValue.setAutoWidth(true);
 		
-		comboContainer.add(threshold, new HBoxLayoutData(new Margins(0, 5, 0, 0)));
+		thresholdContainer.add(thresholdValue, new HBoxLayoutData(new Margins(0, 5, 0, 0)));
 
 		// Buttons
 		Button saveBtn = new Button();
@@ -136,7 +145,7 @@ public class AlertSettingsForm extends ContentPanel {
 		
 		// Adds widgets to the form.
 		form.add(sensorCombo, formData);
-		form.add(comboContainer);
+		form.add(thresholdContainer);
 		form.add(checkGroup, formData);
 		form.add(btnContainer);
 
@@ -149,7 +158,7 @@ public class AlertSettingsForm extends ContentPanel {
 	 * @author fede
 	 *
 	 */
-	class Operator extends BaseModel {
+	protected class Operator extends BaseModel {
 		public Operator() {
 			
 		}
@@ -197,7 +206,7 @@ public class AlertSettingsForm extends ContentPanel {
 	 * @author fede
 	 *
 	 */
-	class Sensor extends BaseModel {
+	protected class Sensor extends BaseModel {
 		public Sensor() {
 			
 		}
