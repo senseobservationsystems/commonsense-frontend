@@ -20,6 +20,13 @@ public class UserProfileWin extends Window {
 	public UserProfileWin(int width, int height, HashMap<String, String> param) {
 		setWidth(width);
 		setAutoHeight(true);
+		setBodyStyle("background: #fff");
+		setBodyBorder(false);
+
+		//getHeader().setStyleName("x-sense-win-hdr");
+		
+		//bwrap.applyStyles("backgroundColor: white");
+		//bwrapStyle = "backgroundColor: white";
 		
 		final LayoutContainer container = new LayoutContainer();
 		HBoxLayout layout = new HBoxLayout();
@@ -46,14 +53,6 @@ public class UserProfileWin extends Window {
 
 		container.add(east, new HBoxLayoutData(margins));
 		container.add(east);
-
-		setBodyStyle("background: #fff");
-		setBodyBorder(false);
-
-		//getHeader().setStyleName("x-sense-win-hdr");
-		
-		//bwrap.applyStyles("backgroundColor: white");
-		//bwrapStyle = "backgroundColor: white";
 		
 		add(container);
 	}

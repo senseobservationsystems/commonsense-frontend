@@ -12,11 +12,18 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.Window;
+
 
 public class NavigationPanel extends ContentPanel {
 	
@@ -25,14 +32,13 @@ public class NavigationPanel extends ContentPanel {
 		
 		ContentPanel panel = new ContentPanel();  
 		panel.setHeaderVisible(false);
-		panel.setBodyBorder(false);  
-		 
-		panel.setLayout(new AccordionLayout()); 
+		panel.setBodyBorder(false);	
+		panel.setLayout(new AccordionLayout());
 
 		List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
 		ColumnConfig column = new ColumnConfig();
 		column.setId("users");
-		column.setHeader("users");
+		//column.setHeader("users");
 		column.setDataIndex("name");
 		column.setWidth(198);
 		colConf.add(column);
@@ -52,6 +58,7 @@ public class NavigationPanel extends ContentPanel {
 
 		gridPanel.setAutoHeight(true);
 		gridPanel.setAutoWidth(true);
+		gridPanel.setHeaderVisible(false);
 		
 		gridPanel.addListener(Events.CellClick, new Listener<BaseEvent>() {
 			@Override
@@ -74,7 +81,7 @@ public class NavigationPanel extends ContentPanel {
 				w.show();
 				*/
 				UserProfileWin profile = new UserProfileWin(300, 150, winDataParams);
-				profile.addNotification();				
+				profile.addNotification();
 				profile.show();
 			}
 		});
@@ -90,11 +97,11 @@ public class NavigationPanel extends ContentPanel {
         
 		cp = new ContentPanel();  
 		cp.setAnimCollapse(false);  
-		cp.setBodyStyleName("pad-text");  
-		cp.setHeading("settings");  
-		cp.addText("Settings ...");  
-		panel.add(cp);		
-
+		cp.setBodyStyleName("pad-text");
+		cp.setHeading("settings");
+		cp.addText("settings ...");
+		panel.add(cp);
+		
 		cp = new ContentPanel();  
 		cp.setAnimCollapse(false);  
 		cp.setBodyStyleName("pad-text");  
