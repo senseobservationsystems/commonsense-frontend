@@ -51,7 +51,7 @@ public class NavigationPanel extends ContentPanel {
 		dataModel.addField("name");
 		
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
-				"http://dev2.almende.com/commonsense/sample/users_nav_test.php", 
+				"http://dev2.almende.com/commonsense/testing/users_nav_test.php", 
 				dataModel, 
 				cm, 
 				5);

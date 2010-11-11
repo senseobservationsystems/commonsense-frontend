@@ -52,7 +52,7 @@ public class UserProfileWin extends Window {
 		east.addText(param.get("name") + "<br />2323423<br />" + param.get("name") + "@m.com");
 
 		container.add(east, new HBoxLayoutData(margins));
-		container.add(east);
+		//container.add(east);
 		
 		add(container);
 	}
