@@ -38,20 +38,18 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
  */
 public class AlertSettingsForm extends ContentPanel {	
 	
-	private FormData formData;
-	
 	public AlertSettingsForm() {
 		setHeaderVisible(false);
 
-		formData = new FormData("20");
-		
 		// Form
 		FormPanel form = new FormPanel();		
 		form.setFrame(true);
-		form.setLabelSeparator("");
+		//form.setLabelSeparator("");
 		form.setHeading("Alert settings");
 		form.setWidth(350);
+
 		FormLayout formLayout = new FormLayout();
+		formLayout.setLabelSeparator("");		
 		form.setLayout(formLayout);
 		
 		// Sensor combo
@@ -63,7 +61,7 @@ public class AlertSettingsForm extends ContentPanel {
 		sensorCombo.setStore(sensorStore);
 		sensorCombo.setValueField("id");
 		sensorCombo.setDisplayField("name");
-		sensorCombo.setAutoWidth(true);
+		//sensorCombo.setAutoWidth(true);
 
 		// Chechboxes
 		CheckBox check1 = new CheckBox();
@@ -84,30 +82,28 @@ public class AlertSettingsForm extends ContentPanel {
 		
 		// Threshold container 
 		LayoutContainer thresholdContainer = new LayoutContainer();
-		HBoxLayout comboLayout = new HBoxLayout();
-		comboLayout.setPadding(new Padding(5));
-		comboLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
-		comboLayout.setPack(BoxLayoutPack.START);
-		thresholdContainer.setLayout(comboLayout);
-		
-		LabelField thresholdLabel = new LabelField("threshold");
-		
-		thresholdContainer.add(thresholdLabel, new HBoxLayoutData(0, 5, 0, -5));
-		
+		HBoxLayout thresholdLayout = new HBoxLayout();
+		thresholdLayout.setPadding(new Padding(5));
+		thresholdLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
+		thresholdLayout.setPack(BoxLayoutPack.START);
+		thresholdContainer.setLayout(thresholdLayout);
+
 		ListStore<AlertSettingsForm.Operator> store = new ListStore<AlertSettingsForm.Operator>();
 		store.add(getOperators());
 		
-		ComboBox<AlertSettingsForm.Operator> combo = new ComboBox<AlertSettingsForm.Operator>();
-		combo.setStore(store);
-		combo.setValueField("id");
-		combo.setDisplayField("name");		
-		combo.setWidth(100);
+		ComboBox<AlertSettingsForm.Operator> operatorCombo = new ComboBox<AlertSettingsForm.Operator>();
+		operatorCombo.setStore(store);
+		operatorCombo.setValueField("id");
+		operatorCombo.setDisplayField("name");		
+		operatorCombo.setWidth(100);
+		operatorCombo.setEmptyText("less/greater ...");		
 		
-		thresholdContainer.add(combo, new HBoxLayoutData(new Margins(0, 5, 0, 0)));
+		thresholdContainer.add(operatorCombo, new HBoxLayoutData(new Margins(0, 5, 0, -5)));
 		
 		TextField<String> thresholdValue = new TextField<String>();
 		thresholdValue.setFieldLabel("value");
-		thresholdValue.setAutoWidth(true);
+		thresholdValue.setWidth(200);
+		//thresholdValue.setAutoWidth(true);
 		
 		thresholdContainer.add(thresholdValue, new HBoxLayoutData(new Margins(0, 5, 0, 0)));
 
@@ -144,10 +140,16 @@ public class AlertSettingsForm extends ContentPanel {
 		btnContainer.add(cancelBtn, layoutData);
 		
 		// Adds widgets to the form.
+		/*
 		form.add(sensorCombo, formData);
-		form.add(thresholdContainer);
+		form.add(thresholdContainer, formData);
 		form.add(checkGroup, formData);
-		form.add(btnContainer);
+		form.add(btnContainer, formData);
+		*/
+		form.add(sensorCombo);
+		form.add(thresholdContainer);
+		form.add(checkGroup);
+		form.add(btnContainer);		
 
 		// Adds the form to the content panel.
 		add(form);
