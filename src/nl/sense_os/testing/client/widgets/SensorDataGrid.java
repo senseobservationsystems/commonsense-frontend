@@ -74,8 +74,8 @@ public class SensorDataGrid extends LayoutContainer {
 		
 		// Grid.
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
-				"http://dev2.almende.com/commonsense/get_sensor_data_paged.php" +
-				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id=78&s_id=2",
+				"http://dev2.almende.com/commonsense/testing/get_sensor_data_paged.php" +
+				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&s_id=2",
 				model,
 				cm,
 				5);
