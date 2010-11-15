@@ -73,9 +73,9 @@ public class MainContainer implements EntryPoint {
         
         main.add(north, northData);
         main.add(west, westData);
-        //main.add(portal, centerData);
+        main.add(portal, centerData);
         //main.add(new AlertSettingsForm(), centerData);
-        main.add(new GroupSearchForm(), centerData);
+        //main.add(new GroupSearchForm(), centerData);
         	
         RootPanel.get().add(main);
 	}
