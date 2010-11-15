@@ -12,11 +12,18 @@ import java.util.List;
 
 import nl.sense_os.testing.client.widgets.grid.PaginationGridPanel;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.fx.Draggable;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.table.CellRenderer;
 
 
 public class SensorDataGrid extends LayoutContainer {
@@ -54,12 +61,13 @@ public class SensorDataGrid extends LayoutContainer {
         sensorCol.setDataIndex("s");       
         sensorCol.setWidth(200);
         colConf.add(sensorCol);  
-        
+
         ColumnConfig valueCol = new ColumnConfig();
         valueCol.setId("v");
         valueCol.setHeader("value");
-        valueCol.setDataIndex("v");       
+        valueCol.setDataIndex("v");
         valueCol.setWidth(200);
+        valueCol.setRenderer(getValueCellFormat());
         colConf.add(valueCol);
         
         ColumnModel cm = new ColumnModel(colConf);
@@ -67,10 +75,10 @@ public class SensorDataGrid extends LayoutContainer {
 		// Grid.
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
 				"http://dev2.almende.com/commonsense/get_sensor_data_paged.php" +
-				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id=78&s_id=1",
+				"?email=steven@sense-os.nl&password=81dc9bdb52d04dc20036dbd8313ed055&d_id=78&s_id=2",
 				model,
 				cm,
-				10);
+				5);
 		
 		// Grid config.
 		/*
@@ -90,5 +98,43 @@ public class SensorDataGrid extends LayoutContainer {
 		new Draggable(gridPanel);
 		
 		add(gridPanel);
+	}
+	
+	/**
+	 * 
+	 * @return the value field html format
+	 */
+	private GridCellRenderer getValueCellFormat() {
+		return new GridCellRenderer() {
+			@Override
+			public Object render(
+					ModelData model, 
+					String property,
+					ColumnData config, 
+					int rowIndex, 
+					int colIndex,
+					ListStore store, 
+					Grid grid) {
+				
+				// @@ TODO: The sensor type should be identified to display the value
+				// in a proper format.
+				
+				// example: accelerometer
+				final int ACCELOMETER = 1;
+				
+				int sensorType = ACCELOMETER; 
+				
+				switch (sensorType) {
+				case ACCELOMETER:
+					String value = (String) model.get("v");
+					String [] values = ((String) value).split(",");
+					return "x-axis: " + values[0] + "<br />y-axis: " + values[1] + "<br />z-axis: " + values[2];
+
+				default:
+					// Returns the value without format.
+					return model.get("v");
+				}
+			}
+        };
 	}
 }
