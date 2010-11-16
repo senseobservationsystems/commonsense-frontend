@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.server;
 
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -35,7 +33,6 @@ import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
-import nl.sense_os.commonsense.dto.building.Floor;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
@@ -47,7 +44,6 @@ import nl.sense_os.commonsense.server.utility.FloatValueConverter;
 import nl.sense_os.commonsense.server.utility.JsonValueConverter;
 import nl.sense_os.commonsense.server.utility.StringValueConverter;
 import nl.sense_os.commonsense.server.utility.TimestampConverter;
-import nl.sense_os.commonsense.server.utility.UploadedImageDao;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService {
@@ -147,46 +143,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         }
     }
 
-    /**
-     * @see <a
-     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
-     *      image service</a>
-     */
-    @Override
-    public void deleteImage(String key) {
-        User user = getUserFromSession();
-        UploadedImageDao dao = new UploadedImageDao();
-        Floor image = dao.get(key);
-        if (image.getOwnerId().equals("" + user.getId())) {
-            dao.delete(key);
-        }
-    }
-
-    /**
-     * @see <a
-     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
-     *      image service</a>
-     */
-    @Override
-    public Floor get(String key) {
-        UploadedImageDao dao = new UploadedImageDao();
-        Floor image = dao.get(key);
-        return image;
-    }
-
-    /**
-     * @see <a
-     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
-     *      image service</a>
-     */
-    @Override
-    public String getBlobstoreUploadUrl() {
-        User user = getUserFromSession();
-
-        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-        return blobstoreService.createUploadUrl("/upload?owner=" + user.getId());
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public TaggedDataModel getIvoSensorValues(TagModel tag, Date begin, Date end)
@@ -227,7 +183,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         return result;
     }
 
-    public TaggedDataModel getLocationData(String blobKey) throws WrongResponseException, DbConnectionException, TooMuchDataException {
+    public TaggedDataModel getLocationData(String blobKey) throws WrongResponseException,
+            DbConnectionException, TooMuchDataException {
         final User user = getUserFromSession();
 
         // Get response from CommonSense
@@ -264,18 +221,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
         } catch (JSONException e) {
             throw (new WrongResponseException(e.getMessage()));
         }
-    }
-
-    /**
-     * @see <a
-     *      href="http://ikaisays.com/2010/09/08/gwt-blobstore-the-new-high-performance-image-serving-api-and-cute-dogs-on-office-chairs/">blobstore
-     *      image service</a>
-     */
-    @Override
-    public List<Floor> getRecentImages() {
-        UploadedImageDao dao = new UploadedImageDao();
-        List<Floor> images = dao.getRecent(getUserFromSession());
-        return images;
     }
 
     @Override

@@ -9,11 +9,10 @@ import java.util.List;
 import nl.sense_os.commonsense.dto.TagModel;
 import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
-import nl.sense_os.commonsense.dto.building.Floor;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
+import nl.sense_os.commonsense.dto.exceptions.InternalError;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
-import nl.sense_os.commonsense.dto.exceptions.InternalError;
 
 @RemoteServiceRelativePath("data")
 public interface DataService extends RemoteService {
@@ -38,12 +37,4 @@ public interface DataService extends RemoteService {
     public UserModel isSessionAlive();
 
     public void logout();
-
-    public String getBlobstoreUploadUrl();
-
-    public Floor get(String key);
-
-    public List<Floor> getRecentImages();
-
-    public void deleteImage(String key);
 }
