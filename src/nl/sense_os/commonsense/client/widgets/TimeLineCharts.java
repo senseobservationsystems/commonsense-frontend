@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.FloatValueModel;
-import nl.sense_os.commonsense.dto.JsonValueModel;
-import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.TaggedDataModel;
+import nl.sense_os.commonsense.dto.sensorvalues.FloatValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.JsonValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.SensorValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
 
 public class TimeLineCharts extends VisualizationTab {
 

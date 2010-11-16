@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server.data;
+package nl.sense_os.commonsense.server.persistent;
 
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.datastore.Key;

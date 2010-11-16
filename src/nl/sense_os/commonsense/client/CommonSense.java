@@ -157,7 +157,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
             return;
         } else if (token.equals(NavBar.HELP)) {
             w = showHelpScreen();
-        } else if (token.equals(NavBar.IMAGE_UPLOAD)) {
+        } else if (token.equals(NavBar.BUILDING_MGMT)) {
             w = showImageUpload();
         } else {
             LayoutContainer lc = new LayoutContainer(new CenterLayout());

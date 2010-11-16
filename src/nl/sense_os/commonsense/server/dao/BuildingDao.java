@@ -13,8 +13,8 @@ import javax.jdo.Query;
 
 import nl.sense_os.commonsense.dto.building.BuildingModel;
 import nl.sense_os.commonsense.dto.building.FloorModel;
-import nl.sense_os.commonsense.server.data.Building;
-import nl.sense_os.commonsense.server.data.PMF;
+import nl.sense_os.commonsense.server.persistent.Building;
+import nl.sense_os.commonsense.server.persistent.PMF;
 
 public class BuildingDao {
 

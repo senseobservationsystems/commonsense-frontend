@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.dto;
+package nl.sense_os.commonsense.dto.sensorvalues;
 
 import java.util.Date;
 import java.util.Map;

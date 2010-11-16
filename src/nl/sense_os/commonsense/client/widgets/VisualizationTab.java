@@ -9,7 +9,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.TaggedDataModel;
+import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
 
 public abstract class VisualizationTab extends LayoutContainer {
 

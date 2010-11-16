@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server.data;
+package nl.sense_os.commonsense.server.persistent;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;

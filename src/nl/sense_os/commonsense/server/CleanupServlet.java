@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.sense_os.commonsense.server.data.PMF;
+import nl.sense_os.commonsense.server.persistent.PMF;
 
 @SuppressWarnings("serial")
 public class CleanupServlet extends HttpServlet {

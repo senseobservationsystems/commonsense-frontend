@@ -1,6 +1,8 @@
-package nl.sense_os.commonsense.dto;
+package nl.sense_os.commonsense.dto.sensorvalues;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
+
+import nl.sense_os.commonsense.dto.TagModel;
 
 public class TaggedDataModel extends BaseModel {
 

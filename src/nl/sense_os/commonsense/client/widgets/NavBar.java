@@ -27,12 +27,12 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
     public static final String SIGN_OUT = "signout";
     public static final String TRAINING_DATA = "train";
     public static final String VISUALIZATION = "viz";
-    public static final String IMAGE_UPLOAD = "img_upload";
+    public static final String BUILDING_MGMT = "building_mgmt";
     private final LayoutContainer container;
     private Hyperlink current = this.home;
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("home", HOME);
-    private final Hyperlink imgUpload = new Hyperlink("building management", IMAGE_UPLOAD);
+    private final Hyperlink imgUpload = new Hyperlink("building management", BUILDING_MGMT);
     private boolean isLoggedIn;
     private final Hyperlink login = new Hyperlink("sign in", SIGN_IN);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
@@ -96,7 +96,7 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
             this.current = this.logout;
         } else if (token.equals(SIGN_IN)) {
             this.current = this.login;
-        } else if (token.equals(IMAGE_UPLOAD)) {
+        } else if (token.equals(BUILDING_MGMT)) {
             this.current = this.imgUpload;
         }
         this.current.setStyleName("sense-nav-selected");

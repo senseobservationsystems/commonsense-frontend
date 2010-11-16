@@ -7,12 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.InternalError;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
 
 @RemoteServiceRelativePath("data")
 public interface DataService extends RemoteService {

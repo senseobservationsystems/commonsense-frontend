@@ -1,7 +1,9 @@
 package nl.sense_os.commonsense.server;
 
 import javax.jdo.PersistenceManager;
-import nl.sense_os.commonsense.server.data.PMF;
+
+import nl.sense_os.commonsense.server.persistent.PMF;
+
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 

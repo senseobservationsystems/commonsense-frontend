@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.jdo.PersistenceManager;
 
-import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.SensorType;
+import nl.sense_os.commonsense.server.persistent.PMF;
 import nl.sense_os.commonsense.server.utility.BooleanValueConverter;
 import nl.sense_os.commonsense.server.utility.FloatValueConverter;
 import nl.sense_os.commonsense.server.utility.JsonValueConverter;

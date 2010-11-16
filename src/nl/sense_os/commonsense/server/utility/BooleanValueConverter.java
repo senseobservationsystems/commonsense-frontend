@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.server.utility;
 
-import nl.sense_os.commonsense.dto.BooleanValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.BooleanValueModel;
 import nl.sense_os.commonsense.server.data.BooleanValue;
 
 import com.google.appengine.repackaged.org.json.JSONArray;

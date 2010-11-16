@@ -62,13 +62,13 @@ import nl.sense_os.commonsense.client.widgets.GoogleStreetView;
 import nl.sense_os.commonsense.client.widgets.TimeLineCharts;
 import nl.sense_os.commonsense.client.widgets.VisualizationTab;
 import nl.sense_os.commonsense.client.widgets.grids.SensorDataGrid;
-import nl.sense_os.commonsense.dto.SensorValueModel;
 import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
 import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.dto.exceptions.TooMuchDataException;
 import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.dto.sensorvalues.SensorValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
 
 /**
  * Component with the visualization part of the web application.

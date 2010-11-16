@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.server.utility;
 
-import nl.sense_os.commonsense.dto.StringValueModel;
+import nl.sense_os.commonsense.dto.sensorvalues.StringValueModel;
 import nl.sense_os.commonsense.server.data.StringValue;
 
 import com.google.appengine.repackaged.org.json.JSONArray;

@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.server;
 
 import javax.jdo.PersistenceManager;
-import nl.sense_os.commonsense.server.data.PMF;
 import nl.sense_os.commonsense.server.data.SensorType;
+import nl.sense_os.commonsense.server.persistent.PMF;
 import nl.sense_os.commonsense.server.utility.SensorTypeConverter;
 
 import com.google.appengine.repackaged.org.json.JSONException;

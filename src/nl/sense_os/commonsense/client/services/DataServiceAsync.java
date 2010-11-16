@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.TaggedDataModel;
 import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
 
 public interface DataServiceAsync {
     

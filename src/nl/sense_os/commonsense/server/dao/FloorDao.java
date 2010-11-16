@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 import javax.jdo.PersistenceManager;
 
 import nl.sense_os.commonsense.dto.building.FloorModel;
-import nl.sense_os.commonsense.server.data.Floor;
-import nl.sense_os.commonsense.server.data.PMF;
+import nl.sense_os.commonsense.server.persistent.Floor;
+import nl.sense_os.commonsense.server.persistent.PMF;
 
 public class FloorDao {
 
