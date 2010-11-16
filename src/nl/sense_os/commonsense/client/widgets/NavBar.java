@@ -32,7 +32,7 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
     private Hyperlink current = this.home;
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("home", HOME);
-    private final Hyperlink imgUpload = new Hyperlink("image upload", IMAGE_UPLOAD);
+    private final Hyperlink imgUpload = new Hyperlink("building management", IMAGE_UPLOAD);
     private boolean isLoggedIn;
     private final Hyperlink login = new Hyperlink("sign in", SIGN_IN);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);

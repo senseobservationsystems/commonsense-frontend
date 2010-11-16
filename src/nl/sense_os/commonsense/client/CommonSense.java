@@ -16,12 +16,16 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+
+import java.util.Date;
 
 import nl.sense_os.commonsense.client.services.DataService;
 import nl.sense_os.commonsense.client.services.DataServiceAsync;
@@ -95,7 +99,8 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
     @Override
     public void onModuleLoad() {
-        Log.d(TAG, "========== Module Load ==========");
+        String now = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
+        Log.d(TAG, "===== Module Load (" + now + ") =====");  
 
         // check for initial token
         String token = History.getToken();
