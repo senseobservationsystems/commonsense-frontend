@@ -82,7 +82,6 @@ public class BuildingCreator extends ContentPanel {
 
         // set up the form panel
         form = new FormPanel();
-        form.setAction("javascript:;"); // we use an event listener to perform the real action
         form.setHeaderVisible(false);
         form.setLabelWidth(100);
         setupSubmitAction();
@@ -254,6 +253,7 @@ public class BuildingCreator extends ContentPanel {
      * Starts listening for the Submit event to start the RPCs with the BuildingService
      */
     private void setupSubmitAction() {
+        form.setAction("javascript:;"); // we use an event listener to perform the real action
         form.addListener(Events.BeforeSubmit, new Listener<FormEvent>() {
 
             @Override
