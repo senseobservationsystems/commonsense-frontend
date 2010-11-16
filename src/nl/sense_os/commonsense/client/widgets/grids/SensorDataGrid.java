@@ -16,6 +16,11 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,6 +73,30 @@ public class SensorDataGrid extends LayoutContainer {
         valueCol.setHeader("value");
         valueCol.setDataIndex("v");
         valueCol.setWidth(300);
+        valueCol.setRenderer(new GridCellRenderer<ModelData>() {
+            @Override
+            public Object render(
+                    ModelData model, 
+                    String property,
+                    ColumnData config, 
+                    int rowIndex, 
+                    int colIndex,
+                    ListStore<ModelData> store, 
+                    Grid<ModelData> grid) {
+                
+                String value = model.<String>get("v");
+                
+                // special rendering for json values
+                JSONValue jsonValue = JSONParser.parseLenient(value);
+                JSONObject jsonObj = jsonValue.isObject();
+                if (null != jsonObj) {
+                    return renderJsonValue(jsonObj);
+                }
+                
+                // return the normal value for non-JSON input
+                return value;
+            }
+        });
         colConf.add(valueCol);
         
         ColumnConfig timeCol = new ColumnConfig();
@@ -81,7 +110,7 @@ public class SensorDataGrid extends LayoutContainer {
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
                 Double timeInSecs = ((Double) model.get("t"));
                 long timeInMSecs = (long) (1000 * timeInSecs);
-                DateTimeFormat format = DateTimeFormat.getMediumDateTimeFormat();
+                DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
                 return format.format(new Date(timeInMSecs));
             }
         });
@@ -109,5 +138,26 @@ public class SensorDataGrid extends LayoutContainer {
             result += "&d_id[]=" + tag.getParentId() + "&s_id[]=" + tag.getTaggedId();
         }
         return result;
+    }
+    
+    private String renderJsonValue(JSONObject json) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : json.keySet()) {
+            // first print the field label
+            sb.append("<b>").append(key).append(":</b> ");
+            
+            // get the field value
+            JSONValue value = json.get(key);
+            JSONString jsonString = value.isString();
+            String valueString = ""; 
+            if (null != jsonString) {
+                valueString = jsonString.stringValue();
+            } else {
+                valueString = value.toString();
+            }
+            
+            sb.append(valueString).append("<br />");
+        }
+        return sb.toString();
     }
 }
