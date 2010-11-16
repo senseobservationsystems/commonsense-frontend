@@ -2,8 +2,12 @@ package nl.sense_os.commonsense.client;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -14,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -53,6 +58,11 @@ public class Login extends LayoutContainer {
         } else {
             this.autoLogin = false;
         }
+
+        final FormPanel form = createForm();
+
+        this.setLayout(new CenterLayout());
+        this.add(form);
     }
 
     private void checkLogin(String name, String password) {
@@ -66,13 +76,15 @@ public class Login extends LayoutContainer {
             public void onFailure(Throwable ex) {
                 waitBox.close();
                 pass.clear();
-                
+
                 if (ex instanceof WrongResponseException) {
                     MessageBox.alert("Login failed!", "Invalid username or password.", null);
                 } else if (ex instanceof DbConnectionException) {
-                    MessageBox.alert("Login failed!", "Failed to connect to CommonSense database.", null);
+                    MessageBox.alert("Login failed!", "Failed to connect to CommonSense database.",
+                            null);
                 } else {
-                    MessageBox.alert("Login failed!", "Server-side failure: " + ex.getMessage(), null);
+                    MessageBox.alert("Login failed!", "Server-side failure: " + ex.getMessage(),
+                            null);
                 }
             }
 
@@ -101,17 +113,17 @@ public class Login extends LayoutContainer {
     }
 
     private FormPanel createForm() {
-        final FormData formData = new FormData();
+        final FormData formData = new FormData("-10");
 
         // email field
-        email.setFieldLabel("Email");
+        email.setFieldLabel("Email:");
         if (this.autoLogin) {
             email.setValue(this.cookieName);
         }
         email.setAllowBlank(false);
 
         // password field
-        pass.setFieldLabel("Password");
+        pass.setFieldLabel("Password:");
         if (this.autoLogin) {
             pass.setValue("********");
         }
@@ -121,53 +133,76 @@ public class Login extends LayoutContainer {
         rememberMe.setBoxLabel("Remember me");
         rememberMe.setValue(true);
 
-        // submit button
-        final Button b = new Button("Submit");
-        b.setType("submit");
-        b.addListener(Events.Select, new Listener<ButtonEvent>() {
-            @Override
-            public void handleEvent(ButtonEvent be) {
-                // get values from the fields
-                final String mailString = email.getValue();
-                final String passString = MD5Wrapper.toMD5(pass.getValue());
-                
-                // replace pass field with 8 characters by default
-                pass.setValue("********");
-
-                checkLogin(mailString, passString);
-            }
-        });
-
         // main form panel
         final FormPanel form = new FormPanel();
         form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.setLabelSeparator("");
         form.setFrame(true);
         form.setHeading("CommonSense Login");
         form.setLabelWidth(100);
-        form.setFieldWidth(250);
+        //form.setFieldWidth(250);
+
+        setupSubmitAction(form);
 
         form.add(email, formData);
         form.add(pass, formData);
-        form.add(rememberMe, formData);
+        form.add(rememberMe);
+
+        return form;
+    }
+
+    private void setupSubmitAction(final FormPanel form) {
+
+        // submit button
+        final Button b = new Button("Submit");
+        b.setType("submit");
+        b.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent be) {
+                form.submit();
+            }
+        });
         form.addButton(b);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
 
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(b);
 
-        return form;
+        // enter key listener
+        pass.addKeyListener(new KeyListener() {
+            @Override
+            public void componentKeyDown(ComponentEvent event) {
+                if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if (form.isValid()) {
+                        form.submit();
+                    }
+                }
+            }
+        });
+
+        // form action
+        form.setAction("javascript:;");
+        form.addListener(Events.BeforeSubmit, new Listener<FormEvent>() {
+
+            @Override
+            public void handleEvent(FormEvent be) {
+                String name = email.getValue();
+                String password = MD5Wrapper.toMD5(pass.getValue());
+
+                checkLogin(name, password);
+            }
+
+        });
     }
 
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
 
-        final FormPanel form = createForm();
-
-        this.setLayout(new CenterLayout());
-        this.add(form);
-
         if (this.autoLogin) {
             checkLogin(this.cookieName, this.cookiePass);
         }
+        
+        email.setOriginalValue(this.cookieName);
     }
 }
