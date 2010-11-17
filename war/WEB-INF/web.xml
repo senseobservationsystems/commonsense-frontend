@@ -47,7 +47,7 @@
   
   <servlet-mapping>
     <servlet-name>BuildingServlet</servlet-name>
-    <url-pattern>/buildingtest/building</url-pattern>
+    <url-pattern>/commonsense/building</url-pattern>
   </servlet-mapping>
     
   <servlet-mapping>
