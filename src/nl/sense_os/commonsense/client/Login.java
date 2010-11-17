@@ -75,6 +75,7 @@ public class Login extends LayoutContainer {
             @Override
             public void onFailure(Throwable ex) {
                 waitBox.close();
+                MessageBox.alert("Login failure!", "Server-side failure." + ex.toString(), null);
                 pass.clear();
 
                 if (ex instanceof WrongResponseException) {
@@ -130,6 +131,7 @@ public class Login extends LayoutContainer {
         pass.setAllowBlank(false);
         pass.setPassword(true);
 
+        rememberMe.setLabelSeparator("");
         rememberMe.setBoxLabel("Remember me");
         rememberMe.setValue(true);
 
