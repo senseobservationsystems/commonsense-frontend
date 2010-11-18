@@ -1,11 +1,14 @@
-package nl.sense_os.commonsense.client.common.grid;
+package nl.sense_os.testing.client.common.grid;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.JsonPagingLoadResultReader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.ScriptTagProxy;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 
 /**
@@ -20,6 +23,7 @@ public class DataStore {
 	private ScriptTagProxy<String> proxy;
 	private JsonPagingLoadResultReader<PagingLoadResult<ModelData>> reader;
 	private ListStore<ModelData> store;
+	private BasePagingLoader<PagingLoadResult<ModelData>> loader;
 	
 	/**
 	 * Constructor.
@@ -35,8 +39,7 @@ public class DataStore {
 		reader = new JsonPagingLoadResultReader<PagingLoadResult<ModelData>>(dataModel);
 
 		// Loader
-		BasePagingLoader<PagingLoadResult<ModelData>> loader = 
-			new BasePagingLoader<PagingLoadResult<ModelData>>(proxy, reader);
+		loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy, reader);
 
 		store = new ListStore<ModelData>(loader);
 	}
@@ -47,5 +50,17 @@ public class DataStore {
 	 */
 	public ListStore<ModelData> getStore() {
 		return store;
+	}
+	
+	/**
+	 * 
+	 * @param offset
+	 */
+	public void setOffset(int offset) {
+		loader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {  
+			public void handleEvent(LoadEvent be) {  
+				be.<ModelData> getConfig().set("start", be.<ModelData> getConfig().get("offset"));
+			}  
+		});		
 	}
 }
