@@ -4,34 +4,65 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import nl.sense_os.testing.client.common.grid.DataStore;
 import nl.sense_os.testing.client.common.grid.PaginationGridPanel;
 
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
+import com.extjs.gxt.ui.client.data.Loader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.util.Padding;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.layout.BoxLayout.BoxLayoutPack;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 
 public class GroupSearchForm extends ContentPanel {
 
 	public GroupSearchForm() {
 		setHeaderVisible(false);
 
+		ModelType dataModel = new ModelType();
+		dataModel.setTotalName("total");
+		dataModel.setRoot("groups");
+		dataModel.addField("id");
+		dataModel.addField("name");
+		dataModel.addField("desc");
+		
+		DataStore store = new DataStore(
+				"http://dev2.almende.com/commonsense/testing/groups_list_test.php", 
+				dataModel);
+
+		store.setOffset(0);
+		
+		ListStore<ModelData> listStore = store.getStore();
+
+		ComboBox<ModelData> combo = new ComboBox<ModelData>();  
+		combo.setWidth(580);  
+		combo.setDisplayField("name");  
+		combo.setItemSelector("div.search-item");  
+		combo.setTemplate(getTemplate());  
+		combo.setStore(listStore);  
+		combo.setHideTrigger(true);  
+		combo.setPageSize(3);
+		combo.setAutoHeight(true);
+   
+		VerticalPanel vp = new VerticalPanel();  
+		vp.setSpacing(10);  
+   
+		vp.addText("<span class='text'>group search</span>");  
+		vp.add(combo);  
+   
+		add(vp);  		
+		
+		/*
 		// Form
 		FormPanel form = new FormPanel();		
 		form.setFrame(true);
@@ -72,9 +103,11 @@ public class GroupSearchForm extends ContentPanel {
 		form.add(btnContainer);
 
 		// Adds the form to the content panel.
-		add(form);		
+		add(form);
+		*/		
 	}
-
+	
+	/*
 	private void displayResults() {
 		List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
 		ColumnConfig column = new ColumnConfig();
@@ -89,6 +122,7 @@ public class GroupSearchForm extends ContentPanel {
 		dataModel.setRoot("groups");
 		dataModel.addField("id");
 		dataModel.addField("name");
+		dataModel.addField("desc");
 		
 		PaginationGridPanel gridPanel = new PaginationGridPanel(
 				"http://dev2.almende.com/commonsense/testing/groups_list_test.php", 
@@ -121,4 +155,14 @@ public class GroupSearchForm extends ContentPanel {
 		add(gridPanel);
 		doLayout();
 	}
+	*/
+	
+	private native String getTemplate() /*-{ 
+	  return [
+	  '<tpl for="."><div class="search-item">', 
+	  '<h3>{name}</h3>', 
+	  '{desc}', 
+	  '</div></tpl>' 
+	  ].join(""); 
+	}-*/;  	
 }
