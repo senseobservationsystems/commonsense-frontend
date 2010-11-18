@@ -19,7 +19,7 @@ public class Log {
     public static void e(String tag, String message) {        
         tag = TAG_PADDING.concat(tag);
         tag = tag.substring(tag.length() - MAX_TAG_LENGTH, tag.length());
-        System.out.println(" " + tag + LABEL_ERROR + message);
+        System.err.println(" " + tag + LABEL_ERROR + message);
     }
     
     public static void i(String tag, String message) {        
@@ -37,6 +37,6 @@ public class Log {
     public static void w(String tag, String message) {        
         tag = TAG_PADDING.concat(tag);
         tag = tag.substring(tag.length() - MAX_TAG_LENGTH, tag.length());
-        System.out.println(" " + tag + LABEL_WARN + message);
+        System.err.println(" " + tag + LABEL_WARN + message);
     }
 }
