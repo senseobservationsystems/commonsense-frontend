@@ -13,3 +13,21 @@
 .sense-nav-deselected {
     font-weight: normal;
 }
+
+.search-item {
+	-x-system-font:none;
+	border-color:#FFFFFF #FFFFFF #EEEEEE;
+	border-style:solid;
+	border-width:1px;
+	color:#555555;
+	font-family:tahoma,arial,helvetica,sans-serif;
+	font-size:11px;
+	font-size-adjust:none;
+	font-stretch:normal;
+	font-style:normal;
+	font-variant:normal;
+	font-weight:normal;
+	line-height:normal;
+	padding:3px 10px;
+	white-space:normal;
+}
