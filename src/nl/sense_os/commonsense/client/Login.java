@@ -142,7 +142,7 @@ public class Login extends LayoutContainer {
         form.setFrame(true);
         form.setHeading("CommonSense Login");
         form.setLabelWidth(100);
-        //form.setFieldWidth(250);
+        form.setWidth(350);
 
         setupSubmitAction(form);
 
@@ -171,7 +171,7 @@ public class Login extends LayoutContainer {
         binding.addButton(b);
 
         // enter key listener
-        pass.addKeyListener(new KeyListener() {
+        final KeyListener submitListener = new KeyListener() {
             @Override
             public void componentKeyDown(ComponentEvent event) {
                 if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
@@ -180,7 +180,9 @@ public class Login extends LayoutContainer {
                     }
                 }
             }
-        });
+        };
+        email.addKeyListener(submitListener);
+        pass.addKeyListener(submitListener);
 
         // form action
         form.setAction("javascript:;");
