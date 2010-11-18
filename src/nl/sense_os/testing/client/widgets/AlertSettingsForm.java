@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -11,6 +12,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.util.Padding;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -19,6 +21,8 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BoxLayout.BoxLayoutPack;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
@@ -63,19 +67,37 @@ public class AlertSettingsForm extends ContentPanel {
 		// Chechboxes
 		CheckBox check1 = new CheckBox();
 		check1.setBoxLabel("sms");
-		check1.setValue(true);
+		check1.addListener(Events.Change, new Listener<BaseEvent>() {			
+			@Override
+			public void handleEvent(BaseEvent be) {
+				// Adds or removes a text field according to the check box value.
+				checkBoxHandleEvent(be, "sms_tf", "sms number");
+			}
+		});
 
 		CheckBox check2 = new CheckBox();
 		check2.setBoxLabel("email");
+		check2.addListener(Events.Change, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
+				checkBoxHandleEvent(be, "email_tf", "email address");
+			}
+		});
 
 		CheckBox check3 = new CheckBox();
-		check3.setBoxLabel("call");		
+		check3.setBoxLabel("mobile");
+		check3.addListener(Events.Change, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
+				checkBoxHandleEvent(be, "mobile_tf", "mobile number");
+			}
+		});
 		
 		CheckBoxGroup checkGroup = new CheckBoxGroup();
 		checkGroup.setFieldLabel("alert by");
 		checkGroup.add(check1);
 		checkGroup.add(check2);
-		checkGroup.add(check3);	
+		checkGroup.add(check3);
 		
 		// Threshold container 
 		LayoutContainer thresholdContainer = new LayoutContainer();
@@ -125,7 +147,7 @@ public class AlertSettingsForm extends ContentPanel {
 			}
 		});
 		
-		LayoutContainer btnContainer= new LayoutContainer();
+		LayoutContainer btnContainer = new LayoutContainer();
 		HBoxLayout layout = new HBoxLayout();
 		layout.setPadding(new Padding(5));  
 		layout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);  
@@ -136,16 +158,15 @@ public class AlertSettingsForm extends ContentPanel {
 		btnContainer.add(saveBtn, layoutData);
 		btnContainer.add(cancelBtn, layoutData);
 		
+		LayoutContainer tfContainer = new LayoutContainer();
+		tfContainer.setId("tf_container");
+		tfContainer.setLayout(new FormLayout());
+		
 		// Adds widgets to the form.
-		/*
-		form.add(sensorCombo, formData);
-		form.add(thresholdContainer, formData);
-		form.add(checkGroup, formData);
-		form.add(btnContainer, formData);
-		*/
 		form.add(sensorCombo);
 		form.add(thresholdContainer);
 		form.add(checkGroup);
+		form.add(tfContainer);
 		form.add(btnContainer);		
 
 		// Adds the form to the content panel.
@@ -249,4 +270,59 @@ public class AlertSettingsForm extends ContentPanel {
 		return sensors;
 	}
 	
+	/**
+	 * Creates a text field.
+	 * 
+	 * @param id
+	 * @param label
+	 * @return
+	 */
+	private TextField<String> createTextField(String id, String label) {
+		TextField<String> field = new TextField<String>();
+		field.setLabelSeparator("");
+		field.setFieldLabel(label);
+		field.setId(id);
+		field.setAutoWidth(true);
+		return field;
+	}
+	
+	/**
+	 * Adds or removes a text field to the text field container according to
+	 * the check box value.
+	 * 
+	 * @param be
+	 * @param id
+	 * @param label
+	 */
+	private void checkBoxHandleEvent(BaseEvent be, String id, String label) {
+		// Retrieves the object that fired the event.
+		CheckBox option = (CheckBox) be.getSource();
+		
+		if (option.getValue()) {
+			// Adds a text field to the text field container.
+			HorizontalPanel hPanel = (HorizontalPanel) option.getParent();
+			CheckBoxGroup group = (CheckBoxGroup) hPanel.getParent();
+			FormPanel form = (FormPanel) group.getParent();
+			
+			LayoutContainer container = (LayoutContainer) form.getItemByItemId("tf_container");
+			TextField<String> field = (TextField<String>)container.getItemByItemId(id);
+			
+			if (field == null) {				
+				container.add(createTextField(id, label));
+				container.layout();
+			}	
+			
+		} else {
+			// Removes a text field from the form.
+			HorizontalPanel hPanel = (HorizontalPanel) option.getParent();
+			CheckBoxGroup group = (CheckBoxGroup) hPanel.getParent();
+			FormPanel form = (FormPanel) group.getParent();
+			
+			LayoutContainer container = (LayoutContainer) form.getItemByItemId("tf_container");
+			TextField<String> field = (TextField<String>)container.getItemByItemId(id);
+			
+			if (field != null)
+				container.remove(field);
+		}
+	}
 }
