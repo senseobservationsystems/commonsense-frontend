@@ -1,10 +1,10 @@
 package nl.sense_os.testing.client;
 
+import nl.sense_os.testing.client.common.grid.ColumnModelBuilder;
 import nl.sense_os.testing.client.widgets.GroupSearchForm;
 import nl.sense_os.testing.client.widgets.NavigationPanel;
 import nl.sense_os.testing.client.widgets.SensorDataGrid;
 import nl.sense_os.testing.client.widgets.AlertSettingsForm;
-import nl.sense_os.testing.client.widgets.grid.ColumnModelBuilder;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.fx.Draggable;
@@ -73,9 +73,9 @@ public class MainContainer implements EntryPoint {
         
         main.add(north, northData);
         main.add(west, westData);
-        main.add(portal, centerData);
+        //main.add(portal, centerData);
         //main.add(new AlertSettingsForm(), centerData);
-        //main.add(new GroupSearchForm(), centerData);
+        main.add(new GroupSearchForm(), centerData);
         	
         RootPanel.get().add(main);
 	}
