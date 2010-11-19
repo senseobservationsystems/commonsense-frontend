@@ -17,6 +17,11 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 public class GroupSearchForm extends ContentPanel {
 
+	private int pageSize = 3;
+	private int width = 400;
+	private int minChars = 2;
+	private String title = "group search";
+	
 	public GroupSearchForm() {
 		setHeaderVisible(false);
 
@@ -36,16 +41,18 @@ public class GroupSearchForm extends ContentPanel {
 		ListStore<ModelData> listStore = store.getStore();
 
 		ComboBox<ModelData> combo = new ComboBox<ModelData>();  
-		combo.setWidth(400);  
+		combo.setWidth(width);  
 		combo.setDisplayField("name");  
 		combo.setItemSelector("div.search-item");  
 		combo.setTemplate(getTemplate());  
 		combo.setStore(listStore);  
 		combo.setHideTrigger(true);  
-		combo.setPageSize(3);
+		combo.setPageSize(pageSize);
 		combo.setAutoHeight(true);
-		combo.setMinChars(2); // min chars required to start searching
+		combo.setMinChars(minChars); // min chars required to start searching
 		
+		// Displays a window with the group data when an element is selected in
+		// the combo box list.
 		combo.addListener(Events.Select, new Listener<BaseEvent>() {
 			@Override
 			public void handleEvent(BaseEvent be) {
@@ -65,7 +72,7 @@ public class GroupSearchForm extends ContentPanel {
 		VerticalPanel vp = new VerticalPanel();  
 		vp.setSpacing(10);  
    
-		vp.addText("<span class='text'>group search</span>");  
+		vp.addText("<span class='text'>" + title + "</span>");  
 		vp.add(combo);  
    
 		add(vp);
