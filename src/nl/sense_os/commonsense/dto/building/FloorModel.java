@@ -7,14 +7,14 @@ import java.util.Date;
 
 public class FloorModel extends BaseModel implements IsSerializable {
 
-    private static final String KEY_BLOB_KEY = "blobstore_key";
-    private static final String KEY_CREATED = "created";
-    private static final String KEY_DB_KEY = "datastore_key";
-    private static final String KEY_MODIFIED = "modified";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_NR = "number";
-    private static final String KEY_URL = "url";
-    private static final String KEY_USER = "user_id";
+    public static final String KEY_BLOB_KEY = "blobstore_key";
+    public static final String KEY_CREATED = "created";
+    public static final String KEY_DB_KEY = "datastore_key";
+    public static final String KEY_MODIFIED = "modified";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_NR = "number";
+    public static final String KEY_URL = "url";
+    public static final String KEY_USER = "user_id";
     private static final long serialVersionUID = 1L;
 
     public FloorModel() {

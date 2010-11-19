@@ -1,26 +1,23 @@
 package nl.sense_os.testing.client;
 
-import nl.sense_os.testing.client.common.grid.ColumnModelBuilder;
-import nl.sense_os.testing.client.widgets.GroupSearchForm;
-import nl.sense_os.testing.client.widgets.NavigationPanel;
-import nl.sense_os.testing.client.widgets.SensorDataGrid;
-import nl.sense_os.testing.client.widgets.AlertSettingsForm;
-
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import nl.sense_os.testing.client.widgets.GroupSearchForm;
+import nl.sense_os.testing.client.widgets.NavigationPanel;
+import nl.sense_os.testing.client.widgets.SensorDataGrid;
+
 public class MainContainer implements EntryPoint {
 
-	public void onModuleLoad() {
+	@Override
+    public void onModuleLoad() {
 		/*
         Viewport vp = new Viewport();
         vp.setLayout(new FitLayout());

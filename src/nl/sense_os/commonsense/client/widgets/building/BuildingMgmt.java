@@ -51,22 +51,22 @@ public class BuildingMgmt extends ContentPanel {
     private final String userId;
 
     public BuildingMgmt(String userId) {
-        this.userId = userId;
-
-        setHeading("Building explorer");
-
+        this.userId = userId;        
+        
         // building selection panel for west part of widget
         Component gridPanel = createSelectionPanel();
         gridPanel.setItemId("west_gridpanel");
 
         // tool bar
         ToolBar toolBar = createToolBar();
-        setTopComponent(toolBar);
+        this.setTopComponent(toolBar);
 
         // add panels to the layout
-        setLayout(new BorderLayout());
-        add(gridPanel, new BorderLayoutData(LayoutRegion.WEST));
+        this.setLayout(new BorderLayout());
+        this.add(gridPanel, new BorderLayoutData(LayoutRegion.WEST));
 
+        this.setHeading("Building management");
+        
         getRecentBuildings();
     }
 
@@ -75,7 +75,10 @@ public class BuildingMgmt extends ContentPanel {
         creator.addListener(Events.Complete, new Listener<BaseEvent>() {
             @Override
             public void handleEvent(BaseEvent be) {
-                getRecentBuildings();
+                BuildingModel b = creator.getCreatedBuilding();
+                buildingStore.add(b);
+                buildingStore.sort(BuildingModel.KEY_NAME, SortDir.ASC);
+                buildingGrid.getSelectionModel().select(false, b);
             }
         });
         creator.addListener(Events.CancelEdit, new Listener<BaseEvent>() {
@@ -135,17 +138,17 @@ public class BuildingMgmt extends ContentPanel {
 
     private Component createSelectionPanel() {
 
-        buildingStore.setDefaultSort("date", SortDir.ASC);
+        buildingStore.setDefaultSort(BuildingModel.KEY_NAME, SortDir.ASC);
 
         // simple ColumnConfig to show the building name
         ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        ColumnConfig labelCol = new ColumnConfig("name", "Building", 198);
+        ColumnConfig labelCol = new ColumnConfig(BuildingModel.KEY_NAME, "Building", 198);
         columns.add(labelCol);
         ColumnModel buildingCols = new ColumnModel(columns);
 
         // create the Grid
         buildingGrid = new Grid<BuildingModel>(buildingStore, buildingCols);
-        buildingGrid.setAutoExpandColumn("name");
+        buildingGrid.setAutoExpandColumn(BuildingModel.KEY_NAME);
         buildingGrid.setAutoHeight(true);
         buildingGrid.setHideHeaders(true);
 
@@ -192,7 +195,7 @@ public class BuildingMgmt extends ContentPanel {
         showLoading();
 
         // do request
-        service.getRecentBuildings(new AsyncCallback<List<BuildingModel>>() {
+        service.getUserBuildings(userId, new AsyncCallback<List<BuildingModel>>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -203,7 +206,7 @@ public class BuildingMgmt extends ContentPanel {
                         getRecentBuildings();
                     }
                 };
-                MessageBox.alert("Sense Building Demo",
+                MessageBox.alert("CommonSense Web Application",
                         "Failure getting building data:\n" + caught.getMessage() + ".\nRetry?", l);
             }
 

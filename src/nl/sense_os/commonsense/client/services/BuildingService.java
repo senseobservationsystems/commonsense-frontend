@@ -20,7 +20,7 @@ public interface BuildingService extends RemoteService {
 
     public BuildingModel getBuilding(String key);
 
-    public List<BuildingModel> getRecentBuildings();
+    public List<BuildingModel> getUserBuildings(String userId);
 
     public String storeBuilding(BuildingModel building);
     

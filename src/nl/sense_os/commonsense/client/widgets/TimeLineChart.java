@@ -1,10 +1,12 @@
 package nl.sense_os.commonsense.client.widgets;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
@@ -14,9 +16,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.VBoxLayout.VBoxLayoutAlign;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
@@ -146,7 +145,7 @@ public class TimeLineChart extends ContentPanel {
      * 
      * @return the panel
      */
-    private ContentPanel createTagSelector() {
+    private LayoutContainer createTagSelector() {
 
         // column config model
         final CheckBoxSelectionModel<TagModel> selectMdl = new CheckBoxSelectionModel<TagModel>();
@@ -182,7 +181,7 @@ public class TimeLineChart extends ContentPanel {
         });
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(selectMdl.getColumn());
-        configs.add(new ColumnConfig("text", "Tag", 175));
+        configs.add(new ColumnConfig("text", "Tag", 150));
         final ColumnModel columns = new ColumnModel(configs);
 
         this.grid = new Grid<TagModel>(this.store, columns);
@@ -197,12 +196,8 @@ public class TimeLineChart extends ContentPanel {
         this.shownCharts.addAll(this.store.getModels());
 
         final ContentPanel panel = new ContentPanel();
-        final VBoxLayout layout = new VBoxLayout();
-        layout.setVBoxLayoutAlign(VBoxLayoutAlign.STRETCH);
-        panel.setSize("100%", "100%");
         panel.setHeaderVisible(false);
-        panel.setLayout(new FitLayout());
-        panel.setBorders(true);
+        panel.setScrollMode(Scroll.AUTOY);
         panel.add(this.grid);
 
         return panel;
@@ -240,14 +235,12 @@ public class TimeLineChart extends ContentPanel {
     private void setupLayout(String title) {
         final LayoutContainer chartPanel = createChartPanel();
 
-        chartPanel.setStyleAttribute("backgroundColor", "transparent");
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
 
-        final ContentPanel tagSelectPanel = createTagSelector();
-        tagSelectPanel.setStyleAttribute("backgroundColor", "transparent");
+        final Component tagSelectPanel = createTagSelector();
         final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 200, 300);
-        westLayout.setMargins(new Margins(5));
+        westLayout.setMargins(new Margins(0));
         westLayout.setSplit(true);
 
         if (null != title) {

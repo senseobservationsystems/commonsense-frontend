@@ -18,6 +18,7 @@ import nl.sense_os.commonsense.server.persistent.PMF;
 
 public class BuildingDao {
 
+    @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger(BuildingDao.class.getName());
 
     public void delete(String encodedKey) {
@@ -25,7 +26,7 @@ public class BuildingDao {
         if (null == encodedKey) {
             return;
         }
-        
+
         // generate the key for the persistence manager
         Key key = KeyFactory.stringToKey(encodedKey);
 
@@ -37,11 +38,11 @@ public class BuildingDao {
             for (String floorKey : floorKeys) {
                 new FloorDao().delete(floorKey);
             }
-            
-            log.info("deleting building \"" + b.getName() + "\"");
-            
-            pm.deletePersistent(b);            
-            
+
+            // log.info("deleting building \"" + b.getName() + "\"");
+
+            pm.deletePersistent(b);
+
         } finally {
             pm.close();
         }
@@ -79,7 +80,7 @@ public class BuildingDao {
         Building b = null;
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
-            log.info("getting building object");
+            // log.info("getting building object");
             b = pm.getObjectById(Building.class, key);
         } finally {
             pm.close();
@@ -92,18 +93,19 @@ public class BuildingDao {
         return result;
     }
 
-    public List<BuildingModel> getRecent() {
+    public List<BuildingModel> getUserBuildings(String userId) {
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        
-        log.info("querying recent building objects");
+
+        // log.info("querying recent building objects");
         Query query = pm.newQuery(Building.class);
+        query.setFilter("userId == userIdParam");
         query.setOrdering("created desc");
-        query.setRange(0, 25);
+        query.declareParameters("String userIdParam");
         List<BuildingModel> results = new ArrayList<BuildingModel>();
         try {
             @SuppressWarnings("unchecked")
-            List<Building> buildings = (List<Building>) query.execute();
+            List<Building> buildings = (List<Building>) query.execute(userId);
             for (Building building : buildings) {
                 results.add(fromEntity(building));
             }
@@ -124,10 +126,8 @@ public class BuildingDao {
 
         // make persistent
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        String key = null;
+        String key = building.getKey();
         try {
-            log.info("storing building \"" + toStore.getName() + "\"");
-            
             pm.makePersistent(toStore);
             key = KeyFactory.keyToString(toStore.getKey());
         } finally {
@@ -140,18 +140,16 @@ public class BuildingDao {
 
         // get the Building's floor keys
         String[] floorKeys = new String[0];
-        if (null != b.getFloors()) {
-            ArrayList<FloorModel> floors = b.getFloors();
-            for (int i = 0; i < floors.size(); i++) {
-                FloorModel floor = floors.get(i);
-                if (null != floor) {
-                    String[] temp = new String[i + 1];
-                    if (floorKeys.length > 0) {
-                        System.arraycopy(floorKeys, 0, temp, 0, floorKeys.length);
-                    }
-                    temp[i] = floor.getKey();
-                    floorKeys = temp;
+        ArrayList<FloorModel> floors = b.getFloors();
+        for (int i = 0; i < floors.size(); i++) {
+            FloorModel floor = floors.get(i);
+            if (null != floor) {
+                String[] temp = new String[i + 1];
+                if (floorKeys.length > 0) {
+                    System.arraycopy(floorKeys, 0, temp, 0, floorKeys.length);
                 }
+                temp[i] = floor.getKey();
+                floorKeys = temp;
             }
         }
 
@@ -170,9 +168,9 @@ public class BuildingDao {
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
             Building toUpdate = pm.getObjectById(Building.class, key);
-            
-            log.info("update building \"" + toUpdate.getName() + "\"");
-            
+
+            // log.info("update building \"" + toUpdate.getName() + "\"");
+
             toUpdate.setModified(new Date());
             toUpdate.setName(b.getName());
 
@@ -187,7 +185,7 @@ public class BuildingDao {
                     if (false == newFloor.floorEquals(oldFloor)) {
                         new FloorDao().update(newFloor);
                     }
-                } else if (null == newFloor.getKey()){
+                } else if (null == newFloor.getKey()) {
                     // store new floor
                     String newKey = new FloorDao().store(newFloor);
                     newFloor.setKey(newKey);

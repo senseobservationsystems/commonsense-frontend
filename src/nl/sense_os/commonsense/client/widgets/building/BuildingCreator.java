@@ -10,17 +10,16 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -31,6 +30,7 @@ import java.util.Date;
 
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.dto.building.BuildingModel;
 import nl.sense_os.commonsense.dto.building.FloorModel;
 
@@ -41,16 +41,18 @@ import nl.sense_os.commonsense.dto.building.FloorModel;
  */
 public class BuildingCreator extends ContentPanel {
 
-    @SuppressWarnings("unused")
     private static final String TAG = BuildingCreator.class.getName();
-    private final TextField<String> buildingName = new TextField<String>();
-    private final ArrayList<FieldSet> floorFields = new ArrayList<FieldSet>();
-    private final BuildingServiceAsync service = GWT.create(BuildingService.class);
-    private Button saveBtn;
-    private Button cancelBtn;
     private BuildingModel building;
+    private final TextField<String> buildingName = new TextField<String>();
+    private Button cancelBtn;
+    private final ArrayList<FormPanel> floorFields = new ArrayList<FormPanel>();
     private final FormPanel form;
     private final FormData formData = new FormData();
+    private ProgressBar progressBar;
+    private MessageBox progressBox;
+    private Button saveBtn;
+    private final BuildingServiceAsync service = GWT.create(BuildingService.class);
+    private int uploadCount = 0;
     private final String userId;
 
     public BuildingCreator(String userId) {
@@ -90,38 +92,65 @@ public class BuildingCreator extends ContentPanel {
         form.add(nrOfFloors, formData);
 
         // add form to the main panel
-        setHeaderVisible(false);
         setScrollMode(Scroll.AUTOY);
         setHeaderVisible(false);
         setTopComponent(createToolBar());
         add(form);
 
         // add at least 1 floor
-        addFloorField(0);
+        addFloorField();
     }
 
-    private void addFloorField(int nr) {
+    private void addFloorField() {
+
+        // get floor number based on previous floor
+        int nr = 0;
+        if (floorFields.size() > 0) {
+            FormPanel prevFloor = floorFields.get(floorFields.size() - 1);
+            SpinnerField prevNr = (SpinnerField) prevFloor.getItemByItemId("nr");
+            nr = prevNr.getValue().intValue() + 1;
+        }
 
         // floor label field
-        TextField<String> floorName = new TextField<String>();
-        floorName.setFieldLabel("Floor label");
+        TextField<String> labelField = new TextField<String>();
+        labelField.setFieldLabel("Floor label");
+        labelField.setName("label");
+        labelField.setId("label");
 
+        // floor number field
+        final SpinnerField nrField = new SpinnerField();
+        nrField.setFieldLabel("Floor number");
+        nrField.setPropertyEditorType(Integer.class);
+        nrField.setFormat(NumberFormat.getFormat("##"));
+        nrField.setAllowDecimals(false);
+        nrField.setAllowBlank(false);
+        nrField.setMinValue(-99);
+        nrField.setIncrement(1);
+        nrField.setMaxValue(99);
+        nrField.setValue(nr);
+        nrField.setName("nr");
+        nrField.setId("nr");
+
+        // file upload field
         FileUploadField file = new FileUploadField();
         file.setAllowBlank(false);
         file.setName("image");
         file.setFieldLabel("Image");
+        file.setId("image");
 
-        FieldSet floor = new FieldSet();
-        FormLayout formLayout = new FormLayout();
-        formLayout.setLabelWidth(90);
-        formLayout.setDefaultWidth(200);
-        floor.setLayout(formLayout);
+        // complete the form
+        FormPanel floorForm = new FormPanel();
+        floorForm.setEncoding(Encoding.MULTIPART);
+        floorForm.setMethod(Method.POST);
+        floorForm.setHeaderVisible(false);
+        floorForm.setLabelWidth(90);
+        floorForm.add(labelField);
+        floorForm.add(nrField);
+        floorForm.add(file);
 
-        floor.add(floorName, formData);
-        floor.add(file, formData);
-
-        form.add(floor, formData);
-        floorFields.add(floor);
+        // add floor form to main form panel
+        add(floorForm, new FlowData(5));
+        floorFields.add(floorForm);
     }
 
     private ToolBar createToolBar() {
@@ -158,39 +187,45 @@ public class BuildingCreator extends ContentPanel {
         return this.building;
     }
 
-    private void reset() {
-        // reset the form
-        form.reset();
+    private void getNewBlobstoreSession() {
 
-        // clear the floorFields list
-        updateFloorFields(0);
-        updateFloorFields(1);
+        // update progress
+        double progress = (2d * uploadCount) / (2d * floorFields.size() + 1);
+        String text = "Saving floor " + (uploadCount + 1) + "/" + floorFields.size() + "...";
+        progressBar.updateProgress(progress, text);
+        
+        final String params = "?user=" + userId;
+        final AsyncCallback<String> callback = new AsyncCallback<String>() {
 
-        saveBtn.setText("Save");
-        cancelBtn.setEnabled(true);
+            @Override
+            public void onFailure(Throwable caught) {
+                MessageBox.alert("Failed getting floor upload URL", caught.getMessage(),
+                        new Listener<MessageBoxEvent>() {
+
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                onComplete();
+                            }
+                        });
+            }
+
+            @Override
+            public void onSuccess(String url) {
+                
+                // update progress
+                double progress = (2d * uploadCount + 1) / (2d * floorFields.size() + 1);
+                String text = "Saving floor " + (uploadCount + 1) + "/" + floorFields.size() + "...";
+                progressBar.updateProgress(progress, text);
+                
+                storeFloor(url);
+            }
+        };
+        service.getBlobstoreUploadUrl(params, callback);
     }
 
-    private void onSubmitComplete() {
-        // final MessageBox box = MessageBox.progress("Please wait", "Waiting for datastore...",
-        // "Initializing...");
-        // final ProgressBar bar = box.getProgressBar();
-        // final Timer t = new Timer() {
-        // float i;
-        // private static final int STEPSIZE = 1;
-        //
-        // @Override
-        // public void run() {
-        // bar.updateProgress(i / 100, (int) i + "% Complete");
-        // i += STEPSIZE;
-        // if (i > 100 + STEPSIZE) {
-        // cancel();
-        // box.close();
+    private void onCancel() {
         reset();
-        fireEvent(Events.Complete);
-        // }
-        // }
-        // };
-        // t.scheduleRepeating(500);
+        fireEvent(Events.CancelEdit);
     }
 
     private void onSave() {
@@ -201,52 +236,54 @@ public class BuildingCreator extends ContentPanel {
         building.setName(buildingName.getValue());
         building.setUserId(userId);
 
-        AsyncCallback<String> callback = new AsyncCallback<String>() {
+        // show progress bar
+        progressBox = MessageBox.progress("Please wait", "Saving building data...", "Saving...");
+        progressBar = progressBox.getProgressBar();
 
-            @Override
-            public void onFailure(Throwable caught) {
-                MessageBox.alert("Failed to store building! ", caught.getMessage(),
-                        new Listener<MessageBoxEvent>() {
-
-                            @Override
-                            public void handleEvent(MessageBoxEvent be) {
-                                onSubmitComplete();
-                            }
-                        }).show();
-            }
-
-            @Override
-            public void onSuccess(String key) {
-                // set the building key
-                building.setKey(key);
-                building.setCreated(new Date());
-
-                // upload the first floor
-                startNewBlobstoreSession(0, key);
-            }
-        };
-
-        service.storeBuilding(building, callback);
+        // start uploading floors
+        getNewBlobstoreSession();
     }
 
-    private void onCancel() {
+    private void onComplete() {
         reset();
-        fireEvent(Events.CancelEdit);
+        fireEvent(Events.Complete);
     }
 
-    private void onUploadFailed(String msg) {
-        MessageBox.alert("Upload failed", msg, new Listener<MessageBoxEvent>() {
+    private void onSaveFailed(String msg) {
+        MessageBox.alert("Saving failed", msg, new Listener<MessageBoxEvent>() {
 
             @Override
             public void handleEvent(MessageBoxEvent be) {
-                onSubmitComplete();
+                onCancel();
             }
         });
     }
 
-    private void removeFloorField(int nr) {
-        form.remove(floorFields.get(nr));
-        floorFields.remove(nr);
+    private void removeFloorField() {
+        if (floorFields.size() > 0) {
+            int index = floorFields.size() - 1;
+            remove(floorFields.get(index));
+            floorFields.remove(index);
+        }
+    }
+
+    private void reset() {
+
+        // clear the floorFields list
+        updateFloorFields(0);
+        updateFloorFields(1);
+
+        // reset the form
+        uploadCount = 0;
+        form.reset();
+        
+        // remove the progress box if it is shown
+        if (null != progressBox) {
+            progressBox.close();
+        }
+
+        saveBtn.setText("Save");
+        cancelBtn.setEnabled(true);
     }
 
     /**
@@ -264,32 +301,101 @@ public class BuildingCreator extends ContentPanel {
         });
     }
 
-    private void startNewBlobstoreSession(final int nr, final String key) {
-        FieldSet floorField = floorFields.get(nr);
-        @SuppressWarnings("unchecked")
-        final String name = ((TextField<String>) floorField.getItem(0)).getValue();
+    private void storeBuilding() {
 
-        String params = "?name=" + name + "&nr=" + nr + "&user=" + userId + "&building=" + key;
-
-        service.getBlobstoreUploadUrl(params, new AsyncCallback<String>() {
+        // update progress
+        double progress = (2d * uploadCount) / (2d * floorFields.size() + 1);
+        String text = "Saving building...";
+        progressBar.updateProgress(progress, text);
+                
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             @Override
             public void onFailure(Throwable caught) {
-                MessageBox.alert("Failed getting floor upload URL", caught.getMessage(),
-                        new Listener<MessageBoxEvent>() {
-
-                            @Override
-                            public void handleEvent(MessageBoxEvent be) {
-                                onSubmitComplete();
-                            }
-                        });
+                String msg = "Failed to store Building: " + caught.getMessage();
+                onSaveFailed(msg);
             }
 
             @Override
-            public void onSuccess(String url) {
-                uploadFloor(url, nr, key);
+            public void onSuccess(String key) {
+                // set the building key
+                building.setKey(key);
+                Date now = new Date();
+                building.setCreated(now);
+                building.setModified(now);
+
+                // done
+                onComplete();
+            }
+        };
+
+        service.storeBuilding(building, callback);
+    }
+
+    private void storeFloor(final String url) {
+
+        final FormPanel floorField = floorFields.get(uploadCount);
+        floorField.setAction(url);
+
+        floorField.addListener(Events.Submit, new Listener<FormEvent>() {
+
+            @Override
+            public void handleEvent(FormEvent be) {
+
+                // add floor to the building
+                try {
+                    String resultHtml = be.getResultHtml();
+                    
+                    int urlStart = resultHtml.indexOf("url=") + "url".length() + 1;
+                    int urlEnd = resultHtml.indexOf("&");
+                    String url = resultHtml.substring(urlStart, urlEnd);
+                    
+                    int keyStart = resultHtml.indexOf("key=") + "key".length() + 1;
+                    int keyEnd = resultHtml.length() - 1;
+                    String key = resultHtml.substring(keyStart, keyEnd);                    
+
+                    if (url.length() < 10) {
+                        Log.e(TAG, "Floor upload failed");
+
+                        getNewBlobstoreSession();
+                    } else {
+
+                        // add floor data to building
+                        @SuppressWarnings("unchecked")
+                        TextField<String> label = (TextField<String>) floorField
+                                .getItemByItemId("label");
+                        SpinnerField nr = (SpinnerField) floorField.getItemByItemId("nr");
+                        FloorModel floor = new FloorModel(url, nr.getValue().intValue(), label
+                                .getValue(), userId, new Date(), new Date());
+                        floor.setKey(key);
+                        ArrayList<FloorModel> floors = building.getFloors();
+                        floors.add(floor);
+                        building.setFloors(floors);
+
+                        uploadCount++;
+
+                        // start upload of the next floor
+                        if (floorFields.size() > uploadCount) {
+                            getNewBlobstoreSession();
+                        } else {
+                            // no more floors to upload, store the building
+                            storeBuilding();
+                        }
+                    }
+                } catch (Exception e) {
+                    onSaveFailed("" + be.getResultHtml());
+                }
             }
         });
+
+        // add invisible form to the layout before submitting
+        // form.setVisible(false);
+        // add(form);
+        //
+        // layout();
+
+        // form.submit();
+        floorField.submit();
     }
 
     private void updateFloorFields(int newCount) {
@@ -298,76 +404,15 @@ public class BuildingCreator extends ContentPanel {
         if (oldCount > newCount) {
             // remove the unwanted extra floor(s)
             for (int i = oldCount - 1; i >= newCount; i--) {
-                removeFloorField(i);
+                removeFloorField();
             }
         } else if (oldCount < newCount) {
             // add the desired extra floors
             for (int i = oldCount; i < newCount; i++) {
-                addFloorField(i);
+                addFloorField();
             }
         }
 
         layout();
-    }
-
-    private void uploadFloor(final String url, final int nr, final String key) {
-
-        FieldSet floorField = floorFields.get(nr);
-        @SuppressWarnings("unchecked")
-        final String name = ((TextField<String>) floorField.getItem(0)).getValue();
-        FileUploadField file = (FileUploadField) floorField.getItem(1);
-
-        final FormPanel form = new FormPanel();
-        form.setEncoding(Encoding.MULTIPART);
-        form.setMethod(Method.POST);
-        form.setAction(url);
-        form.add(file);
-        final LabelField placeholder = new LabelField("Uploading...");
-        placeholder.setFieldLabel("Image:");
-        floorField.add(placeholder);
-
-        form.addListener(Events.Submit, new Listener<FormEvent>() {
-
-            @Override
-            public void handleEvent(FormEvent be) {
-
-                // add floor to the building
-                try {
-                    String url = be.getResultHtml().split("\n")[0];
-                    
-                    if (url.length() < 10) {
-                        onUploadFailed("404");
-                        return;
-                    }
-                    
-                    FloorModel floor = new FloorModel(url, nr, name, userId, new Date(), new Date());
-                    ArrayList<FloorModel> floors = building.getFloors();
-                    floors.add(floor);
-                    building.setFloors(floors);
-
-                    // remove the invisible form that was submitted
-                    remove(form);
-                    placeholder.setText("Complete");
-
-                    // start upload of the next floor
-                    if (nr + 1 < floorFields.size()) {
-                        startNewBlobstoreSession(nr + 1, key);
-                    } else {
-                        // no more floors to upload
-                        onSubmitComplete();
-                    }
-                } catch (Exception e) {
-                    onUploadFailed("" + be.getResultHtml());
-                }
-            }
-        });
-
-        // add invisible form to the layout before submitting
-        form.setVisible(false);
-        add(form);
-
-        layout();
-
-        form.submit();
     }
 }

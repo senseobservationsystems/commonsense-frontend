@@ -18,7 +18,7 @@ public interface BuildingServiceAsync {
 
     void getBuilding(String key, AsyncCallback<BuildingModel> callback);
 
-    void getRecentBuildings(AsyncCallback<List<BuildingModel>> callback);
+    void getUserBuildings(String userId, AsyncCallback<List<BuildingModel>> callback);
     
     void storeBuilding(BuildingModel building, AsyncCallback<String> callback); 
     

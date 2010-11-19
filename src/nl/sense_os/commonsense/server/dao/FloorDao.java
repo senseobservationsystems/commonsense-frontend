@@ -16,6 +16,7 @@ import nl.sense_os.commonsense.server.persistent.PMF;
 
 public class FloorDao {
 
+    @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger(FloorDao.class.getName());
 
     public void delete(String encodedKey) {
@@ -37,7 +38,7 @@ public class FloorDao {
                 BlobstoreServiceFactory.getBlobstoreService().delete(blobKey);
             }
 
-            log.info("deleting floor \"" + f.getName() + "\"");
+            // log.info("deleting floor \"" + f.getName() + "\"");
             
             pm.deletePersistent(f);
 
@@ -73,7 +74,7 @@ public class FloorDao {
         PersistenceManager pm = PMF.get().getPersistenceManager();
         Floor f = null;
         try {
-            log.info("getting floor object");
+            // log.info("getting floor object");
             f = pm.getObjectById(Floor.class, key);
         } finally {
             pm.close();
@@ -89,14 +90,14 @@ public class FloorDao {
 
         // create data object and set current date
         Floor toStore = toEntity(floor);
-        toStore.setCreated(new Date());
+        Date now = new Date();
+        toStore.setCreated(now);
+        toStore.setModified(now);
 
         // make persistent
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        String key = null;
-        try {
-            log.info("storing floor \"" + toStore.getName() + "\"");
-            
+        String key = floor.getKey();
+        try {            
             pm.makePersistent(toStore);
             key = KeyFactory.keyToString(toStore.getKey());
         } finally {
@@ -125,7 +126,7 @@ public class FloorDao {
         // make persistent
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
-            log.info("updating floor \"" + f.getName() + "\"");
+            // log.info("updating floor \"" + f.getName() + "\"");
             
             Floor toUpdate = pm.getObjectById(Floor.class, key);
             toUpdate.setModified(new Date());

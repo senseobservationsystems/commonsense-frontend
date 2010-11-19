@@ -7,7 +7,6 @@ import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -17,9 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.sense_os.commonsense.dto.building.BuildingModel;
 import nl.sense_os.commonsense.dto.building.FloorModel;
-import nl.sense_os.commonsense.server.dao.BuildingDao;
 import nl.sense_os.commonsense.server.dao.FloorDao;
 
 /**
@@ -58,32 +55,21 @@ public class FloorImgServlet extends HttpServlet {
 
             // Get the properties of the Floor and Building
             String imageUrl = imagesService.getServingUrl(blobKey);
-            String name = req.getParameter("name");
+            String name = req.getParameter("label");
             int number = Integer.parseInt(req.getParameter("nr"));
-            String buildingKey = req.getParameter("building");
             String userId = req.getParameter("user");
-            Date date = new Date();
+            Date now = new Date();
             
             // store the floor
-            FloorModel floor = new FloorModel(imageUrl, number, name, userId, date, date);
+            FloorModel floor = new FloorModel(imageUrl, number, name, userId, now, now);
             floor.setBlobKey(blobKey.getKeyString());
             String floorKey = new FloorDao().store(floor);
             floor.setKey(floorKey);
             
             log.info("Floor \"" + floor.getName() + "\" stored.");
             
-            // update the building
-            BuildingDao dao = new BuildingDao();
-            BuildingModel building = dao.get(buildingKey);
-            ArrayList<FloorModel> floors = building.getFloors();
-            floors.add(floor);
-            building.setFloors(floors);
-            dao.update(building);            
-            
-            log.info("Building \"" + building.getName() + "\" updated.");
-            
-            // Redirect to this servlet's doGet
-            res.sendRedirect("/floorupload?imageUrl=" + imageUrl);
+            // Redirect to this servlet's doGet, pass the image url and floor key
+            res.sendRedirect("/floorupload?imageUrl=" + imageUrl + "&floorKey=" + floor.getKey());
         }
     }
 
@@ -92,10 +78,11 @@ public class FloorImgServlet extends HttpServlet {
             IOException {
         
         String imageUrl = req.getParameter("imageUrl");
+        String floorKey = req.getParameter("floorKey");
         resp.setHeader("Content-Type", "text/html");
 
         // This is a bit hacky, but it'll work. We'll use this key in an Async service to fetch the
         // image and image information
-        resp.getWriter().println(imageUrl);
+        resp.getWriter().println("?url=" + imageUrl + "&key=" + floorKey);
     }
 }

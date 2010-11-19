@@ -56,7 +56,8 @@ public class GridPanel extends ContentPanel {
 	 * @param eventType
 	 * @param listener
 	 */
-	public void addListener(EventType eventType, Listener<?> listener) {
+	@Override
+    public void addListener(EventType eventType, Listener<?> listener) {
 		grid.addListener(eventType, listener);
 	}
 
@@ -108,22 +109,26 @@ public class GridPanel extends ContentPanel {
 		// grid.setAutoExpandColumn("id");
 	}
 
-	public void setWidth(int width) {
+	@Override
+    public void setWidth(int width) {
 		grid.setWidth(width);
 		super.setWidth(width);
 	}
 
-	public void setHeight(int height) {
+	@Override
+    public void setHeight(int height) {
 		grid.setHeight(height);
 		super.setHeight(height);
 	}
 
-	public void setAutoHeight(boolean autoHeight) {
+	@Override
+    public void setAutoHeight(boolean autoHeight) {
 		grid.setAutoHeight(autoHeight);
 		super.setAutoHeight(autoHeight);
 	}
 
-	public void setTitle(String title) {
+	@Override
+    public void setTitle(String title) {
 		super.setHeading(title);
 	}
 

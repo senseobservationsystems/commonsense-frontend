@@ -82,28 +82,34 @@ public class BuildingDetails extends ContentPanel {
      */
     private LayoutContainer createFloorData(final FloorModel floor) {
         LayoutContainer lc = new LayoutContainer(new FormLayout());
-
-        String url = floor.getUrl();
-        AdapterField imageField = new AdapterField(createImage(url));
-        imageField.setFieldLabel("Floor image");
-        imageField.setLabelStyle(LABEL_STYLE);
-        lc.add(imageField, formData);
-
-        String nameString = floor.getName();
-        LabelField name = new LabelField(nameString);
-        name.setFieldLabel("Floor label:");
-        name.setLabelStyle(LABEL_STYLE);
-        lc.add(name, formData);
-
-        String nrString = "" + floor.getNumber();
-        LabelField nr = new LabelField(nrString);
-        nr.setFieldLabel("Floor number:");
-        nr.setLabelStyle(LABEL_STYLE);
-        lc.add(nr, formData);
-
+        
         LayoutContainer borderLc = new LayoutContainer();
         borderLc.setBorders(true);
         borderLc.add(lc, new FlowData(5));
+
+        if (null != floor) {
+            String url = floor.getUrl();
+            AdapterField imageField = new AdapterField(createImage(url));
+            imageField.setFieldLabel("Floor image");
+            imageField.setLabelStyle(LABEL_STYLE);
+            lc.add(imageField, formData);
+
+            String nameString = floor.getName();
+            LabelField name = new LabelField(nameString);
+            name.setFieldLabel("Floor label:");
+            name.setLabelStyle(LABEL_STYLE);
+            lc.add(name, formData);
+
+            String nrString = "" + floor.getNumber();
+            LabelField nr = new LabelField(nrString);
+            nr.setFieldLabel("Floor number:");
+            nr.setLabelStyle(LABEL_STYLE);
+            lc.add(nr, formData);
+            
+            borderLc.setItemId(floor.getUrl());
+        } else {
+            Log.e(TAG, "Floor is null!");
+        }
 
         return borderLc;
     }
@@ -120,7 +126,7 @@ public class BuildingDetails extends ContentPanel {
             @Override
             public void onClick(ClickEvent event) {
                 final Image popupImage = new Image(url);
-                
+
                 final PopupPanel popup = new PopupPanel(true);
                 popup.setWidget(popupImage);
 
@@ -141,7 +147,7 @@ public class BuildingDetails extends ContentPanel {
                     }
                 });
                 popupImage.addClickHandler(new ClickHandler() {
-                    
+
                     @Override
                     public void onClick(ClickEvent event) {
                         popup.hide();
@@ -154,7 +160,7 @@ public class BuildingDetails extends ContentPanel {
 
     final Button delete = new Button();
     final Button edit = new Button();
-    
+
     private ToolBar createToolBar() {
         delete.setText("Delete building");
         delete.addListener(Events.Select, new Listener<ButtonEvent>() {
@@ -167,7 +173,7 @@ public class BuildingDetails extends ContentPanel {
                 }
                 delete.setText("Deleting...");
                 delete.setEnabled(false);
-                
+
                 BuildingServiceAsync service = GWT.create(BuildingService.class);
                 service.deleteBuilding(building.getKey(), new AsyncCallback<Void>() {
 
@@ -175,7 +181,7 @@ public class BuildingDetails extends ContentPanel {
                     public void onFailure(Throwable caught) {
                         delete.setText("Delete building");
                         delete.setEnabled(true);
-                        
+
                         String msg = caught.getMessage();
                         MessageBox.alert("Failure deleting building", msg, null);
                     }
@@ -206,16 +212,16 @@ public class BuildingDetails extends ContentPanel {
     public BuildingModel getBuilding() {
         return this.building;
     }
-    
+
     private void reset() {
         delete.setText("Delete building");
         delete.setEnabled(true);
     }
-    
+
     public void setBuilding(BuildingModel building) {
-        
+
         reset();
-        
+
         // set the building label
         String nameString = building.getName();
         name.setText(nameString);
@@ -228,7 +234,7 @@ public class BuildingDetails extends ContentPanel {
         modified.setText(modifString);
 
         // remove floor details of any old buildings
-        if (null != this.building) {            
+        if (null != this.building) {
             for (FloorModel floor : this.building.getFloors()) {
                 form.remove(form.getItemByItemId(floor.getUrl()));
             }
@@ -237,13 +243,12 @@ public class BuildingDetails extends ContentPanel {
         // add the floor details of the new building
         ArrayList<FloorModel> floors = building.getFloors();
         for (FloorModel floor : floors) {
-            LayoutContainer floorPanel =createFloorData(floor);
-            floorPanel.setItemId(floor.getUrl());
+            LayoutContainer floorPanel = createFloorData(floor);
             form.add(floorPanel, new FlowData(5));
         }
 
         this.building = building;
-        
+
         layout();
     }
 }

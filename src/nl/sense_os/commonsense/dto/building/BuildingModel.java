@@ -8,12 +8,12 @@ import java.util.Date;
 
 public class BuildingModel extends BaseModel implements IsSerializable {
 
-    private static final String KEY_CREATED = "created";
-    private static final String KEY_DB_KEY = "key";
-    private static final String KEY_FLOORS = "floors";
-    private static final String KEY_MODIFIED = "modified";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_USER = "user_id";
+    public static final String KEY_CREATED = "created";
+    public static final String KEY_DB_KEY = "key";
+    public static final String KEY_FLOORS = "floors";
+    public static final String KEY_MODIFIED = "modified";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_USER = "user_id";
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
     private ArrayList<FloorModel> _floors; // unused field is required for using the list in GWT RPC

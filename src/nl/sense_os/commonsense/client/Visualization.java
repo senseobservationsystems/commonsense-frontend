@@ -105,6 +105,8 @@ public class Visualization extends LayoutContainer {
             }
         };
         VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE);
+        
+        this.setStyleAttribute("backgroundColor", "transparent");
     }
 
     /**
@@ -120,7 +122,6 @@ public class Visualization extends LayoutContainer {
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
         welcomeItem.setLayout(new FitLayout());
-        welcomeItem.setStyleAttribute("backgroundColor", "transparent");
         welcomeItem.add(welcomeFrame);
 
         // Tabs
@@ -135,7 +136,6 @@ public class Visualization extends LayoutContainer {
             final TabItem trackTraceItem = new TabItem("Track & Trace demo");
             trackTraceItem.setLayout(new FitLayout());
             trackTraceItem.setClosable(true);
-            trackTraceItem.setStyleAttribute("backgroundColor", "transparent");
             final Frame trackTrace = new Frame(
                     "http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
             trackTrace.setStylePrimaryName("senseFrame");
@@ -148,7 +148,6 @@ public class Visualization extends LayoutContainer {
             final TabItem greenhouseItem = new TabItem("Greenhouse nodes");
             greenhouseItem.setLayout(new FitLayout());
             greenhouseItem.setClosable(true);
-            greenhouseItem.setStyleAttribute("backgroundColor", "transparent");
             final Image greenhouse = new Image("img/storm/storm_building.png");
             greenhouse.setPixelSize(1122, 793);
             greenhouseItem.add(greenhouse);
@@ -174,6 +173,7 @@ public class Visualization extends LayoutContainer {
         d.setWidth(350);
 
         final ContentPanel panel = new ContentPanel();
+        panel.setStyleAttribute("backgroundColor", "white");
         panel.setHeaderVisible(false);
         panel.setSize(340, 100);
         panel.setBorders(false);
@@ -192,7 +192,6 @@ public class Visualization extends LayoutContainer {
                 final TabItem item = new TabItem("Time line");
                 item.setLayout(new FitLayout());
                 item.setClosable(true);
-                item.setStyleAttribute("backgroundColor", "transparent");
                 final VisualizationTab charts = new TimeLineCharts();
                 charts.setWaitingText(true);
                 item.add(charts);
@@ -212,7 +211,6 @@ public class Visualization extends LayoutContainer {
                 // add table tab item
                 final TabItem item = new TabItem("Table");
                 item.setClosable(true);
-                item.setStyleAttribute("backgroundColor", "transparent");
                 item.add(new SensorDataGrid(tags, user));
                 item.setScrollMode(Scroll.AUTO);
                 Visualization.this.tabPanel.add(item);
@@ -228,6 +226,7 @@ public class Visualization extends LayoutContainer {
                 deviceLocationView(tags);
             }
         }));
+        /*
         buttons.add(new Button("Speed test", new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -238,7 +237,7 @@ public class Visualization extends LayoutContainer {
                 testSpeed();
             }
         }));
-
+        */
         panel.setBottomComponent(buttons);
 
         d.add(panel);
@@ -297,7 +296,6 @@ public class Visualization extends LayoutContainer {
 
         final ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeading("Tag tree");
-        panel.setBodyStyle("backgroundColor: transparent");
         panel.setCollapsible(true);
         panel.add(this.tagTree);
 
@@ -368,7 +366,6 @@ public class Visualization extends LayoutContainer {
 
         this.timeSelector = createTimeSelector();
         final ContentPanel timeRangePanel = new ContentPanel();
-        timeRangePanel.setBodyStyle("backgroundColor: transparent");
         timeRangePanel.setHeading("Time range");
         timeRangePanel.setCollapsible(true);
         timeRangePanel.add(this.timeSelector, new FlowData(0, 0, 0, 5));
@@ -379,7 +376,6 @@ public class Visualization extends LayoutContainer {
         translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
-        translucentPanel.setStyleAttribute("backgroundColor", "transparent");
         translucentPanel.setBorders(false);
 
         return translucentPanel;
@@ -401,7 +397,6 @@ public class Visualization extends LayoutContainer {
         item.setClosable(true);
         item.add(new GoogleStreetView(tagModel.getParentId(), this.user.getName(), this.user
                 .getPassword()));
-        item.setStyleAttribute("backgroundColor", "transparent");
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
     }
@@ -424,6 +419,9 @@ public class Visualization extends LayoutContainer {
         if (user.getId() == 134) {
             Log.d(TAG, "delfgauw time hack");
             end = 1283603962000l;
+        } else if (user.getId() == 142) {
+            Log.d(TAG, "greenhouse time hack");
+            end = 1288706400000l; // 2 november, 12:00 CET
         }
         long start = 0;
         final String radioId = this.timeSelector.getValue().getId();
@@ -562,7 +560,6 @@ public class Visualization extends LayoutContainer {
         this.setLayout(new BorderLayout());
         this.add(createWestPanel(), westLayout);
         this.add(createCenterPanel(), centerLayout);
-        this.setStyleAttribute("backgroundColor", "transparent");
 
         setupDragDrop();
 

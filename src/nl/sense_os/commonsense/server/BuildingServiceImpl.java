@@ -43,9 +43,9 @@ public class BuildingServiceImpl extends RemoteServiceServlet implements Buildin
     }
 
     @Override
-    public List<BuildingModel> getRecentBuildings() {
+    public List<BuildingModel> getUserBuildings(String userId) {
         BuildingDao dao = new BuildingDao();
-        List<BuildingModel> buildings = dao.getRecent();
+        List<BuildingModel> buildings = dao.getUserBuildings(userId);
         return buildings;
     }
 

@@ -1,4 +1,4 @@
-package nl.sense_os.testing.client.common.grid;
+package nl.sense_os.commonsense.client.common.grid;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.JsonPagingLoadResultReader;
@@ -58,7 +58,8 @@ public class DataStore {
 	 */
 	public void setOffset(int offset) {
 		loader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {  
-			public void handleEvent(LoadEvent be) {  
+			@Override
+            public void handleEvent(LoadEvent be) {  
 				be.<ModelData> getConfig().set("start", be.<ModelData> getConfig().get("offset"));
 			}  
 		});		

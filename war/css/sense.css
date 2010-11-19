@@ -13,6 +13,10 @@
 .sense-nav-deselected {
     font-weight: normal;
 }
+/** makes all content panels have transparent backgrounds */ 
+.x-panel-body {
+	background-color: transparent;
+}
 
 .search-item {
 	-x-system-font:none;

@@ -7,23 +7,24 @@
  */
 package nl.sense_os.testing.client.widgets;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.sense_os.testing.client.common.grid.PaginationGridPanel;
-
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.table.CellRenderer;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.common.grid.PaginationGridPanel;
 
 
 public class SensorDataGrid extends LayoutContainer {
@@ -104,8 +105,8 @@ public class SensorDataGrid extends LayoutContainer {
 	 * 
 	 * @return the value field html format
 	 */
-	private GridCellRenderer getValueCellFormat() {
-		return new GridCellRenderer() {
+	private GridCellRenderer<ModelData> getValueCellFormat() {
+		return new GridCellRenderer<ModelData>() {
 			@Override
 			public Object render(
 					ModelData model, 
@@ -113,12 +114,22 @@ public class SensorDataGrid extends LayoutContainer {
 					ColumnData config, 
 					int rowIndex, 
 					int colIndex,
-					ListStore store, 
-					Grid grid) {
+					ListStore<ModelData> store, 
+					Grid<ModelData> grid) {
 				
-				// @@ TODO: The sensor type should be identified to display the value
-				// in a proper format.
-				
+				String value = model.<String>get("v");
+			    				
+                JSONValue jsonValue = JSONParser.parseLenient(value);
+                JSONObject jsonObj = jsonValue.isObject();
+                if (null != jsonObj) {
+                    return "foo";
+                }
+                
+                // return the normal value for non-JSON input
+                return value;
+                
+                
+				/*
 				// example: accelerometer
 				final int ACCELOMETER = 1;
 				
@@ -134,6 +145,7 @@ public class SensorDataGrid extends LayoutContainer {
 					// Returns the value without format.
 					return model.get("v");
 				}
+				*/
 			}
         };
 	}
