@@ -36,7 +36,7 @@ public class GroupSearchForm extends ContentPanel {
 		ListStore<ModelData> listStore = store.getStore();
 
 		ComboBox<ModelData> combo = new ComboBox<ModelData>();  
-		combo.setWidth(580);  
+		combo.setWidth(400);  
 		combo.setDisplayField("name");  
 		combo.setItemSelector("div.search-item");  
 		combo.setTemplate(getTemplate());  
@@ -44,7 +44,7 @@ public class GroupSearchForm extends ContentPanel {
 		combo.setHideTrigger(true);  
 		combo.setPageSize(3);
 		combo.setAutoHeight(true);
-		combo.setMinChars(2);
+		combo.setMinChars(2); // min chars required to start searching
 		
 		combo.addListener(Events.Select, new Listener<BaseEvent>() {
 			@Override
