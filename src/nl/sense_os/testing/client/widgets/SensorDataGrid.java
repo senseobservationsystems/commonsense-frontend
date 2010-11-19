@@ -24,7 +24,7 @@ import com.google.gwt.json.client.JSONValue;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.PaginationGridPanel;
+import nl.sense_os.testing.client.common.grid.PaginationGridPanel;
 
 
 public class SensorDataGrid extends LayoutContainer {
