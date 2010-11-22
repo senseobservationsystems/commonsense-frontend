@@ -18,6 +18,7 @@
 	background-color: transparent;
 }
 
+/** style for the combo box list expanded in search results */
 .search-item {
 	-x-system-font:none;
 	border-color:#FFFFFF #FFFFFF #EEEEEE;
