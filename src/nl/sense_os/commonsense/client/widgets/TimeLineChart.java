@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
@@ -195,7 +196,7 @@ public class TimeLineChart extends ContentPanel {
         this.grid.getSelectionModel().setFiresEvents(true);
         this.shownCharts.addAll(this.store.getModels());
 
-        final ContentPanel panel = new ContentPanel();
+        final ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeaderVisible(false);
         panel.setScrollMode(Scroll.AUTOY);
         panel.add(this.grid);
