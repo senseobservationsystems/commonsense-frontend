@@ -32,6 +32,8 @@ import nl.sense_os.commonsense.dto.UserModel;
 public class SensorDataGrid extends LayoutContainer {
 
     private static final String BASE_URL = "http://data.sense-os.nl/commonsense/gae/get_sensor_data_paged.php";
+    @SuppressWarnings("unused")
+    private static final String TAG = "SensorDataGrid";
 
     public SensorDataGrid(final TagModel[] tags, UserModel user) {
 
@@ -75,30 +77,26 @@ public class SensorDataGrid extends LayoutContainer {
         valueCol.setWidth(300);
         valueCol.setRenderer(new GridCellRenderer<ModelData>() {
             @Override
-            public Object render(
-                    ModelData model, 
-                    String property,
-                    ColumnData config, 
-                    int rowIndex, 
-                    int colIndex,
-                    ListStore<ModelData> store, 
-                    Grid<ModelData> grid) {
-                
-                String value = model.<String>get("v");
-                
+            public Object render(ModelData model, String property, ColumnData config, int rowIndex,
+                    int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
+
+                String value = model.<String> get("v");
+
                 // special rendering for json values
-                JSONValue jsonValue = JSONParser.parseLenient(value);
-                JSONObject jsonObj = jsonValue.isObject();
-                if (null != jsonObj) {
-                    return renderJsonValue(jsonObj);
+                if ((value.charAt(0) == '{') && (value.charAt(value.length() - 1) == '}')) {
+                    JSONValue jsonValue = JSONParser.parseStrict(value);
+                    JSONObject jsonObj = jsonValue.isObject();
+                    if (null != jsonObj) {
+                        return renderJsonValue(jsonObj);
+                    }
                 }
-                
+
                 // return the normal value for non-JSON input
                 return value;
             }
         });
         colConf.add(valueCol);
-        
+
         ColumnConfig timeCol = new ColumnConfig();
         timeCol.setId("t");
         timeCol.setHeader("time");
@@ -128,7 +126,7 @@ public class SensorDataGrid extends LayoutContainer {
         gridPanel.setBodyBorder(true);
 
         // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
-        
+
         add(gridPanel);
     }
 
@@ -139,23 +137,23 @@ public class SensorDataGrid extends LayoutContainer {
         }
         return result;
     }
-    
+
     private String renderJsonValue(JSONObject json) {
         StringBuilder sb = new StringBuilder();
         for (String key : json.keySet()) {
             // first print the field label
             sb.append("<b>").append(key).append(":</b> ");
-            
+
             // get the field value
             JSONValue value = json.get(key);
             JSONString jsonString = value.isString();
-            String valueString = ""; 
+            String valueString = "";
             if (null != jsonString) {
                 valueString = jsonString.stringValue();
             } else {
                 valueString = value.toString();
             }
-            
+
             sb.append(valueString).append("<br />");
         }
         return sb.toString();
