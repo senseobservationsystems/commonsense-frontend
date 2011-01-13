@@ -14,8 +14,14 @@
   <inherits name='com.google.gwt.visualization.Visualization'/>  
   <inherits name='com.extjs.gxt.ui.GXT'/>  
   <inherits name='com.google.gwt.json.JSON'/>
+  <inherits name='com.chap.links.Graph'/>  
   <inherits name='com.google.gwt.jsonp.Jsonp'/>
-
+  
+  <!-- External stylesheets                                       -->
+  <!-- Include at least one stylesheet, else the stylesheets in   -->
+  <!-- external modules like gwt-links-graph.jar are not loaded...-->
+  <stylesheet src="links-graph.css"></stylesheet>  
+  
   <!-- Specify the app entry point class.                         -->
   <entry-point class='nl.sense_os.commonsense.client.CommonSense'/>
 

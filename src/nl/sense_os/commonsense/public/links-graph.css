@@ -1,0 +1,4 @@
+// CSS styles for javascript scrolling line graph 
+div.graph-legend, div.graph-canvas {
+	background-color:white;
+}
