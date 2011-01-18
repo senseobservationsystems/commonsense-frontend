@@ -101,7 +101,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
         // set up main view
         Viewport vp = new Viewport();
-        vp.setSize("100%", "100%");
+        // vp.setSize("100%", "100%");
         vp.setLayout(new FitLayout());
         vp.add(createMainPanel());
         RootPanel.get().add(vp);
