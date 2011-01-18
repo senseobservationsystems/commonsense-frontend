@@ -2,6 +2,9 @@
 <module rename-to='commonsense'>
   <!-- Inherit the core Web Toolkit stuff.                        -->
   <inherits name='com.google.gwt.user.User'/>
+  <inherits name='com.google.gwt.json.JSON'/>
+  <inherits name="com.google.gwt.http.HTTP" />
+  <inherits name='com.google.gwt.jsonp.Jsonp'/>
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->
@@ -12,21 +15,19 @@
 
   <!-- Other module inherits                                      -->
   <inherits name='com.google.gwt.visualization.Visualization'/>  
-  <inherits name='com.extjs.gxt.ui.GXT'/>  
-  <inherits name='com.google.gwt.json.JSON'/>
   <inherits name='com.chap.links.Graph'/>  
-  <inherits name='com.google.gwt.jsonp.Jsonp'/>
+  <inherits name='com.extjs.gxt.ui.GXT'/>  
   
   <!-- External stylesheets                                       -->
   <!-- Include at least one stylesheet, else the stylesheets in   -->
   <!-- external modules like gwt-links-graph.jar are not loaded...-->
   <stylesheet src="links-graph.css"></stylesheet>  
-  
+
   <!-- Specify the app entry point class.                         -->
   <entry-point class='nl.sense_os.commonsense.client.CommonSense'/>
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
-  <source path='dto'/>
+  <source path='shared'/>
 
 </module>

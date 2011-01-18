@@ -2,15 +2,16 @@ package nl.sense_os.commonsense.client.widgets;
 
 import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.dto.sensorvalues.SensorValueModel;
-import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
+import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public class TimeLineChart extends ContentPanel {
 
@@ -47,10 +48,6 @@ public class TimeLineChart extends ContentPanel {
 
         // draw new data table (if chart is visible)
         if (null != linksGraph) {
-            // final Graph.Options options = Graph.Options.create();
-            // options.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
-            // options.setLineRadius(2);
-            // options.setEnableVisibility(true);
             this.linksGraph.redraw();
         }
     }
@@ -61,6 +58,7 @@ public class TimeLineChart extends ContentPanel {
      * @param taggedData
      */
     private void addDataColumn(TaggedDataModel taggedData) {
+
         final TagModel tag = taggedData.getTag();
         final SensorValueModel[] values = taggedData.getData();
 
@@ -82,10 +80,7 @@ public class TimeLineChart extends ContentPanel {
 
             this.dataTable.setValue(i + offset, 0, value.getTimestamp());
             this.dataTable.setValue(i + offset, colIndex, value.getValue());
-            // Log.d(TAG, "Sensor value: " + value.getTimestamp() + ", " + value.getValue());
         }
-
-        tag.set("original_column", colIndex - 1);
     }
 
     /**
@@ -96,10 +91,18 @@ public class TimeLineChart extends ContentPanel {
     protected void onResize(int width, int height) {
         super.onResize(width, height);
 
+        // Log.d(TAG, "onResize(" + width + ", " + height + ")");
+
         // only resize the panel if it is rendered
         if (null != this.linksGraph && this.linksGraph.isAttached()) {
             this.linksGraph.redraw();
         }
+    }
+
+    @Override
+    public boolean layout() {
+        // TODO Auto-generated method stub
+        return super.layout();
     }
 
     /**
@@ -126,6 +129,6 @@ public class TimeLineChart extends ContentPanel {
 
         // create graph
         this.linksGraph = new Graph(this.dataTable, options);
-        add(this.linksGraph);
+        add(this.linksGraph, new FlowData(0));
     }
 }
