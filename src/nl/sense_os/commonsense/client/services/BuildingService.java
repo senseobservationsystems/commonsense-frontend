@@ -5,8 +5,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 /**
  * The client side stub for the RPC service.

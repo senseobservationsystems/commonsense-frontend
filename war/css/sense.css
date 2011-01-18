@@ -36,3 +36,8 @@
 	padding:3px 10px;
 	white-space:normal;
 }
+
+/** solid white background for Jos' Graph */
+div.graph-canvas div.graph-legend {
+	background-color:white;
+}

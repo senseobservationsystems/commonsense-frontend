@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
 import nl.sense_os.commonsense.server.persistent.Building;
 import nl.sense_os.commonsense.server.persistent.PMF;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 public class BuildingDao {
 

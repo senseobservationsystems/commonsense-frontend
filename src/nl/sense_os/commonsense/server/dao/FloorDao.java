@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 
-import nl.sense_os.commonsense.dto.building.FloorModel;
 import nl.sense_os.commonsense.server.persistent.Floor;
 import nl.sense_os.commonsense.server.persistent.PMF;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 public class FloorDao {
 
@@ -24,7 +24,7 @@ public class FloorDao {
         if (null == encodedKey) {
             return;
         }
-        
+
         // generate the key for the persistence manager
         Key key = KeyFactory.stringToKey(encodedKey);
 
@@ -39,7 +39,7 @@ public class FloorDao {
             }
 
             // log.info("deleting floor \"" + f.getName() + "\"");
-            
+
             pm.deletePersistent(f);
 
         } finally {
@@ -48,8 +48,8 @@ public class FloorDao {
     }
 
     private FloorModel fromEntity(Floor f) {
-        FloorModel result = new FloorModel(f.getUrl(), f.getNumber(), f.getName(), f.getUserId(),
-                f.getCreated(), f.getModified());
+        FloorModel result = new FloorModel(f.getUrl(), f.getNumber(), f.getName(), f.getHeight(),
+                f.getWidth(), f.getDepth(), f.getUserId(), f.getCreated(), f.getModified());
         final Key key = f.getKey();
         if (null != key) {
             result.setKey(KeyFactory.keyToString(key));
@@ -97,7 +97,7 @@ public class FloorDao {
         // make persistent
         PersistenceManager pm = PMF.get().getPersistenceManager();
         String key = floor.getKey();
-        try {            
+        try {
             pm.makePersistent(toStore);
             key = KeyFactory.keyToString(toStore.getKey());
         } finally {
@@ -107,8 +107,8 @@ public class FloorDao {
     }
 
     private Floor toEntity(FloorModel f) {
-        Floor result = new Floor(f.getUrl(), f.getNumber(), f.getName(), f.getUserId(),
-                f.getCreated(), f.getModified());
+        Floor result = new Floor(f.getUrl(), f.getNumber(), f.getName(), f.getHeight(),
+                f.getWidth(), f.getDepth(), f.getUserId(), f.getCreated(), f.getModified());
         final String key = f.getKey();
         if (null != key) {
             result.setKey(KeyFactory.stringToKey(key));
@@ -126,12 +126,13 @@ public class FloorDao {
         // make persistent
         PersistenceManager pm = PMF.get().getPersistenceManager();
         try {
-            // log.info("updating floor \"" + f.getName() + "\"");
-            
             Floor toUpdate = pm.getObjectById(Floor.class, key);
             toUpdate.setModified(new Date());
             toUpdate.setName(f.getName());
             toUpdate.setNumber(f.getNumber());
+            toUpdate.setHeight(f.getHeight());
+            toUpdate.setWidth(f.getWidth());
+            toUpdate.setDepth(f.getDepth());
             toUpdate.setUrl(f.getUrl());
         } finally {
             pm.close();

@@ -10,6 +10,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -30,12 +31,11 @@ import java.util.ArrayList;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 public class BuildingDetails extends ContentPanel {
 
-    private static final String LABEL_STYLE = "font-weight:bold;";
     private static final String TAG = BuildingDetails.class.getName();
     private BuildingModel building;
     private LabelField created = new LabelField();
@@ -56,19 +56,17 @@ public class BuildingDetails extends ContentPanel {
     private LayoutContainer createBuildingData() {
         // set up the form panel
         FormLayout layout = new FormLayout();
+        layout.setLabelWidth(150);
         form.setLayout(layout);
         form.setScrollMode(Scroll.AUTOY);
 
         name.setFieldLabel("Building label:");
-        name.setLabelStyle(LABEL_STYLE);
         form.add(name, formData);
 
         created.setFieldLabel("Created:");
-        created.setLabelStyle(LABEL_STYLE);
         form.add(created, formData);
 
         modified.setFieldLabel("Modified:");
-        modified.setLabelStyle(LABEL_STYLE);
         form.add(modified, formData);
 
         return form;
@@ -81,7 +79,9 @@ public class BuildingDetails extends ContentPanel {
      *            the floor
      */
     private LayoutContainer createFloorData(final FloorModel floor) {
-        LayoutContainer lc = new LayoutContainer(new FormLayout());
+        FormLayout floorLayout = new FormLayout();
+        floorLayout.setLabelWidth(140);
+        LayoutContainer lc = new LayoutContainer(floorLayout);
         
         LayoutContainer borderLc = new LayoutContainer();
         borderLc.setBorders(true);
@@ -91,20 +91,27 @@ public class BuildingDetails extends ContentPanel {
             String url = floor.getUrl();
             AdapterField imageField = new AdapterField(createImage(url));
             imageField.setFieldLabel("Floor image");
-            imageField.setLabelStyle(LABEL_STYLE);
             lc.add(imageField, formData);
 
             String nameString = floor.getName();
             LabelField name = new LabelField(nameString);
             name.setFieldLabel("Floor label:");
-            name.setLabelStyle(LABEL_STYLE);
             lc.add(name, formData);
 
             String nrString = "" + floor.getNumber();
             LabelField nr = new LabelField(nrString);
             nr.setFieldLabel("Floor number:");
-            nr.setLabelStyle(LABEL_STYLE);
-            lc.add(nr, formData);
+            lc.add(nr, formData);            
+            
+            String heightString = "" + floor.getHeight();
+            LabelField height = new LabelField(heightString);            
+            String widthString = "" + floor.getWidth();
+            LabelField width = new LabelField(widthString);            
+            String depthString = "" + floor.getDepth();
+            LabelField depth = new LabelField(depthString);            
+            MultiField<LabelField> dims = new MultiField<LabelField>("Dimensions (HxWxD)", height, width, depth);
+            dims.setResizeFields(true);
+            lc.add(dims, formData);
             
             borderLc.setItemId(floor.getUrl());
         } else {
@@ -143,6 +150,24 @@ public class BuildingDetails extends ContentPanel {
 
                     @Override
                     public void onLoad(LoadEvent event) {
+                        int clientWidth = com.google.gwt.user.client.Window.getClientWidth();
+                        int clientHeight = com.google.gwt.user.client.Window.getClientHeight();
+                        int imgWidth = popupImage.getWidth();
+                        int imgHeight = popupImage.getHeight();
+                        
+                        float clientScale = clientWidth / clientHeight;
+                        float imgScale = imgWidth / imgHeight;
+                        
+                        if (imgScale > clientScale) {
+                            if (imgWidth > clientWidth - 20) {
+                                popupImage.setWidth((clientWidth - 20) + "px");
+                            }
+                        } else {
+                            if (imgHeight > clientHeight - 20) {
+                                popupImage.setHeight((clientHeight - 20) + "px");
+                            }
+                        }
+                        
                         popup.center();
                     }
                 });

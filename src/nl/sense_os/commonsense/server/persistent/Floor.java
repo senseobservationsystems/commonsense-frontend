@@ -19,6 +19,12 @@ public class Floor {
     @Persistent
     private Date created;
 
+    @Persistent
+    private double depth;
+
+    @Persistent
+    private double height;
+
     @PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
@@ -38,11 +44,16 @@ public class Floor {
     @Persistent
     private String userId;
 
-    public Floor(String url, int number, String name, String userId, Date created, Date modified) {
+    @Persistent
+    private double width;
+
+    public Floor(String url, int number, String name, double height, double width, double depth,
+            String userId, Date created, Date modified) {
         setUrl(url);
         setNumber(number);
         setName(name);
         setUserId(userId);
+        setDimensions(height, width, depth);
         setCreated(created);
         setModified(modified);
     }
@@ -53,6 +64,14 @@ public class Floor {
 
     public Date getCreated() {
         return created;
+    }
+
+    public double getDepth() {
+        return depth;
+    }
+
+    public double getHeight() {
+        return height;
     }
 
     public Key getKey() {
@@ -79,12 +98,30 @@ public class Floor {
         return this.userId;
     }
 
+    public double getWidth() {
+        return width;
+    }
+
     public void setBlobKey(BlobKey blobKey) {
         this.blobKey = blobKey;
     }
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public void setDepth(double depth) {
+        this.depth = depth;
+    }
+
+    public void setDimensions(double height, double width, double depth) {
+        setHeight(height);
+        setWidth(width);
+        setDepth(depth);
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public void setKey(Key key) {
@@ -109,5 +146,9 @@ public class Floor {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
     }
 }

@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -12,17 +13,18 @@ import java.util.List;
 import java.util.Map;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.TagModel;
-import nl.sense_os.commonsense.dto.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.dto.sensorvalues.JsonValueModel;
-import nl.sense_os.commonsense.dto.sensorvalues.SensorValueModel;
-import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
+import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.sensorvalues.BooleanValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public class TimeLineCharts extends VisualizationTab {
 
     private static final String TAG = "TimeLineCharts";
-    // private double nrOfCharts;
     private TimeLineChart floatChart;
+    private TimeLineChart boolChart;
     private final Map<String, TimeLineChart> jsonCharts;
     private int nrOfCharts;
 
@@ -56,6 +58,8 @@ public class TimeLineCharts extends VisualizationTab {
      */
     private void addChart(TimeLineChart chart) {
 
+        Log.d(TAG, "addChart");
+
         if (0 == this.nrOfCharts) {
             // remove empty text message
             Component emptyText = this.getItemByItemId("empty_text");
@@ -64,22 +68,36 @@ public class TimeLineCharts extends VisualizationTab {
             }
 
             chart.setId("chart_" + this.nrOfCharts);
-            this.add(chart, new RowData(-1, 0.95));
+            this.add(chart, new RowData(-1, 0.95, new Margins(0)));
+
+            Log.d(TAG, "Added first chart...");
+
         } else if (1 == this.nrOfCharts) {
             // re-add first chart with new size
             TimeLineChart firstChart = (TimeLineChart) this.getItemByItemId("chart_" + 0);
             this.remove(firstChart);
 
             // re-layout the first chart with new size
-            this.add(firstChart, new RowData(-1, 0.8));
+            this.add(firstChart, new RowData(-1, 0.8, new Margins(0)));
             firstChart.layout(true);
 
-            this.add(chart, new RowData(-1, 0.8));
+            this.add(chart, new RowData(-1, 0.8, new Margins(0)));
+
+            Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
+
         } else {
-            this.add(chart, new RowData(-1, 0.8));
+            this.add(chart, new RowData(-1, 0.8, new Margins(0)));
+
+            Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
         }
         this.nrOfCharts++;
-        this.doLayout();
+        Log.d(TAG, "Before layout, after adding chart...");
+        try {
+            this.layout();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "Did relayout after adding chart...");
     }
 
     /**
@@ -106,6 +124,8 @@ public class TimeLineCharts extends VisualizationTab {
     @Override
     public void addData(TaggedDataModel data) {
 
+        Log.d(TAG, "addData... (" + data.getData().length + " points)");
+
         // see of there are any data points before making chart
         final SensorValueModel[] values = data.getData();
         if (values.length > 0) {
@@ -118,10 +138,14 @@ public class TimeLineCharts extends VisualizationTab {
             case SensorValueModel.JSON:
                 addJsonCharts(data);
                 break;
+            case SensorValueModel.BOOL:
+                addBoolChart(data);
+                break;
             default:
                 Log.w(TAG, "Unexpected data type");
             }
-            // TODO: boolean and String handling in TimeLineCharts
+        } else {
+            Log.w(TAG, "No sensor values to add");
         }
     }
 
@@ -141,6 +165,29 @@ public class TimeLineCharts extends VisualizationTab {
     }
 
     /**
+     * Adds a chart for simple boolean sensor values.
+     * 
+     * @param data
+     *            the sensor values to display
+     */
+    private void addBoolChart(TaggedDataModel data) {
+        SensorValueModel[] values = data.getData();
+        SensorValueModel value;
+        for (int i = 0; i < values.length; i++) {
+            value = values[i];
+            double floatValue = ((BooleanValueModel) value).getValue() ? 1 : 0;
+            values[i] = new FloatValueModel(value.getTimestamp(), floatValue);
+        }
+
+        if (null == this.boolChart) {
+            this.boolChart = new TimeLineChart(data, null);
+            addChart(this.boolChart);
+        } else {
+            this.boolChart.addData(data);
+        }
+    }
+
+    /**
      * Adds one or more charts from the fields of JSON sensor values.
      * 
      * @param data
@@ -151,7 +198,11 @@ public class TimeLineCharts extends VisualizationTab {
         final Map<String, TaggedDataModel> numFields = jsonToFloats(data);
 
         for (final Map.Entry<String, TaggedDataModel> field : numFields.entrySet()) {
+
             final String chartName = field.getKey();
+
+            Log.d(TAG, "addJsonCharts... field: " + chartName);
+
             final TaggedDataModel taggedData = field.getValue();
 
             TimeLineChart chart = this.jsonCharts.get(chartName);
@@ -195,7 +246,7 @@ public class TimeLineCharts extends VisualizationTab {
     }
 
     private Map<String, ArrayList<SensorValueModel>> sortJsonFields(SensorValueModel[] unsorted) {
-        
+
         // for every sensor value in the list
         final Map<String, ArrayList<SensorValueModel>> sortedValues = new HashMap<String, ArrayList<SensorValueModel>>();
         for (final SensorValueModel genericValue : unsorted) {
@@ -204,7 +255,7 @@ public class TimeLineCharts extends VisualizationTab {
 
             // for every JSON field in the sensor value
             for (final Map.Entry<String, Object> field : fields.entrySet()) {
-                
+
                 // try to parse the field properties to doubles
                 final String fieldName = field.getKey();
                 final Object fieldValue = field.getValue();
@@ -221,7 +272,7 @@ public class TimeLineCharts extends VisualizationTab {
                         list.add(floatValue);
                     }
                     sortedValues.put(fieldName, list);
-                } else if (fieldValue instanceof Double) { 
+                } else if (fieldValue instanceof Double) {
                     // simple double field!
                     final double parsed = (Double) fieldValue;
                     ArrayList<SensorValueModel> list = sortedValues.get(fieldName);

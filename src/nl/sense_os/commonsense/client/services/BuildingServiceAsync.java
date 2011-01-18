@@ -4,8 +4,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 /**
  * The async counterpart of <code>BuildingService</code>.

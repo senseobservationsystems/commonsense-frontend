@@ -1,11 +1,9 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -19,7 +17,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
@@ -28,14 +25,17 @@ import com.google.gwt.user.client.ui.Widget;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.services.DataService;
-import nl.sense_os.commonsense.client.services.DataServiceAsync;
+import nl.sense_os.commonsense.client.services.BuildingService;
+import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.services.TagService;
+import nl.sense_os.commonsense.client.services.TagServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.widgets.Login;
 import nl.sense_os.commonsense.client.widgets.NavBar;
+import nl.sense_os.commonsense.client.widgets.Visualization;
 import nl.sense_os.commonsense.client.widgets.building.BuildingMgmt;
-import nl.sense_os.commonsense.dto.UserModel;
-import nl.sense_os.commonsense.dto.exceptions.DbConnectionException;
-import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.UserModel;
 
 /**
  * Entry point for the CommonSense web application. Holds the background and controls the navigation
@@ -43,10 +43,14 @@ import nl.sense_os.commonsense.dto.exceptions.WrongResponseException;
  */
 public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
-    private static final String TAG = "CommonSense";
+    private static final String TAG = "CommonSense";    
     private LayoutContainer mainBorderLayout;
     private final NavBar topNavBar = new NavBar();
-    private UserModel user;
+    
+    /**
+     * History token that we want to navigate to after signing in (default is NavBar.HOME).  
+     */
+    private String afterSignIn = NavBar.HOME;
 
     private LayoutContainer createMainPanel() {
 
@@ -80,26 +84,14 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
     }
 
     private void onLogin(UserModel user) {
-        this.user = user;
+        // save in local Registry
+        Registry.register(Constants.REG_USER, user);
 
         topNavBar.setUser(user);
         topNavBar.setLogin(true);
 
-        // continue to visualization screen
-        History.newItem(NavBar.VISUALIZATION);
-    }
-
-    private void onLogout() {
-        this.user = null;
-        Cookies.removeCookie("user_name");
-        Cookies.removeCookie("user_pass");
-
-        topNavBar.setUser(null);
-        topNavBar.setLogin(false);
-        mainBorderLayout.layout();
-
-        // continue to home screen
-        History.newItem(NavBar.HOME);
+        // continue to next screen
+        History.newItem(afterSignIn);
     }
 
     @Override
@@ -107,24 +99,35 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         String now = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
         Log.d(TAG, "===== Module Load (" + now + ") =====");
 
-        // check for initial token
-        String token = History.getToken();
-        if ((token.length() == 0)
-                || (!(token.equals(NavBar.HOME) || token.equals(NavBar.HELP) || token
-                        .equals(NavBar.SIGN_IN)))) {
-            History.newItem("home");
-        }
-
-        tryAutoSignIn();
-
+        // set up main view
         Viewport vp = new Viewport();
         vp.setSize("100%", "100%");
         vp.setLayout(new FitLayout());
         vp.add(createMainPanel());
+        RootPanel.get().add(vp);
 
-        RootPanel root = RootPanel.get();
-        root.add(vp);
+        // load services and put them in Registry
+        final TagServiceAsync sensorDataService = GWT.create(TagService.class);
+        Registry.register(Constants.REG_TAG_SVC, sensorDataService);
+        final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
+        Registry.register(Constants.REG_BUILDING_SVC, buildingService);
 
+        // check for initial History token
+        String token = History.getToken();
+        boolean needsLogin = (token.equals(NavBar.SIGN_IN) || token.equals(NavBar.SETTINGS)
+                || token.equals(NavBar.SHARE_DATA) || token.equals(NavBar.TRAINING_DATA) || token
+                .equals(NavBar.VISUALIZATION));
+        if (true == needsLogin) {
+            // save the token so we can navigate to it after signing in
+            afterSignIn = token;
+            if (token.equals(NavBar.SIGN_IN)) {
+                afterSignIn = NavBar.HOME;
+            }
+            
+            History.newItem(NavBar.SIGN_IN);
+        } else {
+            History.newItem(NavBar.HOME);
+        }
         History.addValueChangeHandler(this);
         History.fireCurrentHistoryState();
     }
@@ -149,7 +152,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         centerLayout.setMargins(new Margins(0));
 
         // create the right widget for this history token
-        Widget w = new Text("");
+        Widget w = new Text("no content");
         if (token.equals(NavBar.HOME)) {
             w = showHomeScreen();
         } else if (token.equals(NavBar.SIGN_IN)) {
@@ -157,8 +160,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
         } else if (token.equals(NavBar.VISUALIZATION)) {
             w = showVizScreen();
         } else if (token.equals(NavBar.SIGN_OUT)) {
-            onLogout();
-            return;
+            w = showLoginScreen();
         } else if (token.equals(NavBar.HELP)) {
             w = showHelpScreen();
         } else if (token.equals(NavBar.BUILDING_MGMT)) {
@@ -180,8 +182,7 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
     }
 
     private Widget showBuildingMgmt() {
-        final LayoutContainer imgUpload = new BuildingMgmt("" + user.getId());
-        return imgUpload;
+        return new BuildingMgmt();
     }
 
     private Widget showHelpScreen() {
@@ -195,9 +196,11 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
 
         // create login form widget
         AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
+
             @Override
             public void onFailure(Throwable ex) {
-                onLogout();
+                // should never happen
+                Log.e(TAG, "Login returned onFailure?! Message: " + ex.getMessage());
             }
 
             @Override
@@ -211,57 +214,6 @@ public class CommonSense implements EntryPoint, ValueChangeHandler<String> {
     }
 
     private Widget showVizScreen() {
-        return new Visualization(this.user);
-    }
-
-    private void tryAutoSignIn() {
-        // get user from Cookie
-        String cookieName = Cookies.getCookie("user_name");
-        String cookiePass = Cookies.getCookie("user_pass");
-        if ((null != cookieName) && (null != cookiePass) && (cookieName.length() > 0)
-                && (cookiePass.length() > 0)) {
-            Log.d(TAG, "Autologin");
-
-            // show progress dialog
-            final MessageBox waitBox = MessageBox.wait("CommonSense Login",
-                    "Logging in, please wait...", "Logging in...");
-
-            // perform logout when the login fails
-            final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
-
-                @Override
-                public void handleEvent(MessageBoxEvent be) {
-                    onLogout();
-                }
-            };
-
-            final AsyncCallback<UserModel> callback = new AsyncCallback<UserModel>() {
-                @Override
-                public void onFailure(Throwable ex) {
-                    waitBox.close();
-
-                    String title = "Login failure!";
-                    if (ex instanceof WrongResponseException) {
-                        MessageBox.alert(title, "Invalid username or password.", l);
-                    } else if (ex instanceof DbConnectionException) {
-                        MessageBox.alert(title, "Failed to connect to CommonSense database.", l);
-                    } else {
-                        MessageBox.alert(title, "Server-side failure: " + ex.getMessage(), l);
-                    }
-                }
-
-                @Override
-                public void onSuccess(UserModel user) {
-                    waitBox.close();
-                    if (user != null) {
-                        onLogin(user);
-                    } else {
-                        MessageBox.alert("Login failure!", "Invalid username or password.", l);
-                    }
-                }
-            };
-            final DataServiceAsync service = (DataServiceAsync) GWT.create(DataService.class);
-            service.checkLogin(cookieName, cookiePass, callback);
-        }
+        return new Visualization();
     }
 }

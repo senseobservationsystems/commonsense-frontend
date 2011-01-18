@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.widgets;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -9,7 +10,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.dto.sensorvalues.TaggedDataModel;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public abstract class VisualizationTab extends LayoutContainer {
 
@@ -17,7 +18,7 @@ public abstract class VisualizationTab extends LayoutContainer {
     
     public VisualizationTab() {
         // set up layout
-        setLayout(new RowLayout());
+        setLayout(new RowLayout(Orientation.VERTICAL));
         setScrollMode(Scroll.AUTOY);
         
         // show "waiting..." bar

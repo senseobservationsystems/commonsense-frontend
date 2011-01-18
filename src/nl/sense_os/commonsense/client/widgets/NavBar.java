@@ -12,7 +12,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Hyperlink;
 
-import nl.sense_os.commonsense.dto.UserModel;
+import nl.sense_os.commonsense.shared.UserModel;
 
 /**
  * Component with the top navigation bar, updates itself as the user navigates the application.
@@ -147,7 +147,7 @@ public class NavBar extends LayoutContainer implements ValueChangeHandler<String
      */
     public void setUser(UserModel user) {
         if (null != user) {
-            this.userName.setText(user.getName());
+            this.userName.setText(user.toString());
         } else {
             // should never be visible
             this.userName.setText("NULL");

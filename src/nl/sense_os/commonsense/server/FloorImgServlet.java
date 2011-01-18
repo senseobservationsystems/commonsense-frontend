@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.sense_os.commonsense.dto.building.FloorModel;
 import nl.sense_os.commonsense.server.dao.FloorDao;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 /**
  * This is the servlet that handles the callback after the blobstore upload has completed. After the
@@ -50,24 +50,28 @@ public class FloorImgServlet extends HttpServlet {
             log.severe("No image in POST");
         } else {
             log.info("Storing floor...");
-            
+
             ImagesService imagesService = ImagesServiceFactory.getImagesService();
 
             // Get the properties of the Floor and Building
             String imageUrl = imagesService.getServingUrl(blobKey);
             String name = req.getParameter("label");
             int number = Integer.parseInt(req.getParameter("nr"));
+            double height = Double.parseDouble(req.getParameter("height"));
+            double width = Double.parseDouble(req.getParameter("width"));
+            double depth = Double.parseDouble(req.getParameter("depth"));
             String userId = req.getParameter("user");
             Date now = new Date();
-            
+
             // store the floor
-            FloorModel floor = new FloorModel(imageUrl, number, name, userId, now, now);
+            FloorModel floor = new FloorModel(imageUrl, number, name, height, width, depth, userId,
+                    now, now);
             floor.setBlobKey(blobKey.getKeyString());
             String floorKey = new FloorDao().store(floor);
             floor.setKey(floorKey);
-            
+
             log.info("Floor \"" + floor.getName() + "\" stored.");
-            
+
             // Redirect to this servlet's doGet, pass the image url and floor key
             res.sendRedirect("/floorupload?imageUrl=" + imageUrl + "&floorKey=" + floor.getKey());
         }
@@ -76,7 +80,7 @@ public class FloorImgServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
             IOException {
-        
+
         String imageUrl = req.getParameter("imageUrl");
         String floorKey = req.getParameter("floorKey");
         resp.setHeader("Content-Type", "text/html");

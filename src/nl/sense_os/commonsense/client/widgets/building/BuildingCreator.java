@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.widgets.building;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -12,27 +13,30 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 /**
  * @see <a href=
@@ -51,12 +55,19 @@ public class BuildingCreator extends ContentPanel {
     private ProgressBar progressBar;
     private MessageBox progressBox;
     private Button saveBtn;
-    private final BuildingServiceAsync service = GWT.create(BuildingService.class);
+    private final BuildingServiceAsync buildingService;
     private int uploadCount = 0;
     private final String userId;
 
-    public BuildingCreator(String userId) {
-        this.userId = userId;
+    public BuildingCreator() {
+        final UserModel user = Registry.<UserModel> get(Constants.REG_USER);
+        if (null == user) {
+            Log.e(TAG, "No user object in Registry");
+            this.userId = "-1";
+        } else {
+            this.userId = "" + user.getId();
+        }
+        buildingService = Registry.<BuildingServiceAsync> get(Constants.REG_BUILDING_SVC);
 
         // field 0: building name
         buildingName.setFieldLabel("Building label");
@@ -85,7 +96,7 @@ public class BuildingCreator extends ContentPanel {
         // set up the form panel
         form = new FormPanel();
         form.setHeaderVisible(false);
-        form.setLabelWidth(100);
+        form.setLabelWidth(150);
         setupSubmitAction();
 
         form.add(buildingName, formData);
@@ -131,6 +142,23 @@ public class BuildingCreator extends ContentPanel {
         nrField.setName("nr");
         nrField.setId("nr");
 
+        // dimensions
+        TextField<Double> height = new TextField<Double>();
+        height.setName("height");
+        TextField<Double> width = new TextField<Double>();
+        width.setName("width");
+        TextField<Double> depth = new TextField<Double>();
+        depth.setName("depth");
+        MultiField<TextField<Double>> dims = new MultiField<TextField<Double>>();
+        dims.setFieldLabel("Dimensions (HxWxD)");
+        dims.setName("dimensions");
+        dims.setId("dimensions");
+        dims.setResizeFields(true);
+        dims.setSpacing(2);
+        dims.add(height);
+        dims.add(width);
+        dims.add(depth);
+
         // file upload field
         FileUploadField file = new FileUploadField();
         file.setAllowBlank(false);
@@ -143,10 +171,11 @@ public class BuildingCreator extends ContentPanel {
         floorForm.setEncoding(Encoding.MULTIPART);
         floorForm.setMethod(Method.POST);
         floorForm.setHeaderVisible(false);
-        floorForm.setLabelWidth(90);
+        floorForm.setLabelWidth(140);
         floorForm.add(labelField);
         floorForm.add(nrField);
         floorForm.add(file);
+        floorForm.add(dims);
 
         // add floor form to main form panel
         add(floorForm, new FlowData(5));
@@ -193,7 +222,7 @@ public class BuildingCreator extends ContentPanel {
         double progress = (2d * uploadCount) / (2d * floorFields.size() + 1);
         String text = "Saving floor " + (uploadCount + 1) + "/" + floorFields.size() + "...";
         progressBar.updateProgress(progress, text);
-        
+
         final String params = "?user=" + userId;
         final AsyncCallback<String> callback = new AsyncCallback<String>() {
 
@@ -211,16 +240,17 @@ public class BuildingCreator extends ContentPanel {
 
             @Override
             public void onSuccess(String url) {
-                
+
                 // update progress
                 double progress = (2d * uploadCount + 1) / (2d * floorFields.size() + 1);
-                String text = "Saving floor " + (uploadCount + 1) + "/" + floorFields.size() + "...";
+                String text = "Saving floor " + (uploadCount + 1) + "/" + floorFields.size()
+                        + "...";
                 progressBar.updateProgress(progress, text);
-                
+
                 storeFloor(url);
             }
         };
-        service.getBlobstoreUploadUrl(params, callback);
+        buildingService.getBlobstoreUploadUrl(params, callback);
     }
 
     private void onCancel() {
@@ -276,7 +306,7 @@ public class BuildingCreator extends ContentPanel {
         // reset the form
         uploadCount = 0;
         form.reset();
-        
+
         // remove the progress box if it is shown
         if (null != progressBox) {
             progressBox.close();
@@ -307,7 +337,7 @@ public class BuildingCreator extends ContentPanel {
         double progress = (2d * uploadCount) / (2d * floorFields.size() + 1);
         String text = "Saving building...";
         progressBar.updateProgress(progress, text);
-                
+
         AsyncCallback<String> callback = new AsyncCallback<String>() {
 
             @Override
@@ -329,7 +359,7 @@ public class BuildingCreator extends ContentPanel {
             }
         };
 
-        service.storeBuilding(building, callback);
+        buildingService.storeBuilding(building, callback);
     }
 
     private void storeFloor(final String url) {
@@ -345,14 +375,14 @@ public class BuildingCreator extends ContentPanel {
                 // add floor to the building
                 try {
                     String resultHtml = be.getResultHtml();
-                    
+
                     int urlStart = resultHtml.indexOf("url=") + "url".length() + 1;
                     int urlEnd = resultHtml.indexOf("&");
                     String url = resultHtml.substring(urlStart, urlEnd);
-                    
+
                     int keyStart = resultHtml.indexOf("key=") + "key".length() + 1;
                     int keyEnd = resultHtml.length() - 1;
-                    String key = resultHtml.substring(keyStart, keyEnd);                    
+                    String key = resultHtml.substring(keyStart, keyEnd);
 
                     if (url.length() < 10) {
                         Log.e(TAG, "Floor upload failed");
@@ -365,8 +395,16 @@ public class BuildingCreator extends ContentPanel {
                         TextField<String> label = (TextField<String>) floorField
                                 .getItemByItemId("label");
                         SpinnerField nr = (SpinnerField) floorField.getItemByItemId("nr");
+                        @SuppressWarnings("unchecked")
+                        MultiField<TextField<Double>> dims = (MultiField<TextField<Double>>) floorField
+                                .getItemByItemId("dimensions");
+                        List<Field<?>> dimsList = dims.getAll();
+                        double h = Double.parseDouble((String) dimsList.get(0).getValue());
+                        double w = Double.parseDouble((String) dimsList.get(1).getValue());
+                        double d = Double.parseDouble((String) dimsList.get(2).getValue());
+                        
                         FloorModel floor = new FloorModel(url, nr.getValue().intValue(), label
-                                .getValue(), userId, new Date(), new Date());
+                                .getValue(), h, w, d, userId, new Date(), new Date());
                         floor.setKey(key);
                         ArrayList<FloorModel> floors = building.getFloors();
                         floors.add(floor);
@@ -383,18 +421,12 @@ public class BuildingCreator extends ContentPanel {
                         }
                     }
                 } catch (Exception e) {
-                    onSaveFailed("" + be.getResultHtml());
+                    Log.e(TAG, "Store floor failed: " + e.getMessage());
+                    onSaveFailed(e.getMessage());
                 }
             }
         });
-
-        // add invisible form to the layout before submitting
-        // form.setVisible(false);
-        // add(form);
-        //
-        // layout();
-
-        // form.submit();
+        
         floorField.submit();
     }
 

@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.services.BuildingService;
-import nl.sense_os.commonsense.dto.building.BuildingModel;
-import nl.sense_os.commonsense.dto.building.FloorModel;
 import nl.sense_os.commonsense.server.dao.BuildingDao;
 import nl.sense_os.commonsense.server.dao.FloorDao;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+import nl.sense_os.commonsense.shared.building.FloorModel;
 
 /**
  * The server side implementation of the RPC service.

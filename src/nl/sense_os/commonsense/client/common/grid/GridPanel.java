@@ -41,6 +41,7 @@ public class GridPanel extends ContentPanel {
 	public GridPanel(String url, ModelType mt, ColumnModel cm) {
 		// Data store
 		dataStore = new DataStore(url, mt);
+		dataStore.setOffset(25);
 		ListStore<ModelData> store = dataStore.getStore();
 
 		// Grid

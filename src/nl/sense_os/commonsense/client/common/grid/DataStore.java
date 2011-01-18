@@ -11,6 +11,8 @@ import com.extjs.gxt.ui.client.data.ScriptTagProxy;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 
+import nl.sense_os.commonsense.client.utility.Log;
+
 /**
  * An object of this class makes a remote request and stores the returned data into
  * a data store according to a given data model.
@@ -20,7 +22,8 @@ import com.extjs.gxt.ui.client.store.ListStore;
  */
 public class DataStore {
 	
-	private ScriptTagProxy<String> proxy;
+	private static final String TAG = "DataStore";
+    private ScriptTagProxy<String> proxy;
 	private JsonPagingLoadResultReader<PagingLoadResult<ModelData>> reader;
 	private ListStore<ModelData> store;
 	private BasePagingLoader<PagingLoadResult<ModelData>> loader;
@@ -40,7 +43,7 @@ public class DataStore {
 
 		// Loader
 		loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy, reader);
-
+		
 		store = new ListStore<ModelData>(loader);
 	}
 	
@@ -57,10 +60,14 @@ public class DataStore {
 	 * @param offset
 	 */
 	public void setOffset(int offset) {
+        Log.d(TAG, "setOffset");
+        
 		loader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {  
 			@Override
-            public void handleEvent(LoadEvent be) {  
-				be.<ModelData> getConfig().set("start", be.<ModelData> getConfig().get("offset"));
+            public void handleEvent(LoadEvent be) {
+			    Log.d(TAG, "BeforeLoad");
+                be.<ModelData> getConfig().set("start", be.<ModelData> getConfig().get("offset"));  
+                be.<ModelData> getConfig().set("per_page", 25);
 			}  
 		});		
 	}

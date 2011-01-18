@@ -19,11 +19,6 @@
     <servlet-name>CleanupServlet</servlet-name>
     <servlet-class>nl.sense_os.commonsense.server.CleanupServlet</servlet-class>
   </servlet>
-  
-  <servlet>
-    <servlet-name>DataServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.DataServiceImpl</servlet-class>
-  </servlet>
 
   <servlet>
     <servlet-name>FloorImgServlet</servlet-name>
@@ -45,6 +40,11 @@
     <servlet-class>nl.sense_os.commonsense.server.IVOTagServlet</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>TagServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.TagServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>BuildingServlet</servlet-name>
     <url-pattern>/commonsense/building</url-pattern>
@@ -53,11 +53,6 @@
   <servlet-mapping>
     <servlet-name>CleanupServlet</servlet-name>
     <url-pattern>/ivo/cleanup</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>DataServlet</servlet-name>
-    <url-pattern>/commonsense/data</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -78,6 +73,11 @@
   <servlet-mapping>
     <servlet-name>IVOTagServlet</servlet-name>
     <url-pattern>/ivo/tags</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TagServlet</servlet-name>
+    <url-pattern>/commonsense/tags</url-pattern>
   </servlet-mapping>
     
   <!-- Default page to serve -->

@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.widgets.building;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -25,20 +26,20 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.widgets.LoadingPanel;
-import nl.sense_os.commonsense.dto.building.BuildingModel;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
 
 public class BuildingMgmt extends ContentPanel {
 
-    @SuppressWarnings("unused")
     private static final String TAG = BuildingMgmt.class.getName();
     private Grid<BuildingModel> buildingGrid;
     private final ListStore<BuildingModel> buildingStore = new ListStore<BuildingModel>();
@@ -47,11 +48,11 @@ public class BuildingMgmt extends ContentPanel {
     private BuildingDetails details;
     private BuildingEditor editor;
     private BuildingModel lastSelected;
-    private final BuildingServiceAsync service = GWT.create(BuildingService.class);
-    private final String userId;
+    private final BuildingServiceAsync buildingService;
+    
+    public BuildingMgmt() {
 
-    public BuildingMgmt(String userId) {
-        this.userId = userId;        
+        buildingService = Registry.<BuildingServiceAsync> get(Constants.REG_BUILDING_SVC);
         
         // building selection panel for west part of widget
         Component gridPanel = createSelectionPanel();
@@ -71,7 +72,7 @@ public class BuildingMgmt extends ContentPanel {
     }
 
     private BuildingCreator createCreator() {
-        final BuildingCreator creator = new BuildingCreator(this.userId);
+        final BuildingCreator creator = new BuildingCreator();
         creator.addListener(Events.Complete, new Listener<BaseEvent>() {
             @Override
             public void handleEvent(BaseEvent be) {
@@ -195,7 +196,12 @@ public class BuildingMgmt extends ContentPanel {
         showLoading();
 
         // do request
-        service.getUserBuildings(userId, new AsyncCallback<List<BuildingModel>>() {
+        UserModel user = Registry.get(Constants.REG_USER);
+        if (null == user) {
+            Log.e(TAG, "No user object in Registry");
+            return;
+        }
+        buildingService.getUserBuildings("" + user.getId(), new AsyncCallback<List<BuildingModel>>() {
 
             @Override
             public void onFailure(Throwable caught) {
