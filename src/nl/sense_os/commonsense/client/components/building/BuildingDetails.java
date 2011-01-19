@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.widgets.building;
+package nl.sense_os.commonsense.client.components.building;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

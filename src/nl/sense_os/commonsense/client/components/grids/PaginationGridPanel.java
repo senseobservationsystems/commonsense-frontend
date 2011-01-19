@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.widgets.grids;
+package nl.sense_os.commonsense.client.components.grids;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;

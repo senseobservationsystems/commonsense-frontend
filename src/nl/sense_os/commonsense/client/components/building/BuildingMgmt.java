@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.widgets.building;
+package nl.sense_os.commonsense.client.components.building;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -31,9 +31,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.components.LoadingPanel;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.widgets.LoadingPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.building.BuildingModel;

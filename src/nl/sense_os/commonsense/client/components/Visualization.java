@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.widgets;
+package nl.sense_os.commonsense.client.components;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -58,9 +58,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
 import nl.sense_os.commonsense.client.services.TagServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.widgets.grids.SensorDataGrid;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.UserModel;
@@ -97,15 +97,15 @@ public class Visualization extends LayoutContainer {
         }
 
         function outputAuthentication() {
-            handler.@nl.sense_os.commonsense.client.widgets.Visualization::onRequestFailed()();
+            handler.@nl.sense_os.commonsense.client.components.Visualization::onRequestFailed()();
         }
 
         function outputError() {
-            handler.@nl.sense_os.commonsense.client.widgets.Visualization::onRequestFailed()();
+            handler.@nl.sense_os.commonsense.client.components.Visualization::onRequestFailed()();
         }
 
         function outputResult() {
-            handler.@nl.sense_os.commonsense.client.widgets.Visualization::handleSensorData(Ljava/lang/String;Lcom/extjs/gxt/ui/client/data/TreeModel;)(xhr.responseText,tag);
+            handler.@nl.sense_os.commonsense.client.components.Visualization::handleSensorData(Ljava/lang/String;Lcom/extjs/gxt/ui/client/data/TreeModel;)(xhr.responseText,tag);
         }
 
         if (xhr) {

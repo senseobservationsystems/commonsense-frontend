@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.widgets;
+package nl.sense_os.commonsense.client.components;
 
 import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
