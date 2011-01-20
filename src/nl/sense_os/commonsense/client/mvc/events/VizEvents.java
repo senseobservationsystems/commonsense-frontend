@@ -7,6 +7,9 @@ public class VizEvents {
     public static final EventType TagsRequested = new EventType();
     public static final EventType TagsNotUpdated = new EventType();
     public static final EventType TagsUpdated = new EventType();
+    public static final EventType DataRequested = new EventType();
+    public static final EventType DataNotReceived = new EventType();
+    public static final EventType DataReceived = new EventType();
     public static final EventType GroupsRequested = new EventType();
     public static final EventType GroupsNotUpdated = new EventType();
     public static final EventType GroupsUpdated = new EventType();

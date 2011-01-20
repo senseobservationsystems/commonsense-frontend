@@ -1,5 +1,17 @@
 package nl.sense_os.commonsense.client.components;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -17,6 +29,8 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
@@ -44,36 +58,11 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
-import nl.sense_os.commonsense.client.services.TagServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.TagModel;
-import nl.sense_os.commonsense.shared.UserModel;
-import nl.sense_os.commonsense.shared.sensorvalues.BooleanValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.StringValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 /**
  * Component with the visualization part of the web application.
@@ -82,57 +71,8 @@ public class Visualization extends LayoutContainer {
 
     private static final String TAG = "Visualization";
 
-    private static native void jsniGetData(String url, String sessionId, TreeModel tag,
-            Visualization handler) /*-{
-        var isIE8 = window.XDomainRequest ? true : false;
-        var xhr = createCrossDomainRequest();
-
-        function createCrossDomainRequest() {
-            if (isIE8) { return new window.XDomainRequest(); } 
-            else { return new XMLHttpRequest(); }
-        }
-
-        function readyStateHandler() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) { outputResult(); } 
-                else if (xhr.status == 403) { outputAuthentication(); } 
-                else { outputError(); }
-            }
-        }
-
-        function outputAuthentication() {
-            handler.@nl.sense_os.commonsense.client.components.Visualization::onRequestFailed()();
-        }
-
-        function outputError() {
-            handler.@nl.sense_os.commonsense.client.components.Visualization::onRequestFailed()();
-        }
-
-        function outputResult() {
-            handler.@nl.sense_os.commonsense.client.components.Visualization::handleSensorData(Ljava/lang/String;Lcom/extjs/gxt/ui/client/data/TreeModel;)(xhr.responseText,tag);
-        }
-
-        if (xhr) {
-            if (isIE8) {
-                url = url + "&session_id=" + sessionId;
-                xhr.open("GET", url);
-                xhr.onload = outputResult;
-                xhr.onerror = outputError;
-                xhr.send();
-            } else {
-                xhr.open('GET', url, true);
-                xhr.onreadystatechange = readyStateHandler;
-                xhr.setRequestHeader("X-SESSION_ID",sessionId);
-                xhr.send();
-            }
-        } else {
-            outputError();
-        }
-    }-*/;
-
     private TreeModel[] outstandingReqs;
     private int reqFailCount;
-    private int reqRetryCount;
     public TreeStore<TreeModel> store = new TreeStore<TreeModel>();
     private TabPanel tabPanel;
     private TreePanel<TreeModel> tagTree;
@@ -475,6 +415,7 @@ public class Visualization extends LayoutContainer {
      *            the tags that were dropped. NB: only the first tag in the array is actually used.
      * @see GoogleStreetView
      */
+    @SuppressWarnings("unused")
     private void deviceLocationView(TreeModel[] tags) {
 
         final UserModel user = Registry.get(Constants.REG_USER);
@@ -504,142 +445,12 @@ public class Visualization extends LayoutContainer {
     private void getSensorData(TreeModel tag) {
         Log.d(TAG, "Request sensor data: " + tag.<String> get("id"));
 
-        String url = Constants.URL_DATA.replace("<id>", "" + tag.<String> get("id"));
+        AppEvent requestEvent = new AppEvent(VizEvents.DataRequested);
+        requestEvent.setData("tag", tag);
         final long[] range = getTimeRange();
-        url += "?per_page=" + 1000;
-        url += "&start_date=" + (range[0] / 1000d);
-        url += "&end_date=" + (range[1] / 1000d);
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
-
-        jsniGetData(url, sessionId, tag, this);
-    }
-
-    private void getTags() {
-        TagServiceAsync service = Registry.<TagServiceAsync> get(Constants.REG_TAG_SVC);
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.e(TAG, "Failed getting tags: " + caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<TreeModel> result) {
-                Log.d(TAG, "receiver tags");
-                store.removeAll();
-                store.add(result, true);
-            }
-        };
-        service.getTags(sessionId, callback);
-    }
-
-    private void handleSensorData(String response, TreeModel tag) {
-        Log.d(TAG, "handleSensorData");
-
-        // reset retry count
-        this.reqRetryCount = 0;
-
-        try {
-            JSONObject obj = JSONParser.parseStrict(response).isObject();
-            JSONArray data = obj.get("data").isArray();
-
-            Log.d(TAG, "Received " + data.size() + " sensor data points");
-
-            SensorValueModel[] values = new SensorValueModel[data.size()];
-            JSONObject datapoint;
-            double decimalTime;
-            Date timestamp;
-            String rawValue;
-            String cleanValue;
-            SensorValueModel value;
-            for (int i = 0; i < data.size(); i++) {
-
-                datapoint = data.get(i).isObject();
-
-                // parse time
-                decimalTime = Double.parseDouble(datapoint.get("date").isString().stringValue());
-                timestamp = new Date((long) (decimalTime * 1000));
-
-                // get value (always a String initially)
-                rawValue = datapoint.get("value").isString().stringValue();
-                cleanValue = rawValue.replaceAll("//", "");
-
-                if ((cleanValue.charAt(0) == '{')
-                        && (cleanValue.charAt(cleanValue.length() - 1) == '}')) {
-                    JSONObject jsonValue = JSONParser.parseStrict(cleanValue).isObject();
-                    if (null != jsonValue) {
-                        // Log.d(TAG, "JsonValue");
-
-                        HashMap<String, Object> fields = new HashMap<String, Object>();
-                        for (String fieldKey : jsonValue.keySet()) {
-                            JSONValue fieldValue = jsonValue.get(fieldKey);
-
-                            JSONNumber numberField = fieldValue.isNumber();
-                            if (null != numberField) {
-                                fields.put(fieldKey, numberField.doubleValue());
-                            } else {
-                                fields.put(fieldKey, fieldValue.toString());
-                            }
-                        }
-                        value = new JsonValueModel(timestamp, fields);
-                        values[i] = value;
-                        continue;
-                    }
-                }
-
-                try {
-                    double doubleValue = Double.parseDouble(cleanValue);
-                    // Log.d(TAG, "FloatValue");
-                    value = new FloatValueModel(timestamp, doubleValue);
-                    values[i] = value;
-                    continue;
-                } catch (NumberFormatException e) {
-                    // do nothing
-                }
-
-                boolean boolValue = Boolean.parseBoolean(cleanValue);
-                if (!boolValue && cleanValue.equalsIgnoreCase("false")) {
-                    // Log.d(TAG, "BooleanValue");
-                    value = new BooleanValueModel(timestamp, boolValue);
-                    values[i] = value;
-                    continue;
-                }
-
-                // Log.d(TAG, "StringValue");
-                value = new StringValueModel(timestamp, cleanValue);
-                values[i] = value;
-                continue;
-            }
-
-            if (values.length > 0) {
-                String typeString = "";
-                switch (values[0].getType()) {
-                case SensorValueModel.BOOL:
-                    typeString = "BOOL";
-                    break;
-                case SensorValueModel.FLOAT:
-                    typeString = "FLOAT";
-                    break;
-                case SensorValueModel.JSON:
-                    typeString = "JSON";
-                    break;
-                case SensorValueModel.STRING:
-                    typeString = "STRING";
-                    break;
-                }
-                Log.d(TAG, "Data type: " + typeString);
-            }
-
-            TagModel mdl = new TagModel(tag.<String> get("name") + "/", 0, 0, TagModel.TYPE_SENSOR);
-            TaggedDataModel taggedData = new TaggedDataModel(mdl, values);
-            onSensorValuesReceived(taggedData);
-
-        } catch (NullPointerException e) {
-            Log.e(TAG, "NullPointerException handling sensor data: " + e.getMessage());
-            reqFailCount++;
-            onSensorValuesReceived(null);
-        }
+        requestEvent.setData("startDate", (range[0] / 1000d));
+        requestEvent.setData("endDate", (range[1] / 1000d));
+        Dispatcher.forwardEvent(requestEvent);
     }
 
     /**
@@ -688,15 +499,10 @@ public class Visualization extends LayoutContainer {
      * Handles failed requests for sensor data. Retries the request 3 times, and then passes null to
      * {@link #onSensorValuesReceived(TaggedDataModel)} to indicate definite failure.
      */
-    private void onRequestFailed() {
+    public void onRequestFailed() {
         Log.w(TAG, "Request failed");
 
-        if (this.reqRetryCount < 3) {
-            getSensorData(this.outstandingReqs[0]);
-        } else {
-            this.reqRetryCount = 0;
-            onSensorValuesReceived(null);
-        }
+        onSensorValuesReceived(null);
     }
 
     /**
@@ -708,7 +514,7 @@ public class Visualization extends LayoutContainer {
      * @param data
      *            the received TaggedDataModel
      */
-    private void onSensorValuesReceived(TaggedDataModel data) {
+    public void onSensorValuesReceived(TaggedDataModel data) {
 
         // remove the tag from outstandingReqs
         final TreeModel[] temp = new TreeModel[this.outstandingReqs.length - 1];
@@ -815,14 +621,6 @@ public class Visualization extends LayoutContainer {
         layout();
     }
 
-    public void setLoggedIn(boolean loggedIn) {
-        // if (loggedIn) {
-        // getTags();
-        // } else {
-        // this.store.removeAll();
-        // }
-    }
-
     /**
      * Sets up the tag tree panel and the tab panel for drag and drop of the tags.
      * 
@@ -855,7 +653,6 @@ public class Visualization extends LayoutContainer {
         this.outstandingReqs = tags;
         this.unfinishedTab = this.tabPanel.getSelectedItem();
         this.reqFailCount = 0;
-        this.reqRetryCount = 0;
 
         if (tags.length > 0) {
             getSensorData(tags[0]);
