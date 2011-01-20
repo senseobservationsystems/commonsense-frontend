@@ -12,6 +12,7 @@ import java.util.Date;
 import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
 import nl.sense_os.commonsense.client.mvc.controllers.MainController;
 import nl.sense_os.commonsense.client.mvc.controllers.NavController;
+import nl.sense_os.commonsense.client.mvc.controllers.VizController;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
@@ -49,8 +50,9 @@ public class CommonSense implements EntryPoint {
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
-        dispatcher.addController(new LoginController());
         dispatcher.addController(new NavController());
+        dispatcher.addController(new LoginController());
+        dispatcher.addController(new VizController());
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);

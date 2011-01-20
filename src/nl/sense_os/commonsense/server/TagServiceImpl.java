@@ -36,7 +36,65 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
     private static final Logger log = Logger.getLogger("TagServiceImpl");
     private static final long serialVersionUID = 1L;
 
-    private List<ModelData> getDevices(String sessionId) throws DbConnectionException,
+    private void getDeviceTags(String sessionId, List<TreeModel> tags)
+            throws DbConnectionException, WrongResponseException {
+
+        // request device models from server
+        List<ModelData> models = requestDevices(sessionId);
+
+        // convert the devices ModelData into TreeModels and nest their physical sensors
+        for (ModelData model : models) {
+
+            // convert "flat" device ModelData to TreeModel
+            TreeModel tag = new BaseTreeModel(model.getProperties());
+
+            // get the device's sensors
+            String deviceId = model.<String> get("id");
+            List<ModelData> deviceSensors = requestDeviceSensors(sessionId, deviceId);
+            for (ModelData childSensor : deviceSensors) {
+                TreeModel sensorTag = new BaseTreeModel(childSensor.getProperties());
+                tag.add(sensorTag);
+            }
+
+            // add device to the tags
+            tags.add(tag);
+        }
+    }
+
+    private void getSensorTags(String sessionId, List<TreeModel> feeds, List<TreeModel> device,
+            List<TreeModel> state, List<TreeModel> environment, List<TreeModel> app)
+            throws DbConnectionException, WrongResponseException {
+
+        // request all sensors from server
+        List<ModelData> models = requestSensors(sessionId);
+
+        // convert the sensor models into TreeModels
+        for (ModelData model : models) {
+            TreeModel tag = new BaseTreeModel(model.getProperties());
+            int type = Integer.parseInt(model.<String> get("type"));
+            switch (type) {
+            case 0:
+                feeds.add(tag);
+                break;
+            case 1:
+                device.add(tag);
+                break;
+            case 2:
+                state.add(tag);
+                break;
+            case 3:
+                environment.add(tag);
+                break;
+            case 4:
+                app.add(tag);
+                break;
+            default:
+                log.warning("Unexpected sensor type: " + type);
+            }
+        }
+    }
+
+    private List<ModelData> requestDevices(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         // Get response from server
@@ -100,7 +158,7 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
         }
     }
 
-    private List<ModelData> getDeviceSensors(String sessionId, String deviceId)
+    private List<ModelData> requestDeviceSensors(String sessionId, String deviceId)
             throws DbConnectionException, WrongResponseException {
 
         // Get response from server
@@ -166,7 +224,7 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
         }
     }
 
-    private List<ModelData> getSensors(String sessionId) throws DbConnectionException,
+    private List<ModelData> requestSensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         // Get response from server
@@ -238,40 +296,57 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
     public List<TreeModel> getTags(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        List<ModelData> sensors = getSensors(sessionId);
-        List<ModelData> devices = getDevices(sessionId);
+        // categorized sensors
+        List<TreeModel> feeds = new ArrayList<TreeModel>();
+        List<TreeModel> devices = new ArrayList<TreeModel>();
+        List<TreeModel> states = new ArrayList<TreeModel>();
+        List<TreeModel> environments = new ArrayList<TreeModel>();
+        List<TreeModel> apps = new ArrayList<TreeModel>();
+        getSensorTags(sessionId, feeds, devices, states, environments, apps);
 
-        // convert the devices ModelData into TreeModels and nest them
+        // devices are special case
+        devices = new ArrayList<TreeModel>();
+        getDeviceTags(sessionId, devices);
+
+        // create main groups
+        TreeModel feedCat = new BaseTreeModel();
+        feedCat.set("name", "Feeds");
+        feedCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : feeds) {
+            feedCat.add(child);
+        }
+        TreeModel deviceCat = new BaseTreeModel();
+        deviceCat.set("name", "Devices");
+        deviceCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : devices) {
+            deviceCat.add(child);
+        }
+        TreeModel stateCat = new BaseTreeModel();
+        stateCat.set("name", "States");
+        stateCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : states) {
+            stateCat.add(child);
+        }
+        TreeModel environmentCat = new BaseTreeModel();
+        environmentCat.set("name", "Environments");
+        environmentCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : environments) {
+            environmentCat.add(child);
+        }
+        TreeModel appCat = new BaseTreeModel();
+        appCat.set("name", "Applications");
+        appCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : apps) {
+            appCat.add(child);
+        }
+
         List<TreeModel> tags = new ArrayList<TreeModel>();
-        for (ModelData device : devices) {
-
-            // convert "flat" device ModelData to TreeModel
-            TreeModel deviceTag = new BaseTreeModel(device.getProperties());
-
-            // get the device's sensors
-            List<ModelData> deviceSensors = getDeviceSensors(sessionId, device.<String> get("id"));
-            for (ModelData childSensor : deviceSensors) {
-                deviceTag.add(new BaseTreeModel(childSensor.getProperties()));
-
-                // remove sensor from list of "non-physical sensors"
-                List<ModelData> toRemove = new ArrayList<ModelData>();
-                for (ModelData sensor : sensors) {
-                    if (sensor.<String> get("id").equals(childSensor.<String> get("id"))) {
-                        toRemove.add(sensor);
-                    }
-                }
-                sensors.removeAll(toRemove);
-            }
-
-            // add device to the tags
-            tags.add(deviceTag);
-        }
-
-        // iterate over the remaining sensors (those are not connected to a device)
-        for (ModelData sensor : sensors) {
-            tags.add(new BaseTreeModel(sensor.getProperties()));
-        }
-
+        tags.add(feedCat);
+        tags.add(deviceCat);
+        tags.add(stateCat);
+        tags.add(environmentCat);
+        tags.add(appCat);
+        
         return tags;
     }
 }

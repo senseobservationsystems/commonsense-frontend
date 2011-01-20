@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.NavEvents;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.mvc.views.MainView;
 
 public class MainController extends Controller {
@@ -17,6 +18,7 @@ public class MainController extends Controller {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
         registerEventTypes(NavEvents.NavReady, NavEvents.NavChanged);
         registerEventTypes(LoginEvents.LoginPanelReady, LoginEvents.LoggedIn, LoginEvents.LoggedOut);
+        registerEventTypes(VizEvents.VizReady);
     }
 
     @Override

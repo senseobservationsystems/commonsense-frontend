@@ -26,6 +26,7 @@ import nl.sense_os.commonsense.client.components.building.BuildingMgmt;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.NavEvents;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
 public class MainView extends View {
@@ -38,7 +39,7 @@ public class MainView extends View {
     private Component homeComponent;
     private Component helpComponent;
     private Component navComponent;
-    private Component visualization;
+    private Component vizComponent;
 
     public MainView(Controller controller) {
         super(controller);
@@ -89,9 +90,17 @@ public class MainView extends View {
             onLoggedOut(event);
         } else if (eventType.equals(LoginEvents.LoginPanelReady)) {
             onLoginReady(event);
+        } else if (eventType.equals(VizEvents.VizReady)) {
+            onVizReady(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
         }
+    }
+
+    private void onVizReady(AppEvent event) {
+        Log.d(TAG, "onVizReady");
+        
+        this.vizComponent = event.<Visualization> getData();
     }
 
     private void onError(AppEvent event) {
@@ -168,8 +177,7 @@ public class MainView extends View {
                 createBuildingMgmt();
                 center = this.buildingMgmt;
             } else if (location.equals(NavPanel.VISUALIZATION)) {
-                createVisualization();
-                center = this.visualization;
+                center = this.vizComponent;
             } else {
                 LayoutContainer lc = new LayoutContainer(new CenterLayout());
                 lc.add(new Text("Under construction..."));
@@ -188,12 +196,6 @@ public class MainView extends View {
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         this.mainContents.add(center, centerData);
         this.mainContents.layout();
-    }
-
-    private void createVisualization() {
-        if (null == this.visualization) {
-            this.visualization = new Visualization();
-        }
     }
 
     private void onUiReady(AppEvent event) {

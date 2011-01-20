@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -16,6 +17,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
@@ -48,12 +50,14 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +95,7 @@ public class Visualization extends LayoutContainer {
         function readyStateHandler() {
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) { outputResult(); } 
-            else if (xhr.status == 403) { outputAuthentication(); } 
+                else if (xhr.status == 403) { outputAuthentication(); } 
                 else { outputError(); }
             }
         }
@@ -129,16 +133,13 @@ public class Visualization extends LayoutContainer {
     private TreeModel[] outstandingReqs;
     private int reqFailCount;
     private int reqRetryCount;
-    final TreeStore<TreeModel> store = new TreeStore<TreeModel>();
+    public TreeStore<TreeModel> store = new TreeStore<TreeModel>();
     private TabPanel tabPanel;
     private TreePanel<TreeModel> tagTree;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
 
     public Visualization() {
-
-        // request tags from GAE, to be displayed in the west panel
-        getTags();
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         final Runnable vizCallback = new Runnable() {
@@ -257,7 +258,7 @@ public class Visualization extends LayoutContainer {
                 item.setLayout(new FitLayout());
                 Visualization.this.tabPanel.add(item);
                 tabPanel.setSelection(item);
-                
+
                 // add sensor data grid
                 item.add(new SensorDataGrid(tags), new FitData());
                 item.layout();
@@ -295,16 +296,15 @@ public class Visualization extends LayoutContainer {
      */
     private ContentPanel createTagPanel() {
 
-        // request tags to populate the tree
-        getTags();
-
         // trees store
         store.setKeyProvider(new ModelKeyProvider<TreeModel>() {
 
             @Override
             public String getKey(TreeModel model) {
                 int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_DEVICE) {
+                if (tagType == TagModel.TYPE_GROUP) {
+                    return "group " + model.<String> get("name");
+                } else if (tagType == TagModel.TYPE_DEVICE) {
                     return "device " + model.<String> get("uuid");
                 } else if (tagType == TagModel.TYPE_SENSOR) {
                     return "sensor " + model.<String> get("id");
@@ -314,6 +314,28 @@ public class Visualization extends LayoutContainer {
                 }
             }
         });
+        Comparator<Object> comparator = new Comparator<Object>() {
+
+            @Override
+            public int compare(Object obj1, Object obj2) {
+                try {
+                    TreeModel o1 = (TreeModel) obj1;
+                    TreeModel o2 = (TreeModel) obj2;
+                    int type1 = o1.<Integer> get("tagType");
+                    int type2 = o2.<Integer> get("tagType");
+                    if (type1 == type2 && type1 == TagModel.TYPE_SENSOR) {
+                        String name1 = o1.<String> get("name");
+                        String name2 = o2.<String> get("name");
+                        return name1.compareToIgnoreCase(name2);
+                    }
+                    return 0;
+                } catch (ClassCastException e) {
+                    return 0;
+                }
+            }
+        };
+        StoreSorter<TreeModel> sorter = new StoreSorter<TreeModel>(comparator);
+        store.setStoreSorter(sorter);
 
         this.tagTree = new TreePanel<TreeModel>(store);
         this.tagTree.setBorders(false);
@@ -324,7 +346,9 @@ public class Visualization extends LayoutContainer {
             @Override
             public String getStringValue(TreeModel model, String property) {
                 int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_DEVICE) {
+                if (tagType == TagModel.TYPE_GROUP) {
+                    return model.<String> get("name");
+                } else if (tagType == TagModel.TYPE_DEVICE) {
                     return model.<String> get("type");
                 } else if (tagType == TagModel.TYPE_SENSOR) {
                     String name = model.<String> get("name");
@@ -339,7 +363,23 @@ public class Visualization extends LayoutContainer {
                 }
             }
         });
-        this.tagTree.getStyle().setLeafIcon(IconHelper.create("gxt/images/default/tree/leaf.gif"));
+        this.tagTree.setIconProvider(new ModelIconProvider<TreeModel>() {
+
+            @Override
+            public AbstractImagePrototype getIcon(TreeModel model) {
+                int tagType = model.<Integer> get("tagType");
+                if (tagType == TagModel.TYPE_GROUP) {
+                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
+                } else if (tagType == TagModel.TYPE_DEVICE) {
+                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
+                } else if (tagType == TagModel.TYPE_SENSOR) {
+                    return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
+                } else {
+                    Log.e(TAG, "unexpected tag type in ModelIconProvider");
+                    return IconHelper.create("gxt/images/gxt/icons/done.gif");
+                }
+            }
+        });
 
         final ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeading("Devices and sensors");
@@ -466,7 +506,7 @@ public class Visualization extends LayoutContainer {
 
         String url = Constants.URL_DATA.replace("<id>", "" + tag.<String> get("id"));
         final long[] range = getTimeRange();
-        url += "?per_page=" + 25;
+        url += "?per_page=" + 1000;
         url += "&start_date=" + (range[0] / 1000d);
         url += "&end_date=" + (range[1] / 1000d);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
@@ -486,6 +526,7 @@ public class Visualization extends LayoutContainer {
 
             @Override
             public void onSuccess(List<TreeModel> result) {
+                Log.d(TAG, "receiver tags");
                 store.removeAll();
                 store.add(result, true);
             }
@@ -498,7 +539,7 @@ public class Visualization extends LayoutContainer {
 
         // reset retry count
         this.reqRetryCount = 0;
-        
+
         try {
             JSONObject obj = JSONParser.parseStrict(response).isObject();
             JSONArray data = obj.get("data").isArray();
@@ -589,7 +630,7 @@ public class Visualization extends LayoutContainer {
                 }
                 Log.d(TAG, "Data type: " + typeString);
             }
-            
+
             TagModel mdl = new TagModel(tag.<String> get("name") + "/", 0, 0, TagModel.TYPE_SENSOR);
             TaggedDataModel taggedData = new TaggedDataModel(mdl, values);
             onSensorValuesReceived(taggedData);
@@ -772,6 +813,14 @@ public class Visualization extends LayoutContainer {
         setupDragDrop();
 
         layout();
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        // if (loggedIn) {
+        // getTags();
+        // } else {
+        // this.store.removeAll();
+        // }
     }
 
     /**
