@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import java.util.List;
 
@@ -77,7 +78,12 @@ public class VizView extends View {
         this.vizPanel.tagStore.add(tags, true);
     }
 
-    private void onTagsNotUpdated(AppEvent event) {        
+    private void onTagsNotUpdated(AppEvent event) {
+        Throwable caught = event.<Throwable> getData();
+        if (caught != null) {
+            caught.printStackTrace();
+        }
+        
         this.vizPanel.tagStore.removeAll();
     }
 
@@ -87,8 +93,13 @@ public class VizView extends View {
         this.vizPanel.groupStore.add(groups, true);
     }
 
-    private void onGroupsNotUpdated(AppEvent event) {       
-        this.vizPanel.tagStore.removeAll();
+    private void onGroupsNotUpdated(AppEvent event) {
+        Throwable caught = event.<Throwable> getData();
+        if (caught != null) {
+            caught.printStackTrace();
+        }
+        
+        this.vizPanel.groupStore.removeAll();
     }
 
     private void onLoggedOut(AppEvent event) {

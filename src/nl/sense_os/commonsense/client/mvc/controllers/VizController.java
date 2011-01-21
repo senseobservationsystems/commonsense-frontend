@@ -1,5 +1,20 @@
 package nl.sense_os.commonsense.client.mvc.controllers;
 
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,23 +34,6 @@ import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.StringValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
-
-import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
-import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class VizController extends Controller {
 
@@ -60,7 +58,7 @@ public class VizController extends Controller {
         }
 
         function outputAuthentication() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleAuthError()();
+            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleDataAuthError()();
         }
 
         function outputError() {
@@ -107,7 +105,7 @@ public class VizController extends Controller {
         }
 
         function outputAuthentication() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleAuthError()()();
+            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleGroupAuthError()()();
         }
 
         function outputError() {
@@ -147,8 +145,12 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived, VizEvents.DataReceived);
     }
 
-    private void handleAuthError() {
+    private void handleGroupAuthError() {
         Dispatcher.forwardEvent(VizEvents.GroupsNotUpdated);
+    }
+
+    private void handleDataAuthError() {
+        Dispatcher.forwardEvent(VizEvents.DataNotReceived);
     }
 
     private void handleDataFailed(TreeModel tag) {
@@ -329,7 +331,7 @@ public class VizController extends Controller {
     
     private void onGroupsRequested(AppEvent event) {        
         String url = Constants.URL_GROUPS;
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         requestGroups(url, sessionId, this);
     }
     
