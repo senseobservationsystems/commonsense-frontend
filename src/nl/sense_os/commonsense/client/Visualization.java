@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -35,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -105,7 +107,7 @@ public class Visualization extends LayoutContainer {
             }
         };
         VisualizationUtils.loadVisualizationApi(vizCallback, AnnotatedTimeLine.PACKAGE);
-        
+
         this.setStyleAttribute("backgroundColor", "transparent");
     }
 
@@ -217,6 +219,7 @@ public class Visualization extends LayoutContainer {
                 tabPanel.setSelection(item);
             }
         }));
+        if (tags[0].<String> get("text").contains("position") || tags[0].<String> get("text").contains("location")) {
         buttons.add(new Button("Street view", new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -226,22 +229,59 @@ public class Visualization extends LayoutContainer {
                 deviceLocationView(tags);
             }
         }));
+        }
+        if (tags[0].<String> get("text").contains("pose_")) {
+            buttons.add(new Button("Pose recognition", new SelectionListener<ButtonEvent>() {
+
+                @Override
+                public void componentSelected(ButtonEvent ce) {
+                    d.hide();
+
+                    showPoseView(tags);
+                }
+            }));
+        }
         /*
-        buttons.add(new Button("Speed test", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                d.hide();
-
-                Visualization.this.speedTestCounter = 0;
-                testSpeed();
-            }
-        }));
-        */
+         * buttons.add(new Button("Speed test", new SelectionListener<ButtonEvent>() {
+         * 
+         * @Override public void componentSelected(ButtonEvent ce) { d.hide();
+         * 
+         * Visualization.this.speedTestCounter = 0; testSpeed(); } }));
+         */
         panel.setBottomComponent(buttons);
 
         d.add(panel);
         return d;
+    }
+
+    private void showPoseView(TagModel[] tags) {
+        final TagModel tagModel = tags[0];
+
+        LayoutContainer poseView = new LayoutContainer(new FitLayout());
+        poseView.setBorders(false);
+        poseView.setScrollMode(Scroll.NONE);
+
+        String text = tagModel.get("text");
+        String[] split = text.split(" \\(");
+        String dsType = split[0];
+        String dsId = split[1].substring(0, split[1].length() - 1);
+        String url = "http://data.sense-os.nl/commonsense/deviceservices/pose_prediction_service.php";
+        url += "?viewService=1";
+        url += "&ds_type=" + dsType;
+        url += "&ds_id=" + dsId;
+        url += "&email=" + user.getName();
+        url += "&password=" + user.getPassword();
+
+        final Frame f = new Frame(url);
+        f.setStylePrimaryName("senseFrame");
+        poseView.add(f, new FitData(0));
+
+        final TabItem item = new TabItem("Pose recognition");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        item.add(poseView);
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
     }
 
     /**
@@ -619,7 +659,7 @@ public class Visualization extends LayoutContainer {
 
         TreePanelDragSource source = new TreePanelDragSource(this.tagTree);
         source.setTreeStoreState(true);
-        source.addDNDListener(new DNDListener() {            
+        source.addDNDListener(new DNDListener() {
             @Override
             public void dragDrop(DNDEvent e) {
                 final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
