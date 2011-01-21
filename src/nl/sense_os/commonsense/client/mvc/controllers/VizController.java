@@ -22,6 +22,7 @@ import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -192,9 +194,15 @@ public class VizController extends Controller {
                             JSONNumber numberField = fieldValue.isNumber();
                             if (null != numberField) {
                                 fields.put(fieldKey, numberField.doubleValue());
-                            } else {
-                                fields.put(fieldKey, fieldValue.toString());
+                                continue;
+                            } 
+                            
+                            JSONString stringField = fieldValue.isString();
+                            if (null != stringField) {
+                                fields.put(fieldKey, stringField.stringValue());
+                                continue;
                             }
+                            fields.put(fieldKey, fieldValue.toString());
                         }
                         value = new JsonValueModel(timestamp, fields);
                         values[i] = value;
@@ -220,7 +228,7 @@ public class VizController extends Controller {
                     continue;
                 }
 
-                // Log.d(TAG, "StringValue");
+                // Log.d(TAG, "StringValue");                
                 value = new StringValueModel(timestamp, cleanValue);
                 values[i] = value;
                 continue;
@@ -281,14 +289,14 @@ public class VizController extends Controller {
             JSONObject obj = JSONParser.parseStrict(response).isObject();
             JSONArray groups = obj.get("groups").isArray();
             
-            List<ModelData> groupModels = new ArrayList<ModelData>();
+            List<TreeModel> groupModels = new ArrayList<TreeModel>();
             for (int i=0; i < groups.size(); i++) {
                 
                 JSONObject group = groups.get(i).isObject();
                 
-                ModelData groupModel = new BaseModel();
-                groupModel.set("group_id", group.get("group_id").isString());
-                groupModel.set("user_id", group.get("user_id").isString());
+                TreeModel groupModel = new BaseTreeModel();
+                groupModel.set("group_id", group.get("group_id").isString().stringValue());
+                groupModel.set("user_id", group.get("user_id").isString().stringValue());
                 
                 groupModels.add(groupModel);
             }

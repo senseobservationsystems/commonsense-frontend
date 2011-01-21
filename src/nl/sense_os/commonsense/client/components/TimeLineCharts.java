@@ -303,6 +303,7 @@ public class TimeLineCharts extends VisualizationTab {
                         // not a valid field
                         Log.d(TAG, "field " + fieldName + " is not parsable! Value: " + fieldValue);
                     }
+
                 } else {
                     // not a valid field
                     Log.d(TAG, "field " + field.getKey() + " is not valid! Value: " + fieldValue);

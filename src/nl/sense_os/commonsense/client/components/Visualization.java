@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -47,6 +48,9 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
@@ -55,6 +59,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
@@ -73,9 +79,11 @@ public class Visualization extends LayoutContainer {
 
     private TreeModel[] outstandingReqs;
     private int reqFailCount;
-    public TreeStore<TreeModel> store = new TreeStore<TreeModel>();
+    public TreeStore<TreeModel> tagStore = new TreeStore<TreeModel>();
+    public TreeStore<TreeModel> groupStore = new TreeStore<TreeModel>();
     private TabPanel tabPanel;
     private TreePanel<TreeModel> tagTree;
+    private TreeGrid<TreeModel> groupGrid;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
 
@@ -141,6 +149,20 @@ public class Visualization extends LayoutContainer {
         }
 
         return tabPanel;
+    }
+    
+    private ContentPanel createGroupsPanel() {        
+        ColumnConfig group = new ColumnConfig("group_id", "Group", 100);
+        group.setRenderer(new TreeGridCellRenderer<TreeModel>());
+        ColumnConfig user = new ColumnConfig("user_id", "User", 100);        
+        ColumnModel cm = new ColumnModel(Arrays.asList(group, user));
+        
+        this.groupGrid = new TreeGrid<TreeModel>(this.groupStore, cm);
+        
+        ContentPanel groupPanel = new ContentPanel();
+        groupPanel.setHeading("Groups and sharing");
+        groupPanel.add(this.groupGrid);
+        return groupPanel;
     }
 
     /**
@@ -237,7 +259,7 @@ public class Visualization extends LayoutContainer {
     private ContentPanel createTagPanel() {
 
         // trees store
-        store.setKeyProvider(new ModelKeyProvider<TreeModel>() {
+        tagStore.setKeyProvider(new ModelKeyProvider<TreeModel>() {
 
             @Override
             public String getKey(TreeModel model) {
@@ -275,9 +297,9 @@ public class Visualization extends LayoutContainer {
             }
         };
         StoreSorter<TreeModel> sorter = new StoreSorter<TreeModel>(comparator);
-        store.setStoreSorter(sorter);
+        tagStore.setStoreSorter(sorter);
 
-        this.tagTree = new TreePanel<TreeModel>(store);
+        this.tagTree = new TreePanel<TreeModel>(tagStore);
         this.tagTree.setBorders(false);
         this.tagTree.setStateful(true);
         this.tagTree.setId("idNecessaryForStatefulSetting");
@@ -391,6 +413,13 @@ public class Visualization extends LayoutContainer {
         // Content panel with the tree of tags
         final ContentPanel tagPanel = createTagPanel();
 
+        // Content panel with list of groups
+        final ContentPanel groupPanel = createGroupsPanel(); 
+        
+        final LayoutContainer accordion = new LayoutContainer(new AccordionLayout());
+        accordion.add(tagPanel);
+        accordion.add(groupPanel);
+
         this.timeSelector = createTimeSelector();
         final ContentPanel timeRangePanel = new ContentPanel();
         timeRangePanel.setHeading("Time range");
@@ -401,10 +430,10 @@ public class Visualization extends LayoutContainer {
                 Orientation.VERTICAL));
         translucentPanel.setScrollMode(Scroll.AUTOY);
         translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
-        translucentPanel.add(tagPanel, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+        translucentPanel.add(accordion, new RowData(1, 1, new Margins(10, 0, 0, 0)));
         translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
         translucentPanel.setBorders(false);
-
+        
         return translucentPanel;
     }
 

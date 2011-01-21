@@ -72,26 +72,27 @@ public class VizView extends View {
     }
 
     private void onTagsUpdated(AppEvent event) {        
-        List<TreeModel> tags = event.getData();
-        this.vizPanel.store.removeAll();
-        this.vizPanel.store.add(tags, true);
+        List<TreeModel> tags = event.<List<TreeModel>> getData();
+        this.vizPanel.tagStore.removeAll();
+        this.vizPanel.tagStore.add(tags, true);
     }
 
     private void onTagsNotUpdated(AppEvent event) {        
-        this.vizPanel.store.removeAll();
+        this.vizPanel.tagStore.removeAll();
     }
 
     private void onGroupsUpdated(AppEvent event) {        
-        List<ModelData> groups = event.<List<ModelData>> getData();
-        Log.d(TAG, groups.size() + " groups");
+        List<TreeModel> groups = event.<List<TreeModel>> getData();
+        this.vizPanel.groupStore.removeAll();
+        this.vizPanel.groupStore.add(groups, true);
     }
 
-    private void onGroupsNotUpdated(AppEvent event) {
-        // TODO implement onGroupsNotUpdate
+    private void onGroupsNotUpdated(AppEvent event) {       
+        this.vizPanel.tagStore.removeAll();
     }
 
     private void onLoggedOut(AppEvent event) {
-        this.vizPanel.store.removeAll();
+        this.vizPanel.tagStore.removeAll();
     }
 
     private void onLoggedIn(AppEvent event) {
