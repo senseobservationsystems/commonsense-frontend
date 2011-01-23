@@ -35,7 +35,7 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
 
     private static final Logger log = Logger.getLogger("TagServiceImpl");
     private static final long serialVersionUID = 1L;
-
+    
     private void getDeviceTags(String sessionId, List<TreeModel> tags)
             throws DbConnectionException, WrongResponseException {
 

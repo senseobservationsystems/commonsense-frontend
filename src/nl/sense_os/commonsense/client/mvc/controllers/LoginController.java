@@ -196,7 +196,7 @@ public class LoginController extends Controller {
     private LoginView loginView;
 
     public LoginController() {
-        registerEventTypes(MainEvents.Init);
+        registerEventTypes(MainEvents.ShowLogin);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.LoginError,
                 LoginEvents.AuthenticationFailure, LoginEvents.RequestLogin,
                 LoginEvents.RequestLogout);

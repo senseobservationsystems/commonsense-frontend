@@ -1,17 +1,11 @@
 package nl.sense_os.commonsense.client;
 
-import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-
 import java.util.Date;
 
+import nl.sense_os.commonsense.client.mvc.controllers.GroupsController;
 import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
 import nl.sense_os.commonsense.client.mvc.controllers.MainController;
-import nl.sense_os.commonsense.client.mvc.controllers.NavController;
+import nl.sense_os.commonsense.client.mvc.controllers.TagsController;
 import nl.sense_os.commonsense.client.mvc.controllers.VizController;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -20,6 +14,14 @@ import nl.sense_os.commonsense.client.services.TagService;
 import nl.sense_os.commonsense.client.services.TagServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
+
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -50,14 +52,17 @@ public class CommonSense implements EntryPoint {
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
-        dispatcher.addController(new NavController());
-        dispatcher.addController(new LoginController());
         dispatcher.addController(new VizController());
+        dispatcher.addController(new GroupsController());
+        dispatcher.addController(new TagsController());
+        dispatcher.addController(new LoginController());
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);
 
         // notify the main controller that all views are ready
         dispatcher.dispatch(MainEvents.UiReady);
+        
+        GXT.hideLoadingPanel("loading");
     }
 }

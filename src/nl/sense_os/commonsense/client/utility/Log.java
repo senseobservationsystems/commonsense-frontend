@@ -8,7 +8,7 @@ public class Log {
     private static final String LABEL_VERBOSE = " [V] ";
     private static final String LABEL_WARN = " [W] ";
     private static final int MAX_TAG_LENGTH = 20;
-    private static final String TAG_PADDING = "                ";
+    private static final String TAG_PADDING = "                    ";
     
     public static void d(String tag, String message) {        
         tag = TAG_PADDING.concat(tag);

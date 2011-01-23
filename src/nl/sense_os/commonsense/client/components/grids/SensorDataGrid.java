@@ -7,6 +7,12 @@
  */
 package nl.sense_os.commonsense.client.components.grids;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import nl.sense_os.commonsense.shared.Constants;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
@@ -17,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -25,12 +30,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import nl.sense_os.commonsense.shared.Constants;
 
 public class SensorDataGrid extends LayoutContainer {
 
@@ -55,7 +54,7 @@ public class SensorDataGrid extends LayoutContainer {
         // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
 
         setLayout(new FitLayout());
-        add(gridPanel, new FitData());
+        add(gridPanel);
     }
     
     private List<ColumnConfig> createColConfig(final TreeModel[] tags) {

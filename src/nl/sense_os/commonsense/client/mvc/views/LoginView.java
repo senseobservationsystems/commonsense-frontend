@@ -1,5 +1,11 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
+import java.util.Date;
+
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -13,6 +19,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.util.IconHelper;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -25,46 +33,35 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
 
-import java.util.Date;
-
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
 public class LoginView extends View {
 
     private static final String TAG = "LoginView";
-    private final LayoutContainer loginPanel = new LayoutContainer(new CenterLayout());
-    private final TextField<String> password = new TextField<String>();
-    private final CheckBox rememberMe = new CheckBox();
-    private final TextField<String> username = new TextField<String>();
-    
+    private LayoutContainer loginPanel;
+    private TextField<String> password;
+    private CheckBox rememberMe;
+    private Button submit;
+    private TextField<String> username;
+
     public LoginView(Controller controller) {
         super(controller);
     }
-    
+
     private FormPanel createForm() {
         final FormData formData = new FormData("-10");
 
         // username field
-        username.setFieldLabel("Username:");
-        username.setAllowBlank(false);
+        this.username.setFieldLabel("Username:");
+        this.username.setAllowBlank(false);
 
-        // auto-fill username from cookie
-        final String cookieName = Cookies.getCookie("username");
-        if (null != cookieName) {
-            this.username.setValue(cookieName);
-            this.username.setOriginalValue(cookieName);
-        }
+        // password field
+        this.password.setFieldLabel("Password:");
+        this.password.setAllowBlank(false);
+        this.password.setPassword(true);
 
-        // password field (will not be POSTed)
-        password.setFieldLabel("Password:");
-        password.setAllowBlank(false);
-        password.setPassword(true);
-
-        rememberMe.setLabelSeparator("");
-        rememberMe.setBoxLabel("Remember username");
-        rememberMe.setValue(true);
+        // remember me check box
+        this.rememberMe.setLabelSeparator("");
+        this.rememberMe.setBoxLabel("Remember username");
+        this.rememberMe.setValue(true);
 
         // main form panel
         final FormPanel form = new FormPanel();
@@ -74,12 +71,27 @@ public class LoginView extends View {
         form.setHeading("CommonSense Login");
         form.setLabelWidth(100);
         form.setWidth(350);
+        
+        // submit button
+        submit = new Button("Submit");
+        submit.setType("submit");
+        submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent be) {
+                form.submit();
+            }
+        });
+        form.addButton(submit);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
 
-        setupSubmitAction(form);
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(submit);
 
-        form.add(username, formData);
-        form.add(password, formData);
-        form.add(rememberMe);
+        setupSubmit(form);
+
+        form.add(this.username, formData);
+        form.add(this.password, formData);
+        form.add(this.rememberMe);
 
         return form;
     }
@@ -87,40 +99,106 @@ public class LoginView extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType eventType = event.getType();
-        if (eventType.equals(MainEvents.Init)) {
-            onInit(event);
+        if (eventType.equals(MainEvents.ShowLogin)) {
+            // Log.d(TAG, "onShow");
+            onShow(event);
         } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {
+            Log.w(TAG, "onAuthenticationFailure");
             onAuthenticationFailure(event);
         } else if (eventType.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "onLoggedIn");
             onLoggedIn(event);
         } else if (eventType.equals(LoginEvents.LoggedOut)) {
+            // Log.d(TAG, "onLoggedOut");
             onLoggedOut(event);
         } else if (eventType.equals(LoginEvents.LoginError)) {
+            Log.w(TAG, "onLoginError");
             onLoginError(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
         }
     }
-    
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+
+        this.loginPanel = new LayoutContainer(new CenterLayout());
+        this.password = new TextField<String>();
+        this.rememberMe = new CheckBox();
+        this.username = new TextField<String>();
+
+        final FormPanel form = createForm();
+        this.loginPanel.add(form);
+
+        resetFormValues();
+    }
+
+    private void onAuthenticationFailure(AppEvent event) {
+        this.password.clear();
+        MessageBox.alert(null,
+                "Failed to sign in: incorrect user name or password. Please try again.", null);
+    }
+
+    private void onLoggedIn(AppEvent event) {
+
+        // save new user name if the user wants it
+        if (this.rememberMe.getValue()) {
+            long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
+            Date expires = new Date(new Date().getTime() + expiry);
+            Cookies.setCookie("username", this.username.getValue(), expires);
+        } else {
+            Cookies.removeCookie("username");
+        }
+    }
+
+    private void onLoggedOut(AppEvent event) {
+        resetFormValues();
+    }
+
+    private void onLoginError(AppEvent event) {
+        this.password.clear();
+        MessageBox.alert(null, "Failed to sign in. Please try again.", null);
+    }
+
+    private void onShow(AppEvent event) {
+
+        resetFormValues();
+        
+        ContentPanel center = event.<ContentPanel> getData();
+        center.removeAll();
+        center.add(this.loginPanel);
+        center.layout();
+    }
+
+    private void requestLogin() {
+        AppEvent event = new AppEvent(LoginEvents.RequestLogin);
+        event.setData("username", this.username.getValue());
+        event.setData("password", this.password.getValue());
+        Dispatcher.forwardEvent(event);
+    }
+
+    private void resetFormValues() {
+        // auto-fill username field from cookie
+        final String cookieName = Cookies.getCookie("username");
+        if (null != cookieName) {
+            this.username.setValue(cookieName);
+            this.username.setOriginalValue(cookieName);
+        }
+
+        // clear password field
+        this.password.clear();
+
+        // auto-set remember me checkbox
+        this.rememberMe.setValue(true);
+        
+        this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+    }
+
     /**
      * Defines how to submit the form, and the actions to take when the form is submitted.
      */
-    private void setupSubmitAction(final FormPanel form) {
-
-        // submit button
-        final Button b = new Button("Submit");
-        b.setType("submit");
-        b.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            @Override
-            public void componentSelected(ButtonEvent be) {
-                form.submit();
-            }
-        });
-        form.addButton(b);
-        form.setButtonAlign(HorizontalAlignment.CENTER);
-
-        final FormButtonBinding binding = new FormButtonBinding(form);
-        binding.addButton(b);
+    private void setupSubmit(final FormPanel form) {        
 
         // ENTER-key listener to submit the form using the keyboard
         final KeyListener submitListener = new KeyListener() {
@@ -133,8 +211,8 @@ public class LoginView extends View {
                 }
             }
         };
-        username.addKeyListener(submitListener);
-        password.addKeyListener(submitListener);
+        this.username.addKeyListener(submitListener);
+        this.password.addKeyListener(submitListener);
 
         // form action is not a regular URL, but we perform a custom login request instead
         form.setAction("javascript:;");
@@ -142,72 +220,11 @@ public class LoginView extends View {
 
             @Override
             public void handleEvent(FormEvent be) {
+                submit.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+                
                 requestLogin();
             }
 
         });
-    }
-    
-    private void onAuthenticationFailure(AppEvent event) {
-        Log.d(TAG, "onAuthenticationFailure");
-        
-        this.password.clear();
-        MessageBox.alert(null, "Failed to sign in: incorrect user name or password. Please try again.",
-                null);
-    }
-
-    private void onInit(AppEvent event) {
-        Log.d(TAG, "onInit");
-        
-        final FormPanel form = createForm();
-        this.loginPanel.add(form);
-        
-        Dispatcher.forwardEvent(new AppEvent(LoginEvents.LoginPanelReady, this.loginPanel));
-    }
-    
-    private void onLoggedIn(AppEvent event) {
-        Log.d(TAG, "onLoggedIn");
-        
-        if (rememberMe.getValue()) {
-            long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
-            Date expires = new Date(new Date().getTime() + expiry);
-            Cookies.setCookie("username", username.getValue(), expires);
-        } else {
-            Cookies.removeCookie("username");
-        }
-        
-        // auto-fill username from cookie
-        final String cookieName = Cookies.getCookie("username");
-        if (null != cookieName) {
-            this.username.setValue(cookieName);
-            this.username.setOriginalValue(cookieName);
-        }
-        this.password.clear();
-    }
-    
-    private void onLoggedOut(AppEvent event) {
-        Log.d(TAG, "onLoggedOut");
-        
-        // auto-fill username from cookie
-        final String cookieName = Cookies.getCookie("username");
-        if (null != cookieName) {
-            this.username.setValue(cookieName);
-            this.username.setOriginalValue(cookieName);
-        }
-        this.password.clear();
-    }
-    
-    private void onLoginError(AppEvent event) {
-        Log.d(TAG, "onLoginError");
-        
-        this.password.clear();
-        MessageBox.alert(null, "Failed to sign in. Please try again.", null);
-    }
-    
-    private void requestLogin() {
-        AppEvent event = new AppEvent(LoginEvents.RequestLogin);
-        event.setData("username", this.username.getValue());
-        event.setData("password", this.password.getValue());
-        Dispatcher.forwardEvent(event);
     }
 }

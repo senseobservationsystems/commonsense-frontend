@@ -17,7 +17,7 @@ public class Constants {
     /**
      * Registry key for the current User
      */
-    public static final String REG_USER = "user";
+    public static final String REG_USER = "User";
     public static final String URL__BASE = "http://api.sense-os.nl";
     public static final String URL_DATA = URL__BASE + "/sensors/<id>/data";
     public static final String URL_DEVICE_SENSORS = URL__BASE + "/devices/<id>/sensors";

@@ -1,11 +1,11 @@
 package nl.sense_os.commonsense.client.components;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
+import nl.sense_os.commonsense.client.mvc.events.GroupsEvents;
+import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -19,23 +19,16 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.ModelIconProvider;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
-import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND.Operation;
 import com.extjs.gxt.ui.client.dnd.DropTarget;
-import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -48,8 +41,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -59,16 +50,11 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.visualization.client.VisualizationUtils;
 
 /**
  * Component with the visualization part of the web application.
@@ -79,36 +65,15 @@ public class Visualization extends LayoutContainer {
 
     private TreeModel[] outstandingReqs;
     private int reqFailCount;
-    public TreeStore<TreeModel> tagStore = new TreeStore<TreeModel>();
-    public TreeStore<TreeModel> groupStore = new TreeStore<TreeModel>();
     private TabPanel tabPanel;
-    private TreePanel<TreeModel> tagTree;
-    private TreeGrid<TreeModel> groupGrid;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
-
-    public Visualization() {
-
-        // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        final Runnable vizCallback = new Runnable() {
-
-            @Override
-            public void run() {
-                onVisualizationLoad();
-            }
-        };
-        VisualizationUtils.loadVisualizationApi(vizCallback);
-
-        this.setStyleAttribute("backgroundColor", "transparent");
-    }
 
     /**
      * Creates the big "center" panel of the main BorderLayout. Contains only the tabPanel for the
      * sensor values.
-     * 
-     * @return the panel's LayoutContainer.
      */
-    private Widget createCenterPanel() {
+    private void createCenterPanel() {
 
         // Welcome tab item
         final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
@@ -148,21 +113,9 @@ public class Visualization extends LayoutContainer {
             this.tabPanel.add(greenhouseItem);
         }
 
-        return tabPanel;
-    }
-    
-    private ContentPanel createGroupsPanel() {        
-        ColumnConfig group = new ColumnConfig("group_id", "Group", 100);
-        group.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnConfig user = new ColumnConfig("user_id", "User", 100);        
-        ColumnModel cm = new ColumnModel(Arrays.asList(group, user));
-        
-        this.groupGrid = new TreeGrid<TreeModel>(this.groupStore, cm);
-        
-        ContentPanel groupPanel = new ContentPanel();
-        groupPanel.setHeading("Groups and sharing");
-        groupPanel.add(this.groupGrid);
-        return groupPanel;
+        final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
+        centerLayout.setMargins(new Margins(5));
+        add(this.tabPanel, centerLayout);
     }
 
     /**
@@ -178,14 +131,11 @@ public class Visualization extends LayoutContainer {
         final Dialog d = new Dialog();
         d.setHeading("CommonSense Web Application");
         d.setButtons("");
+//        d.setBodyStyleName("pad-text");  
         d.setWidth(350);
 
-        final ContentPanel panel = new ContentPanel();
-        panel.setStyleAttribute("backgroundColor", "white");
-        panel.setHeaderVisible(false);
-        panel.setSize(340, 100);
-        panel.setBorders(false);
-        panel.add(new Text("Please select the desired visualization type."), new FlowData(10));
+        d.add(this.timeSelector, new FlowData(10));
+        d.add(new Text("Please select the desired visualization type."), new FlowData(10));
 
         final Button lineChart = new Button("Line chart", new SelectionListener<ButtonEvent>() {
 
@@ -244,111 +194,8 @@ public class Visualization extends LayoutContainer {
         buttons.add(lineChart);
         buttons.add(table);
         // buttons.add(streetView);
-        panel.setBottomComponent(buttons);
-
-        d.add(panel);
+        d.setBottomComponent(buttons);
         return d;
-    }
-
-    /**
-     * Creates a tree of TagModels, which are fetched asynchronously. The TagModels represent users,
-     * devices or sensor types.
-     * 
-     * @return the tree
-     */
-    private ContentPanel createTagPanel() {
-
-        // trees store
-        tagStore.setKeyProvider(new ModelKeyProvider<TreeModel>() {
-
-            @Override
-            public String getKey(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return "group " + model.<String> get("name");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return "device " + model.<String> get("uuid");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return "sensor " + model.<String> get("id");
-                } else {
-                    Log.e(TAG, "unexpected tag type in ModelKeyProvider");
-                    return model.toString();
-                }
-            }
-        });
-        Comparator<Object> comparator = new Comparator<Object>() {
-
-            @Override
-            public int compare(Object obj1, Object obj2) {
-                try {
-                    TreeModel o1 = (TreeModel) obj1;
-                    TreeModel o2 = (TreeModel) obj2;
-                    int type1 = o1.<Integer> get("tagType");
-                    int type2 = o2.<Integer> get("tagType");
-                    if (type1 == type2 && type1 == TagModel.TYPE_SENSOR) {
-                        String name1 = o1.<String> get("name");
-                        String name2 = o2.<String> get("name");
-                        return name1.compareToIgnoreCase(name2);
-                    }
-                    return 0;
-                } catch (ClassCastException e) {
-                    return 0;
-                }
-            }
-        };
-        StoreSorter<TreeModel> sorter = new StoreSorter<TreeModel>(comparator);
-        tagStore.setStoreSorter(sorter);
-
-        this.tagTree = new TreePanel<TreeModel>(tagStore);
-        this.tagTree.setBorders(false);
-        this.tagTree.setStateful(true);
-        this.tagTree.setId("idNecessaryForStatefulSetting");
-        this.tagTree.setLabelProvider(new ModelStringProvider<TreeModel>() {
-
-            @Override
-            public String getStringValue(TreeModel model, String property) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return model.<String> get("name");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return model.<String> get("type");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    String name = model.<String> get("name");
-                    String deviceType = model.<String> get("device_type");
-                    if (name.equals(deviceType)) {
-                        return name;
-                    }
-                    return name + " (" + deviceType + ")";
-                } else {
-                    Log.e(TAG, "unexpected tag type in ModelStringProvider");
-                    return model.toString();
-                }
-            }
-        });
-        this.tagTree.setIconProvider(new ModelIconProvider<TreeModel>() {
-
-            @Override
-            public AbstractImagePrototype getIcon(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
-                } else {
-                    Log.e(TAG, "unexpected tag type in ModelIconProvider");
-                    return IconHelper.create("gxt/images/gxt/icons/done.gif");
-                }
-            }
-        });
-
-        final ContentPanel panel = new ContentPanel(new FitLayout());
-        panel.setHeading("Devices and sensors");
-        panel.setCollapsible(true);
-        panel.add(this.tagTree);
-
-        return panel;
     }
 
     /**
@@ -394,7 +241,7 @@ public class Visualization extends LayoutContainer {
      * 
      * @return the panel's LayoutContainer
      */
-    private LayoutContainer createWestPanel() {
+    private void createWestPanel() {
 
         final Image logo = new Image("/img/logo_sense-150.png");
         logo.setPixelSize(131, 68);
@@ -410,31 +257,23 @@ public class Visualization extends LayoutContainer {
         logoContainer.setHeight(68);
         logoContainer.add(logo);
 
-        // Content panel with the tree of tags
-        final ContentPanel tagPanel = createTagPanel();
+        final ContentPanel accordion = new ContentPanel(new AccordionLayout());
+        accordion.setHeaderVisible(false);
 
-        // Content panel with list of groups
-        final ContentPanel groupPanel = createGroupsPanel(); 
-        
-        final LayoutContainer accordion = new LayoutContainer(new AccordionLayout());
-        accordion.add(tagPanel);
-        accordion.add(groupPanel);
-
-        this.timeSelector = createTimeSelector();
-        final ContentPanel timeRangePanel = new ContentPanel();
-        timeRangePanel.setHeading("Time range");
-        timeRangePanel.setCollapsible(true);
-        timeRangePanel.add(this.timeSelector, new FlowData(0, 0, 0, 5));
-
-        final LayoutContainer translucentPanel = new LayoutContainer(new RowLayout(
+        final LayoutContainer westPanel = new LayoutContainer(new RowLayout(
                 Orientation.VERTICAL));
-        translucentPanel.setScrollMode(Scroll.AUTOY);
-        translucentPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
-        translucentPanel.add(accordion, new RowData(1, 1, new Margins(10, 0, 0, 0)));
-        translucentPanel.add(timeRangePanel, new RowData(1, -1, new Margins(10, 0, 0, 0)));
-        translucentPanel.setBorders(false);
+        westPanel.setScrollMode(Scroll.AUTOY);
+        westPanel.setBorders(false);        
+        westPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
+        westPanel.add(accordion, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 225);
+        westData.setMargins(new Margins(5));
+        westData.setSplit(false);
+        add(westPanel, westData);
         
-        return translucentPanel;
+        Dispatcher.forwardEvent(TagsEvents.ShowTags, accordion);
+        Dispatcher.forwardEvent(GroupsEvents.ShowGroups, accordion);        
     }
 
     /**
@@ -522,6 +361,21 @@ public class Visualization extends LayoutContainer {
         }
 
         return new long[] { start, end };
+    }
+    
+    @Override
+    protected void onRender(Element parent, int index) {
+        super.onRender(parent, index);
+        
+        this.setStyleAttribute("backgroundColor", "transparent");
+        this.setLayout(new BorderLayout());
+        
+        createWestPanel();
+        createCenterPanel();
+        
+        this.timeSelector = createTimeSelector();
+        
+        setupDragDrop();
     }
 
     /**
@@ -630,45 +484,7 @@ public class Visualization extends LayoutContainer {
         d.show();
     }
 
-    /**
-     * Shows the final layout after the Google Visualization API has been loaded.
-     */
-    private void onVisualizationLoad() {
-        // layouts for the different panels
-        final BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST, 225);
-        westLayout.setMargins(new Margins(5));
-        westLayout.setSplit(false);
-        final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayout.setMargins(new Margins(5));
-
-        this.setLayout(new BorderLayout());
-        this.add(createWestPanel(), westLayout);
-        this.add(createCenterPanel(), centerLayout);
-
-        setupDragDrop();
-
-        layout();
-    }
-
-    /**
-     * Sets up the tag tree panel and the tab panel for drag and drop of the tags.
-     * 
-     * @see #onTagsDropped(ArrayList)
-     */
-    private void setupDragDrop() {
-
-        TreePanelDragSource source = new TreePanelDragSource(this.tagTree);
-        source.setTreeStoreState(true);
-        source.addDNDListener(new DNDListener() {
-            @Override
-            public void dragDrop(DNDEvent e) {
-                final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
-                onTagsDropped(data);
-            }
-        });
-        final DropTarget dropTarget = new DropTarget(this.tabPanel);
-        dropTarget.setOperation(Operation.COPY);
-    }
+    
 
     /**
      * Prepares for a series of RPC requests for data from a list of tags. Initializes some
@@ -686,5 +502,22 @@ public class Visualization extends LayoutContainer {
         if (tags.length > 0) {
             getSensorData(tags[0]);
         }
+    }
+    
+    /**
+     * Sets up the tab panel for drag and drop of the tags.
+     * 
+     * @see #onTagsDropped(ArrayList)
+     */
+    private void setupDragDrop() {
+        final DropTarget dropTarget = new DropTarget(this.tabPanel);
+        dropTarget.setOperation(Operation.COPY);
+        dropTarget.addDNDListener(new DNDListener() {
+            @Override
+            public void dragDrop(DNDEvent e) {
+                final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
+                onTagsDropped(data);
+            }
+        });
     }
 }
