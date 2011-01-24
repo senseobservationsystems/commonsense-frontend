@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.TagService;
+import nl.sense_os.commonsense.client.services.TagsService;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
@@ -31,9 +31,9 @@ import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
  * Servlet to provide "tags" to the client. These can be different from the standard sensors and
  * devices structure that the CommonSense API exposes.
  */
-public class TagServiceImpl extends RemoteServiceServlet implements TagService {
+public class TagsServiceImpl extends RemoteServiceServlet implements TagsService {
 
-    private static final Logger log = Logger.getLogger("TagServiceImpl");
+    private static final Logger log = Logger.getLogger("TagsServiceImpl");
     private static final long serialVersionUID = 1L;
     
     private void getDeviceTags(String sessionId, List<TreeModel> tags)
@@ -92,6 +92,64 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
                 log.warning("Unexpected sensor type: " + type);
             }
         }
+    }
+
+    @Override
+    public List<TreeModel> getTags(String sessionId) throws DbConnectionException,
+            WrongResponseException {
+
+        // categorized sensors
+        List<TreeModel> feeds = new ArrayList<TreeModel>();
+        List<TreeModel> devices = new ArrayList<TreeModel>();
+        List<TreeModel> states = new ArrayList<TreeModel>();
+        List<TreeModel> environments = new ArrayList<TreeModel>();
+        List<TreeModel> apps = new ArrayList<TreeModel>();
+        getSensorTags(sessionId, feeds, devices, states, environments, apps);
+
+        // devices are special case
+        devices = new ArrayList<TreeModel>();
+        getDeviceTags(sessionId, devices);
+
+        // create main groups
+        TreeModel feedCat = new BaseTreeModel();
+        feedCat.set("name", "Feeds");
+        feedCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : feeds) {
+            feedCat.add(child);
+        }
+        TreeModel deviceCat = new BaseTreeModel();
+        deviceCat.set("name", "Devices");
+        deviceCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : devices) {
+            deviceCat.add(child);
+        }
+        TreeModel stateCat = new BaseTreeModel();
+        stateCat.set("name", "States");
+        stateCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : states) {
+            stateCat.add(child);
+        }
+        TreeModel environmentCat = new BaseTreeModel();
+        environmentCat.set("name", "Environments");
+        environmentCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : environments) {
+            environmentCat.add(child);
+        }
+        TreeModel appCat = new BaseTreeModel();
+        appCat.set("name", "Applications");
+        appCat.set("tagType", TagModel.TYPE_GROUP);
+        for (TreeModel child : apps) {
+            appCat.add(child);
+        }
+
+        List<TreeModel> tags = new ArrayList<TreeModel>();
+        tags.add(feedCat);
+        tags.add(deviceCat);
+        tags.add(stateCat);
+        tags.add(environmentCat);
+        tags.add(appCat);
+        
+        return tags;
     }
 
     private List<ModelData> requestDevices(String sessionId) throws DbConnectionException,
@@ -290,63 +348,5 @@ public class TagServiceImpl extends RemoteServiceServlet implements TagService {
             log.severe("GET SENSORS JSONException: " + e.getMessage());
             throw (new WrongResponseException(e.getMessage()));
         }
-    }
-
-    @Override
-    public List<TreeModel> getTags(String sessionId) throws DbConnectionException,
-            WrongResponseException {
-
-        // categorized sensors
-        List<TreeModel> feeds = new ArrayList<TreeModel>();
-        List<TreeModel> devices = new ArrayList<TreeModel>();
-        List<TreeModel> states = new ArrayList<TreeModel>();
-        List<TreeModel> environments = new ArrayList<TreeModel>();
-        List<TreeModel> apps = new ArrayList<TreeModel>();
-        getSensorTags(sessionId, feeds, devices, states, environments, apps);
-
-        // devices are special case
-        devices = new ArrayList<TreeModel>();
-        getDeviceTags(sessionId, devices);
-
-        // create main groups
-        TreeModel feedCat = new BaseTreeModel();
-        feedCat.set("name", "Feeds");
-        feedCat.set("tagType", TagModel.TYPE_GROUP);
-        for (TreeModel child : feeds) {
-            feedCat.add(child);
-        }
-        TreeModel deviceCat = new BaseTreeModel();
-        deviceCat.set("name", "Devices");
-        deviceCat.set("tagType", TagModel.TYPE_GROUP);
-        for (TreeModel child : devices) {
-            deviceCat.add(child);
-        }
-        TreeModel stateCat = new BaseTreeModel();
-        stateCat.set("name", "States");
-        stateCat.set("tagType", TagModel.TYPE_GROUP);
-        for (TreeModel child : states) {
-            stateCat.add(child);
-        }
-        TreeModel environmentCat = new BaseTreeModel();
-        environmentCat.set("name", "Environments");
-        environmentCat.set("tagType", TagModel.TYPE_GROUP);
-        for (TreeModel child : environments) {
-            environmentCat.add(child);
-        }
-        TreeModel appCat = new BaseTreeModel();
-        appCat.set("name", "Applications");
-        appCat.set("tagType", TagModel.TYPE_GROUP);
-        for (TreeModel child : apps) {
-            appCat.add(child);
-        }
-
-        List<TreeModel> tags = new ArrayList<TreeModel>();
-        tags.add(feedCat);
-        tags.add(deviceCat);
-        tags.add(stateCat);
-        tags.add(environmentCat);
-        tags.add(appCat);
-        
-        return tags;
     }
 }

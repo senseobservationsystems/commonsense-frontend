@@ -86,10 +86,11 @@ public class GroupsView extends View {
 
         this.store = new TreeStore<TreeModel>();
 
-        ColumnConfig group = new ColumnConfig("group_id", "Group", 100);
-        group.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnConfig user = new ColumnConfig("user_id", "User", 100);
-        ColumnModel cm = new ColumnModel(Arrays.asList(group, user));
+        ColumnConfig id = new ColumnConfig("id", "Id", 25);
+        id.setRenderer(new TreeGridCellRenderer<TreeModel>());
+        ColumnConfig email = new ColumnConfig("email", "Email", 100);
+        ColumnConfig name = new ColumnConfig("name", "Name", 100);
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, email, name));
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
 

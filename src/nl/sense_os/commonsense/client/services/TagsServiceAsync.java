@@ -5,7 +5,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.List;
 
-public interface TagServiceAsync {
+public interface TagsServiceAsync {
 
     public void getTags(String sessionId, AsyncCallback<List<TreeModel>> callback);
 }

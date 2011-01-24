@@ -20,15 +20,20 @@ import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.visualization.client.VisualizationUtils;
 
 public class VizController extends Controller {
 
@@ -82,13 +87,16 @@ public class VizController extends Controller {
         }
     }-*/;
 
-    VizView vizView;
+    private VizView vizView;
+    private boolean isVizApiLoaded;
 
     public VizController() {
         registerEventTypes(MainEvents.ShowVisualization);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
                 VizEvents.DataReceived);
+
+        loadVizApi();
     }
 
     private void handleDataAuthError() {
@@ -222,6 +230,39 @@ public class VizController extends Controller {
     protected void initialize() {
         super.initialize();
         this.vizView = new VizView(this);
+    }
+    
+    private void loadVizApi() {
+        
+        // Load the visualization API
+        this.isVizApiLoaded = false;
+        final Runnable vizCallback = new Runnable() {
+
+            @Override
+            public void run() {
+                Log.d(TAG, "onLoadVisualizationApi");
+                isVizApiLoaded = true;
+            }
+        };
+        VisualizationUtils.loadVisualizationApi(vizCallback);
+        
+        // double check that the API has been loaded
+        Timer timer = new Timer() {
+            
+            @Override
+            public void run() {
+                if (false == isVizApiLoaded) {
+                    MessageBox.alert("CommonSense", "Google visualization API not loaded, please retry.", new Listener<MessageBoxEvent>() {
+                        
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            loadVizApi();
+                        }
+                    });
+                }
+            }
+        };
+        timer.schedule(1000 * 10);
     }
 
     private void onDataRequested(AppEvent event) {

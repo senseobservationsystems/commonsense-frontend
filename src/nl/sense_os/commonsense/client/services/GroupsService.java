@@ -9,9 +9,9 @@ import java.util.List;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
 
-@RemoteServiceRelativePath("tags")
-public interface TagService extends RemoteService {
-    
-    public List<TreeModel> getTags(String sessionId) throws DbConnectionException,
+@RemoteServiceRelativePath("groups")
+public interface GroupsService extends RemoteService {
+
+    public List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
             WrongResponseException;
 }

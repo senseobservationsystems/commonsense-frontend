@@ -5,7 +5,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
 import nl.sense_os.commonsense.client.mvc.views.TagsView;
-import nl.sense_os.commonsense.client.services.TagServiceAsync;
+import nl.sense_os.commonsense.client.services.TagsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -18,12 +18,13 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class TagsController extends Controller {
-    
+
     private static final String TAG = "TagSController";
     private TagsView tagsView;
-    
+
     public TagsController() {
-        registerEventTypes(TagsEvents.ShowTags, TagsEvents.TagsNotUpdated, TagsEvents.TagsRequested, TagsEvents.TagsUpdated);
+        registerEventTypes(TagsEvents.ShowTags, TagsEvents.TagsNotUpdated,
+                TagsEvents.TagsRequested, TagsEvents.TagsUpdated);
         registerEventTypes(LoginEvents.LoggedOut);
     }
 
@@ -44,7 +45,7 @@ public class TagsController extends Controller {
     }
 
     private void onTagsRequested(AppEvent event) {
-        TagServiceAsync service = Registry.<TagServiceAsync> get(Constants.REG_TAG_SVC);
+        TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
         AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

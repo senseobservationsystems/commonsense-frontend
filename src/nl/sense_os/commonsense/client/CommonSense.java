@@ -1,5 +1,13 @@
 package nl.sense_os.commonsense.client;
 
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.mvc.controllers.GroupsController;
@@ -10,18 +18,12 @@ import nl.sense_os.commonsense.client.mvc.controllers.VizController;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.services.TagService;
-import nl.sense_os.commonsense.client.services.TagServiceAsync;
+import nl.sense_os.commonsense.client.services.GroupsService;
+import nl.sense_os.commonsense.client.services.GroupsServiceAsync;
+import nl.sense_os.commonsense.client.services.TagsService;
+import nl.sense_os.commonsense.client.services.TagsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
-
-import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -44,10 +46,12 @@ public class CommonSense implements EntryPoint {
         Log.d(TAG, "===== Module Load (" + now() + ") =====");
 
         // load services and put them in Registry
-        final TagServiceAsync tagService = GWT.create(TagService.class);
-        Registry.register(Constants.REG_TAG_SVC, tagService);
         final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
         Registry.register(Constants.REG_BUILDING_SVC, buildingService);
+        final GroupsServiceAsync groupsService = GWT.create(GroupsService.class);
+        Registry.register(Constants.REG_GROUPS_SVC, groupsService);
+        final TagsServiceAsync tagsService = GWT.create(TagsService.class);
+        Registry.register(Constants.REG_TAGS_SVC, tagsService);
 
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();

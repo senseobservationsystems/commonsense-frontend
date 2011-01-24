@@ -1,5 +1,12 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+
 import nl.sense_os.commonsense.client.components.Visualization;
 import nl.sense_os.commonsense.client.mvc.events.GroupsEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
@@ -9,14 +16,6 @@ import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
-import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.google.gwt.visualization.client.VisualizationUtils;
-
 public class VizView extends View {
 
     private static final String TAG = "VizView";
@@ -24,16 +23,6 @@ public class VizView extends View {
 
     public VizView(Controller controller) {
         super(controller);
-
-        // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        final Runnable vizCallback = new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "onLoadVisualizationApi");
-            }
-        };
-        VisualizationUtils.loadVisualizationApi(vizCallback);
     }
 
     @Override

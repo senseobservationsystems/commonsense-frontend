@@ -26,6 +26,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>GroupsServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.GroupsServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>IVOSensorTypeServlet</servlet-name>
     <servlet-class>nl.sense_os.commonsense.server.IVOSensorTypeServlet</servlet-class>
   </servlet>
@@ -41,8 +46,8 @@
   </servlet>
   
   <servlet>
-    <servlet-name>TagServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.TagServiceImpl</servlet-class>
+    <servlet-name>TagsServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.TagsServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
@@ -58,6 +63,11 @@
   <servlet-mapping>
     <servlet-name>FloorImgServlet</servlet-name>
     <url-pattern>/floorupload</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>GroupsServlet</servlet-name>
+    <url-pattern>/commonsense/groups</url-pattern>
   </servlet-mapping>
     
   <servlet-mapping>
@@ -76,7 +86,7 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>TagServlet</servlet-name>
+    <servlet-name>TagsServlet</servlet-name>
     <url-pattern>/commonsense/tags</url-pattern>
   </servlet-mapping>
     
