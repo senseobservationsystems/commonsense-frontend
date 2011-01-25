@@ -231,7 +231,7 @@ public class GroupGridView extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show groups panel. parent=null");
+            Log.e(TAG, "Failed to show groups panel: parent=null");
         }
     }
 

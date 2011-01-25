@@ -2,9 +2,10 @@ package nl.sense_os.commonsense.client.mvc.controllers;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
-import nl.sense_os.commonsense.client.mvc.views.TagsView;
+import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
+import nl.sense_os.commonsense.client.mvc.views.MySensorsView;
 import nl.sense_os.commonsense.client.services.TagsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -17,49 +18,52 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class TagsController extends Controller {
+public class MySensorsController extends Controller {
 
-    private static final String TAG = "TagSController";
-    private TagsView tagsView;
+    private static final String TAG = "MySensorsController";
+    private MySensorsView treeView;
 
-    public TagsController() {
-        registerEventTypes(TagsEvents.ShowTags, TagsEvents.TagsNotUpdated,
-                TagsEvents.TagsRequested, TagsEvents.TagsUpdated, TagsEvents.TagsBusy);
+    public MySensorsController() {
+        registerEventTypes(MySensorsEvents.ShowMySensors, MySensorsEvents.MySensorsNotUpdated,
+                MySensorsEvents.MySensorsRequested, MySensorsEvents.MySensorsUpdated,
+                MySensorsEvents.MySensorsBusy);
         registerEventTypes(LoginEvents.LoggedOut);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(TagsEvents.TagsRequested)) {
-            Log.d(TAG, "TagsRequested");
-            onTagsRequested(event);
+        if (type.equals(MySensorsEvents.MySensorsRequested)) {
+            Log.d(TAG, "MySensorsRequested");
+            onMySensorsRequest(event);
+        } else {
+            forwardToView(this.treeView, event);
         }
-        forwardToView(this.tagsView, event);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.tagsView = new TagsView(this);
+        this.treeView = new MySensorsView(this);
     }
 
-    private void onTagsRequested(AppEvent event) {
+    private void onMySensorsRequest(AppEvent event) {
         TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
         AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
             @Override
             public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(TagsEvents.TagsNotUpdated, caught);
+                Dispatcher.forwardEvent(MySensorsEvents.MySensorsNotUpdated, caught);
             }
 
             @Override
             public void onSuccess(List<TreeModel> result) {
-                Dispatcher.forwardEvent(TagsEvents.TagsUpdated, result);
+                Registry.register(Constants.REG_MY_SENSORS, result);
+                Dispatcher.forwardEvent(MySensorsEvents.MySensorsUpdated, result);
             }
         };
-        service.getTags(sessionId, callback);
-        Dispatcher.forwardEvent(TagsEvents.TagsBusy);
+        service.getMySensors(sessionId, callback);
+        Dispatcher.forwardEvent(MySensorsEvents.MySensorsBusy);
     }
 }

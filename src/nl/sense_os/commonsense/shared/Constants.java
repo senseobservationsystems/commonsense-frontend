@@ -26,6 +26,21 @@ public class Constants {
      * Registry key for the current User
      */
     public static final String REG_USER = "User";
+
+    /**
+     * Registry key for the list of sensors for the current user
+     */
+    public static final String REG_MY_SENSORS = "MySensors";
+
+    /**
+     * Registry key for the list of groups for the current user
+     */
+    public static final String REG_GROUPS = "Groups";
+
+    /**
+     * Registry key for the list of group sensors for the current user
+     */
+    public static final String REG_GROUP_SENSORS = "GroupSensors";
     
     public static final String URL__BASE = "http://api.sense-os.nl";
     public static final String URL_DATA = URL__BASE + "/sensors/<id>/data";

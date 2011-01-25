@@ -170,7 +170,7 @@ public class MyriaPositioner extends ContentPanel {
                 store.add(result, true);
             }
         };
-        service.getTags(sessionId, callback);
+        service.getMySensors(sessionId, callback);
     }
 
     private void onCancel() {

@@ -12,7 +12,7 @@ import java.util.List;
 @RemoteServiceRelativePath("tags")
 public interface TagsService extends RemoteService {
 
-    List<TreeModel> getTags(String sessionId) throws DbConnectionException, WrongResponseException;
+    List<TreeModel> getMySensors(String sessionId) throws DbConnectionException, WrongResponseException;
 
     List<TreeModel> getGroupSensors(String sessionId) throws DbConnectionException,
             WrongResponseException;

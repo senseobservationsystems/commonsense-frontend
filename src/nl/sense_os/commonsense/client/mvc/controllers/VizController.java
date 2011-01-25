@@ -94,7 +94,7 @@ public class VizController extends Controller {
         registerEventTypes(MainEvents.ShowVisualization);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
-                VizEvents.DataReceived);
+                VizEvents.DataReceived, VizEvents.VizRequested);
 
         loadVizApi();
     }
@@ -222,7 +222,7 @@ public class VizController extends Controller {
             Log.d(TAG, "onDataRequested");
             onDataRequested(event);
         } else {
-            forwardToView(vizView, event);
+            forwardToView(this.vizView, event);
         }
     }
 

@@ -100,45 +100,19 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     }
     
     @Override
-    public List<TreeModel> getGroupSensors(String sessionId) {
-        return null;
-    }
-
-    private void getSensorTags(String sessionId, List<TreeModel> feeds, List<TreeModel> device,
-            List<TreeModel> state, List<TreeModel> environment, List<TreeModel> app)
-            throws DbConnectionException, WrongResponseException {
-
-        // request all sensors from server
-        List<ModelData> models = requestSensors(sessionId);
-
-        // convert the sensor models into TreeModels
+    public List<TreeModel> getGroupSensors(String sessionId) throws DbConnectionException, WrongResponseException {
+        
+        List<ModelData> models = requestGroupSensors(sessionId);
+        
+        List<TreeModel> sensors = new ArrayList<TreeModel>();
         for (ModelData model : models) {
-            TreeModel tag = new BaseTreeModel(model.getProperties());
-            int type = Integer.parseInt(model.<String> get("type"));
-            switch (type) {
-            case 0:
-                feeds.add(tag);
-                break;
-            case 1:
-                device.add(tag);
-                break;
-            case 2:
-                state.add(tag);
-                break;
-            case 3:
-                environment.add(tag);
-                break;
-            case 4:
-                app.add(tag);
-                break;
-            default:
-                log.warning("Unexpected sensor type: " + type);
-            }
+            sensors.add(new BaseTreeModel(model.getProperties()));
         }
+        return sensors;
     }
 
     @Override
-    public List<TreeModel> getTags(String sessionId) throws DbConnectionException,
+    public List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         // categorized sensors
@@ -195,6 +169,39 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         return tags;
     }
 
+    private void getSensorTags(String sessionId, List<TreeModel> feeds, List<TreeModel> device,
+            List<TreeModel> state, List<TreeModel> environment, List<TreeModel> app)
+            throws DbConnectionException, WrongResponseException {
+
+        // request all sensors from server
+        List<ModelData> models = requestMySensors(sessionId);
+
+        // convert the sensor models into TreeModels
+        for (ModelData model : models) {
+            TreeModel tag = new BaseTreeModel(model.getProperties());
+            int type = Integer.parseInt(model.<String> get("type"));
+            switch (type) {
+            case 0:
+                feeds.add(tag);
+                break;
+            case 1:
+                device.add(tag);
+                break;
+            case 2:
+                state.add(tag);
+                break;
+            case 3:
+                environment.add(tag);
+                break;
+            case 4:
+                app.add(tag);
+                break;
+            default:
+                log.warning("Unexpected sensor type: " + type);
+            }
+        }
+    }
+
     private List<ModelData> requestDevices(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
@@ -240,8 +247,8 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         doRequest(url, sessionId, "GET", null);
 
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET DEVICES failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get devices " + this.responseCode);
+            log.severe("GET DEVICE SENSORS failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get device sensors " + this.responseCode);
         }
         
         // Convert JSON response to list of tags
@@ -274,15 +281,15 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         }
     }
 
-    private List<ModelData> requestSensors(String sessionId) throws DbConnectionException,
+    private List<ModelData> requestGroupSensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        String url = Constants.URL_SENSORS;
+        String url = Constants.URL_SENSORS + "?owned=0";
         doRequest(url, sessionId, "GET", null);
 
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET DEVICES failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get devices " + this.responseCode);
+            log.severe("GET GROUP SENSORS failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get sensors " + this.responseCode);
         }
 
         // Convert JSON response to list of tags
@@ -312,7 +319,50 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
             return result;
 
         } catch (JSONException e) {
-            log.severe("GET SENSORS JSONException: " + e.getMessage());
+            log.severe("GET GROUP SENSORS JSONException: " + e.getMessage());
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
+
+    private List<ModelData> requestMySensors(String sessionId) throws DbConnectionException,
+            WrongResponseException {
+
+        String url = Constants.URL_SENSORS + "?owned=1";
+        doRequest(url, sessionId, "GET", null);
+
+        if (this.responseCode != HttpURLConnection.HTTP_OK) {
+            log.severe("GET MY SENSORS failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get my sensors " + this.responseCode);
+        }
+
+        // Convert JSON response to list of tags
+        try {
+            List<ModelData> result = new ArrayList<ModelData>();
+            JSONArray sensors = (JSONArray) new JSONObject(this.responseContent).get("sensors");
+            for (int i = 0; i < sensors.length(); i++) {
+                JSONObject sensor = sensors.getJSONObject(i);
+
+                HashMap<String, Object> properties = new HashMap<String, Object>();
+                properties.put("id", sensor.getString("id"));
+                properties.put("data_type_id", sensor.getString("data_type_id"));
+                properties.put("pager_type", sensor.getString("pager_type"));
+                properties.put("data_type", sensor.getString("data_type"));
+                properties.put("device_type", sensor.getString("device_type"));
+                properties.put("name", sensor.getString("name"));
+                properties.put("type", sensor.getString("type"));
+                properties.put("data_structure", sensor.getString("data_structure"));
+                properties.put("tagType", TagModel.TYPE_SENSOR);
+
+                ModelData model = new BaseModelData(properties);
+
+                result.add(model);
+            }
+
+            // return list of tags
+            return result;
+
+        } catch (JSONException e) {
+            log.severe("GET MY SENSORS JSONException: " + e.getMessage());
             throw (new WrongResponseException(e.getMessage()));
         }
     }

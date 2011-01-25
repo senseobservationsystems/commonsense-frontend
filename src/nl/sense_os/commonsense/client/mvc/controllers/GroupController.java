@@ -156,6 +156,7 @@ public class GroupController extends Controller {
 
             @Override
             public void onSuccess(List<TreeModel> result) {
+                Registry.register(Constants.REG_GROUPS, result);
                 Dispatcher.forwardEvent(GroupEvents.GroupListUpdated, result);
             }
         };

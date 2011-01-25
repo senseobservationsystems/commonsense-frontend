@@ -11,9 +11,10 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.mvc.controllers.GroupController;
+import nl.sense_os.commonsense.client.mvc.controllers.GroupSensorsController;
 import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
 import nl.sense_os.commonsense.client.mvc.controllers.MainController;
-import nl.sense_os.commonsense.client.mvc.controllers.TagsController;
+import nl.sense_os.commonsense.client.mvc.controllers.MySensorsController;
 import nl.sense_os.commonsense.client.mvc.controllers.VizController;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -57,8 +58,9 @@ public class CommonSense implements EntryPoint {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
         dispatcher.addController(new VizController());
+        dispatcher.addController(new MySensorsController());
+        dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new GroupController());
-        dispatcher.addController(new TagsController());
         dispatcher.addController(new LoginController());
 
         // start initializing all views

@@ -1,21 +1,25 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import java.util.Comparator;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
+import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.shared.TagModel;
 
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -25,101 +29,47 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-public class TagsView extends View {
+public class MySensorsView extends View {
 
-    private static final String TAG = "TagsView";
+    private static final String TAG = "MySensorsView";
     private ContentPanel panel;
     private TreeStore<TreeModel> store;
     private ToolButton refreshButton;
+    private Button shareButton;
+    private Button vizButton;    
     private TreePanel<TreeModel> tree;
-    private Comparator<Object> tagComparator = new Comparator<Object>() {
-        private static final int DEVICES = 1;
-        private static final int ENVIRONMENTS = 2;
-        private static final int APPLICATIONS = 3;
-        private static final int FEEDS = 4;
-        private static final int STATES = 5;
-        
-        @Override
-        public int compare(Object obj1, Object obj2) {
-            try {
-                TreeModel o1 = (TreeModel) obj1;
-                TreeModel o2 = (TreeModel) obj2;
-                int type1 = o1.<Integer> get("tagType");
-                int type2 = o2.<Integer> get("tagType");
-                if (type1 == type2) {
-                    if (type1 == TagModel.TYPE_SENSOR) {
-                        String name1 = o1.<String> get("name");
-                        String name2 = o2.<String> get("name");
-                        return name1.compareToIgnoreCase(name2);
-                    } else if (type1 == TagModel.TYPE_GROUP) {
-                        String n1 = o1.<String> get("name"); 
-                        int t1 = 0;
-                        if (n1.equalsIgnoreCase("Devices")) {
-                            t1 = DEVICES;
-                        } else if (n1.equalsIgnoreCase("Environments")) {
-                            t1 = ENVIRONMENTS;
-                        } else if (n1.equalsIgnoreCase("Applications")) {
-                            t1 = APPLICATIONS;
-                        } else if (n1.equalsIgnoreCase("Feeds")) {
-                            t1 = FEEDS;
-                        } else if (n1.equalsIgnoreCase("States")) {
-                            t1 = STATES;
-                        } 
-                        String n2 = o2.<String> get("name"); 
-                        int t2 = 0;
-                        if (n2.equalsIgnoreCase("Devices")) {
-                            t2 = DEVICES;
-                        } else if (n2.equalsIgnoreCase("Environments")) {
-                            t2 = ENVIRONMENTS;
-                        }  else if (n2.equalsIgnoreCase("Feeds")) {
-                            t2 = FEEDS;
-                        } else if (n2.equalsIgnoreCase("Applications")) {
-                            t2 = APPLICATIONS;
-                        } else if (n2.equalsIgnoreCase("States")) {
-                            t2 = STATES;
-                        }
-                        return t1-t2;
-                    } else if (type1 == TagModel.TYPE_DEVICE) {
-                        String name1 = o1.<String> get("type");
-                        String name2 = o2.<String> get("type");
-                        return name1.compareToIgnoreCase(name2);
-                    }
-                }
-                return 0;
-            } catch (ClassCastException e) {
-                return 0;
-            }
-        }
-    };
 
-    public TagsView(Controller controller) {
+    public MySensorsView(Controller controller) {
         super(controller);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(TagsEvents.ShowTags)) {
+        if (type.equals(MySensorsEvents.ShowMySensors)) {
             onShow(event);
-        } else if (type.equals(TagsEvents.TagsNotUpdated)) {
-            Log.w(TAG, "TagsNotUpdated");
-            onTagsNotUpdated(event);
-        } else if (type.equals(TagsEvents.TagsUpdated)) {
-            Log.d(TAG, "TagsUpdated");
-            onTagsUpdated(event);
-        } else if (type.equals(TagsEvents.TagsBusy)) {
-            Log.d(TAG, "TagsBusy");
-            setBusyIcon(true);
+        } else if (type.equals(MySensorsEvents.MySensorsNotUpdated)) {
+            Log.w(TAG, "MySensorsNotUpdated");
+            onListNotUpdated(event);
+        } else if (type.equals(MySensorsEvents.MySensorsUpdated)) {
+            // Log.d(TAG, "MySensorsUpdated");
+            onListUpdate(event);
+        } else if (type.equals(MySensorsEvents.MySensorsBusy)) {
+            // Log.d(TAG, "MySensorsBusy");
+            setBusy(true);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else {
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
@@ -127,6 +77,65 @@ public class TagsView extends View {
     protected void initialize() {
         super.initialize();
 
+        this.panel = new ContentPanel(new FitLayout());
+        this.panel.setHeading("My sensors");
+        this.panel.setAnimCollapse(false);
+
+        initTree();
+        initHeaderTool();
+        initToolBar();
+
+        setupDragDrop();
+    }
+
+    private void initToolBar() {
+        final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                Button source = ce.getButton();
+                if (source.equals(vizButton)) {
+                    List<TreeModel> selection = tree.getSelectionModel().getSelection();
+                    Dispatcher.forwardEvent(VizEvents.VizRequested, selection);
+                } else if (source.equals(shareButton)) {
+                    onShareClick();
+                } 
+            }
+        };
+
+        this.vizButton = new Button("Visualize", l);
+        this.vizButton.disable();
+
+        this.shareButton = new Button("Sharing", l);
+        this.shareButton.disable();
+
+        // create tool bar
+        final ToolBar toolBar = new ToolBar();
+        toolBar.add(this.vizButton);
+        toolBar.add(this.shareButton);
+
+        // add to panel
+        this.panel.setTopComponent(toolBar);
+    }
+
+    private void onShareClick() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void initHeaderTool() {
+        this.refreshButton = new ToolButton("x-tool-refresh");
+        this.refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+
+            @Override
+            public void componentSelected(IconButtonEvent ce) {
+                Dispatcher.forwardEvent(MySensorsEvents.MySensorsRequested);
+            }
+        });
+        this.panel.getHeader().addTool(this.refreshButton);
+    }
+
+    private void initTree() {
         // trees store
         this.store = new TreeStore<TreeModel>();
         this.store.setKeyProvider(new ModelKeyProvider<TreeModel>() {
@@ -148,13 +157,12 @@ public class TagsView extends View {
         });
 
         // sort tree
-        StoreSorter<TreeModel> sorter = new StoreSorter<TreeModel>(tagComparator);
-        this.store.setStoreSorter(sorter);
+        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         this.tree = new TreePanel<TreeModel>(store);
         this.tree.setBorders(false);
         this.tree.setStateful(true);
-        this.tree.setId("tagTree");
+        this.tree.setId("mySensorsTree");
         this.tree.setLabelProvider(new ModelStringProvider<TreeModel>() {
 
             @Override
@@ -172,7 +180,7 @@ public class TagsView extends View {
                     }
                     return name + " (" + deviceType + ")";
                 } else {
-                    Log.e(TAG, "unexpected tag type in ModelStringProvider");
+                    Log.e(TAG, "Unexpected tag type in ModelStringProvider");
                     return model.toString();
                 }
             }
@@ -194,26 +202,25 @@ public class TagsView extends View {
                 }
             }
         });
-
-        refreshButton = new ToolButton("x-tool-refresh");
-        refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
-
+        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
+        selectionModel.setSelectionMode(SelectionMode.MULTI);
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+            
             @Override
-            public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.get().dispatch(TagsEvents.TagsRequested);
+            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+                List<TreeModel> selection = se.getSelection();
+                if (selection.size() > 0) {
+                    vizButton.enable();
+                    shareButton.enable();
+                } else {
+                    vizButton.disable();
+                    shareButton.disable();
+                }                
             }
         });
+        this.tree.setSelectionModel(selectionModel);
 
-        this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("Devices and sensors");
-        this.panel.getHeader().setIcon(IconHelper.create(""));
-        this.panel.setCollapsible(true);
         this.panel.add(this.tree);
-        this.panel.getHeader().addTool(refreshButton);
-        this.panel.setAnimCollapse(false);
-
-        setupDragDrop();
-        setupContextMenu();
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -226,27 +233,27 @@ public class TagsView extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show tags panel. parent=null");
+            Log.e(TAG, "Failed to show my sensors panel: parent=null");
         }
     }
 
-    private void onTagsNotUpdated(AppEvent event) {
+    private void onListNotUpdated(AppEvent event) {
         // Throwable caught = event.<Throwable> getData();
         // if (caught != null) {
         // caught.printStackTrace();
         // }
-        setBusyIcon(false);
+        setBusy(false);
         this.store.removeAll();
     }
 
-    private void onTagsUpdated(AppEvent event) {
+    private void onListUpdate(AppEvent event) {
         List<TreeModel> tags = event.<List<TreeModel>> getData();
-        setBusyIcon(false);
+        setBusy(false);
         this.store.removeAll();
         this.store.add(tags, true);
     }
 
-    private void setBusyIcon(boolean busy) {
+    private void setBusy(boolean busy) {
         String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }
@@ -258,30 +265,5 @@ public class TagsView extends View {
 
         TreePanelDragSource source = new TreePanelDragSource(this.tree);
         source.setTreeStoreState(true);
-    }
-
-    private void setupContextMenu() {
-        Menu contextMenu = new Menu();
-
-        MenuItem foo = new MenuItem("foo", new SelectionListener<MenuEvent>() {
-
-            @Override
-            public void componentSelected(MenuEvent ce) {
-                Log.d(TAG, "foo");
-            }
-        });
-        contextMenu.add(foo);
-
-        MenuItem bar = new MenuItem("bar", new SelectionListener<MenuEvent>() {
-
-            @Override
-            public void componentSelected(MenuEvent ce) {
-                Log.d(TAG, "bar");
-            }
-        });
-
-        contextMenu.add(bar);
-
-        this.tree.setContextMenu(contextMenu);
     }
 }

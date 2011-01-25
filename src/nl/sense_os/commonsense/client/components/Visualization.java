@@ -5,7 +5,8 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
 import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
-import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
+import nl.sense_os.commonsense.client.mvc.events.GroupSensorsEvents;
+import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -272,7 +273,8 @@ public class Visualization extends LayoutContainer {
         westData.setSplit(false);
         add(westPanel, westData);
         
-        Dispatcher.forwardEvent(TagsEvents.ShowTags, accordion);
+        Dispatcher.forwardEvent(MySensorsEvents.ShowMySensors, accordion);
+        Dispatcher.forwardEvent(GroupSensorsEvents.ShowGroupSensors, accordion);
         Dispatcher.forwardEvent(GroupEvents.ShowGroups, accordion);        
     }
 
@@ -429,13 +431,13 @@ public class Visualization extends LayoutContainer {
     }
 
     /**
-     * Handles a drag-drop event by displaying a dialog for the preferred action to take.
+     * Handles a visualization request by displaying a dialog for the preferred action to take.
      * 
      * @param treeStoreModels
      *            list of dropped tags
      * @see #setupDragDrop()
      */
-    private void onTagsDropped(ArrayList<TreeStoreModel> treeStoreModels) {
+    private void onTagsDropped(List<TreeStoreModel> treeStoreModels) {
 
         // get the children of node tags
         List<TreeModel> tags = new ArrayList<TreeModel>();
@@ -457,6 +459,13 @@ public class Visualization extends LayoutContainer {
                 }
             }
         }
+        
+        onVizRequested(tags);
+    }
+
+    
+
+    public void onVizRequested(List<TreeModel> tags) {
 
         // create array to send as parameter in RPC
         TreeModel[] tagsArray = new TreeModel[0];
@@ -483,8 +492,6 @@ public class Visualization extends LayoutContainer {
         final Dialog d = createTabTypeDialog(tagsArray);
         d.show();
     }
-
-    
 
     /**
      * Prepares for a series of RPC requests for data from a list of tags. Initializes some
