@@ -10,7 +10,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.mvc.controllers.GroupsController;
+import nl.sense_os.commonsense.client.mvc.controllers.GroupController;
 import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
 import nl.sense_os.commonsense.client.mvc.controllers.MainController;
 import nl.sense_os.commonsense.client.mvc.controllers.TagsController;
@@ -57,7 +57,7 @@ public class CommonSense implements EntryPoint {
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
         dispatcher.addController(new VizController());
-        dispatcher.addController(new GroupsController());
+        dispatcher.addController(new GroupController());
         dispatcher.addController(new TagsController());
         dispatcher.addController(new LoginController());
 

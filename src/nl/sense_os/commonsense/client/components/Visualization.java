@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
-import nl.sense_os.commonsense.client.mvc.events.GroupsEvents;
+import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -273,7 +273,7 @@ public class Visualization extends LayoutContainer {
         add(westPanel, westData);
         
         Dispatcher.forwardEvent(TagsEvents.ShowTags, accordion);
-        Dispatcher.forwardEvent(GroupsEvents.ShowGroups, accordion);        
+        Dispatcher.forwardEvent(GroupEvents.ShowGroups, accordion);        
     }
 
     /**

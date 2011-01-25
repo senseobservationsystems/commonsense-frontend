@@ -45,6 +45,7 @@ public class MainView extends View {
     private void createCenter() {
         this.center = new ContentPanel(new FitLayout());
         this.center.setHeaderVisible(false);
+        this.center.setBorders(false);
 
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         this.viewport.add(this.center, centerData);
@@ -64,22 +65,22 @@ public class MainView extends View {
     protected void handleEvent(AppEvent event) {
         EventType eventType = event.getType();
         if (eventType.equals(MainEvents.Error)) {
-            Log.e(TAG, "onError");
+            Log.e(TAG, "Error");
             onError(event);
         } else if (eventType.equals(MainEvents.Init)) {
-            // Log.d(TAG, "onInit");
+            // Log.d(TAG, "Init");
             // do nothing: actual initialization is done in initialize()
         } else if (eventType.equals(MainEvents.UiReady)) {
-            // Log.d(TAG, "onUiReady");
+            // Log.d(TAG, "UiReady");
             onUiReady(event);
         } else if (eventType.equals(MainEvents.Navigate)) {
-            // Log.d(TAG, "onNavigate: \'" + event.<String> getData() + "\'");
+            // Log.d(TAG, "Navigate: \'" + event.<String> getData() + "\'");
             onNavigate(event);
         } else if (eventType.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "onLoggedIn");
+            // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
         } else if (eventType.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "onLoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
@@ -104,7 +105,7 @@ public class MainView extends View {
     }
 
     private void onError(AppEvent event) {
-        Log.e(TAG, "onError: " + event.<String> getData());
+        Log.e(TAG, "Error: " + event.<String> getData());
     }
 
     private void onLoggedIn(AppEvent event) {

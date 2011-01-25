@@ -24,7 +24,7 @@ public class TagsController extends Controller {
 
     public TagsController() {
         registerEventTypes(TagsEvents.ShowTags, TagsEvents.TagsNotUpdated,
-                TagsEvents.TagsRequested, TagsEvents.TagsUpdated);
+                TagsEvents.TagsRequested, TagsEvents.TagsUpdated, TagsEvents.TagsBusy);
         registerEventTypes(LoginEvents.LoggedOut);
     }
 
@@ -60,5 +60,6 @@ public class TagsController extends Controller {
             }
         };
         service.getTags(sessionId, callback);
+        Dispatcher.forwardEvent(TagsEvents.TagsBusy);
     }
 }

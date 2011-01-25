@@ -240,7 +240,7 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                Log.d(TAG, "onLoadVisualizationApi");
+                // Log.d(TAG, "onLoadVisualizationApi");
                 isVizApiLoaded = true;
             }
         };

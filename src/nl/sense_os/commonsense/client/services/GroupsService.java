@@ -8,10 +8,20 @@ import java.util.List;
 
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.exceptions.InternalError;
 
 @RemoteServiceRelativePath("groups")
 public interface GroupsService extends RemoteService {
 
-    public List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
+    List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
             WrongResponseException;
+
+    String createGroup(String sessionId, String name, String email, String username, String password)
+            throws InternalError, WrongResponseException, DbConnectionException;
+
+    String leaveGroup(String sessionId, String groupId) throws WrongResponseException,
+            DbConnectionException;
+
+    String inviteUser(String sessionId, String groupId, String email) throws InternalError,
+            WrongResponseException, DbConnectionException;
 }

@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import java.util.Date;
-
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -14,6 +12,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -32,6 +31,8 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
+
+import java.util.Date;
 
 public class LoginView extends View {
 
@@ -65,13 +66,12 @@ public class LoginView extends View {
 
         // main form panel
         final FormPanel form = new FormPanel();
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.setLabelSeparator("");
         form.setFrame(true);
         form.setHeading("CommonSense Login");
         form.setLabelWidth(100);
         form.setWidth(350);
-        
+
         // submit button
         submit = new Button("Submit");
         submit.setType("submit");
@@ -81,11 +81,20 @@ public class LoginView extends View {
                 form.submit();
             }
         });
-        form.addButton(submit);
         form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.addButton(submit);
 
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(submit);
+
+        Button cancel = new Button("Cancel");
+        cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent be) {
+                cancelLogin();
+            }
+        });
+        form.addButton(cancel);
 
         setupSubmit(form);
 
@@ -103,20 +112,27 @@ public class LoginView extends View {
             // Log.d(TAG, "onShow");
             onShow(event);
         } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {
-            Log.w(TAG, "onAuthenticationFailure");
+            Log.w(TAG, "AuthenticationFailure");
             onAuthenticationFailure(event);
         } else if (eventType.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "onLoggedIn");
+            // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
         } else if (eventType.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "onLoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
         } else if (eventType.equals(LoginEvents.LoginError)) {
-            Log.w(TAG, "onLoginError");
-            onLoginError(event);
+            Log.w(TAG, "LoginError");
+            onError(event);
+        } else if (eventType.equals(LoginEvents.LoginCancelled)) {
+            Log.d(TAG, "LoginCancelled");
+            onCancelled(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
         }
+    }
+
+    private void onCancelled(AppEvent event) {
+        resetFormValues();
     }
 
     @Override
@@ -135,9 +151,16 @@ public class LoginView extends View {
     }
 
     private void onAuthenticationFailure(AppEvent event) {
-        this.password.clear();
         MessageBox.alert(null,
-                "Failed to sign in: incorrect user name or password. Please try again.", null);
+                "Failed to sign in: incorrect user name or password. Please try again.",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        resetFormValues();
+                    }
+                });
+        setBusy(false);
     }
 
     private void onLoggedIn(AppEvent event) {
@@ -156,15 +179,21 @@ public class LoginView extends View {
         resetFormValues();
     }
 
-    private void onLoginError(AppEvent event) {
-        this.password.clear();
-        MessageBox.alert(null, "Failed to sign in. Please try again.", null);
+    private void onError(AppEvent event) {
+        MessageBox.alert(null, "Failed to sign in. Please try again.",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        resetFormValues();
+                    }
+                });
     }
 
     private void onShow(AppEvent event) {
 
         resetFormValues();
-        
+
         ContentPanel center = event.<ContentPanel> getData();
         center.removeAll();
         center.add(this.loginPanel);
@@ -172,10 +201,15 @@ public class LoginView extends View {
     }
 
     private void requestLogin() {
+        setBusy(true);
         AppEvent event = new AppEvent(LoginEvents.RequestLogin);
         event.setData("username", this.username.getValue());
         event.setData("password", this.password.getValue());
         Dispatcher.forwardEvent(event);
+    }
+
+    private void cancelLogin() {
+        Dispatcher.forwardEvent(LoginEvents.CancelLogin);
     }
 
     private void resetFormValues() {
@@ -191,14 +225,23 @@ public class LoginView extends View {
 
         // auto-set remember me checkbox
         this.rememberMe.setValue(true);
-        
-        this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+
+        setBusy(false);
+    }
+
+    private void setBusy(boolean busy) {
+        // Log.d(TAG, "setBusy(" + busy + ")");
+        if (busy) {
+            this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+        } else {
+            this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+        }
     }
 
     /**
      * Defines how to submit the form, and the actions to take when the form is submitted.
      */
-    private void setupSubmit(final FormPanel form) {        
+    private void setupSubmit(final FormPanel form) {
 
         // ENTER-key listener to submit the form using the keyboard
         final KeyListener submitListener = new KeyListener() {
@@ -220,8 +263,6 @@ public class LoginView extends View {
 
             @Override
             public void handleEvent(FormEvent be) {
-                submit.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-                
                 requestLogin();
             }
 

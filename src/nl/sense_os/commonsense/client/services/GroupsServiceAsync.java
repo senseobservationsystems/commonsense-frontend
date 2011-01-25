@@ -7,5 +7,12 @@ import java.util.List;
 
 public interface GroupsServiceAsync {
 
-    public void getGroups(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getGroups(String sessionId, AsyncCallback<List<TreeModel>> callback);
+
+    void createGroup(String sessionId, String name, String email, String username, String password,
+            AsyncCallback<String> callback);
+    
+    void leaveGroup(String sessionId, String groupId, AsyncCallback<String> callback);
+    
+    void inviteUser(String sessionId, String groupId, String email, AsyncCallback<String> callback);
 }

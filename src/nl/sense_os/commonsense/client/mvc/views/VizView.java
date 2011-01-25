@@ -8,7 +8,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 import nl.sense_os.commonsense.client.components.Visualization;
-import nl.sense_os.commonsense.client.mvc.events.GroupsEvents;
+import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.TagsEvents;
@@ -30,19 +30,19 @@ public class VizView extends View {
         EventType eventType = event.getType();
 
         if (eventType.equals(MainEvents.ShowVisualization)) {
-            Log.d(TAG, "onShow");
+            Log.d(TAG, "Show");
             onShow(event);
         } else if (eventType.equals(LoginEvents.LoggedIn)) {
-            Log.d(TAG, "onLoggedIn");
+            Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
         } else if (eventType.equals(LoginEvents.LoggedOut)) {
-            Log.d(TAG, "onLoggedOut");
+            Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
         } else if (eventType.equals(VizEvents.DataNotReceived)) {
-            Log.w(TAG, "onDataNotReceived");
+            Log.w(TAG, "DataNotReceived");
             onDataNotReceived(event);
         } else if (eventType.equals(VizEvents.DataReceived)) {
-            Log.d(TAG, "onDataReceived");
+            Log.d(TAG, "DataReceived");
             onDataReceived(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
@@ -82,6 +82,6 @@ public class VizView extends View {
         center.layout();
 
         Dispatcher.forwardEvent(TagsEvents.TagsRequested);
-        Dispatcher.forwardEvent(GroupsEvents.GroupsRequested);
+        Dispatcher.forwardEvent(GroupEvents.GroupListRequested);
     }
 }

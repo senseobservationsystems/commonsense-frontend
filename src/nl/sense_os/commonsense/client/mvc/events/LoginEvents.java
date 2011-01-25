@@ -9,4 +9,6 @@ public class LoginEvents {
     public static final EventType LoginError = new EventType();
     public static final EventType RequestLogin = new EventType();
     public static final EventType RequestLogout = new EventType();
+    public static final EventType CancelLogin = new EventType();
+    public static final EventType LoginCancelled = new EventType();
 }

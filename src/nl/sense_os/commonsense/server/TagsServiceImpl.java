@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +36,43 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
 
     private static final Logger log = Logger.getLogger("TagsServiceImpl");
     private static final long serialVersionUID = 1L;
+    private int responseCode = 0;
+    private String responseContent;
+
+    private void doRequest(String url, String sessionId, String method, String data)
+            throws WrongResponseException, DbConnectionException {
+
+        // Get response from server
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod(method);
+            connection.setRequestProperty("X-SESSION_ID", sessionId);
+            connection.setRequestProperty("Accept", "application/json");
+
+            // perform method at URL
+            if (null != data) {
+                connection.setDoOutput(true);
+                OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream());
+                w.write(data);
+                w.close();
+            }
+            connection.connect();
+            this.responseCode = connection.getResponseCode();
+            this.responseContent = "";
+            InputStream is = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                this.responseContent += line;
+            }
+        } catch (MalformedURLException e) {
+            log.severe("MalformedURLException: " + e.getMessage());
+            throw (new DbConnectionException(e.getMessage()));
+        } catch (IOException e) {
+            log.severe("IOException: " + e.getMessage());
+            throw (new DbConnectionException(e.getMessage()));
+        }
+    }
     
     private void getDeviceTags(String sessionId, List<TreeModel> tags)
             throws DbConnectionException, WrongResponseException {
@@ -59,6 +97,11 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
             // add device to the tags
             tags.add(tag);
         }
+    }
+    
+    @Override
+    public List<TreeModel> getGroupSensors(String sessionId) {
+        return null;
     }
 
     private void getSensorTags(String sessionId, List<TreeModel> feeds, List<TreeModel> device,
@@ -155,44 +198,18 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     private List<ModelData> requestDevices(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        // Get response from server
-        String response = "";
-        try {
-            URL url = new URL(Constants.URL_DEVICES);
+        String url = Constants.URL_DEVICES;     
+        doRequest(url, sessionId, "GET", null);        
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("X-SESSION_ID", sessionId);
-            connection.setRequestProperty("Accept", "application/json");
-
-            // perform GET method at URL
-            final int statusCode = connection.getResponseCode();
-            final String message = connection.getResponseMessage();
-            if (statusCode == HttpURLConnection.HTTP_OK) {
-                // log.info("GET DEVICES " + statusCode + " " + message);
-
-                InputStream is = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response += line;
-                }
-                reader.close();
-            } else {
-                log.severe("GET DEVICES failure: " + statusCode + " " + message);
-                throw new WrongResponseException("failed to get devices " + statusCode);
-            }
-        } catch (MalformedURLException e) {
-            log.severe("GET DEVICES MalformedURLException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (IOException e) {
-            log.severe("GET DEVICES IOException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
+        if (this.responseCode != HttpURLConnection.HTTP_OK) {
+            log.severe("GET DEVICES failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get devices " + this.responseCode);
         }
 
         // Convert JSON response to list of tags
         try {
             List<ModelData> result = new ArrayList<ModelData>();
-            JSONArray devices = (JSONArray) new JSONObject(response).get("devices");
+            JSONArray devices = (JSONArray) new JSONObject(this.responseContent).get("devices");
             for (int i = 0; i < devices.length(); i++) {
                 JSONObject device = devices.getJSONObject(i);
 
@@ -219,43 +236,18 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     private List<ModelData> requestDeviceSensors(String sessionId, String deviceId)
             throws DbConnectionException, WrongResponseException {
 
-        // Get response from server
-        String response = "";
-        try {
-            URL url = new URL(Constants.URL_DEVICE_SENSORS.replace("<id>", deviceId));
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("X-SESSION_ID", sessionId);
-            connection.setRequestProperty("Accept", "application/json");
+        String url = Constants.URL_DEVICE_SENSORS.replace("<id>", deviceId);
+        doRequest(url, sessionId, "GET", null);
 
-            // perform GET method at URL
-            final int statusCode = connection.getResponseCode();
-            final String message = connection.getResponseMessage();
-            if (statusCode == HttpURLConnection.HTTP_OK) {
-                // log.info("GET DEVICE SENSORS " + statusCode + " " + message);
-
-                InputStream is = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response += line;
-                }
-                reader.close();
-            } else {
-                log.severe("GET DEVICE SENSORS failure: " + statusCode + " " + message);
-                throw new WrongResponseException("failed to get device sensors " + statusCode);
-            }
-        } catch (MalformedURLException e) {
-            log.severe("GET DEVICE SENSORS MalformedURLException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (IOException e) {
-            log.severe("GET DEVICE SENSORS IOException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
+        if (this.responseCode != HttpURLConnection.HTTP_OK) {
+            log.severe("GET DEVICES failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get devices " + this.responseCode);
         }
-
+        
         // Convert JSON response to list of tags
         try {
             List<ModelData> result = new ArrayList<ModelData>();
-            JSONArray sensors = (JSONArray) new JSONObject(response).get("sensors");
+            JSONArray sensors = (JSONArray) new JSONObject(this.responseContent).get("sensors");
             for (int i = 0; i < sensors.length(); i++) {
                 JSONObject sensor = sensors.getJSONObject(i);
 
@@ -285,43 +277,18 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     private List<ModelData> requestSensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        // Get response from server
-        String response = "";
-        try {
-            URL url = new URL(Constants.URL_SENSORS);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("X-SESSION_ID", sessionId);
-            connection.setRequestProperty("Accept", "application/json");
+        String url = Constants.URL_SENSORS;
+        doRequest(url, sessionId, "GET", null);
 
-            // perform GET method at URL
-            final int statusCode = connection.getResponseCode();
-            final String message = connection.getResponseMessage();
-            if (statusCode == HttpURLConnection.HTTP_OK) {
-                // log.info("GET SENSORS " + statusCode + " " + message);
-
-                InputStream is = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response += line;
-                }
-                reader.close();
-            } else {
-                log.severe("GET SENSORS failure: " + statusCode + " " + message);
-                throw new WrongResponseException("failed to get sensors " + statusCode);
-            }
-        } catch (MalformedURLException e) {
-            log.severe("GET SENSORS MalformedURLException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (IOException e) {
-            log.severe("GET SENSORS IOException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
+        if (this.responseCode != HttpURLConnection.HTTP_OK) {
+            log.severe("GET DEVICES failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get devices " + this.responseCode);
         }
 
         // Convert JSON response to list of tags
         try {
             List<ModelData> result = new ArrayList<ModelData>();
-            JSONArray sensors = (JSONArray) new JSONObject(response).get("sensors");
+            JSONArray sensors = (JSONArray) new JSONObject(this.responseContent).get("sensors");
             for (int i = 0; i < sensors.length(); i++) {
                 JSONObject sensor = sensors.getJSONObject(i);
 

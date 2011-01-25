@@ -1,5 +1,13 @@
 package nl.sense_os.commonsense.client.mvc.controllers;
 
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.mvc.views.LoginView;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.Md5Hasher;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.UserModel;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -9,18 +17,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
-
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.MainEvents;
-import nl.sense_os.commonsense.client.mvc.views.LoginView;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.UserModel;
 
 public class LoginController extends Controller {
 
@@ -194,12 +190,14 @@ public class LoginController extends Controller {
     }-*/;
 
     private LoginView loginView;
+    private boolean isCancelled;
+    private boolean isLoggingIn;
 
     public LoginController() {
         registerEventTypes(MainEvents.ShowLogin);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.LoginError,
                 LoginEvents.AuthenticationFailure, LoginEvents.RequestLogin,
-                LoginEvents.RequestLogout);
+                LoginEvents.RequestLogout, LoginEvents.CancelLogin, LoginEvents.LoginCancelled);
     }
 
     /**
@@ -274,8 +272,17 @@ public class LoginController extends Controller {
             requestLogin(event);
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             requestLogout(event);
+        } else if (eventType.equals(LoginEvents.CancelLogin)) {
+            cancelLogin(event);
         } else {
             forwardToView(this.loginView, event);
+        }
+    }
+
+    private void cancelLogin(AppEvent event) {
+        if (true == this.isLoggingIn) {
+            this.isCancelled = true;
+            Dispatcher.forwardEvent(LoginEvents.LoginCancelled);
         }
     }
 
@@ -315,34 +322,6 @@ public class LoginController extends Controller {
         }
     }
 
-    /**
-     * Creates an MD5 hash of a String, for hashing the password before sending it.
-     * 
-     * @param s
-     *            String to hash
-     * @return the hashed String, zero-padded to make it always 32 characters long
-     */
-    private String hash(String s) {
-        String hashed = null;
-        try {
-            MessageDigest m = MessageDigest.getInstance("MD5");
-            m.reset();
-            m.update(s.getBytes("UTF-8"));
-            byte[] digest = m.digest();
-            BigInteger bigInt = new BigInteger(1, digest);
-            hashed = bigInt.toString(16);
-            // Now we need to zero pad it if you actually want the full 32 chars.
-            while (hashed.length() < 32) {
-                hashed = "0" + hashed;
-            }
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "UnsupportedEncodingException hashing password: " + e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "NoSuchAlgorithmException hashing password: " + e.getMessage());
-        }
-        return hashed;
-    }
-
     @Override
     protected void initialize() {
         super.initialize();
@@ -350,18 +329,26 @@ public class LoginController extends Controller {
     }
 
     private void onAuthenticationFailure() {
-        Log.w(TAG, "Authentication failure");
-        Dispatcher.forwardEvent(LoginEvents.AuthenticationFailure);
+        if (false == this.isCancelled) {
+            Log.w(TAG, "Authentication failure");
+            this.isLoggingIn = false;
+            Dispatcher.forwardEvent(LoginEvents.AuthenticationFailure);
+        }
     }
 
     private void onCurrentUser(UserModel user) {
-        Registry.register(Constants.REG_USER, user);
-        Dispatcher.forwardEvent(LoginEvents.LoggedIn, user);
+        if (false == isCancelled) {
+            Registry.register(Constants.REG_USER, user);
+            this.isLoggingIn = false;
+            Dispatcher.forwardEvent(LoginEvents.LoggedIn, user);
+        }
     }
 
     private void onLoggedIn(String sessionId) {
-        Registry.register(Constants.REG_SESSION_ID, sessionId);
-        getCurrentUser();
+        if (false == isCancelled) {
+            Registry.register(Constants.REG_SESSION_ID, sessionId);
+            getCurrentUser();
+        }
     }
 
     private void onLoggedOut() {
@@ -371,13 +358,16 @@ public class LoginController extends Controller {
     }
 
     private void onLoginError() {
-        Log.e(TAG, "Login error");
-        Dispatcher.forwardEvent(LoginEvents.LoginError);
+        if (false == isCancelled) {
+            // Log.e(TAG, "LoginError");
+            this.isLoggingIn = false;
+            Dispatcher.forwardEvent(LoginEvents.LoginError);
+        }
     }
 
     private void onLogoutError() {
         // TODO handle logout error events
-        Log.e(TAG, "Logout error");
+        // Log.e(TAG, "LogoutError");
         onLoggedOut();
     }
 
@@ -385,8 +375,11 @@ public class LoginController extends Controller {
         String url = Constants.URL_LOGIN;
         String name = event.<String> getData("username");
         String pass = event.<String> getData("password");
-        String hashPass = hash(pass);
+        String hashPass = Md5Hasher.hash(pass);
         String data = "{\"username\":\"" + name + "\",\"password\":\"" + hashPass + "\"}";
+
+        this.isLoggingIn = true;
+        this.isCancelled = false;
 
         jsniLogin(url, data, this);
     }
