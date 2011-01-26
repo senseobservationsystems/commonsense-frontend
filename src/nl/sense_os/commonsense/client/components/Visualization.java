@@ -69,6 +69,8 @@ public class Visualization extends LayoutContainer {
     private TabPanel tabPanel;
     private RadioGroup timeSelector;
     private TabItem unfinishedTab;
+    private long startTime;
+    private long endTime;
 
     /**
      * Creates the big "center" panel of the main BorderLayout. Contains only the tabPanel for the
@@ -155,7 +157,7 @@ public class Visualization extends LayoutContainer {
                 Visualization.this.tabPanel.setSelection(item);
                 Visualization.this.unfinishedTab = item;
 
-                startRequests(tags);
+                // startRequests(tags);
             }
         });
         final Button table = new Button("Table", new SelectionListener<ButtonEvent>() {
@@ -304,7 +306,7 @@ public class Visualization extends LayoutContainer {
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
     }
-
+    
     /**
      * Requests the sensor values for a given tagged sensor type.
      * 
@@ -317,9 +319,8 @@ public class Visualization extends LayoutContainer {
 
         AppEvent requestEvent = new AppEvent(VizEvents.DataRequested);
         requestEvent.setData("tag", tag);
-        final long[] range = getTimeRange();
-        requestEvent.setData("startDate", (range[0] / 1000d));
-        requestEvent.setData("endDate", (range[1] / 1000d));
+        requestEvent.setData("startDate", (this.startTime / 1000d));
+        requestEvent.setData("endDate", (this.endTime / 1000d));
         Dispatcher.forwardEvent(requestEvent);
     }
 
@@ -364,7 +365,7 @@ public class Visualization extends LayoutContainer {
 
         return new long[] { start, end };
     }
-    
+
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
@@ -389,7 +390,7 @@ public class Visualization extends LayoutContainer {
 
         onSensorValuesReceived(null);
     }
-
+    
     /**
      * Handles the callback from the sensor data RPC request. Adds the received data to the open
      * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
@@ -429,7 +430,7 @@ public class Visualization extends LayoutContainer {
             }
         }
     }
-
+    
     /**
      * Handles a visualization request by displaying a dialog for the preferred action to take.
      * 
@@ -460,55 +461,7 @@ public class Visualization extends LayoutContainer {
             }
         }
         
-        onVizRequested(tags);
-    }
-
-    
-
-    public void onVizRequested(List<TreeModel> tags) {
-
-        // create array to send as parameter in RPC
-        TreeModel[] tagsArray = new TreeModel[0];
-        for (TreeModel tag : tags) {
-            // final TagModel tag = (TagModel) tsm.getModel();
-            int tagType = tag.<Integer> get("tagType");
-            if (tagType == TagModel.TYPE_SENSOR) {
-                final TreeModel[] temp = new TreeModel[tagsArray.length + 1];
-                System.arraycopy(tagsArray, 0, temp, 0, tagsArray.length);
-                temp[temp.length - 1] = tag;
-                tagsArray = temp;
-            } else {
-                // do nothing
-            }
-        }
-
-        // check whether there are any tags at all
-        if (tagsArray.length == 0) {
-            MessageBox.info("CommonSense Web Application",
-                    "No sensor types or devices selected, nothing to display.", null);
-            return;
-        }
-
-        final Dialog d = createTabTypeDialog(tagsArray);
-        d.show();
-    }
-
-    /**
-     * Prepares for a series of RPC requests for data from a list of tags. Initializes some
-     * constants and starts the first request with <code>requestSensorValues</code>.
-     * 
-     * @param tags
-     *            the list of tagged sensors
-     */
-    private void startRequests(TreeModel[] tags) {
-        // start requesting data for the list of tags
-        this.outstandingReqs = tags;
-        this.unfinishedTab = this.tabPanel.getSelectedItem();
-        this.reqFailCount = 0;
-
-        if (tags.length > 0) {
-            getSensorData(tags[0]);
-        }
+        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
     }
     
     /**
@@ -526,5 +479,53 @@ public class Visualization extends LayoutContainer {
                 onTagsDropped(data);
             }
         });
+    }
+    public void showLineChart(TreeModel[] sensors, long startTime, long endTime) {
+        // add line chart tab item
+        final TabItem item = new TabItem("Time line");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        final VisualizationTab charts = new TimeLineCharts();
+        charts.setWaitingText(true);
+        item.add(charts);
+        Visualization.this.tabPanel.add(item);
+        Visualization.this.tabPanel.setSelection(item);
+        Visualization.this.unfinishedTab = item;
+
+        startRequests(sensors, startTime, endTime);
+    }
+
+    public void showTable(TreeModel[] sensors) {
+        // add table tab item
+        final TabItem item = new TabItem("Table");
+        item.setClosable(true);
+        item.setScrollMode(Scroll.AUTO);
+        item.setLayout(new FitLayout());
+        Visualization.this.tabPanel.add(item);
+        tabPanel.setSelection(item);
+
+        // add sensor data grid
+        item.add(new SensorDataGrid(sensors), new FitData());
+        item.layout();
+    }
+    
+    /**
+     * Prepares for a series of RPC requests for data from a list of tags. Initializes some
+     * constants and starts the first request with <code>requestSensorValues</code>.
+     * 
+     * @param tags
+     *            the list of tagged sensors
+     */
+    private void startRequests(TreeModel[] tags, long startTime, long endTime) {
+        // start requesting data for the list of tags
+        this.outstandingReqs = tags;
+        this.unfinishedTab = this.tabPanel.getSelectedItem();
+        this.reqFailCount = 0;
+        this.startTime = startTime;
+        this.endTime = endTime;
+
+        if (tags.length > 0) {
+            getSensorData(tags[0]);
+        }
     }
 }

@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import java.util.List;
-
 import nl.sense_os.commonsense.client.components.Visualization;
 import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
@@ -47,9 +45,22 @@ public class VizView extends View {
         } else if (eventType.equals(VizEvents.DataReceived)) {
             Log.d(TAG, "DataReceived");
             onDataReceived(event);
-        } else if (eventType.equals(VizEvents.VizRequested)) {
-            Log.d(TAG, "VizRequested");
-            onVizRequested(event);
+        } else if (eventType.equals(VizEvents.ShowLineChart)) {
+            Log.d(TAG, "ShowLineChart");
+            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+            long startTime = event.<Long> getData("startTime");
+            long endTime = event.<Long> getData("endTime");
+            this.vizPanel.showLineChart(sensors, startTime, endTime);
+        } else if (eventType.equals(VizEvents.ShowTable)) {
+            Log.d(TAG, "ShowTable");
+            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+            this.vizPanel.showTable(sensors);
+        } else if (eventType.equals(VizEvents.ShowMap)) {
+            Log.d(TAG, "ShowMap");
+            // TODO
+        } else if (eventType.equals(VizEvents.ShowNetwork)) {
+            Log.d(TAG, "ShowNetwork");
+            // TODO
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
         }
@@ -89,10 +100,5 @@ public class VizView extends View {
 
         Dispatcher.forwardEvent(MySensorsEvents.MySensorsRequested);
         Dispatcher.forwardEvent(GroupEvents.GroupListRequested);
-    }
-
-    private void onVizRequested(AppEvent event) {
-        List<TreeModel> selection = event.<List<TreeModel>> getData();
-        this.vizPanel.onVizRequested(selection);
     }
 }

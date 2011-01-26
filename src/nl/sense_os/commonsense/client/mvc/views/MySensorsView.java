@@ -96,7 +96,7 @@ public class MySensorsView extends View {
                 Button source = ce.getButton();
                 if (source.equals(vizButton)) {
                     List<TreeModel> selection = tree.getSelectionModel().getSelection();
-                    Dispatcher.forwardEvent(VizEvents.VizRequested, selection);
+                    Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
                 } else if (source.equals(shareButton)) {
                     onShareClick();
                 } 

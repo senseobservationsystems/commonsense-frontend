@@ -6,6 +6,7 @@ import java.util.HashMap;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
+import nl.sense_os.commonsense.client.mvc.views.VizTypeChooser;
 import nl.sense_os.commonsense.client.mvc.views.VizView;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -88,14 +89,17 @@ public class VizController extends Controller {
     }-*/;
 
     private VizView vizView;
+    private VizTypeChooser typeChooser;
     private boolean isVizApiLoaded;
 
     public VizController() {
         registerEventTypes(MainEvents.ShowVisualization);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
-                VizEvents.DataReceived, VizEvents.VizRequested);
-
+                VizEvents.DataReceived);
+        registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
+        registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable,
+                        VizEvents.ShowMap, VizEvents.ShowNetwork);
         loadVizApi();
     }
 
@@ -221,6 +225,9 @@ public class VizController extends Controller {
         if (type.equals(VizEvents.DataRequested)) {
             Log.d(TAG, "onDataRequested");
             onDataRequested(event);
+        } else if (type.equals(VizEvents.ShowTypeChoice)
+                || type.equals(VizEvents.TypeChoiceCancelled)) {
+            forwardToView(this.typeChooser, event);
         } else {
             forwardToView(this.vizView, event);
         }
@@ -230,10 +237,11 @@ public class VizController extends Controller {
     protected void initialize() {
         super.initialize();
         this.vizView = new VizView(this);
+        this.typeChooser = new VizTypeChooser(this);
     }
-    
+
     private void loadVizApi() {
-        
+
         // Load the visualization API
         this.isVizApiLoaded = false;
         final Runnable vizCallback = new Runnable() {
@@ -245,20 +253,22 @@ public class VizController extends Controller {
             }
         };
         VisualizationUtils.loadVisualizationApi(vizCallback);
-        
+
         // double check that the API has been loaded
         Timer timer = new Timer() {
-            
+
             @Override
             public void run() {
                 if (false == isVizApiLoaded) {
-                    MessageBox.alert("CommonSense", "Google visualization API not loaded, please retry.", new Listener<MessageBoxEvent>() {
-                        
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
-                            loadVizApi();
-                        }
-                    });
+                    MessageBox.alert("CommonSense",
+                            "Google visualization API not loaded, please retry.",
+                            new Listener<MessageBoxEvent>() {
+
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    loadVizApi();
+                                }
+                            });
                 }
             }
         };
