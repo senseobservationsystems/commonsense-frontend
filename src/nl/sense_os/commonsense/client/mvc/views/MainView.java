@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.mvc.views;
 import nl.sense_os.commonsense.client.components.HelpScreen;
 import nl.sense_os.commonsense.client.components.HomeScreen;
 import nl.sense_os.commonsense.client.components.NavPanel;
-import nl.sense_os.commonsense.client.components.building.BuildingMgmt;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -17,7 +16,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
@@ -32,9 +30,8 @@ public class MainView extends View {
 
     private static final String TAG = "MainView";
     private Viewport viewport;
-    private ContentPanel center;
+    private LayoutContainer center;
     private NavPanel navPanel;
-    private Component buildingMgmt;
     private Component homeComponent;
     private Component helpComponent;
 
@@ -43,9 +40,7 @@ public class MainView extends View {
     }
 
     private void createCenter() {
-        this.center = new ContentPanel(new FitLayout());
-        this.center.setHeaderVisible(false);
-        this.center.setBorders(false);
+        this.center = new LayoutContainer(new FitLayout());
 
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         this.viewport.add(this.center, centerData);
@@ -141,11 +136,6 @@ public class MainView extends View {
                     this.helpComponent = new HelpScreen();
                 }
                 newContent = this.helpComponent;
-            } else if (location.equals(NavPanel.BUILDING_MGMT)) {
-                if (null == buildingMgmt) {
-                    this.buildingMgmt = new BuildingMgmt();
-                }
-                newContent = this.buildingMgmt;
             } else if (location.equals(NavPanel.VISUALIZATION)) {
                 Dispatcher.forwardEvent(MainEvents.ShowVisualization, this.center);
             } else {

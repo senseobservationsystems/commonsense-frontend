@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.server;
 
 import nl.sense_os.commonsense.client.services.GroupsService;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.InternalError;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
@@ -76,14 +77,16 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             connection.setRequestProperty("X-SESSION_ID", sessionId);
             connection.setRequestProperty("Accept", "application/json");
 
+            log.info(method + " " + connection.getURL().getPath());
+            
             // perform method at URL
             if (null != data) {
+                log.info(data);
                 connection.setDoOutput(true);
                 OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream());
                 w.write(data);
                 w.close();
             }
-            connection.connect();
             this.responseCode = connection.getResponseCode();
             this.responseContent = "";
             InputStream is = connection.getInputStream();
@@ -133,6 +136,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             properties.put("username", group.getString("username"));
             properties.put("name", group.getString("name"));
             properties.put("UUID", group.getString("UUID"));
+            properties.put("tagType", TagModel.TYPE_GROUP);
 
             return new BaseModelData(properties);
 
@@ -188,6 +192,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
                 properties.put("name", user.getString("name"));
                 properties.put("surname", user.getString("surname"));
                 properties.put("mobile", user.getString("mobile"));
+                properties.put("tagType", TagModel.TYPE_USER);
 
                 ModelData model = new BaseModelData(properties);
 
@@ -225,7 +230,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             log.severe("failed to invite user: "+ this.responseCode + " " + this.responseContent);
             throw new WrongResponseException("failed to invite user: " + responseCode);
         }
-        return null;
+        return this.responseContent;
     }
 
     @Override

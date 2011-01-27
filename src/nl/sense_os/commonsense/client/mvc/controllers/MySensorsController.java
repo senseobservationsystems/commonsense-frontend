@@ -45,7 +45,8 @@ public class MySensorsController extends Controller {
         } else if (type.equals(MySensorsEvents.ShowTree)
                 || type.equals(MySensorsEvents.ListUpdated)
                 || type.equals(MySensorsEvents.ListNotUpdated)
-                || type.equals(MySensorsEvents.Working)) {
+                || type.equals(MySensorsEvents.Working)
+                || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.treeView, event);
         } else if (type.equals(MySensorsEvents.ShowShareDialog)
                 || type.equals(MySensorsEvents.ShareComplete)
@@ -58,8 +59,24 @@ public class MySensorsController extends Controller {
     }
 
     private void onShareRequest(AppEvent event) {
-        // TODO Auto-generated method stub
+        List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+        TreeModel user = event.<TreeModel> getData("user");
 
+        TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
+        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(MySensorsEvents.ShareFailed, caught);
+            }
+
+            @Override
+            public void onSuccess(Integer result) {
+                Dispatcher.forwardEvent(MySensorsEvents.ShareComplete, result);
+            }
+        };
+        service.shareSensors(sessionId, sensors, user, callback);
     }
 
     @Override

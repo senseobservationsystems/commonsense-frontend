@@ -276,14 +276,19 @@ public class VizController extends Controller {
     }
 
     private void onDataRequested(AppEvent event) {
-        TreeModel tag = event.getData("tag");
-        String url = Constants.URL_DATA.replace("<id>", "" + tag.<String> get("id"));
+        TreeModel sensor = event.getData("tag");
+        String url = Constants.URL_DATA.replace("<id>", "" + sensor.<String> get("id"));
         url += "?per_page=" + 1000;
         url += "&start_date=" + event.<Double> getData("startDate");
         url += "&end_date=" + event.<Double> getData("endDate");
+
+        String owner = sensor.get("alias");
+        if (null != owner) {
+            url+= "&alias=" + owner;
+        }
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
-        tag.set("retryCount", 0);
-        requestData(url, sessionId, tag, this);
+        sensor.set("retryCount", 0);
+        requestData(url, sessionId, sensor, this);
     }
 }

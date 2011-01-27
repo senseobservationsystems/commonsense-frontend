@@ -9,6 +9,8 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -34,6 +36,7 @@ public class MySensorsShareDialog extends View {
     private ComboBox<TreeModel> users;
     private Button createButton;
     private Button cancelButton;
+    private List<TreeModel> sensors;
 
     public MySensorsShareDialog(Controller c) {
         super(c);
@@ -47,17 +50,19 @@ public class MySensorsShareDialog extends View {
             onShow(event);
         } else if (type.equals(MySensorsEvents.ShareCancelled)) {
             Log.d(TAG, "Cancelled");
-            hide();
+            hideWindow();
         } else if (type.equals(MySensorsEvents.ShareComplete)) {
+            Log.d(TAG, "Complete");
             onComplete(event);
         } else if (type.equals(MySensorsEvents.ShareFailed)) {
+            Log.w(TAG, "Failed");
             onFailed(event);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
     }
 
-    private void hide() {
+    private void hideWindow() {
         this.window.hide();
         this.form.reset();
         setBusy(false);
@@ -79,7 +84,7 @@ public class MySensorsShareDialog extends View {
                 }
             }
         };
-        
+
         this.createButton = new Button("Create", l);
         this.cancelButton = new Button("Cancel", l);
         setBusy(false);
@@ -94,13 +99,16 @@ public class MySensorsShareDialog extends View {
 
     private void initFields() {
         List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-        ListStore<TreeModel>  store = new ListStore<TreeModel>();
+        ListStore<TreeModel> store = new ListStore<TreeModel>();
         store.add(users);
-        
+
         this.users = new ComboBox<TreeModel>();
         this.users.setFieldLabel("Share with");
         this.users.setStore(store);
         this.users.setDisplayField("name");
+        this.users.setAllowBlank(false);
+
+        this.form.add(this.users);
     }
 
     private void initForm() {
@@ -127,22 +135,38 @@ public class MySensorsShareDialog extends View {
     }
 
     private void onComplete(AppEvent event) {
-        // TODO Auto-generated method stub
-        hide();
+        hideWindow();
     }
 
     private void onFailed(AppEvent event) {
-        // TODO Auto-generated method stub
-        MessageBox.alert(null, "Action failed, please retry.", null);
+        setBusy(false);
+        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            onSubmit();
+                        } else {
+                            hideWindow();
+                        }
+                    }
+                });
     }
 
     private void onShow(AppEvent event) {
+        this.sensors = event.<List<TreeModel>> getData();
         this.window.show();
     }
 
     private void onSubmit() {
-        // TODO Auto-generated method stub
-        fireEvent(MySensorsEvents.ShareCancelled);
+        TreeModel user = this.users.getValue();
+        AppEvent event = new AppEvent(MySensorsEvents.ShareRequested);
+        event.setData("user", user);
+        event.setData("sensors", this.sensors);
+        fireEvent(event);
+        
+        setBusy(true);
     }
 
     private void setBusy(boolean busy) {

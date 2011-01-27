@@ -19,7 +19,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.IconHelper;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -194,7 +193,7 @@ public class LoginView extends View {
 
         resetFormValues();
 
-        ContentPanel center = event.<ContentPanel> getData();
+        LayoutContainer center = event.<LayoutContainer> getData();
         center.removeAll();
         center.add(this.loginPanel);
         center.layout();

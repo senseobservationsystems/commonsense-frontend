@@ -7,7 +7,11 @@ import java.util.List;
 
 public interface TagsServiceAsync {
 
-    public void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
     
-    public void getGroupSensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getGroupSensors(String sessionId, TreeModel group, AsyncCallback<TreeModel> callback);
+    
+    void shareSensors(String sessionId, List<TreeModel> sensors, TreeModel user, AsyncCallback<Integer> callback);
+    
+    void getServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
 }

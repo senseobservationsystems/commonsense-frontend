@@ -11,14 +11,13 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
-    private View mainView;
+    private MainView mainView;
 
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
@@ -48,8 +47,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
         // supply initial History token
         String token = History.getToken();
-        boolean needsLogin = (token.equals(NavPanel.SIGN_IN) || token.equals(NavPanel.SETTINGS)
-                || token.equals(NavPanel.SHARE_DATA) || token.equals(NavPanel.TRAINING_DATA) || token
+        boolean needsLogin = (token.equals(NavPanel.SIGN_IN) || token.equals(NavPanel.SETTINGS) || token
                 .equals(NavPanel.VISUALIZATION));
         String startLocation = needsLogin ? NavPanel.SIGN_IN : NavPanel.HOME;
         History.newItem(startLocation);
@@ -77,11 +75,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private boolean isLoginRequired(String token) {
-        boolean loginRequired = token.equals(NavPanel.SETTINGS);
-        loginRequired = loginRequired || token.equals(NavPanel.SHARE_DATA);
-        loginRequired = loginRequired || token.equals(NavPanel.TRAINING_DATA);
-        loginRequired = loginRequired || token.equals(NavPanel.VISUALIZATION);
-        loginRequired = loginRequired || token.equals(NavPanel.BUILDING_MGMT);
+        boolean loginRequired = token.equals(NavPanel.SETTINGS) || token.equals(NavPanel.VISUALIZATION);
         return loginRequired;
     }
 
@@ -91,10 +85,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         valid = valid || token.equals(NavPanel.HOME);
         valid = valid || token.equals(NavPanel.HELP);
         valid = valid || token.equals(NavPanel.SETTINGS);
-        valid = valid || token.equals(NavPanel.SHARE_DATA);
-        valid = valid || token.equals(NavPanel.TRAINING_DATA);
         valid = valid || token.equals(NavPanel.VISUALIZATION);
-        valid = valid || token.equals(NavPanel.BUILDING_MGMT);
         return valid;
     }
 }

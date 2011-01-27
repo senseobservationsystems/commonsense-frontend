@@ -1,20 +1,12 @@
 package nl.sense_os.commonsense.client;
 
-import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-
-import java.util.Date;
-
+import nl.sense_os.commonsense.client.mvc.controllers.BuildingController;
 import nl.sense_os.commonsense.client.mvc.controllers.GroupController;
 import nl.sense_os.commonsense.client.mvc.controllers.GroupSensorsController;
 import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
 import nl.sense_os.commonsense.client.mvc.controllers.MainController;
 import nl.sense_os.commonsense.client.mvc.controllers.MySensorsController;
+import nl.sense_os.commonsense.client.mvc.controllers.StateController;
 import nl.sense_os.commonsense.client.mvc.controllers.VizController;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -25,6 +17,16 @@ import nl.sense_os.commonsense.client.services.TagsService;
 import nl.sense_os.commonsense.client.services.TagsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
+
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+
+import java.util.Date;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -59,8 +61,10 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new MainController());
         dispatcher.addController(new VizController());
         dispatcher.addController(new MySensorsController());
-        dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new GroupController());
+        dispatcher.addController(new StateController());
+        dispatcher.addController(new BuildingController());
+        dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new LoginController());
 
         // start initializing all views

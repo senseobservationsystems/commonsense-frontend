@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -35,44 +35,37 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import java.util.Arrays;
 import java.util.List;
 
-public class GroupGrid extends View {
+public class StateGrid extends View {
 
-    protected static final String TAG = "GroupGrid";
+    protected static final String TAG = "StateGrid";
     private ContentPanel panel;
     private TreeGrid<TreeModel> grid;
     private TreeStore<TreeModel> store;
     private Button createButton;
-    private Button inviteButton;
-    private Button joinButton;
-    private Button leaveButton;
+    private Button importButton;
+    private Button deleteButton;
 
-    public GroupGrid(Controller controller) {
+    public StateGrid(Controller controller) {
         super(controller);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowGrid)) {
+        if (type.equals(StateEvents.ShowGrid)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.ListNotUpdated)) {
-            Log.w(TAG, "GroupListNotUpdated");
+        } else if (type.equals(StateEvents.ListNotUpdated)) {
+            Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
-        } else if (type.equals(GroupEvents.ListUpdated)) {
-            Log.d(TAG, "GroupListUpdated");
+        } else if (type.equals(StateEvents.ListUpdated)) {
+            Log.d(TAG, "ListUpdated");
             onGroupsUpdated(event);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (type.equals(GroupEvents.Working)) {
-            Log.d(TAG, "GroupsBusy");
+        } else if (type.equals(StateEvents.Working)) {
+            Log.d(TAG, "Working");
             setBusyIcon(true);
-        } else if (type.equals(GroupEvents.LeaveComplete)) {
-            Log.d(TAG, "LeaveGroupComplete");
-            onLeaveComplete(event);
-        } else if (type.equals(GroupEvents.LeaveFailed)) {
-            Log.d(TAG, "LeaveGroupFailed");
-            onLeaveFailed(event);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -81,14 +74,14 @@ public class GroupGrid extends View {
     private void initGrid() {
         this.store = new TreeStore<TreeModel>();
 
-        ColumnConfig email = new ColumnConfig("email", "Email", 100);
+        ColumnConfig email = new ColumnConfig("id", "Id", 100);
         ColumnConfig name = new ColumnConfig("name", "Name", 100);
 
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
         ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
-        this.grid.setId("groupGrid");
+        this.grid.setId("stateGrid");
         this.grid.setStateful(true);
 
         TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
@@ -99,11 +92,11 @@ public class GroupGrid extends View {
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    leaveButton.enable();
-                    inviteButton.enable();
+                    deleteButton.enable();
+                    importButton.enable();
                 } else {
-                    leaveButton.disable();
-                    inviteButton.disable();
+                    deleteButton.disable();
+                    importButton.disable();
                 }
             }
         });
@@ -119,7 +112,7 @@ public class GroupGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.get().dispatch(GroupEvents.ListRequested);
+                Dispatcher.get().dispatch(StateEvents.ListRequested);
             }
         });
 
@@ -132,7 +125,7 @@ public class GroupGrid extends View {
         super.initialize();
 
         this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("Manage group memberships");
+        this.panel.setHeading("Manage states");
         this.panel.setAnimCollapse(false);
 
         initHeaderTool();
@@ -148,39 +141,36 @@ public class GroupGrid extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
-                    fireEvent(GroupEvents.ShowCreator);
-                } else if (source.equals(leaveButton)) {
-                    onLeaveClick();
-                } else if (source.equals(joinButton)) {
-                    Log.d(TAG, "Join group");
-                } else if (source.equals(inviteButton)) {
-                    AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
-                    invite.setData(grid.getSelectionModel().getSelectedItem());
-                    fireEvent(invite);
+                    onCreateClick();
+                } else if (source.equals(deleteButton)) {
+                    onDeleteClick();
+                } else if (source.equals(importButton)) {
+                    onImportClick();
                 }
             }
         };
 
         this.createButton = new Button("Create", l);
 
-        this.joinButton = new Button("Join", l);
-        this.joinButton.disable();
+        this.importButton = new Button("Import", l);
+        this.importButton.disable();
 
-        this.leaveButton = new Button("Leave", l);
-        this.leaveButton.disable();
-
-        this.inviteButton = new Button("Invite", l);
-        this.inviteButton.disable();
+        this.deleteButton = new Button("Remove", l);
+        this.deleteButton.disable();
 
         // create tool bar
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(this.joinButton);
+        toolBar.add(this.importButton);
         toolBar.add(this.createButton);
-        toolBar.add(this.inviteButton);
-        toolBar.add(this.leaveButton);
+        toolBar.add(this.deleteButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
+    }
+
+    protected void onCreateClick() {
+        // TODO Auto-generated method stub
+        
     }
 
     private void onGroupsNotUpdated(AppEvent event) {
@@ -196,29 +186,22 @@ public class GroupGrid extends View {
         this.store.add(groups, true);
     }
 
-    private void onLeaveClick() {
-        MessageBox.confirm(null, "Are you sure you want to leave this group?",
+    private void onDeleteClick() {
+        MessageBox.confirm(null, "Are you sure you want to remove this environment?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            TreeModel select = grid.getSelectionModel().getSelectedItem();
-                            String groupId = select.get("id");
-                            AppEvent leaveEvent = new AppEvent(GroupEvents.LeaveRequested, groupId);
-                            fireEvent(leaveEvent);
+                            // TODO
                         }
                     }
                 });
     }
 
-    private void onLeaveComplete(AppEvent event) {
-        fireEvent(new AppEvent(GroupEvents.ListRequested));
-    }
-
-    private void onLeaveFailed(AppEvent event) {
-        MessageBox.alert("CommonSense", "Failed to leave group, please retry.", null);
+    private void onImportClick() {
+        // TODO
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -231,9 +214,9 @@ public class GroupGrid extends View {
             parent.add(this.panel);
             parent.layout();
             
-            Dispatcher.forwardEvent(GroupEvents.ListRequested);
+            Dispatcher.forwardEvent(StateEvents.ListRequested);
         } else {
-            Log.e(TAG, "Failed to show groups panel: parent=null");
+            Log.e(TAG, "Failed to show states panel: parent=null");
         }
     }
 

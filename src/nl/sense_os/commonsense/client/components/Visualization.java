@@ -1,12 +1,11 @@
 package nl.sense_os.commonsense.client.components;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.components.grids.SensorDataGrid;
+import nl.sense_os.commonsense.client.mvc.events.BuildingEvents;
 import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
+import nl.sense_os.commonsense.client.mvc.events.StateEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -15,7 +14,6 @@ import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -23,23 +21,17 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.DND.Operation;
 import com.extjs.gxt.ui.client.dnd.DropTarget;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
@@ -48,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.MouseDownEvent;
@@ -56,6 +47,9 @@ import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Component with the visualization part of the web application.
@@ -67,7 +61,6 @@ public class Visualization extends LayoutContainer {
     private TreeModel[] outstandingReqs;
     private int reqFailCount;
     private TabPanel tabPanel;
-    private RadioGroup timeSelector;
     private TabItem unfinishedTab;
     private long startTime;
     private long endTime;
@@ -119,86 +112,6 @@ public class Visualization extends LayoutContainer {
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
         centerLayout.setMargins(new Margins(5));
         add(this.tabPanel, centerLayout);
-    }
-
-    /**
-     * Creates a dialog which asks for the desired action to take after the user drag and dropped
-     * one or more tags from the tag tree. The dialog calls through to the proper follow-up method.
-     * 
-     * @param tags
-     *            the tags that were dropped
-     * @return the dialog
-     * @see #onTagsDropped(ArrayList)
-     */
-    private Dialog createTabTypeDialog(final TreeModel[] tags) {
-        final Dialog d = new Dialog();
-        d.setHeading("CommonSense Web Application");
-        d.setButtons("");
-//        d.setBodyStyleName("pad-text");  
-        d.setWidth(350);
-
-        d.add(this.timeSelector, new FlowData(10));
-        d.add(new Text("Please select the desired visualization type."), new FlowData(10));
-
-        final Button lineChart = new Button("Line chart", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                d.hide();
-
-                // add line chart tab item
-                final TabItem item = new TabItem("Time line");
-                item.setLayout(new FitLayout());
-                item.setClosable(true);
-                final VisualizationTab charts = new TimeLineCharts();
-                charts.setWaitingText(true);
-                item.add(charts);
-                Visualization.this.tabPanel.add(item);
-                Visualization.this.tabPanel.setSelection(item);
-                Visualization.this.unfinishedTab = item;
-
-                // startRequests(tags);
-            }
-        });
-        final Button table = new Button("Table", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                d.hide();
-
-                // add table tab item
-                final TabItem item = new TabItem("Table");
-                item.setClosable(true);
-                item.setScrollMode(Scroll.AUTO);
-                item.setLayout(new FitLayout());
-                Visualization.this.tabPanel.add(item);
-                tabPanel.setSelection(item);
-
-                // add sensor data grid
-                item.add(new SensorDataGrid(tags), new FitData());
-                item.layout();
-            }
-        });
-        // final Button streetView = new Button("Street view", new SelectionListener<ButtonEvent>()
-        // {
-        //
-        // @Override
-        // public void componentSelected(ButtonEvent ce) {
-        // d.hide();
-        //
-        // deviceLocationView(tags);
-        // }
-        // });
-        // streetView.setEnabled(false);
-
-        final ButtonBar buttons = new ButtonBar();
-        buttons.setAlignment(HorizontalAlignment.CENTER);
-        buttons.setMinButtonWidth(75);
-        buttons.add(lineChart);
-        buttons.add(table);
-        // buttons.add(streetView);
-        d.setBottomComponent(buttons);
-        return d;
     }
 
     /**
@@ -278,6 +191,8 @@ public class Visualization extends LayoutContainer {
         Dispatcher.forwardEvent(MySensorsEvents.ShowTree, accordion);
         Dispatcher.forwardEvent(GroupSensorsEvents.ShowTree, accordion);
         Dispatcher.forwardEvent(GroupEvents.ShowGrid, accordion);        
+        Dispatcher.forwardEvent(StateEvents.ShowGrid, accordion);        
+        Dispatcher.forwardEvent(BuildingEvents.ShowGrid, accordion);        
     }
 
     /**
@@ -324,48 +239,6 @@ public class Visualization extends LayoutContainer {
         Dispatcher.forwardEvent(requestEvent);
     }
 
-    /**
-     * Gets the time range from the radio buttons in the west panel.
-     * 
-     * @return array with start and end time in milliseconds.
-     * @see #createTimeSelector()
-     */
-    private long[] getTimeRange() {
-
-        // constants
-        final long hour = 1000 * 60 * 60;
-        final long day = 24 * hour;
-        final long week = 7 * day;
-
-        // read off selected time range
-        long end = System.currentTimeMillis();
-        UserModel user = Registry.get(Constants.REG_USER);
-        if (null != user && user.getId() == 134) {
-            Log.d(TAG, "delfgauw time hack");
-            end = 1283603962000l; // 4 september, 14:39.220 CEST
-        } else if (null != user && user.getId() == 142) {
-            Log.d(TAG, "greenhouse time hack");
-            end = 1288609200000l; // 2 november, 12:00 CET
-        }
-        long start = 0;
-        final String radioId = this.timeSelector.getValue().getId();
-        if (radioId.equals("1hr")) {
-            start = end - hour;
-        } else if (radioId.equals("6hr")) {
-            start = end - (6 * hour);
-        } else if (radioId.equals("24hr")) {
-            start = end - day;
-        } else if (radioId.equals("1wk")) {
-            start = end - week;
-        } else if (radioId.equals("4wk")) {
-            start = end - (4 * week);
-        } else {
-            Log.w(TAG, "Unexpected time range: " + radioId);
-        }
-
-        return new long[] { start, end };
-    }
-
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
@@ -375,8 +248,6 @@ public class Visualization extends LayoutContainer {
         
         createWestPanel();
         createCenterPanel();
-        
-        this.timeSelector = createTimeSelector();
         
         setupDragDrop();
     }

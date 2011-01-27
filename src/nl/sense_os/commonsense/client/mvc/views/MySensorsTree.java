@@ -91,7 +91,7 @@ public class MySensorsTree extends View {
         super.initialize();
 
         this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("My sensors");
+        this.panel.setHeading("My personal sensors");
         this.panel.setAnimCollapse(false);
 
         initTree();
@@ -110,8 +110,7 @@ public class MySensorsTree extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(vizButton)) {
-                    List<TreeModel> selection = tree.getSelectionModel().getSelection();
-                    Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+                    onVizClick();
                 } else if (source.equals(shareButton)) {
                     List<TreeModel> selection = tree.getSelectionModel().getSelection();
                     Dispatcher.forwardEvent(MySensorsEvents.ShowShareDialog, selection);
@@ -265,9 +264,17 @@ public class MySensorsTree extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
+            
+            Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show my sensors panel: parent=null");
         }
+    }
+
+    private void onVizClick() {
+        List<TreeModel> selection = tree.getSelectionModel().getSelection();
+        // TODO get child sensors of selected users, groups and devices 
+        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);                
     }
 
     private void setBusy(boolean busy) {

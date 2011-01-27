@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import java.util.List;
-
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -23,6 +21,8 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+
+import java.util.List;
 
 public class VizTypeChooser extends View {
 
@@ -67,6 +67,14 @@ public class VizTypeChooser extends View {
         final long hour = 1000 * 60 * 60;
         final long day = 24 * hour;
         final long week = 7 * day;
+
+        /*// hack the end time for some specific demos
+         * long end = System.currentTimeMillis(); UserModel user = Registry.get(Constants.REG_USER);
+         * if (null != user && user.getId() == 134) { Log.d(TAG, "delfgauw time hack"); end =
+         * 1283603962000l; // 4 september, 14:39.220 CEST } else if (null != user && user.getId() ==
+         * 142) { Log.d(TAG, "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET
+         * }
+         */
 
         String label = timeRangeField.getValue().getBoxLabel();
         if (label.equals("1 hour")) {
@@ -138,24 +146,24 @@ public class VizTypeChooser extends View {
                 }
             }
         };
-        
+
         this.buttonToTypes = new Button("Back", l);
         this.timeRangeForm.addButton(this.buttonToTypes);
-        
+
         this.buttonComplete = new Button("Go!", l);
         this.timeRangeForm.addButton(this.buttonComplete);
 
         Button cancel = new Button("Cancel", l);
         this.timeRangeForm.addButton(cancel);
 
-        FormButtonBinding binding = new FormButtonBinding(typeForm);
+        FormButtonBinding binding = new FormButtonBinding(this.timeRangeForm);
         binding.addButton(this.buttonComplete);
     }
 
     private void initTimeRangeFields() {
         this.timeRangeField = new RadioGroup();
         this.timeRangeField.setFieldLabel("Select the time range to visualize");
-        
+
         final Radio radio1Hr = new Radio();
         radio1Hr.setBoxLabel("1 hour");
 
@@ -222,17 +230,18 @@ public class VizTypeChooser extends View {
         this.typesField = new RadioGroup();
         this.typesField.setFieldLabel("Select a visualization type");
 
-        Radio lineChart = new Radio();
+        final Radio lineChart = new Radio();
         lineChart.setBoxLabel("Line chart");
+        lineChart.setValue(true);
 
-        Radio table = new Radio();
+        final Radio table = new Radio();
         table.setBoxLabel("Table");
 
-        Radio map = new Radio();
+        final Radio map = new Radio();
         map.setBoxLabel("Map");
         map.disable();
 
-        Radio network = new Radio();
+        final Radio network = new Radio();
         network.setBoxLabel("Network");
         network.disable();
 
@@ -283,7 +292,7 @@ public class VizTypeChooser extends View {
     private void onShow(AppEvent event) {
         List<TreeModel> tags = event.<List<TreeModel>> getData();
         if (checkSensors(tags)) {
-            this.window.show();            
+            this.window.show();
         } else {
             MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);
         }
