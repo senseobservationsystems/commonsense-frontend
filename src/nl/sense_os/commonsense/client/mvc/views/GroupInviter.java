@@ -21,9 +21,9 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class GroupInviterView extends View {
+public class GroupInviter extends View {
 
-    private static final String TAG = "GroupInviterView";
+    private static final String TAG = "GroupInviter";
     private Window window;
     private FormPanel form;
     private TextField<String> email;
@@ -31,22 +31,22 @@ public class GroupInviterView extends View {
     private Button cancelButton;
     private TreeModel group;
 
-    public GroupInviterView(Controller c) {
+    public GroupInviter(Controller c) {
         super(c);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowInvitation)) {
+        if (type.equals(GroupEvents.ShowInviter)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.InviteUserCancelled)) {
+        } else if (type.equals(GroupEvents.InviteCancelled)) {
             Log.d(TAG, "CreateGroupCancelled");
             onCancelled(event);
-        } else if (type.equals(GroupEvents.InviteUserComplete)) {
+        } else if (type.equals(GroupEvents.InviteComplete)) {
             Log.d(TAG, "CreateGroupComplete");
             onComplete(event);
-        } else if (type.equals(GroupEvents.InviteUserFailed)) {
+        } else if (type.equals(GroupEvents.InviteFailed)) {
             Log.w(TAG, "CreateGroupFailed");
             onFailed(event);
         } else {
@@ -69,7 +69,7 @@ public class GroupInviterView extends View {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                GroupInviterView.this.fireEvent(GroupEvents.InviteUserCancelled);
+                GroupInviter.this.fireEvent(GroupEvents.InviteCancelled);
             }
         });
         setBusy(false);
@@ -117,7 +117,7 @@ public class GroupInviterView extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.GroupListRequested);
+        Dispatcher.forwardEvent(GroupEvents.ListRequested);
         setBusy(false);
     }
 
@@ -136,7 +136,7 @@ public class GroupInviterView extends View {
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupEvents.InviteUserRequested);
+        AppEvent event = new AppEvent(GroupEvents.InviteRequested);
         event.setData("groupId", this.group.<String> get("id"));
         event.setData("email", this.email.getValue());
         fireEvent(event);

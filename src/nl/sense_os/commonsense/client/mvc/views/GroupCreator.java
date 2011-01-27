@@ -23,9 +23,9 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class GroupCreatorView extends View {
+public class GroupCreator extends View {
 
-    private static final String TAG = "GroupCreatorView";
+    private static final String TAG = "GroupCreator";
     private Window window;
     private FormPanel form;
     private TextField<String> name;
@@ -35,22 +35,22 @@ public class GroupCreatorView extends View {
     private Button createButton;
     private Button cancelButton;
 
-    public GroupCreatorView(Controller c) {
+    public GroupCreator(Controller c) {
         super(c);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowGroupCreator)) {
+        if (type.equals(GroupEvents.ShowCreator)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.CreateGroupCancelled)) {
+        } else if (type.equals(GroupEvents.CreateCancelled)) {
             Log.d(TAG, "CreateGroupCancelled");
             onCancelled(event);
-        } else if (type.equals(GroupEvents.CreateGroupComplete)) {
+        } else if (type.equals(GroupEvents.CreateComplete)) {
             Log.d(TAG, "CreateGroupComplete");
             onComplete(event);
-        } else if (type.equals(GroupEvents.CreateGroupFailed)) {
+        } else if (type.equals(GroupEvents.CreateFailed)) {
             Log.w(TAG, "CreateGroupFailed");
             onFailed(event);
         } else {
@@ -84,7 +84,7 @@ public class GroupCreatorView extends View {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                GroupCreatorView.this.fireEvent(GroupEvents.CreateGroupCancelled);
+                GroupCreator.this.fireEvent(GroupEvents.CreateCancelled);
             }
         });
         setBusy(false);
@@ -148,8 +148,7 @@ public class GroupCreatorView extends View {
         super.initialize();
 
         this.window = new Window();
-        this.window.setWidth(350);
-        this.window.setHeight(200);
+        this.window.setSize(350, 200);
         this.window.setResizable(false);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Create group");
@@ -174,7 +173,7 @@ public class GroupCreatorView extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.GroupListRequested);
+        Dispatcher.forwardEvent(GroupEvents.ListRequested);
         setBusy(false);
     }
 
@@ -191,7 +190,7 @@ public class GroupCreatorView extends View {
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupEvents.CreateGroupRequested);
+        AppEvent event = new AppEvent(GroupEvents.CreateRequested);
         event.setData("name", this.name.getValue());
         event.setData("email", this.email.getValue());
         if (this.username.getValue() != null && this.username.getValue().length() > 0) {

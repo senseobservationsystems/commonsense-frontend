@@ -37,33 +37,34 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-public class MySensorsView extends View {
+public class MySensorsTree extends View {
 
-    private static final String TAG = "MySensorsView";
+    private static final String TAG = "MySensorsTree";
     private ContentPanel panel;
     private TreeStore<TreeModel> store;
     private ToolButton refreshButton;
     private Button shareButton;
-    private Button vizButton;    
+    private Button eventsButton;
+    private Button vizButton;
     private TreePanel<TreeModel> tree;
 
-    public MySensorsView(Controller controller) {
+    public MySensorsTree(Controller controller) {
         super(controller);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(MySensorsEvents.ShowMySensors)) {
+        if (type.equals(MySensorsEvents.ShowTree)) {
             onShow(event);
-        } else if (type.equals(MySensorsEvents.MySensorsNotUpdated)) {
-            Log.w(TAG, "MySensorsNotUpdated");
+        } else if (type.equals(MySensorsEvents.ListNotUpdated)) {
+            Log.w(TAG, "ListNotUpdated");
             onListNotUpdated(event);
-        } else if (type.equals(MySensorsEvents.MySensorsUpdated)) {
-            // Log.d(TAG, "MySensorsUpdated");
+        } else if (type.equals(MySensorsEvents.ListUpdated)) {
+            // Log.d(TAG, "ListUpdated");
             onListUpdate(event);
-        } else if (type.equals(MySensorsEvents.MySensorsBusy)) {
-            // Log.d(TAG, "MySensorsBusy");
+        } else if (type.equals(MySensorsEvents.Working)) {
+            // Log.d(TAG, "Working");
             setBusy(true);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -71,6 +72,18 @@ public class MySensorsView extends View {
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void initHeaderTool() {
+        this.refreshButton = new ToolButton("x-tool-refresh");
+        this.refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+
+            @Override
+            public void componentSelected(IconButtonEvent ce) {
+                Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+            }
+        });
+        this.panel.getHeader().addTool(this.refreshButton);
     }
 
     @Override
@@ -89,6 +102,8 @@ public class MySensorsView extends View {
     }
 
     private void initToolBar() {
+
+        // listen to toolbar button clicks
         final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -98,41 +113,55 @@ public class MySensorsView extends View {
                     List<TreeModel> selection = tree.getSelectionModel().getSelection();
                     Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
                 } else if (source.equals(shareButton)) {
-                    onShareClick();
-                } 
+                    List<TreeModel> selection = tree.getSelectionModel().getSelection();
+                    Dispatcher.forwardEvent(MySensorsEvents.ShowShareDialog, selection);
+                } else if (source.equals(eventsButton)) {
+                    onEventsClick();
+                } else {
+                    Log.w(TAG, "Unexpected button pressed");
+                }
             }
         };
 
+        // initialize the buttons
         this.vizButton = new Button("Visualize", l);
         this.vizButton.disable();
 
         this.shareButton = new Button("Sharing", l);
         this.shareButton.disable();
 
+        this.eventsButton = new Button("Events", l);
+        this.eventsButton.disable();
+
+        // listen to selection of tree items to enable/disable buttons
+        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
+        selectionModel.setSelectionMode(SelectionMode.MULTI);
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+                List<TreeModel> selection = se.getSelection();
+                if (selection.size() > 0) {
+                    vizButton.enable();
+                    shareButton.enable();
+                    eventsButton.enable();
+                } else {
+                    vizButton.disable();
+                    shareButton.disable();
+                    eventsButton.disable();
+                }
+            }
+        });
+        this.tree.setSelectionModel(selectionModel);
+
         // create tool bar
         final ToolBar toolBar = new ToolBar();
         toolBar.add(this.vizButton);
         toolBar.add(this.shareButton);
+        toolBar.add(this.eventsButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
-    }
-
-    private void onShareClick() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    private void initHeaderTool() {
-        this.refreshButton = new ToolButton("x-tool-refresh");
-        this.refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
-
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.forwardEvent(MySensorsEvents.MySensorsRequested);
-            }
-        });
-        this.panel.getHeader().addTool(this.refreshButton);
     }
 
     private void initTree() {
@@ -202,39 +231,13 @@ public class MySensorsView extends View {
                 }
             }
         });
-        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
-        selectionModel.setSelectionMode(SelectionMode.MULTI);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
-            
-            @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                List<TreeModel> selection = se.getSelection();
-                if (selection.size() > 0) {
-                    vizButton.enable();
-                    shareButton.enable();
-                } else {
-                    vizButton.disable();
-                    shareButton.disable();
-                }                
-            }
-        });
-        this.tree.setSelectionModel(selectionModel);
 
         this.panel.add(this.tree);
     }
 
-    private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
-    }
+    protected void onEventsClick() {
+        // TODO Auto-generated method stub
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show my sensors panel: parent=null");
-        }
     }
 
     private void onListNotUpdated(AppEvent event) {
@@ -253,6 +256,20 @@ public class MySensorsView extends View {
         this.store.add(tags, true);
     }
 
+    private void onLoggedOut(AppEvent event) {
+        this.store.removeAll();
+    }
+
+    private void onShow(AppEvent event) {
+        ContentPanel parent = event.<ContentPanel> getData();
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show my sensors panel: parent=null");
+        }
+    }
+
     private void setBusy(boolean busy) {
         String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
@@ -262,7 +279,6 @@ public class MySensorsView extends View {
      * Sets up the tag tree panel for drag and drop of the tags.
      */
     private void setupDragDrop() {
-
         TreePanelDragSource source = new TreePanelDragSource(this.tree);
         source.setTreeStoreState(true);
     }

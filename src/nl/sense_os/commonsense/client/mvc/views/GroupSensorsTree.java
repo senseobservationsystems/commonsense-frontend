@@ -28,31 +28,31 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-public class GroupSensorsView extends View {
+public class GroupSensorsTree extends View {
 
-    private static final String TAG = "GroupSensorsView";
+    private static final String TAG = "GroupSensorsTree";
     private ContentPanel panel;
     private TreeStore<TreeModel> store;
     private ToolButton refreshButton;
     private TreePanel<TreeModel> tree;
 
-    public GroupSensorsView(Controller c) {
+    public GroupSensorsTree(Controller c) {
         super(c);
     }
     
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupSensorsEvents.ShowGroupSensors)) {
+        if (type.equals(GroupSensorsEvents.ShowTree)) {
             onShow(event);
-        } else if (type.equals(GroupSensorsEvents.GroupSensorsNotUpdated)) {
-            Log.w(TAG, "GroupSensorsNotUpdated");
-            onListUpdate(event);
-        } else if (type.equals(GroupSensorsEvents.GroupSensorsUpdated)) {
-            Log.d(TAG, "GroupSensorsUpdated");
+        } else if (type.equals(GroupSensorsEvents.ListNotUpdated)) {
+            Log.w(TAG, "ListNotUpdated");
             onListNotUpdated(event);
-        } else if (type.equals(GroupSensorsEvents.GroupSensorsBusy)) {
-            Log.d(TAG, "GroupSensorsBusy");
+        } else if (type.equals(GroupSensorsEvents.ListUpdated)) {
+            Log.d(TAG, "ListUpdated");
+            onListUpdate(event);
+        } else if (type.equals(GroupSensorsEvents.Working)) {
+            Log.d(TAG, "Working");
             setBusy(true);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -181,7 +181,7 @@ public class GroupSensorsView extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.forwardEvent(GroupSensorsEvents.GroupSensorsRequested);
+                Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested);
             }
         });
         this.panel.getHeader().addTool(this.refreshButton);

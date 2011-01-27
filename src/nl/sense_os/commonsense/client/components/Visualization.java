@@ -275,9 +275,9 @@ public class Visualization extends LayoutContainer {
         westData.setSplit(false);
         add(westPanel, westData);
         
-        Dispatcher.forwardEvent(MySensorsEvents.ShowMySensors, accordion);
-        Dispatcher.forwardEvent(GroupSensorsEvents.ShowGroupSensors, accordion);
-        Dispatcher.forwardEvent(GroupEvents.ShowGroups, accordion);        
+        Dispatcher.forwardEvent(MySensorsEvents.ShowTree, accordion);
+        Dispatcher.forwardEvent(GroupSensorsEvents.ShowTree, accordion);
+        Dispatcher.forwardEvent(GroupEvents.ShowGrid, accordion);        
     }
 
     /**

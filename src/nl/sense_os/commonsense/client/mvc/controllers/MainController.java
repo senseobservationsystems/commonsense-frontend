@@ -84,7 +84,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         loginRequired = loginRequired || token.equals(NavPanel.BUILDING_MGMT);
         return loginRequired;
     }
-    
+
     private boolean isValidLocation(String token) {
         boolean valid = token.equals(NavPanel.SIGN_IN);
         valid = valid || token.equals(NavPanel.SIGN_OUT);

@@ -301,7 +301,7 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
 
                 HashMap<String, Object> properties = new HashMap<String, Object>();
                 properties.put("id", sensor.getString("id"));
-                properties.put("data_type_id", sensor.getString("data_type_id"));
+                // properties.put("data_type_id", sensor.getString("data_type_id"));
                 properties.put("pager_type", sensor.getString("pager_type"));
                 properties.put("data_type", sensor.getString("data_type"));
                 properties.put("device_type", sensor.getString("device_type"));

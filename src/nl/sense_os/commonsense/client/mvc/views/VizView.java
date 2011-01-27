@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.mvc.views;
 
 import nl.sense_os.commonsense.client.components.Visualization;
 import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
+import nl.sense_os.commonsense.client.mvc.events.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
@@ -98,7 +99,8 @@ public class VizView extends View {
         center.add(this.vizPanel);
         center.layout();
 
-        Dispatcher.forwardEvent(MySensorsEvents.MySensorsRequested);
-        Dispatcher.forwardEvent(GroupEvents.GroupListRequested);
+        Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+        Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested);
+        Dispatcher.forwardEvent(GroupEvents.ListRequested);
     }
 }

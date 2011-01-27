@@ -35,9 +35,9 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import java.util.Arrays;
 import java.util.List;
 
-public class GroupGridView extends View {
+public class GroupGrid extends View {
 
-    protected static final String TAG = "GroupGridView";
+    protected static final String TAG = "GroupGrid";
     private ContentPanel panel;
     private TreeGrid<TreeModel> grid;
     private TreeStore<TreeModel> store;
@@ -46,31 +46,31 @@ public class GroupGridView extends View {
     private Button joinButton;
     private Button leaveButton;
 
-    public GroupGridView(Controller controller) {
+    public GroupGrid(Controller controller) {
         super(controller);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowGroups)) {
+        if (type.equals(GroupEvents.ShowGrid)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.GroupListNotUpdated)) {
+        } else if (type.equals(GroupEvents.ListNotUpdated)) {
             Log.w(TAG, "GroupListNotUpdated");
             onGroupsNotUpdated(event);
-        } else if (type.equals(GroupEvents.GroupListUpdated)) {
+        } else if (type.equals(GroupEvents.ListUpdated)) {
             Log.d(TAG, "GroupListUpdated");
             onGroupsUpdated(event);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (type.equals(GroupEvents.GroupsBusy)) {
+        } else if (type.equals(GroupEvents.Working)) {
             Log.d(TAG, "GroupsBusy");
             setBusyIcon(true);
-        } else if (type.equals(GroupEvents.LeaveGroupComplete)) {
+        } else if (type.equals(GroupEvents.LeaveComplete)) {
             Log.d(TAG, "LeaveGroupComplete");
             onLeaveComplete(event);
-        } else if (type.equals(GroupEvents.LeaveGroupFailed)) {
+        } else if (type.equals(GroupEvents.LeaveFailed)) {
             Log.d(TAG, "LeaveGroupFailed");
             onLeaveFailed(event);
         } else {
@@ -119,7 +119,7 @@ public class GroupGridView extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.get().dispatch(GroupEvents.GroupListRequested);
+                Dispatcher.get().dispatch(GroupEvents.ListRequested);
             }
         });
 
@@ -148,13 +148,13 @@ public class GroupGridView extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
-                    fireEvent(GroupEvents.ShowGroupCreator);
+                    fireEvent(GroupEvents.ShowCreator);
                 } else if (source.equals(leaveButton)) {
                     onLeaveClick();
                 } else if (source.equals(joinButton)) {
                     Log.d(TAG, "Join group");
                 } else if (source.equals(inviteButton)) {
-                    AppEvent invite = new AppEvent(GroupEvents.ShowInvitation);
+                    AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
                     invite.setData(grid.getSelectionModel().getSelectedItem());
                     fireEvent(invite);
                 }
@@ -206,7 +206,7 @@ public class GroupGridView extends View {
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
                             TreeModel select = grid.getSelectionModel().getSelectedItem();
                             String groupId = select.get("id");
-                            AppEvent leaveEvent = new AppEvent(GroupEvents.LeaveGroupRequested, groupId);
+                            AppEvent leaveEvent = new AppEvent(GroupEvents.LeaveRequested, groupId);
                             fireEvent(leaveEvent);
                         }
                     }
@@ -214,7 +214,7 @@ public class GroupGridView extends View {
     }
 
     private void onLeaveComplete(AppEvent event) {
-        fireEvent(new AppEvent(GroupEvents.GroupListRequested));
+        fireEvent(new AppEvent(GroupEvents.ListRequested));
     }
 
     private void onLeaveFailed(AppEvent event) {

@@ -3,25 +3,26 @@ package nl.sense_os.commonsense.client.mvc.events;
 import com.extjs.gxt.ui.client.event.EventType;
 
 public class GroupEvents {
-    public static final EventType GroupListRequested = new EventType();
-    public static final EventType GroupListNotUpdated = new EventType();
-    public static final EventType GroupListUpdated = new EventType();
-    public static final EventType ShowGroups = new EventType();
-    public static final EventType GroupsBusy = new EventType();
+    public static final EventType ShowGrid = new EventType();
+    public static final EventType ListRequested = new EventType();
+    public static final EventType ListUpdated = new EventType();
+    public static final EventType ListNotUpdated = new EventType();
     
-    public static final EventType ShowGroupCreator = new EventType();
-    public static final EventType CreateGroupRequested = new EventType();
-    public static final EventType CreateGroupCancelled = new EventType();
-    public static final EventType CreateGroupComplete = new EventType();
-    public static final EventType CreateGroupFailed = new EventType();
+    public static final EventType ShowCreator = new EventType();
+    public static final EventType CreateRequested = new EventType();
+    public static final EventType CreateComplete = new EventType();
+    public static final EventType CreateFailed = new EventType();
+    public static final EventType CreateCancelled = new EventType();
     
-    public static final EventType LeaveGroupRequested = new EventType();
-    public static final EventType LeaveGroupComplete = new EventType();
-    public static final EventType LeaveGroupFailed = new EventType();
+    public static final EventType LeaveRequested = new EventType();
+    public static final EventType LeaveComplete = new EventType();
+    public static final EventType LeaveFailed = new EventType();
     
-    public static final EventType ShowInvitation = new EventType();
-    public static final EventType InviteUserFailed = new EventType();
-    public static final EventType InviteUserCancelled = new EventType();
-    public static final EventType InviteUserRequested = new EventType();
-    public static final EventType InviteUserComplete = new EventType();
+    public static final EventType ShowInviter = new EventType();
+    public static final EventType InviteRequested = new EventType();
+    public static final EventType InviteComplete = new EventType();
+    public static final EventType InviteFailed = new EventType();
+    public static final EventType InviteCancelled = new EventType();
+    
+    public static final EventType Working = new EventType();
 }
