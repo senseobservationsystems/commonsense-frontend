@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -32,9 +35,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class StateGrid extends View {
 
     protected static final String TAG = "StateGrid";
@@ -42,8 +42,7 @@ public class StateGrid extends View {
     private TreeGrid<TreeModel> grid;
     private TreeStore<TreeModel> store;
     private Button createButton;
-    private Button importButton;
-    private Button deleteButton;
+    private Button removeButton;
 
     public StateGrid(Controller controller) {
         super(controller);
@@ -63,44 +62,51 @@ public class StateGrid extends View {
         } else if (type.equals(LoginEvents.LoggedOut)) {
             Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(StateEvents.RemoveComplete)) {
+            Log.d(TAG, "RemoveComplete");
+            onRemoveComplete(event);
+        } else if (type.equals(StateEvents.RemoveFailed)) {
+            Log.d(TAG, "RemoveFailed");
+            onRemoveFailed(event);
         } else if (type.equals(StateEvents.Working)) {
             Log.d(TAG, "Working");
-            setBusyIcon(true);
+            setBusy(true);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
     }
 
+    private void onRemoveFailed(AppEvent event) {
+        setBusy(false);
+        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            removeService();
+                        }
+                    }
+                });
+    }
+
+    private void onRemoveComplete(AppEvent event) {
+        setBusy(false);
+        Dispatcher.forwardEvent(StateEvents.ListRequested);
+    }
+
     private void initGrid() {
         this.store = new TreeStore<TreeModel>();
 
-        ColumnConfig email = new ColumnConfig("id", "Id", 100);
-        ColumnConfig name = new ColumnConfig("name", "Name", 100);
+        ColumnConfig id = new ColumnConfig("id", "Id", 50);
+        ColumnConfig name = new ColumnConfig("name", "Name", 150);
 
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
+        ColumnModel cm = new ColumnModel(Arrays.asList(name, id));
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
         this.grid.setId("stateGrid");
         this.grid.setStateful(true);
-
-        TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
-
-            @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                TreeModel selection = se.getSelectedItem();
-                if (null != selection) {
-                    deleteButton.enable();
-                    importButton.enable();
-                } else {
-                    deleteButton.disable();
-                    importButton.disable();
-                }
-            }
-        });
-        this.grid.setSelectionModel(selectionModel);
 
         // add grid to panel
         this.panel.add(this.grid);
@@ -128,13 +134,28 @@ public class StateGrid extends View {
         this.panel.setHeading("Manage states");
         this.panel.setAnimCollapse(false);
 
+        initGrid();
         initHeaderTool();
         initToolBar();
-        initGrid();
     }
 
     private void initToolBar() {
+        TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
+        selectionModel.setSelectionMode(SelectionMode.SINGLE);
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
 
+            @Override
+            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+                TreeModel selection = se.getSelectedItem();
+                if (null != selection && selection.get("service_name") == null) {
+                    removeButton.enable();
+                } else {
+                    removeButton.disable();
+                }
+            }
+        });
+        this.grid.setSelectionModel(selectionModel);
+        
         final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -142,66 +163,67 @@ public class StateGrid extends View {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
                     onCreateClick();
-                } else if (source.equals(deleteButton)) {
-                    onDeleteClick();
-                } else if (source.equals(importButton)) {
-                    onImportClick();
+                } else if (source.equals(removeButton)) {
+                    confirmRemove();
+                } else  {
+                    Log.w(TAG, "Unexpected button clicked");
                 }
             }
         };
 
         this.createButton = new Button("Create", l);
 
-        this.importButton = new Button("Import", l);
-        this.importButton.disable();
-
-        this.deleteButton = new Button("Remove", l);
-        this.deleteButton.disable();
+        this.removeButton = new Button("Remove", l);
+        this.removeButton.disable();
 
         // create tool bar
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(this.importButton);
         toolBar.add(this.createButton);
-        toolBar.add(this.deleteButton);
+        toolBar.add(this.removeButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
 
     protected void onCreateClick() {
-        // TODO Auto-generated method stub
-        
+        Dispatcher.forwardEvent(StateEvents.ShowCreator);
     }
 
     private void onGroupsNotUpdated(AppEvent event) {
         // Throwable caught = event.<Throwable> getData();
-        setBusyIcon(false);
+        setBusy(false);
         this.store.removeAll();
     }
 
     private void onGroupsUpdated(AppEvent event) {
         List<TreeModel> groups = event.<List<TreeModel>> getData();
-        setBusyIcon(false);
+        setBusy(false);
         this.store.removeAll();
         this.store.add(groups, true);
     }
 
-    private void onDeleteClick() {
-        MessageBox.confirm(null, "Are you sure you want to remove this environment?",
+    private void confirmRemove() {
+        MessageBox.confirm(null, "Are you sure you want to remove this state sensor?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            // TODO
+                            removeService();
                         }
                     }
                 });
     }
 
-    private void onImportClick() {
-        // TODO
+    protected void removeService() {
+        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel service = sensor.getParent();
+        AppEvent event = new AppEvent(StateEvents.RemoveRequested);
+        event.setData("sensorId", sensor.<String> get("id"));
+        event.setData("serviceId", service.<String> get("id"));
+        Dispatcher.forwardEvent(event);
+        setBusy(true);
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -220,7 +242,7 @@ public class StateGrid extends View {
         }
     }
 
-    private void setBusyIcon(boolean busy) {
+    private void setBusy(boolean busy) {
         String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }

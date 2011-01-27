@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -7,6 +9,9 @@ import nl.sense_os.commonsense.shared.TagModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -21,8 +26,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
-
-import java.util.List;
 
 public class VizTypeChooser extends View {
 
@@ -43,21 +46,6 @@ public class VizTypeChooser extends View {
 
     public VizTypeChooser(Controller c) {
         super(c);
-    }
-
-    private void saveSelectedType() {
-        String label = typesField.getValue().getBoxLabel();
-        if (label.equalsIgnoreCase("Line chart")) {
-            eventType = VizEvents.ShowLineChart;
-        } else if (label.equalsIgnoreCase("Table")) {
-            eventType = VizEvents.ShowTable;
-        } else if (label.equalsIgnoreCase("Map")) {
-            eventType = VizEvents.ShowMap;
-        } else if (label.equalsIgnoreCase("Network")) {
-            eventType = VizEvents.ShowNetwork;
-        } else {
-            Log.w(TAG, "Unexpected radio button label: " + label);
-        }
     }
 
     private void saveSelectedTimes() {
@@ -133,12 +121,7 @@ public class VizTypeChooser extends View {
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().equals(buttonComplete)) {
                     saveSelectedTimes();
-                    AppEvent event = new AppEvent(eventType);
-                    event.setData("sensors", sensors);
-                    event.setData("startTime", startTime);
-                    event.setData("endTime", endTime);
-                    Dispatcher.forwardEvent(event);
-                    hideWindow();
+                    submitRequest();
                 } else if (ce.getButton().equals(buttonToTypes)) {
                     layout.setActiveItem(typeForm);
                 } else {
@@ -158,6 +141,15 @@ public class VizTypeChooser extends View {
 
         FormButtonBinding binding = new FormButtonBinding(this.timeRangeForm);
         binding.addButton(this.buttonComplete);
+    }
+    
+    private void submitRequest() {
+        AppEvent event = new AppEvent(eventType);
+        event.setData("sensors", sensors);
+        event.setData("startTime", startTime);
+        event.setData("endTime", endTime);
+        Dispatcher.forwardEvent(event);
+        hideWindow();
     }
 
     private void initTimeRangeFields() {
@@ -199,13 +191,41 @@ public class VizTypeChooser extends View {
     }
 
     private void initTypeButtons() {
+        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                String label = typesField.getValue().getBoxLabel();
+                if (label.equalsIgnoreCase("line chart")) {
+                    eventType = VizEvents.ShowLineChart;
+                    buttonToTimeRange.setText("Next");
+                } else if (label.equalsIgnoreCase("table")) {
+                    eventType = VizEvents.ShowTable;
+                    buttonToTimeRange.setText("Go!");
+                } else if (label.equalsIgnoreCase("map")) {
+                    eventType = VizEvents.ShowMap;
+                    buttonToTimeRange.setText("Next");
+                } else if (label.equalsIgnoreCase("network")) {
+                    eventType = VizEvents.ShowNetwork;
+                    buttonToTimeRange.setText("Next");
+                } else {
+                    Log.w(TAG, "Unexpected selection: " + label);                    
+                }
+            }            
+        });
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().equals(buttonToTimeRange)) {
-                    saveSelectedType();
-                    layout.setActiveItem(timeRangeForm);
+                    if (buttonToTimeRange.getText().equalsIgnoreCase("next")) {
+                        layout.setActiveItem(timeRangeForm);
+                    } else {
+                        // skip time range selection
+                        endTime = System.currentTimeMillis();
+                        startTime = 0;
+                        submitRequest();
+                    }
                 } else {
                     Dispatcher.forwardEvent(VizEvents.TypeChoiceCancelled);
                 }
@@ -217,6 +237,7 @@ public class VizTypeChooser extends View {
         this.typeForm.addButton(back);
 
         this.buttonToTimeRange = new Button("Next", l);
+        this.buttonToTimeRange.setStyleAttribute("font-weight", "bold");
         this.typeForm.addButton(this.buttonToTimeRange);
 
         Button cancel = new Button("Cancel", l);

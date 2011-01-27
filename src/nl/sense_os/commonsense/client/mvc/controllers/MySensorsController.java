@@ -64,7 +64,7 @@ public class MySensorsController extends Controller {
 
         TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -72,8 +72,8 @@ public class MySensorsController extends Controller {
             }
 
             @Override
-            public void onSuccess(Integer result) {
-                Dispatcher.forwardEvent(MySensorsEvents.ShareComplete, result);
+            public void onSuccess(Void result) {
+                Dispatcher.forwardEvent(MySensorsEvents.ShareComplete);
             }
         };
         service.shareSensors(sessionId, sensors, user, callback);

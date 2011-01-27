@@ -13,14 +13,17 @@ import java.util.List;
 @RemoteServiceRelativePath("tags")
 public interface TagsService extends RemoteService {
 
-    List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
-            WrongResponseException;
+    void disconnectService(String sessionId, String sensorId, String serviceId)
+            throws DbConnectionException, WrongResponseException;
 
     TreeModel getGroupSensors(String sessionId, TreeModel group) throws DbConnectionException,
             WrongResponseException;
 
-    Integer shareSensors(String sessionId, List<TreeModel> sensors, TreeModel user)
-            throws DbConnectionException, WrongResponseException, InternalError;
+    List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
+            WrongResponseException;
 
     List<TreeModel> getServices(String sessionId) throws DbConnectionException, WrongResponseException;
+
+    void shareSensors(String sessionId, List<TreeModel> sensors, TreeModel user)
+            throws DbConnectionException, WrongResponseException, InternalError;
 }

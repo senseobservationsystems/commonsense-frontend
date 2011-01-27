@@ -54,7 +54,6 @@ public class NavPanel extends LayoutContainer {
         boxLayout.setHBoxLayoutAlign(HBoxLayoutAlign.BOTTOM);
         boxLayout.setPack(BoxLayoutPack.START);
         this.setLayout(boxLayout);
-        this.setHeight(25);
         
         initLinks();
 

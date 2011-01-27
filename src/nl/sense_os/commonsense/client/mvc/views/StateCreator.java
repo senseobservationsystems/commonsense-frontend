@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
+import nl.sense_os.commonsense.client.mvc.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -23,9 +23,9 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class GroupCreator extends View {
+public class StateCreator extends View {
 
-    private static final String TAG = "GroupCreator";
+    private static final String TAG = "StateCreator";
     private Window window;
     private FormPanel form;
     private TextField<String> name;
@@ -35,23 +35,23 @@ public class GroupCreator extends View {
     private Button createButton;
     private Button cancelButton;
 
-    public GroupCreator(Controller c) {
+    public StateCreator(Controller c) {
         super(c);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowCreator)) {
+        if (type.equals(StateEvents.ShowCreator)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.CreateCancelled)) {
-            Log.d(TAG, "CreateGroupCancelled");
+        } else if (type.equals(StateEvents.CreateCancelled)) {
+            Log.d(TAG, "CreateCancelled");
             onCancelled(event);
-        } else if (type.equals(GroupEvents.CreateComplete)) {
-            Log.d(TAG, "CreateGroupComplete");
+        } else if (type.equals(StateEvents.CreateComplete)) {
+            Log.d(TAG, "CreateComplete");
             onComplete(event);
-        } else if (type.equals(GroupEvents.CreateFailed)) {
-            Log.w(TAG, "CreateGroupFailed");
+        } else if (type.equals(StateEvents.CreateFailed)) {
+            Log.w(TAG, "CreateFailed");
             onFailed(event);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
@@ -84,7 +84,7 @@ public class GroupCreator extends View {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                GroupCreator.this.fireEvent(GroupEvents.CreateCancelled);
+                StateCreator.this.fireEvent(StateEvents.CreateCancelled);
             }
         });
         setBusy(false);
@@ -151,7 +151,7 @@ public class GroupCreator extends View {
         this.window.setSize(350, 200);
         this.window.setResizable(false);
         this.window.setLayout(new FitLayout());
-        this.window.setHeading("Create group");
+        this.window.setHeading("Create state sensor");
 
         initForm();
     }
@@ -173,7 +173,7 @@ public class GroupCreator extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.ListRequested);
+        Dispatcher.forwardEvent(StateEvents.ListRequested);
         setBusy(false);
     }
 
@@ -190,7 +190,7 @@ public class GroupCreator extends View {
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupEvents.CreateRequested);
+        AppEvent event = new AppEvent(StateEvents.CreateRequested);
         event.setData("name", this.name.getValue());
         event.setData("email", this.email.getValue());
         if (this.username.getValue() != null && this.username.getValue().length() > 0) {

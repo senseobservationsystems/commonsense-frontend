@@ -8,4 +8,14 @@ public class StateEvents {
     public static final EventType ListUpdated = new EventType();
     public static final EventType ListNotUpdated = new EventType();
     public static final EventType Working = new EventType();
+
+    public static final EventType ShowCreator = new EventType();
+    public static final EventType CreateRequested = new EventType();
+    public static final EventType CreateComplete = new EventType();
+    public static final EventType CreateCancelled = new EventType();
+    public static final EventType CreateFailed = new EventType();
+
+    public static final EventType RemoveRequested = new EventType();
+    public static final EventType RemoveComplete = new EventType();
+    public static final EventType RemoveFailed = new EventType();
 }
