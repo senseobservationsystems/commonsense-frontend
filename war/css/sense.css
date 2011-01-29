@@ -7,10 +7,14 @@
 .transparent .x-tab-panel-body-top {
     background-color: transparent !important;
 }
-.sense-nav-selected {
-	font-weight: bold;
+.x-sense-nav-selected {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000000;
+    text-decoration: none;
 }
-.sense-nav-deselected {
+.x-sense-nav-deselected {
+    font-size: 13px;
     font-weight: normal;
 }
 /** makes all content panels have transparent backgrounds */ 

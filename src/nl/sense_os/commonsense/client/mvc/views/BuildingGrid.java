@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.BuildingEvents;
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -35,15 +31,20 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.mvc.events.BuildingEvents;
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 public class BuildingGrid extends View {
 
-    protected static final String TAG = "GroupGrid";
-    private ContentPanel panel;
-    private TreeGrid<TreeModel> grid;
-    private TreeStore<TreeModel> store;
+    protected static final String TAG = "BuildingGrid";
     private Button createButton;
-    private Button importButton;
     private Button deleteButton;
+    private TreeGrid<TreeModel> grid;
+    private Button importButton;
+    private ContentPanel panel;
+    private TreeStore<TreeModel> store;
 
     public BuildingGrid(Controller controller) {
         super(controller);
@@ -55,16 +56,22 @@ public class BuildingGrid extends View {
         if (type.equals(BuildingEvents.ShowGrid)) {
             onShow(event);
         } else if (type.equals(BuildingEvents.ListNotUpdated)) {
-            Log.w(TAG, "ListNotUpdated");
+            // Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
         } else if (type.equals(BuildingEvents.ListUpdated)) {
-            Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "ListUpdated");
             onGroupsUpdated(event);
+        } else if (type.equals(MainEvents.ShowVisualization)) {
+            // Log.d(TAG, "ShowVisualization");
+            Dispatcher.forwardEvent(BuildingEvents.ListRequested);
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            Log.d(TAG, "LoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "LoggedIn");
+            onLoggedIn(event);
         } else if (type.equals(BuildingEvents.Working)) {
-            Log.d(TAG, "Working");
+            // Log.d(TAG, "Working");
             setBusyIcon(true);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
@@ -170,20 +177,7 @@ public class BuildingGrid extends View {
 
     protected void onCreateClick() {
         // TODO Auto-generated method stub
-        
-    }
 
-    private void onGroupsNotUpdated(AppEvent event) {
-        // Throwable caught = event.<Throwable> getData();
-        setBusyIcon(false);
-        this.store.removeAll();
-    }
-
-    private void onGroupsUpdated(AppEvent event) {
-        List<TreeModel> groups = event.<List<TreeModel>> getData();
-        setBusyIcon(false);
-        this.store.removeAll();
-        this.store.add(groups, true);
     }
 
     private void onDeleteClick() {
@@ -200,8 +194,26 @@ public class BuildingGrid extends View {
                 });
     }
 
+    private void onGroupsNotUpdated(AppEvent event) {
+        // Throwable caught = event.<Throwable> getData();
+        setBusyIcon(false);
+        this.store.removeAll();
+    }
+
+    private void onGroupsUpdated(AppEvent event) {
+        List<TreeModel> groups = event.<List<TreeModel>> getData();
+        setBusyIcon(false);
+        this.store.removeAll();
+        this.store.add(groups, true);
+    }
+
     private void onImportClick() {
         // TODO
+    }
+
+    private void onLoggedIn(AppEvent event) {
+        // this request fails immediately in Google Chrome (?)
+        // Dispatcher.forwardEvent(BuildingEvents.ListRequested);        
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -213,10 +225,10 @@ public class BuildingGrid extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
-            
-            Dispatcher.forwardEvent(BuildingEvents.ListRequested);
+
+            // Dispatcher.forwardEvent(BuildingEvents.ListRequested);
         } else {
-            Log.e(TAG, "Failed to show groups panel: parent=null");
+            Log.e(TAG, "Failed to show buildings panel: parent=null");
         }
     }
 

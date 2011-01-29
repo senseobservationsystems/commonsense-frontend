@@ -1,13 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.controllers;
 
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
-import nl.sense_os.commonsense.client.mvc.views.MySensorsShareDialog;
-import nl.sense_os.commonsense.client.mvc.views.MySensorsTree;
-import nl.sense_os.commonsense.client.services.TagsServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -17,6 +9,15 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.List;
+
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
+import nl.sense_os.commonsense.client.mvc.views.MySensorsShareDialog;
+import nl.sense_os.commonsense.client.mvc.views.MySensorsTree;
+import nl.sense_os.commonsense.client.services.TagsServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 public class MySensorsController extends Controller {
 
@@ -30,7 +31,8 @@ public class MySensorsController extends Controller {
         registerEventTypes(MySensorsEvents.ShowShareDialog, MySensorsEvents.ShareRequested,
                 MySensorsEvents.ShareComplete, MySensorsEvents.ShareCancelled,
                 MySensorsEvents.ShareFailed);
-        registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(MainEvents.ShowVisualization);
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
     }
 
     @Override
@@ -46,6 +48,8 @@ public class MySensorsController extends Controller {
                 || type.equals(MySensorsEvents.ListUpdated)
                 || type.equals(MySensorsEvents.ListNotUpdated)
                 || type.equals(MySensorsEvents.Working)
+                || type.equals(MainEvents.ShowVisualization)
+                || type.equals(LoginEvents.LoggedIn)
                 || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.treeView, event);
         } else if (type.equals(MySensorsEvents.ShowShareDialog)

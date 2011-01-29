@@ -1,12 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import java.util.Arrays;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.StateEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -35,17 +28,39 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 
+import java.util.Arrays;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.mvc.events.StateEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 public class StateGrid extends View {
 
     protected static final String TAG = "StateGrid";
-    private ContentPanel panel;
-    private TreeGrid<TreeModel> grid;
-    private TreeStore<TreeModel> store;
     private Button createButton;
+    private TreeGrid<TreeModel> grid;
+    private ContentPanel panel;
     private Button removeButton;
+    private TreeStore<TreeModel> store;
 
     public StateGrid(Controller controller) {
         super(controller);
+    }
+
+    private void confirmRemove() {
+        MessageBox.confirm(null, "Are you sure you want to remove this state sensor?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        Button clicked = be.getButtonClicked();
+                        if ("yes".equalsIgnoreCase(clicked.getText())) {
+                            removeService();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -59,9 +74,15 @@ public class StateGrid extends View {
         } else if (type.equals(StateEvents.ListUpdated)) {
             Log.d(TAG, "ListUpdated");
             onGroupsUpdated(event);
+        } else if (type.equals(MainEvents.ShowVisualization)) {
+            // Log.d(TAG, "ShowVisualization");
+            Dispatcher.forwardEvent(StateEvents.ListRequested);
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            Log.d(TAG, "LoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "LoggedIn");
+            onLoggedIn(event);
         } else if (type.equals(StateEvents.RemoveComplete)) {
             Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
@@ -74,25 +95,6 @@ public class StateGrid extends View {
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
-    }
-
-    private void onRemoveFailed(AppEvent event) {
-        setBusy(false);
-        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
-                new Listener<MessageBoxEvent>() {
-
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            removeService();
-                        }
-                    }
-                });
-    }
-
-    private void onRemoveComplete(AppEvent event) {
-        setBusy(false);
-        Dispatcher.forwardEvent(StateEvents.ListRequested);
     }
 
     private void initGrid() {
@@ -202,18 +204,44 @@ public class StateGrid extends View {
         this.store.add(groups, true);
     }
 
-    private void confirmRemove() {
-        MessageBox.confirm(null, "Are you sure you want to remove this state sensor?",
+    private void onLoggedIn(AppEvent event) {
+        // this request fails immediately in Google Chrome (?)
+        // Dispatcher.forwardEvent(StateEvents.ListRequested);
+    }
+
+    private void onLoggedOut(AppEvent event) {
+        this.store.removeAll();
+    }
+
+    private void onRemoveComplete(AppEvent event) {
+        setBusy(false);
+        Dispatcher.forwardEvent(StateEvents.ListRequested);
+    }
+
+    private void onRemoveFailed(AppEvent event) {
+        setBusy(false);
+        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        Button clicked = be.getButtonClicked();
-                        if ("yes".equalsIgnoreCase(clicked.getText())) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
                             removeService();
                         }
                     }
                 });
+    }
+
+    private void onShow(AppEvent event) {
+        ContentPanel parent = event.<ContentPanel> getData();
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+            
+            // Dispatcher.forwardEvent(StateEvents.ListRequested);
+        } else {
+            Log.e(TAG, "Failed to show states panel: parent=null");
+        }
     }
 
     protected void removeService() {
@@ -224,22 +252,6 @@ public class StateGrid extends View {
         event.setData("serviceId", service.<String> get("id"));
         Dispatcher.forwardEvent(event);
         setBusy(true);
-    }
-
-    private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
-    }
-
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-            
-            Dispatcher.forwardEvent(StateEvents.ListRequested);
-        } else {
-            Log.e(TAG, "Failed to show states panel: parent=null");
-        }
     }
 
     private void setBusy(boolean busy) {

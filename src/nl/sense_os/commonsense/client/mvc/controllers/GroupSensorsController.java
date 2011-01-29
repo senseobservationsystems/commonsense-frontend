@@ -30,7 +30,7 @@ public class GroupSensorsController extends Controller {
                 GroupSensorsEvents.ListRequested, GroupSensorsEvents.ListUpdated,
                 GroupSensorsEvents.ShowTree);
         registerEventTypes(GroupEvents.ListUpdated);
-        registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
     }
 
     @Override

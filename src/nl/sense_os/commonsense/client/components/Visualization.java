@@ -399,4 +399,12 @@ public class Visualization extends LayoutContainer {
             getSensorData(tags[0]);
         }
     }
+
+    public void resetTabs() {
+        int tabCount = this.tabPanel.getItemCount();
+        for (int i = tabCount; i > 2; i--) {
+            this.tabPanel.remove(this.tabPanel.getItem(i-1));
+        }
+        layout();
+    }
 }

@@ -114,10 +114,10 @@ public class LoginView extends View {
             Log.w(TAG, "AuthenticationFailure");
             onAuthenticationFailure(event);
         } else if (eventType.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
+            Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
         } else if (eventType.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
         } else if (eventType.equals(LoginEvents.LoginError)) {
             Log.w(TAG, "LoginError");

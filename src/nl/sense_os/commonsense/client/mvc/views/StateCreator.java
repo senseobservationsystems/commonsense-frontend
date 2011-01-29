@@ -1,37 +1,44 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.StateEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.List;
+
+import nl.sense_os.commonsense.client.mvc.events.StateEvents;
+import nl.sense_os.commonsense.client.services.TagsServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 public class StateCreator extends View {
 
     private static final String TAG = "StateCreator";
     private Window window;
     private FormPanel form;
-    private TextField<String> name;
-    private TextField<String> email;
-    private TextField<String> username;
-    private TextField<String> password;
+    private ListStore<TreeModel> servicesStore;
+    private ComboBox<TreeModel> servicesField;
+    private List<TreeModel> services;
     private Button createButton;
     private Button cancelButton;
 
@@ -53,9 +60,25 @@ public class StateCreator extends View {
         } else if (type.equals(StateEvents.CreateFailed)) {
             Log.w(TAG, "CreateFailed");
             onFailed(event);
+        } else if (type.equals(StateEvents.ListAvailableUpdated)) {
+            Log.d(TAG, "ListAvailableUpdated");
+            onListAvailableUpdated(event);
+        } else if (type.equals(StateEvents.ListAvailableNotUpdated)) {
+            Log.d(TAG, "ListAvailableNotUpdated");
+            onListAvailableNotUpdated(event);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void onListAvailableNotUpdated(AppEvent event) {
+        this.servicesStore.removeAll();
+    }
+
+    private void onListAvailableUpdated(AppEvent event) {
+        this.servicesStore.removeAll();
+        services = event.<List<TreeModel>> getData();
+        this.servicesStore.add(services);
     }
 
     private void initForm() {
@@ -98,49 +121,25 @@ public class StateCreator extends View {
     }
 
     private void initFields() {
-        this.name = new TextField<String>();
-        this.name.setFieldLabel("Name*");
-        this.name.setAllowBlank(false);
-
-        this.email = new TextField<String>();
-        this.email.setFieldLabel("Email*");
-        this.email.setAllowBlank(false);
-
-        this.username = new TextField<String>();
-        this.username.setFieldLabel("Username");
-        this.username.addListener(Events.Change, new Listener<FieldEvent>() {
+        final TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
             @Override
-            public void handleEvent(FieldEvent be) {
-                Object value = be.getField().getValue();
-                if (null != value) {
-                    password.setAllowBlank(false);
-                } else {
-                    password.setAllowBlank(true);
-                }
+            protected void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {                
+                String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+                service.getAvailableServices(sessionId, callback);
             }
-        });
+        };
+        BaseListLoader loader = new BaseListLoader(proxy);
+        this.servicesStore = new ListStore<TreeModel>(loader);
 
-        this.password = new TextField<String>();
-        this.password.setFieldLabel("Password");
-        this.password.setPassword(true);
-        this.password.addListener(Events.Change, new Listener<FieldEvent>() {
+        this.servicesField = new ComboBox<TreeModel>();
+        this.servicesField.setFieldLabel("Select service");
+        this.servicesField.setStore(servicesStore);
+        this.servicesField.setDisplayField("name");
+        this.servicesField.setAllowBlank(false);
 
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Object value = be.getField().getValue();
-                if (null != value) {
-                    username.setAllowBlank(false);
-                } else {
-                    username.setAllowBlank(true);
-                }
-            }
-        });
-
-        this.form.add(this.name);
-        this.form.add(this.email);
-        this.form.add(this.username);
-        this.form.add(this.password);
+        this.form.add(this.servicesField);
     }
 
     @Override
@@ -185,19 +184,14 @@ public class StateCreator extends View {
     private void onShow(AppEvent event) {
         this.form.reset();
         this.window.show();
+        // Dispatcher.forwardEvent(StateEvents.ListAvailableRequested);
     }
 
     private void onSubmit() {
         setBusy(true);
 
         AppEvent event = new AppEvent(StateEvents.CreateRequested);
-        event.setData("name", this.name.getValue());
-        event.setData("email", this.email.getValue());
-        if (this.username.getValue() != null && this.username.getValue().length() > 0) {
-            event.setData("username", this.username.getValue());
-            event.setData("password", this.password.getValue());
-        }
+        event.setData("service", this.servicesField.getValue());
         fireEvent(event);
     }
-
 }

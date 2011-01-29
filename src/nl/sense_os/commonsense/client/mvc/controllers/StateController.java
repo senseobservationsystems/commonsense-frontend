@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.mvc.controllers;
 
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.StateEvents;
 import nl.sense_os.commonsense.client.mvc.views.StateCreator;
 import nl.sense_os.commonsense.client.mvc.views.StateGrid;
@@ -32,7 +33,9 @@ public class StateController extends Controller {
                 StateEvents.CreateComplete, StateEvents.CreateFailed, StateEvents.CreateCancelled);
         registerEventTypes(StateEvents.RemoveRequested, StateEvents.RemoveComplete,
                 StateEvents.RemoveFailed);
-        registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(StateEvents.ListAvailableRequested, StateEvents.ListAvailableNotUpdated, StateEvents.ListAvailableUpdated);
+        registerEventTypes(MainEvents.ShowVisualization);
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
     }
 
     @Override
@@ -41,6 +44,9 @@ public class StateController extends Controller {
         if (type.equals(StateEvents.ListRequested)) {
             Log.d(TAG, "ListRequested");
             onListRequest(event);
+        } else if (type.equals(StateEvents.ListAvailableRequested)) {
+            Log.d(TAG, "ListAvailableRequested");
+            onListAvailableRequest(event);
         } else if (type.equals(StateEvents.CreateRequested)) {
             Log.d(TAG, "CreateRequested");
             onCreateRequest(event);
@@ -49,7 +55,9 @@ public class StateController extends Controller {
             onRemoveRequest(event);
         } else if (type.equals(StateEvents.ShowCreator) || type.equals(StateEvents.CreateComplete)
                 || type.equals(StateEvents.CreateFailed)
-                || type.equals(StateEvents.CreateCancelled)) {
+                || type.equals(StateEvents.CreateCancelled)
+                || type.equals(StateEvents.ListAvailableUpdated)
+                || type.equals(StateEvents.ListAvailableNotUpdated)) {
             forwardToView(this.creatorView, event);
         } else {
             forwardToView(this.gridView, event);
@@ -103,7 +111,26 @@ public class StateController extends Controller {
                 Dispatcher.forwardEvent(StateEvents.ListUpdated, result);
             }
         };
-        service.getServices(sessionId, callback);
+        service.getMyServices(sessionId, callback);
         Dispatcher.forwardEvent(StateEvents.Working);
+    }
+
+    private void onListAvailableRequest(AppEvent event) {
+        TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
+        String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+        AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Dispatcher.forwardEvent(StateEvents.ListAvailableNotUpdated, caught);
+            }
+
+            @Override
+            public void onSuccess(List<TreeModel> result) {
+                Registry.register(Constants.REG_SERVICES, result);
+                Dispatcher.forwardEvent(StateEvents.ListAvailableUpdated, result);
+            }
+        };
+        service.getAvailableServices(sessionId, callback);
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.views.GroupCreator;
 import nl.sense_os.commonsense.client.mvc.views.GroupGrid;
 import nl.sense_os.commonsense.client.mvc.views.GroupInviter;
@@ -44,7 +45,8 @@ public class GroupController extends Controller {
         registerEventTypes(GroupEvents.ShowCreator, GroupEvents.CreateCancelled,
                 GroupEvents.CreateComplete, GroupEvents.CreateFailed, GroupEvents.CreateRequested);
 
-        registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(MainEvents.ShowVisualization);
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
     }
 
     @Override

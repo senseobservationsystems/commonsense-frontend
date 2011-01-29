@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.mvc.controllers;
 
 import nl.sense_os.commonsense.client.mvc.events.BuildingEvents;
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.views.BuildingGrid;
 import nl.sense_os.commonsense.client.utility.Log;
 
@@ -18,8 +19,8 @@ public class BuildingController extends Controller {
         // events to update the list of groups
         registerEventTypes(BuildingEvents.ListNotUpdated, BuildingEvents.ListRequested,
                 BuildingEvents.ListUpdated, BuildingEvents.Working, BuildingEvents.ShowGrid);
-
-        registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(MainEvents.ShowVisualization);
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
     }
 
     @Override

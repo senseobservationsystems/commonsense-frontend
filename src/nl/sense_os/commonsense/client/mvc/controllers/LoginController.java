@@ -330,7 +330,6 @@ public class LoginController extends Controller {
 
     private void onAuthenticationFailure() {
         if (false == this.isCancelled) {
-            Log.w(TAG, "Authentication failure");
             this.isLoggingIn = false;
             Dispatcher.forwardEvent(LoginEvents.AuthenticationFailure);
         }
@@ -363,7 +362,6 @@ public class LoginController extends Controller {
 
     private void onLoginError() {
         if (false == isCancelled) {
-            // Log.e(TAG, "LoginError");
             this.isLoggingIn = false;
             Dispatcher.forwardEvent(LoginEvents.LoginError);
         }
@@ -371,7 +369,7 @@ public class LoginController extends Controller {
 
     private void onLogoutError() {
         // TODO handle logout error events
-        // Log.e(TAG, "LogoutError");
+        Log.w(TAG, "LogoutError");
         onLoggedOut();
     }
 

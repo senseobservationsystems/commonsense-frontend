@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.mvc.views;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.mvc.events.MySensorsEvents;
 import nl.sense_os.commonsense.client.mvc.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -61,14 +62,20 @@ public class MySensorsTree extends View {
             Log.w(TAG, "ListNotUpdated");
             onListNotUpdated(event);
         } else if (type.equals(MySensorsEvents.ListUpdated)) {
-            // Log.d(TAG, "ListUpdated");
+            Log.d(TAG, "ListUpdated");
             onListUpdate(event);
         } else if (type.equals(MySensorsEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusy(true);
+        } else if (type.equals(MainEvents.ShowVisualization)) {
+            // Log.d(TAG, "ShowVisualization");
+            Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "LoggedIn");
+            onLoggedIn(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -259,13 +266,18 @@ public class MySensorsTree extends View {
         this.store.removeAll();
     }
 
+    private void onLoggedIn(AppEvent event) {
+        // this request fails immediately in Google Chrome (?)
+        // Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+    }
+
     private void onShow(AppEvent event) {
         ContentPanel parent = event.<ContentPanel> getData();
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
             
-            Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+            // Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show my sensors panel: parent=null");
         }

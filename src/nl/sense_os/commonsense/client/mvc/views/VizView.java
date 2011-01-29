@@ -1,18 +1,18 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.components.Visualization;
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.MainEvents;
-import nl.sense_os.commonsense.client.mvc.events.VizEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
-
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+
+import nl.sense_os.commonsense.client.components.Visualization;
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public class VizView extends View {
 
@@ -79,8 +79,7 @@ public class VizView extends View {
     }
 
     private void onLoggedIn(AppEvent event) {
-        // Dispatcher.forwardEvent(TagsEvents.TagsRequested);
-        // Dispatcher.forwardEvent(GroupsEvents.GroupsRequested);
+        this.vizPanel.resetTabs();
     }
 
     private void onLoggedOut(AppEvent event) {

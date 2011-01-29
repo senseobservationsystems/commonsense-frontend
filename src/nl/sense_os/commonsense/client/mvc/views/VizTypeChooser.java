@@ -254,6 +254,7 @@ public class VizTypeChooser extends View {
         final Radio lineChart = new Radio();
         lineChart.setBoxLabel("Line chart");
         lineChart.setValue(true);
+        this.eventType = VizEvents.ShowLineChart;
 
         final Radio table = new Radio();
         table.setBoxLabel("Table");

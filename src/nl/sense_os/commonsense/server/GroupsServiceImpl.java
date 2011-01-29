@@ -76,6 +76,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             connection.setRequestMethod(method);
             connection.setRequestProperty("X-SESSION_ID", sessionId);
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");
 
             log.info(method + " " + connection.getURL().getPath());
             

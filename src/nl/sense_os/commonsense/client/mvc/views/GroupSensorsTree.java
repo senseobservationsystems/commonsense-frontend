@@ -1,12 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.GroupSensorsEvents;
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.mvc.events.VizEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.shared.TagModel;
-
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -37,15 +30,23 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.client.mvc.events.GroupSensorsEvents;
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.mvc.events.VizEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SensorComparator;
+import nl.sense_os.commonsense.shared.TagModel;
+
 public class GroupSensorsTree extends View {
 
     private static final String TAG = "GroupSensorsTree";
-    private ContentPanel panel;
-    private TreeStore<TreeModel> store;
-    private ToolButton refreshButton;
     private Button eventsButton;
-    private Button vizButton;
+    private ContentPanel panel;
+    private ToolButton refreshButton;
+    private TreeStore<TreeModel> store;
     private TreePanel<TreeModel> tree;
+    private Button vizButton;
 
     public GroupSensorsTree(Controller c) {
         super(c);
@@ -65,9 +66,15 @@ public class GroupSensorsTree extends View {
         } else if (type.equals(GroupSensorsEvents.Working)) {
             Log.d(TAG, "Working");
             setBusy(true);
+        } else if (type.equals(MainEvents.ShowVisualization)) {
+            // Log.d(TAG, "ShowVisualization");
+            // do nothing
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "LoggedIn");
+            onLoggedIn(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -84,7 +91,7 @@ public class GroupSensorsTree extends View {
         });
         this.panel.getHeader().addTool(this.refreshButton);
     }
-    
+
     @Override
     protected void initialize() {
         super.initialize();
@@ -99,7 +106,7 @@ public class GroupSensorsTree extends View {
         
         setupDragDrop();
     }
-
+    
     private void initToolBar() {
 
         // listen to toolbar button clicks
@@ -244,6 +251,10 @@ public class GroupSensorsTree extends View {
         setBusy(false);
         this.store.removeAll();
         this.store.add(sensors, true);
+    }
+
+    private void onLoggedIn(AppEvent event) {
+        // do nothing, the group sensors store will be updated when the list of groups is ready
     }
 
     private void onLoggedOut(AppEvent event) {

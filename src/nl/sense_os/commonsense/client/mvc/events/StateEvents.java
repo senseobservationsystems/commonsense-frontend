@@ -15,6 +15,10 @@ public class StateEvents {
     public static final EventType CreateCancelled = new EventType();
     public static final EventType CreateFailed = new EventType();
 
+    public static final EventType ListAvailableRequested = new EventType();
+    public static final EventType ListAvailableUpdated = new EventType();
+    public static final EventType ListAvailableNotUpdated = new EventType();
+
     public static final EventType RemoveRequested = new EventType();
     public static final EventType RemoveComplete = new EventType();
     public static final EventType RemoveFailed = new EventType();

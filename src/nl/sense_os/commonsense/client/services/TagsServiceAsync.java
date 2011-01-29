@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.services;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -14,7 +15,9 @@ public interface TagsServiceAsync {
 
     void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
 
-    void getServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getMyServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    
+    void getAvailableServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
 
     void shareSensors(String sessionId, List<TreeModel> sensors, TreeModel user,
             AsyncCallback<Void> callback);

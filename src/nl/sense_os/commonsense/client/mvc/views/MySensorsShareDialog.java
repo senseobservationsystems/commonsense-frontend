@@ -97,10 +97,10 @@ public class MySensorsShareDialog extends View {
         this.form.addButton(this.cancelButton);
     }
 
+    private ListStore<TreeModel> store;
+    
     private void initFields() {
-        List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-        ListStore<TreeModel> store = new ListStore<TreeModel>();
-        store.add(users);
+        store = new ListStore<TreeModel>();
 
         this.users = new ComboBox<TreeModel>();
         this.users.setFieldLabel("Share with");
@@ -156,6 +156,10 @@ public class MySensorsShareDialog extends View {
 
     private void onShow(AppEvent event) {
         this.sensors = event.<List<TreeModel>> getData();
+        List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
+        this.store.removeAll();
+        this.store.add(users);
+        
         this.window.show();
     }
 

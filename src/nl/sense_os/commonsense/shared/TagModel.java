@@ -9,7 +9,8 @@ public class TagModel extends BaseTreeModel {
     public static final int TYPE_DEVICE = 2;
     public static final int TYPE_GROUP = 1;
     public static final int TYPE_SENSOR = 3;
-    public static final int TYPE_USER = 4;    
+    public static final int TYPE_USER = 4;
+    public static final int TYPE_SERVICE = 5;    
     
     public TagModel() {
         // empty constructor

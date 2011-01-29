@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
-import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
-import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -35,16 +31,21 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.mvc.events.GroupEvents;
+import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
+import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 public class GroupGrid extends View {
 
     protected static final String TAG = "GroupGrid";
-    private ContentPanel panel;
-    private TreeGrid<TreeModel> grid;
-    private TreeStore<TreeModel> store;
     private Button createButton;
+    private TreeGrid<TreeModel> grid;
     private Button inviteButton;
     private Button joinButton;
     private Button leaveButton;
+    private ContentPanel panel;
+    private TreeStore<TreeModel> store;
 
     public GroupGrid(Controller controller) {
         super(controller);
@@ -56,22 +57,28 @@ public class GroupGrid extends View {
         if (type.equals(GroupEvents.ShowGrid)) {
             onShow(event);
         } else if (type.equals(GroupEvents.ListNotUpdated)) {
-            Log.w(TAG, "GroupListNotUpdated");
+            Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
         } else if (type.equals(GroupEvents.ListUpdated)) {
-            Log.d(TAG, "GroupListUpdated");
+            Log.d(TAG, "ListUpdated");
             onGroupsUpdated(event);
+        } else if (type.equals(MainEvents.ShowVisualization)) {
+            // Log.d(TAG, "ShowVisualization");
+            Dispatcher.forwardEvent(GroupEvents.ListRequested);
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            Log.d(TAG, "LoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            // Log.d(TAG, "LoggedIn");
+            onLoggedIn(event);
         } else if (type.equals(GroupEvents.Working)) {
-            Log.d(TAG, "GroupsBusy");
+            // Log.d(TAG, "Working");
             setBusyIcon(true);
         } else if (type.equals(GroupEvents.LeaveComplete)) {
-            Log.d(TAG, "LeaveGroupComplete");
+            Log.d(TAG, "LeaveComplete");
             onLeaveComplete(event);
         } else if (type.equals(GroupEvents.LeaveFailed)) {
-            Log.d(TAG, "LeaveGroupFailed");
+            Log.d(TAG, "LeaveFailed");
             onLeaveFailed(event);
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
@@ -221,6 +228,11 @@ public class GroupGrid extends View {
         MessageBox.alert("CommonSense", "Failed to leave group, please retry.", null);
     }
 
+    private void onLoggedIn(AppEvent event) {
+     // this request fails immediately in Google Chrome (?)
+        // Dispatcher.forwardEvent(GroupEvents.ListRequested);
+    }
+
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
     }
@@ -231,7 +243,7 @@ public class GroupGrid extends View {
             parent.add(this.panel);
             parent.layout();
             
-            Dispatcher.forwardEvent(GroupEvents.ListRequested);
+            // Dispatcher.forwardEvent(GroupEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show groups panel: parent=null");
         }
