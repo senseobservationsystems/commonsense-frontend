@@ -166,6 +166,7 @@ public class LoginView extends View {
 
         // save new user name if the user wants it
         if (this.rememberMe.getValue()) {
+        	// Log.d(TAG, "Save username in cookie");
             long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
             Date expires = new Date(new Date().getTime() + expiry);
             Cookies.setCookie("username", this.username.getValue(), expires);

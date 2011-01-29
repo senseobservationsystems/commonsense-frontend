@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.mvc.controllers;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -67,7 +68,7 @@ public class VizController extends Controller {
         }
 
         function outputResult() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleDataResponse(Ljava/lang/String;Lcom/extjs/gxt/ui/client/data/TreeModel;)(xhr.responseText,tag);
+            handler.@nl.sense_os.commonsense.client.mvc.controllers.VizController::handleDataResponse(Ljava/lang/String;Lcom/extjs/gxt/ui/client/data/TreeModel;Ljava/lang/String;)(xhr.responseText,tag,url);
         }
 
         if (xhr) {
@@ -98,8 +99,8 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
                 VizEvents.DataReceived);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
-        registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable,
-                        VizEvents.ShowMap, VizEvents.ShowNetwork);
+        registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowMap,
+                VizEvents.ShowNetwork);
         loadVizApi();
     }
 
@@ -111,14 +112,15 @@ public class VizController extends Controller {
         Dispatcher.forwardEvent(VizEvents.DataNotReceived);
     }
 
-    private void handleDataResponse(String response, TreeModel tag) {
+    private void handleDataResponse(String response, TreeModel tag, String url) {
+        SensorValueModel[] values = null;
         try {
             JSONObject obj = JSONParser.parseStrict(response).isObject();
             JSONArray data = obj.get("data").isArray();
 
             Log.d(TAG, "Received " + data.size() + " sensor data points");
 
-            SensorValueModel[] values = new SensorValueModel[data.size()];
+            values = new SensorValueModel[data.size()];
             JSONObject datapoint;
             double decimalTime;
             Date timestamp;
@@ -190,34 +192,41 @@ public class VizController extends Controller {
                 continue;
             }
 
-            if (values.length > 0) {
-                String typeString = "";
-                switch (values[0].getType()) {
-                case SensorValueModel.BOOL:
-                    typeString = "BOOL";
-                    break;
-                case SensorValueModel.FLOAT:
-                    typeString = "FLOAT";
-                    break;
-                case SensorValueModel.JSON:
-                    typeString = "JSON";
-                    break;
-                case SensorValueModel.STRING:
-                    typeString = "STRING";
-                    break;
-                }
-                Log.d(TAG, "Data type: " + typeString);
-            }
-
-            TagModel mdl = new TagModel(tag.<String> get("name") + "/", 0, 0, TagModel.TYPE_SENSOR);
-            TaggedDataModel taggedData = new TaggedDataModel(mdl, values);
-            Dispatcher.forwardEvent(VizEvents.DataReceived, taggedData);
-
         } catch (NullPointerException e) {
-            Log.e(TAG, "NullPointerException handling sensor data: " + e.getMessage());
+            Log.e(TAG, "NullPointerException parsing sensor data: " + e.getMessage());
             handleDataFailed(tag);
         }
+
+        // append the parsed values to any previous pages of values
+        SensorValueModel[] allValues = values;
+        if (this.valuesPaged != null) {
+            allValues = new SensorValueModel[valuesPaged.length + values.length];
+            System.arraycopy(this.valuesPaged, 0, allValues, 0, this.valuesPaged.length);
+            System.arraycopy(values, 0, allValues, valuesPaged.length, values.length);
+        }
+
+        if (values.length < 1000) {
+            Log.d(TAG, "completed getting all pages of data");
+            
+            TagModel mdl = new TagModel(tag.<String> get("name") + "/", 0, 0, TagModel.TYPE_SENSOR);
+            TaggedDataModel taggedData = new TaggedDataModel(mdl, allValues);
+            Dispatcher.forwardEvent(VizEvents.DataReceived, taggedData);
+            this.valuesPaged = null;
+            this.page = 1;
+        } else {
+            // exactly 1000 values? see if there are more pages            
+            this.valuesPaged = allValues;
+            this.page++;
+            
+            String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            url = url.replaceAll("\\?page=\\d+&", "\\?page=" + this.page + "&");
+            Log.d(TAG, "new url: " + url);
+            requestData(url, sessionId, tag, this);
+        }
     }
+
+    private SensorValueModel[] valuesPaged;
+    private int page;
 
     @Override
     public void handleEvent(AppEvent event) {
@@ -276,15 +285,20 @@ public class VizController extends Controller {
     }
 
     private void onDataRequested(AppEvent event) {
+
+        this.valuesPaged = null;
+        this.page = 1;
+        
         TreeModel sensor = event.getData("tag");
         String url = Constants.URL_DATA.replace("<id>", "" + sensor.<String> get("id"));
-        url += "?per_page=" + 1000;
+        url += "?page=" + this.page;
+        url += "&per_page=" + 1000;
         url += "&start_date=" + event.<Double> getData("startDate");
         url += "&end_date=" + event.<Double> getData("endDate");
 
         String owner = sensor.get("alias");
         if (null != owner) {
-            url+= "&alias=" + owner;
+            url += "&alias=" + owner;
         }
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
