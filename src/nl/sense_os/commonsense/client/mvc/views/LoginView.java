@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.mvc.views;
 
+import java.util.Date;
+
 import nl.sense_os.commonsense.client.mvc.events.LoginEvents;
 import nl.sense_os.commonsense.client.mvc.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -30,8 +32,6 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
-
-import java.util.Date;
 
 public class LoginView extends View {
 
@@ -108,7 +108,7 @@ public class LoginView extends View {
     protected void handleEvent(AppEvent event) {
         EventType eventType = event.getType();
         if (eventType.equals(MainEvents.ShowLogin)) {
-            // Log.d(TAG, "onShow");
+            // Log.d(TAG, "Show");
             onShow(event);
         } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {
             Log.w(TAG, "AuthenticationFailure");
@@ -166,7 +166,6 @@ public class LoginView extends View {
 
         // save new user name if the user wants it
         if (this.rememberMe.getValue()) {
-        	// Log.d(TAG, "Save username in cookie");
             long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
             Date expires = new Date(new Date().getTime() + expiry);
             Cookies.setCookie("username", this.username.getValue(), expires);

@@ -39,42 +39,42 @@ public class LoginController extends Controller {
         var xhr = createCrossDomainRequest();
 
         function createCrossDomainRequest() {
-            if (isIE8) { return new window.XDomainRequest(); } 
-            else { return new XMLHttpRequest(); }
+        if (isIE8) { return new window.XDomainRequest(); } 
+        else { return new XMLHttpRequest(); }
         }
 
         function readyStateHandler() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) { outputResult(); } 
-                else { outputError(); }
-            }
+        if (xhr.readyState == 4) {
+        if (xhr.status == 200) { outputResult(); } 
+        else { outputError(); }
+        }
         }
 
         function outputError() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoginError()();
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoginError()();
         }
 
         function outputResult() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::handleCurrentUser(Ljava/lang/String;)(xhr.responseText);
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::handleCurrentUser(Ljava/lang/String;)(xhr.responseText);
         }
 
         if (xhr) {
-            if (isIE8) {
-                url = url + ".json" + "?session_id=" + sessionId;
-                xhr.open("GET", url);
-                xhr.onload = outputResult;
-                xhr.onerror = outputError;
-                xhr.ontimeout = outputError;
-                xhr.send();
-            } else {
-                xhr.open('GET', url, true);
-                xhr.onreadystatechange = readyStateHandler;
-                xhr.setRequestHeader("X-SESSION_ID", sessionId);
-                xhr.setRequestHeader("Accept", "application/json");
-                xhr.send();
-            }
+        if (isIE8) {
+        url = url + ".json" + "?session_id=" + sessionId;
+        xhr.open("GET", url);
+        xhr.onload = outputResult;
+        xhr.onerror = outputError;
+        xhr.ontimeout = outputError;
+        xhr.send();
         } else {
-            outputError();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = readyStateHandler;
+        xhr.setRequestHeader("X-SESSION_ID", sessionId);
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.send();
+        }
+        } else {
+        outputError();
         }
     }-*/;
 
@@ -95,45 +95,45 @@ public class LoginController extends Controller {
         var xhr = createCrossDomainRequest();
 
         function createCrossDomainRequest() {
-            if (isIE8) { return new window.XDomainRequest(); } 
-            else { return new XMLHttpRequest(); }
+        if (isIE8) { return new window.XDomainRequest(); } 
+        else { return new XMLHttpRequest(); }
         }
 
         function readyStateHandler() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) { outputResult(); } 
-                else if (xhr.status == 403) { outputIncorrect(); }
-                else { outputError(); }
-            }
+        if (xhr.readyState == 4) {
+        if (xhr.status == 200) { outputResult(); } 
+        else if (xhr.status == 403) { outputIncorrect(); }
+        else { outputError(); }
+        }
         }
 
         function outputIncorrect() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onAuthenticationFailure()();
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onAuthenticationFailure()();
         }
 
         function outputError() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoginError()();
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoginError()();
         }
 
         function outputResult() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::handleLoginResponse(Ljava/lang/String;)(xhr.responseText);
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::handleLoginResponse(Ljava/lang/String;)(xhr.responseText);
         }
 
         if (xhr) {
-            if (isIE8) {
-                xhr.open("POST", url + ".json", true);
-                xhr.onload = outputResult;
-                xhr.onerror = outputIncorrect;
-                xhr.ontimeout = outputError;
-                xhr.send(data);
-            } else {
-                xhr.open('POST', url + ".json", true);
-                xhr.onreadystatechange = readyStateHandler;
-                xhr.setRequestHeader("Content-Type","application/json");
-                xhr.send(data);
-            }
+        if (isIE8) {
+        xhr.open("POST", url + ".json", true);
+        xhr.onload = outputResult;
+        xhr.onerror = outputIncorrect;
+        xhr.ontimeout = outputError;
+        xhr.send(data);
         } else {
-            outputError();
+        xhr.open('POST', url + ".json", true);
+        xhr.onreadystatechange = readyStateHandler;
+        xhr.setRequestHeader("Content-Type","application/json");
+        xhr.send(data);
+        }
+        } else {
+        outputError();
         }
     }-*/;
 
@@ -152,40 +152,40 @@ public class LoginController extends Controller {
         var xhr = createCrossDomainRequest();
 
         function createCrossDomainRequest() {
-            if (isIE8) { return new window.XDomainRequest(); } 
-            else { return new XMLHttpRequest(); }
+        if (isIE8) { return new window.XDomainRequest(); } 
+        else { return new XMLHttpRequest(); }
         }
 
         function readyStateHandler() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) { outputResult(); } 
-                else { outputError(); }
-            }
+        if (xhr.readyState == 4) {
+        if (xhr.status == 200) { outputResult(); } 
+        else { outputError(); }
+        }
         }
 
         function outputError() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLogoutError()();
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLogoutError()();
         }
 
         function outputResult() {
-            handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoggedOut()();
+        handler.@nl.sense_os.commonsense.client.mvc.controllers.LoginController::onLoggedOut()();
         }
 
         if (xhr) {
-            if (isIE8) {
-                xhr.open("GET", url + ".json");
-                xhr.onload = outputResult;
-                xhr.onerror = outputError;
-                xhr.ontimeout = outputError;
-                xhr.send();
-            } else {
-                xhr.open('GET', url, true);
-                xhr.setRequestHeader("Accept","application/json");
-                xhr.onreadystatechange = readyStateHandler;
-                xhr.send();
-            }
+        if (isIE8) {
+        xhr.open("GET", url + ".json");
+        xhr.onload = outputResult;
+        xhr.onerror = outputError;
+        xhr.ontimeout = outputError;
+        xhr.send();
         } else {
-            outputError();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader("Accept","application/json");
+        xhr.onreadystatechange = readyStateHandler;
+        xhr.send();
+        }
+        } else {
+        outputError();
         }
     }-*/;
 
@@ -339,6 +339,7 @@ public class LoginController extends Controller {
         if (false == isCancelled) {
             Registry.register(Constants.REG_USER, user);
             this.isLoggingIn = false;
+            // forwardToView(loginView, LoginEvents.LoggedIn, user);
             Dispatcher.forwardEvent(LoginEvents.LoggedIn, user);
         }
     }
@@ -356,7 +357,7 @@ public class LoginController extends Controller {
         Registry.unregister(Constants.REG_MY_SENSORS);
         Registry.unregister(Constants.REG_GROUP_SENSORS);
         Registry.unregister(Constants.REG_GROUPS);
-        
+
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 

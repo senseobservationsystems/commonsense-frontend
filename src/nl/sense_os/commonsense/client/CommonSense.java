@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.Date;
+
 import nl.sense_os.commonsense.client.mvc.controllers.BuildingController;
 import nl.sense_os.commonsense.client.mvc.controllers.GroupController;
 import nl.sense_os.commonsense.client.mvc.controllers.GroupSensorsController;
@@ -26,8 +28,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
-import java.util.Date;
-
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -42,10 +42,10 @@ public class CommonSense implements EntryPoint {
     private String now() {
         return DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
     }
-    
+
     @Override
     public void onModuleLoad() {
-        
+
         Log.d(TAG, "===== Module Load (" + now() + ") =====");
 
         // load services and put them in Registry
@@ -59,20 +59,20 @@ public class CommonSense implements EntryPoint {
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
+        dispatcher.addController(new LoginController());
         dispatcher.addController(new VizController());
         dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
         dispatcher.addController(new StateController());
         dispatcher.addController(new BuildingController());
         dispatcher.addController(new GroupSensorsController());
-        dispatcher.addController(new LoginController());
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);
 
         // notify the main controller that all views are ready
         dispatcher.dispatch(MainEvents.UiReady);
-        
+
         GXT.hideLoadingPanel("loading");
     }
 }
