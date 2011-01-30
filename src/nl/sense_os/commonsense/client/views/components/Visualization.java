@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.views.components;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.events.BuildingEvents;
 import nl.sense_os.commonsense.client.events.GroupEvents;
 import nl.sense_os.commonsense.client.events.GroupSensorsEvents;
@@ -47,9 +50,6 @@ import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Image;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Component with the visualization part of the web application.
@@ -176,23 +176,22 @@ public class Visualization extends LayoutContainer {
         final ContentPanel accordion = new ContentPanel(new AccordionLayout());
         accordion.setHeaderVisible(false);
 
-        final LayoutContainer westPanel = new LayoutContainer(new RowLayout(
-                Orientation.VERTICAL));
+        final LayoutContainer westPanel = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
         westPanel.setScrollMode(Scroll.AUTOY);
-        westPanel.setBorders(false);        
+        westPanel.setBorders(false);
         westPanel.add(logoContainer, new RowData(-1, -1, new Margins(10, 0, 0, 0)));
         westPanel.add(accordion, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
-        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 225);
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275);
         westData.setMargins(new Margins(5));
         westData.setSplit(false);
         add(westPanel, westData);
-        
+
         Dispatcher.forwardEvent(MySensorsEvents.ShowTree, accordion);
         Dispatcher.forwardEvent(GroupSensorsEvents.ShowTree, accordion);
-        Dispatcher.forwardEvent(GroupEvents.ShowGrid, accordion);        
-        Dispatcher.forwardEvent(StateEvents.ShowGrid, accordion);        
-        Dispatcher.forwardEvent(BuildingEvents.ShowGrid, accordion);        
+        Dispatcher.forwardEvent(GroupEvents.ShowGrid, accordion);
+        Dispatcher.forwardEvent(StateEvents.ShowGrid, accordion);
+        Dispatcher.forwardEvent(BuildingEvents.ShowGrid, accordion);
     }
 
     /**
@@ -221,7 +220,7 @@ public class Visualization extends LayoutContainer {
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
     }
-    
+
     /**
      * Requests the sensor values for a given tagged sensor type.
      * 
@@ -242,13 +241,13 @@ public class Visualization extends LayoutContainer {
     @Override
     protected void onRender(Element parent, int index) {
         super.onRender(parent, index);
-        
+
         this.setStyleAttribute("backgroundColor", "transparent");
         this.setLayout(new BorderLayout());
-        
+
         createWestPanel();
         createCenterPanel();
-        
+
         setupDragDrop();
     }
 
@@ -261,7 +260,7 @@ public class Visualization extends LayoutContainer {
 
         onSensorValuesReceived(null);
     }
-    
+
     /**
      * Handles the callback from the sensor data RPC request. Adds the received data to the open
      * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
@@ -301,7 +300,7 @@ public class Visualization extends LayoutContainer {
             }
         }
     }
-    
+
     /**
      * Handles a visualization request by displaying a dialog for the preferred action to take.
      * 
@@ -331,10 +330,10 @@ public class Visualization extends LayoutContainer {
                 }
             }
         }
-        
+
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
     }
-    
+
     /**
      * Sets up the tab panel for drag and drop of the tags.
      * 
@@ -351,6 +350,7 @@ public class Visualization extends LayoutContainer {
             }
         });
     }
+
     public void showLineChart(TreeModel[] sensors, long startTime, long endTime) {
         // add line chart tab item
         final TabItem item = new TabItem("Time line");
@@ -379,7 +379,7 @@ public class Visualization extends LayoutContainer {
         item.add(new SensorDataGrid(sensors), new FitData());
         item.layout();
     }
-    
+
     /**
      * Prepares for a series of RPC requests for data from a list of tags. Initializes some
      * constants and starts the first request with <code>requestSensorValues</code>.
@@ -403,7 +403,7 @@ public class Visualization extends LayoutContainer {
     public void resetTabs() {
         int tabCount = this.tabPanel.getItemCount();
         for (int i = tabCount; i > 2; i--) {
-            this.tabPanel.remove(this.tabPanel.getItem(i-1));
+            this.tabPanel.remove(this.tabPanel.getItem(i - 1));
         }
         layout();
     }

@@ -1,5 +1,13 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.Arrays;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.events.LoginEvents;
+import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.events.StateEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -28,14 +36,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 
-import java.util.Arrays;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.events.LoginEvents;
-import nl.sense_os.commonsense.client.events.MainEvents;
-import nl.sense_os.commonsense.client.events.StateEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-
 public class StateGrid extends View {
 
     protected static final String TAG = "StateGrid";
@@ -43,6 +43,8 @@ public class StateGrid extends View {
     private TreeGrid<TreeModel> grid;
     private ContentPanel panel;
     private Button removeButton;
+    private Button addButton;
+    private Button editButton;
     private TreeStore<TreeModel> store;
 
     public StateGrid(Controller controller) {
@@ -149,15 +151,25 @@ public class StateGrid extends View {
             @Override
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 TreeModel selection = se.getSelectedItem();
-                if (null != selection && selection.get("service_name") == null) {
-                    removeButton.enable();
+                if (null != selection) {
+                    if (selection.get("service_name") == null) {
+                        editButton.enable();
+                        addButton.enable();
+                        removeButton.enable();
+                    } else {
+                        editButton.enable();
+                        addButton.enable();
+                        removeButton.disable();
+                    }
                 } else {
+                    editButton.enable();
+                    addButton.disable();
                     removeButton.disable();
                 }
             }
         });
         this.grid.setSelectionModel(selectionModel);
-        
+
         final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -165,9 +177,13 @@ public class StateGrid extends View {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
                     onCreateClick();
+                } else if (source.equals(editButton)) {
+                    onEditClick();
+                } else if (source.equals(addButton)) {
+                    onAddClick();
                 } else if (source.equals(removeButton)) {
                     confirmRemove();
-                } else  {
+                } else {
                     Log.w(TAG, "Unexpected button clicked");
                 }
             }
@@ -175,20 +191,46 @@ public class StateGrid extends View {
 
         this.createButton = new Button("Create", l);
 
-        this.removeButton = new Button("Remove", l);
+        this.editButton = new Button("Edit", l);
+        this.editButton.disable();
+
+        this.addButton = new Button("Connect sensor", l);
+        this.addButton.disable();
+
+        this.removeButton = new Button("Remove sensor", l);
         this.removeButton.disable();
 
         // create tool bar
         final ToolBar toolBar = new ToolBar();
         toolBar.add(this.createButton);
+        toolBar.add(this.editButton);
+        toolBar.add(this.addButton);
         toolBar.add(this.removeButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
 
+    protected void onAddClick() {
+        TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
+        if (selectedService.get("service_name") == null) {
+            selectedService = selectedService.getParent();
+        }
+        Dispatcher.forwardEvent(StateEvents.ShowSensorConnecter, selectedService);
+    }
+
     protected void onCreateClick() {
         Dispatcher.forwardEvent(StateEvents.ShowCreator);
+    }
+
+    protected void onEditClick() {
+        TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
+        if (selectedService.get("service_name") == null) {
+            selectedService = selectedService.getParent();
+        }
+        AppEvent event = new AppEvent(StateEvents.ShowEditor);
+        event.setData(selectedService);
+        Dispatcher.forwardEvent(event);
     }
 
     private void onGroupsNotUpdated(AppEvent event) {
@@ -237,7 +279,7 @@ public class StateGrid extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
-            
+
             // Dispatcher.forwardEvent(StateEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show states panel: parent=null");

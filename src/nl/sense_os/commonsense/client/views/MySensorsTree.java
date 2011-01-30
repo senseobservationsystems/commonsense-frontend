@@ -149,7 +149,7 @@ public class MySensorsTree extends View {
                 if (selection.size() > 0) {
                     vizButton.enable();
                     shareButton.enable();
-                    eventsButton.enable();
+                    // eventsButton.enable();
                 } else {
                     vizButton.disable();
                     shareButton.disable();

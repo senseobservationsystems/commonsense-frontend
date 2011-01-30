@@ -15,11 +15,27 @@ public class StateEvents {
     public static final EventType CreateCancelled = new EventType();
     public static final EventType CreateFailed = new EventType();
 
-    public static final EventType ListAvailableRequested = new EventType();
-    public static final EventType ListAvailableUpdated = new EventType();
-    public static final EventType ListAvailableNotUpdated = new EventType();
+    public static final EventType AvailableServicesRequested = new EventType();
+    public static final EventType AvailableServicesUpdated = new EventType();
+    public static final EventType AvailableServicesNotUpdated = new EventType();
 
     public static final EventType RemoveRequested = new EventType();
     public static final EventType RemoveComplete = new EventType();
     public static final EventType RemoveFailed = new EventType();
+
+    public static final EventType ShowSensorConnecter = new EventType();
+    public static final EventType ConnectRequested = new EventType();
+    public static final EventType ConnectComplete = new EventType();
+    public static final EventType ConnectFailed = new EventType();
+    public static final EventType AvailableSensorsRequested = new EventType();
+    public static final EventType AvailableSensorsUpdated = new EventType();
+    public static final EventType AvailableSensorsNotUpdated = new EventType();
+
+    public static final EventType ShowEditor = new EventType();
+    public static final EventType InvokeMethodRequested = new EventType();
+    public static final EventType InvokeMethodComplete = new EventType();
+    public static final EventType InvokeMethodFailed = new EventType();
+    public static final EventType MethodsRequested = new EventType();
+    public static final EventType MethodsUpdated = new EventType();
+    public static final EventType MethodsNotUpdated = new EventType();
 }

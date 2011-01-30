@@ -32,7 +32,7 @@ public class GroupCreator extends View {
     private TextField<String> email;
     private TextField<String> username;
     private TextField<String> password;
-    private Button createButton;
+    private Button submitButton;
     private Button cancelButton;
 
     public GroupCreator(Controller c) {
@@ -70,31 +70,35 @@ public class GroupCreator extends View {
     }
 
     private void initButtons() {
-        this.createButton = new Button("Create", new SelectionListener<ButtonEvent>() {
+        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (form.isValid()) {
-                    onSubmit();
+                final Button pressed = ce.getButton();
+                if (pressed.equals(submitButton)) {
+                    if (form.isValid()) {
+                        onSubmit();
+                    }
+                } else if (pressed.equals(cancelButton)) {
+                    GroupCreator.this.fireEvent(GroupEvents.CreateCancelled);
+                } else {
+                    Log.w(TAG, "Unexpected button pressed");
                 }
             }
-        });
+        };
+        this.submitButton = new Button("Create", l);
 
-        this.cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                GroupCreator.this.fireEvent(GroupEvents.CreateCancelled);
-            }
-        });
-        setBusy(false);
+        this.cancelButton = new Button("Cancel", l);
 
         final FormButtonBinding binding = new FormButtonBinding(this.form);
-        binding.addButton(this.createButton);
+        binding.addButton(this.submitButton);
 
         this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.createButton);
+        this.form.addButton(this.submitButton);
         this.form.addButton(this.cancelButton);
+
+        // set the submit button icon
+        setBusy(false);
     }
 
     private void initFields() {
@@ -158,10 +162,10 @@ public class GroupCreator extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
             this.cancelButton.setEnabled(false);
         } else {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
             this.cancelButton.setEnabled(true);
         }
     }
