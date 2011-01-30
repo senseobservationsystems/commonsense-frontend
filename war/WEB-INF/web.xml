@@ -14,11 +14,6 @@
     <servlet-name>BuildingServlet</servlet-name>
     <servlet-class>nl.sense_os.commonsense.server.BuildingServiceImpl</servlet-class>
   </servlet>
-    
-  <servlet>
-    <servlet-name>CleanupServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.CleanupServlet</servlet-class>
-  </servlet>
 
   <servlet>
     <servlet-name>FloorImgServlet</servlet-name>
@@ -28,6 +23,11 @@
   <servlet>
     <servlet-name>GroupsServlet</servlet-name>
     <servlet-class>nl.sense_os.commonsense.server.GroupsServiceImpl</servlet-class>
+  </servlet>
+    
+  <servlet>
+    <servlet-name>IVOCleanupServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.IVOCleanupServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -54,11 +54,6 @@
     <servlet-name>BuildingServlet</servlet-name>
     <url-pattern>/commonsense/building</url-pattern>
   </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>CleanupServlet</servlet-name>
-    <url-pattern>/ivo/cleanup</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>FloorImgServlet</servlet-name>
@@ -68,6 +63,11 @@
   <servlet-mapping>
     <servlet-name>GroupsServlet</servlet-name>
     <url-pattern>/commonsense/groups</url-pattern>
+  </servlet-mapping>
+    
+  <servlet-mapping>
+    <servlet-name>IVOCleanupServlet</servlet-name>
+    <url-pattern>/ivo/cleanup</url-pattern>
   </servlet-mapping>
     
   <servlet-mapping>

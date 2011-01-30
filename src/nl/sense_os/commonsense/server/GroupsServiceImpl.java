@@ -1,5 +1,18 @@
 package nl.sense_os.commonsense.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.services.GroupsService;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -15,19 +28,6 @@ import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Logger;
 
 public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsService {
 
@@ -78,8 +78,8 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");
 
-            log.info(method + " " + connection.getURL().getPath());
-            
+            // log.info(method + " " + connection.getURL().getPath());
+
             // perform method at URL
             if (null != data) {
                 log.info(data);
@@ -127,7 +127,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
         return groups;
     }
 
-    private ModelData handleGroupDetailsResponse(String response) throws WrongResponseException {
+    private ModelData parseGroupDetails(String response) throws WrongResponseException {
         try {
             JSONObject group = (JSONObject) new JSONObject(response).get("group");
 
@@ -137,7 +137,10 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             properties.put("username", group.getString("username"));
             properties.put("name", group.getString("name"));
             properties.put("UUID", group.getString("UUID"));
+
+            // font end-only properties
             properties.put("tagType", TagModel.TYPE_GROUP);
+            properties.put("text", properties.get("name"));
 
             return new BaseModelData(properties);
 
@@ -154,7 +157,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
      * @throws DbConnectionException
      * @throws WrongResponseException
      */
-    private List<ModelData> handleGroupsResponse(String response) throws WrongResponseException {
+    private List<ModelData> parseGroups(String response) throws WrongResponseException {
         try {
             List<ModelData> result = new ArrayList<ModelData>();
             JSONArray groups = (JSONArray) new JSONObject(response).get("groups");
@@ -179,7 +182,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
         }
     }
 
-    private List<ModelData> handleGroupUsersResponse(String response) throws WrongResponseException {
+    private List<ModelData> parseGroupUsers(String response) throws WrongResponseException {
 
         try {
             List<ModelData> result = new ArrayList<ModelData>();
@@ -193,7 +196,10 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
                 properties.put("name", user.getString("name"));
                 properties.put("surname", user.getString("surname"));
                 properties.put("mobile", user.getString("mobile"));
+
+                // front end-only properties
                 properties.put("tagType", TagModel.TYPE_USER);
+                properties.put("text", properties.get("name") + " " + properties.get("surname"));
 
                 ModelData model = new BaseModelData(properties);
 
@@ -212,7 +218,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
     @Override
     public String inviteUser(String sessionId, String groupId, String email) throws InternalError,
             WrongResponseException, DbConnectionException {
-        
+
         String url = Constants.URL_GROUPS + "/" + groupId + "/users.json";
         String data = null;
         try {
@@ -226,9 +232,9 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             throw new InternalError("JSONException creating POST data.");
         }
         doRequest(url, sessionId, "POST", data);
-        
+
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("failed to invite user: "+ this.responseCode + " " + this.responseContent);
+            log.severe("failed to invite user: " + this.responseCode + " " + this.responseContent);
             throw new WrongResponseException("failed to invite user: " + responseCode);
         }
         return this.responseContent;
@@ -239,9 +245,9 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             DbConnectionException {
 
         String url = Constants.URL_GROUPS + "/" + groupId;
-        
+
         doRequest(url, sessionId, "DELETE", null);
-        
+
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
             log.severe("LEAVE GROUPS failure: " + this.responseCode + " " + this.responseContent);
             throw new WrongResponseException("failed to leave groups " + this.responseCode);
@@ -256,11 +262,12 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
         String url = Constants.URL_GROUPS + "/" + groupId;
         doRequest(url, sessionId, "GET", null);
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET GROUP DETAILS failure: " + this.responseCode + " " + this.responseContent);
+            log.severe("GET GROUP DETAILS failure: " + this.responseCode + " "
+                    + this.responseContent);
             throw new WrongResponseException("failed to get group details " + this.responseCode);
         }
 
-        return handleGroupDetailsResponse(this.responseContent);
+        return parseGroupDetails(this.responseContent);
     }
 
     private List<ModelData> requestGroups(String sessionId) throws DbConnectionException,
@@ -273,7 +280,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             throw new WrongResponseException("failed to get groups " + this.responseCode);
         }
 
-        return handleGroupsResponse(this.responseContent);
+        return parseGroups(this.responseContent);
     }
 
     private List<ModelData> requestGroupUsers(String sessionId, String groupId)
@@ -286,6 +293,6 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             throw new WrongResponseException("failed to get group users " + this.responseCode);
         }
 
-        return handleGroupUsersResponse(this.responseContent);
+        return parseGroupUsers(this.responseContent);
     }
 }

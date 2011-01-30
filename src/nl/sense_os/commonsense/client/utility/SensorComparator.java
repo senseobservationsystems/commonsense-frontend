@@ -1,9 +1,10 @@
 package nl.sense_os.commonsense.client.utility;
 
+import java.util.Comparator;
+
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
-import java.util.Comparator;
 
 public class SensorComparator implements Comparator<Object> {
 
@@ -12,7 +13,7 @@ public class SensorComparator implements Comparator<Object> {
     private static final int APPLICATIONS = 3;
     private static final int FEEDS = 4;
     private static final int STATES = 5;
-    
+
     @Override
     public int compare(Object obj1, Object obj2) {
         try {
@@ -22,11 +23,11 @@ public class SensorComparator implements Comparator<Object> {
             int type2 = o2.<Integer> get("tagType");
             if (type1 == type2) {
                 if (type1 == TagModel.TYPE_SENSOR) {
-                    String name1 = o1.<String> get("name");
-                    String name2 = o2.<String> get("name");
+                    String name1 = o1.<String> get("text");
+                    String name2 = o2.<String> get("text");
                     return name1.compareToIgnoreCase(name2);
                 } else if (type1 == TagModel.TYPE_GROUP) {
-                    String n1 = o1.<String> get("name"); 
+                    String n1 = o1.<String> get("text");
                     int t1 = 0;
                     if (n1.equalsIgnoreCase("Devices")) {
                         t1 = DEVICES;
@@ -38,24 +39,24 @@ public class SensorComparator implements Comparator<Object> {
                         t1 = FEEDS;
                     } else if (n1.equalsIgnoreCase("States")) {
                         t1 = STATES;
-                    } 
-                    String n2 = o2.<String> get("name"); 
+                    }
+                    String n2 = o2.<String> get("text");
                     int t2 = 0;
                     if (n2.equalsIgnoreCase("Devices")) {
                         t2 = DEVICES;
                     } else if (n2.equalsIgnoreCase("Environments")) {
                         t2 = ENVIRONMENTS;
-                    }  else if (n2.equalsIgnoreCase("Feeds")) {
+                    } else if (n2.equalsIgnoreCase("Feeds")) {
                         t2 = FEEDS;
                     } else if (n2.equalsIgnoreCase("Applications")) {
                         t2 = APPLICATIONS;
                     } else if (n2.equalsIgnoreCase("States")) {
                         t2 = STATES;
                     }
-                    return t1-t2;
+                    return t1 - t2;
                 } else if (type1 == TagModel.TYPE_DEVICE) {
-                    String name1 = o1.<String> get("type");
-                    String name2 = o2.<String> get("type");
+                    String name1 = o1.<String> get("text");
+                    String name2 = o2.<String> get("text");
                     return name1.compareToIgnoreCase(name2);
                 }
             }

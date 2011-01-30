@@ -2,15 +2,15 @@ package nl.sense_os.commonsense.client;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.mvc.controllers.BuildingController;
-import nl.sense_os.commonsense.client.mvc.controllers.GroupController;
-import nl.sense_os.commonsense.client.mvc.controllers.GroupSensorsController;
-import nl.sense_os.commonsense.client.mvc.controllers.LoginController;
-import nl.sense_os.commonsense.client.mvc.controllers.MainController;
-import nl.sense_os.commonsense.client.mvc.controllers.MySensorsController;
-import nl.sense_os.commonsense.client.mvc.controllers.StateController;
-import nl.sense_os.commonsense.client.mvc.controllers.VizController;
-import nl.sense_os.commonsense.client.mvc.events.MainEvents;
+import nl.sense_os.commonsense.client.controllers.BuildingController;
+import nl.sense_os.commonsense.client.controllers.GroupController;
+import nl.sense_os.commonsense.client.controllers.GroupSensorsController;
+import nl.sense_os.commonsense.client.controllers.LoginController;
+import nl.sense_os.commonsense.client.controllers.MainController;
+import nl.sense_os.commonsense.client.controllers.MySensorsController;
+import nl.sense_os.commonsense.client.controllers.StateController;
+import nl.sense_os.commonsense.client.controllers.VizController;
+import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.services.GroupsService;
