@@ -1,18 +1,19 @@
 package nl.sense_os.commonsense.client.views;
 
+import nl.sense_os.commonsense.client.events.LoginEvents;
+import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.events.StateEvents;
+import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.views.components.Visualization;
+import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
+
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-
-import nl.sense_os.commonsense.client.events.LoginEvents;
-import nl.sense_os.commonsense.client.events.MainEvents;
-import nl.sense_os.commonsense.client.events.VizEvents;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.views.components.Visualization;
-import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public class VizView extends View {
 
@@ -42,6 +43,11 @@ public class VizView extends View {
         } else if (eventType.equals(VizEvents.DataReceived)) {
             Log.d(TAG, "DataReceived");
             onDataReceived(event);
+        } else if (eventType.equals(StateEvents.ShowFeedback)) {
+            Log.d(TAG, "ShowFeedback");
+            TreeModel service = event.getData("service");
+            TreeModel sensor = event.getData("sensor");
+            this.vizPanel.showFeedback(service, sensor);
         } else if (eventType.equals(VizEvents.ShowLineChart)) {
             Log.d(TAG, "ShowLineChart");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
@@ -83,12 +89,12 @@ public class VizView extends View {
     }
 
     private void onLoggedOut(AppEvent event) {
-        
+
     }
 
     private void onShow(AppEvent event) {
         this.vizPanel.setId("visualization");
-        
+
         LayoutContainer center = event.<LayoutContainer> getData();
         center.removeAll();
         center.add(this.vizPanel);

@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.controllers;
 import nl.sense_os.commonsense.client.controllers.cors.DataJsniRequests;
 import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.VizTypeChooser;
@@ -11,6 +12,7 @@ import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
+import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -38,6 +40,7 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowMap,
                 VizEvents.ShowNetwork);
+        registerEventTypes(StateEvents.ShowFeedback);
         loadVizApi();
     }
 
@@ -74,7 +77,7 @@ public class VizController extends Controller {
                 isVizApiLoaded = true;
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback);
+        VisualizationUtils.loadVisualizationApi(vizCallback, Timeline.PACKAGE);
 
         // double check that the API has been loaded
         Timer timer = new Timer() {
@@ -112,7 +115,7 @@ public class VizController extends Controller {
     private void onDataRequested(AppEvent event) {
 
         SensorValueModel[] pagedValues = new SensorValueModel[0];
-        int page = 1;
+        int page = 0;
 
         TreeModel sensor = event.getData("tag");
         String url = Constants.URL_DATA.replace("<id>", "" + sensor.<String> get("id"));

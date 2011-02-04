@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class GroupInviter extends View {
 
@@ -85,14 +86,17 @@ public class GroupInviter extends View {
     private void initForm() {
         this.form = new FormPanel();
         this.form.setHeaderVisible(false);
-        
+        this.form.setBodyBorder(false);
+
+        final FormData formData = new FormData("-10");
+
         this.email = new TextField<String>();
         this.email.setFieldLabel("Email");
         this.email.setAllowBlank(false);
-        this.form.add(this.email);
-        
+        this.form.add(this.email, formData);
+
         initButtons();
-        
+
         this.window.add(this.form);
     }
 
@@ -101,7 +105,7 @@ public class GroupInviter extends View {
         super.initialize();
 
         this.window = new Window();
-        this.window.setWidth(350);
+        this.window.setWidth(323);
         this.window.setHeight(200);
         this.window.setResizable(false);
         this.window.setLayout(new FitLayout());
@@ -122,7 +126,8 @@ public class GroupInviter extends View {
     }
 
     private void onFailed(AppEvent event) {
-        MessageBox.alert("CommonSense", "Failed to invite user. Please check the email address.", null);
+        MessageBox.alert("CommonSense", "Failed to invite user. Please check the email address.",
+                null);
         setBusy(false);
     }
 

@@ -1,18 +1,23 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.events.GroupEvents;
 import nl.sense_os.commonsense.client.events.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.ModelIconProvider;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
+import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -25,17 +30,20 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupSensorsTree extends View {
 
@@ -43,9 +51,10 @@ public class GroupSensorsTree extends View {
     private Button eventsButton;
     private ContentPanel panel;
     private ToolButton refreshButton;
+    private Button vizButton;
     private TreeStore<TreeModel> store;
     private TreePanel<TreeModel> tree;
-    private Button vizButton;
+    private BaseTreeLoader<TreeModel> loader;
 
     public GroupSensorsTree(Controller c) {
         super(c);
@@ -56,24 +65,21 @@ public class GroupSensorsTree extends View {
         EventType type = event.getType();
         if (type.equals(GroupSensorsEvents.ShowTree)) {
             onShow(event);
-        } else if (type.equals(GroupSensorsEvents.ListNotUpdated)) {
-            Log.w(TAG, "ListNotUpdated");
-            onListNotUpdated(event);
-        } else if (type.equals(GroupSensorsEvents.ListUpdated)) {
-            Log.d(TAG, "ListUpdated");
-            onListUpdate(event);
+        } else if (type.equals(GroupSensorsEvents.Done)) {
+            Log.d(TAG, "Done");
+            setBusy(false);
         } else if (type.equals(GroupSensorsEvents.Working)) {
             Log.d(TAG, "Working");
             setBusy(true);
+        } else if (type.equals(GroupEvents.Done)) {
+            // Log.d(TAG, "Group ListUpdated");
+            refreshTree();
         } else if (type.equals(MainEvents.ShowVisualization)) {
             // Log.d(TAG, "ShowVisualization");
             // do nothing
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
-            onLoggedIn(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -85,10 +91,14 @@ public class GroupSensorsTree extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested);
+                refreshTree();
             }
         });
         this.panel.getHeader().addTool(this.refreshButton);
+    }
+
+    private void refreshTree() {
+        loader.load();
     }
 
     @Override
@@ -97,7 +107,6 @@ public class GroupSensorsTree extends View {
 
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("My group sensors");
-        this.panel.setAnimCollapse(false);
 
         initTree();
         initHeaderTool();
@@ -130,6 +139,7 @@ public class GroupSensorsTree extends View {
 
         this.eventsButton = new Button("Events", l);
         this.eventsButton.disable();
+        this.eventsButton.hide();
 
         // listen to selection of tree items to enable/disable buttons
         TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
@@ -160,32 +170,25 @@ public class GroupSensorsTree extends View {
     }
 
     private void initTree() {
-        // trees store
-        this.store = new TreeStore<TreeModel>();
-        this.store.setKeyProvider(new ModelKeyProvider<TreeModel>() {
+        // tree store
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        DataProxy proxy = new DataProxy() {
 
             @Override
-            public String getKey(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return "group " + model.<String> get("text");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return "device " + model.<String> get("uuid")
-                            + model.getParent().<String> get("text");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return "sensor " + model.<String> get("id")
-                            + model.getParent().<String> get("text");
-                } else if (tagType == TagModel.TYPE_SERVICE) {
-                    return "service " + model.<String> get("service_name")
-                            + model.<String> get("data_fields");
+            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+                if (null == loadConfig) {
+                    Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested, callback);
+                } else if (loadConfig instanceof TreeModel) {
+                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                    callback.onSuccess(childrenModels);
                 } else {
-                    Log.e(TAG, "unexpected tag type in ModelKeyProvider");
-                    return model.toString();
+                    callback.onSuccess(new ArrayList<TreeModel>());
                 }
             }
-        });
-
-        // sort tree
+        };
+        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        this.store = new TreeStore<TreeModel>(loader);
+        this.store.setKeyProvider(new SensorKeyProvider());
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         this.tree = new TreePanel<TreeModel>(store);
@@ -193,50 +196,44 @@ public class GroupSensorsTree extends View {
         this.tree.setStateful(true);
         this.tree.setId("groupSensorsTree");
         this.tree.setDisplayProperty("text");
-        this.tree.setIconProvider(new ModelIconProvider<TreeModel>() {
+        this.tree.setIconProvider(new SensorIconProvider());
+
+        // toolbar with filter field
+        ToolBar filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
 
             @Override
-            public AbstractImagePrototype getIcon(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
-                } else {
-                    Log.e(TAG, "unexpected tag type in ModelIconProvider");
-                    return IconHelper.create("gxt/images/gxt/icons/done.gif");
+            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
+                    String property, String filter) {
+                // only match leaf nodes
+                if (record.getChildCount() > 0) {
+                    return false;
                 }
+                String name = record.get("text");
+                name = name.toLowerCase();
+                if (name.startsWith(filter.toLowerCase())) {
+                    return true;
+                }
+                return false;
             }
-        });
 
-        this.panel.add(this.tree);
+        };
+        filter.bind(store);
+        filterBar.add(filter);
+
+        ContentPanel content = new ContentPanel(new FitLayout());
+        content.setBodyBorder(false);
+        content.setHeaderVisible(false);
+        content.setTopComponent(filterBar);
+        content.add(this.tree);
+
+        this.panel.add(content);
     }
 
-    protected void onEventsClick() {
+    private void onEventsClick() {
         // TODO Auto-generated method stub
 
-    }
-
-    private void onListNotUpdated(AppEvent event) {
-        // Throwable caught = event.<Throwable> getData();
-        // if (caught != null) {
-        // caught.printStackTrace();
-        // }
-        setBusy(false);
-        this.store.removeAll();
-    }
-
-    private void onListUpdate(AppEvent event) {
-        List<TreeModel> sensors = event.<List<TreeModel>> getData();
-        setBusy(false);
-        this.store.removeAll();
-        this.store.add(sensors, true);
-    }
-
-    private void onLoggedIn(AppEvent event) {
-        // do nothing, the group sensors store will be updated when the list of groups is ready
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -248,8 +245,6 @@ public class GroupSensorsTree extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
-
-            // Dispatcher.forwardEvent(GroupSensorEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show group sensors panel: parent=null");
         }

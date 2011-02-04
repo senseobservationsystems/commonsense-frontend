@@ -6,7 +6,7 @@ import nl.sense_os.commonsense.client.controllers.cors.MySensorsJsniRequests;
 import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.MySensorsEvents;
-import nl.sense_os.commonsense.client.services.TagsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.MySensorsShareDialog;
 import nl.sense_os.commonsense.client.views.MySensorsTree;
@@ -25,15 +25,49 @@ public class MySensorsController extends Controller {
     private static final String TAG = "MySensorsController";
     private MySensorsTree treeView;
     private MySensorsShareDialog shareView;
+    private boolean isGettingMySensors;
 
     public MySensorsController() {
-        registerEventTypes(MySensorsEvents.ShowTree, MySensorsEvents.ListNotUpdated,
-                MySensorsEvents.ListRequested, MySensorsEvents.ListUpdated, MySensorsEvents.Working);
+        registerEventTypes(MySensorsEvents.ShowTree, MySensorsEvents.ListRequested,
+                MySensorsEvents.Done, MySensorsEvents.Working);
         registerEventTypes(MySensorsEvents.ShowShareDialog, MySensorsEvents.ShareRequested,
                 MySensorsEvents.ShareComplete, MySensorsEvents.ShareCancelled,
                 MySensorsEvents.ShareFailed);
+        registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(MainEvents.ShowVisualization);
-        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
+    }
+
+    private void getMySensors(AppEvent event) {
+        final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
+        if (false == this.isGettingMySensors) {
+            this.isGettingMySensors = true;
+            Dispatcher.forwardEvent(MySensorsEvents.Working);
+
+            SensorsServiceAsync service = Registry
+                    .<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
+            String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    Dispatcher.forwardEvent(MySensorsEvents.Done);
+                    isGettingMySensors = false;
+                    proxyCallback.onFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(List<TreeModel> result) {
+                    Registry.register(Constants.REG_MY_SENSORS, result);
+                    Dispatcher.forwardEvent(MySensorsEvents.Done);
+                    isGettingMySensors = false;
+                    proxyCallback.onSuccess(result);
+                }
+            };
+            service.getMySensors(sessionId, callback);
+        } else {
+            Log.d(TAG, "Ignored request to get my sensors: already working on an earlier request");
+            proxyCallback.onFailure(null);
+        }
     }
 
     @Override
@@ -41,16 +75,13 @@ public class MySensorsController extends Controller {
         EventType type = event.getType();
         if (type.equals(MySensorsEvents.ListRequested)) {
             // Log.d(TAG, "ListRequested");
-            onListRequest(event);
+            getMySensors(event);
         } else if (type.equals(MySensorsEvents.ShareRequested)) {
             // Log.d(TAG, "ShareRequested");
             shareSensor(event);
-        } else if (type.equals(MySensorsEvents.ShowTree)
-                || type.equals(MySensorsEvents.ListUpdated)
-                || type.equals(MySensorsEvents.ListNotUpdated)
-                || type.equals(MySensorsEvents.Working)
-                || type.equals(MainEvents.ShowVisualization) || type.equals(LoginEvents.LoggedIn)
-                || type.equals(LoginEvents.LoggedOut)) {
+        } else if (type.equals(MySensorsEvents.ShowTree) || type.equals(MySensorsEvents.Done)
+                || type.equals(MySensorsEvents.Working) || type.equals(LoginEvents.LoggedOut)
+                || type.equals(MainEvents.ShowVisualization)) {
             forwardToView(this.treeView, event);
         } else if (type.equals(MySensorsEvents.ShowShareDialog)
                 || type.equals(MySensorsEvents.ShareComplete)
@@ -67,26 +98,6 @@ public class MySensorsController extends Controller {
         super.initialize();
         this.treeView = new MySensorsTree(this);
         this.shareView = new MySensorsShareDialog(this);
-    }
-
-    private void onListRequest(AppEvent event) {
-        TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Dispatcher.forwardEvent(MySensorsEvents.ListNotUpdated, caught);
-            }
-
-            @Override
-            public void onSuccess(List<TreeModel> result) {
-                Registry.register(Constants.REG_MY_SENSORS, result);
-                Dispatcher.forwardEvent(MySensorsEvents.ListUpdated, result);
-            }
-        };
-        service.getMySensors(sessionId, callback);
-        Dispatcher.forwardEvent(MySensorsEvents.Working);
     }
 
     private void shareSensor(AppEvent event) {

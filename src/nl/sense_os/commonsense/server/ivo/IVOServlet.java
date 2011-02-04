@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server;
+package nl.sense_os.commonsense.server.ivo;
 
 import java.io.IOException;
 import java.util.logging.Logger;

@@ -15,8 +15,8 @@ import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.services.GroupsService;
 import nl.sense_os.commonsense.client.services.GroupsServiceAsync;
-import nl.sense_os.commonsense.client.services.TagsService;
-import nl.sense_os.commonsense.client.services.TagsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsService;
+import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -35,6 +35,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
+    public static final String LAST_DEPLOYED = "Fri Feb  4 14:17:21 CET 2011";
 
     /**
      * @return a pretty String to show the current time
@@ -53,7 +54,7 @@ public class CommonSense implements EntryPoint {
         Registry.register(Constants.REG_BUILDING_SVC, buildingService);
         final GroupsServiceAsync groupsService = GWT.create(GroupsService.class);
         Registry.register(Constants.REG_GROUPS_SVC, groupsService);
-        final TagsServiceAsync tagsService = GWT.create(TagsService.class);
+        final SensorsServiceAsync tagsService = GWT.create(SensorsService.class);
         Registry.register(Constants.REG_TAGS_SVC, tagsService);
 
         // set up MVC stuff

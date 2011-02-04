@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -22,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class GroupCreator extends View {
 
@@ -62,6 +64,7 @@ public class GroupCreator extends View {
 
         this.form = new FormPanel();
         this.form.setHeaderVisible(false);
+        this.form.setBodyBorder(false);
 
         initFields();
         initButtons();
@@ -102,6 +105,9 @@ public class GroupCreator extends View {
     }
 
     private void initFields() {
+
+        final FormData formData = new FormData("-10");
+
         this.name = new TextField<String>();
         this.name.setFieldLabel("Name*");
         this.name.setAllowBlank(false);
@@ -141,10 +147,10 @@ public class GroupCreator extends View {
             }
         });
 
-        this.form.add(this.name);
-        this.form.add(this.email);
-        this.form.add(this.username);
-        this.form.add(this.password);
+        this.form.add(this.name, formData);
+        this.form.add(this.email, formData);
+        this.form.add(this.username, formData);
+        this.form.add(this.password, formData);
     }
 
     @Override
@@ -152,7 +158,7 @@ public class GroupCreator extends View {
         super.initialize();
 
         this.window = new Window();
-        this.window.setSize(350, 200);
+        this.window.setSize(400, 247);
         this.window.setResizable(false);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Create group");
@@ -182,8 +188,19 @@ public class GroupCreator extends View {
     }
 
     private void onFailed(AppEvent event) {
-        MessageBox.alert(null, "Failed to create group.", null);
         setBusy(false);
+        MessageBox.confirm(null, "Failed to create group, retry?", new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                    onSubmit();
+                } else {
+                    window.hide();
+                }
+
+            }
+        });
     }
 
     private void onShow(AppEvent event) {

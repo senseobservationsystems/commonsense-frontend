@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.views;
 
+import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -23,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
@@ -44,6 +44,20 @@ public class MainView extends View {
 
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
         this.viewport.add(this.center, centerData);
+
+    }
+
+    private void createFooter() {
+        LayoutContainer footer = new LayoutContainer(new CenterLayout());
+        Text footerText = new Text("&#169;2011 Sense Observation Systems - Last update: "
+                + CommonSense.LAST_DEPLOYED);
+        footerText.setStyleAttribute("font-size", "13px");
+        footer.add(footerText);
+
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 20);
+        southData.setMargins(new Margins(0));
+        southData.setSplit(false);
+        this.viewport.add(footer, southData);
     }
 
     private void createNavigation() {
@@ -95,6 +109,7 @@ public class MainView extends View {
 
         createNavigation();
         createCenter();
+        createFooter();
 
         RootPanel.get().add(viewport);
     }
@@ -107,8 +122,6 @@ public class MainView extends View {
         final UserModel user = event.<UserModel> getData();
         this.navPanel.setUser(user);
         this.navPanel.setLoggedIn(true);
-
-        History.back();
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -122,10 +135,11 @@ public class MainView extends View {
         Component newContent = null;
         if (null != location) {
             if (location.equals(NavPanel.SIGN_IN)) {
-                Dispatcher.forwardEvent(MainEvents.ShowLogin, this.center);
+                newContent = new LayoutContainer();
+                Dispatcher.forwardEvent(MainEvents.ShowLogin);
             } else if (location.equals(NavPanel.SIGN_OUT)) {
+                newContent = new LayoutContainer();
                 Dispatcher.forwardEvent(LoginEvents.RequestLogout);
-                Dispatcher.forwardEvent(MainEvents.ShowLogin, this.center);
             } else if (location.equals(NavPanel.HOME)) {
                 if (null == this.homeComponent) {
                     this.homeComponent = new HomeScreen();

@@ -1,5 +1,13 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.Arrays;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.events.BuildingEvents;
+import nl.sense_os.commonsense.client.events.LoginEvents;
+import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.utility.Log;
+
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -27,14 +35,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
-
-import java.util.Arrays;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.events.BuildingEvents;
-import nl.sense_os.commonsense.client.events.LoginEvents;
-import nl.sense_os.commonsense.client.events.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 
 public class BuildingGrid extends View {
 
@@ -133,7 +133,6 @@ public class BuildingGrid extends View {
 
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Manage environments");
-        this.panel.setAnimCollapse(false);
 
         initHeaderTool();
         initToolBar();
@@ -213,7 +212,7 @@ public class BuildingGrid extends View {
 
     private void onLoggedIn(AppEvent event) {
         // this request fails immediately in Google Chrome (?)
-        // Dispatcher.forwardEvent(BuildingEvents.ListRequested);        
+        // Dispatcher.forwardEvent(BuildingEvents.ListRequested);
     }
 
     private void onLoggedOut(AppEvent event) {

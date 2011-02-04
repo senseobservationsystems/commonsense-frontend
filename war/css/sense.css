@@ -1,9 +1,9 @@
 /* special style for Frame objects without borders */
 .senseFrame {
     border: 0px;
-    background-color: transparent;
+    background-color: transparent !important;
 }
-/* special transparent style for see-through tag panel */
+/* special transparent style for see-through tab panel */
 .transparent .x-tab-panel-body-top {
     background-color: transparent !important;
 }

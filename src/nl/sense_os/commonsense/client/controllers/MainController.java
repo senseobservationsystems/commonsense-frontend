@@ -11,13 +11,14 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
-    private MainView mainView;
+    private View mainView;
 
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
@@ -30,9 +31,25 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (type.equals(MainEvents.UiReady)) {
             forwardToView(mainView, event);
             goToFirstScreen();
+        } else if (type.equals(LoginEvents.LoggedIn)) {
+            onLoggedIn();
+            forwardToView(this.mainView, event);
+        } else if (type.equals(LoginEvents.LoggedOut)) {
+            onLoggedOut();
+            forwardToView(this.mainView, event);
         } else {
             forwardToView(this.mainView, event);
         }
+    }
+
+    private void onLoggedOut() {
+        History.newItem(NavPanel.HOME);
+        History.fireCurrentHistoryState();
+    }
+
+    private void onLoggedIn() {
+        History.newItem(NavPanel.VISUALIZATION);
+        History.fireCurrentHistoryState();
     }
 
     @Override
@@ -75,7 +92,8 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private boolean isLoginRequired(String token) {
-        boolean loginRequired = token.equals(NavPanel.SETTINGS) || token.equals(NavPanel.VISUALIZATION);
+        boolean loginRequired = token.equals(NavPanel.SETTINGS)
+                || token.equals(NavPanel.VISUALIZATION);
         return loginRequired;
     }
 

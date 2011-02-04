@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.TagsService;
+import nl.sense_os.commonsense.client.services.SensorsService;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
@@ -29,10 +29,11 @@ import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
- * Servlet to provide "tags" to the client. These can be different from the standard sensors and
- * devices structure that the CommonSense API exposes.
+ * Servlet to provide sensor details to the client. These can be different from the standard sensors
+ * and devices structure that the CommonSense API exposes, initially this servlet is more like a
+ * proxy, not changing any details.
  */
-public class TagsServiceImpl extends RemoteServiceServlet implements TagsService {
+public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsService {
 
     private static final Logger log = Logger.getLogger("TagsServiceImpl");
     private static final long serialVersionUID = 1L;
@@ -110,7 +111,7 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         List<TreeModel> sorted = sortSensors(availableSensors, devices, environments, apps, feeds,
                 states);
 
-        devices = requestAvailableDevices(sessionId, service);
+        devices = getAvailableDevices(sessionId, service);
         for (TreeModel category : sorted) {
             if (category.<String> get("text").equalsIgnoreCase("devices")) {
                 category.removeAll();
@@ -160,9 +161,16 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
                 TreeModel service = foundServices.get(key);
                 if (null == service) {
                     service = new BaseTreeModel(serviceModel.getProperties());
+                } else {
+                    // add the data fields of the new service model to the fields that are already
+                    // known
+                    List<String> dataFields = serviceModel.<List<String>> get("data_fields");
+                    dataFields.addAll(service.<List<String>> get("data_fields"));
+                    service.set("data_fields", dataFields);
                 }
+
                 // add sensor as child of service in foundServices. NB: take care to create a new
-                // TreeModel object, otherwise we release the sensor from any other parents
+                // TreeModel object, otherwise we release the sensor from any other parent services
                 service.add(new BaseTreeModel(sensor.getProperties()));
                 foundServices.put(key, service);
             }
@@ -177,20 +185,11 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     public TreeModel getGroupSensors(String sessionId, TreeModel group)
             throws DbConnectionException, WrongResponseException {
 
-        String url = Constants.URL_SENSORS + "?alias=" + group.<String> get("id") + "&owned=0";
-        doRequest(url, sessionId, "GET", null);
-
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET GROUP SENSORS failure: " + this.responseCode + " "
-                    + this.responseContent);
-            throw new WrongResponseException("failed to get sensors " + this.responseCode);
-        }
-
-        List<ModelData> models = parseSensors(this.responseContent);
-
+        List<TreeModel> groupTree = getSortedSensors(sessionId,
+                "?alias=" + group.<String> get("id"));
         group.removeAll();
-        for (ModelData model : models) {
-            group.add(new BaseTreeModel(model.getProperties()));
+        for (TreeModel treeItem : groupTree) {
+            group.add(treeItem);
         }
         return group;
     }
@@ -199,27 +198,33 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
     public List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
+        return getSortedSensors(sessionId, "?owned=1");
+    }
+
+    private List<TreeModel> getSortedSensors(String sessionId, String urlSuffix)
+            throws WrongResponseException, DbConnectionException {
+
         // request all sensors from server
-        String url = Constants.URL_SENSORS + "?owned=1";
+        String url = Constants.URL_SENSORS + urlSuffix;
         doRequest(url, sessionId, "GET", null);
 
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET MY SENSORS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get my sensors " + this.responseCode);
+            log.severe("GET SENSORS failure: " + this.responseCode + " " + this.responseContent);
+            throw new WrongResponseException("failed to get sensors " + this.responseCode);
         }
 
         List<ModelData> unsortedSensors = parseSensors(this.responseContent);
 
-        List<TreeModel> feeds = new ArrayList<TreeModel>();
-        List<TreeModel> devices = new ArrayList<TreeModel>();
-        List<TreeModel> states = new ArrayList<TreeModel>();
-        List<TreeModel> environments = new ArrayList<TreeModel>();
+        List<TreeModel> feedsSensors = new ArrayList<TreeModel>();
+        List<TreeModel> deviceSensors = new ArrayList<TreeModel>();
+        List<TreeModel> stateSensors = new ArrayList<TreeModel>();
+        List<TreeModel> environmentSensors = new ArrayList<TreeModel>();
         List<TreeModel> apps = new ArrayList<TreeModel>();
-        List<TreeModel> sorted = sortSensors(unsortedSensors, devices, environments, apps, feeds,
-                states);
+        List<TreeModel> sorted = sortSensors(unsortedSensors, deviceSensors, environmentSensors,
+                apps, feedsSensors, stateSensors);
 
-        // devices are special case
-        devices = requestDevices(sessionId);
+        // handle nested devices
+        List<TreeModel> devices = getDevices(sessionId, urlSuffix, deviceSensors);
         for (TreeModel cat : sorted) {
             if (cat.<String> get("text").equalsIgnoreCase("devices")) {
                 cat.removeAll();
@@ -232,7 +237,36 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
 
         return sorted;
     }
+    private List<TreeModel> getDevices(String sessionId, String urlSuffix, List<TreeModel> sensors)
+            throws WrongResponseException, DbConnectionException {
 
+        HashMap<String, TreeModel> devicesMap = new HashMap<String, TreeModel>();
+        for (TreeModel sensor : sensors) {
+            String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/device"
+                    + urlSuffix;
+            doRequest(url, sessionId, "GET", null);
+
+            if (this.responseCode != HttpURLConnection.HTTP_OK) {
+                log.severe("GET /sensors/<id>/device failure: " + this.responseCode + " "
+                        + this.responseContent);
+                throw new WrongResponseException("failed to get sensor's device "
+                        + this.responseCode);
+            }
+
+            ModelData deviceModel = parseDevice(this.responseContent);
+
+            TreeModel device = devicesMap.get(deviceModel.<String> get("id"));
+            if (null == device) {
+                device = new BaseTreeModel(deviceModel.getProperties());
+            }
+            device.add(sensor);
+            devicesMap.put(device.<String> get("id"), device);
+        }
+
+        List<TreeModel> devices = new ArrayList<TreeModel>(devicesMap.values());
+
+        return devices;
+    }
     @Override
     public List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
             WrongResponseException {
@@ -328,9 +362,16 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
             for (int i = 0; i < services.length(); i++) {
                 JSONObject sensor = services.getJSONObject(i);
 
+                String serviceName = sensor.getString("name");
+                JSONArray dataFieldsArray = sensor.getJSONArray("data_fields");
+                List<String> dataFields = new ArrayList<String>();
+                for (int j = 0; j < dataFieldsArray.length(); j++) {
+                    dataFields.add((String) dataFieldsArray.get(j));
+                }
+
                 HashMap<String, Object> properties = new HashMap<String, Object>();
-                properties.put("service_name", sensor.getString("name"));
-                properties.put("data_fields", sensor.getString("data_fields"));
+                properties.put("service_name", serviceName);
+                properties.put("data_fields", dataFields);
 
                 // front end-only properties
                 properties.put("tagType", TagModel.TYPE_SERVICE);
@@ -346,6 +387,27 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
 
         } catch (JSONException e) {
             log.severe("GET /sensors/<id>/services JSONException: " + e.getMessage());
+            throw (new WrongResponseException(e.getMessage()));
+        }
+    }
+
+    private ModelData parseDevice(String response) throws WrongResponseException {
+        try {
+            JSONObject device = (JSONObject) new JSONObject(response).get("device");
+
+            HashMap<String, Object> properties = new HashMap<String, Object>();
+            properties.put("id", device.getString("id"));
+            properties.put("type", device.getString("type"));
+            properties.put("uuid", device.getString("uuid"));
+
+            // front end-only properties
+            properties.put("tagType", TagModel.TYPE_DEVICE);
+            properties.put("text", properties.get("type"));
+
+            return new BaseModelData(properties);
+
+        } catch (JSONException e) {
+            log.severe("GET /devices/<id> JSONException: " + e.getMessage());
             throw (new WrongResponseException(e.getMessage()));
         }
     }
@@ -507,7 +569,7 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         }
     }
 
-    private List<TreeModel> requestAvailableDevices(String sessionId, TreeModel service)
+    private List<TreeModel> getAvailableDevices(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException {
         String url = Constants.URL_DEVICES;
         doRequest(url, sessionId, "GET", null);
@@ -543,10 +605,37 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
         return devices;
     }
 
-    private List<TreeModel> requestDevices(String sessionId) throws DbConnectionException,
-            WrongResponseException {
+    /**
+     * Creates a list of devices with nested sensors by getting a list of devices and then getting
+     * each device's sensors. This is more efficient than the approach used in
+     * {@link #getDevices(String, String, List)}, but does not work for shared sensors because their
+     * devices are usually not shared.
+     * 
+     * @param sessionId
+     *            for authentication at CommonSense
+     * @param owned
+     *            optional 'owned' url parameter, unused if null
+     * @param alias
+     *            optional 'alias' url parameter, unused if null
+     * @return list of devices with nested sensors
+     * @throws DbConnectionException
+     * @throws WrongResponseException
+     */
+    @SuppressWarnings("unused")
+    private List<TreeModel> requestDevices(String sessionId, String owned, String alias)
+            throws DbConnectionException, WrongResponseException {
 
-        String url = Constants.URL_DEVICES;
+        String urlSuffix = "";
+        if (null != owned) {
+            urlSuffix += "?" + owned;
+            if (null != alias) {
+                urlSuffix += "&" + alias;
+            }
+        } else if (null != alias) {
+            urlSuffix += "?" + alias;
+        }
+
+        String url = Constants.URL_DEVICES + urlSuffix;
         doRequest(url, sessionId, "GET", null);
 
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
@@ -603,23 +692,23 @@ public class TagsServiceImpl extends RemoteServiceServlet implements TagsService
             TreeModel sensor = new BaseTreeModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-            case 0:
-                feeds.add(sensor);
-                break;
-            case 1:
-                devices.add(sensor);
-                break;
-            case 2:
-                states.add(sensor);
-                break;
-            case 3:
-                environments.add(sensor);
-                break;
-            case 4:
-                apps.add(sensor);
-                break;
-            default:
-                log.warning("Unexpected sensor type: " + type);
+                case 0 :
+                    feeds.add(sensor);
+                    break;
+                case 1 :
+                    devices.add(sensor);
+                    break;
+                case 2 :
+                    states.add(sensor);
+                    break;
+                case 3 :
+                    environments.add(sensor);
+                    break;
+                case 4 :
+                    apps.add(sensor);
+                    break;
+                default :
+                    log.warning("Unexpected sensor type: " + type);
             }
         }
 

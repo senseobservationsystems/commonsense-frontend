@@ -9,8 +9,8 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-@RemoteServiceRelativePath("tags")
-public interface TagsService extends RemoteService {
+@RemoteServiceRelativePath("sensors")
+public interface SensorsService extends RemoteService {
 
     List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException;

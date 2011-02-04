@@ -1,11 +1,14 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.events.MySensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -25,8 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-
-import java.util.List;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class MySensorsShareDialog extends View {
 
@@ -98,8 +100,11 @@ public class MySensorsShareDialog extends View {
     }
 
     private ListStore<TreeModel> store;
-    
+
     private void initFields() {
+
+        final FormData formData = new FormData("-10");
+
         store = new ListStore<TreeModel>();
 
         this.users = new ComboBox<TreeModel>();
@@ -108,12 +113,14 @@ public class MySensorsShareDialog extends View {
         this.users.setDisplayField("name");
         this.users.setAllowBlank(false);
 
-        this.form.add(this.users);
+        this.form.add(this.users, formData);
     }
 
     private void initForm() {
         this.form = new FormPanel();
         this.form.setHeaderVisible(false);
+        this.form.setBodyBorder(false);
+        this.form.setScrollMode(Scroll.AUTOY);
 
         initFields();
         initButtons();
@@ -127,7 +134,7 @@ public class MySensorsShareDialog extends View {
 
         this.window = new Window();
         this.window.setLayout(new FitLayout());
-        this.window.setSize(350, 200);
+        this.window.setSize(323, 200);
         this.window.setResizable(false);
         this.window.setHeading("Manage data sharing");
 
@@ -159,7 +166,7 @@ public class MySensorsShareDialog extends View {
         List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
         this.store.removeAll();
         this.store.add(users);
-        
+
         this.window.show();
     }
 
@@ -169,7 +176,7 @@ public class MySensorsShareDialog extends View {
         event.setData("user", user);
         event.setData("sensors", this.sensors);
         fireEvent(event);
-        
+
         setBusy(true);
     }
 

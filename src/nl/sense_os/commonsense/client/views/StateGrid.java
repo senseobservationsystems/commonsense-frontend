@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,13 +8,20 @@ import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SensorComparator;
+import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -22,30 +30,41 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuBar;
+import com.extjs.gxt.ui.client.widget.menu.MenuBarItem;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateGrid extends View {
 
     protected static final String TAG = "StateGrid";
-    private Button createButton;
-    private TreeGrid<TreeModel> grid;
     private ContentPanel panel;
-    private Button removeButton;
-    private Button addButton;
-    private Button editButton;
+    private TreeGrid<TreeModel> grid;
     private TreeStore<TreeModel> store;
+    private BaseTreeLoader<TreeModel> loader;
+    private MenuItem createButton;
+    private MenuItem disconnectButton;
+    private MenuItem connectButton;
+    private MenuItem editButton;
+    private MenuItem feedbackButton;
 
     public StateGrid(Controller controller) {
         super(controller);
@@ -70,21 +89,15 @@ public class StateGrid extends View {
         EventType type = event.getType();
         if (type.equals(StateEvents.ShowGrid)) {
             onShow(event);
-        } else if (type.equals(StateEvents.ListNotUpdated)) {
-            Log.w(TAG, "ListNotUpdated");
-            onGroupsNotUpdated(event);
-        } else if (type.equals(StateEvents.ListUpdated)) {
-            Log.d(TAG, "ListUpdated");
-            onGroupsUpdated(event);
         } else if (type.equals(MainEvents.ShowVisualization)) {
             // Log.d(TAG, "ShowVisualization");
-            Dispatcher.forwardEvent(StateEvents.ListRequested);
+            refreshLoader();
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
-            onLoggedIn(event);
+        } else if (type.equals(StateEvents.Done)) {
+            Log.d(TAG, "Done");
+            setBusy(false);
         } else if (type.equals(StateEvents.RemoveComplete)) {
             Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
@@ -100,7 +113,26 @@ public class StateGrid extends View {
     }
 
     private void initGrid() {
-        this.store = new TreeStore<TreeModel>();
+        // tree store
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        DataProxy proxy = new DataProxy() {
+
+            @Override
+            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+                if (null == loadConfig) {
+                    Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
+                } else if (loadConfig instanceof TreeModel) {
+                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                    callback.onSuccess(childrenModels);
+                } else {
+                    callback.onSuccess(new ArrayList<TreeModel>());
+                }
+            }
+        };
+        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        this.store = new TreeStore<TreeModel>(loader);
+        this.store.setKeyProvider(new SensorKeyProvider());
+        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         ColumnConfig id = new ColumnConfig("id", "Id", 50);
         ColumnConfig name = new ColumnConfig("name", "Name", 150);
@@ -110,10 +142,42 @@ public class StateGrid extends View {
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
         this.grid.setId("stateGrid");
+        this.grid.setAutoExpandColumn("name");
         this.grid.setStateful(true);
+        this.grid.setIconProvider(new SensorIconProvider());
+
+        // toolbar with filter field
+        ToolBar filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
+
+            @Override
+            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
+                    String property, String filter) {
+                // only match leaf nodes
+                if (record.getChildCount() > 0) {
+                    return false;
+                }
+                String name = record.get("text");
+                name = name.toLowerCase();
+                if (name.startsWith(filter.toLowerCase())) {
+                    return true;
+                }
+                return false;
+            }
+
+        };
+        filter.bind(store);
+        filterBar.add(filter);
 
         // add grid to panel
-        this.panel.add(this.grid);
+        ContentPanel content = new ContentPanel(new FitLayout());
+        content.setBodyBorder(false);
+        content.setHeaderVisible(false);
+        content.setTopComponent(filterBar);
+        content.add(this.grid);
+
+        this.panel.add(content);
     }
 
     private void initHeaderTool() {
@@ -122,7 +186,7 @@ public class StateGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.get().dispatch(StateEvents.ListRequested);
+                refreshLoader();
             }
         });
 
@@ -136,7 +200,6 @@ public class StateGrid extends View {
 
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Manage states");
-        this.panel.setAnimCollapse(false);
 
         initGrid();
         initHeaderTool();
@@ -154,63 +217,79 @@ public class StateGrid extends View {
                 if (null != selection) {
                     if (selection.get("service_name") == null) {
                         editButton.enable();
-                        addButton.enable();
-                        removeButton.enable();
+                        feedbackButton.enable();
+                        connectButton.enable();
+                        disconnectButton.enable();
                     } else {
                         editButton.enable();
-                        addButton.enable();
-                        removeButton.disable();
+                        feedbackButton.enable();
+                        connectButton.enable();
+                        disconnectButton.disable();
                     }
                 } else {
                     editButton.enable();
-                    addButton.disable();
-                    removeButton.disable();
+                    feedbackButton.enable();
+                    connectButton.disable();
+                    disconnectButton.disable();
                 }
             }
         });
         this.grid.setSelectionModel(selectionModel);
 
-        final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+        final SelectionListener<MenuEvent> l = new SelectionListener<MenuEvent>() {
 
             @Override
-            public void componentSelected(ButtonEvent ce) {
-                Button source = ce.getButton();
+            public void componentSelected(MenuEvent me) {
+                MenuItem source = (MenuItem) me.getItem();
                 if (source.equals(createButton)) {
                     onCreateClick();
                 } else if (source.equals(editButton)) {
                     onEditClick();
-                } else if (source.equals(addButton)) {
+                } else if (source.equals(connectButton)) {
                     onAddClick();
-                } else if (source.equals(removeButton)) {
+                } else if (source.equals(disconnectButton)) {
                     confirmRemove();
+                } else if (source.equals(feedbackButton)) {
+                    showFeedback();
                 } else {
                     Log.w(TAG, "Unexpected button clicked");
                 }
             }
         };
 
-        this.createButton = new Button("Create", l);
+        // menu item for editing service stuff
+        Menu serviceMenu = new Menu();
 
-        this.editButton = new Button("Edit", l);
+        this.createButton = new MenuItem("New Service", l);
+        serviceMenu.add(createButton);
+
+        this.editButton = new MenuItem("Get/Set Parameters", l);
         this.editButton.disable();
+        serviceMenu.add(editButton);
 
-        this.addButton = new Button("Connect sensor", l);
-        this.addButton.disable();
+        this.feedbackButton = new MenuItem("Give Feedback", l);
+        this.feedbackButton.disable();
+        serviceMenu.add(feedbackButton);
 
-        this.removeButton = new Button("Remove sensor", l);
-        this.removeButton.disable();
+        // menu item for editing sensor stuff
+        Menu sensorsMenu = new Menu();
+
+        this.connectButton = new MenuItem("Connect Sensor", l);
+        this.connectButton.disable();
+        sensorsMenu.add(connectButton);
+
+        this.disconnectButton = new MenuItem("Disconnect Sensor", l);
+        this.disconnectButton.disable();
+        sensorsMenu.add(disconnectButton);
 
         // create tool bar
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(this.createButton);
-        toolBar.add(this.editButton);
-        toolBar.add(this.addButton);
-        toolBar.add(this.removeButton);
+        final MenuBar toolBar = new MenuBar();
+        toolBar.add(new MenuBarItem("Service", serviceMenu));
+        toolBar.add(new MenuBarItem("Sensors", sensorsMenu));
 
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
-
     protected void onAddClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
         if (selectedService.get("service_name") == null) {
@@ -233,36 +312,17 @@ public class StateGrid extends View {
         Dispatcher.forwardEvent(event);
     }
 
-    private void onGroupsNotUpdated(AppEvent event) {
-        // Throwable caught = event.<Throwable> getData();
-        setBusy(false);
-        this.store.removeAll();
-    }
-
-    private void onGroupsUpdated(AppEvent event) {
-        List<TreeModel> groups = event.<List<TreeModel>> getData();
-        setBusy(false);
-        this.store.removeAll();
-        this.store.add(groups, true);
-    }
-
-    private void onLoggedIn(AppEvent event) {
-        // this request fails immediately in Google Chrome (?)
-        // Dispatcher.forwardEvent(StateEvents.ListRequested);
-    }
-
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
     }
 
     private void onRemoveComplete(AppEvent event) {
         setBusy(false);
-        Dispatcher.forwardEvent(StateEvents.ListRequested);
     }
 
     private void onRemoveFailed(AppEvent event) {
         setBusy(false);
-        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
+        MessageBox.confirm(null, "Failed to disconnect sensor. Retry?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
@@ -279,19 +339,22 @@ public class StateGrid extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
-
-            // Dispatcher.forwardEvent(StateEvents.ListRequested);
         } else {
             Log.e(TAG, "Failed to show states panel: parent=null");
         }
     }
 
+    private void refreshLoader() {
+        loader.load();
+    }
+
     protected void removeService() {
         TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
         TreeModel service = sensor.getParent();
+
         AppEvent event = new AppEvent(StateEvents.RemoveRequested);
-        event.setData("sensorId", sensor.<String> get("id"));
-        event.setData("serviceId", service.<String> get("id"));
+        event.setData("sensor", sensor);
+        event.setData("service", service);
         Dispatcher.forwardEvent(event);
         setBusy(true);
     }
@@ -299,5 +362,15 @@ public class StateGrid extends View {
     private void setBusy(boolean busy) {
         String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
+    }
+
+    protected void showFeedback() {
+        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel service = sensor.getParent();
+
+        AppEvent event = new AppEvent(StateEvents.ShowFeedback);
+        event.setData("service", service);
+        event.setData("sensor", sensor);
+        Dispatcher.forwardEvent(event);
     }
 }

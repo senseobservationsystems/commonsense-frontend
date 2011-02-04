@@ -1,19 +1,26 @@
 package nl.sense_os.commonsense.client.views;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
+import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.ModelIconProvider;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
+import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -32,9 +39,10 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateSensorConnecter extends View {
 
@@ -45,6 +53,7 @@ public class StateSensorConnecter extends View {
     private Button cancelButton;
     private TreeStore<TreeModel> store;
     private TreePanel<TreeModel> tree;
+    private BaseTreeLoader<TreeModel> loader;
     private TreeModel service;
 
     public StateSensorConnecter(Controller c) {
@@ -57,12 +66,6 @@ public class StateSensorConnecter extends View {
         if (type.equals(StateEvents.ShowSensorConnecter)) {
             Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(StateEvents.AvailableSensorsUpdated)) {
-            Log.d(TAG, "AvailableSensorsUpdated");
-            onAvailableSensorsUpdated(event);
-        } else if (type.equals(StateEvents.AvailableSensorsNotUpdated)) {
-            Log.w(TAG, "AvailableSensorsNotUpdated");
-            onAvailableSensorsNotUpdated(event);
         } else if (type.equals(StateEvents.ConnectComplete)) {
             Log.d(TAG, "ConnectComplete");
             hideWindow();
@@ -75,7 +78,18 @@ public class StateSensorConnecter extends View {
     }
 
     private void onConnectFailed() {
-        MessageBox.alert(null, "Connect failed, please retry", null);
+        setBusy(false);
+        MessageBox.confirm(null, "Connect failed, retry?", new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                    submitForm();
+                } else {
+                    hideWindow();
+                }
+            }
+        });
     }
 
     protected void hideWindow() {
@@ -137,22 +151,25 @@ public class StateSensorConnecter extends View {
         initTree();
 
         ContentPanel panel = new ContentPanel(new FitLayout());
-        panel.setWidth(this.form.getFieldWidth());
-        panel.setHeight(300);
         panel.setHeaderVisible(false);
         panel.setStyleAttribute("backgroundColor", "white");
         panel.add(this.tree);
 
         AdapterField field = new AdapterField(panel);
+        field.setHeight(150);
+        field.setResizeWidget(true);
         field.setFieldLabel("Select the sensor to connect to the service");
-        this.form.add(field);
+
+        final FormData formData = new FormData("-10");
+        this.form.add(field, formData);
     }
 
     private void initForm() {
         this.form = new FormPanel();
         this.form.setHeaderVisible(false);
         this.form.setLabelAlign(LabelAlign.TOP);
-        this.form.setFieldWidth(275);
+        this.form.setBodyBorder(false);
+        // this.form.setFieldWidth(275);
 
         initFields();
         initButtons();
@@ -165,7 +182,7 @@ public class StateSensorConnecter extends View {
         super.initialize();
 
         this.window = new Window();
-        this.window.setSize(350, 350);
+        this.window.setSize(404, 250);
         this.window.setResizable(false);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Connect sensor(s) to state");
@@ -176,29 +193,27 @@ public class StateSensorConnecter extends View {
     private void initTree() {
 
         // trees store
-        this.store = new TreeStore<TreeModel>();
-        this.store.setKeyProvider(new ModelKeyProvider<TreeModel>() {
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        DataProxy proxy = new DataProxy() {
 
             @Override
-            public String getKey(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return "group " + model.<String> get("text");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return "device " + model.<String> get("uuid")
-                            + model.getParent().<String> get("text");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return "sensor " + model.<String> get("id")
-                            + model.getParent().<String> get("uuid");
-                } else if (tagType == TagModel.TYPE_SERVICE) {
-                    return "service " + model.<String> get("service_name")
-                            + model.<String> get("data_fields");
+            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+                if (null == loadConfig) {
+                    AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
+                    event.setData("service", service);
+                    event.setData("callback", callback);
+                    Dispatcher.forwardEvent(event);
+                } else if (loadConfig instanceof TreeModel) {
+                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                    callback.onSuccess(childrenModels);
                 } else {
-                    Log.e(TAG, "unexpected tag type in ModelKeyProvider");
-                    return model.toString();
+                    callback.onSuccess(new ArrayList<TreeModel>());
                 }
             }
-        });
+        };
+        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        this.store = new TreeStore<TreeModel>(loader);
+        this.store.setKeyProvider(new SensorKeyProvider());
 
         // sort tree
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
@@ -206,43 +221,17 @@ public class StateSensorConnecter extends View {
         this.tree = new TreePanel<TreeModel>(store);
         this.tree.setBorders(false);
         this.tree.setDisplayProperty("text");
-        this.tree.setIconProvider(new ModelIconProvider<TreeModel>() {
-
-            @Override
-            public AbstractImagePrototype getIcon(TreeModel model) {
-                int tagType = model.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_GROUP) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_DEVICE) {
-                    return IconHelper.create("gxt/images/gxt/icons/folder.gif");
-                } else if (tagType == TagModel.TYPE_SENSOR) {
-                    return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
-                } else {
-                    Log.e(TAG, "unexpected tag type in ModelIconProvider");
-                    return IconHelper.create("gxt/images/gxt/icons/done.gif");
-                }
-            }
-        });
+        this.tree.setIconProvider(new SensorIconProvider());
     }
 
-    private void onAvailableSensorsUpdated(AppEvent event) {
-        this.store.removeAll();
-        this.store.add(event.<List<TreeModel>> getData(), true);
-
-        if (this.store.getChildCount() > 0) {
-            this.tree.getSelectionModel().select(0, false);
-        }
-    }
-
-    private void onAvailableSensorsNotUpdated(AppEvent event) {
-        this.store.removeAll();
+    private void refreshLoader() {
+        this.loader.load();
     }
 
     private void onShow(AppEvent event) {
         this.service = event.getData();
-
-        // update the list of sensors
-        Dispatcher.forwardEvent(StateEvents.AvailableSensorsRequested, this.service);
+        this.store.removeAll();
+        refreshLoader();
 
         this.submitButton.disable();
         setBusy(false);

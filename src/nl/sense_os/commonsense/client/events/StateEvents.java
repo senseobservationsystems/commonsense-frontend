@@ -5,15 +5,14 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class StateEvents {
     public static final EventType ShowGrid = new EventType();
     public static final EventType ListRequested = new EventType();
-    public static final EventType ListUpdated = new EventType();
-    public static final EventType ListNotUpdated = new EventType();
+    public static final EventType Done = new EventType();
     public static final EventType Working = new EventType();
 
     public static final EventType ShowCreator = new EventType();
-    public static final EventType CreateRequested = new EventType();
-    public static final EventType CreateComplete = new EventType();
-    public static final EventType CreateCancelled = new EventType();
-    public static final EventType CreateFailed = new EventType();
+    public static final EventType CreateServiceRequested = new EventType();
+    public static final EventType CreateServiceComplete = new EventType();
+    public static final EventType CreateServiceCancelled = new EventType();
+    public static final EventType CreateServiceFailed = new EventType();
 
     public static final EventType AvailableServicesRequested = new EventType();
     public static final EventType AvailableServicesUpdated = new EventType();
@@ -38,4 +37,6 @@ public class StateEvents {
     public static final EventType MethodsRequested = new EventType();
     public static final EventType MethodsUpdated = new EventType();
     public static final EventType MethodsNotUpdated = new EventType();
+
+    public static final EventType ShowFeedback = new EventType();
 }

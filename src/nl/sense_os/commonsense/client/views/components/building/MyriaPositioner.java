@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.Image;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.services.TagsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -47,13 +47,13 @@ public class MyriaPositioner extends ContentPanel {
     private static final String TAG = MyriaPositioner.class.getName();
     private LayoutContainer imageContainer;
     @SuppressWarnings("unused")
-    private final TagsServiceAsync sensorDataService;
+    private final SensorsServiceAsync sensorDataService;
     final TreeStore<TreeModel> store = new TreeStore<TreeModel>();
 
     private TreePanel<TreeModel> tagTree;
 
     public MyriaPositioner() {
-        sensorDataService = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
+        sensorDataService = Registry.<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
 
         // building selection panel for west part of widget
         Component tagPanel = createTagPanel();
@@ -155,7 +155,7 @@ public class MyriaPositioner extends ContentPanel {
     }
 
     private void getTags() {
-        TagsServiceAsync service = Registry.<TagsServiceAsync> get(Constants.REG_TAGS_SVC);
+        SensorsServiceAsync service = Registry.<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
         AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

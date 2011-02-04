@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class VizTypeChooser extends View {
 
@@ -56,12 +57,12 @@ public class VizTypeChooser extends View {
         final long day = 24 * hour;
         final long week = 7 * day;
 
-        /*// hack the end time for some specific demos
-         * long end = System.currentTimeMillis(); UserModel user = Registry.get(Constants.REG_USER);
-         * if (null != user && user.getId() == 134) { Log.d(TAG, "delfgauw time hack"); end =
-         * 1283603962000l; // 4 september, 14:39.220 CEST } else if (null != user && user.getId() ==
-         * 142) { Log.d(TAG, "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET
-         * }
+        /*
+         * // hack the end time for some specific demos long end = System.currentTimeMillis();
+         * UserModel user = Registry.get(Constants.REG_USER); if (null != user && user.getId() ==
+         * 134) { Log.d(TAG, "delfgauw time hack"); end = 1283603962000l; // 4 september, 14:39.220
+         * CEST } else if (null != user && user.getId() == 142) { Log.d(TAG,
+         * "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET }
          */
 
         String label = timeRangeField.getValue().getBoxLabel();
@@ -102,7 +103,7 @@ public class VizTypeChooser extends View {
 
         this.window = new Window();
         this.window.setHeading("Visualization wizard");
-        this.window.setSize(350, 200);
+        this.window.setSize(323, 200);
         this.window.setResizable(false);
 
         this.layout = new CardLayout();
@@ -142,7 +143,7 @@ public class VizTypeChooser extends View {
         FormButtonBinding binding = new FormButtonBinding(this.timeRangeForm);
         binding.addButton(this.buttonComplete);
     }
-    
+
     private void submitRequest() {
         AppEvent event = new AppEvent(eventType);
         event.setData("sensors", sensors);
@@ -176,12 +177,14 @@ public class VizTypeChooser extends View {
         this.timeRangeField.setOriginalValue(radioDay);
         this.timeRangeField.setSelectionRequired(true);
 
-        this.timeRangeForm.add(this.timeRangeField);
+        final FormData formData = new FormData("-10");
+        this.timeRangeForm.add(this.timeRangeField, formData);
     }
 
     private void initTimeRangePanel() {
         this.timeRangeForm = new FormPanel();
         this.timeRangeForm.setHeaderVisible(false);
+        this.timeRangeForm.setBodyBorder(false);
         this.timeRangeForm.setLabelAlign(LabelAlign.TOP);
 
         initTimeRangeFields();
@@ -209,9 +212,9 @@ public class VizTypeChooser extends View {
                     eventType = VizEvents.ShowNetwork;
                     buttonToTimeRange.setText("Next");
                 } else {
-                    Log.w(TAG, "Unexpected selection: " + label);                    
+                    Log.w(TAG, "Unexpected selection: " + label);
                 }
-            }            
+            }
         });
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
@@ -274,12 +277,14 @@ public class VizTypeChooser extends View {
         this.typesField.setOriginalValue(lineChart);
         this.typesField.setSelectionRequired(true);
 
-        this.typeForm.add(this.typesField);
+        final FormData formData = new FormData("-10");
+        this.typeForm.add(this.typesField, formData);
     }
 
     private void initTypePanel() {
         this.typeForm = new FormPanel();
         this.typeForm.setHeaderVisible(false);
+        this.typeForm.setBodyBorder(false);
         this.typeForm.setLabelAlign(LabelAlign.TOP);
 
         initTypeFields();

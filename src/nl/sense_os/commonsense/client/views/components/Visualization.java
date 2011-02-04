@@ -71,40 +71,49 @@ public class Visualization extends LayoutContainer {
      */
     private void createCenterPanel() {
 
+        // Tabs panel
+        this.tabPanel = new TabPanel();
+        this.tabPanel.setSize("100%", "100%");
+        this.tabPanel.setPlain(true);
+        this.tabPanel.addStyleName("transparent");
+
         // Welcome tab item
         final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
         welcomeItem.setLayout(new FitLayout());
         welcomeItem.add(welcomeFrame);
-
-        // Tabs
-        this.tabPanel = new TabPanel();
-        this.tabPanel.setSize("100%", "100%");
-        this.tabPanel.setPlain(true);
-        this.tabPanel.addStyleName("transparent");
         this.tabPanel.add(welcomeItem);
 
         // Track trace
         UserModel user = Registry.get(Constants.REG_USER);
         if (user != null && user.getId() != 142) {
+            final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
+                    + "http://demo.almende.com/tracker/ictdelta");
+            trackTrace.setStylePrimaryName("senseFrame");
             final TabItem trackTraceItem = new TabItem("Track & Trace demo");
             trackTraceItem.setLayout(new FitLayout());
             trackTraceItem.setClosable(true);
-            final Frame trackTrace = new Frame(
-                    "http://almendetracker.appspot.com/?profileURL=http://demo.almende.com/tracker/ictdelta");
-            trackTrace.setStylePrimaryName("senseFrame");
             trackTraceItem.add(trackTrace);
             this.tabPanel.add(trackTraceItem);
+
+            final Frame humid3d = new Frame(
+                    "http://demo.almende.com/links/storm/day_40_humid_animation.html");
+            humid3d.setStylePrimaryName("senseFrame");
+            final TabItem humid3dItem = new TabItem("3D Humidity");
+            humid3dItem.setLayout(new FitLayout());
+            humid3dItem.setClosable(true);
+            humid3dItem.add(humid3d);
+            this.tabPanel.add(humid3dItem);
         }
 
         // add greenhouse building chart to please Freek
         if (user != null && user.getId() == 142) {
+            final Image greenhouse = new Image("img/storm/storm_building.png");
+            greenhouse.setPixelSize(1122, 793);
             final TabItem greenhouseItem = new TabItem("Greenhouse nodes");
             greenhouseItem.setLayout(new FitLayout());
             greenhouseItem.setClosable(true);
-            final Image greenhouse = new Image("img/storm/storm_building.png");
-            greenhouse.setPixelSize(1122, 793);
             greenhouseItem.add(greenhouse);
             this.tabPanel.add(greenhouseItem);
         }
@@ -175,6 +184,7 @@ public class Visualization extends LayoutContainer {
 
         final ContentPanel accordion = new ContentPanel(new AccordionLayout());
         accordion.setHeaderVisible(false);
+        accordion.setBodyBorder(false);
 
         final LayoutContainer westPanel = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
         westPanel.setScrollMode(Scroll.AUTOY);
@@ -334,6 +344,14 @@ public class Visualization extends LayoutContainer {
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
     }
 
+    public void resetTabs() {
+        int tabCount = this.tabPanel.getItemCount();
+        for (int i = tabCount; i > 2; i--) {
+            this.tabPanel.remove(this.tabPanel.getItem(i - 1));
+        }
+        layout();
+    }
+
     /**
      * Sets up the tab panel for drag and drop of the tags.
      * 
@@ -351,7 +369,22 @@ public class Visualization extends LayoutContainer {
         });
     }
 
+    public void showFeedback(TreeModel service, TreeModel sensor) {
+
+        // add line chart tab item
+        final TabItem item = new TabItem("Feedback");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        final VisualizationTab charts = new FeedbackPanel();
+        charts.setWaitingText(false);
+        item.add(charts);
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
+        this.unfinishedTab = item;
+    }
+
     public void showLineChart(TreeModel[] sensors, long startTime, long endTime) {
+
         // add line chart tab item
         final TabItem item = new TabItem("Time line");
         item.setLayout(new FitLayout());
@@ -359,21 +392,22 @@ public class Visualization extends LayoutContainer {
         final VisualizationTab charts = new TimeLineCharts();
         charts.setWaitingText(true);
         item.add(charts);
-        Visualization.this.tabPanel.add(item);
-        Visualization.this.tabPanel.setSelection(item);
-        Visualization.this.unfinishedTab = item;
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
+        this.unfinishedTab = item;
 
         startRequests(sensors, startTime, endTime);
     }
 
     public void showTable(TreeModel[] sensors) {
+
         // add table tab item
         final TabItem item = new TabItem("Table");
         item.setClosable(true);
         item.setScrollMode(Scroll.AUTO);
         item.setLayout(new FitLayout());
-        Visualization.this.tabPanel.add(item);
-        tabPanel.setSelection(item);
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
 
         // add sensor data grid
         item.add(new SensorDataGrid(sensors), new FitData());
@@ -388,6 +422,7 @@ public class Visualization extends LayoutContainer {
      *            the list of tagged sensors
      */
     private void startRequests(TreeModel[] tags, long startTime, long endTime) {
+
         // start requesting data for the list of tags
         this.outstandingReqs = tags;
         this.unfinishedTab = this.tabPanel.getSelectedItem();
@@ -398,13 +433,5 @@ public class Visualization extends LayoutContainer {
         if (tags.length > 0) {
             getSensorData(tags[0]);
         }
-    }
-
-    public void resetTabs() {
-        int tabCount = this.tabPanel.getItemCount();
-        for (int i = tabCount; i > 2; i--) {
-            this.tabPanel.remove(this.tabPanel.getItem(i - 1));
-        }
-        layout();
     }
 }

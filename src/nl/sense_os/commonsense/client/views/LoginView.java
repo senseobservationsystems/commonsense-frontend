@@ -21,14 +21,14 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.IconHelper;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
@@ -36,7 +36,8 @@ import com.google.gwt.user.client.Cookies;
 public class LoginView extends View {
 
     private static final String TAG = "LoginView";
-    private LayoutContainer loginPanel;
+    private Window window;
+    private FormPanel form;
     private TextField<String> password;
     private CheckBox rememberMe;
     private Button submit;
@@ -46,62 +47,8 @@ public class LoginView extends View {
         super(controller);
     }
 
-    private FormPanel createForm() {
-        final FormData formData = new FormData("-10");
-
-        // username field
-        this.username.setFieldLabel("Username:");
-        this.username.setAllowBlank(false);
-
-        // password field
-        this.password.setFieldLabel("Password:");
-        this.password.setAllowBlank(false);
-        this.password.setPassword(true);
-
-        // remember me check box
-        this.rememberMe.setLabelSeparator("");
-        this.rememberMe.setBoxLabel("Remember username");
-        this.rememberMe.setValue(true);
-
-        // main form panel
-        final FormPanel form = new FormPanel();
-        form.setLabelSeparator("");
-        form.setFrame(true);
-        form.setHeading("CommonSense Login");
-        form.setLabelWidth(100);
-        form.setWidth(350);
-
-        // submit button
-        submit = new Button("Submit");
-        submit.setType("submit");
-        submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            @Override
-            public void componentSelected(ButtonEvent be) {
-                form.submit();
-            }
-        });
-        form.setButtonAlign(HorizontalAlignment.CENTER);
-        form.addButton(submit);
-
-        final FormButtonBinding binding = new FormButtonBinding(form);
-        binding.addButton(submit);
-
-        Button cancel = new Button("Cancel");
-        cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            @Override
-            public void componentSelected(ButtonEvent be) {
-                cancelLogin();
-            }
-        });
-        form.addButton(cancel);
-
-        setupSubmit(form);
-
-        form.add(this.username, formData);
-        form.add(this.password, formData);
-        form.add(this.rememberMe);
-
-        return form;
+    private void cancelLogin() {
+        Dispatcher.forwardEvent(LoginEvents.CancelLogin);
     }
 
     @Override
@@ -130,7 +77,74 @@ public class LoginView extends View {
         }
     }
 
-    private void onCancelled(AppEvent event) {
+    private void initButtons() {
+
+        // submit button
+        this.submit = new Button("Submit");
+        this.submit.setType("submit");
+        this.submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent be) {
+                form.submit();
+            }
+        });
+        this.form.setButtonAlign(HorizontalAlignment.CENTER);
+        this.form.addButton(submit);
+
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(submit);
+
+        Button cancel = new Button("Cancel");
+        cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+            @Override
+            public void componentSelected(ButtonEvent be) {
+                cancelLogin();
+            }
+        });
+        this.form.addButton(cancel);
+
+        setupSubmit(form);
+    }
+
+    private void initFields() {
+
+        final FormData formData = new FormData("-10");
+
+        // username field
+        this.username = new TextField<String>();
+        this.username.setFieldLabel("Username:");
+        this.username.setAllowBlank(false);
+
+        // password field
+        this.password = new TextField<String>();
+        this.password.setFieldLabel("Password:");
+        this.password.setAllowBlank(false);
+        this.password.setPassword(true);
+
+        // remember me check box
+        this.rememberMe = new CheckBox();
+        this.rememberMe.setLabelSeparator("");
+        this.rememberMe.setBoxLabel("Remember username");
+        this.rememberMe.setValue(true);
+
+        this.form.add(this.username, formData);
+        this.form.add(this.password, formData);
+        this.form.add(this.rememberMe);
+    }
+
+    private void initForm() {
+
+        // main form panel
+        this.form = new FormPanel();
+        this.form.setLabelSeparator("");
+        this.form.setBodyBorder(false);
+        this.form.setHeaderVisible(false);
+
+        initFields();
+        initButtons();
+
+        this.window.add(form);
+
         resetFormValues();
     }
 
@@ -138,15 +152,14 @@ public class LoginView extends View {
     protected void initialize() {
         super.initialize();
 
-        this.loginPanel = new LayoutContainer(new CenterLayout());
-        this.password = new TextField<String>();
-        this.rememberMe = new CheckBox();
-        this.username = new TextField<String>();
+        this.window = new Window();
+        this.window.setSize(323, 200);
+        this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setLayout(new FitLayout());
+        this.window.setHeading("Login");
 
-        final FormPanel form = createForm();
-        this.loginPanel.add(form);
-
-        resetFormValues();
+        initForm();
     }
 
     private void onAuthenticationFailure(AppEvent event) {
@@ -162,19 +175,7 @@ public class LoginView extends View {
         setBusy(false);
     }
 
-    private void onLoggedIn(AppEvent event) {
-
-        // save new user name if the user wants it
-        if (this.rememberMe.getValue()) {
-            long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
-            Date expires = new Date(new Date().getTime() + expiry);
-            Cookies.setCookie("username", this.username.getValue(), expires);
-        } else {
-            Cookies.removeCookie("username");
-        }
-    }
-
-    private void onLoggedOut(AppEvent event) {
+    private void onCancelled(AppEvent event) {
         resetFormValues();
     }
 
@@ -189,14 +190,28 @@ public class LoginView extends View {
                 });
     }
 
-    private void onShow(AppEvent event) {
+    private void onLoggedIn(AppEvent event) {
+
+        // save new user name if the user wants it
+        if (this.rememberMe.getValue()) {
+            long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
+            Date expires = new Date(new Date().getTime() + expiry);
+            Cookies.setCookie("username", this.username.getValue(), expires);
+        } else {
+            Cookies.removeCookie("username");
+        }
 
         resetFormValues();
+        this.window.hide();
+    }
 
-        LayoutContainer center = event.<LayoutContainer> getData();
-        center.removeAll();
-        center.add(this.loginPanel);
-        center.layout();
+    private void onLoggedOut(AppEvent event) {
+        resetFormValues();
+    }
+
+    private void onShow(AppEvent event) {
+        resetFormValues();
+        this.window.show();
     }
 
     private void requestLogin() {
@@ -205,10 +220,6 @@ public class LoginView extends View {
         event.setData("username", this.username.getValue());
         event.setData("password", this.password.getValue());
         Dispatcher.forwardEvent(event);
-    }
-
-    private void cancelLogin() {
-        Dispatcher.forwardEvent(LoginEvents.CancelLogin);
     }
 
     private void resetFormValues() {

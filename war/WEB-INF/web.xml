@@ -27,27 +27,27 @@
     
   <servlet>
     <servlet-name>IVOCleanupServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.IVOCleanupServlet</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOCleanupServlet</servlet-class>
   </servlet>
   
   <servlet>
     <servlet-name>IVOSensorTypeServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.IVOSensorTypeServlet</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorTypeServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>IVOSensorValueServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.IVOSensorValueServlet</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorValueServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>IVOTagServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.IVOTagServlet</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOTagServlet</servlet-class>
   </servlet>
   
   <servlet>
-    <servlet-name>TagsServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.TagsServiceImpl</servlet-class>
+    <servlet-name>SensorsServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.SensorsServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
@@ -86,8 +86,8 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>TagsServlet</servlet-name>
-    <url-pattern>/commonsense/tags</url-pattern>
+    <servlet-name>SensorsServlet</servlet-name>
+    <url-pattern>/commonsense/sensors</url-pattern>
   </servlet-mapping>
     
   <!-- Default page to serve -->

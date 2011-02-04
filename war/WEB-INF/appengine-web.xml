@@ -14,7 +14,7 @@
     
   </static-files>
 
-  <sessions-enabled>true</sessions-enabled>
+  <!-- <sessions-enabled>true</sessions-enabled> -->
 
   <!-- Configure java.util.logging -->
   <system-properties>

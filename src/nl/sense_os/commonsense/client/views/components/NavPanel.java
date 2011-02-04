@@ -3,13 +3,12 @@ package nl.sense_os.commonsense.client.views.components;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.UserModel;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.BoxLayout.BoxLayoutPack;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Hyperlink;
 
@@ -27,7 +26,6 @@ public class NavPanel extends LayoutContainer {
     public static final String SIGN_OUT = "signout";
     public static final String VISUALIZATION = "viz";
     private boolean isLoggedIn = false;
-    private final Margins margins = new Margins(0, 6, 2, 6);
     private final Text stretch = new Text();
     private final Text userName = new Text();
     private Hyperlink current;
@@ -38,6 +36,14 @@ public class NavPanel extends LayoutContainer {
     private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
     private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
 
+    public NavPanel() {
+
+        this.setLayout(new RowLayout(Orientation.HORIZONTAL));
+
+        initLinks();
+        initUsername();
+    }
+
     private void initLinks() {
         this.help.setStylePrimaryName("x-sense-nav-deselected");
         this.home.setStylePrimaryName("x-sense-nav-deselected");
@@ -46,17 +52,8 @@ public class NavPanel extends LayoutContainer {
         this.settings.setStylePrimaryName("x-sense-nav-deselected");
         this.viz.setStylePrimaryName("x-sense-nav-deselected");
     }
-    
-    public NavPanel() {
 
-        // container for the horizontal box layout
-        final HBoxLayout boxLayout = new HBoxLayout();
-        boxLayout.setHBoxLayoutAlign(HBoxLayoutAlign.BOTTOM);
-        boxLayout.setPack(BoxLayoutPack.START);
-        this.setLayout(boxLayout);
-        
-        initLinks();
-
+    private void initUsername() {
         this.userName.setStyleAttribute("font-weight", "bold");
         this.userName.setStyleAttribute("font-size", "13px");
         this.userName.setStyleAttribute("color", "black");
@@ -68,28 +65,30 @@ public class NavPanel extends LayoutContainer {
      */
     private void relayout() {
 
+        final int vMargin = 2;
+        final int hMargin = 4;
+        RowData startData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, 2 * hMargin));
+        RowData endData = new RowData(-1, 1, new Margins(vMargin, 2 * hMargin, vMargin, hMargin));
+        RowData itemData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, hMargin));
+        RowData stretchData = new RowData(1, 1, new Margins(0));
+
         removeAll();
-
-        final HBoxLayoutData boxData = new HBoxLayoutData(this.margins);
-        final HBoxLayoutData flexData = new HBoxLayoutData(this.margins);
-        flexData.setFlex(1);
-
         if (this.isLoggedIn) {
-            add(this.home, boxData);
-            add(this.viz, boxData);
-            add(this.stretch, flexData);
-            add(this.userName, boxData);
-            add(this.settings, boxData);
-            add(this.help, boxData);
-            add(this.logout, boxData);
+            this.add(this.home, startData);
+            this.add(this.viz, itemData);
+            this.add(this.stretch, stretchData);
+            this.add(this.userName, itemData);
+            this.add(this.settings, itemData);
+            this.add(this.help, itemData);
+            this.add(this.logout, endData);
         } else {
-            add(this.home, boxData);
-            add(this.stretch, flexData);
-            add(this.help, boxData);
-            add(this.login, boxData);
+            this.add(this.home, startData);
+            this.add(this.stretch, stretchData);
+            this.add(this.help, itemData);
+            this.add(this.login, endData);
         }
 
-        layout();
+        this.layout(true);
     }
 
     /**
