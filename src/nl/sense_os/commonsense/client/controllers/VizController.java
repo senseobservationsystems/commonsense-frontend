@@ -40,7 +40,7 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowMap,
                 VizEvents.ShowNetwork);
-        registerEventTypes(StateEvents.ShowFeedback);
+        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete);
         loadVizApi();
     }
 

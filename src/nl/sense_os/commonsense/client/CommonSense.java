@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.controllers.BuildingController;
+import nl.sense_os.commonsense.client.controllers.FeedbackController;
 import nl.sense_os.commonsense.client.controllers.GroupController;
 import nl.sense_os.commonsense.client.controllers.GroupSensorsController;
 import nl.sense_os.commonsense.client.controllers.LoginController;
@@ -67,6 +68,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new StateController());
         dispatcher.addController(new BuildingController());
         dispatcher.addController(new GroupSensorsController());
+        dispatcher.addController(new FeedbackController());
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);

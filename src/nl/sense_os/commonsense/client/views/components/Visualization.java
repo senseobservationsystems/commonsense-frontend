@@ -369,15 +369,13 @@ public class Visualization extends LayoutContainer {
         });
     }
 
-    public void showFeedback(TreeModel service, TreeModel sensor) {
+    public void showFeedback(ContentPanel feedbackPanel) {
 
         // add line chart tab item
         final TabItem item = new TabItem("Feedback");
         item.setLayout(new FitLayout());
         item.setClosable(true);
-        final VisualizationTab charts = new FeedbackPanel();
-        charts.setWaitingText(false);
-        item.add(charts);
+        item.add(feedbackPanel);
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
         this.unfinishedTab = item;
@@ -433,5 +431,9 @@ public class Visualization extends LayoutContainer {
         if (tags.length > 0) {
             getSensorData(tags[0]);
         }
+    }
+
+    public void removeFeedback() {
+        this.tabPanel.remove(this.tabPanel.getSelectedItem());
     }
 }

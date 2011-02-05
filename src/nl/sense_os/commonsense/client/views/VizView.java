@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 public class VizView extends View {
@@ -43,11 +44,13 @@ public class VizView extends View {
         } else if (eventType.equals(VizEvents.DataReceived)) {
             Log.d(TAG, "DataReceived");
             onDataReceived(event);
-        } else if (eventType.equals(StateEvents.ShowFeedback)) {
-            Log.d(TAG, "ShowFeedback");
-            TreeModel service = event.getData("service");
-            TreeModel sensor = event.getData("sensor");
-            this.vizPanel.showFeedback(service, sensor);
+        } else if (eventType.equals(StateEvents.FeedbackComplete)) {
+            Log.d(TAG, "FeedbackComplete");
+            this.vizPanel.removeFeedback();
+        } else if (eventType.equals(StateEvents.FeedbackReady)) {
+            Log.d(TAG, "FeedbackReady");
+            ContentPanel feedbackPanel = event.getData();
+            this.vizPanel.showFeedback(feedbackPanel);
         } else if (eventType.equals(VizEvents.ShowLineChart)) {
             Log.d(TAG, "ShowLineChart");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");

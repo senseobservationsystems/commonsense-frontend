@@ -114,7 +114,7 @@ public class StateGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -260,10 +260,10 @@ public class StateGrid extends View {
         // menu item for editing service stuff
         Menu serviceMenu = new Menu();
 
-        this.createButton = new MenuItem("New Service", l);
+        this.createButton = new MenuItem("New State", l);
         serviceMenu.add(createButton);
 
-        this.editButton = new MenuItem("Get/Set Parameters", l);
+        this.editButton = new MenuItem("Algorithm Parameters", l);
         this.editButton.disable();
         serviceMenu.add(editButton);
 
@@ -284,12 +284,13 @@ public class StateGrid extends View {
 
         // create tool bar
         final MenuBar toolBar = new MenuBar();
-        toolBar.add(new MenuBarItem("Service", serviceMenu));
+        toolBar.add(new MenuBarItem("State", serviceMenu));
         toolBar.add(new MenuBarItem("Sensors", sensorsMenu));
 
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
+
     protected void onAddClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
         if (selectedService.get("service_name") == null) {

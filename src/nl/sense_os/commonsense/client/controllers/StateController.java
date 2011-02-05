@@ -50,10 +50,10 @@ public class StateController extends Controller {
                 StateEvents.MethodsUpdated, StateEvents.MethodsNotUpdated,
                 StateEvents.InvokeMethodRequested, StateEvents.InvokeMethodComplete,
                 StateEvents.InvokeMethodFailed);
-        registerEventTypes(StateEvents.ShowFeedback);
         registerEventTypes(MainEvents.ShowVisualization);
         registerEventTypes(LoginEvents.LoggedOut);
     }
+
     private void connectService(AppEvent event) {
         TreeModel sensor = event.<TreeModel> getData("sensor");
         TreeModel service = event.<TreeModel> getData("service");
@@ -152,6 +152,7 @@ public class StateController extends Controller {
         service.getAvailableSensors(sessionId, serviceModel, callback);
     }
 
+    @SuppressWarnings("unused")
     private void getAvailableServices(AppEvent event) {
         SensorsServiceAsync service = Registry.<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
@@ -267,8 +268,6 @@ public class StateController extends Controller {
                 || type.equals(StateEvents.Working) || type.equals(MainEvents.ShowVisualization)
                 || type.equals(LoginEvents.LoggedIn) || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.grid, event);
-        } else if (type.equals(StateEvents.ShowFeedback)) {
-            // forwardToView(this.grid, event);
         } else {
             Log.e(TAG, "Unexpected event: " + type);
         }

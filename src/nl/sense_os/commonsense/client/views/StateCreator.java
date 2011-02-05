@@ -153,7 +153,7 @@ public class StateCreator extends View {
         this.servicesStore = new ListStore<TreeModel>(servicesLoader);
 
         this.servicesField = new ComboBox<TreeModel>();
-        this.servicesField.setFieldLabel("Service type");
+        this.servicesField.setFieldLabel("Algorithm type");
         this.servicesField.setEmptyText("Select service algorithm type...");
         this.servicesField.setStore(this.servicesStore);
         this.servicesField.setDisplayField("text");
@@ -302,7 +302,7 @@ public class StateCreator extends View {
     private void initSensorsTree() {
 
         // trees store
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataProxy proxy = new DataProxy() {
 
             @Override

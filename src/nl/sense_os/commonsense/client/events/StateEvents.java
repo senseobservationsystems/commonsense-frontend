@@ -39,4 +39,7 @@ public class StateEvents {
     public static final EventType MethodsNotUpdated = new EventType();
 
     public static final EventType ShowFeedback = new EventType();
+    public static final EventType FeedbackReady = new EventType();
+    public static final EventType FeedbackSubmit = new EventType();
+    public static final EventType FeedbackComplete = new EventType();
 }
