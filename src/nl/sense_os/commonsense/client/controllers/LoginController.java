@@ -128,6 +128,7 @@ public class LoginController extends Controller {
 
     private void onLogoutRequest(AppEvent event) {
         String url = Constants.URL_LOGOUT;
-        LoginJsniRequests.logout(url, this);
+        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        LoginJsniRequests.logout(url, sessionId, this);
     }
 }

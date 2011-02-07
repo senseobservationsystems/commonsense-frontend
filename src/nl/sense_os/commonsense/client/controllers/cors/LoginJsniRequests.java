@@ -142,12 +142,13 @@ public class LoginJsniRequests {
      * 
      * @param url
      *            URL of logout method
+     * @param sessionId
      * @param handler
      *            LoginController object to handle the callbacks
      * @see <a href="http://goo.gl/ajJWN">Making cross domain JavaScript requests</a>
      */
     // @formatter:off
-    public static native void logout(String url, LoginController handler) /*-{
+    public static native void logout(String url, String sessionId, LoginController handler) /*-{
         var isIE8 = window.XDomainRequest ? true : false;
         var xhr = createCrossDomainRequest();
 
@@ -173,13 +174,14 @@ public class LoginJsniRequests {
 
         if (xhr) {
             if (isIE8) {
-                xhr.open("GET", url + ".json");
+                xhr.open("GET", url + ".json" + "?session_id=" + sessionId);
                 xhr.onload = outputResult;
                 xhr.onerror = outputError;
                 xhr.ontimeout = outputError;
                 xhr.send();
             } else {
                 xhr.open('GET', url, true);
+                xhr.setRequestHeader("X-SESSION_ID",sessionId);
                 xhr.setRequestHeader("Accept","application/json");
                 xhr.onreadystatechange = readyStateHandler;
                 xhr.send();
