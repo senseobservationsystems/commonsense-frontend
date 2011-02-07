@@ -61,11 +61,12 @@ public class VizView extends View {
             Log.d(TAG, "ShowTable");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             this.vizPanel.showTable(sensors);
-        } else if (eventType.equals(VizEvents.ShowMap)) {
-            Log.d(TAG, "ShowMap");
-            // TODO
+        } else if (eventType.equals(VizEvents.MapReady)) {
+            Log.d(TAG, "MapReady");
+            ContentPanel mapPanel = event.getData();
+            this.vizPanel.showMap(mapPanel);
         } else if (eventType.equals(VizEvents.ShowNetwork)) {
-            Log.d(TAG, "ShowNetwork");
+            Log.w(TAG, "ShowNetwork not implemented");
             // TODO
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);

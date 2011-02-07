@@ -19,6 +19,7 @@ import com.google.gwt.user.client.History;
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
     private View mainView;
+    private String currentToken;
 
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
@@ -88,7 +89,13 @@ public class MainController extends Controller implements ValueChangeHandler<Str
                 return;
             }
         }
-        forwardToView(this.mainView, MainEvents.Navigate, token);
+
+        AppEvent navEvent = new AppEvent(MainEvents.Navigate);
+        navEvent.setData("old", this.currentToken);
+        navEvent.setData("new", token);
+        this.currentToken = token;
+
+        forwardToView(this.mainView, navEvent);
     }
 
     private boolean isLoginRequired(String token) {

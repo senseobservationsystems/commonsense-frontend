@@ -436,4 +436,16 @@ public class Visualization extends LayoutContainer {
     public void removeFeedback() {
         this.tabPanel.remove(this.tabPanel.getSelectedItem());
     }
+
+    public void showMap(ContentPanel mapPanel) {
+
+        // add line chart tab item
+        final TabItem item = new TabItem("Map");
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+        item.add(mapPanel);
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
+        this.unfinishedTab = item;
+    }
 }

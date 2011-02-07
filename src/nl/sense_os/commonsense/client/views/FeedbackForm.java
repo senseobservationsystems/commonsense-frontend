@@ -139,28 +139,6 @@ public class FeedbackForm extends View {
         }
     }
 
-    private void onShow(AppEvent event) {
-        this.service = event.<TreeModel> getData();
-
-        AppEvent response = new AppEvent(StateEvents.FeedbackReady);
-        response.setData(this.panel);
-        Dispatcher.forwardEvent(response);
-    }
-
-    private void initForm() {
-
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
-        this.form.setScrollMode(Scroll.AUTOY);
-
-        initFields();
-        initTimeline();
-        initButtons();
-
-        this.panel.add(this.form);
-    }
-
     private void initButtons() {
         this.submitButton = new Button("Submit feedback", new SelectionListener<ButtonEvent>() {
 
@@ -180,37 +158,24 @@ public class FeedbackForm extends View {
         setBusy(false);
     }
 
-    protected void submitForm() {
-
-        setBusy(true);
-
-        DataTable data = this.timeline.getData();
-
-        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
-        List<ModelData> feedback = new ArrayList<ModelData>();
-        for (int i = 0; i < data.getNumberOfRows(); i++) {
-            Date start = data.getValueDate(i, 0);
-            Date end = data.getValueDate(i, 1);
-            String label = data.getValueString(i, 2);
-            Log.d(TAG, "Event: " + format.format(start) + " - " + format.format(end) + " " + label);
-
-            ModelData eventData = new BaseModelData();
-            eventData.set("start", start);
-            eventData.set("end", end);
-            eventData.set("label", label);
-            feedback.add(eventData);
-        }
-
-        AppEvent event = new AppEvent(StateEvents.FeedbackSubmit);
-        event.setData("feedback", feedback);
-        event.setData("service", service);
-        Dispatcher.forwardEvent(event);
-    }
-
     private void initFields() {
         labelField.setFieldLabel("State label");
 
         form.add(labelField, formData);
+    }
+
+    private void initForm() {
+
+        this.form = new FormPanel();
+        this.form.setHeaderVisible(false);
+        this.form.setBodyBorder(false);
+        this.form.setScrollMode(Scroll.AUTOY);
+
+        initFields();
+        initTimeline();
+        initButtons();
+
+        this.panel.add(this.form);
     }
 
     @Override
@@ -244,11 +209,46 @@ public class FeedbackForm extends View {
         form.add(timeline, formData);
     }
 
+    private void onShow(AppEvent event) {
+        this.service = event.<TreeModel> getData();
+
+        AppEvent response = new AppEvent(StateEvents.FeedbackReady);
+        response.setData(this.panel);
+        Dispatcher.forwardEvent(response);
+    }
+
     private void setBusy(boolean busy) {
         if (busy) {
             this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
         } else {
             this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
         }
+    }
+
+    protected void submitForm() {
+
+        setBusy(true);
+
+        DataTable data = this.timeline.getData();
+
+        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
+        List<ModelData> feedback = new ArrayList<ModelData>();
+        for (int i = 0; i < data.getNumberOfRows(); i++) {
+            Date start = data.getValueDate(i, 0);
+            Date end = data.getValueDate(i, 1);
+            String label = data.getValueString(i, 2);
+            Log.d(TAG, "Event: " + format.format(start) + " - " + format.format(end) + " " + label);
+
+            ModelData eventData = new BaseModelData();
+            eventData.set("start", start);
+            eventData.set("end", end);
+            eventData.set("label", label);
+            feedback.add(eventData);
+        }
+
+        AppEvent event = new AppEvent(StateEvents.FeedbackSubmit);
+        event.setData("feedback", feedback);
+        event.setData("service", service);
+        Dispatcher.forwardEvent(event);
     }
 }

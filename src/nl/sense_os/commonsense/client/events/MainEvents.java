@@ -9,4 +9,5 @@ public class MainEvents {
     public static final EventType Navigate = new EventType();
     public static final EventType ShowVisualization = new EventType();
     public static final EventType ShowLogin = new EventType();
+    public static final EventType HideLogin = new EventType();
 }

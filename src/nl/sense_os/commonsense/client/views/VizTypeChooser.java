@@ -36,47 +36,65 @@ public class VizTypeChooser extends View {
     private FormPanel typeForm;
     private FormPanel timeRangeForm;
     private TreeModel[] sensors;
-    private EventType eventType;
+    private TreeModel[] locationSensors;
+    private AppEvent vizEvent;
     private Button buttonComplete;
     private Button buttonToTimeRange;
     private Button buttonToTypes;
     private RadioGroup timeRangeField;
     private RadioGroup typesField;
-    private long startTime;
-    private long endTime;
+    private Radio lineChart;
+    private Radio table;
+    private Radio map;
+    private Radio network;
 
     public VizTypeChooser(Controller c) {
         super(c);
     }
 
-    private void saveSelectedTimes() {
-        endTime = System.currentTimeMillis();
-
-        // constants
-        final long hour = 1000 * 60 * 60;
-        final long day = 24 * hour;
-        final long week = 7 * day;
-
-        /*
-         * // hack the end time for some specific demos long end = System.currentTimeMillis();
-         * UserModel user = Registry.get(Constants.REG_USER); if (null != user && user.getId() ==
-         * 134) { Log.d(TAG, "delfgauw time hack"); end = 1283603962000l; // 4 september, 14:39.220
-         * CEST } else if (null != user && user.getId() == 142) { Log.d(TAG,
-         * "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET }
-         */
-
-        String label = timeRangeField.getValue().getBoxLabel();
-        if (label.equals("1 hour")) {
-            startTime = endTime - hour;
-        } else if (label.equals("1 day")) {
-            startTime = endTime - day;
-        } else if (label.equals("1 week")) {
-            startTime = endTime - week;
-        } else if (label.equals("4 weeks")) {
-            startTime = endTime - (4 * week);
-        } else {
-            Log.w(TAG, "Unexpected radio button label: " + label);
+    private boolean checkForLocationSensors(TreeModel[] list) {
+        // create array to send as parameter in RPC
+        this.locationSensors = new TreeModel[0];
+        for (TreeModel tag : list) {
+            String structure = tag.<String> get("data_structure");
+            if (structure.contains("longitude")) {
+                final TreeModel[] temp = new TreeModel[this.locationSensors.length + 1];
+                System.arraycopy(this.locationSensors, 0, temp, 0, this.locationSensors.length);
+                this.locationSensors = temp;
+                this.locationSensors[this.locationSensors.length - 1] = tag;
+            } else {
+                // do nothing
+            }
         }
+
+        // check whether there are any tags at all
+        if (this.locationSensors.length == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkForSensors(List<TreeModel> list) {
+        // create array to send as parameter in RPC
+        this.sensors = new TreeModel[0];
+        for (TreeModel tag : list) {
+            // final TagModel tag = (TagModel) tsm.getModel();
+            int tagType = tag.<Integer> get("tagType");
+            if (tagType == TagModel.TYPE_SENSOR) {
+                final TreeModel[] temp = new TreeModel[this.sensors.length + 1];
+                System.arraycopy(this.sensors, 0, temp, 0, this.sensors.length);
+                temp[temp.length - 1] = tag;
+                this.sensors = temp;
+            } else {
+                // do nothing
+            }
+        }
+
+        // check whether there are any tags at all
+        if (this.sensors.length == 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -144,15 +162,6 @@ public class VizTypeChooser extends View {
         binding.addButton(this.buttonComplete);
     }
 
-    private void submitRequest() {
-        AppEvent event = new AppEvent(eventType);
-        event.setData("sensors", sensors);
-        event.setData("startTime", startTime);
-        event.setData("endTime", endTime);
-        Dispatcher.forwardEvent(event);
-        hideWindow();
-    }
-
     private void initTimeRangeFields() {
         this.timeRangeField = new RadioGroup();
         this.timeRangeField.setFieldLabel("Select the time range to visualize");
@@ -179,6 +188,8 @@ public class VizTypeChooser extends View {
 
         final FormData formData = new FormData("-10");
         this.timeRangeForm.add(this.timeRangeField, formData);
+
+        saveSelectedTimes();
     }
 
     private void initTimeRangePanel() {
@@ -198,18 +209,26 @@ public class VizTypeChooser extends View {
 
             @Override
             public void handleEvent(FieldEvent be) {
-                String label = typesField.getValue().getBoxLabel();
-                if (label.equalsIgnoreCase("line chart")) {
-                    eventType = VizEvents.ShowLineChart;
+                Radio label = typesField.getValue();
+                if (label.equals(lineChart)) {
+                    vizEvent.setType(VizEvents.ShowLineChart);
+                    vizEvent.setData("sensors", sensors);
+
                     buttonToTimeRange.setText("Next");
-                } else if (label.equalsIgnoreCase("table")) {
-                    eventType = VizEvents.ShowTable;
+                } else if (label.equals(table)) {
+                    vizEvent.setType(VizEvents.ShowTable);
+                    vizEvent.setData("sensors", sensors);
+
                     buttonToTimeRange.setText("Go!");
-                } else if (label.equalsIgnoreCase("map")) {
-                    eventType = VizEvents.ShowMap;
+                } else if (label.equals(map)) {
+                    vizEvent.setType(VizEvents.ShowMap);
+                    vizEvent.setData("sensors", locationSensors);
+
                     buttonToTimeRange.setText("Next");
-                } else if (label.equalsIgnoreCase("network")) {
-                    eventType = VizEvents.ShowNetwork;
+                } else if (label.equals(network)) {
+                    vizEvent.setType(VizEvents.ShowNetwork);
+                    vizEvent.setData("sensors", sensors);
+
                     buttonToTimeRange.setText("Next");
                 } else {
                     Log.w(TAG, "Unexpected selection: " + label);
@@ -225,8 +244,8 @@ public class VizTypeChooser extends View {
                         layout.setActiveItem(timeRangeForm);
                     } else {
                         // skip time range selection
-                        endTime = System.currentTimeMillis();
-                        startTime = 0;
+                        vizEvent.setData("startTime", System.currentTimeMillis());
+                        vizEvent.setData("endTime", 0);
                         submitRequest();
                     }
                 } else {
@@ -254,21 +273,21 @@ public class VizTypeChooser extends View {
         this.typesField = new RadioGroup();
         this.typesField.setFieldLabel("Select a visualization type");
 
-        final Radio lineChart = new Radio();
-        lineChart.setBoxLabel("Line chart");
-        lineChart.setValue(true);
-        this.eventType = VizEvents.ShowLineChart;
+        this.lineChart = new Radio();
+        this.lineChart.setBoxLabel("Line chart");
+        this.lineChart.setValue(true);
+        this.vizEvent = new AppEvent(VizEvents.ShowLineChart);
 
-        final Radio table = new Radio();
-        table.setBoxLabel("Table");
+        this.table = new Radio();
+        this.table.setBoxLabel("Table");
 
-        final Radio map = new Radio();
-        map.setBoxLabel("Map");
-        map.disable();
+        this.map = new Radio();
+        this.map.setBoxLabel("Map");
+        this.map.disable();
 
-        final Radio network = new Radio();
-        network.setBoxLabel("Network");
-        network.disable();
+        this.network = new Radio();
+        this.network.setBoxLabel("Network");
+        this.network.disable();
 
         this.typesField.add(lineChart);
         this.typesField.add(table);
@@ -293,35 +312,58 @@ public class VizTypeChooser extends View {
         this.window.add(this.typeForm);
     }
 
-    private boolean checkSensors(List<TreeModel> list) {
-        // create array to send as parameter in RPC
-        sensors = new TreeModel[0];
-        for (TreeModel tag : list) {
-            // final TagModel tag = (TagModel) tsm.getModel();
-            int tagType = tag.<Integer> get("tagType");
-            if (tagType == TagModel.TYPE_SENSOR) {
-                final TreeModel[] temp = new TreeModel[sensors.length + 1];
-                System.arraycopy(sensors, 0, temp, 0, sensors.length);
-                temp[temp.length - 1] = tag;
-                sensors = temp;
-            } else {
-                // do nothing
-            }
-        }
-
-        // check whether there are any tags at all
-        if (sensors.length == 0) {
-            return false;
-        }
-        return true;
-    }
-
     private void onShow(AppEvent event) {
         List<TreeModel> tags = event.<List<TreeModel>> getData();
-        if (checkSensors(tags)) {
+        if (checkForSensors(tags)) {
             this.window.show();
         } else {
             MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);
         }
+
+        if (checkForLocationSensors(this.sensors)) {
+            this.map.enable();
+        } else {
+            this.map.disable();
+        }
+    }
+
+    private void saveSelectedTimes() {
+        long endTime = System.currentTimeMillis();
+
+        // constants
+        final long hour = 1000 * 60 * 60;
+        final long day = 24 * hour;
+        final long week = 7 * day;
+
+        /*
+         * // hack the end time for some specific demos long end = System.currentTimeMillis();
+         * UserModel user = Registry.get(Constants.REG_USER); if (null != user && user.getId() ==
+         * 134) { Log.d(TAG, "delfgauw time hack"); end = 1283603962000l; // 4 september, 14:39.220
+         * CEST } else if (null != user && user.getId() == 142) { Log.d(TAG,
+         * "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET }
+         */
+
+        String label = timeRangeField.getValue().getBoxLabel();
+        long startTime = endTime;
+        if (label.equals("1 hour")) {
+            startTime = endTime - hour;
+        } else if (label.equals("1 day")) {
+            startTime = endTime - day;
+        } else if (label.equals("1 week")) {
+            startTime = endTime - week;
+        } else if (label.equals("4 weeks")) {
+            startTime = endTime - (4 * week);
+        } else {
+            Log.w(TAG, "Unexpected radio button label: " + label);
+        }
+
+        // save the start and end time in the event
+        this.vizEvent.setData("startTime", startTime);
+        this.vizEvent.setData("endTime", endTime);
+    }
+
+    private void submitRequest() {
+        Dispatcher.forwardEvent(vizEvent);
+        hideWindow();
     }
 }

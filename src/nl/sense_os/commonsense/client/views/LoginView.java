@@ -5,6 +5,7 @@ import java.util.Date;
 import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.views.components.CenteredWindow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -22,7 +23,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
@@ -36,10 +36,11 @@ import com.google.gwt.user.client.Cookies;
 public class LoginView extends View {
 
     private static final String TAG = "LoginView";
-    private Window window;
+    private CenteredWindow window;
     private FormPanel form;
     private TextField<String> password;
     private CheckBox rememberMe;
+    private Button cancel;
     private Button submit;
     private TextField<String> username;
 
@@ -57,6 +58,9 @@ public class LoginView extends View {
         if (eventType.equals(MainEvents.ShowLogin)) {
             // Log.d(TAG, "Show");
             onShow(event);
+        } else if (eventType.equals(MainEvents.HideLogin)) {
+            // Log.d(TAG, "Hide");
+            hideWindow();
         } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {
             Log.w(TAG, "AuthenticationFailure");
             onAuthenticationFailure(event);
@@ -70,37 +74,44 @@ public class LoginView extends View {
             Log.w(TAG, "LoginError");
             onError(event);
         } else if (eventType.equals(LoginEvents.LoginCancelled)) {
-            Log.d(TAG, "LoginCancelled");
+            // Log.d(TAG, "LoginCancelled");
             onCancelled(event);
         } else {
             Log.e(TAG, "Unexpected event type: " + eventType);
         }
     }
 
+    private void hideWindow() {
+        resetFormValues();
+        this.window.hide();
+    }
+
     private void initButtons() {
 
-        // submit button
-        this.submit = new Button("Submit");
-        this.submit.setType("submit");
-        this.submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent be) {
-                form.submit();
+                final Button b = be.getButton();
+                if (b.equals(submit)) {
+                    form.submit();
+                } else if (b.equals(cancel)) {
+                    cancelLogin();
+                }
             }
-        });
+        };
+
+        // submit button
+        this.submit = new Button("Submit", IconHelper.create("gxt/images/gxt/icons/page-next.gif"),
+                l);
+        this.submit.setType("submit");
         this.form.setButtonAlign(HorizontalAlignment.CENTER);
         this.form.addButton(submit);
 
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(submit);
 
-        Button cancel = new Button("Cancel");
-        cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            @Override
-            public void componentSelected(ButtonEvent be) {
-                cancelLogin();
-            }
-        });
+        this.cancel = new Button("Cancel", l);
+        this.cancel.disable();
         this.form.addButton(cancel);
 
         setupSubmit(form);
@@ -152,12 +163,14 @@ public class LoginView extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
+        this.window = new CenteredWindow();
         this.window.setSize(323, 200);
         this.window.setResizable(false);
         this.window.setPlain(true);
+        this.window.setClosable(false);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Login");
+        this.window.setMonitorWindowResize(true);
 
         initForm();
     }
@@ -201,8 +214,7 @@ public class LoginView extends View {
             Cookies.removeCookie("username");
         }
 
-        resetFormValues();
-        this.window.hide();
+        hideWindow();
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -243,8 +255,10 @@ public class LoginView extends View {
         // Log.d(TAG, "setBusy(" + busy + ")");
         if (busy) {
             this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+            this.cancel.enable();
         } else {
             this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+            this.cancel.disable();
         }
     }
 

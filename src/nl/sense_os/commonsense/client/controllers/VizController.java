@@ -6,6 +6,7 @@ import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.views.VizMap;
 import nl.sense_os.commonsense.client.views.VizTypeChooser;
 import nl.sense_os.commonsense.client.views.VizView;
 import nl.sense_os.commonsense.shared.Constants;
@@ -21,6 +22,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -28,8 +30,9 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class VizController extends Controller {
 
     private static final String TAG = "VizController";
-    private VizView vizView;
-    private VizTypeChooser typeChooser;
+    private View vizView;
+    private View typeChooser;
+    private View mapVisualization;
     private boolean isVizApiLoaded;
 
     public VizController() {
@@ -38,8 +41,8 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
                 VizEvents.DataReceived);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
-        registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowMap,
-                VizEvents.ShowNetwork);
+        registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowNetwork);
+        registerEventTypes(VizEvents.ShowMap, VizEvents.MapReady);
         registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete);
         loadVizApi();
     }
@@ -53,6 +56,8 @@ public class VizController extends Controller {
         } else if (type.equals(VizEvents.ShowTypeChoice)
                 || type.equals(VizEvents.TypeChoiceCancelled)) {
             forwardToView(this.typeChooser, event);
+        } else if (type.equals(VizEvents.ShowMap)) {
+            forwardToView(this.mapVisualization, event);
         } else {
             forwardToView(this.vizView, event);
         }
@@ -63,6 +68,7 @@ public class VizController extends Controller {
         super.initialize();
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
+        this.mapVisualization = new VizMap(this);
     }
 
     private void loadVizApi() {

@@ -23,7 +23,7 @@ public class LoginController extends Controller {
     private boolean isLoggingIn;
 
     public LoginController() {
-        registerEventTypes(MainEvents.ShowLogin);
+        registerEventTypes(MainEvents.ShowLogin, MainEvents.HideLogin);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.LoginError,
                 LoginEvents.AuthenticationFailure, LoginEvents.RequestLogin,
                 LoginEvents.RequestLogout, LoginEvents.CancelLogin, LoginEvents.LoginCancelled);

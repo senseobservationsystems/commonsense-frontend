@@ -11,4 +11,5 @@ public class LoginEvents {
     public static final EventType RequestLogout = new EventType();
     public static final EventType CancelLogin = new EventType();
     public static final EventType LoginCancelled = new EventType();
+    public static final EventType Hide = new EventType();
 }

@@ -129,7 +129,7 @@ public class MainView extends View {
     }
 
     private void onNavigate(AppEvent event) {
-        String location = event.<String> getData();
+        String location = event.<String> getData("new");
 
         // select the new center content
         Component newContent = null;
@@ -165,6 +165,13 @@ public class MainView extends View {
             this.center.removeAll();
             this.center.add(newContent);
             this.center.layout();
+        }
+
+        // hide login window
+        String oldLocation = event.<String> getData("old");
+        if (NavPanel.SIGN_IN.equalsIgnoreCase(oldLocation)
+                && !NavPanel.SIGN_IN.equalsIgnoreCase(location)) {
+            Dispatcher.forwardEvent(MainEvents.HideLogin);
         }
 
         // update navigation panel
