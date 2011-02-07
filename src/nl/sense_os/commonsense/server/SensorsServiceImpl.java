@@ -408,6 +408,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         } catch (JSONException e) {
             log.severe("GET /devices/<id> JSONException: " + e.getMessage());
+            log.severe("Raw response: " + response);
             throw (new WrongResponseException(e.getMessage()));
         }
     }
@@ -438,6 +439,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         } catch (JSONException e) {
             log.severe("GET /devices JSONException: " + e.getMessage());
+            log.severe("Raw response: " + response);
             throw (new WrongResponseException(e.getMessage()));
         }
     }
@@ -478,6 +480,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         } catch (JSONException e) {
             log.severe("GET /sensors/<id> JSONException: " + e.getMessage());
+            log.severe("Raw response: " + response);
             throw (new WrongResponseException(e.getMessage()));
         }
     }
@@ -532,6 +535,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         } catch (JSONException e) {
             log.severe("GET /sensors JSONException: " + e.getMessage());
+            log.severe("Raw response: " + response);
             throw (new WrongResponseException(e.getMessage()));
         }
     }
@@ -565,6 +569,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         } catch (JSONException e) {
             log.severe("GET /sensors/<id>/services JSONException: " + e.getMessage());
+            log.severe("Raw response: " + response);
             throw (new WrongResponseException(e.getMessage()));
         }
     }
