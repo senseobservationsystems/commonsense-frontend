@@ -119,6 +119,8 @@ public class VizTypeChooser extends View {
     protected void initialize() {
         super.initialize();
 
+        this.vizEvent = new AppEvent(VizEvents.ShowLineChart);
+
         this.window = new Window();
         this.window.setHeading("Visualization wizard");
         this.window.setSize(323, 200);
@@ -188,8 +190,6 @@ public class VizTypeChooser extends View {
 
         final FormData formData = new FormData("-10");
         this.timeRangeForm.add(this.timeRangeField, formData);
-
-        saveSelectedTimes();
     }
 
     private void initTimeRangePanel() {
@@ -200,41 +200,12 @@ public class VizTypeChooser extends View {
 
         initTimeRangeFields();
         initTimeRangeButtons();
+        saveSelectedTimes();
 
         this.window.add(this.timeRangeForm);
     }
 
     private void initTypeButtons() {
-        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Radio label = typesField.getValue();
-                if (label.equals(lineChart)) {
-                    vizEvent.setType(VizEvents.ShowLineChart);
-                    vizEvent.setData("sensors", sensors);
-
-                    buttonToTimeRange.setText("Next");
-                } else if (label.equals(table)) {
-                    vizEvent.setType(VizEvents.ShowTable);
-                    vizEvent.setData("sensors", sensors);
-
-                    buttonToTimeRange.setText("Go!");
-                } else if (label.equals(map)) {
-                    vizEvent.setType(VizEvents.ShowMap);
-                    vizEvent.setData("sensors", locationSensors);
-
-                    buttonToTimeRange.setText("Next");
-                } else if (label.equals(network)) {
-                    vizEvent.setType(VizEvents.ShowNetwork);
-                    vizEvent.setData("sensors", sensors);
-
-                    buttonToTimeRange.setText("Next");
-                } else {
-                    Log.w(TAG, "Unexpected selection: " + label);
-                }
-            }
-        });
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
@@ -268,15 +239,14 @@ public class VizTypeChooser extends View {
         FormButtonBinding binding = new FormButtonBinding(this.typeForm);
         binding.addButton(this.buttonToTimeRange);
     }
-
     private void initTypeFields() {
+
         this.typesField = new RadioGroup();
         this.typesField.setFieldLabel("Select a visualization type");
 
         this.lineChart = new Radio();
         this.lineChart.setBoxLabel("Line chart");
         this.lineChart.setValue(true);
-        this.vizEvent = new AppEvent(VizEvents.ShowLineChart);
 
         this.table = new Radio();
         this.table.setBoxLabel("Table");
@@ -289,6 +259,16 @@ public class VizTypeChooser extends View {
         this.network.setBoxLabel("Network");
         this.network.disable();
 
+        // listen to changes in types field
+        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                saveSelectedType();
+            }
+        });
+
+        // add the choices to the typesfield
         this.typesField.add(lineChart);
         this.typesField.add(table);
         this.typesField.add(map);
@@ -308,6 +288,7 @@ public class VizTypeChooser extends View {
 
         initTypeFields();
         initTypeButtons();
+        saveSelectedType();
 
         this.window.add(this.typeForm);
     }
@@ -327,6 +308,10 @@ public class VizTypeChooser extends View {
         }
     }
 
+    /**
+     * Saves the selected time range from the form into the AppEvent that will be dispatched when
+     * the user pressed "Go!".
+     */
     private void saveSelectedTimes() {
         long endTime = System.currentTimeMillis();
 
@@ -362,7 +347,40 @@ public class VizTypeChooser extends View {
         this.vizEvent.setData("endTime", endTime);
     }
 
+    /**
+     * Saves the selected visualization type from the form into the AppEvent that will be dispatched
+     * when the user pressed "Go!".
+     */
+    private void saveSelectedType() {
+        Radio label = typesField.getValue();
+        if (label.equals(lineChart)) {
+            vizEvent.setType(VizEvents.ShowLineChart);
+            vizEvent.setData("sensors", sensors);
+
+            buttonToTimeRange.setText("Next");
+        } else if (label.equals(table)) {
+            vizEvent.setType(VizEvents.ShowTable);
+            vizEvent.setData("sensors", sensors);
+
+            buttonToTimeRange.setText("Go!");
+        } else if (label.equals(map)) {
+            vizEvent.setType(VizEvents.ShowMap);
+            vizEvent.setData("sensors", locationSensors);
+
+            buttonToTimeRange.setText("Next");
+        } else if (label.equals(network)) {
+            vizEvent.setType(VizEvents.ShowNetwork);
+            vizEvent.setData("sensors", sensors);
+
+            buttonToTimeRange.setText("Next");
+        } else {
+            Log.w(TAG, "Unexpected selection: " + label);
+        }
+    }
+
     private void submitRequest() {
+        saveSelectedType();
+        saveSelectedTimes();
         Dispatcher.forwardEvent(vizEvent);
         hideWindow();
     }
