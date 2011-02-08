@@ -68,7 +68,7 @@ public class StateController extends Controller {
 
     public void connectServiceCallback() {
         Dispatcher.forwardEvent(StateEvents.ConnectComplete);
-        getMyServices(new AppEvent(StateEvents.ListRequested));
+        // TODO update list
     }
 
     public void connectServiceErrorCallback() {
@@ -104,7 +104,7 @@ public class StateController extends Controller {
 
     public void createServiceCallback() {
         Dispatcher.forwardEvent(StateEvents.CreateServiceComplete);
-        getMyServices(new AppEvent(StateEvents.ListRequested));
+        // TODO update list
     }
 
     public void createServiceErrorCallback() {
@@ -122,7 +122,6 @@ public class StateController extends Controller {
 
     public void disconnectServiceCallback() {
         Dispatcher.forwardEvent(StateEvents.RemoveComplete);
-        getMyServices(new AppEvent(StateEvents.ListRequested));
     }
 
     public void disconnectServiceErrorCallback() {
@@ -247,29 +246,36 @@ public class StateController extends Controller {
         } else if (type.equals(StateEvents.InvokeMethodRequested)) {
             Log.d(TAG, "InvokeMethodRequested");
             invokeMethod(event);
-        } else if (type.equals(StateEvents.ShowCreator)
-                || type.equals(StateEvents.CreateServiceComplete)
+        }
+
+        if (type.equals(StateEvents.ShowCreator) || type.equals(StateEvents.CreateServiceComplete)
                 || type.equals(StateEvents.CreateServiceFailed)
                 || type.equals(StateEvents.CreateServiceCancelled)) {
             forwardToView(this.creator, event);
-        } else if (type.equals(StateEvents.ShowSensorConnecter)
+        }
+
+        if (type.equals(StateEvents.ShowSensorConnecter)
                 || type.equals(StateEvents.ConnectComplete)
                 || type.equals(StateEvents.ConnectFailed)
                 || type.equals(StateEvents.AvailableSensorsUpdated)
                 || type.equals(StateEvents.AvailableSensorsNotUpdated)) {
             forwardToView(this.connecter, event);
-        } else if (type.equals(StateEvents.ShowEditor) || type.equals(StateEvents.MethodsUpdated)
+        }
+
+        if (type.equals(StateEvents.ShowEditor) || type.equals(StateEvents.MethodsUpdated)
                 || type.equals(StateEvents.MethodsNotUpdated)
                 || type.equals(StateEvents.InvokeMethodComplete)
                 || type.equals(StateEvents.InvokeMethodFailed)) {
             forwardToView(this.editor, event);
-        } else if (type.equals(StateEvents.ShowGrid) || type.equals(StateEvents.Done)
+        }
+
+        if (type.equals(StateEvents.ShowGrid) || type.equals(StateEvents.Done)
                 || type.equals(StateEvents.RemoveComplete) || type.equals(StateEvents.RemoveFailed)
                 || type.equals(StateEvents.Working) || type.equals(MainEvents.ShowVisualization)
-                || type.equals(LoginEvents.LoggedIn) || type.equals(LoginEvents.LoggedOut)) {
+                || type.equals(StateEvents.ConnectComplete)
+                || type.equals(StateEvents.CreateServiceComplete)
+                || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.grid, event);
-        } else {
-            Log.e(TAG, "Unexpected event: " + type);
         }
     }
 

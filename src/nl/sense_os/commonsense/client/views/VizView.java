@@ -27,49 +27,50 @@ public class VizView extends View {
 
     @Override
     protected void handleEvent(AppEvent event) {
-        EventType eventType = event.getType();
+        EventType type = event.getType();
 
-        if (eventType.equals(MainEvents.ShowVisualization)) {
+        if (type.equals(MainEvents.ShowVisualization)) {
             // Log.d(TAG, "Show");
             onShow(event);
-        } else if (eventType.equals(LoginEvents.LoggedIn)) {
+        } else if (type.equals(LoginEvents.LoggedIn)) {
             // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
-        } else if (eventType.equals(LoginEvents.LoggedOut)) {
+        } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (eventType.equals(VizEvents.DataNotReceived)) {
+        } else if (type.equals(VizEvents.DataNotReceived)) {
             Log.w(TAG, "DataNotReceived");
             onDataNotReceived(event);
-        } else if (eventType.equals(VizEvents.DataReceived)) {
+        } else if (type.equals(VizEvents.DataReceived)) {
             Log.d(TAG, "DataReceived");
             onDataReceived(event);
-        } else if (eventType.equals(StateEvents.FeedbackComplete)) {
-            Log.d(TAG, "FeedbackComplete");
+        } else if (type.equals(StateEvents.FeedbackComplete)
+                || type.equals(StateEvents.FeedbackCancelled)) {
+            // Log.d(TAG, "FeedbackComplete");
             this.vizPanel.removeFeedback();
-        } else if (eventType.equals(StateEvents.FeedbackReady)) {
+        } else if (type.equals(StateEvents.FeedbackReady)) {
             Log.d(TAG, "FeedbackReady");
             ContentPanel feedbackPanel = event.getData();
             this.vizPanel.showFeedback(feedbackPanel);
-        } else if (eventType.equals(VizEvents.ShowLineChart)) {
+        } else if (type.equals(VizEvents.ShowLineChart)) {
             Log.d(TAG, "ShowLineChart");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             long startTime = event.<Long> getData("startTime");
             long endTime = event.<Long> getData("endTime");
             this.vizPanel.showLineChart(sensors, startTime, endTime);
-        } else if (eventType.equals(VizEvents.ShowTable)) {
+        } else if (type.equals(VizEvents.ShowTable)) {
             Log.d(TAG, "ShowTable");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             this.vizPanel.showTable(sensors);
-        } else if (eventType.equals(VizEvents.MapReady)) {
+        } else if (type.equals(VizEvents.MapReady)) {
             Log.d(TAG, "MapReady");
             ContentPanel mapPanel = event.getData();
             this.vizPanel.showMap(mapPanel);
-        } else if (eventType.equals(VizEvents.ShowNetwork)) {
+        } else if (type.equals(VizEvents.ShowNetwork)) {
             Log.w(TAG, "ShowNetwork not implemented");
             // TODO
         } else {
-            Log.e(TAG, "Unexpected event type: " + eventType);
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 

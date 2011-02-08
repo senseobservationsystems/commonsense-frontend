@@ -42,4 +42,6 @@ public class StateEvents {
     public static final EventType FeedbackReady = new EventType();
     public static final EventType FeedbackSubmit = new EventType();
     public static final EventType FeedbackComplete = new EventType();
+    public static final EventType FeedbackCancelled = new EventType();
+    public static final EventType FeedbackFailed = new EventType();
 }

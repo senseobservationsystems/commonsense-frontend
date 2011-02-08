@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -101,7 +102,7 @@ public class StateEditor extends View {
                 }
             }
         };
-        this.submitButton = new Button("Submit", l);
+        this.submitButton = new Button("Submit", IconHelper.create(Constants.ICON_BUTTON_GO), l);
 
         this.cancelButton = new Button("Cancel", l);
 
@@ -111,8 +112,6 @@ public class StateEditor extends View {
         this.form.setButtonAlign(HorizontalAlignment.CENTER);
         this.form.addButton(this.submitButton);
         this.form.addButton(this.cancelButton);
-
-        setBusy(false);
     }
 
     private void initForm() {
@@ -188,11 +187,11 @@ public class StateEditor extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-            this.cancelButton.setEnabled(false);
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
-            this.cancelButton.setEnabled(true);
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 

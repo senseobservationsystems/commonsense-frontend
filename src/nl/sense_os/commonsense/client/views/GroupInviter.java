@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.views;
 
 import nl.sense_os.commonsense.client.events.GroupEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -56,23 +57,26 @@ public class GroupInviter extends View {
     }
 
     private void initButtons() {
-        this.inviteButton = new Button("Invite", new SelectionListener<ButtonEvent>() {
+        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void componentSelected(ButtonEvent ce) {
-                if (form.isValid()) {
-                    onSubmit();
+            public void componentSelected(ButtonEvent be) {
+                final Button b = be.getButton();
+                if (b.equals(inviteButton)) {
+                    if (form.isValid()) {
+                        onSubmit();
+                    }
+                } else if (b.equals(cancelButton)) {
+                    GroupInviter.this.fireEvent(GroupEvents.InviteCancelled);
+                } else {
+                    Log.w(TAG, "Unexpected button pressed");
                 }
             }
-        });
+        };
 
-        this.cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+        this.inviteButton = new Button("Invite", IconHelper.create(Constants.ICON_BUTTON_GO), l);
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                GroupInviter.this.fireEvent(GroupEvents.InviteCancelled);
-            }
-        });
+        this.cancelButton = new Button("Cancel", l);
         setBusy(false);
 
         final FormButtonBinding binding = new FormButtonBinding(this.form);
@@ -149,11 +153,11 @@ public class GroupInviter extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.inviteButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-            this.cancelButton.setEnabled(false);
+            this.inviteButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.inviteButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
-            this.cancelButton.setEnabled(true);
+            this.inviteButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 }

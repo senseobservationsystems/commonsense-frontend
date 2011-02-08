@@ -110,7 +110,7 @@ public class StateCreator extends View {
                 final Button pressed = ce.getButton();
                 if (pressed.equals(createButton)) {
                     if (form.isValid()) {
-                        onSubmit();
+                        submitForm();
                     }
                 } else if (pressed.equals(cancelButton)) {
                     StateCreator.this.fireEvent(StateEvents.CreateServiceCancelled);
@@ -119,7 +119,7 @@ public class StateCreator extends View {
                 }
             }
         };
-        this.createButton = new Button("Create", l);
+        this.createButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
 
         this.cancelButton = new Button("Cancel", l);
 
@@ -219,6 +219,7 @@ public class StateCreator extends View {
                             if (tagType == TagModel.TYPE_SENSOR) {
                                 String name = sensor.<String> get("name").replaceAll("\\s", "_");
                                 for (String fieldName : dataFields) {
+                                    Log.d(TAG, name + " -- " + fieldName);
                                     if (fieldName.startsWith(name)) {
 
                                         // create ModelData representing this sensor's datafield
@@ -302,7 +303,7 @@ public class StateCreator extends View {
     private void initSensorsTree() {
 
         // trees store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -353,7 +354,7 @@ public class StateCreator extends View {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            onSubmit();
+                            submitForm();
                         } else {
                             window.hide();
                         }
@@ -366,7 +367,7 @@ public class StateCreator extends View {
         this.window.show();
     }
 
-    private void onSubmit() {
+    private void submitForm() {
         setBusy(true);
 
         AppEvent event = new AppEvent(StateEvents.CreateServiceRequested);
@@ -379,11 +380,11 @@ public class StateCreator extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-            this.cancelButton.setEnabled(false);
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
-            this.cancelButton.setEnabled(true);
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 }

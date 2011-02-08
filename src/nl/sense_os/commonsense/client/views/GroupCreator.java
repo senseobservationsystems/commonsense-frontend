@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.views;
 
 import nl.sense_os.commonsense.client.events.GroupEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -89,7 +90,7 @@ public class GroupCreator extends View {
                 }
             }
         };
-        this.submitButton = new Button("Create", l);
+        this.submitButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
 
         this.cancelButton = new Button("Cancel", l);
 
@@ -99,9 +100,6 @@ public class GroupCreator extends View {
         this.form.setButtonAlign(HorizontalAlignment.CENTER);
         this.form.addButton(this.submitButton);
         this.form.addButton(this.cancelButton);
-
-        // set the submit button icon
-        setBusy(false);
     }
 
     private void initFields() {
@@ -168,11 +166,11 @@ public class GroupCreator extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-            this.cancelButton.setEnabled(false);
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
-            this.cancelButton.setEnabled(true);
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 

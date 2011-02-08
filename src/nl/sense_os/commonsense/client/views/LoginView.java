@@ -6,6 +6,7 @@ import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.components.CenteredWindow;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -82,7 +83,6 @@ public class LoginView extends View {
     }
 
     private void hideWindow() {
-        resetFormValues();
         this.window.hide();
     }
 
@@ -101,18 +101,18 @@ public class LoginView extends View {
         };
 
         // submit button
-        this.submit = new Button("Submit", IconHelper.create("gxt/images/gxt/icons/page-next.gif"),
-                l);
+        this.submit = new Button("Submit", IconHelper.create(Constants.ICON_BUTTON_GO), l);
         this.submit.setType("submit");
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(submit);
-
-        final FormButtonBinding binding = new FormButtonBinding(form);
-        binding.addButton(submit);
 
         this.cancel = new Button("Cancel", l);
         this.cancel.disable();
+
+        this.form.setButtonAlign(HorizontalAlignment.CENTER);
+        this.form.addButton(submit);
         this.form.addButton(cancel);
+
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(submit);
 
         setupSubmit(form);
     }
@@ -210,8 +210,10 @@ public class LoginView extends View {
             long expiry = 1000l * 60 * 60 * 24 * 14; // 2 weeks
             Date expires = new Date(new Date().getTime() + expiry);
             Cookies.setCookie("username", this.username.getValue(), expires);
+            username.setOriginalValue(username.getValue());
         } else {
             Cookies.removeCookie("username");
+            username.setOriginalValue("");
         }
 
         hideWindow();
@@ -254,10 +256,10 @@ public class LoginView extends View {
     private void setBusy(boolean busy) {
         // Log.d(TAG, "setBusy(" + busy + ")");
         if (busy) {
-            this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+            this.submit.setIcon(IconHelper.create(Constants.ICON_LOADING));
             this.cancel.enable();
         } else {
-            this.submit.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+            this.submit.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
             this.cancel.disable();
         }
     }

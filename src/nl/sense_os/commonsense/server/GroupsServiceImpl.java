@@ -74,6 +74,7 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod(method);
+            connection.setConnectTimeout(30000);
             connection.setRequestProperty("X-SESSION_ID", sessionId);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");

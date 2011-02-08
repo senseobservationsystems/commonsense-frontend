@@ -346,7 +346,7 @@ public class Visualization extends LayoutContainer {
 
     public void resetTabs() {
         int tabCount = this.tabPanel.getItemCount();
-        for (int i = tabCount; i > 2; i--) {
+        for (int i = tabCount; i > 3; i--) {
             this.tabPanel.remove(this.tabPanel.getItem(i - 1));
         }
         layout();

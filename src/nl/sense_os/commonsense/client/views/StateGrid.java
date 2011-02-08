@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -107,6 +108,12 @@ public class StateGrid extends View {
         } else if (type.equals(StateEvents.Working)) {
             Log.d(TAG, "Working");
             setBusy(true);
+        } else if (type.equals(StateEvents.ConnectComplete)) {
+            Log.d(TAG, "ConnectComplete");
+            refreshLoader();
+        } else if (type.equals(StateEvents.CreateServiceComplete)) {
+            Log.d(TAG, "CreateServiceComplete");
+            refreshLoader();
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -114,7 +121,7 @@ public class StateGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -319,6 +326,7 @@ public class StateGrid extends View {
 
     private void onRemoveComplete(AppEvent event) {
         setBusy(false);
+        refreshLoader();
     }
 
     private void onRemoveFailed(AppEvent event) {
@@ -361,17 +369,18 @@ public class StateGrid extends View {
     }
 
     private void setBusy(boolean busy) {
-        String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
+        String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }
 
     protected void showFeedback() {
-        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
-        TreeModel service = sensor.getParent();
+        TreeModel selected = this.grid.getSelectionModel().getSelectedItem();
+        while (selected.getParent() != null) {
+            selected = selected.getParent();
+        }
 
         AppEvent event = new AppEvent(StateEvents.ShowFeedback);
-        event.setData("service", service);
-        event.setData("sensor", sensor);
+        event.setData("service", selected);
         Dispatcher.forwardEvent(event);
     }
 }

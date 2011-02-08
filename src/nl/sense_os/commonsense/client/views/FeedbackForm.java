@@ -6,6 +6,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.chap.links.client.Timeline;
 import com.chap.links.client.Timeline.AddHandler;
@@ -15,7 +16,10 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -24,6 +28,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -31,8 +36,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.ajaxloader.client.Properties;
 import com.google.gwt.ajaxloader.client.Properties.TypeException;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;
@@ -40,12 +43,13 @@ import com.google.gwt.visualization.client.events.SelectHandler;
 public class FeedbackForm extends View {
 
     private static final String TAG = "FeedbackForm";
+    private static final FormData FORMDATA = new FormData("-10");
     private ContentPanel panel;
     private FormPanel form;
-    private FormData formData = new FormData("-10");
     private final TextField<String> labelField = new TextField<String>();
     private Timeline timeline;
     private Button submitButton;
+    private Button cancelButton;
     private TreeModel service;
 
     public FeedbackForm(Controller c) {
@@ -134,34 +138,51 @@ public class FeedbackForm extends View {
             Log.d(TAG, "FeedbackComplete");
             timeline.draw(createDataTable());
             setBusy(false);
+        } else if (type.equals(StateEvents.FeedbackFailed)) {
+            Log.w(TAG, "FeedbackFailed");
+            onFeedbackFailed(event);
         } else {
             Log.e(TAG, "Unexpected event type received!");
         }
     }
 
+    private void onFeedbackFailed(AppEvent event) {
+        // TODO Auto-generated method stub
+    }
+
     private void initButtons() {
-        this.submitButton = new Button("Submit feedback", new SelectionListener<ButtonEvent>() {
+        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(submitButton)) {
                     submitForm();
+                } else if (source.equals(cancelButton)) {
+                    Dispatcher.forwardEvent(StateEvents.FeedbackCancelled);
+                } else {
+                    Log.w(TAG, "Unexpected button pressed");
                 }
-
             }
-        });
+        };
 
-        form.addButton(submitButton);
-        form.setButtonAlign(HorizontalAlignment.CENTER);
+        this.submitButton = new Button("Submit feedback",
+                IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.cancelButton = new Button("Cancel", l);
 
-        setBusy(false);
+        this.form.setButtonAlign(HorizontalAlignment.CENTER);
+        this.form.addButton(this.submitButton);
+        this.form.addButton(this.cancelButton);
+
+        FormButtonBinding binding = new FormButtonBinding(this.form);
+        binding.addButton(this.submitButton);
     }
 
     private void initFields() {
         labelField.setFieldLabel("State label");
+        labelField.setAllowBlank(false);
 
-        form.add(labelField, formData);
+        form.add(labelField, FORMDATA);
     }
 
     private void initForm() {
@@ -187,6 +208,15 @@ public class FeedbackForm extends View {
         this.panel.setBodyBorder(false);
         this.panel.setScrollMode(Scroll.NONE);
 
+        // listener to redraw the time line when the panel is displayed, fixes width problems
+        this.panel.addListener(Events.Attach, new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent ce) {
+                timeline.redraw();
+            }
+        });
+
         initForm();
     }
 
@@ -203,14 +233,18 @@ public class FeedbackForm extends View {
         timeline = new Timeline(data, options);
 
         // add event handlers
-        timeline.addSelectHandler(createSelectHandler(timeline));
-        timeline.addAddHandler(createAddHandler(timeline));
+        this.timeline.addSelectHandler(createSelectHandler(timeline));
+        this.timeline.addAddHandler(createAddHandler(timeline));
 
-        form.add(timeline, formData);
+        this.form.add(this.timeline, FORMDATA);
     }
 
     private void onShow(AppEvent event) {
-        this.service = event.<TreeModel> getData();
+        this.service = event.<TreeModel> getData("service");
+
+        this.timeline.draw(createDataTable());
+        this.form.reset();
+        setBusy(false);
 
         AppEvent response = new AppEvent(StateEvents.FeedbackReady);
         response.setData(this.panel);
@@ -219,9 +253,11 @@ public class FeedbackForm extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.submitButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
+            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 
@@ -231,24 +267,25 @@ public class FeedbackForm extends View {
 
         DataTable data = this.timeline.getData();
 
-        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
         List<ModelData> feedback = new ArrayList<ModelData>();
         for (int i = 0; i < data.getNumberOfRows(); i++) {
             Date start = data.getValueDate(i, 0);
             Date end = data.getValueDate(i, 1);
-            String label = data.getValueString(i, 2);
-            Log.d(TAG, "Event: " + format.format(start) + " - " + format.format(end) + " " + label);
+            double startDate = start.getTime() / 1000d;
+            double endDate = end.getTime() / 1000d;
+            // String label = data.getValueString(i, 2);
 
             ModelData eventData = new BaseModelData();
-            eventData.set("start", start);
-            eventData.set("end", end);
-            eventData.set("label", label);
+            eventData.set("start", startDate);
+            eventData.set("end", endDate);
+            // eventData.set("label", label);
             feedback.add(eventData);
         }
 
         AppEvent event = new AppEvent(StateEvents.FeedbackSubmit);
         event.setData("feedback", feedback);
         event.setData("service", service);
+        event.setData("label", labelField.getValue());
         Dispatcher.forwardEvent(event);
     }
 }

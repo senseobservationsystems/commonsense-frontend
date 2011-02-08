@@ -83,13 +83,14 @@ public class MySensorsShareDialog extends View {
                     }
                 } else if (b.equals(cancelButton)) {
                     Dispatcher.forwardEvent(MySensorsEvents.ShareCancelled);
+                } else {
+                    Log.w(TAG, "Unexpected button pressed");
                 }
             }
         };
 
-        this.createButton = new Button("Create", l);
+        this.createButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
         this.cancelButton = new Button("Cancel", l);
-        setBusy(false);
 
         final FormButtonBinding binding = new FormButtonBinding(this.form);
         binding.addButton(this.createButton);
@@ -182,11 +183,11 @@ public class MySensorsShareDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/loading.gif"));
-            this.cancelButton.setEnabled(false);
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
         } else {
-            this.createButton.setIcon(IconHelper.create("gxt/images/gxt/icons/page-next.gif"));
-            this.cancelButton.setEnabled(true);
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
         }
     }
 

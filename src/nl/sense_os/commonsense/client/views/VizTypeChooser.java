@@ -142,7 +142,7 @@ public class VizTypeChooser extends View {
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().equals(buttonComplete)) {
                     saveSelectedTimes();
-                    submitRequest();
+                    submitForm();
                 } else if (ce.getButton().equals(buttonToTypes)) {
                     layout.setActiveItem(typeForm);
                 } else {
@@ -217,7 +217,7 @@ public class VizTypeChooser extends View {
                         // skip time range selection
                         vizEvent.setData("startTime", System.currentTimeMillis());
                         vizEvent.setData("endTime", 0);
-                        submitRequest();
+                        submitForm();
                     }
                 } else {
                     Dispatcher.forwardEvent(VizEvents.TypeChoiceCancelled);
@@ -239,6 +239,7 @@ public class VizTypeChooser extends View {
         FormButtonBinding binding = new FormButtonBinding(this.typeForm);
         binding.addButton(this.buttonToTimeRange);
     }
+
     private void initTypeFields() {
 
         this.typesField = new RadioGroup();
@@ -313,7 +314,7 @@ public class VizTypeChooser extends View {
      * the user pressed "Go!".
      */
     private void saveSelectedTimes() {
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
 
         // constants
         final long hour = 1000 * 60 * 60;
@@ -328,7 +329,7 @@ public class VizTypeChooser extends View {
          * "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET }
          */
 
-        String label = timeRangeField.getValue().getBoxLabel();
+        String label = this.timeRangeField.getValue().getBoxLabel();
         long startTime = endTime;
         if (label.equals("1 hour")) {
             startTime = endTime - hour;
@@ -353,24 +354,24 @@ public class VizTypeChooser extends View {
      */
     private void saveSelectedType() {
         Radio label = typesField.getValue();
-        if (label.equals(lineChart)) {
-            vizEvent.setType(VizEvents.ShowLineChart);
-            vizEvent.setData("sensors", sensors);
+        if (label.equals(this.lineChart)) {
+            this.vizEvent.setType(VizEvents.ShowLineChart);
+            this.vizEvent.setData("sensors", this.sensors);
 
             buttonToTimeRange.setText("Next");
-        } else if (label.equals(table)) {
-            vizEvent.setType(VizEvents.ShowTable);
-            vizEvent.setData("sensors", sensors);
+        } else if (label.equals(this.table)) {
+            this.vizEvent.setType(VizEvents.ShowTable);
+            this.vizEvent.setData("sensors", this.sensors);
 
             buttonToTimeRange.setText("Go!");
-        } else if (label.equals(map)) {
-            vizEvent.setType(VizEvents.ShowMap);
-            vizEvent.setData("sensors", locationSensors);
+        } else if (label.equals(this.map)) {
+            this.vizEvent.setType(VizEvents.ShowMap);
+            this.vizEvent.setData("sensors", this.locationSensors);
 
             buttonToTimeRange.setText("Next");
-        } else if (label.equals(network)) {
-            vizEvent.setType(VizEvents.ShowNetwork);
-            vizEvent.setData("sensors", sensors);
+        } else if (label.equals(this.network)) {
+            this.vizEvent.setType(VizEvents.ShowNetwork);
+            this.vizEvent.setData("sensors", this.sensors);
 
             buttonToTimeRange.setText("Next");
         } else {
@@ -378,10 +379,10 @@ public class VizTypeChooser extends View {
         }
     }
 
-    private void submitRequest() {
+    private void submitForm() {
         saveSelectedType();
         saveSelectedTimes();
-        Dispatcher.forwardEvent(vizEvent);
+        Dispatcher.forwardEvent(this.vizEvent);
         hideWindow();
     }
 }

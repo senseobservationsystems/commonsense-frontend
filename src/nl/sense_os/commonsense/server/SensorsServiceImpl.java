@@ -47,6 +47,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod(method);
+            connection.setConnectTimeout(30000);
             connection.setRequestProperty("X-SESSION_ID", sessionId);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");
@@ -130,7 +131,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             DbConnectionException {
 
         // request all sensors from server
-        String url = Constants.URL_SENSORS + "?owned=1";
+        String url = Constants.URL_SENSORS;
         doRequest(url, sessionId, "GET", null);
         if (this.responseCode != HttpURLConnection.HTTP_OK) {
             log.severe("GET /sensors failure: " + this.responseCode + " " + this.responseContent);
@@ -139,7 +140,6 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         List<ModelData> sensors = parseSensors(this.responseContent);
 
         HashMap<String, TreeModel> foundServices = new HashMap<String, TreeModel>();
-        List<TreeModel> sensorsPerService = new ArrayList<TreeModel>();
         for (ModelData sensorModel : sensors) {
             // create TreeModel for this sensor
             TreeModel sensor = new BaseTreeModel(sensorModel.getProperties());
@@ -169,16 +169,11 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
                     service.set("data_fields", dataFields);
                 }
 
-                // add sensor as child of service in foundServices. NB: take care to create a new
-                // TreeModel object, otherwise we release the sensor from any other parent services
-                service.add(new BaseTreeModel(sensor.getProperties()));
                 foundServices.put(key, service);
             }
         }
 
-        sensorsPerService.addAll(foundServices.values());
-
-        return sensorsPerService;
+        return new ArrayList<TreeModel>(foundServices.values());
     }
 
     @Override
@@ -375,7 +370,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
                 // front end-only properties
                 properties.put("tagType", TagModel.TYPE_SERVICE);
-                properties.put("text", properties.get("service_name"));
+                properties.put("text", serviceName);
 
                 ModelData model = new BaseModelData(properties);
 
@@ -390,7 +385,6 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             throw (new WrongResponseException(e.getMessage()));
         }
     }
-
     private ModelData parseDevice(String response) throws WrongResponseException {
         try {
             JSONObject device = (JSONObject) new JSONObject(response).get("device");

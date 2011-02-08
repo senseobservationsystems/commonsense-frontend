@@ -43,7 +43,8 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowNetwork);
         registerEventTypes(VizEvents.ShowMap, VizEvents.MapReady);
-        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete);
+        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete,
+                StateEvents.FeedbackCancelled);
         loadVizApi();
     }
 
@@ -51,8 +52,8 @@ public class VizController extends Controller {
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(VizEvents.DataRequested)) {
-            Log.d(TAG, "onDataRequested");
-            onDataRequested(event);
+            Log.d(TAG, "DataRequested");
+            requestData(event);
         } else if (type.equals(VizEvents.ShowTypeChoice)
                 || type.equals(VizEvents.TypeChoiceCancelled)) {
             forwardToView(this.typeChooser, event);
@@ -118,7 +119,7 @@ public class VizController extends Controller {
         Dispatcher.forwardEvent(VizEvents.DataReceived, data);
     }
 
-    private void onDataRequested(AppEvent event) {
+    private void requestData(AppEvent event) {
 
         SensorValueModel[] pagedValues = new SensorValueModel[0];
         int page = 0;

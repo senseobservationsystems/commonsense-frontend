@@ -56,4 +56,7 @@ public class Constants {
     public static final String URL_LOGOUT = URL__BASE + "/logout";
     public static final String URL_SENSORS = URL__BASE + "/sensors";
     public static final String URL_USERS = URL__BASE + "/users";
+
+    public static final String ICON_LOADING = "gxt/images/gxt/icons/loading.gif";
+    public static final String ICON_BUTTON_GO = "gxt/images/gxt/icons/page-next.gif";
 }
