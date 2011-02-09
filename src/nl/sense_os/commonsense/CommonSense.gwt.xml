@@ -6,6 +6,8 @@
   <inherits name="com.google.gwt.http.HTTP" />
   <inherits name='com.google.gwt.jsonp.Jsonp'/>
 
+  <inherits name='com.google.gwt.maps.GoogleMaps' />
+
   <!-- Inherit the default GWT style sheet.                       -->
   <inherits name='com.google.gwt.user.theme.standard.Standard'/>
 
@@ -13,7 +15,7 @@
   <inherits name='com.extjs.gxt.ui.GXT'/>  
   <inherits name='com.google.gwt.visualization.Visualization'/>  
   <inherits name='com.chap.links.Timeline'/>
-  <inherits name='com.chap.links.Graph'/>  
+  <inherits name='com.chap.links.Graph'/>
   
   <!-- External stylesheets                                       -->
   <!-- Include at least one stylesheet, else the stylesheets in   -->
