@@ -4,6 +4,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.events.VizEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.views.components.Visualization;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -13,13 +14,23 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.maps.client.InfoWindowContent;
+import com.google.gwt.maps.client.MapWidget;
+import com.google.gwt.maps.client.Maps;
+import com.google.gwt.maps.client.control.LargeMapControl;
+import com.google.gwt.maps.client.geom.LatLng;
+import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class VizMap extends View {
 
     private static final String TAG = "VizMap";
-    private ContentPanel panel;
-    private List<TreeModel> sensors;
+    private TreeModel [] sensors;
 
     public VizMap(Controller c) {
         super(c);
@@ -38,20 +49,74 @@ public class VizMap extends View {
 
     @Override
     protected void initialize() {
-        super.initialize();
-
-        this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeaderVisible(false);
-        this.panel.setBodyBorder(false);
-        this.panel.setScrollMode(Scroll.NONE);
+        super.initialize();        
     }
 
     private void onShow(AppEvent event) {
+		this.sensors = event.<TreeModel[]> getData("sensors");    	
+    	
+		if (this.sensors != null) {
+			Log.d(TAG, "sensors length: "+this.sensors.length);
+						
+			for (int i = 0; i < this.sensors.length; i++) {
+				Log.d(TAG, "sensor["+i+"]: "+ this.sensors[i].toString());
+			}
+		}
+		
+		// Asynchronously loads the Maps API.
 
-        this.sensors = event.<List<TreeModel>> getData();
+		// @@ README: The first parameter should be a valid Maps API Key to 
+		// deploy this application on a public server, but a blank key will 
+		// work for an application served from localhost.
+    	
+		Maps.loadMapsApi("", "2", false, new Runnable() {
+			public void run() {
+				TreeModel [] sensorList = getSensors();
 
-        AppEvent response = new AppEvent(VizEvents.MapReady);
-        response.setData(this.panel);
-        Dispatcher.forwardEvent(response);
+				if (sensorList != null)
+					Log.d(TAG, "sensorList: "+sensorList.toString());
+				
+		        ContentPanel panel = new ContentPanel(new FitLayout());
+		        panel.setHeaderVisible(false);
+		        panel.setBodyBorder(false);
+		        panel.setScrollMode(Scroll.NONE);
+		        panel.setId("viz-map");				
+
+				createMap(panel);
+
+		        AppEvent response = new AppEvent(VizEvents.MapReady);
+		        response.setData(panel);
+		        Dispatcher.forwardEvent(response);		        
+			}
+		});
     }
+    
+    public TreeModel [] getSensors() {
+    	return this.sensors;
+    }
+    
+    private void createMap(ContentPanel panel) {
+        // Open a map centered on Cawker City, KS USA
+        //LatLng cawkerCity = LatLng.newInstance(39.509, -98.434);
+
+        //final MapWidget map = new MapWidget(cawkerCity, 2);
+    	final MapWidget map = new MapWidget();
+        map.setSize("100%", "100%");
+        // Add some controls for the zoom level
+        map.addControl(new LargeMapControl());
+
+        // Add a marker
+        //map.addOverlay(new Marker(cawkerCity));
+
+        // Add an info window to highlight a point of interest
+        //map.getInfoWindow().open(map.getCenter(),
+        //   new InfoWindowContent("World's Largest Ball of Sisal Twine"));
+
+        final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
+        dock.addNorth(map, 500);
+
+        // Add the map to the HTML host page
+        panel.add(dock);
+    }
+    
 }
