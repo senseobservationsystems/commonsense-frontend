@@ -444,6 +444,8 @@ public class Visualization extends LayoutContainer {
         item.setLayout(new FitLayout());
         item.setClosable(true);
         item.add(mapPanel);
+        item.layout();
+        
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
         this.unfinishedTab = item;

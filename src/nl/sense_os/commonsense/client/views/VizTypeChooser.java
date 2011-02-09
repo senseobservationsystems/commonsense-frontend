@@ -206,6 +206,38 @@ public class VizTypeChooser extends View {
     }
 
     private void initTypeButtons() {
+        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                Radio label = typesField.getValue();
+                if (label.equals(lineChart)) {
+                    vizEvent.setType(VizEvents.ShowLineChart);
+                    vizEvent.setData("sensors", sensors);
+
+                    buttonToTimeRange.setText("Next");
+                } else if (label.equals(table)) {
+                    vizEvent.setType(VizEvents.ShowTable);
+                    vizEvent.setData("sensors", sensors);
+
+                    buttonToTimeRange.setText("Go!");
+                } else if (label.equals(map)) {
+                    vizEvent.setType(VizEvents.ShowMap);
+                    vizEvent.setData("sensors", locationSensors);
+                    //vizEvent.setData("sensors", sensors);
+
+                    buttonToTimeRange.setText("Next");
+                } else if (label.equals(network)) {
+                    vizEvent.setType(VizEvents.ShowNetwork);
+                    vizEvent.setData("sensors", sensors);
+
+                    buttonToTimeRange.setText("Next");
+                } else {
+                    Log.w(TAG, "Unexpected selection: " + label);
+                }
+            }
+        });
+
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override

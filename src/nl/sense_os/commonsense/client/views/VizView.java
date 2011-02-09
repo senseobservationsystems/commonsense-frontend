@@ -32,40 +32,58 @@ public class VizView extends View {
         if (type.equals(MainEvents.ShowVisualization)) {
             // Log.d(TAG, "Show");
             onShow(event);
+            
         } else if (type.equals(LoginEvents.LoggedIn)) {
             // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
+            
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+            
         } else if (type.equals(VizEvents.DataNotReceived)) {
             Log.w(TAG, "DataNotReceived");
             onDataNotReceived(event);
+            
         } else if (type.equals(VizEvents.DataReceived)) {
             Log.d(TAG, "DataReceived");
             onDataReceived(event);
+            
         } else if (type.equals(StateEvents.FeedbackComplete)
                 || type.equals(StateEvents.FeedbackCancelled)) {
             // Log.d(TAG, "FeedbackComplete");
+
             this.vizPanel.removeFeedback();
+            
         } else if (type.equals(StateEvents.FeedbackReady)) {
             Log.d(TAG, "FeedbackReady");
             ContentPanel feedbackPanel = event.getData();
             this.vizPanel.showFeedback(feedbackPanel);
+
         } else if (type.equals(VizEvents.ShowLineChart)) {
             Log.d(TAG, "ShowLineChart");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             long startTime = event.<Long> getData("startTime");
             long endTime = event.<Long> getData("endTime");
             this.vizPanel.showLineChart(sensors, startTime, endTime);
+            
         } else if (type.equals(VizEvents.ShowTable)) {
             Log.d(TAG, "ShowTable");
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             this.vizPanel.showTable(sensors);
+            
         } else if (type.equals(VizEvents.MapReady)) {
             Log.d(TAG, "MapReady");
             ContentPanel mapPanel = event.getData();
             this.vizPanel.showMap(mapPanel);
+            
+            /*
+            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+            long startTime = event.<Long> getData("startTime");
+            long endTime = event.<Long> getData("endTime");
+            this.vizPanel.showMap(sensors, startTime, endTime);
+            */            
+            
         } else if (type.equals(VizEvents.ShowNetwork)) {
             Log.w(TAG, "ShowNetwork not implemented");
             // TODO
