@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -24,43 +25,34 @@ public class VizMap extends View {
     private static final String TAG = "VizMap";
     private TreeModel[] sensors;
 
-    public VizMap(Controller c) {
-        super(c);
-    }
+	public VizMap(Controller c) {
+		super(c);
+	}
 
-    @Override
-    protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type.equals(VizEvents.ShowMap)) {
-            // Log.d(TAG, "Show");
-            onShow(event);
-        } else {
-            Log.e(TAG, "Unexpected event type received!");
-        }
-    }
+	@Override
+	protected void handleEvent(AppEvent event) {
+		EventType type = event.getType();
+		if (type.equals(VizEvents.ShowMap)) {
+			// Log.d(TAG, "Show");
+			onShow(event);
+		} else {
+			Log.e(TAG, "Unexpected event type received!");
+		}
+	}
 
     @Override
     protected void initialize() {
         super.initialize();
     }
 
-    private void onShow(AppEvent event) {
-        this.sensors = event.<TreeModel[]> getData("sensors");
+	private void onShow(AppEvent event) {
+		this.sensors = event.<TreeModel[]> getData("sensors");
 
-        if (this.sensors != null) {
-            Log.d(TAG, "sensors length: " + this.sensors.length);
+		if (this.sensors != null) {
+			Log.d(TAG, "sensors length: " + this.sensors.length);
+		}
 
-            for (int i = 0; i < this.sensors.length; i++) {
-                Log.d(TAG, "sensor[" + i + "]: " + this.sensors[i].toString());
-            }
-        }
-
-        // Asynchronously loads the Maps API.
-
-        // @@ README: The first parameter should be a valid Maps API Key to
-        // deploy this application on a public server, but a blank key will
-        // work for an application served from localhost.
-
+		// Asynchronously loads the Maps API.
         Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
             public void run() {
                 TreeModel[] sensorList = getSensors();
@@ -99,16 +91,15 @@ public class VizMap extends View {
 
         // Add a marker
         // map.addOverlay(new Marker(cawkerCity));
-
+        
         // Add an info window to highlight a point of interest
         // map.getInfoWindow().open(map.getCenter(),
         // new InfoWindowContent("World's Largest Ball of Sisal Twine"));
 
-        final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
-        dock.addNorth(map, 500);
+		final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
+		dock.addNorth(map, 500);
 
-        // Add the map to the HTML host page
-        panel.add(dock);
-    }
-
+		// Add the map to the HTML host page
+		panel.add(dock);
+	}
 }
