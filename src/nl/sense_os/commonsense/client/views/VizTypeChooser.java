@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.views;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.TagModel;
 
@@ -62,6 +63,7 @@ public class VizTypeChooser extends View {
                 System.arraycopy(this.locationSensors, 0, temp, 0, this.locationSensors.length);
                 this.locationSensors = temp;
                 this.locationSensors[this.locationSensors.length - 1] = tag;
+                Log.d(TAG, "locationSensors: " + tag);
             } else {
                 // do nothing
             }
@@ -222,7 +224,8 @@ public class VizTypeChooser extends View {
 
                     buttonToTimeRange.setText("Go!");
                 } else if (label.equals(map)) {
-                    vizEvent.setType(VizEvents.ShowMap);
+                    //vizEvent.setType(VizEvents.ShowMap);
+                	vizEvent.setType(MapEvents.LoadMap);
                     vizEvent.setData("sensors", locationSensors);
                     //vizEvent.setData("sensors", sensors);
 
@@ -399,6 +402,8 @@ public class VizTypeChooser extends View {
         } else if (label.equals(this.map)) {
             this.vizEvent.setType(VizEvents.ShowMap);
             this.vizEvent.setData("sensors", this.locationSensors);
+            Log.d(TAG, "locationSensors: " + this.locationSensors);
+            //this.vizEvent.setData("sensors", this.sensors);
 
             buttonToTimeRange.setText("Next");
         } else if (label.equals(this.network)) {
