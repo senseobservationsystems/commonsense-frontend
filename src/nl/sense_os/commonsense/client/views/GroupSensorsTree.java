@@ -12,6 +12,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -252,19 +253,13 @@ public class GroupSensorsTree extends View {
 
     private void onVizClick() {
         List<TreeModel> selection = tree.getSelectionModel().getSelection();
-        for (TreeModel sensor : selection) {
 
-            TreeModel parent = sensor.getParent();
-            if (null != parent) {
-                sensor.set("alias", parent.<String> get("id"));
-            }
-        }
         // TODO get child sensors of selected users, groups and devices
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
     }
 
     private void setBusy(boolean busy) {
-        String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
+        String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }
 

@@ -180,26 +180,34 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
     public TreeModel getGroupSensors(String sessionId, TreeModel group)
             throws DbConnectionException, WrongResponseException {
 
-        List<TreeModel> groupTree = getSortedSensors(sessionId,
-                "?alias=" + group.<String> get("id"));
+        final String alias = group.<String> get("id");
+        List<TreeModel> groupTree = getSortedSensors(sessionId, null, alias);
         group.removeAll();
         for (TreeModel treeItem : groupTree) {
             group.add(treeItem);
         }
         return group;
     }
-
     @Override
     public List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        return getSortedSensors(sessionId, "?owned=1");
+        return getSortedSensors(sessionId, "1", null);
     }
 
-    private List<TreeModel> getSortedSensors(String sessionId, String urlSuffix)
+    private List<TreeModel> getSortedSensors(String sessionId, String owned, String alias)
             throws WrongResponseException, DbConnectionException {
 
         // request all sensors from server
+        String urlSuffix = "";
+        if (null != owned) {
+            urlSuffix = "?owned=" + owned;
+            if (null != alias) {
+                urlSuffix += "&alias=" + alias;
+            }
+        } else {
+            urlSuffix = "?alias=" + alias;
+        }
         String url = Constants.URL_SENSORS + urlSuffix;
         doRequest(url, sessionId, "GET", null);
 
@@ -209,6 +217,12 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         }
 
         List<ModelData> unsortedSensors = parseSensors(this.responseContent);
+
+        // store alias and owner information for future use
+        for (ModelData sensor : unsortedSensors) {
+            sensor.set("owned", owned);
+            sensor.set("alias", alias);
+        }
 
         List<TreeModel> feedsSensors = new ArrayList<TreeModel>();
         List<TreeModel> deviceSensors = new ArrayList<TreeModel>();
@@ -262,6 +276,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         return devices;
     }
+
     @Override
     public List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
             WrongResponseException {
@@ -385,6 +400,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             throw (new WrongResponseException(e.getMessage()));
         }
     }
+
     private ModelData parseDevice(String response) throws WrongResponseException {
         try {
             JSONObject device = (JSONObject) new JSONObject(response).get("device");

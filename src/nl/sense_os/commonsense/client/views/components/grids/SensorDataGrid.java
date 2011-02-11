@@ -41,9 +41,9 @@ public class SensorDataGrid extends LayoutContainer {
         // grid panel parameters
         ModelType model = createModelType();
         final List<ColumnConfig> colConf = createColConfig(tags);
-        final String url = createUrl(tags);        
+        final String url = createUrl(tags);
         final int pageSize = 25;
-        
+
         // Grid.
         PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize);
 
@@ -56,7 +56,7 @@ public class SensorDataGrid extends LayoutContainer {
         setLayout(new FitLayout());
         add(gridPanel);
     }
-    
+
     private List<ColumnConfig> createColConfig(final TreeModel[] tags) {
         List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
 
@@ -66,7 +66,7 @@ public class SensorDataGrid extends LayoutContainer {
         idCol.setDataIndex("id");
         idCol.setWidth(50);
         colConf.add(idCol);
-        
+
         ColumnConfig sensorCol = new ColumnConfig();
         sensorCol.setId("sensor_id");
         sensorCol.setHeader("sensor id");
@@ -89,7 +89,7 @@ public class SensorDataGrid extends LayoutContainer {
                     }
                 }
                 return id;
-            }            
+            }
         });
         colConf.add(sensorCol);
 
@@ -136,10 +136,10 @@ public class SensorDataGrid extends LayoutContainer {
             }
         });
         colConf.add(timeCol);
-        
+
         return colConf;
     }
-    
+
     private ModelType createModelType() {
         ModelType model = new ModelType();
         model.setTotalName("total");
@@ -160,6 +160,11 @@ public class SensorDataGrid extends LayoutContainer {
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         String result = Constants.URL_DATA.replaceAll("<id>", id);
         result += "?session_id=" + sessionId;
+
+        final String alias = tags[0].get("alias");
+        if (alias != null) {
+            result += "&alias=" + alias;
+        }
         return result;
     }
 

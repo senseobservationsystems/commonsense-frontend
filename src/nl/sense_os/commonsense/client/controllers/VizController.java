@@ -131,9 +131,9 @@ public class VizController extends Controller {
         url += "&start_date=" + event.<Double> getData("startDate");
         url += "&end_date=" + event.<Double> getData("endDate");
 
-        String owner = sensor.get("alias");
-        if (null != owner) {
-            url += "&alias=" + owner;
+        String alias = sensor.get("alias");
+        if (null != alias) {
+            url += "&alias=" + alias;
         }
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
