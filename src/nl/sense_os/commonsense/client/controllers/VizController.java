@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.VizMap;
 import nl.sense_os.commonsense.client.views.VizTypeChooser;
@@ -32,33 +33,42 @@ public class VizController extends Controller {
     private static final String TAG = "VizController";
     private View vizView;
     private View typeChooser;
-    private View mapVisualization;
+    private View mapView;
     private boolean isVizApiLoaded;
 
     public VizController() {
         registerEventTypes(MainEvents.ShowVisualization);
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
-        registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
-                VizEvents.DataReceived);
+        registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived, VizEvents.DataReceived);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowNetwork);
-        registerEventTypes(VizEvents.ShowMap, VizEvents.MapReady);
-        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete,
-                StateEvents.FeedbackCancelled);
+        registerEventTypes(VizEvents.ShowMap, VizEvents.MapReady, VizEvents.LoadMap);
+        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete, StateEvents.FeedbackCancelled);
+        
+        registerEventTypes(MapEvents.MapReady);
+        
         loadVizApi();
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
+        
         if (type.equals(VizEvents.DataRequested)) {
             Log.d(TAG, "DataRequested");
             requestData(event);
+            
         } else if (type.equals(VizEvents.ShowTypeChoice)
                 || type.equals(VizEvents.TypeChoiceCancelled)) {
             forwardToView(this.typeChooser, event);
+
+        // @@ TODO: remove this!!!            
         } else if (type.equals(VizEvents.ShowMap)) {
-            forwardToView(this.mapVisualization, event);
+            forwardToView(this.mapView, event);
+            
+        } else if (type.equals(MapEvents.MapReady)) {
+        	forwardToView(this.mapView, event);        	
+        	
         } else {
             forwardToView(this.vizView, event);
         }
@@ -69,7 +79,7 @@ public class VizController extends Controller {
         super.initialize();
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
-        this.mapVisualization = new VizMap(this);
+        this.mapView = new VizMap(this);
     }
 
     private void loadVizApi() {
@@ -120,7 +130,8 @@ public class VizController extends Controller {
     }
 
     private void requestData(AppEvent event) {
-
+    	Log.d(TAG, "requestData");
+    	
         SensorValueModel[] pagedValues = new SensorValueModel[0];
         int page = 0;
 
