@@ -4,6 +4,7 @@ import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.components.Visualization;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
@@ -72,17 +73,16 @@ public class VizView extends View {
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             this.vizPanel.showTable(sensors);
             
+        // @@ TODO: remove this!!! 
         } else if (type.equals(VizEvents.MapReady)) {
             Log.d(TAG, "MapReady");
             ContentPanel mapPanel = event.getData();
             this.vizPanel.showMap(mapPanel);
             
-            /*
-            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
-            long startTime = event.<Long> getData("startTime");
-            long endTime = event.<Long> getData("endTime");
-            this.vizPanel.showMap(sensors, startTime, endTime);
-            */            
+        } else if (type.equals(MapEvents.MapReady)) {
+            Log.d(TAG, "MapReady");
+            ContentPanel mapPanel = event.getData();
+            this.vizPanel.showMap(mapPanel);
             
         } else if (type.equals(VizEvents.ShowNetwork)) {
             Log.w(TAG, "ShowNetwork not implemented");
