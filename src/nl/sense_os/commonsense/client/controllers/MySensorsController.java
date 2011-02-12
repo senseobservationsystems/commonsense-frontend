@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.client.controllers;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.controllers.cors.MySensorsJsniRequests;
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.MySensorsEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.MySensorsShareDialog;

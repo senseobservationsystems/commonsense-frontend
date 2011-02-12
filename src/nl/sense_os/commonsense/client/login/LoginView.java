@@ -1,8 +1,7 @@
-package nl.sense_os.commonsense.client.views;
+package nl.sense_os.commonsense.client.login;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.components.CenteredWindow;

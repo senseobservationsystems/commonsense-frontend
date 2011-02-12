@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.views;
 
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.StateEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.components.Visualization;

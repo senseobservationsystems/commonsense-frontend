@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.events.BuildingEvents;
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;

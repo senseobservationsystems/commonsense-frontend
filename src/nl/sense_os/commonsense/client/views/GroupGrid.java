@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.events.GroupEvents;
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;

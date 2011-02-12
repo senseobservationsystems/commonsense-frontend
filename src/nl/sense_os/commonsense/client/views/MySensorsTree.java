@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.client.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.events.MySensorsEvents;
 import nl.sense_os.commonsense.client.events.VizEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;

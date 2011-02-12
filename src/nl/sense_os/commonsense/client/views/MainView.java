@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.client.views;
 
 import nl.sense_os.commonsense.client.CommonSense;
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.views.components.HelpScreen;
 import nl.sense_os.commonsense.client.views.components.HomeScreen;

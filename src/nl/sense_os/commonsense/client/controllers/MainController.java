@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.controllers;
 
-import nl.sense_os.commonsense.client.events.LoginEvents;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.views.MainView;
 import nl.sense_os.commonsense.client.views.components.NavPanel;
 import nl.sense_os.commonsense.shared.Constants;

@@ -2,16 +2,17 @@ package nl.sense_os.commonsense.client;
 
 import java.util.Date;
 
+import nl.sense_os.commonsense.client.ajax.AjaxController;
 import nl.sense_os.commonsense.client.controllers.BuildingController;
 import nl.sense_os.commonsense.client.controllers.FeedbackController;
 import nl.sense_os.commonsense.client.controllers.GroupController;
 import nl.sense_os.commonsense.client.controllers.GroupSensorsController;
-import nl.sense_os.commonsense.client.controllers.LoginController;
 import nl.sense_os.commonsense.client.controllers.MainController;
 import nl.sense_os.commonsense.client.controllers.MySensorsController;
 import nl.sense_os.commonsense.client.controllers.StateController;
 import nl.sense_os.commonsense.client.controllers.VizController;
 import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.services.GroupsService;
@@ -69,6 +70,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new BuildingController());
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
+        dispatcher.addController(new AjaxController());
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);

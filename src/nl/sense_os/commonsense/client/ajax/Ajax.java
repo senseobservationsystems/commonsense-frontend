@@ -2,29 +2,34 @@ package nl.sense_os.commonsense.client.ajax;
 
 import java.util.HashMap;
 
-import nl.sense_os.commonsense.client.controllers.VizController;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
-
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 public class Ajax {
-	
-    private static final String TAG = "Ajax";	
-	
+
+    private static final String TAG = "Ajax";
+
     /**
-     * Requests sensor data from CommonSense. Calls back to
-     * {@link #parseData(String, TreeModel, SensorValueModel[], int, VizController, String)},
-     * {@link VizController#onDataAuthError()}, or {@link VizController#onDataFailed(TreeModel)}.
+     * Does cross-domain request using the JSNI to make this work for IE. Calls back to
+     * {@link AjaxController#onSuccess(String, EventType)} after the request is complete, or to
+     * {@link AjaxController#onFailure()} or {@link AjaxController#onAuthError()} if something went
+     * wrong.
      * 
-     * @param method HTTP method
+     * @param method
+     *            HTTP method
      * @param url
      * @param sessionId
-     * @param params HTTP params
-     * @param event
-     * @param handler AjaxController object to handle the callbacks
+     *            Optional session ID for authentication. Will be sent as X-SESSION_ID header (or as
+     *            URL parameter in IE)
+     * @param body
+     *            String with optional body for the request (e.g. for POST or PUT requests)
+     * @param params
+     *            HTTP parameters
+     * @param onSuccess
+     *            EventType for the event for dispatch after the request is complete
+     * @param onFailure
+     *            EventType for the event for dispatch if the request fails
+     * @param handler
+     *            AjaxController instance to return the ajax result to
      * 
      * @see <a href="http://goo.gl/ajJWN">Making cross domain JavaScript requests</a>
      */
@@ -32,76 +37,66 @@ public class Ajax {
     public static native void request(
     		String method,
     		String url,
-    		String sessionId,
+            String sessionId,
+    		String body,
     		HashMap<String, Object> params,
-    		AppEvent event,
+            EventType onSuccess,
+            EventType onFailure,
     		AjaxController handler) /*-{
-            	
-        var isIE8 = window.XDomainRequest ? true : false;
-        var xhr = createCrossDomainRequest();
 
-        function createCrossDomainRequest() {
-            return (isIE8) ? new window.XDomainRequest() : new XMLHttpRequest();
-        }
+		var isIE8 = window.XDomainRequest ? true : false;
+		var xhr = createCrossDomainRequest();
 
-        function readyStateHandler() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) { onSuccess(); } 
-                else if (xhr.status == 403) { onAuthError(); } 
-                else { onFailure(); }
-            }
-        }
+		function createCrossDomainRequest() {
+			return (isIE8) ? new window.XDomainRequest() : new XMLHttpRequest();
+		}
 
-        function onAuthError() {
-            handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onAuthError()();
-        }
+		function readyStateHandler() {
+			if (xhr.readyState == 4) {
+				if (xhr.status == 200) {
+					handleSuccess();
+				} else if (xhr.status == 403) {
+					handleAuthError();
+				} else {
+					handleFailure();
+				}
+			}
+		}
 
-        // @@ FIXME: this method should be as general as we can to use in any case.
-        function onFailure() {
-            handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure()();
-        }
+		// NB: this is only called by Chrome, other browsers do not give the status code of failed requests
+		function handleAuthError() {
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onAuthError(ILcom/extjs/gxt/ui/client/event/EventType;)(xhr.status, onFailure);
+		}
 
-		// @@ FIXME: fix this method
-        function onSuccess() {
-            @nl.sense_os.commonsense.client.ajax.Ajax::setData(Ljava/lang/String; Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(xhr.responseText, event);
-        }
+		// @@ FIXME: this method should be as general as we can to use in any case.
+		function handleFailure() {
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(ILcom/extjs/gxt/ui/client/event/EventType;)(xhr.status, onFailure);
+		}
 
-        if (xhr) {
-            if (isIE8) {
-                url = url + "&session_id=" + sessionId;
-                xhr.open(method, url);
-                xhr.onload = onSuccess;
-                xhr.onerror = onFailure;
-                xhr.send();
-            } else {
-                xhr.open(method, url, true);
-                xhr.onreadystatechange = readyStateHandler;
-                xhr.setRequestHeader("X-SESSION_ID", sessionId);
-                xhr.send();
-            }
-        } else {
-            onFailure();
-        }
+		function handleSuccess() {
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onSuccess(Ljava/lang/String;Lcom/extjs/gxt/ui/client/event/EventType;)(xhr.responseText, onSuccess);
+		}
+
+		if (xhr) {
+			if (isIE8) {
+				if (undefined != sessionId) {
+					url = url + "&session_id=" + sessionId;
+				}
+				xhr.open(method, url);
+				xhr.onload = onSuccess;
+				xhr.onerror = onFailure;
+				xhr.send(body);
+			} else {
+				xhr.open(method, url, true);
+				xhr.onreadystatechange = readyStateHandler;
+				if (undefined != sessionId) {
+					xhr.setRequestHeader("X-SESSION_ID", sessionId);
+				}
+				xhr.send(body);
+			}
+		} else {
+			handleFailure();
+		}
     }-*/;
     // @formatter:on
-
-    /**
-     * @@ TODO
-     * 
-     * @param response
-     * @param event
-     */
-    private static void setData(String response, AppEvent event) {
-       	// @@ FIXME: what kind of data should we put in the event?
-       	
-        EventType forwardEvt = (EventType) event.getData("forward_evt");
-       	AppEvent dstEvent = new AppEvent(forwardEvt);
-       	
-    	// Put the ajax response in the event.  	
-       	dstEvent.setData("response", response);
-
-       	// Dispatch the destination event.       	
-		Dispatcher.forwardEvent(dstEvent);
-	}
-    
 }
