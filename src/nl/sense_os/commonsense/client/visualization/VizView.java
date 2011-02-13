@@ -2,10 +2,10 @@ package nl.sense_os.commonsense.client.visualization;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.components.Visualization;
+import nl.sense_os.commonsense.client.visualization.map.MapEvents;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.map;
+package nl.sense_os.commonsense.client.visualization.map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.json.client.JSONObject;
@@ -26,12 +27,12 @@ import com.google.gwt.user.client.Timer;
 public class MapController extends Controller {
 
     private static final String TAG = "MapController";
-    private MapView mapView;
+    private View mapView;
     private boolean isApiLoaded;
 
     public MapController() {
         registerEventTypes(MainEvents.Init);
-        registerEventTypes(MapEvents.LoadMap, MapEvents.ShowMap);
+        registerEventTypes(MapEvents.LoadMap, MapEvents.Show);
     }
 
     public void initialize() {
@@ -40,20 +41,25 @@ public class MapController extends Controller {
         loadMapsApi();
     }
 
+    /**
+     * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
+     * window is shown.
+     */
     private void loadMapsApi() {
 
         // Asynchronously load the Maps API.
         this.isApiLoaded = false;
-        final Runnable apiCallback = new Runnable() {
+        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
+
+            @Override
             public void run() {
                 Log.d(TAG, "Google Maps API loaded...");
                 isApiLoaded = true;
             }
-        };
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, apiCallback);
+        });
 
         // double check that the API has been loaded within 10 seconds
-        Timer timer = new Timer() {
+        new Timer() {
 
             @Override
             public void run() {
@@ -71,27 +77,21 @@ public class MapController extends Controller {
                             });
                 }
             }
-        };
-        timer.schedule(1000 * 10);
+        }.schedule(1000 * 10);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        EventType evtType = event.getType();
+        EventType type = event.getType();
 
-        if (evtType.equals(MapEvents.LoadMap)) {
+        if (type.equals(MapEvents.LoadMap)) {
             requestData(event);
 
-        } else if (evtType.equals(MapEvents.ShowMap)) {
-            // @@ TODO:
-            // 1- retrieve the data from the event
-            // 2- parse the data
-            // 3- use the parsed data to create the map
-            String response = event.getData("response");
-            JSONObject data = parseData(response);
+        } else if (type.equals(MapEvents.Show)) {
+            forwardToView(this.mapView, event);
 
-            // forwardToView(this.mapView, event);
-            forwardToView(this.mapView, MapEvents.CreateMap, data);
+        } else {
+            Log.w(TAG, "Unexpected event received");
         }
     }
 
@@ -112,7 +112,7 @@ public class MapController extends Controller {
     /**
      * Set the event with the required parameters for the AJAX request and dispatch the event. The
      * AJAX Controller will be listening to this event and it will get this request. Then, it will
-     * make the request and redirect the result to this Controller by using the ShowMap event type.
+     * make the request and redirect the result to this Controller by using the Show event type.
      * 
      * @param event
      */
@@ -145,7 +145,7 @@ public class MapController extends Controller {
         params.put("url", url);
         params.put("session_id", sessionId);
         // Tell the AJAX Controller to dispatch this event after getting the response.
-        params.put("forward_evt", MapEvents.ShowMap);
+        params.put("forward_evt", MapEvents.Show);
 
         // DataJsniRequests.requestData(url, sessionId, sensor, page, pagedValues, this);
 

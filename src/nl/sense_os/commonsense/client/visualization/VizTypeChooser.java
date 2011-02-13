@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.visualization;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.map.MapEvents;
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -53,22 +53,25 @@ public class VizTypeChooser extends View {
     }
 
     private boolean checkForLocationSensors(TreeModel[] list) {
+
         // create array to send as parameter in RPC
         this.locationSensors = new TreeModel[0];
-        for (TreeModel tag : list) {
-            String structure = tag.<String> get("data_structure");
+        for (TreeModel sensor : list) {
+
+            String structure = sensor.<String> get("data_structure");
+
             if (structure.contains("longitude")) {
                 final TreeModel[] temp = new TreeModel[this.locationSensors.length + 1];
                 System.arraycopy(this.locationSensors, 0, temp, 0, this.locationSensors.length);
                 this.locationSensors = temp;
-                this.locationSensors[this.locationSensors.length - 1] = tag;
-                Log.d(TAG, "locationSensors: " + tag);
+                this.locationSensors[this.locationSensors.length - 1] = sensor;
+
             } else {
                 // do nothing
             }
         }
 
-        // check whether there are any tags at all
+        // check whether there are any sensors at all
         if (this.locationSensors.length == 0) {
             return false;
         }
@@ -76,22 +79,26 @@ public class VizTypeChooser extends View {
     }
 
     private boolean checkForSensors(List<TreeModel> list) {
+
         // create array to send as parameter in RPC
         this.sensors = new TreeModel[0];
-        for (TreeModel tag : list) {
+        for (TreeModel sensor : list) {
+
             // final TagModel tag = (TagModel) tsm.getModel();
-            int tagType = tag.<Integer> get("tagType");
+            int tagType = sensor.<Integer> get("tagType");
+
             if (tagType == TagModel.TYPE_SENSOR) {
                 final TreeModel[] temp = new TreeModel[this.sensors.length + 1];
                 System.arraycopy(this.sensors, 0, temp, 0, this.sensors.length);
-                temp[temp.length - 1] = tag;
+                temp[temp.length - 1] = sensor;
                 this.sensors = temp;
+
             } else {
                 // do nothing
             }
         }
 
-        // check whether there are any tags at all
+        // check whether there are any sensors at all
         if (this.sensors.length == 0) {
             return false;
         }
@@ -399,7 +406,7 @@ public class VizTypeChooser extends View {
 
             buttonToTimeRange.setText("Go!");
         } else if (label.equals(this.map)) {
-            this.vizEvent.setType(MapEvents.ShowMap);
+            this.vizEvent.setType(MapEvents.Show);
             this.vizEvent.setData("sensors", this.locationSensors);
             Log.d(TAG, "locationSensors: " + this.locationSensors);
             // this.vizEvent.setData("sensors", this.sensors);

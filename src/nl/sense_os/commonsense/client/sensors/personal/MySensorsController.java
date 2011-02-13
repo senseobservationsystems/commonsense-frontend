@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors;
+package nl.sense_os.commonsense.client.sensors.personal;
 
 import java.util.List;
 

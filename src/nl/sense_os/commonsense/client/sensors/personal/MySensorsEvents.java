@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors;
+package nl.sense_os.commonsense.client.sensors.personal;
 
 import com.extjs.gxt.ui.client.event.EventType;
 

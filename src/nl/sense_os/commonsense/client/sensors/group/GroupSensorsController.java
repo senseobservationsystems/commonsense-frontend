@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors;
+package nl.sense_os.commonsense.client.sensors.group;
 
 import java.util.ArrayList;
 import java.util.List;

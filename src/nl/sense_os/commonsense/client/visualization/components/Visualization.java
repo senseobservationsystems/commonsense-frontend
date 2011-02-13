@@ -5,8 +5,8 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.environments.BuildingEvents;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
-import nl.sense_os.commonsense.client.sensors.GroupSensorsEvents;
-import nl.sense_os.commonsense.client.sensors.MySensorsEvents;
+import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
+import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;

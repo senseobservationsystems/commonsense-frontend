@@ -1,6 +1,7 @@
-package nl.sense_os.commonsense.client.map;
+package nl.sense_os.commonsense.client.visualization.map;
 
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.map.components.MapPanel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -26,8 +27,8 @@ public class MapView extends View {
     protected void handleEvent(AppEvent event) {
         EventType evtType = event.getType();
 
-        if (evtType.equals(MapEvents.CreateMap)) {
-            // Log.d(TAG, "onCreateMap");
+        if (evtType.equals(MapEvents.Show)) {
+            Log.d(TAG, "Show");
             onCreateMap(event);
 
         } else {
@@ -56,6 +57,7 @@ public class MapView extends View {
         createMap(mapPanel);
 
         // The created panel is sent to
+        fireEvent(MapEvents.LoadMap);
         Dispatcher.forwardEvent(MapEvents.MapReady, mapPanel);
     }
 
