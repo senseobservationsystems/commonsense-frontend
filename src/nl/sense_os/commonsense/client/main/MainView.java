@@ -73,24 +73,31 @@ public class MainView extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
+
         if (type.equals(MainEvents.Error)) {
             Log.e(TAG, "Error");
             onError(event);
+
         } else if (type.equals(MainEvents.Init)) {
             Log.d(TAG, "Init");
             // do nothing: actual initialization is done in initialize()
+
         } else if (type.equals(MainEvents.UiReady)) {
-            // Log.d(TAG, "UiReady");
+            Log.d(TAG, "UiReady");
             onUiReady(event);
+
         } else if (type.equals(MainEvents.Navigate)) {
             // Log.d(TAG, "Navigate: \'" + event.<String> getData() + "\'");
             onNavigate(event);
+
         } else if (type.equals(LoginEvents.LoggedIn)) {
             // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -110,8 +117,6 @@ public class MainView extends View {
         createNavigation();
         createCenter();
         createFooter();
-
-        RootPanel.get().add(viewport);
     }
 
     private void onError(AppEvent event) {
@@ -179,6 +184,6 @@ public class MainView extends View {
     }
 
     private void onUiReady(AppEvent event) {
-        // RootPanel.get().add(this.viewport);
+        RootPanel.get().add(this.viewport);
     }
 }

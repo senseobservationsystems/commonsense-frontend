@@ -8,6 +8,7 @@ import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.map.MapController;
 import nl.sense_os.commonsense.client.sensors.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.MySensorsController;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -70,6 +71,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new BuildingController());
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
+        dispatcher.addController(new MapController());
         dispatcher.addController(new AjaxController());
 
         // start initializing all views

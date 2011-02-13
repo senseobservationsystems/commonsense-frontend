@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.visualization;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -28,13 +29,12 @@ public class VizView extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
 
-        if (type.equals(VizEvents.Show)) {
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show");
             onShow(event);
-
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
-            onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -71,12 +71,6 @@ public class VizView extends View {
             TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
             this.vizPanel.showTable(sensors);
 
-            // @@ TODO: remove this!!!
-        } else if (type.equals(VizEvents.MapReady)) {
-            Log.d(TAG, "MapReady");
-            ContentPanel mapPanel = event.getData();
-            this.vizPanel.showMap(mapPanel);
-
         } else if (type.equals(MapEvents.MapReady)) {
             Log.d(TAG, "MapReady");
             ContentPanel mapPanel = event.getData();
@@ -84,7 +78,7 @@ public class VizView extends View {
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
             Log.w(TAG, "ShowNetwork not implemented");
-            // TODO
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -105,20 +99,16 @@ public class VizView extends View {
         this.vizPanel.onSensorValuesReceived(data);
     }
 
-    private void onLoggedIn(AppEvent event) {
-        this.vizPanel.resetTabs();
-    }
-
     private void onLoggedOut(AppEvent event) {
-
+        this.vizPanel.resetTabs();
     }
 
     private void onShow(AppEvent event) {
         this.vizPanel.setId("visualization");
 
-        LayoutContainer center = event.<LayoutContainer> getData();
-        center.removeAll();
-        center.add(this.vizPanel);
-        center.layout();
+        LayoutContainer parent = event.<LayoutContainer> getData();
+        parent.removeAll();
+        parent.add(this.vizPanel);
+        parent.layout();
     }
 }

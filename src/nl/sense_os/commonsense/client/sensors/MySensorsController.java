@@ -81,26 +81,32 @@ public class MySensorsController extends Controller {
         if (type.equals(MySensorsEvents.ListRequested)) {
             Log.d(TAG, "ListRequested");
             getMySensors(event);
+
         } else if (type.equals(MySensorsEvents.ShareRequested)) {
             // Log.d(TAG, "ShareRequested");
             shareSensor(event);
+
         } else if (type.equals(MySensorsEvents.AjaxShareFailure)) {
             // Log.d(TAG, "AjaxShareFailure");
             // final int code = event.getData("code");
             shareSensorErrorCallback(event);
+
         } else if (type.equals(MySensorsEvents.AjaxShareSuccess)) {
             // Log.d(TAG, "AjaxShareSuccess");
             // final String response = event.<String> getData("response");
             shareSensorCallback(event);
+
         } else if (type.equals(MySensorsEvents.ShowTree) || type.equals(MySensorsEvents.Done)
                 || type.equals(MySensorsEvents.Working) || type.equals(LoginEvents.LoggedOut)
                 || type.equals(VizEvents.Show) || type.equals(MainEvents.Init)) {
             forwardToView(this.treeView, event);
+
         } else if (type.equals(MySensorsEvents.ShowShareDialog)
                 || type.equals(MySensorsEvents.ShareComplete)
                 || type.equals(MySensorsEvents.ShareFailed)
                 || type.equals(MySensorsEvents.ShareCancelled)) {
             forwardToView(this.shareView, event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }

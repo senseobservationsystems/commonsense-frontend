@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -87,32 +88,46 @@ public class StateGrid extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.ShowGrid)) {
+
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(StateEvents.ShowGrid)) {
+            Log.d(TAG, "Show");
             onShow(event);
+
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "ShowVisualization");
+            Log.d(TAG, "ShowVisualization");
             refreshLoader();
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+
         } else if (type.equals(StateEvents.Done)) {
             Log.d(TAG, "ListUpdated");
             setBusy(false);
+
         } else if (type.equals(StateEvents.RemoveComplete)) {
             Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
+
         } else if (type.equals(StateEvents.RemoveFailed)) {
             Log.d(TAG, "RemoveFailed");
             onRemoveFailed(event);
+
         } else if (type.equals(StateEvents.Working)) {
             Log.d(TAG, "Working");
             setBusy(true);
+
         } else if (type.equals(StateEvents.ConnectComplete)) {
             Log.d(TAG, "ConnectComplete");
             refreshLoader();
+
         } else if (type.equals(StateEvents.CreateServiceComplete)) {
             Log.d(TAG, "CreateServiceComplete");
             refreshLoader();
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }

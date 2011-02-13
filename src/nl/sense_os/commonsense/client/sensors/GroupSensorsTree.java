@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -62,23 +63,34 @@ public class GroupSensorsTree extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupSensorsEvents.ShowTree)) {
+
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(GroupSensorsEvents.ShowTree)) {
+            Log.d(TAG, "onShow");
             onShow(event);
+
         } else if (type.equals(GroupSensorsEvents.Done)) {
             Log.d(TAG, "ListUpdated");
             setBusy(false);
+
         } else if (type.equals(GroupSensorsEvents.Working)) {
             Log.d(TAG, "Working");
             setBusy(true);
+
         } else if (type.equals(GroupEvents.ListUpdated)) {
             // Log.d(TAG, "Group ListUpdated");
             refreshTree();
+
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "ShowVisualization");
             // do nothing
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }

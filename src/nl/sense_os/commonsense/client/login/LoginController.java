@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.login;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.Constants;
@@ -11,6 +12,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -19,13 +21,15 @@ import com.google.gwt.json.client.JSONValue;
 public class LoginController extends Controller {
 
     private static final String TAG = "LoginController";
-    private LoginView loginView;
+    private View loginView;
     private boolean isCancelled;
     private boolean isLoggingIn;
 
     public LoginController() {
 
-        // general events
+        registerEventTypes(MainEvents.Init);
+
+        // general login events
         registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.RequestLogin,
                 LoginEvents.RequestLogout);
 
@@ -65,29 +69,47 @@ public class LoginController extends Controller {
         EventType eventType = event.getType();
 
         if (eventType.equals(LoginEvents.RequestLogin)) {
+            Log.d(TAG, "RequestLogin");
             login(event);
+
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
+            Log.d(TAG, "RequestLogout");
             logout(event);
+
         } else if (eventType.equals(LoginEvents.CancelLogin)) {
+            Log.d(TAG, "CancelLogin");
             onCancel(event);
+
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
+            Log.d(TAG, "AjaxLoginSuccess");
             final String response = event.<String> getData("response");
             parseLoginReponse(response);
+
         } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
+            Log.w(TAG, "AjaxLoginFailure");
             final int code = event.getData("code");
             onLoginError(code);
+
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
+            Log.d(TAG, "AjaxLogoutSuccess");
             final String response = event.<String> getData("response");
             onLoggedOut(response);
+
         } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
+            Log.w(TAG, "AjaxLogoutFailure");
             final int code = event.getData("code");
             onLogoutError(code);
+
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
+            Log.d(TAG, "AjaxUserSuccess");
             final String response = event.<String> getData("response");
             parseUserReponse(response);
+
         } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
+            Log.w(TAG, "AjaxUserFailure");
             final int code = event.getData("code");
             onLoginError(code);
+
         } else {
             forwardToView(this.loginView, event);
         }
@@ -197,7 +219,6 @@ public class LoginController extends Controller {
 
     public void onLogoutError(int code) {
         // TODO handle logout error events
-        Log.w(TAG, "LogoutError: " + code);
         onLoggedOut("Status code: " + code);
     }
 

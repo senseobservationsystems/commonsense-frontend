@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.login;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -53,30 +54,40 @@ public class LoginView extends View {
 
     @Override
     protected void handleEvent(AppEvent event) {
-        EventType eventType = event.getType();
-        if (eventType.equals(LoginEvents.Show)) {
+        EventType type = event.getType();
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(LoginEvents.Show)) {
             // Log.d(TAG, "Show");
             onShow(event);
-        } else if (eventType.equals(LoginEvents.Hide)) {
-            // Log.d(TAG, "Hide");
+
+        } else if (type.equals(LoginEvents.Hide)) {
+            Log.d(TAG, "Hide");
             hideWindow();
-        } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {
+
+        } else if (type.equals(LoginEvents.AuthenticationFailure)) {
             Log.w(TAG, "AuthenticationFailure");
             onAuthenticationFailure(event);
-        } else if (eventType.equals(LoginEvents.LoggedIn)) {
+
+        } else if (type.equals(LoginEvents.LoggedIn)) {
             Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
-        } else if (eventType.equals(LoginEvents.LoggedOut)) {
+
+        } else if (type.equals(LoginEvents.LoggedOut)) {
             Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (eventType.equals(LoginEvents.LoginError)) {
+
+        } else if (type.equals(LoginEvents.LoginError)) {
             Log.w(TAG, "LoginError");
             onError(event);
-        } else if (eventType.equals(LoginEvents.LoginCancelled)) {
+
+        } else if (type.equals(LoginEvents.LoginCancelled)) {
             // Log.d(TAG, "LoginCancelled");
             onCancelled(event);
+
         } else {
-            Log.e(TAG, "Unexpected event type: " + eventType);
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 

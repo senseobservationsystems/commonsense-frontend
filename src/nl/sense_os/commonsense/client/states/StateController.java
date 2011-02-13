@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
@@ -36,6 +37,7 @@ public class StateController extends Controller {
     private boolean isGettingMyServices;
 
     public StateController() {
+        registerEventTypes(MainEvents.Init);
         registerEventTypes(VizEvents.Show);
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(StateEvents.ShowGrid);
@@ -264,18 +266,16 @@ public class StateController extends Controller {
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.ListRequested)) {
 
+        if (type.equals(StateEvents.ListRequested)) {
             Log.d(TAG, "ListRequested");
             getMyServices(event);
 
         } else if (type.equals(StateEvents.AvailableSensorsRequested)) {
-
             Log.d(TAG, "AvailableSensorsRequested");
             getAvailableSensors(event);
 
         } else if (type.equals(StateEvents.CreateServiceRequested)) {
-
             Log.d(TAG, "CreateRequested");
             final String name = event.<String> getData("name");
             final TreeModel service = event.<TreeModel> getData("service");
@@ -284,86 +284,72 @@ public class StateController extends Controller {
             createService(name, service, sensor, dataFields);
 
         } else if (type.equals(StateEvents.RemoveRequested)) {
-
             Log.d(TAG, "RemoveRequested");
             TreeModel sensor = event.<TreeModel> getData("sensor");
             TreeModel service = event.<TreeModel> getData("service");
             disconnectService(sensor, service);
 
         } else if (type.equals(StateEvents.ConnectRequested)) {
-
             Log.d(TAG, "ConnectRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final TreeModel service = event.<TreeModel> getData("service");
             connectService(sensor, service);
 
         } else if (type.equals(StateEvents.MethodsRequested)) {
-
             Log.d(TAG, "MethodsRequested");
             final TreeModel service = event.<TreeModel> getData();
             getServiceMethods(service);
 
         } else if (type.equals(StateEvents.InvokeMethodRequested)) {
-
             Log.d(TAG, "InvokeMethodRequested");
             invokeMethod(event);
 
         } else if (type.equals(StateEvents.AjaxMethodFailure)) {
-
             Log.d(TAG, "AjaxMethodFailure");
             final int code = event.getData("code");
             invokeMethodErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxMethodSuccess)) {
-
             Log.d(TAG, "AjaxMethodSuccess");
             final String response = event.<String> getData("response");
             invokeMethodCallback(response);
 
         } else if (type.equals(StateEvents.AjaxConnectFailure)) {
-
             Log.d(TAG, "AjaxConnectFailure");
             final int code = event.getData("code");
             connectServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxConnectSuccess)) {
-
             Log.d(TAG, "AjaxConnectSuccess");
             final String response = event.<String> getData("response");
             connectServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxCreateFailure)) {
-
             Log.d(TAG, "AjaxCreateFailure");
             final int code = event.getData("code");
             createServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxCreateSuccess)) {
-
             Log.d(TAG, "AjaxCreateSuccess");
             final String response = event.<String> getData("response");
             createServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxDisconnectFailure)) {
-
             Log.d(TAG, "AjaxDisconnectFailure");
             final int code = event.getData("code");
             disconnectServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxDisconnectSuccess)) {
-
             Log.d(TAG, "AjaxDisconnectSuccess");
             final String response = event.<String> getData("response");
             disconnectServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxGetMethodsFailure)) {
-
             Log.d(TAG, "AjaxGetMethodsFailure");
             final int code = event.getData("code");
             getServiceMethodsErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxGetMethodsSuccess)) {
-
             Log.d(TAG, "AjaxGetMethodsSuccess");
             final String response = event.<String> getData("response");
             parseServiceMethods(response);
@@ -391,9 +377,9 @@ public class StateController extends Controller {
         }
 
         if (type.equals(StateEvents.ShowGrid) || type.equals(StateEvents.Done)
-                || type.equals(StateEvents.RemoveComplete) || type.equals(StateEvents.RemoveFailed)
-                || type.equals(StateEvents.Working) || type.equals(VizEvents.Show)
-                || type.equals(StateEvents.ConnectComplete)
+                || type.equals(MainEvents.Init) || type.equals(StateEvents.RemoveComplete)
+                || type.equals(StateEvents.RemoveFailed) || type.equals(StateEvents.Working)
+                || type.equals(VizEvents.Show) || type.equals(StateEvents.ConnectComplete)
                 || type.equals(StateEvents.CreateServiceComplete)
                 || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.grid, event);

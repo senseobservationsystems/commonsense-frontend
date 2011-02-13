@@ -62,24 +62,29 @@ public class MySensorsTree extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(MySensorsEvents.ShowTree)) {
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(MySensorsEvents.ShowTree)) {
             Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(MainEvents.Init)) {
-            Log.d(TAG, "Init");
-            // do nothing: actual initialization is done in initialize()
+
         } else if (type.equals(MySensorsEvents.Done)) {
             // Log.d(TAG, "ListUpdated");
             setBusy(false);
+
         } else if (type.equals(MySensorsEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusy(true);
+
         } else if (type.equals(VizEvents.Show)) {
             Log.d(TAG, "ShowVisualization");
             refreshLoader();
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }

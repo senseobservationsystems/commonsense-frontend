@@ -68,36 +68,45 @@ public class GroupGrid extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowGrid)) {
-            Log.d(TAG, "ShowGrid");
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(GroupEvents.ShowGrid)) {
+            Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(MainEvents.Init)) {
-            Log.d(TAG, "Init");
-            // do nothing: actual initialization is done in initialize()
+
         } else if (type.equals(GroupEvents.ListUpdated)) {
             // Log.d(TAG, "ListUpdated");
             setBusy(false);
+
         } else if (type.equals(VizEvents.Show)) {
             Log.d(TAG, "ShowVisualization");
             refreshLoader();
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
+
         } else if (type.equals(GroupEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusy(true);
+
         } else if (type.equals(GroupEvents.CreateComplete)) {
             Log.d(TAG, "CreateComplete");
             refreshLoader();
+
         } else if (type.equals(GroupEvents.LeaveComplete)) {
             Log.d(TAG, "LeaveComplete");
             onLeaveComplete(event);
+
         } else if (type.equals(GroupEvents.InviteComplete)) {
             Log.d(TAG, "InviteComplete");
             refreshLoader();
+
         } else if (type.equals(GroupEvents.LeaveFailed)) {
             Log.d(TAG, "LeaveFailed");
             onLeaveFailed(event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }

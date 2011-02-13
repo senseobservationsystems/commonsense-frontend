@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -15,16 +16,18 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupSensorsController extends Controller {
 
     private static final String TAG = "GroupSensorsController";
-    private GroupSensorsTree treeView;
+    private View treeView;
     private List<TreeModel> groupSensors;
     private int pendingRequests;
 
     public GroupSensorsController() {
+        registerEventTypes(MainEvents.Init);
         registerEventTypes(GroupSensorsEvents.ShowTree, GroupSensorsEvents.ListRequested,
                 GroupSensorsEvents.Done, GroupSensorsEvents.Working);
         registerEventTypes(GroupEvents.ListUpdated);
@@ -34,9 +37,11 @@ public class GroupSensorsController extends Controller {
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
+
         if (type.equals(GroupSensorsEvents.ListRequested)) {
             Log.d(TAG, "ListRequested");
             getGroupSensors(event);
+
         } else {
             forwardToView(this.treeView, event);
         }

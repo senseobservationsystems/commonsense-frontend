@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.map.MapEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
@@ -42,17 +44,16 @@ public class VizController extends Controller {
     private static final String TAG = "VizController";
     private View vizView;
     private View typeChooser;
-    private View mapView;
     private boolean isVizApiLoaded;
 
     public VizController() {
+        registerEventTypes(MainEvents.Init);
         registerEventTypes(VizEvents.Show);
-        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
+        registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(VizEvents.DataRequested, VizEvents.DataNotReceived,
                 VizEvents.DataReceived);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowLineChart, VizEvents.ShowTable, VizEvents.ShowNetwork);
-        registerEventTypes(VizEvents.ShowMap, VizEvents.MapReady);
         registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete,
                 StateEvents.FeedbackCancelled);
 
@@ -68,7 +69,6 @@ public class VizController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(VizEvents.DataRequested)) {
-
             Log.d(TAG, "DataRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final double startDate = event.<Double> getData("startDate");
@@ -81,7 +81,6 @@ public class VizController extends Controller {
                 || type.equals(VizEvents.TypeChoiceCancelled)) {
             forwardToView(this.typeChooser, event);
 
-            // @@ TODO: remove this!!!
         } else if (type.equals(VizEvents.AjaxDataFailure)) {
             final int code = event.getData("code");
             onDataFailed(code);
@@ -98,12 +97,6 @@ public class VizController extends Controller {
             final SensorValueModel[] newValues = parseDataResponse(response);
             onDataSucces(sensor, startDate, endDate, page, pagedValues, newValues);
 
-        } else if (type.equals(VizEvents.ShowMap)) {
-            forwardToView(this.mapView, event);
-
-        } else if (type.equals(MapEvents.MapReady)) {
-            forwardToView(this.mapView, event);
-
         } else {
             forwardToView(this.vizView, event);
         }
@@ -114,7 +107,6 @@ public class VizController extends Controller {
         super.initialize();
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
-        this.mapView = new VizMap(this);
     }
 
     private void loadVizApi() {
@@ -125,25 +117,27 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                // Log.d(TAG, "onLoadVisualizationApi");
+                Log.d(TAG, "Google Visualization API loaded...");
                 isVizApiLoaded = true;
             }
         };
         VisualizationUtils.loadVisualizationApi(vizCallback, Timeline.PACKAGE);
 
-        // double check that the API has been loaded
+        // double check that the API has been loaded within 10 seconds
         Timer timer = new Timer() {
 
             @Override
             public void run() {
                 if (false == isVizApiLoaded) {
-                    MessageBox.alert("CommonSense",
-                            "Google visualization API not loaded, please retry.",
+                    MessageBox.confirm(null, "Google visualization API not loaded, retry?",
                             new Listener<MessageBoxEvent>() {
 
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {
-                                    loadVizApi();
+                                    final Button b = be.getButtonClicked();
+                                    if ("ok".equalsIgnoreCase(b.getText())) {
+                                        loadVizApi();
+                                    }
                                 }
                             });
                 }
@@ -173,6 +167,8 @@ public class VizController extends Controller {
 
         // finish up, or request another page of data
         if (newValues.length < 1000) {
+            sensor.set("cached_data", allValues);
+
             TagModel mdl = new TagModel(sensor.<String> get("name") + "/", 0, 0,
                     TagModel.TYPE_SENSOR);
             TaggedDataModel taggedData = new TaggedDataModel(mdl, allValues);
@@ -270,13 +266,16 @@ public class VizController extends Controller {
             Log.e(TAG, "NullPointerException parsing sensor data: " + e.getMessage());
             return null;
         }
+
+        Log.d(TAG, "Finished parsing received data points");
+
         return values;
     }
 
     private void requestData(TreeModel sensor, double startDate, double endDate, int page,
             SensorValueModel[] pagedValues) {
-        Log.d(TAG, "requestData");
 
+        // set retry count as sensor property
         sensor.set("retryCount", 0);
 
         final String method = "GET";

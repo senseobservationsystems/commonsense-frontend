@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -52,26 +54,33 @@ public class BuildingGrid extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(BuildingEvents.ShowGrid)) {
+        if (type.equals(MainEvents.Init)) {
+            // do nothing, initialization is done in initialize()
+
+        } else if (type.equals(BuildingEvents.ShowGrid)) {
+            Log.d(TAG, "Show");
             onShow(event);
+
         } else if (type.equals(BuildingEvents.ListNotUpdated)) {
             // Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
+
         } else if (type.equals(BuildingEvents.ListUpdated)) {
-            // Log.d(TAG, "ListUpdated");
-            onGroupsUpdated(event);
+            Log.d(TAG, "ListUpdated");
+            onListUpdated(event);
+
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "ShowVisualization");
+            Log.d(TAG, "ShowVisualization");
             Dispatcher.forwardEvent(BuildingEvents.ListRequested);
+
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
-            onLoggedIn(event);
+
         } else if (type.equals(BuildingEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusyIcon(true);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -146,11 +155,11 @@ public class BuildingGrid extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
-                    onCreateClick();
+                    create();
                 } else if (source.equals(deleteButton)) {
                     onDeleteClick();
                 } else if (source.equals(importButton)) {
-                    onImportClick();
+                    importEnvironment();
                 }
             }
         };
@@ -173,9 +182,8 @@ public class BuildingGrid extends View {
         this.panel.setTopComponent(toolBar);
     }
 
-    protected void onCreateClick() {
-        // TODO Auto-generated method stub
-
+    protected void create() {
+        Log.w(TAG, "Create button logic not implemented");
     }
 
     private void onDeleteClick() {
@@ -186,10 +194,14 @@ public class BuildingGrid extends View {
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            // TODO
+                            delete();
                         }
                     }
                 });
+    }
+
+    protected void delete() {
+        Log.w(TAG, "Delete button logic not implemented");
     }
 
     private void onGroupsNotUpdated(AppEvent event) {
@@ -198,20 +210,17 @@ public class BuildingGrid extends View {
         this.store.removeAll();
     }
 
-    private void onGroupsUpdated(AppEvent event) {
+    private void onListUpdated(AppEvent event) {
         List<TreeModel> groups = event.<List<TreeModel>> getData();
         setBusyIcon(false);
         this.store.removeAll();
-        this.store.add(groups, true);
+        if (null != groups) {
+            this.store.add(groups, true);
+        }
     }
 
-    private void onImportClick() {
-        // TODO
-    }
-
-    private void onLoggedIn(AppEvent event) {
-        // this request fails immediately in Google Chrome (?)
-        // Dispatcher.forwardEvent(BuildingEvents.ListRequested);
+    private void importEnvironment() {
+        Log.w(TAG, "Import button logic not implemented");
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -224,14 +233,14 @@ public class BuildingGrid extends View {
             parent.add(this.panel);
             parent.layout();
 
-            // Dispatcher.forwardEvent(BuildingEvents.ListRequested);
+            fireEvent(new AppEvent(BuildingEvents.ListRequested));
         } else {
             Log.e(TAG, "Failed to show buildings panel: parent=null");
         }
     }
 
     private void setBusyIcon(boolean busy) {
-        String icon = busy ? "gxt/images/gxt/icons/loading.gif" : "";
+        String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }
 }

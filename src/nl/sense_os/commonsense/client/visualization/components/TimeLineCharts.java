@@ -1,12 +1,5 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +12,13 @@ import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
+
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 
 public class TimeLineCharts extends VisualizationTab {
 
@@ -58,7 +58,7 @@ public class TimeLineCharts extends VisualizationTab {
      */
     private void addChart(TimeLineChart chart) {
 
-        Log.d(TAG, "addChart");
+        // Log.d(TAG, "addChart");
 
         if (0 == this.nrOfCharts) {
             // remove empty text message
@@ -70,7 +70,7 @@ public class TimeLineCharts extends VisualizationTab {
             chart.setId("chart_" + this.nrOfCharts);
             this.add(chart, new RowData(-1, 0.95, new Margins(0)));
 
-            Log.d(TAG, "Added first chart...");
+            // Log.d(TAG, "Added first chart...");
 
         } else if (1 == this.nrOfCharts) {
             // re-add first chart with new size
@@ -83,21 +83,21 @@ public class TimeLineCharts extends VisualizationTab {
 
             this.add(chart, new RowData(-1, 0.8, new Margins(0)));
 
-            Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
+            // Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
 
         } else {
             this.add(chart, new RowData(-1, 0.8, new Margins(0)));
 
-            Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
+            // Log.d(TAG, "Added chart #" + (nrOfCharts + 1) + "...");
         }
         this.nrOfCharts++;
-        Log.d(TAG, "Before layout, after adding chart...");
+        // Log.d(TAG, "Before layout, after adding chart...");
         try {
             this.layout();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "Did relayout after adding chart...");
+        // Log.d(TAG, "Did relayout after adding chart...");
     }
 
     /**
@@ -124,7 +124,7 @@ public class TimeLineCharts extends VisualizationTab {
     @Override
     public void addData(TaggedDataModel data) {
 
-        Log.d(TAG, "addData... (" + data.getData().length + " points)");
+        // Log.d(TAG, "addData... (" + data.getData().length + " points)");
 
         // see of there are any data points before making chart
         final SensorValueModel[] values = data.getData();
@@ -201,7 +201,7 @@ public class TimeLineCharts extends VisualizationTab {
 
             final String chartName = field.getKey();
 
-            Log.d(TAG, "addJsonCharts... field: " + chartName);
+            // Log.d(TAG, "addJsonCharts... field: " + chartName);
 
             final TaggedDataModel taggedData = field.getValue();
 
@@ -301,12 +301,12 @@ public class TimeLineCharts extends VisualizationTab {
                         sortedValues.put(fieldName, list);
                     } catch (final NumberFormatException e) {
                         // not a valid field
-                        Log.d(TAG, "field " + fieldName + " is not parsable! Value: " + fieldValue);
+                        Log.e(TAG, "field " + fieldName + " is not parsable! Value: " + fieldValue);
                     }
 
                 } else {
                     // not a valid field
-                    Log.d(TAG, "field " + field.getKey() + " is not valid! Value: " + fieldValue);
+                    Log.e(TAG, "field " + field.getKey() + " is not valid! Value: " + fieldValue);
                 }
             }
         }
@@ -318,7 +318,7 @@ public class TimeLineCharts extends VisualizationTab {
         super.setWaitingText(visible);
 
         if ((false == visible) && (this.nrOfCharts == 0)) {
-            Log.d(TAG, "No data to display...");
+            Log.w(TAG, "No data to display...");
             LayoutContainer c = new LayoutContainer(new CenterLayout());
             c.add(new Text("No data to display..."));
             c.setId("empty_text");

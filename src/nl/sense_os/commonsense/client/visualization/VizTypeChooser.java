@@ -223,10 +223,10 @@ public class VizTypeChooser extends View {
 
                     buttonToTimeRange.setText("Go!");
                 } else if (label.equals(map)) {
-                    //vizEvent.setType(VizEvents.ShowMap);
-                	vizEvent.setType(MapEvents.LoadMap);
+                    // vizEvent.setType(VizEvents.ShowMap);
+                    vizEvent.setType(MapEvents.LoadMap);
                     vizEvent.setData("sensors", locationSensors);
-                    //vizEvent.setData("sensors", sensors);
+                    // vizEvent.setData("sensors", sensors);
 
                     buttonToTimeRange.setText("Next");
                 } else if (label.equals(network)) {
@@ -399,10 +399,10 @@ public class VizTypeChooser extends View {
 
             buttonToTimeRange.setText("Go!");
         } else if (label.equals(this.map)) {
-            this.vizEvent.setType(VizEvents.ShowMap);
+            this.vizEvent.setType(MapEvents.ShowMap);
             this.vizEvent.setData("sensors", this.locationSensors);
             Log.d(TAG, "locationSensors: " + this.locationSensors);
-            //this.vizEvent.setData("sensors", this.sensors);
+            // this.vizEvent.setData("sensors", this.sensors);
 
             buttonToTimeRange.setText("Next");
         } else if (label.equals(this.network)) {

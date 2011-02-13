@@ -272,7 +272,7 @@ public class Visualization extends LayoutContainer {
         if (this.outstandingReqs.length > 0) {
             getSensorData(this.outstandingReqs[0]);
         } else {
-            Log.d(TAG, "Finalizing visualization tab...");
+            // Log.d(TAG, "Finalizing visualization tab...");
             final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
             charts.setWaitingText(false);
 

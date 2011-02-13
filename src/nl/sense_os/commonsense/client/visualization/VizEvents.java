@@ -14,9 +14,6 @@ public class VizEvents {
 
     public static final EventType ShowTable = new EventType();
 
-    public static final EventType ShowMap = new EventType();
-    public static final EventType MapReady = new EventType();
-
     public static final EventType ShowNetwork = new EventType();
 
     public static final EventType Show = new EventType();
