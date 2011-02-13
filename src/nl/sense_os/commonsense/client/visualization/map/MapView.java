@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.visualization.map;
 
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.components.MapPanel;
+import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -9,15 +10,10 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.maps.client.MapWidget;
-import com.google.gwt.maps.client.control.LargeMapControl;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 
 public class MapView extends View {
 
     private static final String TAG = "MapView";
-    private TreeModel[] sensors;
 
     public MapView(Controller controller) {
         super(controller);
@@ -31,6 +27,24 @@ public class MapView extends View {
             Log.d(TAG, "Show");
             onCreateMap(event);
 
+        } else if (evtType.equals(MapEvents.AddData)) {
+            Log.d(TAG, "AddData");
+            final MapPanel panel = event.<MapPanel> getData("panel");
+            final SensorValueModel[] data = event.<SensorValueModel[]> getData("data");
+            final TreeModel sensor = event.<TreeModel> getData("sensor");
+            panel.addData(sensor, data);
+
+        } else if (evtType.equals(MapEvents.LoadSuccess)) {
+            Log.d(TAG, "LoadSuccess");
+            final MapPanel panel = event.<MapPanel> getData("panel");
+            panel.finishLoading();
+
+        } else if (evtType.equals(MapEvents.LoadFailure)) {
+            Log.w(TAG, "LoadFailure");
+            // TODO handle this
+            final MapPanel panel = event.<MapPanel> getData("panel");
+            panel.finishLoading();
+
         } else {
             Log.e(TAG, "Unexpected event received!");
         }
@@ -42,51 +56,23 @@ public class MapView extends View {
     }
 
     private void onCreateMap(AppEvent event) {
-        this.sensors = event.<TreeModel[]> getData("sensors");
+        TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+        long startTime = event.getData("startTime");
+        long endTime = event.getData("endTime");
 
-        if (this.sensors != null) {
-            Log.d(TAG, "sensors length: " + this.sensors.length);
-        }
-
-        TreeModel[] sensorList = getSensors();
-
-        if (sensorList != null)
-            Log.d(TAG, "sensorList: " + sensorList.toString());
-
+        // create map panel
         MapPanel mapPanel = new MapPanel();
-        createMap(mapPanel);
 
-        // The created panel is sent to
-        fireEvent(MapEvents.LoadMap);
+        // request sensor data to display on the panel
+        AppEvent loadEvent = new AppEvent(MapEvents.LoadData);
+        loadEvent.setData("sensor", sensors[0]);
+        loadEvent.setData("startDate", startTime / 1000d);
+        loadEvent.setData("endDate", endTime / 1000d);
+        loadEvent.setData("panel", mapPanel);
+        fireEvent(loadEvent);
+
+        // The panel is dispatched to a View that can display it
         Dispatcher.forwardEvent(MapEvents.MapReady, mapPanel);
-    }
-
-    public TreeModel[] getSensors() {
-        return this.sensors;
-    }
-
-    private void createMap(MapPanel panel) {
-        // Open a map centered on Cawker City, KS USA
-        // LatLng cawkerCity = LatLng.newInstance(39.509, -98.434);
-
-        // final MapWidget map = new MapWidget(cawkerCity, 2);
-        final MapWidget map = new MapWidget();
-        map.setSize("100%", "100%");
-        // Add some controls for the zoom level
-        map.addControl(new LargeMapControl());
-
-        // Add a marker
-        // map.addOverlay(new Marker(cawkerCity));
-
-        // Add an info window to highlight a point of interest
-        // map.getInfoWindow().open(map.getCenter(),
-        // new InfoWindowContent("World's Largest Ball of Sisal Twine"));
-
-        final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
-        dock.addNorth(map, 500);
-
-        // Add the map to the HTML host page
-        panel.add(dock);
     }
 
 }

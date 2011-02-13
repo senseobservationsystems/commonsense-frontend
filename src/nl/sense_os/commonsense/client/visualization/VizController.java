@@ -82,6 +82,7 @@ public class VizController extends Controller {
             forwardToView(this.typeChooser, event);
 
         } else if (type.equals(VizEvents.AjaxDataFailure)) {
+            Log.w(TAG, "AjaxDataFailure");
             final int code = event.getData("code");
             onDataFailed(code);
 
