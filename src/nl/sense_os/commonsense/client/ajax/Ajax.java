@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.ajax;
 import java.util.HashMap;
 
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 
 public class Ajax {
 
@@ -25,9 +26,9 @@ public class Ajax {
      * @param params
      *            HTTP parameters
      * @param onSuccess
-     *            EventType for the event for dispatch after the request is complete
+     *            AppEvent to dispatch after the request is complete
      * @param onFailure
-     *            EventType for the event for dispatch if the request fails
+     *            AppEvent to dispatch if the request fails
      * @param handler
      *            AjaxController instance to return the ajax result to
      * 
@@ -40,8 +41,8 @@ public class Ajax {
             String sessionId,
     		String body,
     		HashMap<String, Object> params,
-            EventType onSuccess,
-            EventType onFailure,
+            AppEvent onSuccess,
+            AppEvent onFailure,
     		AjaxController handler) /*-{
 
 		var isIE8 = window.XDomainRequest ? true : false;
@@ -53,7 +54,7 @@ public class Ajax {
 
 		function readyStateHandler() {
 			if (xhr.readyState == 4) {
-				if (xhr.status == 200) {
+				if ((xhr.status >= 200) && (xhr.status < 300)) {
 					handleSuccess();
 				} else if (xhr.status == 403) {
 					handleAuthError();
@@ -65,24 +66,31 @@ public class Ajax {
 
 		// NB: this is only called by Chrome, other browsers do not give the status code of failed requests
 		function handleAuthError() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onAuthError(ILcom/extjs/gxt/ui/client/event/EventType;)(xhr.status, onFailure);
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onAuthError(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
 		}
 
-		// @@ FIXME: this method should be as general as we can to use in any case.
 		function handleFailure() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(ILcom/extjs/gxt/ui/client/event/EventType;)(xhr.status, onFailure);
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
 		}
 
 		function handleSuccess() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onSuccess(Ljava/lang/String;Lcom/extjs/gxt/ui/client/event/EventType;)(xhr.responseText, onSuccess);
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onSuccess(Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(xhr.responseText, onSuccess);
 		}
 
 		if (xhr) {
 			if (isIE8) {
+				// IE does not support custom headers: add session ID to URL parameters 
 				if (undefined != sessionId) {
-					url = url + "&session_id=" + sessionId;
+					url = url + "?session_id=" + sessionId;
 				}
-				xhr.open(method, url);
+
+				// IE does not support DELETE or PUT requests: use custom URL parameter
+				if ("DELETE" === method || "PUT" === method) {
+					url = url + "&_METHOD=" + method;
+					xhr.open("GET", url);
+				} else {
+					xhr.open(method, url);
+				}
 				xhr.onload = onSuccess;
 				xhr.onerror = onFailure;
 				xhr.send(body);

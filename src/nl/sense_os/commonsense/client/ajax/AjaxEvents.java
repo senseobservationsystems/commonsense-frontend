@@ -17,9 +17,11 @@ public class AjaxEvents {
      * @param body
      *            String with optional body for the request (e.g. for POST or PUT requests)
      * @param onSuccess
-     *            EventType for the event for dispatch after the request is complete
+     *            AppEvent to dispatch after the request is complete. Requesting controller should
+     *            register for this event.
      * @param onFailure
-     *            EventType for the event for dispatch if the request fails
+     *            AppEvent to dispatch if the request fails. Requesting controller should register
+     *            for this event.
      */
     public static final EventType Request = new EventType();
 }

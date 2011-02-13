@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.login;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.events.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.Constants;
@@ -25,14 +24,22 @@ public class LoginController extends Controller {
     private boolean isLoggingIn;
 
     public LoginController() {
-        registerEventTypes(MainEvents.ShowLogin, MainEvents.HideLogin);
-        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.LoginError,
-                LoginEvents.AuthenticationFailure, LoginEvents.RequestLogin,
+
+        // general events
+        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.RequestLogin,
                 LoginEvents.RequestLogout);
-        registerEventTypes(LoginEvents.CancelLogin, LoginEvents.LoginCancelled);
-        registerEventTypes(LoginEvents.LoginReqSuccess, LoginEvents.LoginReqError);
-        registerEventTypes(LoginEvents.LogoutReqSuccess, LoginEvents.LogoutReqError);
-        registerEventTypes(LoginEvents.UserReqSuccess, LoginEvents.UserReqError);
+
+        // local events
+        registerEventTypes(LoginEvents.LoginError, LoginEvents.AuthenticationFailure,
+                LoginEvents.CancelLogin, LoginEvents.LoginCancelled);
+
+        // ajax events
+        registerEventTypes(LoginEvents.AjaxLoginSuccess, LoginEvents.AjaxLoginFailure,
+                LoginEvents.AjaxLogoutSuccess, LoginEvents.AjaxLogoutFailure,
+                LoginEvents.AjaxUserSuccess, LoginEvents.AjaxUserFailure);
+
+        // layout events
+        registerEventTypes(LoginEvents.Show, LoginEvents.Hide);
     }
 
     /**
@@ -48,8 +55,8 @@ public class LoginController extends Controller {
         requestEvent.setData("method", "GET");
         requestEvent.setData("url", url);
         requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", LoginEvents.UserReqSuccess);
-        requestEvent.setData("onFailure", LoginEvents.UserReqError);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxUserSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxUserFailure));
         Dispatcher.forwardEvent(requestEvent);
     }
 
@@ -63,18 +70,24 @@ public class LoginController extends Controller {
             logout(event);
         } else if (eventType.equals(LoginEvents.CancelLogin)) {
             onCancel(event);
-        } else if (eventType.equals(LoginEvents.LoginReqSuccess)) {
-            parseLoginReponse(event.<String> getData());
-        } else if (eventType.equals(LoginEvents.LoginReqError)) {
-            onLoginError();
-        } else if (eventType.equals(LoginEvents.LogoutReqSuccess)) {
-            onLoggedOut();
-        } else if (eventType.equals(LoginEvents.LogoutReqError)) {
-            onLogoutError();
-        } else if (eventType.equals(LoginEvents.UserReqSuccess)) {
-            parseUserReponse(event.<String> getData());
-        } else if (eventType.equals(LoginEvents.UserReqError)) {
-            onLoginError();
+        } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
+            final String response = event.<String> getData("response");
+            parseLoginReponse(response);
+        } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
+            final int code = event.getData("code");
+            onLoginError(code);
+        } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
+            final String response = event.<String> getData("response");
+            onLoggedOut(response);
+        } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
+            final int code = event.getData("code");
+            onLogoutError(code);
+        } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
+            final String response = event.<String> getData("response");
+            parseUserReponse(response);
+        } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
+            final int code = event.getData("code");
+            onLoginError(code);
         } else {
             forwardToView(this.loginView, event);
         }
@@ -104,12 +117,14 @@ public class LoginController extends Controller {
         requestEvent.setData("method", "POST");
         requestEvent.setData("url", url);
         requestEvent.setData("body", body);
-        requestEvent.setData("onSuccess", LoginEvents.LoginReqSuccess);
-        requestEvent.setData("onFailure", LoginEvents.LoginReqError);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLoginSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLoginFailure));
         Dispatcher.forwardEvent(requestEvent);
     }
 
     private void logout(AppEvent event) {
+
+        // prepare request properties
         String url = Constants.URL_LOGOUT;
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
@@ -118,42 +133,48 @@ public class LoginController extends Controller {
         requestEvent.setData("method", "GET");
         requestEvent.setData("url", url);
         requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", LoginEvents.LogoutReqSuccess);
-        requestEvent.setData("onFailure", LoginEvents.LogoutReqError);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLogoutSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLogoutFailure));
         Dispatcher.forwardEvent(requestEvent);
     }
 
     public void onAuthenticationFailure() {
+        this.isLoggingIn = false;
         if (false == this.isCancelled) {
-            this.isLoggingIn = false;
-            Dispatcher.forwardEvent(LoginEvents.AuthenticationFailure);
+            forwardToView(this.loginView, new AppEvent(LoginEvents.AuthenticationFailure));
+        } else {
+            this.isCancelled = false;
         }
     }
 
     private void onCancel(AppEvent event) {
         if (true == this.isLoggingIn) {
             this.isCancelled = true;
-            Dispatcher.forwardEvent(LoginEvents.LoginCancelled);
+            forwardToView(this.loginView, new AppEvent(LoginEvents.LoginCancelled));
         }
     }
 
     public void onCurrentUser(UserModel user) {
-        if (false == isCancelled) {
+        this.isLoggingIn = false;
+        if (false == this.isCancelled) {
             Registry.register(Constants.REG_USER, user);
-            this.isLoggingIn = false;
-            // forwardToView(loginView, LoginEvents.LoggedIn, user);
             Dispatcher.forwardEvent(LoginEvents.LoggedIn, user);
+        } else {
+            this.isCancelled = false;
         }
     }
 
     public void onLoggedIn(String sessionId) {
-        if (false == isCancelled) {
+        if (false == this.isCancelled) {
             Registry.register(Constants.REG_SESSION_ID, sessionId);
             getCurrentUser();
+        } else {
+            this.isLoggingIn = false;
+            this.isCancelled = false;
         }
     }
 
-    public void onLoggedOut() {
+    public void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
         Registry.unregister(Constants.REG_MY_SENSORS);
@@ -163,17 +184,21 @@ public class LoginController extends Controller {
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 
-    public void onLoginError() {
-        if (false == isCancelled) {
-            this.isLoggingIn = false;
-            Dispatcher.forwardEvent(LoginEvents.LoginError);
+    public void onLoginError(int code) {
+        this.isLoggingIn = false;
+        if (false == this.isCancelled) {
+            AppEvent errorEvent = new AppEvent(LoginEvents.LoginError);
+            errorEvent.setData("code", code);
+            forwardToView(this.loginView, errorEvent);
+        } else {
+            this.isCancelled = false;
         }
     }
 
-    public void onLogoutError() {
+    public void onLogoutError(int code) {
         // TODO handle logout error events
-        Log.w(TAG, "LogoutError");
-        onLoggedOut();
+        Log.w(TAG, "LogoutError: " + code);
+        onLoggedOut("Status code: " + code);
     }
 
     private void parseLoginReponse(String response) {
@@ -190,15 +215,15 @@ public class LoginController extends Controller {
                     onLoggedIn(sessionId);
                 } else {
                     Log.e(TAG, "Error parsing login response: \"session_id\" is not a JSON String");
-                    onLoginError();
+                    onLoginError(0);
                 }
             } else {
                 Log.e(TAG, "Error parsing login response: \"session_id\" is is not found");
-                onLoginError();
+                onLoginError(0);
             }
         } else {
             Log.e(TAG, "Error parsing login response: response=null");
-            onLoginError();
+            onLoginError(0);
         }
     }
 
@@ -233,15 +258,15 @@ public class LoginController extends Controller {
                 } else {
                     Log.e(TAG, "Error parsing current user response: "
                             + "\"user\" is not a valid JSONObject");
-                    onLoginError();
+                    onLoginError(0);
                 }
             } else {
                 Log.e(TAG, "Error parsing current user response: \"user\" JSONValue not found");
-                onLoginError();
+                onLoginError(0);
             }
         } else {
             Log.e(TAG, "Error parsing current user response: response=null");
-            onLoginError();
+            onLoginError(0);
         }
     }
 }

@@ -44,8 +44,8 @@ public class AjaxController extends Controller {
         String url = event.<String> getData("url");
         String sessionId = event.<String> getData("session_id");
         String body = event.<String> getData("body");
-        EventType onSuccess = event.<EventType> getData("onSuccess");
-        EventType onFailure = event.<EventType> getData("onFailure");
+        AppEvent onSuccess = event.<AppEvent> getData("onSuccess");
+        AppEvent onFailure = event.<AppEvent> getData("onFailure");
 
         // @@ TODO: are extra http params needed?
         HashMap<String, Object> params = new HashMap<String, Object>();
@@ -54,39 +54,51 @@ public class AjaxController extends Controller {
     }
 
     /**
-     * Dispatches an event to signal the request has failed.
+     * Dispatches an event to signal the request has failed. The dispatched event contains all the
+     * necessary information about the request, plus the failed request's HTTP status code.
      * 
      * @param statusCode
      *            HTTP code of the response (will be 0 on most browsers, except Chrome)
      * @param onFailure
-     *            EventType of event to dispatch
+     *            AppEvent to dispatch
      */
-    public void onFailure(int statusCode, EventType onFailure) {
-        Dispatcher.forwardEvent(onFailure, statusCode);
+    public void onFailure(String method, String url, String sessionId, String body, int statusCode,
+            AppEvent onFailure) {
+        onFailure.setData("method", method);
+        onFailure.setData("url", url);
+        onFailure.setData("session_id", sessionId);
+        onFailure.setData("body", body);
+        onFailure.setData("code", statusCode);
+        Dispatcher.forwardEvent(onFailure);
     }
 
     /**
-     * Dispatches an event to signal the request has failed.
+     * Dispatches an event to signal the request has failed. Adds the request's HTTP status code to
+     * the "code" property of the onFailure AppEvent. NB: this is not a reliable indicator that
+     * there was an authentication error! This method will only be called in Google Chrome, other
+     * browsers will return to {@link #onFailure(int, AppEvent)} of the request was forbidden.
      * 
      * @param statusCode
      *            HTTP code of the response (should be 403)
      * @param onFailure
-     *            EventType of event to dispatch
+     *            AppEvent to dispatch
      */
-    public void onAuthError(int statusCode, EventType onFailure) {
-        // @@ TODO: what to do on authentication error?
-        Dispatcher.forwardEvent(onFailure, statusCode);
+    public void onAuthError(String method, String url, String sessionId, String body,
+            int statusCode, AppEvent onFailure) {
+        onFailure(method, url, sessionId, body, statusCode, onFailure);
     }
 
     /**
-     * Dispatches event to signal the request has successfully completed.
+     * Dispatches event to signal the request has successfully completed. Adds the response String
+     * to the "response" property of the onSuccess AppEvent.
      * 
      * @param response
      *            response body text
      * @param onSuccess
-     *            EventType of event to dispatch
+     *            AppEvent to dispatch
      */
-    public void onSuccess(String response, EventType onSuccess) {
-        Dispatcher.forwardEvent(onSuccess, response);
+    public void onSuccess(String response, AppEvent onSuccess) {
+        onSuccess.setData("response", response);
+        Dispatcher.forwardEvent(onSuccess);
     }
 }

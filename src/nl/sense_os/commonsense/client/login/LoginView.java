@@ -2,9 +2,8 @@ package nl.sense_os.commonsense.client.login;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.events.MainEvents;
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.views.components.CenteredWindow;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -55,10 +54,10 @@ public class LoginView extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType eventType = event.getType();
-        if (eventType.equals(MainEvents.ShowLogin)) {
+        if (eventType.equals(LoginEvents.Show)) {
             // Log.d(TAG, "Show");
             onShow(event);
-        } else if (eventType.equals(MainEvents.HideLogin)) {
+        } else if (eventType.equals(LoginEvents.Hide)) {
             // Log.d(TAG, "Hide");
             hideWindow();
         } else if (eventType.equals(LoginEvents.AuthenticationFailure)) {

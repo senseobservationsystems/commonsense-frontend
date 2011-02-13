@@ -17,7 +17,6 @@ import nl.sense_os.commonsense.client.services.GroupsService;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
-import nl.sense_os.commonsense.shared.exceptions.InternalError;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -35,37 +34,6 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
     private static final long serialVersionUID = 1L;
     private int responseCode = 0;
     private String responseContent;
-
-    @Override
-    public String createGroup(String sessionId, String name, String email, String username,
-            String password) throws InternalError, WrongResponseException, DbConnectionException {
-        String data = null;
-        try {
-            JSONObject json = new JSONObject();
-            JSONObject group = new JSONObject();
-            group.put("name", name);
-            group.put("email", email);
-            if (null != username) {
-                group.put("username", username);
-                group.put("password", password);
-            }
-            json.put("group", group);
-            data = json.toString();
-        } catch (JSONException e) {
-            log.severe("JSONException creating POST data");
-            throw new InternalError("JSONException creating POST data.");
-        }
-
-        String url = Constants.URL_GROUPS + ".json";
-        doRequest(url, sessionId, "POST", data);
-
-        if (this.responseCode != HttpURLConnection.HTTP_CREATED) {
-            log.severe("POST GROUPS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to create groups " + this.responseCode);
-        }
-
-        return this.responseContent;
-    }
 
     private void doRequest(String url, String sessionId, String method, String data)
             throws WrongResponseException, DbConnectionException {
@@ -214,47 +182,6 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             log.severe("GET GROUP DETAILS JSONException: " + e.getMessage());
             throw (new WrongResponseException(e.getMessage()));
         }
-    }
-
-    @Override
-    public String inviteUser(String sessionId, String groupId, String email) throws InternalError,
-            WrongResponseException, DbConnectionException {
-
-        String url = Constants.URL_GROUPS + "/" + groupId + "/users.json";
-        String data = null;
-        try {
-            JSONObject json = new JSONObject();
-            JSONObject user = new JSONObject();
-            user.put("email", email);
-            json.put("user", user);
-            data = json.toString();
-        } catch (JSONException e) {
-            log.severe("JSONException creating POST data");
-            throw new InternalError("JSONException creating POST data.");
-        }
-        doRequest(url, sessionId, "POST", data);
-
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("failed to invite user: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to invite user: " + responseCode);
-        }
-        return this.responseContent;
-    }
-
-    @Override
-    public String leaveGroup(String sessionId, String groupId) throws WrongResponseException,
-            DbConnectionException {
-
-        String url = Constants.URL_GROUPS + "/" + groupId;
-
-        doRequest(url, sessionId, "DELETE", null);
-
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("LEAVE GROUPS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to leave groups " + this.responseCode);
-        }
-
-        return this.responseContent;
     }
 
     private ModelData requestGroupDetails(String sessionId, String groupId)
