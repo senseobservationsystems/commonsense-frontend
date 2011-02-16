@@ -29,8 +29,11 @@ public class MapPanel extends ContentPanel {
 	private MapWidget map;
 	private Slider slider;
 	private SensorValueModel[] sensorData;
-	private static final int timeRange = 720;	// in seconds
-
+	// 24 hs -> 86400 secs
+	private int timeGranularity = 86400;
+	//private static final int timeGranularity = 720;	// in seconds
+	private DockLayoutPanel dock;
+	
 	
 	public MapPanel() {
 		// Panel settings. 
@@ -40,16 +43,19 @@ public class MapPanel extends ContentPanel {
 		setScrollMode(Scroll.NONE);
 		setId("viz-map");
 
-		// Create the map and slider.
-		initMap();
+		dock = new DockLayoutPanel(Unit.PX);
+		
+		createMap();		
+		createSlider();
+		
+		// Add the dock to the panel.
+		this.add(dock);		
 	}
 
 	/**
-	 * Create a google map with an slider on the bottom to filter
-	 * the points to draw according to a time specified with the
-	 * slider.
+	 * Create a google map and add it to the north of the dock.
 	 */
-	private void initMap() {
+	private void createMap() {
 		// Create the map.
 		map = new MapWidget();
 		map.setSize("100%", "100%");
@@ -58,18 +64,26 @@ public class MapPanel extends ContentPanel {
 		map.addControl(new LargeMapControl());
 		map.setScrollWheelZoomEnabled(true);
 
-		final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
+		// Add the map to the dock.
 		dock.addNorth(map, 500);
+	}
 
+	/**
+	 * Create a slider on the bottom, to filter the points to draw according to
+	 * a time specified with the slider.
+	 */
+	private void createSlider() {
 		// Slider added below the map.		
 		slider = new Slider();
-		slider.setWidth(400);
+		slider.setWidth(500);
 		slider.setHeight(50);
 		slider.setMinValue(0);
-		slider.setMaxValue(30);
+		slider.setMaxValue(100);
 		slider.setIncrement(1);
-		slider.setMessage("{0} x 720 secs");	// type of unit not defined yet 
+		slider.setMessage("{0} days ago"); 
 		slider.setId("viz-map-slider");
+		
+		// Add the map to the dock.		
 		dock.addSouth(slider, 30);
 
 		// Listener to filter the points to draw on the map.
@@ -79,12 +93,9 @@ public class MapPanel extends ContentPanel {
 				int newValue = be.getNewValue();
 				updateMap(newValue);
 			}
-		});
-
-		// Add the map and the slider to the panel.
-		this.add(dock);
+		});		
 	}
-
+	
 	/**
 	 * This method is called when it used the slider below the map.
 	 * It filters the points to draw a line depending on the time.
@@ -99,19 +110,21 @@ public class MapPanel extends ContentPanel {
 		if (sensorData.length > 0) {
 			LatLng[] points = new LatLng[sensorData.length];
 
-			long timeFilter = 0;
+			long minTimeFilter = 0;
 
+			// The last drawn point's timestamp is used to set the min time filter.
 			if (time != 0) {
 				JsonValueModel v = (JsonValueModel) sensorData[sensorData.length - 1];
 				Date t = v.getTimestamp();
 				
 				// time filter in secs
-				timeFilter = t.getTime() / 1000;
-				timeFilter -= (timeRange * time);				
+				minTimeFilter = t.getTime() / 1000;
+				minTimeFilter -= (timeGranularity * time);				
 			}
 
 			int lastPoint = 0;
 
+			// It will be drawn all the points greater than the minTimeFilter.
 			for (int i = 0, j = 0; i < sensorData.length; i++) {
 				JsonValueModel value = (JsonValueModel) sensorData[i];
 				Map<String, Object> fields = value.getFields();
@@ -122,10 +135,10 @@ public class MapPanel extends ContentPanel {
 				// timestamp in secs
 				long timestamp = value.getTimestamp().getTime() / 1000;
 				
-				Log.d(TAG, "timeFilter: "+timeFilter);
-				Log.d(TAG, "timestamp: "+timestamp);
+				//Log.d(TAG, "minTimeFilter: "+minTimeFilter);
+				//Log.d(TAG, "timestamp: "+timestamp);
 				
-				if (timestamp > timeFilter) {
+				if (timestamp > minTimeFilter) {
 					lastPoint = j;
 					points[j++] = LatLng.newInstance(latitude, longitude);
 				}
@@ -146,30 +159,53 @@ public class MapPanel extends ContentPanel {
 			// Center the map
 			map.setCenter(endMarker.getLatLng());
 			map.setZoomLevel(13);
-		}
+		}		
 	}
 
 	/**
+	 * Display the markers and draw a trace line on the map.
 	 * 
 	 * @param sensor
 	 * @param data
 	 */
 	public void addData(TreeModel sensor, SensorValueModel[] data) {
-
+		// Store the sensor data to be used from other methods.
 		sensorData = data;
 
+		// Set the range of values for the slider according to the 
+		// difference between the first marker's time and the last one.
+		JsonValueModel v = (JsonValueModel) data[0];	
+		int min = (int) v.getTimestamp().getTime() / 1000 / 60 / 24; // to days
+		v = (JsonValueModel) data[data.length - 1];
+		int max = (int) v.getTimestamp().getTime() / 1000 / 60 / 24; // to days
+		int days = max - min;
+		Log.d(TAG, "days: " + days);		
+		slider.setMaxValue(days);
+
+		// If the difference between the 1st point and the last one is greater
+		// than 31 days, the time range is changed to an hour (3600 secs).
+		if (days < 31) {			
+			timeGranularity = 3600;
+			slider.setMessage("{0} hours ago");
+			slider.setMaxValue(days * 24);
+		}
+		
+		// Draw markers and a trace line on the map.
 		if (data.length > 0) {
+			LatLng[] points = new LatLng[data.length];
 			
 			// Store the points in an array.
-			LatLng[] points = new LatLng[data.length];
-
-			for (int i = 0, j = 0; i < data.length; i++) {
+			for (int i = 0; i < data.length; i++) {
 				JsonValueModel value = (JsonValueModel) data[i];
 				Map<String, Object> fields = value.getFields();
 
 				double latitude = (Double) fields.get("latitude");
 				double longitude = (Double) fields.get("longitude");
 
+				// timestamp in secs
+				long timestamp = value.getTimestamp().getTime() / 1000;				
+				//Log.d(TAG, "timestamp: " + timestamp);				
+				
 				points[i] = LatLng.newInstance(latitude, longitude);
 			}
 
@@ -179,10 +215,9 @@ public class MapPanel extends ContentPanel {
 
 			// Add the last marker
 			Marker endMarker = new Marker(points[points.length - 1]);
-			// Marker endMarker = new Marker(points[lastElem]);
 			map.addOverlay(endMarker);
-
-			// Draw a track line through the points.
+			
+			// Draw a trace line through the points.
 			Polyline trace = new Polyline(points);
 			map.addOverlay(trace);
 
@@ -190,16 +225,19 @@ public class MapPanel extends ContentPanel {
 			/*
 			 * LatLngBounds bounds = map.getBounds();
 			 * bounds.extend(startMarker.getLatLng());
-			 * bounds.extend(endMarker.getLatLng()); int zoomLevel =
-			 * map.getBoundsZoomLevel(bounds); Log.d(TAG, "zoom level: " +
-			 * zoomLevel);
+			 * bounds.extend(endMarker.getLatLng()); 
+			 * 
+			 * int zoomLevel = map.getBoundsZoomLevel(bounds); 
+			 * Log.d(TAG, "zoom level: " + zoomLevel);
 			 */
 
-			/*
-			 * if (zoomLevel < 9) map.setZoomLevel(zoomLevel); else
-			 * map.setZoomLevel(12);
-			 * 
-			 * //map.setCenter(bounds.getCenter());
+			// Adjust the zoom level according to the bounds.			
+			/* 
+			 * if (zoomLevel < 9)
+			 * 	map.setZoomLevel(zoomLevel); 
+			 * else
+			 * 	map.setZoomLevel(12);
+			 *  
 			 * map.setCenter(bounds.getCenter(),
 			 * map.getBoundsZoomLevel(bounds));
 			 */
