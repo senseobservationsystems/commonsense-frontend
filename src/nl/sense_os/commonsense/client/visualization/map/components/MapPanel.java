@@ -95,18 +95,19 @@ public class MapPanel extends ContentPanel {
 		// Clean the map.
 		map.clearOverlays();
 
+		// Draw the filtered points.
 		if (sensorData.length > 0) {
 			LatLng[] points = new LatLng[sensorData.length];
 
-			long limit = 0;
+			long timeFilter = 0;
 
 			if (minutes != 0) {
 				JsonValueModel v = (JsonValueModel) sensorData[sensorData.length - 1];
 				Date t = v.getTimestamp();
 				
-				// limit in secs
-				limit = t.getTime() / 1000;
-				limit -= (timeRange * minutes);				
+				// time filter in secs
+				timeFilter = t.getTime() / 1000;
+				timeFilter -= (timeRange * minutes);				
 			}
 
 			int lastPoint = 0;
@@ -118,13 +119,13 @@ public class MapPanel extends ContentPanel {
 				double latitude = (Double) fields.get("latitude");
 				double longitude = (Double) fields.get("longitude");
 				
-				// timestamp in secs.
+				// timestamp in secs
 				long timestamp = value.getTimestamp().getTime() / 1000;
 				
-				Log.d(TAG, "limit: "+limit);
+				Log.d(TAG, "timeFilter: "+timeFilter);
 				Log.d(TAG, "timestamp: "+timestamp);
 				
-				if (timestamp > limit) {
+				if (timestamp > timeFilter) {
 					lastPoint = j;
 					points[j++] = LatLng.newInstance(latitude, longitude);
 				}
