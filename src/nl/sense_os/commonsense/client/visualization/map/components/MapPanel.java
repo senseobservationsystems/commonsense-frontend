@@ -82,7 +82,7 @@ public class MapPanel extends ContentPanel {
 		slider.setIncrement(1);
 		slider.setMessage("{0} days ago"); 
 		slider.setId("viz-map-slider");
-		slider.setPagePosition(100, 0);
+		//slider.setPagePosition(100, 0);
 		
 		// Add the map to the dock.		
 		dock.addSouth(slider, 30);
