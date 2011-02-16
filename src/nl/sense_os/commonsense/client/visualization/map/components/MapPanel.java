@@ -89,9 +89,9 @@ public class MapPanel extends ContentPanel {
 	 * This method is called when it used the slider below the map.
 	 * It filters the points to draw a line depending on the time.
 	 * 
-	 * @param minutes
+	 * @param time
 	 */
-	private void updateMap(int minutes) {
+	private void updateMap(int time) {
 		// Clean the map.
 		map.clearOverlays();
 
@@ -101,13 +101,13 @@ public class MapPanel extends ContentPanel {
 
 			long timeFilter = 0;
 
-			if (minutes != 0) {
+			if (time != 0) {
 				JsonValueModel v = (JsonValueModel) sensorData[sensorData.length - 1];
 				Date t = v.getTimestamp();
 				
 				// time filter in secs
 				timeFilter = t.getTime() / 1000;
-				timeFilter -= (timeRange * minutes);				
+				timeFilter -= (timeRange * time);				
 			}
 
 			int lastPoint = 0;
