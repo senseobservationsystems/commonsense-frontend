@@ -29,22 +29,28 @@ public class MapPanel extends ContentPanel {
 	private MapWidget map;
 	private Slider slider;
 	private SensorValueModel[] sensorData;
-	// 12 hs -> 43200 seconds.
-	//private static final int timeRange = 43200;
-	// 720 secs
-	private static final int timeRange = 720;
+	private static final int timeRange = 720;	// in seconds
 
+	
 	public MapPanel() {
+		// Panel settings. 
 		setLayout(new FitLayout());
 		setHeaderVisible(false);
 		setBodyBorder(false);
 		setScrollMode(Scroll.NONE);
 		setId("viz-map");
 
+		// Create the map and slider.
 		initMap();
 	}
 
+	/**
+	 * Create a google map with an slider on the bottom to filter
+	 * the points to draw according to a time specified with the
+	 * slider.
+	 */
 	private void initMap() {
+		// Create the map.
 		map = new MapWidget();
 		map.setSize("100%", "100%");
 
@@ -52,39 +58,39 @@ public class MapPanel extends ContentPanel {
 		map.addControl(new LargeMapControl());
 		map.setScrollWheelZoomEnabled(true);
 
-		// Add an info window to highlight a point of interest
-		// map.getInfoWindow().open(map.getCenter(),
-		// new InfoWindowContent("World's Largest Ball of Sisal Twine"));
-
 		final DockLayoutPanel dock = new DockLayoutPanel(Unit.PX);
 		dock.addNorth(map, 500);
 
+		// Slider added below the map.		
 		slider = new Slider();
 		slider.setWidth(400);
 		slider.setHeight(50);
 		slider.setMinValue(0);
 		slider.setMaxValue(30);
 		slider.setIncrement(1);
-		// type of unit not defined yet
-		slider.setMessage("{0} x 720 secs"); 
+		slider.setMessage("{0} x 720 secs");	// type of unit not defined yet 
 		slider.setId("viz-map-slider");
 		dock.addSouth(slider, 30);
 
+		// Listener to filter the points to draw on the map.
 		slider.addListener(Events.Change, new Listener<SliderEvent>() {
-
 			@Override
 			public void handleEvent(SliderEvent be) {
 				int newValue = be.getNewValue();
 				updateMap(newValue);
 			}
-
 		});
 
-		// Add the map to the HTML host page
+		// Add the map and the slider to the panel.
 		this.add(dock);
 	}
 
-	
+	/**
+	 * This method is called when it used the slider below the map.
+	 * It filters the points to draw a line depending on the time.
+	 * 
+	 * @param minutes
+	 */
 	private void updateMap(int minutes) {
 		// Clean the map.
 		map.clearOverlays();
@@ -142,12 +148,18 @@ public class MapPanel extends ContentPanel {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sensor
+	 * @param data
+	 */
 	public void addData(TreeModel sensor, SensorValueModel[] data) {
 
 		sensorData = data;
 
 		if (data.length > 0) {
-			// add line between each data point
+			
+			// Store the points in an array.
 			LatLng[] points = new LatLng[data.length];
 
 			for (int i = 0, j = 0; i < data.length; i++) {
@@ -169,6 +181,7 @@ public class MapPanel extends ContentPanel {
 			// Marker endMarker = new Marker(points[lastElem]);
 			map.addOverlay(endMarker);
 
+			// Draw a track line through the points.
 			Polyline trace = new Polyline(points);
 			map.addOverlay(trace);
 
