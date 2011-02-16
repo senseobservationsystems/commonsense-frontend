@@ -73,7 +73,7 @@ public class MapPanel extends ContentPanel {
 	 * a time specified with the slider.
 	 */
 	private void createSlider() {
-		// Slider added below the map.		
+		// Slider added below the map.
 		slider = new Slider();
 		slider.setWidth(500);
 		slider.setHeight(50);
@@ -82,6 +82,7 @@ public class MapPanel extends ContentPanel {
 		slider.setIncrement(1);
 		slider.setMessage("{0} days ago"); 
 		slider.setId("viz-map-slider");
+		slider.setPagePosition(100, 0);
 		
 		// Add the map to the dock.		
 		dock.addSouth(slider, 30);
@@ -90,8 +91,8 @@ public class MapPanel extends ContentPanel {
 		slider.addListener(Events.Change, new Listener<SliderEvent>() {
 			@Override
 			public void handleEvent(SliderEvent be) {
-				int newValue = be.getNewValue();
-				updateMap(newValue);
+				int time = be.getNewValue();
+				updateMap(time);
 			}
 		});		
 	}
@@ -175,9 +176,9 @@ public class MapPanel extends ContentPanel {
 		// Set the range of values for the slider according to the 
 		// difference between the first marker's time and the last one.
 		JsonValueModel v = (JsonValueModel) data[0];	
-		int min = (int) v.getTimestamp().getTime() / 1000 / 60 / 24; // to days
+		int min = convertTimestampToNrOfDays(v.getTimestamp().getTime());
 		v = (JsonValueModel) data[data.length - 1];
-		int max = (int) v.getTimestamp().getTime() / 1000 / 60 / 24; // to days
+		int max = convertTimestampToNrOfDays(v.getTimestamp().getTime());
 		int days = max - min;
 		Log.d(TAG, "days: " + days);		
 		slider.setMaxValue(days);
@@ -202,10 +203,6 @@ public class MapPanel extends ContentPanel {
 				double latitude = (Double) fields.get("latitude");
 				double longitude = (Double) fields.get("longitude");
 
-				// timestamp in secs
-				long timestamp = value.getTimestamp().getTime() / 1000;				
-				//Log.d(TAG, "timestamp: " + timestamp);				
-				
 				points[i] = LatLng.newInstance(latitude, longitude);
 			}
 
@@ -257,4 +254,13 @@ public class MapPanel extends ContentPanel {
 		Log.d(TAG, "Finished loading!");
 	}
 
+	/**
+	 * Convert from a timestamp value to a number of days of the year.
+	 * 
+	 * @param timestamp
+	 * @return
+	 */
+	private static final int convertTimestampToNrOfDays(long timestamp) {
+		return (int) timestamp / 1000 / 60 / 24;
+	}
 }
