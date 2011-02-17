@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.visualization.map.components;
 import java.util.Date;
 import java.util.Map;
 
+import nl.sense_os.commonsense.client.common.CustomSlider;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
@@ -13,8 +14,11 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.LargeMapControl;
@@ -28,11 +32,13 @@ public class MapPanel extends ContentPanel {
 	private static final String TAG = "MapPanel";
 	private MapWidget map;
 	private Slider slider;
+	private LayoutContainer sliderContainer;
+	private Label sliderLabel;
+	private DockLayoutPanel dock;	
+	
 	private SensorValueModel[] sensorData;
 	// 24 hs -> 86400 secs
 	private int timeGranularity = 86400;
-	//private static final int timeGranularity = 720;	// in seconds
-	private DockLayoutPanel dock;
 	
 	
 	public MapPanel() {
@@ -43,7 +49,8 @@ public class MapPanel extends ContentPanel {
 		setScrollMode(Scroll.NONE);
 		setId("viz-map");
 
-		dock = new DockLayoutPanel(Unit.PX);
+		// @@ TODO: change this gwt widget by a gxt conatiner.
+		dock = new DockLayoutPanel(Unit.PX);	
 		
 		createMap();		
 		createSlider();
@@ -73,28 +80,45 @@ public class MapPanel extends ContentPanel {
 	 * a time specified with the slider.
 	 */
 	private void createSlider() {
+		final int increment = 50;
+		
 		// Slider added below the map.
-		slider = new Slider();
-		slider.setWidth(500);
-		slider.setHeight(50);
+		//slider = new Slider();
+		slider = new CustomSlider(increment);
+		slider.setWidth(215);
+		slider.setHeight(30);
 		slider.setMinValue(0);
-		slider.setMaxValue(100);
-		slider.setIncrement(1);
+		slider.setMaxValue(214);
+		slider.setIncrement(increment);
 		slider.setMessage("{0} days ago"); 
 		slider.setId("viz-map-slider");
-		//slider.setPagePosition(100, 0);
-		
-		// Add the map to the dock.		
-		dock.addSouth(slider, 30);
 
+		// Slider label.
+		sliderLabel = new Label();
+		sliderLabel.setWidth(50);
+		
+		// This container adds another background image to the slider.		
+		sliderContainer = new LayoutContainer();
+		sliderContainer.setId("custom-slider");
+		sliderContainer.setLayout(new TableLayout(2));
+		sliderContainer.add(slider);
+		sliderContainer.add(sliderLabel);
+		
+		dock.addSouth(sliderContainer, 30);
+		
 		// Listener to filter the points to draw on the map.
 		slider.addListener(Events.Change, new Listener<SliderEvent>() {
 			@Override
-			public void handleEvent(SliderEvent be) {
-				int time = be.getNewValue();
+			public void handleEvent(SliderEvent be) {				
+				int time = be.getNewValue() / increment;
+				
+				Log.d(TAG, "time: " + time);
+				
+				// Update the map according to the selected time.
 				updateMap(time);
 			}
-		});		
+		});
+
 	}
 	
 	/**
@@ -183,12 +207,18 @@ public class MapPanel extends ContentPanel {
 		Log.d(TAG, "days: " + days);		
 		slider.setMaxValue(days);
 
-		// If the difference between the 1st point and the last one is greater
-		// than 31 days, the time range is changed to an hour (3600 secs).
-		if (days < 31) {			
+		// By default the time granularity of the slider is in days.
+		if (days < 31) {
+			// 24 hs -> 3600 seconds
 			timeGranularity = 3600;
+			
 			slider.setMessage("{0} hours ago");
 			slider.setMaxValue(days * 24);
+			
+			sliderLabel.setText("hours");
+			
+		} else {			
+			sliderLabel.setText("days");
 		}
 		
 		// Draw markers and a trace line on the map.
