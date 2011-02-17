@@ -76,3 +76,13 @@ div.graph-canvas div.graph-legend {
 #loading-msg {
     font: normal 10px arial, tahoma, sans-serif;
 }
+
+/* Slider style */
+#custom-slider {
+    width:214px;
+    padding-top:6px;
+    background-image:url(../img/slider/ticks.gif);
+}
+#custom-slider .x-slider-thumb {
+    background-image:url(../img/slider/slider-thumb.png);
+}
