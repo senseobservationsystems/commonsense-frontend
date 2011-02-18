@@ -53,8 +53,9 @@ public class MainView extends View {
                 + CommonSense.LAST_DEPLOYED);
         footerText.setStyleAttribute("font-size", "13px");
         footer.add(footerText);
-
-        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 20);
+		footer.setId("footer-bar");
+        
+		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 20);
         southData.setMargins(new Margins(0));
         southData.setSplit(false);
         this.viewport.add(footer, southData);
@@ -62,7 +63,7 @@ public class MainView extends View {
 
     private void createNavigation() {
         this.navPanel = new NavPanel();
-        this.navPanel.setId("navigation_bar");
+        this.navPanel.setId("navigation-bar");
 
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 20);
         northData.setMargins(new Margins(0));
