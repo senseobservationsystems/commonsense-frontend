@@ -80,7 +80,7 @@ public class MapPanel extends ContentPanel {
 	 * a time specified with the slider.
 	 */
 	private void createSlider() {
-		final int increment = 50;
+		final int increment = 22;
 		
 		// Slider added below the map.
 		//slider = new Slider();
