@@ -98,5 +98,9 @@ div.graph-canvas div.graph-legend {
 	text-decoration: none;
 }
 #navigation_bar a:hover {
-	background-color: #ccc;
+	background-color: #555;
+	color: #fff;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;	
 }
