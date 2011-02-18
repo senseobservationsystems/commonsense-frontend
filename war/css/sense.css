@@ -79,10 +79,24 @@ div.graph-canvas div.graph-legend {
 
 /* Slider style */
 #custom-slider {
-    width:214px;
+    width:215px;
     padding-top:6px;
     background-image:url(../img/slider/ticks.gif);
 }
 #custom-slider .x-slider-thumb {
     background-image:url(../img/slider/slider-thumb.png);
+}
+
+/* Nav bar styles */
+#navigation_bar {
+	border: solid 1px #eee;
+	background-color: #eee;
+	opacity: 0.7;
+	filter: alpha(opacity=70);
+}
+#navigation_bar a {
+	text-decoration: none;
+}
+#navigation_bar a:hover {
+	background-color: #ccc;
 }
