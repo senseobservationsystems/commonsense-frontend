@@ -20,10 +20,17 @@ import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.maps.client.InfoWindow;
+import com.google.gwt.maps.client.InfoWindowContent;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.LargeMapControl;
+import com.google.gwt.maps.client.event.MarkerClickHandler;
+import com.google.gwt.maps.client.event.MarkerDragHandler;
+import com.google.gwt.maps.client.event.MarkerClickHandler.MarkerClickEvent;
+import com.google.gwt.maps.client.event.MarkerDragHandler.MarkerDragEvent;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 
@@ -66,6 +73,7 @@ public class MapPanel extends ContentPanel {
 		// Create the map.
 		map = new MapWidget();
 		map.setSize("100%", "100%");
+		//map.setDraggable(true);
 
 		// Add some controls for the zoom level
 		map.addControl(new LargeMapControl());
@@ -118,7 +126,6 @@ public class MapPanel extends ContentPanel {
 				updateMap(time);
 			}
 		});
-
 	}
 	
 	/**
@@ -149,7 +156,7 @@ public class MapPanel extends ContentPanel {
 
 			int lastPoint = 0;
 
-			// It will be drawn all the points greater than the minTimeFilter.
+			// All the points greater than the minTimeFilter will be drawn.
 			for (int i = 0, j = 0; i < sensorData.length; i++) {
 				JsonValueModel value = (JsonValueModel) sensorData[i];
 				Map<String, Object> fields = value.getFields();
@@ -171,12 +178,14 @@ public class MapPanel extends ContentPanel {
 
 			// Add the first marker
 			Marker startMarker = new Marker(points[0]);
+			startMarker.setDraggingEnabled(true);
 			map.addOverlay(startMarker);
 
 			// Add the last marker
 			Marker endMarker = new Marker(points[lastPoint]);
+			endMarker.setDraggingEnabled(true);
 			map.addOverlay(endMarker);
-
+			
 			// Draw a track line
 			Polyline trace = new Polyline(points);
 			map.addOverlay(trace);
@@ -237,9 +246,31 @@ public class MapPanel extends ContentPanel {
 			}
 
 			// Add the first marker
-			Marker startMarker = new Marker(points[0]);
+			MarkerOptions markerOpt = MarkerOptions.newInstance();
+			markerOpt.setDraggable(true);
+			Marker startMarker = new Marker(points[0], markerOpt);
 			map.addOverlay(startMarker);
 
+			startMarker.addMarkerDragHandler(new MarkerDragHandler() {
+				@Override
+				public void onDrag(MarkerDragEvent event) {
+					Marker marker = event.getSender();
+					LatLng point = marker.getLatLng();
+					//marker.setLatLng(point);
+					Log.d(TAG, "point: " + point.toString());
+				}
+			});
+
+			startMarker.addMarkerClickHandler(new MarkerClickHandler() {
+				@Override
+				public void onClick(MarkerClickEvent event) {
+					Marker marker = event.getSender();
+					final InfoWindow info = map.getInfoWindow();
+					final InfoWindowContent content = new InfoWindowContent("starting point");
+					info.open(marker, content);
+				}
+			});
+			
 			// Add the last marker
 			Marker endMarker = new Marker(points[points.length - 1]);
 			map.addOverlay(endMarker);
@@ -269,7 +300,8 @@ public class MapPanel extends ContentPanel {
 			 * map.getBoundsZoomLevel(bounds));
 			 */
 
-			map.setCenter(endMarker.getLatLng());
+			//map.setCenter(endMarker.getLatLng());
+			map.setCenter(startMarker.getLatLng());
 			map.setZoomLevel(13);
 
 		} else {
