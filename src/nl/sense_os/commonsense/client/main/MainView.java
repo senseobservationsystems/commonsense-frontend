@@ -51,11 +51,11 @@ public class MainView extends View {
         LayoutContainer footer = new LayoutContainer(new CenterLayout());
         Text footerText = new Text("&#169;2011 Sense Observation Systems - Last update: "
                 + CommonSense.LAST_DEPLOYED);
-        footerText.setStyleAttribute("font-size", "13px");
+        footerText.setStyleAttribute("font-size", "10pt");
         footer.add(footerText);
 		footer.setId("footer-bar");
         
-		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 20);
+		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 40);
         southData.setMargins(new Margins(0));
         southData.setSplit(false);
         this.viewport.add(footer, southData);
