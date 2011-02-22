@@ -65,7 +65,7 @@ public class MainView extends View {
         this.navPanel = new NavPanel();
         this.navPanel.setId("navigation-bar");
 
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 20);
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 23);
         northData.setMargins(new Margins(0));
         northData.setSplit(false);
         this.viewport.add(this.navPanel, northData);
