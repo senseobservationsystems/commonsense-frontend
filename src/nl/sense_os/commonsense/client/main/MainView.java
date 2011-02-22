@@ -167,7 +167,7 @@ public class MainView extends View {
 
         // remove old center content
         if (null != newContent) {
-            newContent.setId("center_content");
+            newContent.setId("center-content");
             this.center.removeAll();
             this.center.add(newContent);
             this.center.layout();
