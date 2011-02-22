@@ -55,7 +55,7 @@ public class MainView extends View {
         footer.add(footerText);
 		footer.setId("footer-bar");
         
-		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 40);
+		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 30);
         southData.setMargins(new Margins(0));
         southData.setSplit(false);
         this.viewport.add(footer, southData);
