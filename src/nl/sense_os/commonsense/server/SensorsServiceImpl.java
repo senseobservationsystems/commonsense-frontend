@@ -79,18 +79,35 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         }
     }
 
+    private List<ModelData> getAllSensors(String sessionId, String urlSuffix)
+            throws WrongResponseException, DbConnectionException {
+
+        List<ModelData> sensors = new ArrayList<ModelData>();
+
+        long total = 1001;
+        int fetched = 0;
+        int page = 0;
+        while (total > fetched) {
+            String url = Constants.URL_SENSORS + "?per_page=1000&page=" + page + urlSuffix;
+            doRequest(url, sessionId, "GET", null);
+            if (this.responseCode != HttpURLConnection.HTTP_OK) {
+                log.severe("GET /sensors failure: " + this.responseCode + " "
+                        + this.responseContent);
+                throw new WrongResponseException("failed to get sensors " + this.responseCode);
+            }
+            total = parseSensors(this.responseContent, sensors);
+            fetched = sensors.size();
+            page++;
+        }
+        return sensors;
+    }
+
     @Override
     public List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException {
 
         // request all sensors from server
-        String url = Constants.URL_SENSORS + "?owned=1";
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET /sensors failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get sensors " + this.responseCode);
-        }
-        List<ModelData> sensors = parseSensors(this.responseContent);
+        List<ModelData> sensors = getAllSensors(sessionId, "&owned=1");
 
         // check non-device sensors
         List<ModelData> availableSensors = new ArrayList<ModelData>();
@@ -131,13 +148,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             DbConnectionException {
 
         // request all sensors from server
-        String url = Constants.URL_SENSORS;
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET /sensors failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get sensors " + this.responseCode);
-        }
-        List<ModelData> sensors = parseSensors(this.responseContent);
+        List<ModelData> sensors = getAllSensors(sessionId, "");
 
         HashMap<String, TreeModel> foundServices = new HashMap<String, TreeModel>();
         for (ModelData sensorModel : sensors) {
@@ -145,7 +156,8 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             TreeModel sensor = new BaseTreeModel(sensorModel.getProperties());
 
             // request all available services for this sensor
-            url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/available";
+            String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
+                    + "/services/available";
             doRequest(url, sessionId, "GET", null);
             if (this.responseCode != HttpURLConnection.HTTP_OK) {
                 log.severe("GET /sensors/<id>/services/available failure: " + this.responseCode
@@ -201,22 +213,12 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         // request all sensors from server
         String urlSuffix = "";
         if (null != owned) {
-            urlSuffix = "?owned=" + owned;
-            if (null != alias) {
-                urlSuffix += "&alias=" + alias;
-            }
-        } else {
-            urlSuffix = "?alias=" + alias;
+            urlSuffix += "&owned=" + owned;
         }
-        String url = Constants.URL_SENSORS + urlSuffix;
-        doRequest(url, sessionId, "GET", null);
-
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET SENSORS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get sensors " + this.responseCode);
+        if (null != alias) {
+            urlSuffix += "&alias=" + alias;
         }
-
-        List<ModelData> unsortedSensors = parseSensors(this.responseContent);
+        List<ModelData> unsortedSensors = getAllSensors(sessionId, urlSuffix);
 
         // store alias and owner information for future use
         for (ModelData sensor : unsortedSensors) {
@@ -246,13 +248,14 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         return sorted;
     }
+
     private List<TreeModel> getDevices(String sessionId, String urlSuffix, List<TreeModel> sensors)
             throws WrongResponseException, DbConnectionException {
 
         HashMap<String, TreeModel> devicesMap = new HashMap<String, TreeModel>();
         for (TreeModel sensor : sensors) {
             String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/device"
-                    + urlSuffix;
+                    + "?per_page=100&page=" + 0 + urlSuffix;
             doRequest(url, sessionId, "GET", null);
 
             if (this.responseCode != HttpURLConnection.HTTP_OK) {
@@ -276,24 +279,17 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         return devices;
     }
-
     @Override
     public List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         // request all sensors from server
-        String url = Constants.URL_SENSORS + "?owned=1";
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET /sensors failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get sensors " + this.responseCode);
-        }
-        List<ModelData> sensors = parseSensors(this.responseContent);
+        List<ModelData> sensors = getAllSensors(sessionId, "&owned=1");
 
         // gather the services that are connected to the sensors
         HashMap<String, TreeModel> foundServices = new HashMap<String, TreeModel>();
         for (ModelData sensor : sensors) {
-            url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services";
+            String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services";
             doRequest(url, sessionId, "GET", null);
 
             if (this.responseCode != HttpURLConnection.HTTP_OK) {
@@ -322,7 +318,7 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         // request the sensor name that is associated with each service
         for (TreeModel service : services) {
-            url = Constants.URL_SENSORS + "/" + service.<String> get("id");
+            String url = Constants.URL_SENSORS + "/" + service.<String> get("id");
             doRequest(url, sessionId, "GET", null);
 
             if (this.responseCode != HttpURLConnection.HTTP_OK) {
@@ -338,7 +334,6 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
         return services;
     }
-
     private boolean isSensorAvailable(String sessionId, String sensorId, TreeModel service)
             throws WrongResponseException, DbConnectionException {
 
@@ -412,7 +407,12 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
             // front end-only properties
             properties.put("tagType", TagModel.TYPE_DEVICE);
-            properties.put("text", properties.get("type"));
+            if (properties.get("type").equals("myrianode")) {
+                String text = properties.get("type") + " " + properties.get("uuid");
+                properties.put("text", text);
+            } else {
+                properties.put("text", properties.get("type"));
+            }
 
             return new BaseModelData(properties);
 
@@ -422,7 +422,6 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
             throw (new WrongResponseException(e.getMessage()));
         }
     }
-
     private List<ModelData> parseDevices(String response) throws WrongResponseException {
         try {
             List<ModelData> result = new ArrayList<ModelData>();
@@ -495,13 +494,14 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         }
     }
 
-    private List<ModelData> parseSensors(String response) throws DbConnectionException,
+    private long parseSensors(String response, List<ModelData> list) throws DbConnectionException,
             WrongResponseException {
 
         // Convert JSON response to list of tags
         try {
-            List<ModelData> result = new ArrayList<ModelData>();
-            JSONArray sensors = (JSONArray) new JSONObject(response).get("sensors");
+            JSONObject responseObj = new JSONObject(response);
+            long total = responseObj.getLong("total");
+            JSONArray sensors = responseObj.getJSONArray("sensors");
             for (int i = 0; i < sensors.length(); i++) {
                 JSONObject sensor = sensors.getJSONObject(i);
 
@@ -537,11 +537,11 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
 
                 ModelData model = new BaseModelData(properties);
 
-                result.add(model);
+                list.add(model);
             }
 
-            // return list of tags
-            return result;
+            // return total count
+            return total;
 
         } catch (JSONException e) {
             log.severe("GET /sensors JSONException: " + e.getMessage());
@@ -695,7 +695,9 @@ public class SensorsServiceImpl extends RemoteServiceServlet implements SensorsS
         }
 
         // Convert JSON response to list of tags
-        return parseSensors(this.responseContent);
+        List<ModelData> sensors = new ArrayList<ModelData>();
+        parseSensors(this.responseContent, sensors);
+        return sensors;
     }
 
     private List<TreeModel> sortSensors(List<ModelData> unsorted, List<TreeModel> devices,
