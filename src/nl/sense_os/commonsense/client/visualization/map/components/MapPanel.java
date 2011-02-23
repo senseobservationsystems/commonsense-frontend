@@ -26,10 +26,6 @@ import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.LargeMapControl;
 import com.google.gwt.maps.client.event.MarkerClickHandler;
 import com.google.gwt.maps.client.event.MarkerDragEndHandler;
-import com.google.gwt.maps.client.event.MarkerDragHandler;
-import com.google.gwt.maps.client.event.MarkerClickHandler.MarkerClickEvent;
-import com.google.gwt.maps.client.event.MarkerDragEndHandler.MarkerDragEndEvent;
-import com.google.gwt.maps.client.event.MarkerDragHandler.MarkerDragEvent;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
@@ -279,6 +275,7 @@ public class MapPanel extends ContentPanel {
 				}
 			});
 
+			// Show an info window when the marker is clicked.
 			startMarker.addMarkerClickHandler(new MarkerClickHandler() {
 				@Override
 				public void onClick(MarkerClickEvent event) {
