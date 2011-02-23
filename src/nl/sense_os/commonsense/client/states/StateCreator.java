@@ -341,7 +341,6 @@ public class StateCreator extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(StateEvents.ListRequested);
         setBusy(false);
     }
 

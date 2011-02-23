@@ -60,7 +60,7 @@ public class VizTypeChooser extends View {
 
             String structure = sensor.<String> get("data_structure");
 
-            if (structure.contains("longitude")) {
+            if (null != structure && structure.contains("longitude")) {
                 final TreeModel[] temp = new TreeModel[this.locationSensors.length + 1];
                 System.arraycopy(this.locationSensors, 0, temp, 0, this.locationSensors.length);
                 this.locationSensors = temp;

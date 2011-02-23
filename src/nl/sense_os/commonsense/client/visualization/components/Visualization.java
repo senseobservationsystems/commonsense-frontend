@@ -356,7 +356,7 @@ public class Visualization extends LayoutContainer {
     public void showLineChart(TreeModel[] sensors, long startTime, long endTime) {
 
         // add line chart tab item
-        final TabItem item = new TabItem("Time line");
+        final TabItem item = new TabItem("Line chart");
         item.setLayout(new FitLayout());
         item.setClosable(true);
         final VisualizationTab charts = new TimeLineCharts();

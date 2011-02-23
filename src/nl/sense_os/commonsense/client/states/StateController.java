@@ -406,7 +406,7 @@ public class StateController extends Controller {
         // prepare request properties
         final String method = params.size() > 0 ? "POST" : "GET";
         final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/"
-                + service.<String> get("id") + "/" + serviceMethod.<String> get("name");
+                + service.<String> get("id") + "/" + serviceMethod.<String> get("name") + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateEvents.AjaxMethodSuccess);
         final AppEvent onFailure = new AppEvent(StateEvents.AjaxMethodFailure);

@@ -7,8 +7,8 @@ import java.util.List;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
+import com.chap.links.client.AddHandler;
 import com.chap.links.client.Timeline;
-import com.chap.links.client.Timeline.AddHandler;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -61,8 +61,8 @@ public class FeedbackForm extends View {
      * @param timeline
      * @return
      */
-    private Timeline.AddHandler createAddHandler(final Timeline timeline) {
-        AddHandler h = new Timeline.AddHandler() {
+    private AddHandler createAddHandler(final Timeline timeline) {
+        AddHandler h = new AddHandler() {
             @Override
             public void onAdd(AddEvent event) {
                 // retrieve the row number of the changed event
@@ -81,9 +81,8 @@ public class FeedbackForm extends View {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                onAdd(new AddEvent());
+                onAdd(null);
             }
-
         };
         return h;
     }

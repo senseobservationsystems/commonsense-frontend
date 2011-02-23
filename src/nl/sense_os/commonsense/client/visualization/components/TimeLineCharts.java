@@ -132,17 +132,17 @@ public class TimeLineCharts extends VisualizationTab {
 
             // different charts for different data types
             switch (values[0].getType()) {
-            case SensorValueModel.FLOAT:
-                addFloatChart(data);
-                break;
-            case SensorValueModel.JSON:
-                addJsonCharts(data);
-                break;
-            case SensorValueModel.BOOL:
-                addBoolChart(data);
-                break;
-            default:
-                Log.w(TAG, "Unexpected data type");
+                case SensorValueModel.FLOAT :
+                    addFloatChart(data);
+                    break;
+                case SensorValueModel.JSON :
+                    addJsonCharts(data);
+                    break;
+                case SensorValueModel.BOOL :
+                    addBoolChart(data);
+                    break;
+                default :
+                    Log.w(TAG, "Unexpected data type");
             }
         } else {
             Log.w(TAG, "No sensor values to add");
@@ -301,12 +301,14 @@ public class TimeLineCharts extends VisualizationTab {
                         sortedValues.put(fieldName, list);
                     } catch (final NumberFormatException e) {
                         // not a valid field
-                        Log.e(TAG, "field " + fieldName + " is not parsable! Value: " + fieldValue);
+                        // Log.e(TAG, "field " + fieldName + " is not parsable! Value: " +
+                        // fieldValue);
                     }
 
                 } else {
                     // not a valid field
-                    Log.e(TAG, "field " + field.getKey() + " is not valid! Value: " + fieldValue);
+                    Log.e(TAG, "field " + field.getKey()
+                            + " is not a String, int or double! Value: " + fieldValue);
                 }
             }
         }

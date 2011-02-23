@@ -107,7 +107,7 @@ public class MapController extends Controller {
 
         // Asynchronously load the Maps API.
         this.isApiLoaded = false;
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", true, new Runnable() {
+        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
 
             @Override
             public void run() {

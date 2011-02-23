@@ -135,7 +135,7 @@ public class StateGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -326,7 +326,7 @@ public class StateGrid extends View {
 
     protected void onEditClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
-        if (selectedService.get("service_name") == null) {
+        if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
         AppEvent event = new AppEvent(StateEvents.ShowEditor);
