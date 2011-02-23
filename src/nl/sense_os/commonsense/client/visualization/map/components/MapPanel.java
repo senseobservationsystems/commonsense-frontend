@@ -25,8 +25,10 @@ import com.google.gwt.maps.client.InfoWindowContent;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.control.LargeMapControl;
 import com.google.gwt.maps.client.event.MarkerClickHandler;
+import com.google.gwt.maps.client.event.MarkerDragEndHandler;
 import com.google.gwt.maps.client.event.MarkerDragHandler;
 import com.google.gwt.maps.client.event.MarkerClickHandler.MarkerClickEvent;
+import com.google.gwt.maps.client.event.MarkerDragEndHandler.MarkerDragEndEvent;
 import com.google.gwt.maps.client.event.MarkerDragHandler.MarkerDragEvent;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Marker;
@@ -232,7 +234,7 @@ public class MapPanel extends ContentPanel {
 		
 		// Draw markers and a trace line on the map.
 		if (data.length > 0) {
-			LatLng[] points = new LatLng[data.length];
+			final LatLng[] points = new LatLng[data.length];
 			
 			// Store the points in an array.
 			for (int i = 0; i < data.length; i++) {
@@ -251,13 +253,29 @@ public class MapPanel extends ContentPanel {
 			Marker startMarker = new Marker(points[0], markerOpt);
 			map.addOverlay(startMarker);
 
-			startMarker.addMarkerDragHandler(new MarkerDragHandler() {
+			// This handler looks for the closest point between the point
+			// where the marker is dropped and the stored points in the array.
+			// Then, it moves the marker to the closest point. 
+			startMarker.addMarkerDragEndHandler(new MarkerDragEndHandler() {
+				private int pointId = 0;
+				
 				@Override
-				public void onDrag(MarkerDragEvent event) {
+				public void onDragEnd(MarkerDragEndEvent event) {
 					Marker marker = event.getSender();
-					LatLng point = marker.getLatLng();
-					//marker.setLatLng(point);
-					Log.d(TAG, "point: " + point.toString());
+					LatLng currPoint = marker.getLatLng();
+
+					double currDst = points[0].distanceFrom(currPoint);
+					double minDst = currDst;
+					
+					for (int i = 1; i < points.length; i++) {
+						double nextDst = points[i].distanceFrom(currPoint);
+						
+						if (nextDst < minDst) {
+							minDst = nextDst;
+							pointId = i;
+						}
+					}
+					marker.setLatLng(points[pointId]);
 				}
 			});
 
@@ -272,9 +290,9 @@ public class MapPanel extends ContentPanel {
 			});
 			
 			// Add the last marker
-			Marker endMarker = new Marker(points[points.length - 1]);
-			map.addOverlay(endMarker);
-			
+			//Marker endMarker = new Marker(points[points.length - 1]);
+			//map.addOverlay(endMarker);
+
 			// Draw a trace line through the points.
 			Polyline trace = new Polyline(points);
 			map.addOverlay(trace);
@@ -289,7 +307,7 @@ public class MapPanel extends ContentPanel {
 			 * Log.d(TAG, "zoom level: " + zoomLevel);
 			 */
 
-			// Adjust the zoom level according to the bounds.			
+			// Adjust the zoom level according to the bounds.
 			/* 
 			 * if (zoomLevel < 9)
 			 * 	map.setZoomLevel(zoomLevel); 
@@ -300,7 +318,6 @@ public class MapPanel extends ContentPanel {
 			 * map.getBoundsZoomLevel(bounds));
 			 */
 
-			//map.setCenter(endMarker.getLatLng());
 			map.setCenter(startMarker.getLatLng());
 			map.setZoomLevel(13);
 
