@@ -69,7 +69,6 @@ public class Visualization extends LayoutContainer {
      * sensor values.
      */
     private void createCenterPanel() {
-
         // Tabs panel
         this.tabPanel = new TabPanel();
         this.tabPanel.setSize("100%", "100%");
@@ -118,7 +117,7 @@ public class Visualization extends LayoutContainer {
         }
 
         final BorderLayoutData centerLayout = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayout.setMargins(new Margins(5));
+        centerLayout.setMargins(new Margins(5, 5, 0, 5));
         add(this.tabPanel, centerLayout);
     }
 
@@ -166,17 +165,16 @@ public class Visualization extends LayoutContainer {
      * @return the panel's LayoutContainer
      */
     private void createWestPanel() {
-
         final Image logo = new Image("/img/logo_sense-150.png");
         logo.setPixelSize(131, 68);
         logo.addMouseDownHandler(new MouseDownHandler() {
-
             @Override
             public void onMouseDown(MouseDownEvent event) {
                 Log.d(TAG, "relative x: " + event.getRelativeX(logo.getElement()));
                 Log.d(TAG, "relative y: " + event.getRelativeY(logo.getElement()));
             }
         });
+        
         final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
         logoContainer.setHeight(68);
         logoContainer.add(logo);
@@ -192,7 +190,7 @@ public class Visualization extends LayoutContainer {
         westPanel.add(accordion, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275);
-        westData.setMargins(new Margins(5));
+        westData.setMargins(new Margins(5, 5, 0, 5));
         westData.setSplit(false);
         add(westPanel, westData);
 
