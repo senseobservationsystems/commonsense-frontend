@@ -54,7 +54,7 @@ public class MapPanel extends ContentPanel {
 		setScrollMode(Scroll.NONE);
 		setId("viz-map");
 
-		// @@ TODO: change this gwt widget by a gxt conatiner.
+		// @@ FIXME: change this gwt widget by a gxt conatiner.
 		dock = new DockLayoutPanel(Unit.PX);	
 		
 		createMap();		
