@@ -63,7 +63,7 @@ public class LoginView extends View {
             onShow(event);
 
         } else if (type.equals(LoginEvents.Hide)) {
-            Log.d(TAG, "Hide");
+            // Log.d(TAG, "Hide");
             hideWindow();
 
         } else if (type.equals(LoginEvents.AuthenticationFailure)) {
@@ -71,11 +71,11 @@ public class LoginView extends View {
             onAuthenticationFailure(event);
 
         } else if (type.equals(LoginEvents.LoggedIn)) {
-            Log.d(TAG, "LoggedIn");
+            // Log.d(TAG, "LoggedIn");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            Log.d(TAG, "LoggedOut");
+            // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(LoginEvents.LoginError)) {

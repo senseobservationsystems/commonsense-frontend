@@ -5,7 +5,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.services.GroupsServiceAsync;
+import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
@@ -91,8 +91,8 @@ public class GroupController extends Controller {
             this.isGettingGroups = true;
             Dispatcher.forwardEvent(GroupEvents.Working);
 
-            GroupsServiceAsync service = Registry
-                    .<GroupsServiceAsync> get(Constants.REG_GROUPS_SVC);
+            GroupsProxyAsync service = Registry
+                    .<GroupsProxyAsync> get(Constants.REG_GROUPS_SVC);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

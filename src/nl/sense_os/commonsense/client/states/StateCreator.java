@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -136,8 +136,8 @@ public class StateCreator extends View {
         this.nameField.setFieldLabel("State sensor name");
         this.nameField.setAllowBlank(false);
 
-        final SensorsServiceAsync service = Registry
-                .<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
+        final SensorsProxyAsync service = Registry
+                .<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         RpcProxy<List<TreeModel>> servicesProxy = new RpcProxy<List<TreeModel>>() {

@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.environments;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,9 +11,15 @@ import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -36,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class BuildingGrid extends View {
 
@@ -45,10 +53,20 @@ public class BuildingGrid extends View {
     private TreeGrid<TreeModel> grid;
     private Button importButton;
     private ContentPanel panel;
+    private boolean isCollapsed;
     private TreeStore<TreeModel> store;
+    private BaseTreeLoader<TreeModel> loader;
 
     public BuildingGrid(Controller controller) {
         super(controller);
+    }
+
+    protected void create() {
+        Log.w(TAG, "Create button logic not implemented");
+    }
+
+    protected void delete() {
+        Log.w(TAG, "Delete button logic not implemented");
     }
 
     @Override
@@ -71,7 +89,7 @@ public class BuildingGrid extends View {
 
         } else if (type.equals(VizEvents.Show)) {
             Log.d(TAG, "ShowVisualization");
-            Dispatcher.forwardEvent(BuildingEvents.ListRequested);
+            refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -86,8 +104,32 @@ public class BuildingGrid extends View {
         }
     }
 
+    private void importEnvironment() {
+        Log.w(TAG, "Import button logic not implemented");
+    }
+
     private void initGrid() {
-        this.store = new TreeStore<TreeModel>();
+        // tree store
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        DataProxy proxy = new DataProxy() {
+
+            @Override
+            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+                // only load when the panel is not collapsed
+                if (false == isCollapsed) {
+                    if (null == loadConfig) {
+                        Dispatcher.forwardEvent(BuildingEvents.ListRequested, callback);
+                    } else if (loadConfig instanceof TreeModel) {
+                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                        callback.onSuccess(childrenModels);
+                    } else {
+                        callback.onSuccess(new ArrayList<TreeModel>());
+                    }
+                }
+            }
+        };
+        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        this.store = new TreeStore<TreeModel>(loader);
 
         ColumnConfig email = new ColumnConfig("email", "Email", 100);
         ColumnConfig name = new ColumnConfig("name", "Name", 100);
@@ -142,6 +184,23 @@ public class BuildingGrid extends View {
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Manage environments");
 
+        // track whether the panel is expanded
+        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                EventType type = be.getType();
+                if (type.equals(Events.Expand)) {
+                    isCollapsed = false;
+                    refreshLoader();
+                } else if (type.equals(Events.Collapse)) {
+                    isCollapsed = true;
+                }
+            }
+        };
+        panel.addListener(Events.Expand, collapseListener);
+        panel.addListener(Events.Collapse, collapseListener);
+
         initHeaderTool();
         initToolBar();
         initGrid();
@@ -182,10 +241,6 @@ public class BuildingGrid extends View {
         this.panel.setTopComponent(toolBar);
     }
 
-    protected void create() {
-        Log.w(TAG, "Create button logic not implemented");
-    }
-
     private void onDeleteClick() {
         MessageBox.confirm(null, "Are you sure you want to remove this environment?",
                 new Listener<MessageBoxEvent>() {
@@ -198,10 +253,6 @@ public class BuildingGrid extends View {
                         }
                     }
                 });
-    }
-
-    protected void delete() {
-        Log.w(TAG, "Delete button logic not implemented");
     }
 
     private void onGroupsNotUpdated(AppEvent event) {
@@ -219,10 +270,6 @@ public class BuildingGrid extends View {
         }
     }
 
-    private void importEnvironment() {
-        Log.w(TAG, "Import button logic not implemented");
-    }
-
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
     }
@@ -232,10 +279,14 @@ public class BuildingGrid extends View {
         if (null != parent) {
             parent.add(this.panel);
             parent.layout();
-
-            fireEvent(new AppEvent(BuildingEvents.ListRequested));
         } else {
             Log.e(TAG, "Failed to show buildings panel: parent=null");
+        }
+    }
+
+    protected void refreshLoader() {
+        if (this.store.getChildCount() == 0) {
+            loader.load();
         }
     }
 

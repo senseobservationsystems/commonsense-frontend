@@ -23,12 +23,17 @@ public class SensorComparator implements Comparator<Object> {
             int tagType2 = model2.<Integer> get("tagType");
 
             if (tagType1 == tagType2) {
-                if (tagType1 == TagModel.TYPE_SENSOR) {
+                switch (tagType1) {
+                case TagModel.TYPE_SENSOR:
                     return compareSensors(model1, model2);
-                } else if (tagType1 == TagModel.TYPE_GROUP) {
+                case TagModel.TYPE_GROUP:
                     return compareGroups(model1, model2);
-                } else if (tagType1 == TagModel.TYPE_DEVICE) {
+                case TagModel.TYPE_DEVICE:
                     return compareDevices(model1, model2);
+                case TagModel.TYPE_USER:
+                    return compareUsers(model1, model2);
+                default:
+                    return 0;
                 }
             }
             return tagType2 - tagType1;
@@ -37,9 +42,51 @@ public class SensorComparator implements Comparator<Object> {
         }
     }
 
+    private int compareUsers(TreeModel model1, TreeModel model2) {
+        return model1.<String> get("text").compareTo(model2.<String> get("text"));
+    }
+
     private int compareSensors(TreeModel model1, TreeModel model2) {
-        String name1 = model1.<String> get("text");
-        String name2 = model2.<String> get("text");
+        int type1 = Integer.parseInt(model1.<String> get("type"));
+        switch (type1) {
+        case 0:
+            type1 = FEEDS;
+            break;
+        case 1:
+            type1 = DEVICES;
+            break;
+        case 2:
+            type1 = STATES;
+            break;
+        case 3:
+            type1 = ENVIRONMENTS;
+            break;
+        case 4:
+            type1 = APPLICATIONS;
+            break;
+        }
+        int type2 = Integer.parseInt(model2.<String> get("type"));
+        switch (type2) {
+        case 0:
+            type2 = FEEDS;
+            break;
+        case 1:
+            type2 = DEVICES;
+            break;
+        case 2:
+            type2 = STATES;
+            break;
+        case 3:
+            type2 = ENVIRONMENTS;
+            break;
+        case 4:
+            type2 = APPLICATIONS;
+            break;
+        }
+
+        String name1 = type1 + model1.<String> get("text");
+        String name2 = type2 + model2.<String> get("text");
+
         return name1.compareToIgnoreCase(name2);
     }
 

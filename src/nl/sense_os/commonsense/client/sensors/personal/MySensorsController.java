@@ -5,7 +5,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -48,8 +48,8 @@ public class MySensorsController extends Controller {
             this.isGettingMySensors = true;
             Dispatcher.forwardEvent(MySensorsEvents.Working);
 
-            SensorsServiceAsync service = Registry
-                    .<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry
+                    .<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
             String sessionId = Registry.get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

@@ -19,7 +19,21 @@ public class SensorIconProvider implements ModelIconProvider<TreeModel> {
         } else if (tagType == TagModel.TYPE_DEVICE) {
             return IconHelper.create("gxt/images/gxt/icons/folder.gif");
         } else if (tagType == TagModel.TYPE_SENSOR) {
-            return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
+            int type = Integer.parseInt(model.<String> get("type"));
+            switch (type) {
+            case 0:
+                return IconHelper.create("img/icons/rss_icon.gif");
+            case 1:
+                return IconHelper.create("img/icons/sense_red.gif");
+            case 2:
+                return IconHelper.create("img/icons/sense_magenta.gif");
+            case 3:
+                return IconHelper.create("img/icons/sense_orange.gif");
+            case 4:
+                return IconHelper.create("img/icons/sense_black.gif");
+            default:
+                return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
+            }
         } else if (tagType == TagModel.TYPE_SERVICE) {
             return IconHelper.create("gxt/images/gxt/icons/tabs.gif");
         } else if (tagType == TagModel.TYPE_USER) {

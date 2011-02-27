@@ -1,19 +1,11 @@
 package nl.sense_os.commonsense.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.GroupsService;
+import nl.sense_os.commonsense.client.services.GroupsProxy;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
@@ -28,51 +20,10 @@ import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsService {
+public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy {
 
-    private static final Logger log = Logger.getLogger("GroupsServiceImpl");
+    private static final Logger log = Logger.getLogger("GroupsProxyImpl");
     private static final long serialVersionUID = 1L;
-    private int responseCode = 0;
-    private String responseContent;
-
-    private void doRequest(String url, String sessionId, String method, String data)
-            throws WrongResponseException, DbConnectionException {
-
-        // Get response from server
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod(method);
-            connection.setConnectTimeout(30000);
-            connection.setRequestProperty("X-SESSION_ID", sessionId);
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");
-
-            // log.info(method + " " + connection.getURL().getPath());
-
-            // perform method at URL
-            if (null != data) {
-                log.info(data);
-                connection.setDoOutput(true);
-                OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream());
-                w.write(data);
-                w.close();
-            }
-            this.responseCode = connection.getResponseCode();
-            this.responseContent = "";
-            InputStream is = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                this.responseContent += line;
-            }
-        } catch (MalformedURLException e) {
-            log.severe("MalformedURLException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
-        } catch (IOException e) {
-            log.severe("IOException: " + e.getMessage());
-            throw (new DbConnectionException(e.getMessage()));
-        }
-    }
 
     @Override
     public List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
@@ -161,14 +112,19 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
 
                 HashMap<String, Object> properties = new HashMap<String, Object>();
                 properties.put("id", user.getString("id"));
-                properties.put("email", user.getString("email"));
-                properties.put("name", user.getString("name"));
-                properties.put("surname", user.getString("surname"));
-                properties.put("mobile", user.getString("mobile"));
+                properties.put("email", user.optString("email"));
+                properties.put("name", user.optString("name"));
+                properties.put("surname", user.optString("surname"));
+                properties.put("username", user.optString("username"));
+                properties.put("mobile", user.optString("mobile"));
 
                 // front end-only properties
                 properties.put("tagType", TagModel.TYPE_USER);
-                properties.put("text", properties.get("name") + " " + properties.get("surname"));
+                String text = user.optString("name", "") + " " + user.optString("surname", "");
+                if (text.length() < 3) {
+                    text = "User #" + properties.get("id");
+                }
+                properties.put("text", text);
 
                 ModelData model = new BaseModelData(properties);
 
@@ -188,39 +144,24 @@ public class GroupsServiceImpl extends RemoteServiceServlet implements GroupsSer
             throws DbConnectionException, WrongResponseException {
 
         String url = Constants.URL_GROUPS + "/" + groupId;
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET GROUP DETAILS failure: " + this.responseCode + " "
-                    + this.responseContent);
-            throw new WrongResponseException("failed to get group details " + this.responseCode);
-        }
+        String response = Requester.request(url, sessionId, "GET", null);
 
-        return parseGroupDetails(this.responseContent);
+        return parseGroupDetails(response);
     }
 
     private List<ModelData> requestGroups(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         String url = Constants.URL_GROUPS;
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET GROUPS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get groups " + this.responseCode);
-        }
-
-        return parseGroups(this.responseContent);
+        String response = Requester.request(url, sessionId, "GET", null);
+        return parseGroups(response);
     }
 
     private List<ModelData> requestGroupUsers(String sessionId, String groupId)
             throws DbConnectionException, WrongResponseException {
 
         String url = Constants.URL_GROUPS + "/" + groupId + "/users";
-        doRequest(url, sessionId, "GET", null);
-        if (this.responseCode != HttpURLConnection.HTTP_OK) {
-            log.severe("GET GROUP USERS failure: " + this.responseCode + " " + this.responseContent);
-            throw new WrongResponseException("failed to get group users " + this.responseCode);
-        }
-
-        return parseGroupUsers(this.responseContent);
+        String response = Requester.request(url, sessionId, "GET", null);
+        return parseGroupUsers(response);
     }
 }

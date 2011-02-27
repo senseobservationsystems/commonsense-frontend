@@ -6,7 +6,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
+import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -58,18 +58,23 @@ public class GroupSensorsController extends Controller {
         final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
         if (this.pendingRequests == 0) {
 
+            forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
+
             List<TreeModel> groups = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-            if (groups != null && groups.size() > 0) {
+            if (groups == null) {
+                forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
+                Dispatcher.forwardEvent(GroupEvents.ListRequested);
+                return;
+            } else if (groups.size() > 0) {
+                forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
                 this.pendingRequests = groups.size();
-                Dispatcher.forwardEvent(GroupSensorsEvents.Working);
             } else {
-                Dispatcher.forwardEvent(GroupSensorsEvents.Done);
+                forwardToView(treeView, new AppEvent(GroupSensorsEvents.Done));
                 return;
             }
 
             this.groupSensors = new ArrayList<TreeModel>();
-            SensorsServiceAsync service = Registry
-                    .<SensorsServiceAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
             String sessionId = Registry.get(Constants.REG_SESSION_ID);
             AsyncCallback<TreeModel> callback = new AsyncCallback<TreeModel>() {
 

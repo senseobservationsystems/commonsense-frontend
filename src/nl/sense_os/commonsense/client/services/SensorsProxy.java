@@ -10,7 +10,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("sensors")
-public interface SensorsService extends RemoteService {
+public interface SensorsProxy extends RemoteService {
 
     List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException;

@@ -19,7 +19,9 @@ import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
@@ -58,6 +60,7 @@ public class StateGrid extends View {
 
     protected static final String TAG = "StateGrid";
     private ContentPanel panel;
+    private boolean isCollapsed;
     private TreeGrid<TreeModel> grid;
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
@@ -135,18 +138,21 @@ public class StateGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataProxy proxy = new DataProxy() {
 
             @Override
             public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
-                if (null == loadConfig) {
-                    Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
-                } else if (loadConfig instanceof TreeModel) {
-                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    callback.onSuccess(childrenModels);
-                } else {
-                    callback.onSuccess(new ArrayList<TreeModel>());
+                // only load when the panel is not collapsed
+                if (false == isCollapsed) {
+                    if (null == loadConfig) {
+                        Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
+                    } else if (loadConfig instanceof TreeModel) {
+                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                        callback.onSuccess(childrenModels);
+                    } else {
+                        callback.onSuccess(new ArrayList<TreeModel>());
+                    }
                 }
             }
         };
@@ -221,6 +227,23 @@ public class StateGrid extends View {
 
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Manage states");
+
+        // track whether the panel is expanded
+        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                EventType type = be.getType();
+                if (type.equals(Events.Expand)) {
+                    isCollapsed = false;
+                    refreshLoader();
+                } else if (type.equals(Events.Collapse)) {
+                    isCollapsed = true;
+                }
+            }
+        };
+        panel.addListener(Events.Expand, collapseListener);
+        panel.addListener(Events.Collapse, collapseListener);
 
         initGrid();
         initHeaderTool();
@@ -368,7 +391,9 @@ public class StateGrid extends View {
     }
 
     private void refreshLoader() {
-        loader.load();
+        if (this.store.getChildCount() == 0) {
+            loader.load();
+        }
     }
 
     protected void removeService() {

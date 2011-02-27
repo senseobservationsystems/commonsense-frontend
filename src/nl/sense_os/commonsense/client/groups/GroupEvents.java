@@ -6,7 +6,7 @@ public class GroupEvents {
     public static final EventType ShowGrid = new EventType();
     public static final EventType ListUpdated = new EventType();
 
-    protected static final EventType ListRequested = new EventType();
+    public static final EventType ListRequested = new EventType();
     protected static final EventType Working = new EventType();
 
     protected static final EventType ShowCreator = new EventType();

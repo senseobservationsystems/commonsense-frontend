@@ -20,7 +20,9 @@ import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -58,6 +60,7 @@ public class GroupGrid extends View {
     private Button joinButton;
     private Button leaveButton;
     private ContentPanel panel;
+    private boolean isCollapsed = false;
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
 
@@ -119,13 +122,16 @@ public class GroupGrid extends View {
 
             @Override
             public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
-                if (null == loadConfig) {
-                    fireEvent(new AppEvent(GroupEvents.ListRequested, callback));
-                } else if (loadConfig instanceof TreeModel) {
-                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    callback.onSuccess(childrenModels);
-                } else {
-                    callback.onSuccess(new ArrayList<TreeModel>());
+                // only load when the panel is not collapsed
+                if (false == isCollapsed) {
+                    if (null == loadConfig) {
+                        fireEvent(new AppEvent(GroupEvents.ListRequested, callback));
+                    } else if (loadConfig instanceof TreeModel) {
+                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                        callback.onSuccess(childrenModels);
+                    } else {
+                        callback.onSuccess(new ArrayList<TreeModel>());
+                    }
                 }
             }
         };
@@ -218,9 +224,26 @@ public class GroupGrid extends View {
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Manage group memberships");
 
+        // track whether the panel is expanded
+        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                EventType type = be.getType();
+                if (type.equals(Events.Expand)) {
+                    isCollapsed = false;
+                    refreshLoader();
+                } else if (type.equals(Events.Collapse)) {
+                    isCollapsed = true;
+                }
+            }
+        };
+        panel.addListener(Events.Expand, collapseListener);
+        panel.addListener(Events.Collapse, collapseListener);
+
+        initGrid();
         initHeaderTool();
         initToolBar();
-        initGrid();
     }
 
     private void initToolBar() {
@@ -321,7 +344,9 @@ public class GroupGrid extends View {
     }
 
     private void refreshLoader() {
-        loader.load();
+        if (this.store.getChildCount() == 0) {
+            loader.load();
+        }
     }
 
     private void setBusy(boolean busy) {

@@ -10,7 +10,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("groups")
-public interface GroupsService extends RemoteService {
+public interface GroupsProxy extends RemoteService {
 
     List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
             WrongResponseException;

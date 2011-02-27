@@ -5,7 +5,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public interface GroupsServiceAsync {
+public interface GroupsProxyAsync {
 
     void getGroups(String sessionId, AsyncCallback<List<TreeModel>> callback);
 }

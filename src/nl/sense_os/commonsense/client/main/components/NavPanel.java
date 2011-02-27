@@ -39,6 +39,7 @@ public class NavPanel extends LayoutContainer {
     public NavPanel() {
 
         this.setLayout(new RowLayout(Orientation.HORIZONTAL));
+        this.setLayoutOnChange(true);
 
         initLinks();
         initUsername();
@@ -46,11 +47,17 @@ public class NavPanel extends LayoutContainer {
 
     private void initLinks() {
         this.help.setStylePrimaryName("x-sense-nav-deselected");
+        this.help.setWidth("auto");
         this.home.setStylePrimaryName("x-sense-nav-deselected");
+        this.home.setWidth("auto");
         this.login.setStylePrimaryName("x-sense-nav-deselected");
+        this.login.setWidth("auto");
         this.logout.setStylePrimaryName("x-sense-nav-deselected");
+        this.logout.setWidth("auto");
         this.settings.setStylePrimaryName("x-sense-nav-deselected");
+        this.settings.setWidth("auto");
         this.viz.setStylePrimaryName("x-sense-nav-deselected");
+        this.viz.setWidth("auto");
     }
 
     private void initUsername() {
@@ -58,6 +65,8 @@ public class NavPanel extends LayoutContainer {
         this.userName.setStyleAttribute("font-size", "13px");
         this.userName.setStyleAttribute("color", "black");
         this.userName.setStyleAttribute("text-align", "right");
+
+        this.userName.setAutoWidth(true);
     }
 
     /**
@@ -66,7 +75,7 @@ public class NavPanel extends LayoutContainer {
     private void relayout() {
 
         final int vMargin = 2;
-        final int hMargin = 4;
+        final int hMargin = 5;
         RowData startData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, 2 * hMargin));
         RowData endData = new RowData(-1, 1, new Margins(vMargin, 2 * hMargin, vMargin, hMargin));
         RowData itemData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, hMargin));
@@ -87,8 +96,6 @@ public class NavPanel extends LayoutContainer {
             this.add(this.help, itemData);
             this.add(this.login, endData);
         }
-
-        this.layout(true);
     }
 
     /**
@@ -103,6 +110,7 @@ public class NavPanel extends LayoutContainer {
         // reset style of previously selected navigation label
         if (null != this.current) {
             this.current.setStylePrimaryName("x-sense-nav-deselected");
+            this.current.setWidth("auto");
         }
 
         // set new navigation label selected
@@ -122,6 +130,7 @@ public class NavPanel extends LayoutContainer {
             Log.w(TAG, "Unexpected highlight: " + highlight);
         }
         this.current.setStylePrimaryName("x-sense-nav-selected");
+        this.current.setWidth("auto");
 
         relayout();
     }

@@ -21,8 +21,11 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -50,6 +53,7 @@ public class GroupSensorsTree extends View {
     private static final String TAG = "GroupSensorsTree";
     private Button eventsButton;
     private ContentPanel panel;
+    private boolean isCollapsed;
     private ToolButton refreshButton;
     private Button vizButton;
     private TreeStore<TreeModel> store;
@@ -108,10 +112,6 @@ public class GroupSensorsTree extends View {
         this.panel.getHeader().addTool(this.refreshButton);
     }
 
-    private void refreshTree() {
-        loader.load();
-    }
-
     @Override
     protected void initialize() {
         super.initialize();
@@ -119,11 +119,27 @@ public class GroupSensorsTree extends View {
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("My group sensors");
 
+        // track whether the panel is expanded
+        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                EventType type = be.getType();
+                if (type.equals(Events.Expand)) {
+                    isCollapsed = false;
+                    refreshLoader();
+                } else if (type.equals(Events.Collapse)) {
+                    isCollapsed = true;
+                }
+            }
+        };
+        panel.addListener(Events.Expand, collapseListener);
+        panel.addListener(Events.Collapse, collapseListener);
+
         initTree();
         initHeaderTool();
         initToolBar();
 
-        setupDragDrop();
     }
 
     private void initToolBar() {
@@ -187,13 +203,16 @@ public class GroupSensorsTree extends View {
 
             @Override
             public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
-                if (null == loadConfig) {
-                    Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested, callback);
-                } else if (loadConfig instanceof TreeModel) {
-                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    callback.onSuccess(childrenModels);
-                } else {
-                    callback.onSuccess(new ArrayList<TreeModel>());
+                // only load when the panel is not collapsed
+                if (false == isCollapsed) {
+                    if (null == loadConfig) {
+                        Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested, callback);
+                    } else if (loadConfig instanceof TreeModel) {
+                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                        callback.onSuccess(childrenModels);
+                    } else {
+                        callback.onSuccess(new ArrayList<TreeModel>());
+                    }
                 }
             }
         };
@@ -240,6 +259,8 @@ public class GroupSensorsTree extends View {
         content.add(this.tree);
 
         this.panel.add(content);
+
+        setupDragDrop();
     }
 
     private void onEventsClick() {
@@ -266,6 +287,16 @@ public class GroupSensorsTree extends View {
 
         // TODO get child sensors of selected users, groups and devices
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+    }
+
+    private void refreshLoader() {
+        if (this.store.getChildCount() == 0) {
+            loader.load();
+        }
+    }
+
+    private void refreshTree() {
+        loader.load();
     }
 
     private void setBusy(boolean busy) {

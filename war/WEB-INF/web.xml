@@ -22,7 +22,7 @@
   
   <servlet>
     <servlet-name>GroupsServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.GroupsServiceImpl</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.GroupsProxyImpl</servlet-class>
   </servlet>
     
   <servlet>
@@ -47,7 +47,7 @@
   
   <servlet>
     <servlet-name>SensorsServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.SensorsServiceImpl</servlet-class>
+    <servlet-class>nl.sense_os.commonsense.server.SensorsProxyImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>

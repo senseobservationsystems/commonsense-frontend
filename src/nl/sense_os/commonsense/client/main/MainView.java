@@ -53,9 +53,9 @@ public class MainView extends View {
                 + CommonSense.LAST_DEPLOYED);
         footerText.setStyleAttribute("font-size", "9pt");
         footer.add(footerText);
-		footer.setId("footer-bar");
-        
-		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 30);
+        footer.setId("footer-bar");
+
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 30);
         southData.setMargins(new Margins(0));
         southData.setSplit(false);
         this.viewport.add(footer, southData);
@@ -136,6 +136,10 @@ public class MainView extends View {
 
     private void onNavigate(AppEvent event) {
         String location = event.<String> getData("new");
+        String oldLocation = event.<String> getData("old");
+        if (location.equals(oldLocation)) {
+            return;
+        }
 
         // select the new center content
         Component newContent = null;
@@ -174,7 +178,6 @@ public class MainView extends View {
         }
 
         // hide login window
-        String oldLocation = event.<String> getData("old");
         if (NavPanel.SIGN_IN.equalsIgnoreCase(oldLocation)
                 && !NavPanel.SIGN_IN.equalsIgnoreCase(location)) {
             Dispatcher.forwardEvent(LoginEvents.Hide);

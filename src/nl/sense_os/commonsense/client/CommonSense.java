@@ -12,10 +12,10 @@ import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.services.GroupsService;
-import nl.sense_os.commonsense.client.services.GroupsServiceAsync;
-import nl.sense_os.commonsense.client.services.SensorsService;
-import nl.sense_os.commonsense.client.services.SensorsServiceAsync;
+import nl.sense_os.commonsense.client.services.GroupsProxy;
+import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
+import nl.sense_os.commonsense.client.services.SensorsProxy;
+import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.states.FeedbackController;
 import nl.sense_os.commonsense.client.states.StateController;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -55,9 +55,9 @@ public class CommonSense implements EntryPoint {
         // load services and put them in Registry
         final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
         Registry.register(Constants.REG_BUILDING_SVC, buildingService);
-        final GroupsServiceAsync groupsService = GWT.create(GroupsService.class);
+        final GroupsProxyAsync groupsService = GWT.create(GroupsProxy.class);
         Registry.register(Constants.REG_GROUPS_SVC, groupsService);
-        final SensorsServiceAsync tagsService = GWT.create(SensorsService.class);
+        final SensorsProxyAsync tagsService = GWT.create(SensorsProxy.class);
         Registry.register(Constants.REG_TAGS_SVC, tagsService);
 
         // set up MVC stuff
