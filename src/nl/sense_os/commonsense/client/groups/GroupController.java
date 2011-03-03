@@ -91,8 +91,7 @@ public class GroupController extends Controller {
             this.isGettingGroups = true;
             Dispatcher.forwardEvent(GroupEvents.Working);
 
-            GroupsProxyAsync service = Registry
-                    .<GroupsProxyAsync> get(Constants.REG_GROUPS_SVC);
+            GroupsProxyAsync service = Registry.<GroupsProxyAsync> get(Constants.REG_GROUPS_SVC);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
@@ -100,7 +99,9 @@ public class GroupController extends Controller {
                 public void onFailure(Throwable caught) {
                     Dispatcher.forwardEvent(GroupEvents.ListUpdated);
                     isGettingGroups = false;
-                    proxyCallback.onFailure(caught);
+                    if (null != proxyCallback) {
+                        proxyCallback.onFailure(caught);
+                    }
                 }
 
                 @Override
@@ -108,13 +109,17 @@ public class GroupController extends Controller {
                     Registry.register(Constants.REG_GROUPS, result);
                     Dispatcher.forwardEvent(GroupEvents.ListUpdated, result);
                     isGettingGroups = false;
-                    proxyCallback.onSuccess(result);
+                    if (null != proxyCallback) {
+                        proxyCallback.onSuccess(result);
+                    }
                 }
             };
             service.getGroups(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get groups: already working on an earlier request");
-            proxyCallback.onFailure(null);
+            if (null != proxyCallback) {
+                proxyCallback.onFailure(null);
+            }
         }
     }
 

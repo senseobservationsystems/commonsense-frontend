@@ -51,7 +51,6 @@ public class MainView extends View {
         LayoutContainer footer = new LayoutContainer(new CenterLayout());
         Text footerText = new Text("&#169;2011 Sense Observation Systems - Last update: "
                 + CommonSense.LAST_DEPLOYED);
-        footerText.setStyleAttribute("font-size", "9pt");
         footer.add(footerText);
         footer.setId("footer-bar");
 

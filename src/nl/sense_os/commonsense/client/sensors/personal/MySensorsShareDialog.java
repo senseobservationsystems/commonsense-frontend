@@ -23,9 +23,9 @@ import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
@@ -34,7 +34,7 @@ public class MySensorsShareDialog extends View {
     private static final String TAG = "MySensorsShareDialog";
     private Window window;
     private FormPanel form;
-    private ComboBox<TreeModel> users;
+    private TextField<String> user;
     private Button createButton;
     private Button cancelButton;
     private List<TreeModel> sensors;
@@ -47,13 +47,13 @@ public class MySensorsShareDialog extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(MySensorsEvents.ShowShareDialog)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "Show");
             onShow(event);
         } else if (type.equals(MySensorsEvents.ShareCancelled)) {
-            Log.d(TAG, "Cancelled");
+            // Log.d(TAG, "Cancelled");
             hideWindow();
         } else if (type.equals(MySensorsEvents.ShareComplete)) {
-            Log.d(TAG, "Complete");
+            // Log.d(TAG, "Complete");
             onComplete(event);
         } else if (type.equals(MySensorsEvents.ShareFailed)) {
             Log.w(TAG, "Failed");
@@ -107,13 +107,12 @@ public class MySensorsShareDialog extends View {
 
         store = new ListStore<TreeModel>();
 
-        this.users = new ComboBox<TreeModel>();
-        this.users.setFieldLabel("Share with");
-        this.users.setStore(store);
-        this.users.setDisplayField("name");
-        this.users.setAllowBlank(false);
+        this.user = new TextField<String>();
+        this.user.setFieldLabel("Share with");
+        this.user.setEmptyText("Enter a username...");
+        this.user.setAllowBlank(false);
 
-        this.form.add(this.users, formData);
+        this.form.add(this.user, formData);
     }
 
     private void initForm() {
@@ -143,6 +142,15 @@ public class MySensorsShareDialog extends View {
 
     private void onComplete(AppEvent event) {
         hideWindow();
+
+        String msg = "";
+        if (this.sensors.size() > 1) {
+            msg = "The sensors were successfully shared with " + user.getValue() + ".";
+        } else {
+            TreeModel sensor = sensors.get(0);
+            msg = "Sensor \'" + sensor.get("text") + "\' was shared with " + user.getValue() + ".";
+        }
+        MessageBox.info(null, msg, null);
     }
 
     private void onFailed(AppEvent event) {
@@ -171,7 +179,7 @@ public class MySensorsShareDialog extends View {
     }
 
     private void onSubmit() {
-        TreeModel user = this.users.getValue();
+        String user = this.user.getValue();
         AppEvent event = new AppEvent(MySensorsEvents.ShareRequested);
         event.setData("user", user);
         event.setData("sensors", this.sensors);

@@ -15,8 +15,8 @@ public interface SensorsProxy extends RemoteService {
     List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException;
 
-    TreeModel getGroupSensors(String sessionId, TreeModel group) throws DbConnectionException,
-            WrongResponseException;
+    List<TreeModel> getSharedSensors(String sessionId, List<TreeModel> groups)
+            throws DbConnectionException, WrongResponseException;
 
     List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException;

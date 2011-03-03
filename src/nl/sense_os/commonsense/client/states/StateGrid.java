@@ -96,11 +96,11 @@ public class StateGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(StateEvents.ShowGrid)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "ShowGrid");
             onShow(event);
 
         } else if (type.equals(VizEvents.Show)) {
-            Log.d(TAG, "ShowVisualization");
+            // Log.d(TAG, "Show Visualization");
             refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -108,37 +108,37 @@ public class StateGrid extends View {
             onLoggedOut(event);
 
         } else if (type.equals(StateEvents.Done)) {
-            Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "ListUpdated");
             setBusy(false);
 
         } else if (type.equals(StateEvents.RemoveComplete)) {
-            Log.d(TAG, "RemoveComplete");
+            // Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
 
         } else if (type.equals(StateEvents.RemoveFailed)) {
-            Log.d(TAG, "RemoveFailed");
+            Log.w(TAG, "RemoveFailed");
             onRemoveFailed(event);
 
         } else if (type.equals(StateEvents.Working)) {
-            Log.d(TAG, "Working");
+            // Log.d(TAG, "Working");
             setBusy(true);
 
         } else if (type.equals(StateEvents.ConnectComplete)) {
-            Log.d(TAG, "ConnectComplete");
+            // Log.d(TAG, "ConnectComplete");
             refreshLoader();
 
         } else if (type.equals(StateEvents.CreateServiceComplete)) {
-            Log.d(TAG, "CreateServiceComplete");
+            // Log.d(TAG, "CreateServiceComplete");
             refreshLoader();
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -213,7 +213,7 @@ public class StateGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                refreshLoader();
+                loader.load();
             }
         });
 

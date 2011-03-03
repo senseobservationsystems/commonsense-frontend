@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import nl.sense_os.commonsense.server.data.BooleanValue;
-import nl.sense_os.commonsense.server.data.FloatValue;
-import nl.sense_os.commonsense.server.data.JsonValue;
-import nl.sense_os.commonsense.server.data.SensorType;
-import nl.sense_os.commonsense.server.data.StringValue;
+import nl.sense_os.commonsense.server.ivo.data.BooleanValue;
+import nl.sense_os.commonsense.server.ivo.data.FloatValue;
+import nl.sense_os.commonsense.server.ivo.data.JsonValue;
+import nl.sense_os.commonsense.server.ivo.data.SensorType;
+import nl.sense_os.commonsense.server.ivo.data.StringValue;
 
 public class GlobalCleanup {
 

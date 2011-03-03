@@ -22,7 +22,7 @@ public class AjaxController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(AjaxEvents.Request)) {
-            Log.d(TAG, "Request");
+            // Log.d(TAG, "Request");
             doRequest(event);
         } else {
             Log.w(TAG, "Unexpected event received");

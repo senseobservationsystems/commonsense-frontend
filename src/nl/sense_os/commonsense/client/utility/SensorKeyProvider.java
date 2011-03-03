@@ -15,33 +15,38 @@ public class SensorKeyProvider implements ModelKeyProvider<TreeModel> {
     @Override
     public String getKey(TreeModel model) {
         String key = "";
-        TreeModel parent = model;
         int tagType = 0;
-        while (parent != null) {
-            tagType = parent.get("tagType");
+        while (model != null) {
+            tagType = model.get("tagType");
             switch (tagType) {
                 case TagModel.TYPE_DEVICE :
-                    key += "device " + parent.<String> get("uuid") + ";";
+                    key += "D_" + model.<String> get("id") + ": " + model.<String> get("uuid")
+                            + "; ";
                     break;
                 case TagModel.TYPE_GROUP :
-                    key += "group " + parent.<String> get("text") + ";";
+                    key += "G_" + model.<String> get("id") + ": " + model.<String> get("text")
+                            + "; ";
                     break;
                 case TagModel.TYPE_SENSOR :
-                    key += "sensor " + parent.<String> get("id") + parent.<String> get("text")
-                            + ";";
+                    key += "S_" + model.<String> get("id") + ": " + model.<String> get("text")
+                            + "; ";
                     break;
                 case TagModel.TYPE_SERVICE :
-                    key += "service " + parent.<String> get("text") + ";";
+                    key += "X_" + model.<String> get("id") + ": " + model.<String> get("text")
+                            + "; ";
                     break;
                 case TagModel.TYPE_USER :
-                    key += "user " + parent.<String> get("text") + ";";
+                    key += "U_" + model.<String> get("id") + ": " + model.<String> get("text")
+                            + "; ";
+                    break;
+                case TagModel.TYPE_CATEGORY :
+                    key += "C_" + model.<String> get("text") + "; ";
                     break;
                 default :
                     Log.d(TAG, "Unexpected tagType");
             }
-            parent = parent.getParent();
+            model = model.getParent();
         }
         return key;
     }
-
 }

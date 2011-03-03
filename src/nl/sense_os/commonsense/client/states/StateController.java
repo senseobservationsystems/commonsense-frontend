@@ -205,8 +205,7 @@ public class StateController extends Controller {
             Dispatcher.forwardEvent(StateEvents.Working);
 
             final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
-            SensorsProxyAsync service = Registry
-                    .<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
@@ -214,7 +213,9 @@ public class StateController extends Controller {
                 public void onFailure(Throwable caught) {
                     Dispatcher.forwardEvent(StateEvents.Done);
                     isGettingMyServices = false;
-                    proxyCallback.onFailure(caught);
+                    if (null != proxyCallback) {
+                        proxyCallback.onFailure(caught);
+                    }
                 }
 
                 @Override
@@ -222,14 +223,18 @@ public class StateController extends Controller {
                     Registry.register(Constants.REG_SERVICES, result);
                     Dispatcher.forwardEvent(StateEvents.Done);
                     isGettingMyServices = false;
-                    proxyCallback.onSuccess(result);
+                    if (null != proxyCallback) {
+                        proxyCallback.onSuccess(result);
+                    }
                 }
             };
             service.getMyServices(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get my services: already working on an earlier request");
             final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
-            proxyCallback.onFailure(null);
+            if (null != proxyCallback) {
+                proxyCallback.onFailure(null);
+            }
         }
     }
 

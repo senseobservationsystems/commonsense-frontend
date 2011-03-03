@@ -72,15 +72,15 @@ public class GroupSensorsTree extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(GroupSensorsEvents.ShowTree)) {
-            Log.d(TAG, "onShow");
+            // Log.d(TAG, "ShowTree");
             onShow(event);
 
         } else if (type.equals(GroupSensorsEvents.Done)) {
-            Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "ListUpdated");
             setBusy(false);
 
         } else if (type.equals(GroupSensorsEvents.Working)) {
-            Log.d(TAG, "Working");
+            // Log.d(TAG, "Working");
             setBusy(true);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
@@ -89,7 +89,7 @@ public class GroupSensorsTree extends View {
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "ShowVisualization");
-            // do nothing
+            refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -106,7 +106,7 @@ public class GroupSensorsTree extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                refreshTree();
+                loader.load();
             }
         });
         this.panel.getHeader().addTool(this.refreshButton);
@@ -198,7 +198,7 @@ public class GroupSensorsTree extends View {
 
     private void initTree() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override

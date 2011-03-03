@@ -76,11 +76,11 @@ public class BuildingGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(BuildingEvents.ShowGrid)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "ShowGrid");
             onShow(event);
 
         } else if (type.equals(BuildingEvents.ListNotUpdated)) {
-            // Log.w(TAG, "ListNotUpdated");
+            Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
 
         } else if (type.equals(BuildingEvents.ListUpdated)) {
@@ -88,7 +88,7 @@ public class BuildingGrid extends View {
             onListUpdated(event);
 
         } else if (type.equals(VizEvents.Show)) {
-            Log.d(TAG, "ShowVisualization");
+            // Log.d(TAG, "Show Visualization");
             refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -100,7 +100,7 @@ public class BuildingGrid extends View {
             setBusyIcon(true);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
@@ -110,7 +110,7 @@ public class BuildingGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -169,7 +169,7 @@ public class BuildingGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                Dispatcher.get().dispatch(BuildingEvents.ListRequested);
+                loader.load();
             }
         });
 

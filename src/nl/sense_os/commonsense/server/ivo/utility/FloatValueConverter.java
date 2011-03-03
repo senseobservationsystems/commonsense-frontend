@@ -1,6 +1,6 @@
-package nl.sense_os.commonsense.server.utility;
+package nl.sense_os.commonsense.server.ivo.utility;
 
-import nl.sense_os.commonsense.server.data.FloatValue;
+import nl.sense_os.commonsense.server.ivo.data.FloatValue;
 import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
 
 import com.google.appengine.repackaged.org.json.JSONArray;

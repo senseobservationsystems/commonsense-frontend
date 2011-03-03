@@ -10,7 +10,8 @@ public interface SensorsProxyAsync {
     void getAvailableSensors(String sessionId, TreeModel service,
             AsyncCallback<List<TreeModel>> callback);
 
-    void getGroupSensors(String sessionId, TreeModel group, AsyncCallback<TreeModel> callback);
+    void getSharedSensors(String sessionId, List<TreeModel> groups,
+            AsyncCallback<List<TreeModel>> callback);
 
     void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
 

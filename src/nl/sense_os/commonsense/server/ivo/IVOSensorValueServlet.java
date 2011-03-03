@@ -5,12 +5,12 @@ import java.util.List;
 
 import javax.jdo.PersistenceManager;
 
-import nl.sense_os.commonsense.server.data.SensorType;
+import nl.sense_os.commonsense.server.ivo.data.SensorType;
+import nl.sense_os.commonsense.server.ivo.utility.BooleanValueConverter;
+import nl.sense_os.commonsense.server.ivo.utility.FloatValueConverter;
+import nl.sense_os.commonsense.server.ivo.utility.JsonValueConverter;
+import nl.sense_os.commonsense.server.ivo.utility.StringValueConverter;
 import nl.sense_os.commonsense.server.persistent.PMF;
-import nl.sense_os.commonsense.server.utility.BooleanValueConverter;
-import nl.sense_os.commonsense.server.utility.FloatValueConverter;
-import nl.sense_os.commonsense.server.utility.JsonValueConverter;
-import nl.sense_os.commonsense.server.utility.StringValueConverter;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;

@@ -38,8 +38,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Tue Feb 22 15:11 CET 2011";
-
+    public static final String LAST_DEPLOYED = "Mon Feb 28 15:34 CET 2011";
     /**
      * @return a pretty String to show the current time
      */

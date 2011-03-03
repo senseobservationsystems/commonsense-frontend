@@ -69,19 +69,19 @@ public class LoginController extends Controller {
         EventType eventType = event.getType();
 
         if (eventType.equals(LoginEvents.RequestLogin)) {
-            Log.d(TAG, "RequestLogin");
+            // Log.d(TAG, "RequestLogin");
             login(event);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            Log.d(TAG, "RequestLogout");
+            // Log.d(TAG, "RequestLogout");
             logout(event);
 
         } else if (eventType.equals(LoginEvents.CancelLogin)) {
-            Log.d(TAG, "CancelLogin");
+            // Log.d(TAG, "CancelLogin");
             onCancel(event);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
-            Log.d(TAG, "AjaxLoginSuccess");
+            // Log.d(TAG, "AjaxLoginSuccess");
             final String response = event.<String> getData("response");
             parseLoginReponse(response);
 
@@ -91,7 +91,7 @@ public class LoginController extends Controller {
             onLoginError(code);
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
-            Log.d(TAG, "AjaxLogoutSuccess");
+            // Log.d(TAG, "AjaxLogoutSuccess");
             final String response = event.<String> getData("response");
             onLoggedOut(response);
 
@@ -101,7 +101,7 @@ public class LoginController extends Controller {
             onLogoutError(code);
 
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
-            Log.d(TAG, "AjaxUserSuccess");
+            // Log.d(TAG, "AjaxUserSuccess");
             final String response = event.<String> getData("response");
             parseUserReponse(response);
 

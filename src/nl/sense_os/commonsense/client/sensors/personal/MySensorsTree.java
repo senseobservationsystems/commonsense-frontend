@@ -71,7 +71,7 @@ public class MySensorsTree extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(MySensorsEvents.ShowTree)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "ShowTree");
             onShow(event);
 
         } else if (type.equals(MySensorsEvents.Done)) {
@@ -83,7 +83,7 @@ public class MySensorsTree extends View {
             setBusy(true);
 
         } else if (type.equals(VizEvents.Show)) {
-            Log.d(TAG, "ShowVisualization");
+            // Log.d(TAG, "Show Visualization");
             refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -101,7 +101,7 @@ public class MySensorsTree extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                refreshLoader();
+                loader.load();
             }
         });
         this.panel.getHeader().addTool(this.refreshButton);
@@ -180,7 +180,7 @@ public class MySensorsTree extends View {
                 if (selection.size() > 0) {
                     vizButton.enable();
                     shareButton.enable();
-                    // eventsButton.enable();
+                    eventsButton.enable();
                 } else {
                     vizButton.disable();
                     shareButton.disable();
@@ -202,7 +202,7 @@ public class MySensorsTree extends View {
 
     private void initTree() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -268,7 +268,7 @@ public class MySensorsTree extends View {
     }
 
     private void onEventsClick() {
-        // TODO Auto-generated method stub
+        fireEvent(new AppEvent(MySensorsEvents.ShowTriggersDialog));
     }
 
     private void onLoggedOut(AppEvent event) {

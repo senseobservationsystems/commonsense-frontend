@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.shared;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 
-
 public class TagModel extends BaseTreeModel {
 
     private static final long serialVersionUID = 1L;
@@ -10,8 +9,9 @@ public class TagModel extends BaseTreeModel {
     public static final int TYPE_GROUP = 1;
     public static final int TYPE_SENSOR = 3;
     public static final int TYPE_USER = 4;
-    public static final int TYPE_SERVICE = 5;    
-    
+    public static final int TYPE_SERVICE = 5;
+    public static final int TYPE_CATEGORY = 6;
+
     public TagModel() {
         // empty constructor
     }
@@ -22,7 +22,7 @@ public class TagModel extends BaseTreeModel {
         setParentId(parentId);
         setType(type);
     }
-    
+
     public int getParentId() {
         return get("parent_id", -1);
     }
@@ -30,7 +30,7 @@ public class TagModel extends BaseTreeModel {
     public String getPath() {
         return get("path");
     }
-    
+
     public int getTaggedId() {
         return get("tagged_id", -1);
     }
@@ -38,12 +38,12 @@ public class TagModel extends BaseTreeModel {
     public int getType() {
         return get("type", -1);
     }
-    
+
     public TagModel setParentId(int id) {
         set("parent_id", id);
         return this;
     }
-    
+
     public TagModel setPath(String path) {
         set("path", path);
 
@@ -58,7 +58,7 @@ public class TagModel extends BaseTreeModel {
         set("tagged_id", id);
         return this;
     }
-    
+
     public TagModel setType(int type) {
         set("type", type);
         return this;

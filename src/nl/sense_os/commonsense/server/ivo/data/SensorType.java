@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server.data;
+package nl.sense_os.commonsense.server.ivo.data;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;

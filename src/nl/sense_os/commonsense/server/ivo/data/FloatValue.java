@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server.data;
+package nl.sense_os.commonsense.server.ivo.data;
 
 import java.util.Date;
 
@@ -6,26 +6,26 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
-public class StringValue extends SensorValue {
-    
+public class FloatValue extends SensorValue {
+
     @Persistent
-    private String value;
+    private double value; 
     
-    public StringValue() {
+    public FloatValue() {
         
     }
     
-    public StringValue(int deviceId, int sensorType, Date timestamp, String value) {
+    public FloatValue(int deviceId, int sensorType, Date timestamp, double value) {
         super(deviceId, sensorType, timestamp);
         setValue(value);
     }
     
-    public StringValue setValue(String value) {
+    public FloatValue setValue(double value) {
         this.value = value;
         return this;
     }
     
-    public String getValue() {
+    public double getValue() {
         return this.value;
     }
 }

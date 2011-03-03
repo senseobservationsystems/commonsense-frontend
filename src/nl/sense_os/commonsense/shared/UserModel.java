@@ -1,8 +1,11 @@
 package nl.sense_os.commonsense.shared;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
+import java.util.Map;
 
-public class UserModel extends BaseModel {
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.data.TreeModel;
+
+public class UserModel extends BaseTreeModel {
 
     public static final String KEY_EMAIL = "email";
     public static final String KEY_ID = "id";
@@ -10,11 +13,19 @@ public class UserModel extends BaseModel {
     public static final String KEY_NAME = "name";
     public static final String KEY_SURNAME = "surname";
     public static final String KEY_USERNAME = "username";
-    public static final String KEY_UUID = "uuid";
     private static final long serialVersionUID = 1L;
+    private static final String KEY_UUID = "uuid";
 
     public UserModel() {
+        super();
+    }
 
+    public UserModel(Map<String, Object> properties) {
+        super(properties);
+    }
+
+    public UserModel(TreeModel parent) {
+        super(parent);
     }
 
     public UserModel(int id, String username, String email, String name, String surname,
@@ -26,6 +37,10 @@ public class UserModel extends BaseModel {
         setEmail(email);
         setMobile(mobile);
         setUuid(uuid);
+    }
+
+    private void setUuid(String uuid) {
+        set(KEY_UUID, uuid);
     }
 
     public String getEmail() {
@@ -50,10 +65,6 @@ public class UserModel extends BaseModel {
 
     public String getUsername() {
         return get(KEY_USERNAME);
-    }
-
-    public String getUuid() {
-        return get(KEY_UUID);
     }
 
     private UserModel setEmail(String email) {
@@ -88,13 +99,12 @@ public class UserModel extends BaseModel {
         return this;
     }
 
-    private UserModel setUuid(String uuid) {
-        set(KEY_UUID, uuid);
-        return this;
-    }
-
     @Override
     public String toString() {
         return get("text", super.toString());
+    }
+
+    public String getUuid() {
+        return get(KEY_UUID);
     }
 }

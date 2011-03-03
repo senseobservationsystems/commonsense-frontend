@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.server.utility;
+package nl.sense_os.commonsense.server.ivo.utility;
 
 public abstract class SensorValueConverter {
 

@@ -24,16 +24,18 @@ public class SensorComparator implements Comparator<Object> {
 
             if (tagType1 == tagType2) {
                 switch (tagType1) {
-                case TagModel.TYPE_SENSOR:
-                    return compareSensors(model1, model2);
-                case TagModel.TYPE_GROUP:
-                    return compareGroups(model1, model2);
-                case TagModel.TYPE_DEVICE:
-                    return compareDevices(model1, model2);
-                case TagModel.TYPE_USER:
-                    return compareUsers(model1, model2);
-                default:
-                    return 0;
+                    case TagModel.TYPE_SENSOR :
+                        return compareSensors(model1, model2);
+                    case TagModel.TYPE_GROUP :
+                        return compareGroups(model1, model2);
+                    case TagModel.TYPE_DEVICE :
+                        return compareDevices(model1, model2);
+                    case TagModel.TYPE_USER :
+                        return compareUsers(model1, model2);
+                    case TagModel.TYPE_CATEGORY :
+                        return compareCategories(model1, model2);
+                    default :
+                        return 0;
                 }
             }
             return tagType2 - tagType1;
@@ -42,61 +44,7 @@ public class SensorComparator implements Comparator<Object> {
         }
     }
 
-    private int compareUsers(TreeModel model1, TreeModel model2) {
-        return model1.<String> get("text").compareTo(model2.<String> get("text"));
-    }
-
-    private int compareSensors(TreeModel model1, TreeModel model2) {
-        int type1 = Integer.parseInt(model1.<String> get("type"));
-        switch (type1) {
-        case 0:
-            type1 = FEEDS;
-            break;
-        case 1:
-            type1 = DEVICES;
-            break;
-        case 2:
-            type1 = STATES;
-            break;
-        case 3:
-            type1 = ENVIRONMENTS;
-            break;
-        case 4:
-            type1 = APPLICATIONS;
-            break;
-        }
-        int type2 = Integer.parseInt(model2.<String> get("type"));
-        switch (type2) {
-        case 0:
-            type2 = FEEDS;
-            break;
-        case 1:
-            type2 = DEVICES;
-            break;
-        case 2:
-            type2 = STATES;
-            break;
-        case 3:
-            type2 = ENVIRONMENTS;
-            break;
-        case 4:
-            type2 = APPLICATIONS;
-            break;
-        }
-
-        String name1 = type1 + model1.<String> get("text");
-        String name2 = type2 + model2.<String> get("text");
-
-        return name1.compareToIgnoreCase(name2);
-    }
-
-    private int compareDevices(TreeModel model1, TreeModel model2) {
-        String name1 = model1.<String> get("text");
-        String name2 = model2.<String> get("text");
-        return name1.compareToIgnoreCase(name2);
-    }
-
-    private int compareGroups(TreeModel model1, TreeModel model2) {
+    private int compareCategories(TreeModel model1, TreeModel model2) {
 
         String name1 = model1.<String> get("text");
         int t1 = -1;
@@ -104,11 +52,11 @@ public class SensorComparator implements Comparator<Object> {
             t1 = DEVICES;
         } else if (name1.equalsIgnoreCase("Environments")) {
             t1 = ENVIRONMENTS;
-        } else if (name1.equalsIgnoreCase("Applications")) {
+        } else if (name1.equalsIgnoreCase("Online Activity")) {
             t1 = APPLICATIONS;
-        } else if (name1.equalsIgnoreCase("Feeds")) {
+        } else if (name1.equalsIgnoreCase("Public Feeds")) {
             t1 = FEEDS;
-        } else if (name1.equalsIgnoreCase("States")) {
+        } else if (name1.equalsIgnoreCase("State Sensors")) {
             t1 = STATES;
         }
         String name2 = model2.<String> get("text");
@@ -117,11 +65,11 @@ public class SensorComparator implements Comparator<Object> {
             t2 = DEVICES;
         } else if (name2.equalsIgnoreCase("Environments")) {
             t2 = ENVIRONMENTS;
-        } else if (name2.equalsIgnoreCase("Feeds")) {
+        } else if (name2.equalsIgnoreCase("Public Feeds")) {
             t2 = FEEDS;
-        } else if (name2.equalsIgnoreCase("Applications")) {
+        } else if (name2.equalsIgnoreCase("Online Activity")) {
             t2 = APPLICATIONS;
-        } else if (name2.equalsIgnoreCase("States")) {
+        } else if (name2.equalsIgnoreCase("State Sensors")) {
             t2 = STATES;
         }
         if (t1 != -1) {
@@ -137,6 +85,65 @@ public class SensorComparator implements Comparator<Object> {
                 return name1.compareToIgnoreCase(name2);
             }
         }
+    }
 
+    private int compareUsers(TreeModel model1, TreeModel model2) {
+        return model1.<String> get("text").compareTo(model2.<String> get("text"));
+    }
+
+    private int compareSensors(TreeModel model1, TreeModel model2) {
+        int type1 = Integer.parseInt(model1.<String> get("type"));
+        switch (type1) {
+            case 0 :
+                type1 = FEEDS;
+                break;
+            case 1 :
+                type1 = DEVICES;
+                break;
+            case 2 :
+                type1 = STATES;
+                break;
+            case 3 :
+                type1 = ENVIRONMENTS;
+                break;
+            case 4 :
+                type1 = APPLICATIONS;
+                break;
+        }
+        int type2 = Integer.parseInt(model2.<String> get("type"));
+        switch (type2) {
+            case 0 :
+                type2 = FEEDS;
+                break;
+            case 1 :
+                type2 = DEVICES;
+                break;
+            case 2 :
+                type2 = STATES;
+                break;
+            case 3 :
+                type2 = ENVIRONMENTS;
+                break;
+            case 4 :
+                type2 = APPLICATIONS;
+                break;
+        }
+
+        String name1 = type1 + model1.<String> get("text");
+        String name2 = type2 + model2.<String> get("text");
+
+        return name1.compareToIgnoreCase(name2);
+    }
+
+    private int compareDevices(TreeModel model1, TreeModel model2) {
+        String name1 = model1.<String> get("text");
+        String name2 = model2.<String> get("text");
+        return name1.compareToIgnoreCase(name2);
+    }
+
+    private int compareGroups(TreeModel model1, TreeModel model2) {
+        String name1 = model1.<String> get("text");
+        String name2 = model2.<String> get("text");
+        return name1.compareToIgnoreCase(name2);
     }
 }

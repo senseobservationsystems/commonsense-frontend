@@ -75,7 +75,7 @@ public class GroupGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(GroupEvents.ShowGrid)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "ShowGrid");
             onShow(event);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
@@ -83,7 +83,7 @@ public class GroupGrid extends View {
             setBusy(false);
 
         } else if (type.equals(VizEvents.Show)) {
-            Log.d(TAG, "ShowVisualization");
+            // Log.d(TAG, "Show Visualization");
             refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -95,29 +95,29 @@ public class GroupGrid extends View {
             setBusy(true);
 
         } else if (type.equals(GroupEvents.CreateComplete)) {
-            Log.d(TAG, "CreateComplete");
+            // Log.d(TAG, "CreateComplete");
             refreshLoader();
 
         } else if (type.equals(GroupEvents.LeaveComplete)) {
-            Log.d(TAG, "LeaveComplete");
+            // Log.d(TAG, "LeaveComplete");
             onLeaveComplete(event);
 
         } else if (type.equals(GroupEvents.InviteComplete)) {
-            Log.d(TAG, "InviteComplete");
+            // Log.d(TAG, "InviteComplete");
             refreshLoader();
 
         } else if (type.equals(GroupEvents.LeaveFailed)) {
-            Log.d(TAG, "LeaveFailed");
+            Log.w(TAG, "LeaveFailed");
             onLeaveFailed(event);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
     private void initGrid() {
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -209,7 +209,7 @@ public class GroupGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                refreshLoader();
+                loader.load();
             }
         });
 

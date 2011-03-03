@@ -8,6 +8,7 @@ public class MySensorsEvents {
     public static final EventType ShowTree = new EventType();
 
     // MySensors view and controller-only event types
+    protected static final EventType ShowTriggersDialog = new EventType();
     protected static final EventType ShowShareDialog = new EventType();
     protected static final EventType ShareRequested = new EventType();
     protected static final EventType ListRequested = new EventType();
@@ -20,4 +21,7 @@ public class MySensorsEvents {
     // Ajax-related event types
     public static final EventType AjaxShareFailure = new EventType();
     public static final EventType AjaxShareSuccess = new EventType();
+    public static final EventType AjaxDeleteFailure = new EventType();
+    public static final EventType AjaxDeleteSuccess = new EventType();
+
 }

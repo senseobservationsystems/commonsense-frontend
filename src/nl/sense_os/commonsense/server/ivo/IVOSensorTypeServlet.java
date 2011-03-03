@@ -1,9 +1,10 @@
 package nl.sense_os.commonsense.server.ivo;
 
 import javax.jdo.PersistenceManager;
-import nl.sense_os.commonsense.server.data.SensorType;
+
+import nl.sense_os.commonsense.server.ivo.data.SensorType;
+import nl.sense_os.commonsense.server.ivo.utility.SensorTypeConverter;
 import nl.sense_os.commonsense.server.persistent.PMF;
-import nl.sense_os.commonsense.server.utility.SensorTypeConverter;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
