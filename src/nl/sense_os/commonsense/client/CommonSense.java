@@ -25,11 +25,17 @@ import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.maps.client.Maps;
+import com.google.gwt.user.client.Timer;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -39,6 +45,8 @@ public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
     public static final String LAST_DEPLOYED = "Mon Feb 28 15:34 CET 2011";
+    private boolean isMapsApiLoaded;
+
     /**
      * @return a pretty String to show the current time
      */
@@ -72,6 +80,55 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new MapController());
         dispatcher.addController(new AjaxController());
+
+        initControllers();
+
+        loadMapsApi();
+    }
+
+    /**
+     * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
+     * window is shown.
+     */
+    private void loadMapsApi() {
+
+        // Asynchronously load the Maps API.
+        this.isMapsApiLoaded = false;
+        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
+
+            @Override
+            public void run() {
+                Log.d(TAG, "Google Maps API loaded...");
+                isMapsApiLoaded = true;
+                // initControllers();
+            }
+        });
+
+        // double check that the API has been loaded within 10 seconds
+        new Timer() {
+
+            @Override
+            public void run() {
+                if (false == isMapsApiLoaded) {
+                    MessageBox.confirm(null, "Google Maps API not loaded, retry?",
+                            new Listener<MessageBoxEvent>() {
+
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    final Button b = be.getButtonClicked();
+                                    if ("ok".equalsIgnoreCase(b.getText())) {
+                                        loadMapsApi();
+                                    }
+                                }
+                            });
+                }
+            }
+        }.schedule(1000 * 10);
+    }
+
+    protected void initControllers() {
+
+        Dispatcher dispatcher = Dispatcher.get();
 
         // start initializing all views
         dispatcher.dispatch(MainEvents.Init);

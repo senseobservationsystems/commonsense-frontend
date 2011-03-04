@@ -168,7 +168,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return new ArrayList<TreeModel>(foundServices.values());
     }
 
-    private List<TreeModel> getDevices(String sessionId, String params)
+    private List<DeviceModel> getDevices(String sessionId, String params)
             throws WrongResponseException, DbConnectionException {
 
         // get list of physical sensors
@@ -179,32 +179,39 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         SensorConverter.parseSensors(response, sensors);
 
         // sort sensors per device
-        Map<String, TreeModel> devices = new HashMap<String, TreeModel>();
-        for (TreeModel sensor : sensors) {
+        Map<String, DeviceModel> devices = new HashMap<String, DeviceModel>();
+        for (SensorModel sensor : sensors) {
 
             // get the device TreeModel, or create a new one
-            String deviceUuid = sensor.<String> get("device_device_uuid");
-            TreeModel device = devices.get(deviceUuid);
+            String deviceKey = sensor.<String> get(SensorModel.KEY_DEVICE_ID)
+                    + sensor.<String> get(SensorModel.KEY_DEVICE_DEVTYPE);
+
+            DeviceModel device = devices.get(deviceKey);
             if (device == null) {
-                device = new BaseTreeModel();
-                device.set("uuid", deviceUuid);
-                device.set("type", sensor.get("device_device_type"));
+                device = new DeviceModel();
+                device.set(DeviceModel.KEY_ID, deviceKey);
+                device.set(DeviceModel.KEY_UUID, sensor.<String> get(SensorModel.KEY_DEVICE_ID));
+                device.set(DeviceModel.KEY_TYPE,
+                        sensor.<String> get(SensorModel.KEY_DEVICE_DEVTYPE));
 
                 // front end-only properties
                 device.set("tagType", TagModel.TYPE_DEVICE);
-                if (device.get("type").equals("myrianode")) {
-                    device.set("text", device.get("type") + " " + device.get("uuid"));
+                if (device.get(DeviceModel.KEY_TYPE).equals("myrianode")) {
+                    device.set(
+                            "text",
+                            device.get(DeviceModel.KEY_TYPE) + " "
+                                    + device.get(DeviceModel.KEY_UUID));
                 } else {
-                    device.set("text", device.get("type"));
+                    device.set("text", device.get(DeviceModel.KEY_TYPE));
                 }
             }
 
             // add the sensor to the device
-            device.add(new BaseTreeModel(sensor.getProperties()));
-            devices.put(deviceUuid, device);
+            device.add(new SensorModel(sensor.getProperties()));
+            devices.put(deviceKey, device);
         }
 
-        return new ArrayList<TreeModel>(devices.values());
+        return new ArrayList<DeviceModel>(devices.values());
     }
 
     private TreeModel getGroupSensors(String sessionId, TreeModel group)
@@ -382,12 +389,12 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             }
         }
         // add a special category of devices
-        List<TreeModel> devices = getDevices(sessionId, params);
+        List<DeviceModel> devices = getDevices(sessionId, params);
         if (devices.size() > 0) {
             TreeModel deviceCat = new BaseTreeModel();
             deviceCat.set("text", "Devices");
             deviceCat.set("tagType", TagModel.TYPE_CATEGORY);
-            for (TreeModel child : devices) {
+            for (DeviceModel child : devices) {
                 deviceCat.add(child);
             }
             sorted.add(deviceCat);

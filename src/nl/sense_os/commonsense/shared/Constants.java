@@ -60,11 +60,9 @@ public class Constants {
     public static final String ICON_LOADING = "gxt/images/gxt/icons/loading.gif";
     public static final String ICON_BUTTON_GO = "gxt/images/gxt/icons/page-next.gif";
 
-    /**
-     * Google Maps API key, generated for http://common-sense-test.appspot.com
-     * 
-     * @@TODO: still generates an error when deployed?
-     */
+    /** Google Maps API key, generated for http://common-sense-test.appspot.com */
     private static final String MAPS_TEST_KEY = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA";
+    /** Google Maps API key, generated for http://common-sense.appspot.com */
+    private static final String MAPS_STABLE_KEY = "ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw";
     public static final String MAPS_API_KEY = MAPS_TEST_KEY;
 }

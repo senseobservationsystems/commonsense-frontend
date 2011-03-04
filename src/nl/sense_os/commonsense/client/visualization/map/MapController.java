@@ -17,28 +17,22 @@ import nl.sense_os.commonsense.shared.sensorvalues.StringValueModel;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.maps.client.Maps;
-import com.google.gwt.user.client.Timer;
 
 public class MapController extends Controller {
 
     private static final String TAG = "MapController";
     private View mapView;
-    private boolean isApiLoaded;
+    // private boolean isApiLoaded;
 
     public MapController() {
         registerEventTypes(MainEvents.Init);
@@ -96,47 +90,47 @@ public class MapController extends Controller {
     public void initialize() {
         super.initialize();
         this.mapView = new MapView(this);
-        loadMapsApi();
+        // loadMapsApi();
     }
 
-    /**
-     * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
-     * window is shown.
-     */
-    private void loadMapsApi() {
-
-        // Asynchronously load the Maps API.
-        this.isApiLoaded = false;
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "Google Maps API loaded...");
-                isApiLoaded = true;
-            }
-        });
-
-        // double check that the API has been loaded within 10 seconds
-        new Timer() {
-
-            @Override
-            public void run() {
-                if (false == isApiLoaded) {
-                    MessageBox.confirm(null, "Google Maps API not loaded, retry?",
-                            new Listener<MessageBoxEvent>() {
-
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
-                                    final Button b = be.getButtonClicked();
-                                    if ("ok".equalsIgnoreCase(b.getText())) {
-                                        loadMapsApi();
-                                    }
-                                }
-                            });
-                }
-            }
-        }.schedule(1000 * 10);
-    }
+    // /**
+    // * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
+    // * window is shown.
+    // */
+    // private void loadMapsApi() {
+    //
+    // // Asynchronously load the Maps API.
+    // this.isApiLoaded = false;
+    // Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
+    //
+    // @Override
+    // public void run() {
+    // Log.d(TAG, "Google Maps API loaded...");
+    // isApiLoaded = true;
+    // }
+    // });
+    //
+    // // double check that the API has been loaded within 10 seconds
+    // new Timer() {
+    //
+    // @Override
+    // public void run() {
+    // if (false == isApiLoaded) {
+    // MessageBox.confirm(null, "Google Maps API not loaded, retry?",
+    // new Listener<MessageBoxEvent>() {
+    //
+    // @Override
+    // public void handleEvent(MessageBoxEvent be) {
+    // final Button b = be.getButtonClicked();
+    // if ("ok".equalsIgnoreCase(b.getText())) {
+    // loadMapsApi();
+    // }
+    // }
+    // });
+    // }
+    // }
+    // }.schedule(1000 * 10);
+    // }
 
     private void onDataFailed(int code, MapPanel panel) {
         AppEvent event = new AppEvent(MapEvents.LoadFailure);
