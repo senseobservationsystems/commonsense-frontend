@@ -11,10 +11,10 @@
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/>  
-  <inherits name='com.google.gwt.visualization.Visualization'/>  
-  <inherits name='com.google.gwt.maps.GoogleMaps' />
   <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.chap.links.Graph'/>
+  <inherits name='com.google.gwt.visualization.Visualization'/>  
+  <inherits name='com.google.gwt.maps.GoogleMaps' />
   
   <!-- External stylesheets                                       -->
   <!-- Include at least one stylesheet, else the stylesheets in   -->

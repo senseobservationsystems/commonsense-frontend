@@ -1,9 +1,12 @@
 package nl.sense_os.commonsense.client.sensors.personal;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -37,7 +40,7 @@ public class MySensorsShareDialog extends View {
     private TextField<String> user;
     private Button createButton;
     private Button cancelButton;
-    private List<TreeModel> sensors;
+    private List<SensorModel> sensors;
 
     public MySensorsShareDialog(Controller c) {
         super(c);
@@ -131,26 +134,29 @@ public class MySensorsShareDialog extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
+        this.window = new CenteredWindow();
         this.window.setLayout(new FitLayout());
         this.window.setSize(323, 200);
         this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setHeading("Manage data sharing");
 
         initForm();
     }
 
     private void onComplete(AppEvent event) {
+
+        String info = "";
+        if (this.sensors.size() > 1) {
+            info = "The sensors were successfully shared with " + user.getValue() + ".";
+        } else {
+            info = "The sensor was successfully shared with " + user.getValue() + ".";
+        }
+
         hideWindow();
 
-        String msg = "";
-        if (this.sensors.size() > 1) {
-            msg = "The sensors were successfully shared with " + user.getValue() + ".";
-        } else {
-            TreeModel sensor = sensors.get(0);
-            msg = "Sensor \'" + sensor.get("text") + "\' was shared with " + user.getValue() + ".";
-        }
-        MessageBox.info(null, msg, null);
+        MessageBox.info(null, info, null);
     }
 
     private void onFailed(AppEvent event) {
@@ -170,19 +176,23 @@ public class MySensorsShareDialog extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.sensors = event.<List<TreeModel>> getData();
+        this.sensors = event.<List<SensorModel>> getData("sensors");
         List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
         this.store.removeAll();
         this.store.add(users);
 
         this.window.show();
+        this.window.center();
     }
 
     private void onSubmit() {
-        String user = this.user.getValue();
+        final String user = this.user.getValue();
+        final List<SensorModel> sensors = new ArrayList<SensorModel>(this.sensors);
+
         AppEvent event = new AppEvent(MySensorsEvents.ShareRequested);
         event.setData("user", user);
-        event.setData("sensors", this.sensors);
+        event.setData("sensors", sensors);
+
         fireEvent(event);
 
         setBusy(true);

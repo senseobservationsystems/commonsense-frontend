@@ -1,7 +1,10 @@
 package nl.sense_os.commonsense.client.visualization.map;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.components.MapPanel;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -56,7 +59,7 @@ public class MapView extends View {
     }
 
     private void onCreateMap(AppEvent event) {
-        TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+        List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
         long startTime = event.getData("startTime");
         long endTime = event.getData("endTime");
 
@@ -65,11 +68,13 @@ public class MapView extends View {
 
         // request sensor data to display on the panel
         AppEvent loadEvent = new AppEvent(MapEvents.LoadData);
-        loadEvent.setData("sensor", sensors[0]);
+        loadEvent.setData("sensor", sensors.get(0));
         loadEvent.setData("startDate", startTime / 1000d);
         loadEvent.setData("endDate", endTime / 1000d);
         loadEvent.setData("panel", mapPanel);
         fireEvent(loadEvent);
+
+        // TODO make map handle more than 1 location sensor
 
         // The panel is dispatched to a View that can display it
         Dispatcher.forwardEvent(MapEvents.MapReady, mapPanel);

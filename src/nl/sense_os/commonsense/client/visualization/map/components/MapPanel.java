@@ -5,7 +5,6 @@ import java.util.Map;
 
 import nl.sense_os.commonsense.client.common.CustomSlider;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
@@ -13,21 +12,17 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Slider;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.maps.client.InfoWindow;
 import com.google.gwt.maps.client.InfoWindowContent;
 import com.google.gwt.maps.client.MapWidget;
-import com.google.gwt.maps.client.Maps;
 import com.google.gwt.maps.client.control.LargeMapControl;
 import com.google.gwt.maps.client.event.MarkerClickHandler;
 import com.google.gwt.maps.client.event.MarkerDragEndHandler;
@@ -35,13 +30,11 @@ import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 
 public class MapPanel extends ContentPanel {
 
     private static final String TAG = "MapPanel";
-    private boolean isApiLoaded;
     private MapWidget map;
     private Slider slider;
     private LayoutContainer sliderContainer;
@@ -66,49 +59,8 @@ public class MapPanel extends ContentPanel {
         createMap();
         createSlider();
 
-        // loadMapsApi();
-
         // Add the dock to the panel.
         this.add(dock);
-    }
-
-    /**
-     * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
-     * window is shown.
-     */
-    private void loadMapsApi() {
-
-        // Asynchronously load the Maps API.
-        this.isApiLoaded = false;
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "Google Maps API loaded...");
-                isApiLoaded = true;
-            }
-        });
-
-        // double check that the API has been loaded within 10 seconds
-        new Timer() {
-
-            @Override
-            public void run() {
-                if (false == isApiLoaded) {
-                    MessageBox.confirm(null, "Google Maps API not loaded, retry?",
-                            new Listener<MessageBoxEvent>() {
-
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
-                                    final Button b = be.getButtonClicked();
-                                    if ("ok".equalsIgnoreCase(b.getText())) {
-                                        loadMapsApi();
-                                    }
-                                }
-                            });
-                }
-            }
-        }.schedule(1000 * 10);
     }
 
     /**

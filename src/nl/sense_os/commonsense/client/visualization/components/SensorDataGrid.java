@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -36,12 +37,12 @@ public class SensorDataGrid extends LayoutContainer {
     @SuppressWarnings("unused")
     private static final String TAG = "SensorDataGrid";
 
-    public SensorDataGrid(final TreeModel[] tags) {
+    public SensorDataGrid(final List<SensorModel> sensors) {
 
         // grid panel parameters
         ModelType model = createModelType();
-        final List<ColumnConfig> colConf = createColConfig(tags);
-        final String url = createUrl(tags);
+        final List<ColumnConfig> colConf = createColConfig(sensors);
+        final String url = createUrl(sensors);
         final int pageSize = 25;
 
         // Grid.
@@ -57,7 +58,7 @@ public class SensorDataGrid extends LayoutContainer {
         add(gridPanel);
     }
 
-    private List<ColumnConfig> createColConfig(final TreeModel[] tags) {
+    private List<ColumnConfig> createColConfig(final List<SensorModel> sensors) {
         List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
 
         ColumnConfig idCol = new ColumnConfig();
@@ -78,7 +79,7 @@ public class SensorDataGrid extends LayoutContainer {
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
                 String id = model.<String> get(property);
-                for (TreeModel sensor : tags) {
+                for (TreeModel sensor : sensors) {
                     if (id.equals(sensor.<String> get("id"))) {
                         String name = sensor.<String> get("name");
                         String deviceType = sensor.<String> get("device_type");
@@ -154,14 +155,14 @@ public class SensorDataGrid extends LayoutContainer {
         return model;
     }
 
-    private String createUrl(TreeModel[] tags) {
+    private String createUrl(List<SensorModel> sensors) {
 
-        String id = tags[0].<String> get("id");
+        String id = sensors.get(0).<String> get("id");
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         String result = Constants.URL_DATA.replaceAll("<id>", id);
         result += "?session_id=" + sessionId;
 
-        final String alias = tags[0].get("alias");
+        final String alias = sensors.get(0).get("alias");
         if (alias != null) {
             result += "&alias=" + alias;
         }

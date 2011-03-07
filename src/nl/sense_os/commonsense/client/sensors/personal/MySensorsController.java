@@ -1,18 +1,18 @@
 package nl.sense_os.commonsense.client.sensors.personal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -36,99 +36,13 @@ public class MySensorsController extends Controller {
         // local event types
         registerEventTypes(MySensorsEvents.ShowTree, MySensorsEvents.ListRequested,
                 MySensorsEvents.Done, MySensorsEvents.Working);
-        registerEventTypes(MySensorsEvents.ShowShareDialog, MySensorsEvents.ShowTriggersDialog,
-                MySensorsEvents.ShareRequested, MySensorsEvents.ShareComplete,
-                MySensorsEvents.ShareCancelled, MySensorsEvents.ShareFailed);
+        registerEventTypes(MySensorsEvents.ShowShareDialog, MySensorsEvents.ShareRequested,
+                MySensorsEvents.ShareComplete, MySensorsEvents.ShareCancelled,
+                MySensorsEvents.ShareFailed);
+        registerEventTypes(SensorsEvents.DeleteSuccess, SensorsEvents.DeleteFailure);
 
         // ajax event types
         registerEventTypes(MySensorsEvents.AjaxShareFailure, MySensorsEvents.AjaxShareSuccess);
-        registerEventTypes(MySensorsEvents.AjaxDeleteFailure, MySensorsEvents.AjaxDeleteSuccess);
-    }
-
-    @SuppressWarnings("unused")
-    private void cleanupFreeksMess() {
-        Log.e(TAG, "Deleting Freek's MyriaNed sensors...");
-
-        List<TreeModel> mySensors = Registry.<List<TreeModel>> get(Constants.REG_MY_SENSORS);
-
-        // get the devices category
-        TreeModel deviceCategory = null;
-        for (TreeModel category : mySensors) {
-            if (category.get("text").equals("Devices")) {
-                deviceCategory = category;
-                break;
-            }
-        }
-        if (deviceCategory == null) {
-            Log.e(TAG, "Could not find device category");
-            return;
-        }
-
-        // get a list of MyriaNed nodes that are polluting the list of devices
-        List<TreeModel> myrianodes = new ArrayList<TreeModel>();
-        for (ModelData device : deviceCategory.getChildren()) {
-            if (device.<String> get("text").contains("myrianode")) {
-                myrianodes.add((TreeModel) device);
-            }
-        }
-        if (myrianodes.size() == 0) {
-            Log.e(TAG, "No devices called \'myrianode\'");
-            return;
-        }
-
-        // KILL! KILL! KILL!
-        for (TreeModel myrianode : myrianodes) {
-            deleteSensors(myrianode.getChildren(), 0);
-        }
-    }
-
-    private void deleteSensors(List<ModelData> sensors, int retryCount) {
-
-        if (null != sensors && sensors.size() > 0) {
-            ModelData sensor = sensors.get(0);
-
-            // prepare request properties
-            final String method = "DELETE";
-            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id");
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(MySensorsEvents.AjaxDeleteSuccess);
-            onSuccess.setData("sensors", sensors);
-            final AppEvent onFailure = new AppEvent(MySensorsEvents.AjaxDeleteFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("retry", retryCount);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
-        } else {
-            // Dispatcher.forwardEvent(MySensorsEvents.DeleteComplete);
-        }
-    }
-
-    private void deleteSensorsCallback(AppEvent event) {
-        // Goodbye sensor!
-        List<ModelData> sensors = event.<List<ModelData>> getData("sensors");
-        sensors.remove(0);
-
-        // continue with the rest of the list
-        deleteSensors(sensors, 0);
-    }
-
-    private void deletesSensorErrorCallback(AppEvent event) {
-
-        List<ModelData> sensors = event.<List<ModelData>> getData("sensors");
-        int retryCount = event.<Integer> getData("retry");
-        if (retryCount < 3) {
-            retryCount++;
-            deleteSensors(sensors, retryCount);
-        } else {
-            // Dispatcher.forwardEvent(MySensorsEvents.DeleteFailure);
-        }
     }
 
     private void getMySensors(final AsyncCallback<List<TreeModel>> proxyCallback) {
@@ -179,19 +93,9 @@ public class MySensorsController extends Controller {
 
         } else if (type.equals(MySensorsEvents.ShareRequested)) {
             // Log.d(TAG, "ShareRequested");
-            final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final String user = event.<String> getData("user");
-            shareSensor(sensors, user, 0);
-
-        } else if (type.equals(MySensorsEvents.AjaxDeleteFailure)) {
-            Log.w(TAG, "AjaxDeleteFailure");
-            // final int code = event.getData("code");
-            deletesSensorErrorCallback(event);
-
-        } else if (type.equals(MySensorsEvents.AjaxDeleteSuccess)) {
-            // Log.d(TAG, "AjaxDeleteSuccess");
-            // final String response = event.<String> getData("response");
-            deleteSensorsCallback(event);
+            shareSensors(sensors, user, 0);
 
         } else if (type.equals(MySensorsEvents.AjaxShareFailure)) {
             // Log.d(TAG, "AjaxShareFailure");
@@ -203,14 +107,13 @@ public class MySensorsController extends Controller {
             // final String response = event.<String> getData("response");
             shareSensorCallback(event);
 
-        } else if (type.equals(MySensorsEvents.ShowTriggersDialog)) {
-            // Log.d(TAG, "AjaxShareSuccess");
-            // final String response = event.<String> getData("response");
-            Log.w(TAG, "ShowTriggersDialog is not implemented");
-
         } else if (type.equals(MySensorsEvents.ShowTree) || type.equals(MySensorsEvents.Done)
                 || type.equals(MySensorsEvents.Working) || type.equals(LoginEvents.LoggedOut)
                 || type.equals(VizEvents.Show) || type.equals(MainEvents.Init)) {
+            forwardToView(this.treeView, event);
+
+        } else if (type.equals(SensorsEvents.DeleteSuccess)
+                || type.equals(SensorsEvents.DeleteFailure)) {
             forwardToView(this.treeView, event);
 
         } else if (type.equals(MySensorsEvents.ShowShareDialog)
@@ -238,11 +141,11 @@ public class MySensorsController extends Controller {
      * @param event
      *            AppEvent with "sensors" and "user" properties
      */
-    private void shareSensor(List<TreeModel> sensors, String username, int retryCount) {
+    private void shareSensors(List<SensorModel> sensors, String username, int retryCount) {
 
         if (null != sensors && sensors.size() > 0) {
             // get first sensor from the list
-            TreeModel sensor = sensors.get(0);
+            SensorModel sensor = sensors.get(0);
 
             // prepare request properties
             final String method = "POST";
@@ -266,6 +169,7 @@ public class MySensorsController extends Controller {
             ajaxRequest.setData("body", body);
             ajaxRequest.setData("onSuccess", onSuccess);
             ajaxRequest.setData("onFailure", onFailure);
+
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
             Dispatcher.forwardEvent(MySensorsEvents.ShareComplete);
@@ -273,20 +177,20 @@ public class MySensorsController extends Controller {
     }
 
     public void shareSensorCallback(AppEvent event) {
-        final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
         final String username = event.<String> getData("user");
         sensors.remove(0);
-        shareSensor(sensors, username, 0);
+        shareSensors(sensors, username, 0);
     }
 
     public void shareSensorErrorCallback(AppEvent event) {
-        final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
         final String username = event.<String> getData("user");
         int retryCount = event.<Integer> getData("retry");
 
         if (retryCount < 3) {
             retryCount++;
-            shareSensor(sensors, username, retryCount);
+            shareSensors(sensors, username, retryCount);
         } else {
             Dispatcher.forwardEvent(MySensorsEvents.ShareFailed);
         }

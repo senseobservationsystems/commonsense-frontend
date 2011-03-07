@@ -5,6 +5,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -22,23 +23,28 @@ public class GroupSensorsController extends Controller {
 
     private static final String TAG = "GroupSensorsController";
     private View sensorsTree;
-    private int pendingRequests;
+    private boolean isGettingList;
 
     public GroupSensorsController() {
         registerEventTypes(MainEvents.Init);
-        registerEventTypes(GroupSensorsEvents.ShowTree, GroupSensorsEvents.ListRequested,
-                GroupSensorsEvents.Done, GroupSensorsEvents.Working);
-        registerEventTypes(GroupEvents.ListUpdated);
         registerEventTypes(LoginEvents.LoggedOut);
+        registerEventTypes(GroupSensorsEvents.ShowTree);
+        registerEventTypes(GroupEvents.ListUpdated);
+        registerEventTypes(SensorsEvents.DeleteSuccess, SensorsEvents.DeleteFailure);
+
+        // local event types
+        registerEventTypes(GroupSensorsEvents.ListRequest, GroupSensorsEvents.Done,
+                GroupSensorsEvents.Working);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
 
-        if (type.equals(GroupSensorsEvents.ListRequested)) {
-            Log.d(TAG, "ListRequested");
-            getGroupSensors(event);
+        if (type.equals(GroupSensorsEvents.ListRequest)) {
+            // Log.d(TAG, "ListRequest");
+            final AsyncCallback<List<TreeModel>> callback = event.getData();
+            getGroupSensors(callback);
 
         } else {
             forwardToView(this.sensorsTree, event);
@@ -51,72 +57,18 @@ public class GroupSensorsController extends Controller {
         this.sensorsTree = new GroupSensorsTree(this);
     }
 
-    private void getGroupSensors(AppEvent event) {
-        // final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
-        // if (this.pendingRequests == 0) {
-        //
-        // forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
-        //
-        // List<TreeModel> groups = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-        // if (groups == null) {
-        // forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
-        // Dispatcher.forwardEvent(GroupEvents.ListRequested);
-        // return;
-        // } else if (groups.size() > 0) {
-        // forwardToView(treeView, new AppEvent(GroupSensorsEvents.Working));
-        // this.pendingRequests = groups.size();
-        // } else {
-        // forwardToView(treeView, new AppEvent(GroupSensorsEvents.Done));
-        // return;
-        // }
-        //
-        // this.groupSensors = new ArrayList<TreeModel>();
-        // SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
-        // String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        // AsyncCallback<TreeModel> callback = new AsyncCallback<TreeModel>() {
-        //
-        // @Override
-        // public void onFailure(Throwable caught) {
-        // pendingRequests--;
-        // if (pendingRequests == 0) {
-        // Dispatcher.forwardEvent(GroupSensorsEvents.Done);
-        // if (null != proxyCallback) {
-        // proxyCallback.onFailure(caught);
-        // }
-        // }
-        // }
-        //
-        // @Override
-        // public void onSuccess(TreeModel groupModel) {
-        // pendingRequests--;
-        // groupSensors.add(groupModel);
-        // if (pendingRequests == 0) {
-        // Dispatcher.forwardEvent(GroupSensorsEvents.Done);
-        // Registry.register(Constants.REG_GROUP_SENSORS, groupSensors);
-        // if (null != proxyCallback) {
-        // proxyCallback.onSuccess(groupSensors);
-        // }
-        // }
-        // }
-        // };
-        // for (TreeModel group : groups) {
-        // service.getGroupSensors(sessionId, group, callback);
-        // }
+    private void getGroupSensors(final AsyncCallback<List<TreeModel>> proxyCallback) {
 
-        final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
-        if (this.pendingRequests == 0) {
+        if (this.isGettingList == false) {
 
             List<TreeModel> groups = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
             if (groups == null) {
                 forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
                 Dispatcher.forwardEvent(GroupEvents.ListRequested);
                 return;
-            } else if (groups.size() > 0) {
-                forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
-                this.pendingRequests = groups.size();
             } else {
-                forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
-                return;
+                forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
+                this.isGettingList = true;
             }
 
             forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
@@ -126,6 +78,7 @@ public class GroupSensorsController extends Controller {
 
                 @Override
                 public void onFailure(Throwable caught) {
+                    isGettingList = false;
                     Dispatcher.forwardEvent(GroupSensorsEvents.Done);
                     if (null != proxyCallback) {
                         proxyCallback.onFailure(caught);
@@ -134,6 +87,7 @@ public class GroupSensorsController extends Controller {
 
                 @Override
                 public void onSuccess(List<TreeModel> sharedSensors) {
+                    isGettingList = false;
                     Dispatcher.forwardEvent(GroupSensorsEvents.Done);
                     Registry.register(Constants.REG_GROUP_SENSORS, sharedSensors);
                     if (null != proxyCallback) {

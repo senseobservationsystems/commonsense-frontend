@@ -136,7 +136,7 @@ public class VizController extends Controller {
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {
                                     final Button b = be.getButtonClicked();
-                                    if ("ok".equalsIgnoreCase(b.getText())) {
+                                    if ("yes".equalsIgnoreCase(b.getText())) {
                                         loadVizApi();
                                     }
                                 }

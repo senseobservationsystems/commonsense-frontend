@@ -13,6 +13,7 @@ import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
 
@@ -319,24 +320,24 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<SensorModel> unsortedSensors = getAllSensors(sessionId, params);
 
         // sort the sensors over the owners
-        Map<String, TreeModel> owners = new HashMap<String, TreeModel>();
+        Map<String, UserModel> owners = new HashMap<String, UserModel>();
         for (ModelData sensor : unsortedSensors) {
             // get the TreeModel of the owner
             String sensorId = sensor.<String> get("id");
             String userId = sensor.<String> get("owner_id");
-            TreeModel owner = owners.get(userId);
+            UserModel owner = owners.get(userId);
             if (null == owner) {
                 List<ModelData> sensorUsers = getSensorUsers(sensorId, sessionId, params);
                 for (ModelData user : sensorUsers) {
                     if (user.<String> get("id").equals(userId)) {
-                        owner = new BaseTreeModel(user.getProperties());
+                        owner = new UserModel(user.getProperties());
                         break;
                     }
                 }
             }
 
             // add the sensor to the owner
-            owner.add(new BaseTreeModel(sensor.getProperties()));
+            owner.add(new SensorModel(sensor.getProperties()));
             owners.put(userId, owner);
         }
         result.addAll(owners.values());

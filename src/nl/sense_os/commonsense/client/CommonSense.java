@@ -8,6 +8,7 @@ import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.SensorsController;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -44,8 +45,7 @@ import com.google.gwt.user.client.Timer;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Feb 28 15:34 CET 2011";
-    private boolean isMapsApiLoaded;
+    public static final String LAST_DEPLOYED = "Mon Mar 7 9:10 CET 2011";
 
     /**
      * @return a pretty String to show the current time
@@ -79,6 +79,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new MapController());
+        dispatcher.addController(new SensorsController());
         dispatcher.addController(new AjaxController());
 
         initControllers();
@@ -93,30 +94,35 @@ public class CommonSense implements EntryPoint {
     private void loadMapsApi() {
 
         // Asynchronously load the Maps API.
-        this.isMapsApiLoaded = false;
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2.x", true, new Runnable() {
+        if (Maps.isLoaded()) {
+            Log.d(TAG, "Google Maps API already loaded");
+            return;
+        }
 
-            @Override
-            public void run() {
-                Log.d(TAG, "Google Maps API loaded...");
-                isMapsApiLoaded = true;
-                // initControllers();
-            }
-        });
+        Maps.loadMapsApi(
+                "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA",
+                "2", false, new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
+                        // initControllers();
+                    }
+                });
 
         // double check that the API has been loaded within 10 seconds
         new Timer() {
 
             @Override
             public void run() {
-                if (false == isMapsApiLoaded) {
+                if (false == Maps.isLoaded()) {
                     MessageBox.confirm(null, "Google Maps API not loaded, retry?",
                             new Listener<MessageBoxEvent>() {
 
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {
                                     final Button b = be.getButtonClicked();
-                                    if ("ok".equalsIgnoreCase(b.getText())) {
+                                    if ("yes".equalsIgnoreCase(b.getText())) {
                                         loadMapsApi();
                                     }
                                 }

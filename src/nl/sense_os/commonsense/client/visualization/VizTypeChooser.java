@@ -1,12 +1,12 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.MapEvents;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.SensorModel;
 
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -35,8 +35,8 @@ public class VizTypeChooser extends View {
     private CardLayout layout;
     private FormPanel typeForm;
     private FormPanel timeRangeForm;
-    private TreeModel[] sensors;
-    private TreeModel[] locationSensors;
+    private List<SensorModel> sensors;
+    private List<SensorModel> locationSensors;
     private AppEvent vizEvent;
     private Button buttonComplete;
     private Button buttonToTimeRange;
@@ -52,19 +52,16 @@ public class VizTypeChooser extends View {
         super(c);
     }
 
-    private boolean checkForLocationSensors(TreeModel[] list) {
+    private boolean checkForLocationSensors(List<SensorModel> list) {
 
         // create array to send as parameter in RPC
-        this.locationSensors = new TreeModel[0];
-        for (TreeModel sensor : list) {
+        this.locationSensors = new ArrayList<SensorModel>();
+        for (SensorModel sensor : list) {
 
             String structure = sensor.<String> get("data_structure");
 
             if (null != structure && structure.contains("longitude")) {
-                final TreeModel[] temp = new TreeModel[this.locationSensors.length + 1];
-                System.arraycopy(this.locationSensors, 0, temp, 0, this.locationSensors.length);
-                this.locationSensors = temp;
-                this.locationSensors[this.locationSensors.length - 1] = sensor;
+                this.locationSensors.add(new SensorModel(sensor.getProperties()));
 
             } else {
                 // do nothing
@@ -72,39 +69,11 @@ public class VizTypeChooser extends View {
         }
 
         // check whether there are any sensors at all
-        if (this.locationSensors.length == 0) {
+        if (this.locationSensors.size() == 0) {
             return false;
         }
         return true;
     }
-
-    private boolean checkForSensors(List<TreeModel> list) {
-
-        // create array to send as parameter in RPC
-        this.sensors = new TreeModel[0];
-        for (TreeModel sensor : list) {
-
-            // final TagModel tag = (TagModel) tsm.getModel();
-            int tagType = sensor.<Integer> get("tagType");
-
-            if (tagType == TagModel.TYPE_SENSOR) {
-                final TreeModel[] temp = new TreeModel[this.sensors.length + 1];
-                System.arraycopy(this.sensors, 0, temp, 0, this.sensors.length);
-                temp[temp.length - 1] = sensor;
-                this.sensors = temp;
-
-            } else {
-                // do nothing
-            }
-        }
-
-        // check whether there are any sensors at all
-        if (this.sensors.length == 0) {
-            return false;
-        }
-        return true;
-    }
-
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
@@ -320,8 +289,8 @@ public class VizTypeChooser extends View {
     }
 
     private void onShow(AppEvent event) {
-        List<TreeModel> tags = event.<List<TreeModel>> getData();
-        if (checkForSensors(tags)) {
+        this.sensors = event.<List<SensorModel>> getData();
+        if (this.sensors.size() > 0) {
             this.window.show();
         } else {
             MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);

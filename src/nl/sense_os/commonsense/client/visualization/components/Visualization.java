@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
@@ -57,7 +58,7 @@ public class Visualization extends LayoutContainer {
 
     private static final String TAG = "Visualization";
 
-    private TreeModel[] outstandingReqs;
+    private List<SensorModel> outstandingReqs;
     private int reqFailCount;
     private TabPanel tabPanel;
     private TabItem unfinishedTab;
@@ -174,7 +175,7 @@ public class Visualization extends LayoutContainer {
                 Log.d(TAG, "relative y: " + event.getRelativeY(logo.getElement()));
             }
         });
-        
+
         final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
         logoContainer.setHeight(68);
         logoContainer.add(logo);
@@ -253,9 +254,10 @@ public class Visualization extends LayoutContainer {
     public void onSensorValuesReceived(TaggedDataModel data) {
 
         // remove the tag from outstandingReqs
-        final TreeModel[] temp = new TreeModel[this.outstandingReqs.length - 1];
-        System.arraycopy(this.outstandingReqs, 1, temp, 0, temp.length);
-        this.outstandingReqs = temp;
+        if (this.outstandingReqs == null || this.outstandingReqs.size() == 0) {
+            return;
+        }
+        this.outstandingReqs.remove(0);
 
         if (null != data) {
             Log.d(TAG, "Received sensor data from service!");
@@ -267,8 +269,8 @@ public class Visualization extends LayoutContainer {
         }
 
         // show the results or request more data if there are still tags left
-        if (this.outstandingReqs.length > 0) {
-            getSensorData(this.outstandingReqs[0]);
+        if (this.outstandingReqs.size() > 0) {
+            getSensorData(this.outstandingReqs.get(0));
         } else {
             // Log.d(TAG, "Finalizing visualization tab...");
             final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
@@ -351,7 +353,7 @@ public class Visualization extends LayoutContainer {
         this.unfinishedTab = item;
     }
 
-    public void showLineChart(TreeModel[] sensors, long startTime, long endTime) {
+    public void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add line chart tab item
         final TabItem item = new TabItem("Line chart");
@@ -367,7 +369,7 @@ public class Visualization extends LayoutContainer {
         startRequests(sensors, startTime, endTime);
     }
 
-    public void showTable(TreeModel[] sensors) {
+    public void showTable(List<SensorModel> sensors) {
 
         // add table tab item
         final TabItem item = new TabItem("Table");
@@ -389,17 +391,17 @@ public class Visualization extends LayoutContainer {
      * @param tags
      *            the list of tagged sensors
      */
-    private void startRequests(TreeModel[] tags, long startTime, long endTime) {
+    private void startRequests(List<SensorModel> sensors, long startTime, long endTime) {
 
         // start requesting data for the list of tags
-        this.outstandingReqs = tags;
+        this.outstandingReqs = sensors;
         this.unfinishedTab = this.tabPanel.getSelectedItem();
         this.reqFailCount = 0;
         this.startTime = startTime;
         this.endTime = endTime;
 
-        if (tags.length > 0) {
-            getSensorData(tags[0]);
+        if (sensors.size() > 0) {
+            getSensorData(sensors.get(0));
         }
     }
 

@@ -6,12 +6,14 @@ import java.util.List;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -38,6 +40,7 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
@@ -51,7 +54,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class GroupSensorsTree extends View {
 
     private static final String TAG = "GroupSensorsTree";
-    private Button eventsButton;
+    private Button removeButton;
     private ContentPanel panel;
     private boolean isCollapsed;
     private ToolButton refreshButton;
@@ -59,9 +62,30 @@ public class GroupSensorsTree extends View {
     private TreeStore<TreeModel> store;
     private TreePanel<TreeModel> tree;
     private BaseTreeLoader<TreeModel> loader;
+    private boolean isRemoving;
 
     public GroupSensorsTree(Controller c) {
         super(c);
+    }
+
+    private List<SensorModel> getSelectedSensors() {
+
+        final List<TreeModel> selection = this.tree.getSelectionModel().getSelection();
+
+        final List<SensorModel> sensors = new ArrayList<SensorModel>();
+        for (TreeModel item : selection) {
+            if (item instanceof SensorModel) {
+                sensors.add((SensorModel) item);
+            } else {
+                List<ModelData> children = item.getChildren();
+                for (ModelData child : children) {
+                    if (child instanceof SensorModel) {
+                        sensors.add((SensorModel) child);
+                    }
+                }
+            }
+        }
+        return sensors;
     }
 
     @Override
@@ -85,11 +109,15 @@ public class GroupSensorsTree extends View {
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
             // Log.d(TAG, "Group ListUpdated");
-            refreshTree();
+            refreshLoader(true);
 
-        } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "ShowVisualization");
-            refreshLoader();
+        } else if (type.equals(SensorsEvents.DeleteSuccess)) {
+            // Log.d(TAG, "DeleteSuccess");
+            onRemoveSuccess();
+
+        } else if (type.equals(SensorsEvents.DeleteFailure)) {
+            // Log.d(TAG, "DeleteFailure");
+            onRemoveFailure();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -106,7 +134,7 @@ public class GroupSensorsTree extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                loader.load();
+                refreshLoader(true);
             }
         });
         this.panel.getHeader().addTool(this.refreshButton);
@@ -127,7 +155,7 @@ public class GroupSensorsTree extends View {
                 EventType type = be.getType();
                 if (type.equals(Events.Expand)) {
                     isCollapsed = false;
-                    refreshLoader();
+                    refreshLoader(false);
                 } else if (type.equals(Events.Collapse)) {
                     isCollapsed = true;
                 }
@@ -152,8 +180,8 @@ public class GroupSensorsTree extends View {
                 Button source = ce.getButton();
                 if (source.equals(vizButton)) {
                     onVizClick();
-                } else if (source.equals(eventsButton)) {
-                    onEventsClick();
+                } else if (source.equals(removeButton)) {
+                    onRemoveClick();
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
                 }
@@ -164,9 +192,8 @@ public class GroupSensorsTree extends View {
         this.vizButton = new Button("Visualize", l);
         this.vizButton.disable();
 
-        this.eventsButton = new Button("Events", l);
-        this.eventsButton.disable();
-        this.eventsButton.hide();
+        this.removeButton = new Button("Remove", l);
+        this.removeButton.disable();
 
         // listen to selection of tree items to enable/disable buttons
         TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
@@ -178,10 +205,10 @@ public class GroupSensorsTree extends View {
                 List<TreeModel> selection = se.getSelection();
                 if (selection.size() > 0) {
                     vizButton.enable();
-                    eventsButton.enable();
+                    removeButton.enable();
                 } else {
                     vizButton.disable();
-                    eventsButton.disable();
+                    removeButton.disable();
                 }
             }
         });
@@ -190,7 +217,7 @@ public class GroupSensorsTree extends View {
         // create tool bar
         final ToolBar toolBar = new ToolBar();
         toolBar.add(this.vizButton);
-        toolBar.add(this.eventsButton);
+        toolBar.add(this.removeButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
@@ -206,7 +233,7 @@ public class GroupSensorsTree extends View {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
-                        Dispatcher.forwardEvent(GroupSensorsEvents.ListRequested, callback);
+                        Dispatcher.forwardEvent(GroupSensorsEvents.ListRequest, callback);
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
                         callback.onSuccess(childrenModels);
@@ -263,13 +290,39 @@ public class GroupSensorsTree extends View {
         setupDragDrop();
     }
 
-    private void onEventsClick() {
-        // TODO Auto-generated method stub
-
-    }
-
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
+    }
+
+    private void onRemoveClick() {
+
+        // get sensor models from the selection
+        final List<SensorModel> sensors = getSelectedSensors();
+
+        if (sensors.size() > 0) {
+            this.isRemoving = true;
+
+            AppEvent event = new AppEvent(SensorsEvents.ShowRemoveDialog);
+            event.setData("sensors", sensors);
+            Dispatcher.forwardEvent(event);
+
+        } else {
+            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+        }
+    }
+
+    private void onRemoveFailure() {
+        if (this.isRemoving) {
+            this.isRemoving = false;
+            refreshLoader(true);
+        }
+    }
+
+    private void onRemoveSuccess() {
+        if (this.isRemoving) {
+            this.isRemoving = false;
+            refreshLoader(true);
+        }
     }
 
     private void onShow(AppEvent event) {
@@ -283,20 +336,14 @@ public class GroupSensorsTree extends View {
     }
 
     private void onVizClick() {
-        List<TreeModel> selection = tree.getSelectionModel().getSelection();
-
-        // TODO get child sensors of selected users, groups and devices
+        List<SensorModel> selection = getSelectedSensors();
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
     }
 
-    private void refreshLoader() {
-        if (this.store.getChildCount() == 0) {
+    private void refreshLoader(boolean force) {
+        if (force || this.store.getChildCount() == 0) {
             loader.load();
         }
-    }
-
-    private void refreshTree() {
-        loader.load();
     }
 
     private void setBusy(boolean busy) {

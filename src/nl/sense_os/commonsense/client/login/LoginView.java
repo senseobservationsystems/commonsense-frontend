@@ -235,6 +235,7 @@ public class LoginView extends View {
     private void onShow(AppEvent event) {
         resetFormValues();
         this.window.show();
+        this.window.center();
     }
 
     private void requestLogin() {

@@ -1,14 +1,16 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.components.Visualization;
 import nl.sense_os.commonsense.client.visualization.map.MapEvents;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -61,14 +63,14 @@ public class VizView extends View {
 
         } else if (type.equals(VizEvents.ShowLineChart)) {
             Log.d(TAG, "ShowLineChart");
-            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+            List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             long startTime = event.<Long> getData("startTime");
             long endTime = event.<Long> getData("endTime");
             this.vizPanel.showLineChart(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTable)) {
             Log.d(TAG, "ShowTable");
-            TreeModel[] sensors = event.<TreeModel[]> getData("sensors");
+            List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             this.vizPanel.showTable(sensors);
 
         } else if (type.equals(MapEvents.MapReady)) {
