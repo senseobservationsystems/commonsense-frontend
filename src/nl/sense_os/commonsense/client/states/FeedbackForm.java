@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -145,7 +146,7 @@ public class FeedbackForm extends View {
     }
 
     private void onFeedbackFailed(AppEvent event) {
-        // TODO Auto-generated method stub
+        MessageBox.alert(null, "Failed to give feedback to CommonSense", null);
     }
 
     private void initButtons() {

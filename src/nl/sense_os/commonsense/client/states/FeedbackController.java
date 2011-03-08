@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -15,7 +16,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 public class FeedbackController extends Controller {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "FeedbackController";
     private FeedbackForm form;
 
@@ -28,23 +28,21 @@ public class FeedbackController extends Controller {
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.FeedbackSubmit)) {
 
-            // Log.d(TAG, "FeedbackSubmit");
+        if (type.equals(StateEvents.FeedbackSubmit)) {
+            Log.d(TAG, "FeedbackSubmit");
             final TreeModel service = event.<TreeModel> getData("service");
             final String label = event.<String> getData("label");
             final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
             markFeedback(service, label, feedback);
 
         } else if (type.equals(StateEvents.AjaxFeedbackFailure)) {
-
-            // Log.d(TAG, "AjaxFeedbackFailure");
+            Log.w(TAG, "AjaxFeedbackFailure");
             final int code = event.getData("code");
             onFeedbackFailed(code);
 
         } else if (type.equals(StateEvents.AjaxFeedbackSuccess)) {
-
-            // Log.d(TAG, "AjaxFeedbackSuccess");
+            Log.d(TAG, "AjaxFeedbackSuccess");
             // final String response = event.<String> getData("response");
             final TreeModel service = event.<TreeModel> getData("service");
             final String label = event.<String> getData("label");

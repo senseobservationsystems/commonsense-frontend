@@ -23,14 +23,14 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class GroupController extends Controller {
 
     private static final String TAG = "GroupController";
-    private View treeGrid;
+    private View groupsTree;
     private View creator;
     private View inviter;
     private boolean isGettingGroups;
 
     public GroupController() {
         // events to update the list of groups
-        registerEventTypes(GroupEvents.ListRequested, GroupEvents.ListUpdated, GroupEvents.Working,
+        registerEventTypes(GroupEvents.ListRequest, GroupEvents.ListUpdated, GroupEvents.Working,
                 GroupEvents.ShowGrid);
 
         // events to invite a user to a group
@@ -55,7 +55,7 @@ public class GroupController extends Controller {
         registerEventTypes(LoginEvents.LoggedOut);
     }
 
-    private void createGroup(String name, String email, String username, String password) {
+    private void createGroup(String name, String username, String password) {
 
         // prepare request properties
         final String method = "POST";
@@ -67,7 +67,6 @@ public class GroupController extends Controller {
         // prepare request body
         String body = "{\"group\":{";
         body += "\"name\":\"" + name + "\"";
-        body += ",\"email\":\"" + email + "\"";
         if (null != username) {
             body += ",\"username\":\"" + username + "\"";
             body += ",\"password\":\"" + Md5Hasher.hash(password) + "\"";
@@ -125,86 +124,77 @@ public class GroupController extends Controller {
 
     @Override
     public void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type.equals(GroupEvents.ListRequested)) {
-
-            Log.d(TAG, "ListRequested");
+        final EventType type = event.getType();
+        if (type.equals(GroupEvents.ListRequest)) {
+            Log.d(TAG, "ListRequest");
             getGroups(event);
 
         } else if (type.equals(GroupEvents.LeaveRequested)) {
-
-            Log.d(TAG, "LeaveRequested");
+            // Log.d(TAG, "LeaveRequested");
             final String groupId = event.<String> getData();
             leaveGroup(groupId);
 
         } else if (type.equals(GroupEvents.CreateRequested)) {
-
-            Log.d(TAG, "CreateRequested");
+            // Log.d(TAG, "CreateRequested");
             final String name = event.getData("name");
-            final String email = event.getData("email");
             final String username = event.getData("username");
             final String password = event.getData("password");
-            createGroup(name, email, username, password);
+            createGroup(name, username, password);
 
         } else if (type.equals(GroupEvents.AjaxInviteFailure)) {
-
-            Log.d(TAG, "AjaxInviteFailure");
+            Log.w(TAG, "AjaxInviteFailure");
             forwardToView(this.inviter, new AppEvent(GroupEvents.InviteFailed));
 
         } else if (type.equals(GroupEvents.AjaxInviteSuccess)) {
-
-            Log.d(TAG, "AjaxInviteSuccess");
+            // Log.d(TAG, "AjaxInviteSuccess");
             forwardToView(this.inviter, new AppEvent(GroupEvents.InviteComplete));
-            forwardToView(this.treeGrid, new AppEvent(GroupEvents.InviteComplete));
+            forwardToView(this.groupsTree, new AppEvent(GroupEvents.InviteComplete));
 
         } else if (type.equals(GroupEvents.AjaxLeaveFailure)) {
-
-            Log.d(TAG, "AjaxLeaveFailure");
-            forwardToView(this.treeGrid, new AppEvent(GroupEvents.LeaveFailed));
+            Log.w(TAG, "AjaxLeaveFailure");
+            forwardToView(this.groupsTree, new AppEvent(GroupEvents.LeaveFailed));
 
         } else if (type.equals(GroupEvents.AjaxLeaveSuccess)) {
-
-            Log.d(TAG, "AjaxLeaveSuccess");
-            forwardToView(this.treeGrid, new AppEvent(GroupEvents.LeaveComplete));
+            // Log.d(TAG, "AjaxLeaveSuccess");
+            forwardToView(this.groupsTree, new AppEvent(GroupEvents.LeaveComplete));
 
         } else if (type.equals(GroupEvents.AjaxCreateFailure)) {
-
-            Log.d(TAG, "AjaxCreateFailure");
-            forwardToView(this.treeGrid, new AppEvent(GroupEvents.CreateFailed));
+            Log.w(TAG, "AjaxCreateFailure");
+            forwardToView(this.groupsTree, new AppEvent(GroupEvents.CreateFailed));
 
         } else if (type.equals(GroupEvents.AjaxCreateSuccess)) {
-
-            Log.d(TAG, "AjaxCreateSuccess");
+            // Log.d(TAG, "AjaxCreateSuccess");
             forwardToView(this.creator, new AppEvent(GroupEvents.CreateComplete));
-            forwardToView(this.treeGrid, new AppEvent(GroupEvents.CreateComplete));
+            forwardToView(this.groupsTree, new AppEvent(GroupEvents.CreateComplete));
 
         } else if (type.equals(GroupEvents.InviteRequested)) {
-
-            Log.d(TAG, "InviteRequested");
+            // Log.d(TAG, "InviteRequested");
             final String groupId = event.<String> getData("groupId");
-            final String email = event.<String> getData("email");
+            final String email = event.<String> getData("username");
             inviteUser(groupId, email);
 
         } else if (type.equals(GroupEvents.ShowCreator) || type.equals(GroupEvents.CreateCancelled)
                 || type.equals(GroupEvents.CreateComplete) || type.equals(GroupEvents.CreateFailed)) {
             forwardToView(this.creator, event);
+
         } else if (type.equals(GroupEvents.ShowInviter) || type.equals(GroupEvents.InviteCancelled)
                 || type.equals(GroupEvents.InviteComplete) || type.equals(GroupEvents.InviteFailed)) {
             forwardToView(this.inviter, event);
+
         } else {
-            forwardToView(this.treeGrid, event);
+            forwardToView(this.groupsTree, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.treeGrid = new GroupGrid(this);
+        this.groupsTree = new GroupGrid(this);
         this.creator = new GroupCreator(this);
         this.inviter = new GroupInviter(this);
     }
 
-    private void inviteUser(String groupId, String email) {
+    private void inviteUser(String groupId, String username) {
 
         // prepare request properties
         final String method = "POST";
@@ -214,7 +204,7 @@ public class GroupController extends Controller {
         final AppEvent onFailure = new AppEvent(GroupEvents.AjaxInviteFailure);
 
         // prepare request body
-        String body = "{\"user\":{\"email\":\"" + email + "\"}}";
+        String body = "{\"user\":{\"username\":\"" + username + "\"}}";
 
         // send request to AjaxController
         final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);

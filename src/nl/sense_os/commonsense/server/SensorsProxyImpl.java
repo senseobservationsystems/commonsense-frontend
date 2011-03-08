@@ -12,6 +12,7 @@ import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;
 import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.ServiceModel;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
@@ -131,42 +132,42 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
     }
 
     @Override
-    public List<TreeModel> getAvailableServices(String sessionId) throws WrongResponseException,
+    public List<ServiceModel> getAvailableServices(String sessionId) throws WrongResponseException,
             DbConnectionException {
 
         // request all sensors from server
         List<SensorModel> sensors = getAllSensors(sessionId, "");
 
-        HashMap<String, TreeModel> foundServices = new HashMap<String, TreeModel>();
-        for (SensorModel sensorModel : sensors) {
-            // create TreeModel for this sensor
-            SensorModel sensor = new SensorModel(sensorModel.getProperties());
+        HashMap<String, ServiceModel> foundServices = new HashMap<String, ServiceModel>();
+        for (SensorModel sensor : sensors) {
 
             // request all available services for this sensor
             String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
                     + "/services/available";
             String response = Requester.request(url, sessionId, "GET", null);
-            List<ModelData> sensorServices = parseAvailableServices(response);
+            List<ServiceModel> sensorServices = parseAvailableServices(response);
 
             // process the available services for this sensor
-            for (ModelData serviceModel : sensorServices) {
-                String key = serviceModel.<String> get("service_name");
-                TreeModel service = foundServices.get(key);
-                if (null == service) {
-                    service = new BaseTreeModel(serviceModel.getProperties());
-                } else {
-                    // add the data fields of the new service model to the fields that are already
-                    // known
-                    List<String> dataFields = serviceModel.<List<String>> get("data_fields");
-                    dataFields.addAll(service.<List<String>> get("data_fields"));
-                    service.set("data_fields", dataFields);
+            for (ServiceModel service : sensorServices) {
+
+                // find service in list of services
+                String key = service.<String> get(ServiceModel.NAME);
+                ServiceModel foundService = foundServices.get(key);
+                if (null == foundService) {
+                    foundService = new ServiceModel(service.getProperties());
                 }
 
-                foundServices.put(key, service);
+                // add this sensor as possible source for this service
+                SensorModel sourceSensor = new SensorModel(sensor.getProperties());
+                sourceSensor.set(ServiceModel.DATA_FIELDS,
+                        service.<List<String>> get(ServiceModel.DATA_FIELDS));
+                foundService.add(sourceSensor);
+
+                foundServices.put(key, foundService);
             }
         }
 
-        return new ArrayList<TreeModel>(foundServices.values());
+        return new ArrayList<ServiceModel>(foundServices.values());
     }
 
     private List<DeviceModel> getDevices(String sessionId, String params)
@@ -410,43 +411,44 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         // request all available services for this sensor
         String url = Constants.URL_SENSORS + "/" + sensorId + "/services/available";
         String response = Requester.request(url, sessionId, "GET", null);
-        List<ModelData> sensorServices = parseAvailableServices(response);
+        List<ServiceModel> availableServices = parseAvailableServices(response);
 
         // add sensor to availableSensors list if it the requested service is available
-        for (ModelData sensorService : sensorServices) {
-            if (sensorService.get("service_name").equals(service.get("service_name"))) {
+        for (ModelData avilableService : availableServices) {
+            if (avilableService.get(ServiceModel.NAME).equals(service.get(ServiceModel.NAME))) {
                 return true;
             }
         }
         return false;
     }
 
-    private List<ModelData> parseAvailableServices(String response) throws WrongResponseException {
+    private List<ServiceModel> parseAvailableServices(String response)
+            throws WrongResponseException {
         // log.info("GET /sensors/<id>/services/available response: \'" + response + "\'");
 
         // Convert JSON response to list of tags
         try {
-            List<ModelData> result = new ArrayList<ModelData>();
+            List<ServiceModel> result = new ArrayList<ServiceModel>();
             JSONArray services = (JSONArray) new JSONObject(response).get("available_services");
             for (int i = 0; i < services.length(); i++) {
                 JSONObject sensor = services.getJSONObject(i);
 
-                String serviceName = sensor.getString("name");
-                JSONArray dataFieldsArray = sensor.getJSONArray("data_fields");
+                String serviceName = sensor.getString(ServiceModel.NAME);
+                JSONArray dataFieldsArray = sensor.getJSONArray(ServiceModel.DATA_FIELDS);
                 List<String> dataFields = new ArrayList<String>();
                 for (int j = 0; j < dataFieldsArray.length(); j++) {
                     dataFields.add((String) dataFieldsArray.get(j));
                 }
 
                 HashMap<String, Object> properties = new HashMap<String, Object>();
-                properties.put("service_name", serviceName);
-                properties.put("data_fields", dataFields);
+                properties.put(ServiceModel.NAME, serviceName);
+                properties.put(ServiceModel.DATA_FIELDS, dataFields);
 
                 // front end-only properties
                 properties.put("tagType", TagModel.TYPE_SERVICE);
                 properties.put("text", serviceName);
 
-                ModelData model = new BaseModelData(properties);
+                ServiceModel model = new ServiceModel(properties);
 
                 result.add(model);
             }
@@ -520,23 +522,23 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-                case 0 :
-                    feeds.add(sensor);
-                    break;
-                case 1 :
-                    devices.add(sensor);
-                    break;
-                case 2 :
-                    states.add(sensor);
-                    break;
-                case 3 :
-                    environments.add(sensor);
-                    break;
-                case 4 :
-                    apps.add(sensor);
-                    break;
-                default :
-                    log.warning("Unexpected sensor type: " + type);
+            case 0:
+                feeds.add(sensor);
+                break;
+            case 1:
+                devices.add(sensor);
+                break;
+            case 2:
+                states.add(sensor);
+                break;
+            case 3:
+                environments.add(sensor);
+                break;
+            case 4:
+                apps.add(sensor);
+                break;
+            default:
+                log.warning("Unexpected sensor type: " + type);
             }
         }
 

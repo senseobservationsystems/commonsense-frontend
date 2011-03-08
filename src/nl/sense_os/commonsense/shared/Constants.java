@@ -1,24 +1,28 @@
 package nl.sense_os.commonsense.shared;
 
+import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
+import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
+
 public class Constants {
 
     /**
-     * Registry key for the building service
+     * Registry key for the building service, stored as @link {@link BuildingServiceAsync}.
      */
     public static final String REG_BUILDING_SVC = "BuildingService";
 
     /**
-     * Registry key for the groups service
+     * Registry key for the groups proxy, stored as @link {@link GroupsProxyAsync}.
      */
     public static final String REG_GROUPS_SVC = "GroupsService";
 
     /**
-     * Registry key for the session id
+     * Registry key for the session ID, stored as String
      */
     public static final String REG_SESSION_ID = "SessionId";
 
     /**
-     * Registry key for the sensor/device-tag service
+     * Registry key for the sensors proxy, stored as @link {@link SensorsProxyAsync}.
      */
     public static final String REG_TAGS_SVC = "TagsService";
 
@@ -43,7 +47,8 @@ public class Constants {
     public static final String REG_GROUP_SENSORS = "GroupSensors";
 
     /**
-     * Registry key for the list of services for the current user
+     * Registry key for the list of services for the current user, stored as @link {@link List
+     * <ServiceModel>}
      */
     public static final String REG_SERVICES = "Services";
 

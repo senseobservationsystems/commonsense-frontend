@@ -15,9 +15,8 @@ import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -84,7 +83,7 @@ public class GroupGrid extends View {
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
-            refreshLoader();
+            refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -96,15 +95,15 @@ public class GroupGrid extends View {
 
         } else if (type.equals(GroupEvents.CreateComplete)) {
             // Log.d(TAG, "CreateComplete");
-            refreshLoader();
+            refreshLoader(true);
 
         } else if (type.equals(GroupEvents.LeaveComplete)) {
             // Log.d(TAG, "LeaveComplete");
-            onLeaveComplete(event);
+            refreshLoader(true);
 
         } else if (type.equals(GroupEvents.InviteComplete)) {
             // Log.d(TAG, "InviteComplete");
-            refreshLoader();
+            refreshLoader(true);
 
         } else if (type.equals(GroupEvents.LeaveFailed)) {
             Log.w(TAG, "LeaveFailed");
@@ -117,18 +116,21 @@ public class GroupGrid extends View {
 
     private void initGrid() {
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        DataProxy proxy = new DataProxy() {
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
             @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+            protected void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
-                        fireEvent(new AppEvent(GroupEvents.ListRequested, callback));
+                        fireEvent(new AppEvent(GroupEvents.ListRequest, callback));
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        callback.onSuccess(childrenModels);
+                        List<TreeModel> children = new ArrayList<TreeModel>();
+                        for (ModelData model : childrenModels) {
+                            children.add((TreeModel) model);
+                        }
+                        callback.onSuccess(children);
                     } else {
                         callback.onSuccess(new ArrayList<TreeModel>());
                     }
@@ -147,6 +149,7 @@ public class GroupGrid extends View {
         ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
+        this.grid.setAutoLoad(true);
         this.grid.setId("groupGrid");
         this.grid.setStateful(true);
         this.grid.setAutoExpandColumn("text");
@@ -209,7 +212,7 @@ public class GroupGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                loader.load();
+                refreshLoader(true);
             }
         });
 
@@ -232,7 +235,7 @@ public class GroupGrid extends View {
                 EventType type = be.getType();
                 if (type.equals(Events.Expand)) {
                     isCollapsed = false;
-                    refreshLoader();
+                    refreshLoader(false);
                 } else if (type.equals(Events.Collapse)) {
                     isCollapsed = true;
                 }
@@ -312,10 +315,6 @@ public class GroupGrid extends View {
                 });
     }
 
-    private void onLeaveComplete(AppEvent event) {
-        refreshLoader();
-    }
-
     private void onLeaveFailed(AppEvent event) {
         MessageBox.confirm(null, "Failed to leave group, retry?", new Listener<MessageBoxEvent>() {
 
@@ -343,8 +342,8 @@ public class GroupGrid extends View {
         }
     }
 
-    private void refreshLoader() {
-        if (this.store.getChildCount() == 0) {
+    private void refreshLoader(boolean force) {
+        if (force || this.store.getChildCount() == 0) {
             loader.load();
         }
     }

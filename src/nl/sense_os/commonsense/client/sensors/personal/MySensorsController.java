@@ -49,7 +49,7 @@ public class MySensorsController extends Controller {
 
         if (false == this.isGettingMySensors) {
             this.isGettingMySensors = true;
-            Dispatcher.forwardEvent(MySensorsEvents.Working);
+            forwardToView(treeView, new AppEvent(MySensorsEvents.Working));
 
             SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
             String sessionId = Registry.get(Constants.REG_SESSION_ID);
@@ -57,21 +57,27 @@ public class MySensorsController extends Controller {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    Dispatcher.forwardEvent(MySensorsEvents.Done);
-                    isGettingMySensors = false;
+
+                    forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
+                    Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
+
                     if (null != proxyCallback) {
                         proxyCallback.onFailure(caught);
                     }
+                    isGettingMySensors = false;
                 }
 
                 @Override
                 public void onSuccess(List<TreeModel> result) {
                     Registry.register(Constants.REG_MY_SENSORS, result);
-                    Dispatcher.forwardEvent(MySensorsEvents.Done);
-                    isGettingMySensors = false;
+
+                    forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
+                    Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
+
                     if (null != proxyCallback) {
                         proxyCallback.onSuccess(result);
                     }
+                    isGettingMySensors = false;
                 }
             };
             service.getMySensors(sessionId, callback);

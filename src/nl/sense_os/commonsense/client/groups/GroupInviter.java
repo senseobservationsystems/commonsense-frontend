@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.groups;
 
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -27,7 +28,7 @@ public class GroupInviter extends View {
     private static final String TAG = "GroupInviter";
     private Window window;
     private FormPanel form;
-    private TextField<String> email;
+    private TextField<String> username;
     private Button inviteButton;
     private Button cancelButton;
     private TreeModel group;
@@ -93,10 +94,10 @@ public class GroupInviter extends View {
 
         final FormData formData = new FormData("-10");
 
-        this.email = new TextField<String>();
-        this.email.setFieldLabel("Email");
-        this.email.setAllowBlank(false);
-        this.form.add(this.email, formData);
+        this.username = new TextField<String>();
+        this.username.setFieldLabel("Username");
+        this.username.setAllowBlank(false);
+        this.form.add(this.username, formData);
 
         initButtons();
 
@@ -107,10 +108,11 @@ public class GroupInviter extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
-        this.window.setWidth(323);
-        this.window.setHeight(200);
+        this.window = new CenteredWindow();
+        this.window.setSize(323, 200);
         this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Invite user to group");
 
@@ -124,21 +126,22 @@ public class GroupInviter extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.ListRequested);
+        Dispatcher.forwardEvent(GroupEvents.ListRequest);
         setBusy(false);
     }
 
     private void onFailed(AppEvent event) {
-        MessageBox.alert("CommonSense", "Failed to invite user. Please check the email address.",
-                null);
+        MessageBox.alert("CommonSense", "Failed to invite user. Please check the username.", null);
         setBusy(false);
     }
 
     private void onShow(AppEvent event) {
         this.group = event.<TreeModel> getData();
         Log.d(TAG, "Invite users for group " + group.get("id"));
-        this.window.show();
         this.form.reset();
+
+        this.window.show();
+        this.window.center();
     }
 
     private void onSubmit() {
@@ -146,7 +149,7 @@ public class GroupInviter extends View {
 
         AppEvent event = new AppEvent(GroupEvents.InviteRequested);
         event.setData("groupId", this.group.<String> get("id"));
-        event.setData("email", this.email.getValue());
+        event.setData("username", this.username.getValue());
         fireEvent(event);
     }
 

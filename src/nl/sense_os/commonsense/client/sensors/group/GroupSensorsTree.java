@@ -17,9 +17,8 @@ import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -225,18 +224,21 @@ public class GroupSensorsTree extends View {
 
     private void initTree() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        DataProxy proxy = new DataProxy() {
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
             @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
                         Dispatcher.forwardEvent(GroupSensorsEvents.ListRequest, callback);
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        callback.onSuccess(childrenModels);
+                        List<TreeModel> children = new ArrayList<TreeModel>();
+                        for (ModelData model : childrenModels) {
+                            children.add((TreeModel) model);
+                        }
+                        callback.onSuccess(children);
                     } else {
                         callback.onSuccess(new ArrayList<TreeModel>());
                     }
@@ -249,6 +251,7 @@ public class GroupSensorsTree extends View {
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         this.tree = new TreePanel<TreeModel>(store);
+        this.tree.setAutoLoad(true);
         this.tree.setBorders(false);
         this.tree.setStateful(true);
         this.tree.setId("groupSensorsTree");

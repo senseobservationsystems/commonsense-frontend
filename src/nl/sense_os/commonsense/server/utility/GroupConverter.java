@@ -22,7 +22,9 @@ public class GroupConverter {
     public static GroupModel parseGroup(String response) throws WrongResponseException {
 
         try {
-            JSONObject group = new JSONObject(response);
+            JSONObject responseJson = new JSONObject(response);
+            JSONObject group = responseJson.getJSONObject("group");
+            
             HashMap<String, Object> properties = new HashMap<String, Object>();
             properties.put(GroupModel.KEY_ID, group.getString(GroupModel.KEY_ID));
             properties.put(GroupModel.KEY_EMAIL, group.getString(GroupModel.KEY_EMAIL));
@@ -35,6 +37,7 @@ public class GroupConverter {
             properties.put("text", properties.get(GroupModel.KEY_NAME));
 
             return new GroupModel(properties);
+            
         } catch (JSONException e) {
             log.severe("JSONException parsing group details: " + e.getMessage());
             log.severe("Raw response: " + response);

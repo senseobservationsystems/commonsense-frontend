@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.groups;
 
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -7,7 +8,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.FieldSetEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -19,11 +20,13 @@ import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupCreator extends View {
 
@@ -31,7 +34,7 @@ public class GroupCreator extends View {
     private Window window;
     private FormPanel form;
     private TextField<String> name;
-    private TextField<String> email;
+    // private TextField<String> email;
     private TextField<String> username;
     private TextField<String> password;
     private Button submitButton;
@@ -43,18 +46,22 @@ public class GroupCreator extends View {
 
     @Override
     protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
+        final EventType type = event.getType();
+
         if (type.equals(GroupEvents.ShowCreator)) {
             onShow(event);
         } else if (type.equals(GroupEvents.CreateCancelled)) {
-            Log.d(TAG, "CreateGroupCancelled");
+            // Log.d(TAG, "CreateGroupCancelled");
             onCancelled(event);
+
         } else if (type.equals(GroupEvents.CreateComplete)) {
-            Log.d(TAG, "CreateGroupComplete");
+            // Log.d(TAG, "CreateGroupComplete");
             onComplete(event);
+
         } else if (type.equals(GroupEvents.CreateFailed)) {
-            Log.w(TAG, "CreateGroupFailed");
+            // Log.w(TAG, "CreateGroupFailed");
             onFailed(event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -106,57 +113,56 @@ public class GroupCreator extends View {
         final FormData formData = new FormData("-10");
 
         this.name = new TextField<String>();
-        this.name.setFieldLabel("Name*");
+        this.name.setFieldLabel("Name");
         this.name.setAllowBlank(false);
 
-        this.email = new TextField<String>();
-        this.email.setFieldLabel("Email*");
-        this.email.setAllowBlank(false);
+        // this.email = new TextField<String>();
+        // this.email.setFieldLabel("Email*");
+        // this.email.setAllowBlank(false);
+
+        final FieldSet loginFields = new FieldSet();
+        loginFields.setHeading("Log in as this group");
+        loginFields.setCheckboxToggle(true);
+        loginFields.setExpanded(false);
+        loginFields.setLayout(new FormLayout());
+
+        // allow the username and password to be blank iff the fieldset is not checked
+        Listener<FieldSetEvent> listener = new Listener<FieldSetEvent>() {
+
+            @Override
+            public void handleEvent(FieldSetEvent be) {
+                // Log.d(TAG, "Expand");
+                boolean isVisible = loginFields.isExpanded();
+                username.setAllowBlank(!isVisible);
+                password.setAllowBlank(!isVisible);
+            }
+        };
+        loginFields.addListener(Events.Expand, listener);
+        loginFields.addListener(Events.Collapse, listener);
 
         this.username = new TextField<String>();
         this.username.setFieldLabel("Username");
-        this.username.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Object value = be.getField().getValue();
-                if (null != value) {
-                    password.setAllowBlank(false);
-                } else {
-                    password.setAllowBlank(true);
-                }
-            }
-        });
 
         this.password = new TextField<String>();
         this.password.setFieldLabel("Password");
         this.password.setPassword(true);
-        this.password.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Object value = be.getField().getValue();
-                if (null != value) {
-                    username.setAllowBlank(false);
-                } else {
-                    username.setAllowBlank(true);
-                }
-            }
-        });
+        loginFields.add(this.username, formData);
+        loginFields.add(this.password, formData);
 
         this.form.add(this.name, formData);
-        this.form.add(this.email, formData);
-        this.form.add(this.username, formData);
-        this.form.add(this.password, formData);
+        this.form.add(loginFields, formData);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
-        this.window.setSize(400, 247);
+        this.window = new CenteredWindow();
+        this.window.setSize(323, 200);
         this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Create group");
 
@@ -180,7 +186,7 @@ public class GroupCreator extends View {
 
     private void onComplete(AppEvent event) {
         this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.ListRequested);
+        Dispatcher.forwardEvent(GroupEvents.ListRequest);
         setBusy(false);
     }
 
@@ -203,6 +209,7 @@ public class GroupCreator extends View {
     private void onShow(AppEvent event) {
         this.form.reset();
         this.window.show();
+        this.window.center();
     }
 
     private void onSubmit() {
@@ -210,7 +217,7 @@ public class GroupCreator extends View {
 
         AppEvent event = new AppEvent(GroupEvents.CreateRequested);
         event.setData("name", this.name.getValue());
-        event.setData("email", this.email.getValue());
+        // event.setData("email", this.email.getValue());
         if (this.username.getValue() != null && this.username.getValue().length() > 0) {
             event.setData("username", this.username.getValue());
             event.setData("password", this.password.getValue());

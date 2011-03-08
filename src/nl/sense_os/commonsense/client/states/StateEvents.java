@@ -14,10 +14,14 @@ public class StateEvents {
     protected static final EventType CreateServiceComplete = new EventType();
     protected static final EventType CreateServiceCancelled = new EventType();
     protected static final EventType CreateServiceFailed = new EventType();
-
+    protected static final EventType LoadSensors = new EventType();
+    protected static final EventType LoadSensorsSuccess = new EventType();
+    protected static final EventType LoadSensorsFailure = new EventType();
     protected static final EventType AvailableServicesRequested = new EventType();
     protected static final EventType AvailableServicesUpdated = new EventType();
     protected static final EventType AvailableServicesNotUpdated = new EventType();
+    protected static final EventType AjaxAvailableServiceSuccess = new EventType();
+    protected static final EventType AjaxAvailableServiceFailure = new EventType();
 
     protected static final EventType RemoveRequested = new EventType();
     protected static final EventType RemoveComplete = new EventType();

@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -125,6 +126,7 @@ public class StateEditor extends View {
 
         this.window.add(form);
     }
+
     private void initFields() {
         this.store = new ListStore<ModelData>();
 
@@ -175,9 +177,11 @@ public class StateEditor extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
+        this.window = new CenteredWindow();
         this.window.setSize(400, 247);
         this.window.setResizable(true);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Set/get service parameters");
 
@@ -221,6 +225,7 @@ public class StateEditor extends View {
 
     private void onMethodsUpdated(AppEvent event) {
         List<ModelData> methods = event.<List<ModelData>> getData();
+        Log.d(TAG, "List of methods size: " + methods.size());
         this.store.removeAll();
         this.store.add(methods);
     }
@@ -233,6 +238,7 @@ public class StateEditor extends View {
         this.store.removeAll();
 
         this.window.show();
+        this.window.center();
     }
 
     @SuppressWarnings("unchecked")
@@ -275,6 +281,7 @@ public class StateEditor extends View {
         }
         paramFields.layout();
     }
+
     protected void updateReturnField(ModelData method) {
         String returns = method.<String> get("return");
 

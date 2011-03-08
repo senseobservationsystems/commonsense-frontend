@@ -15,9 +15,8 @@ import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -101,7 +100,7 @@ public class StateGrid extends View {
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
-            refreshLoader();
+            refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -125,11 +124,11 @@ public class StateGrid extends View {
 
         } else if (type.equals(StateEvents.ConnectComplete)) {
             // Log.d(TAG, "ConnectComplete");
-            refreshLoader();
+            refreshLoader(true);
 
         } else if (type.equals(StateEvents.CreateServiceComplete)) {
             // Log.d(TAG, "CreateServiceComplete");
-            refreshLoader();
+            refreshLoader(true);
 
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
@@ -138,18 +137,21 @@ public class StateGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        DataProxy proxy = new DataProxy() {
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
             @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
                         Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        callback.onSuccess(childrenModels);
+                        List<TreeModel> children = new ArrayList<TreeModel>();
+                        for (ModelData model : childrenModels) {
+                            children.add((TreeModel) model);
+                        }
+                        callback.onSuccess(children);
                     } else {
                         callback.onSuccess(new ArrayList<TreeModel>());
                     }
@@ -169,6 +171,7 @@ public class StateGrid extends View {
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
         this.grid.setId("stateGrid");
+        this.grid.setAutoLoad(true);
         this.grid.setAutoExpandColumn("name");
         this.grid.setStateful(true);
         this.grid.setIconProvider(new SensorIconProvider());
@@ -213,7 +216,7 @@ public class StateGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                loader.load();
+                refreshLoader(true);
             }
         });
 
@@ -236,7 +239,7 @@ public class StateGrid extends View {
                 EventType type = be.getType();
                 if (type.equals(Events.Expand)) {
                     isCollapsed = false;
-                    refreshLoader();
+                    refreshLoader(false);
                 } else if (type.equals(Events.Collapse)) {
                     isCollapsed = true;
                 }
@@ -363,7 +366,7 @@ public class StateGrid extends View {
 
     private void onRemoveComplete(AppEvent event) {
         setBusy(false);
-        refreshLoader();
+        refreshLoader(true);
     }
 
     private void onRemoveFailed(AppEvent event) {
@@ -390,8 +393,8 @@ public class StateGrid extends View {
         }
     }
 
-    private void refreshLoader() {
-        if (this.store.getChildCount() == 0) {
+    private void refreshLoader(boolean force) {
+        if (force || this.store.getChildCount() == 0) {
             loader.load();
         }
     }

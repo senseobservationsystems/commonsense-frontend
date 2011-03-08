@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.services;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.shared.ServiceModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
 
@@ -24,6 +25,6 @@ public interface SensorsProxy extends RemoteService {
     List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
             WrongResponseException;
 
-    List<TreeModel> getAvailableServices(String sessionId) throws DbConnectionException,
+    List<ServiceModel> getAvailableServices(String sessionId) throws DbConnectionException,
             WrongResponseException;
 }

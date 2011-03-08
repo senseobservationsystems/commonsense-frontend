@@ -35,15 +35,9 @@ public class Ajax {
      * @see <a href="http://goo.gl/ajJWN">Making cross domain JavaScript requests</a>
      */
     // @formatter:off
-    public static native void request(
-    		String method,
-    		String url,
-            String sessionId,
-    		String body,
-    		HashMap<String, Object> params,
-            AppEvent onSuccess,
-            AppEvent onFailure,
-    		AjaxController handler) /*-{
+    public static native void request(String method, String url, String sessionId, String body,
+            HashMap<String, Object> params, AppEvent onSuccess, AppEvent onFailure,
+            AjaxController handler) /*-{
 
 		var isIE8 = window.XDomainRequest ? true : false;
 		var xhr = createCrossDomainRequest();

@@ -2,6 +2,8 @@ package nl.sense_os.commonsense.client.services;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.shared.ServiceModel;
+
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -17,5 +19,5 @@ public interface SensorsProxyAsync {
 
     void getMyServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
 
-    void getAvailableServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getAvailableServices(String sessionId, AsyncCallback<List<ServiceModel>> callback);
 }

@@ -19,6 +19,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy {
 
+    @SuppressWarnings("unused")
     private static final Logger log = Logger.getLogger("GroupsProxyImpl");
     private static final long serialVersionUID = 1L;
 

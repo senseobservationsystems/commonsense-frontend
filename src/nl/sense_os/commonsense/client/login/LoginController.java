@@ -202,6 +202,7 @@ public class LoginController extends Controller {
         Registry.unregister(Constants.REG_MY_SENSORS);
         Registry.unregister(Constants.REG_GROUP_SENSORS);
         Registry.unregister(Constants.REG_GROUPS);
+        Registry.unregister(Constants.REG_SERVICES);
 
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }

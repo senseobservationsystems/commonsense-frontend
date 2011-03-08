@@ -6,13 +6,19 @@ import java.util.List;
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
+import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.ServiceModel;
+import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -35,12 +41,15 @@ public class StateController extends Controller {
     private View connecter;
     private View editor;
     private boolean isGettingMyServices;
+    private boolean isLoadingSensors;
 
     public StateController() {
         registerEventTypes(MainEvents.Init);
         registerEventTypes(VizEvents.Show);
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(StateEvents.ShowGrid);
+        registerEventTypes(MySensorsEvents.ListUpdated);
+        registerEventTypes(GroupSensorsEvents.ListUpdated);
 
         // events to update the list of groups
         registerEventTypes(StateEvents.ListRequested, StateEvents.Done, StateEvents.Working);
@@ -49,6 +58,9 @@ public class StateController extends Controller {
                 StateEvents.CreateServiceCancelled);
         registerEventTypes(StateEvents.RemoveRequested, StateEvents.RemoveComplete,
                 StateEvents.RemoveFailed);
+        registerEventTypes(StateEvents.LoadSensors);
+        registerEventTypes(StateEvents.AvailableServicesRequested,
+                StateEvents.AjaxAvailableServiceSuccess, StateEvents.AjaxAvailableServiceFailure);
         registerEventTypes(StateEvents.ShowSensorConnecter, StateEvents.ConnectComplete,
                 StateEvents.ConnectFailed, StateEvents.ConnectRequested,
                 StateEvents.AvailableSensorsRequested, StateEvents.AvailableSensorsNotUpdated,
@@ -199,6 +211,82 @@ public class StateController extends Controller {
         service.getAvailableSensors(sessionId, serviceModel, callback);
     }
 
+    private void getAvailableServices(SensorModel sensor) {
+
+        // prepare request properties
+        final String method = "GET";
+        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
+                + "/services/available";
+        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxAvailableServiceSuccess);
+        final AppEvent onFailure = new AppEvent(StateEvents.AjaxAvailableServiceFailure);
+
+        // send request to AjaxController
+        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+        ajaxRequest.setData("method", method);
+        ajaxRequest.setData("url", url);
+        ajaxRequest.setData("session_id", sessionId);
+        ajaxRequest.setData("onSuccess", onSuccess);
+        ajaxRequest.setData("onFailure", onFailure);
+        Dispatcher.forwardEvent(ajaxRequest);
+    }
+
+    private void getAvailableServicesCallback(String response) {
+
+        if (response != null) {
+            // try to get "methods" array
+            JSONObject json = JSONParser.parseStrict(response).isObject();
+            JSONValue jsonVal = json.get("available_services");
+            if (null != jsonVal) {
+                JSONArray services = jsonVal.isArray();
+                if (null != services) {
+
+                    List<ServiceModel> result = new ArrayList<ServiceModel>();
+                    for (int i = 0; i < services.size(); i++) {
+                        JSONObject serviceJson = services.get(i).isObject();
+                        if (serviceJson != null) {
+                            String name = serviceJson.get(ServiceModel.NAME).isString()
+                                    .stringValue();
+                            JSONArray dataFieldsJson = serviceJson.get(ServiceModel.DATA_FIELDS)
+                                    .isArray();
+                            List<String> dataFields = new ArrayList<String>();
+                            for (int j = 0; j < dataFieldsJson.size(); j++) {
+                                String field = dataFieldsJson.get(j).isString().stringValue();
+                                dataFields.add(field);
+                            }
+
+                            ServiceModel service = new ServiceModel();
+                            service.set(ServiceModel.NAME, name);
+                            service.set(ServiceModel.DATA_FIELDS, dataFields);
+                            result.add(service);
+                        }
+                    }
+
+                    AppEvent success = new AppEvent(StateEvents.AvailableServicesUpdated);
+                    success.setData("services", result);
+                    forwardToView(this.creator, success);
+
+                } else {
+                    Log.e(TAG,
+                            "Error parsing service methods response: \"available_services\" is not a JSON Array");
+                    getAvailableServicesError();
+                }
+            } else {
+                Log.e(TAG,
+                        "Error parsing service methods response: \"available_services\" is is not found");
+                getAvailableServicesError();
+            }
+        } else {
+            Log.e(TAG, "Error parsing service methods response: response=null");
+            getAvailableServicesError();
+            getAvailableServicesError();
+        }
+    }
+
+    private void getAvailableServicesError() {
+        forwardToView(this.creator, new AppEvent(StateEvents.AvailableServicesNotUpdated));
+    }
+
     private void getMyServices(AppEvent event) {
         if (false == isGettingMyServices) {
             this.isGettingMyServices = true;
@@ -257,6 +345,9 @@ public class StateController extends Controller {
         ajaxRequest.setData("session_id", sessionId);
         ajaxRequest.setData("onSuccess", onSuccess);
         ajaxRequest.setData("onFailure", onFailure);
+
+        Log.d(TAG, "req methods: " + url);
+
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
@@ -273,15 +364,39 @@ public class StateController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(StateEvents.ListRequested)) {
-            Log.d(TAG, "ListRequested");
+            // Log.d(TAG, "ListRequested");
             getMyServices(event);
 
+        } else if (type.equals(StateEvents.LoadSensors)) {
+            // Log.d(TAG, "LoadSensors");
+            loadSensors();
+
+        } else if (isLoadingSensors
+                && (type.equals(MySensorsEvents.ListUpdated) || type
+                        .equals(GroupSensorsEvents.ListUpdated))) {
+            // Log.d(TAG, "LoadSensors");
+            loadSensors();
+
+        } else if (type.equals(StateEvents.AvailableServicesRequested)) {
+            Log.d(TAG, "AvailableServicesRequested");
+            final SensorModel sensor = event.getData("sensor");
+            getAvailableServices(sensor);
+
+        } else if (type.equals(StateEvents.AjaxAvailableServiceSuccess)) {
+            Log.d(TAG, "AjaxAvailableServiceSuccess");
+            final String response = event.getData("response");
+            getAvailableServicesCallback(response);
+
+        } else if (type.equals(StateEvents.AjaxAvailableServiceFailure)) {
+            Log.w(TAG, "AjaxAvailableServiceFailure");
+            getAvailableServicesError();
+
         } else if (type.equals(StateEvents.AvailableSensorsRequested)) {
-            Log.d(TAG, "AvailableSensorsRequested");
+            // Log.d(TAG, "AvailableSensorsRequested");
             getAvailableSensors(event);
 
         } else if (type.equals(StateEvents.CreateServiceRequested)) {
-            Log.d(TAG, "CreateRequested");
+            // Log.d(TAG, "CreateRequested");
             final String name = event.<String> getData("name");
             final TreeModel service = event.<TreeModel> getData("service");
             final ModelData sensor = event.<ModelData> getData("sensor");
@@ -289,73 +404,73 @@ public class StateController extends Controller {
             createService(name, service, sensor, dataFields);
 
         } else if (type.equals(StateEvents.RemoveRequested)) {
-            Log.d(TAG, "RemoveRequested");
+            // Log.d(TAG, "RemoveRequested");
             TreeModel sensor = event.<TreeModel> getData("sensor");
             TreeModel service = event.<TreeModel> getData("service");
             disconnectService(sensor, service);
 
         } else if (type.equals(StateEvents.ConnectRequested)) {
-            Log.d(TAG, "ConnectRequested");
+            // Log.d(TAG, "ConnectRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final TreeModel service = event.<TreeModel> getData("service");
             connectService(sensor, service);
 
         } else if (type.equals(StateEvents.MethodsRequested)) {
-            Log.d(TAG, "MethodsRequested");
+            // Log.d(TAG, "MethodsRequested");
             final TreeModel service = event.<TreeModel> getData();
             getServiceMethods(service);
 
         } else if (type.equals(StateEvents.InvokeMethodRequested)) {
-            Log.d(TAG, "InvokeMethodRequested");
+            // Log.d(TAG, "InvokeMethodRequested");
             invokeMethod(event);
 
         } else if (type.equals(StateEvents.AjaxMethodFailure)) {
-            Log.d(TAG, "AjaxMethodFailure");
+            Log.w(TAG, "AjaxMethodFailure");
             final int code = event.getData("code");
             invokeMethodErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxMethodSuccess)) {
-            Log.d(TAG, "AjaxMethodSuccess");
+            // Log.d(TAG, "AjaxMethodSuccess");
             final String response = event.<String> getData("response");
             invokeMethodCallback(response);
 
         } else if (type.equals(StateEvents.AjaxConnectFailure)) {
-            Log.d(TAG, "AjaxConnectFailure");
+            Log.w(TAG, "AjaxConnectFailure");
             final int code = event.getData("code");
             connectServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxConnectSuccess)) {
-            Log.d(TAG, "AjaxConnectSuccess");
+            // Log.d(TAG, "AjaxConnectSuccess");
             final String response = event.<String> getData("response");
             connectServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxCreateFailure)) {
-            Log.d(TAG, "AjaxCreateFailure");
+            Log.w(TAG, "AjaxCreateFailure");
             final int code = event.getData("code");
             createServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxCreateSuccess)) {
-            Log.d(TAG, "AjaxCreateSuccess");
+            // Log.d(TAG, "AjaxCreateSuccess");
             final String response = event.<String> getData("response");
             createServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxDisconnectFailure)) {
-            Log.d(TAG, "AjaxDisconnectFailure");
+            Log.w(TAG, "AjaxDisconnectFailure");
             final int code = event.getData("code");
             disconnectServiceErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxDisconnectSuccess)) {
-            Log.d(TAG, "AjaxDisconnectSuccess");
+            // Log.d(TAG, "AjaxDisconnectSuccess");
             final String response = event.<String> getData("response");
             disconnectServiceCallback(response);
 
         } else if (type.equals(StateEvents.AjaxGetMethodsFailure)) {
-            Log.d(TAG, "AjaxGetMethodsFailure");
+            Log.w(TAG, "AjaxGetMethodsFailure");
             final int code = event.getData("code");
             getServiceMethodsErrorCallback(code);
 
         } else if (type.equals(StateEvents.AjaxGetMethodsSuccess)) {
-            Log.d(TAG, "AjaxGetMethodsSuccess");
+            // Log.d(TAG, "AjaxGetMethodsSuccess");
             final String response = event.<String> getData("response");
             parseServiceMethods(response);
         }
@@ -467,6 +582,47 @@ public class StateController extends Controller {
 
     public void invokeMethodErrorCallback(int code) {
         forwardToView(this.editor, new AppEvent(StateEvents.InvokeMethodFailed));
+    }
+
+    private void loadSensors() {
+        this.isLoadingSensors = true;
+
+        List<TreeModel> mySensors = Registry.<List<TreeModel>> get(Constants.REG_MY_SENSORS);
+        TreeModel mySensorsParent = new BaseTreeModel();
+        mySensorsParent.set("tagType", TagModel.TYPE_CATEGORY);
+        mySensorsParent.set("text", "My personal sensors");
+        if (null != mySensors) {
+            for (TreeModel sensor : mySensors) {
+                mySensorsParent.add(sensor);
+            }
+        } else {
+            Log.w(TAG, "Getting list of personal sensors for state sensor creation");
+            Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+            return;
+        }
+
+        List<TreeModel> groupSensors = Registry.<List<TreeModel>> get(Constants.REG_GROUP_SENSORS);
+        TreeModel groupSensorsParent = new BaseTreeModel();
+        groupSensorsParent.set("tagType", TagModel.TYPE_CATEGORY);
+        groupSensorsParent.set("text", "My group sensors");
+        if (null != groupSensors) {
+            for (TreeModel sensor : groupSensors) {
+                groupSensorsParent.add(sensor);
+            }
+        } else {
+            Log.w(TAG, "Getting list of group sensors for state sensor creation");
+            Dispatcher.forwardEvent(GroupSensorsEvents.ListRequest);
+            return;
+        }
+
+        List<TreeModel> sensors = new ArrayList<TreeModel>();
+        sensors.add(0, mySensorsParent);
+        sensors.add(1, groupSensorsParent);
+
+        AppEvent success = new AppEvent(StateEvents.LoadSensorsSuccess);
+        success.setData("sensors", sensors);
+        forwardToView(creator, success);
+        this.isLoadingSensors = false;
     }
 
     private void parseServiceMethods(String response) {

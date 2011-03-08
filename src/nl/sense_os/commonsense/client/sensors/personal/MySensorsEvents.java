@@ -6,11 +6,12 @@ public class MySensorsEvents {
 
     // layout-related event types
     public static final EventType ShowTree = new EventType();
+    public static final EventType ListRequested = new EventType();
+    public static final EventType ListUpdated = new EventType();
 
     // MySensors view and controller-only event types
     protected static final EventType ShowShareDialog = new EventType();
     protected static final EventType ShareRequested = new EventType();
-    protected static final EventType ListRequested = new EventType();
     protected static final EventType ShareComplete = new EventType();
     protected static final EventType ShareFailed = new EventType();
     protected static final EventType ShareCancelled = new EventType();

@@ -1,29 +1,22 @@
 package nl.sense_os.commonsense.client.states;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.ServiceModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
-import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -34,7 +27,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -56,7 +48,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateCreator extends View {
 
@@ -64,17 +55,15 @@ public class StateCreator extends View {
     private Window window;
     private FormPanel form;
     private TextField<String> nameField;
-    private ComboBox<TreeModel> servicesField;
-    private ListStore<TreeModel> servicesStore;
+    private ComboBox<ServiceModel> servicesField;
+    private ListStore<ServiceModel> servicesStore;
     private AdapterField sensorsField;
-    private TreeModel selectedService;
-    private BaseTreeLoader<TreeModel> sensorsLoader;
     private TreeStore<TreeModel> sensorsStore;
     private TreePanel<TreeModel> sensorsTree;
     private ListStore<ModelData> dataFieldsStore;
     private Grid<ModelData> dataFieldsGrid;
     private AdapterField dataFieldsField;
-    private List<String> dataFields;
+
     private Button createButton;
     private Button cancelButton;
 
@@ -88,14 +77,35 @@ public class StateCreator extends View {
         if (type.equals(StateEvents.ShowCreator)) {
             onShow(event);
         } else if (type.equals(StateEvents.CreateServiceCancelled)) {
-            Log.d(TAG, "CreateCancelled");
+            // Log.d(TAG, "CreateCancelled");
             onCancelled(event);
+
         } else if (type.equals(StateEvents.CreateServiceComplete)) {
-            Log.d(TAG, "CreateComplete");
+            // Log.d(TAG, "CreateComplete");
             onComplete(event);
+
         } else if (type.equals(StateEvents.CreateServiceFailed)) {
             Log.w(TAG, "CreateFailed");
             onFailed(event);
+
+        } else if (type.equals(StateEvents.LoadSensorsSuccess)) {
+            Log.d(TAG, "LoadSensorsSuccess");
+            final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+            onLoadSensorsComplete(sensors);
+
+        } else if (type.equals(StateEvents.LoadSensorsFailure)) {
+            Log.w(TAG, "LoadSensorsFailure");
+            onLoadSensorsComplete(null);
+
+        } else if (type.equals(StateEvents.AvailableServicesUpdated)) {
+            // Log.d(TAG, "AvailableServicesUpdated");
+            final List<ServiceModel> services = event.<List<ServiceModel>> getData("services");
+            onAvailableServicesComplete(services);
+
+        } else if (type.equals(StateEvents.AvailableServicesNotUpdated)) {
+            Log.w(TAG, "AvailableServicesNotUpdated");
+            onAvailableServicesComplete(null);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -136,58 +146,6 @@ public class StateCreator extends View {
         this.nameField.setFieldLabel("State sensor name");
         this.nameField.setAllowBlank(false);
 
-        final SensorsProxyAsync service = Registry
-                .<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-
-        RpcProxy<List<TreeModel>> servicesProxy = new RpcProxy<List<TreeModel>>() {
-
-            @Override
-            protected void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
-                service.getAvailableServices(sessionId, callback);
-            }
-        };
-        @SuppressWarnings("rawtypes")
-        ListLoader servicesLoader = new BaseListLoader(servicesProxy);
-        this.servicesStore = new ListStore<TreeModel>(servicesLoader);
-
-        this.servicesField = new ComboBox<TreeModel>();
-        this.servicesField.setFieldLabel("Algorithm type");
-        this.servicesField.setEmptyText("Select service algorithm type...");
-        this.servicesField.setStore(this.servicesStore);
-        this.servicesField.setDisplayField("text");
-        this.servicesField.setAllowBlank(false);
-        this.servicesField.setTriggerAction(TriggerAction.ALL);
-        this.servicesField.setTypeAhead(true);
-
-        // update sensors and data fields when a service is selected
-        this.servicesField.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
-
-            @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                TreeModel newService = se.getSelectedItem();
-
-                if (null != newService) {
-                    if (null != selectedService
-                            && newService.<String> get("service_name").equals(
-                                    selectedService.<String> get("service_name"))) {
-                        return;
-                    }
-                    selectedService = newService;
-                    sensorsLoader.load();
-
-                    sensorsField.enable();
-
-                    dataFields = newService.<List<String>> get("data_fields");
-                } else {
-                    selectedService = newService;
-                    sensorsStore.removeAll();
-                    sensorsField.disable();
-                }
-
-            }
-        });
-
         initSensorsTree();
         ContentPanel sensorsPanel = new ContentPanel(new FitLayout());
         sensorsPanel.setHeaderVisible(false);
@@ -195,65 +153,62 @@ public class StateCreator extends View {
         sensorsPanel.add(this.sensorsTree);
 
         this.sensorsField = new AdapterField(sensorsPanel);
-        this.sensorsField.setHeight(150);
+        this.sensorsField.setHeight(300);
         this.sensorsField.setResizeWidget(true);
         this.sensorsField.setFieldLabel("Input sensor");
 
-        this.dataFieldsStore = new ListStore<ModelData>();
-        this.dataFields = new ArrayList<String>();
         this.sensorsTree.getSelectionModel().addSelectionChangedListener(
                 new SelectionChangedListener<TreeModel>() {
 
                     @Override
                     public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                        TreeModel sensor = se.getSelectedItem();
-                        dataFieldsStore.removeAll();
-                        dataFieldsField.reset();
-
-                        if (null != sensor) {
-                            dataFieldsField.enable();
-
-                            // populate the store
-                            int tagType = sensor.get("tagType");
-                            if (tagType == TagModel.TYPE_SENSOR) {
-                                String name = sensor.<String> get("name").replaceAll("\\s", "_");
-                                for (String fieldName : dataFields) {
-                                    Log.d(TAG, name + " -- " + fieldName);
-                                    if (fieldName.startsWith(name)) {
-
-                                        // create ModelData representing this sensor's datafield
-                                        ModelData dataField = new BaseModelData();
-                                        if (fieldName.length() == name.length()) {
-                                            dataField.set("text", fieldName);
-                                        } else {
-                                            dataField.set("text", fieldName.substring(
-                                                    name.length() + 1, fieldName.length()));
-                                        }
-
-                                        // check for double entries
-                                        boolean doubleEntry = false;
-                                        for (ModelData model : dataFieldsStore.getModels()) {
-                                            if (model.get("text").equals(dataField.get("text"))) {
-                                                doubleEntry = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (false == doubleEntry) {
-                                            dataFieldsStore.add(dataField);
-                                        }
-                                    }
-                                }
-                            } else {
-                                dataFieldsStore.removeAll();
-                                dataFieldsField.disable();
-                            }
+                        TreeModel selected = se.getSelectedItem();
+                        if (selected instanceof SensorModel) {
+                            AppEvent getServices = new AppEvent(
+                                    StateEvents.AvailableServicesRequested);
+                            getServices.setData("sensor", selected);
+                            StateCreator.this.fireEvent(getServices);
                         } else {
-                            dataFieldsStore.removeAll();
-                            dataFieldsField.disable();
+                            servicesStore.removeAll();
                         }
                     }
                 });
+
+        this.servicesStore = new ListStore<ServiceModel>();
+
+        this.servicesField = new ComboBox<ServiceModel>();
+        this.servicesField.setFieldLabel("Algorithm type");
+        this.servicesField.setEmptyText("Select service algorithm type...");
+        this.servicesField.setStore(this.servicesStore);
+        this.servicesField.setDisplayField(ServiceModel.NAME);
+        this.servicesField.setAllowBlank(false);
+        this.servicesField.setTriggerAction(TriggerAction.ALL);
+        this.servicesField.setTypeAhead(true);
+        this.servicesField.setForceSelection(true);
+
+        // update sensors and data fields when a service is selected
+        this.servicesField
+                .addSelectionChangedListener(new SelectionChangedListener<ServiceModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ServiceModel> se) {
+                        ServiceModel selected = se.getSelectedItem();
+
+                        dataFieldsStore.removeAll();
+                        if (null != selected) {
+                            Log.d(TAG, "Selected " + selected.get(ServiceModel.NAME));
+                            List<String> dataFields = selected
+                                    .<List<String>> get(ServiceModel.DATA_FIELDS);
+                            for (String fieldName : dataFields) {
+                                ModelData fieldModel = new BaseModelData();
+                                fieldModel.set("text", fieldName);
+                                dataFieldsStore.add(fieldModel);
+                            }
+                        }
+                    }
+                });
+
+        this.dataFieldsStore = new ListStore<ModelData>();
 
         ColumnModel cm = new ColumnModel(Arrays.asList(new ColumnConfig("text", "", this.form
                 .getFieldWidth())));
@@ -268,8 +223,8 @@ public class StateCreator extends View {
 
         final FormData formData = new FormData("-10");
         this.form.add(this.nameField, formData);
-        this.form.add(this.servicesField, formData);
         this.form.add(this.sensorsField, formData);
+        this.form.add(this.servicesField, formData);
         this.form.add(this.dataFieldsField, formData);
     }
 
@@ -290,9 +245,11 @@ public class StateCreator extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
-        this.window.setSize(400, 400);
+        this.window = new CenteredWindow();
+        this.window.setSize(400, 550);
         this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Create state sensor");
 
@@ -302,26 +259,7 @@ public class StateCreator extends View {
     private void initSensorsTree() {
 
         // trees store
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        DataProxy proxy = new DataProxy() {
-
-            @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
-                if (null == loadConfig && null != selectedService) {
-                    AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
-                    event.setData("service", selectedService);
-                    event.setData("callback", callback);
-                    Dispatcher.forwardEvent(event);
-                } else if (loadConfig instanceof TreeModel) {
-                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    callback.onSuccess(childrenModels);
-                } else {
-                    callback.onSuccess(new ArrayList<TreeModel>());
-                }
-            }
-        };
-        this.sensorsLoader = new BaseTreeLoader<TreeModel>(proxy);
-        this.sensorsStore = new TreeStore<TreeModel>(this.sensorsLoader);
+        this.sensorsStore = new TreeStore<TreeModel>();
         this.sensorsStore.setKeyProvider(new SensorKeyProvider());
 
         // sort tree
@@ -332,6 +270,19 @@ public class StateCreator extends View {
         this.sensorsTree.setDisplayProperty("text");
         this.sensorsTree.setIconProvider(new SensorIconProvider());
         this.sensorsTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    }
+
+    private void onAvailableServicesComplete(List<ServiceModel> services) {
+        this.servicesStore.removeAll();
+        this.dataFieldsStore.removeAll();
+
+        if (services != null) {
+            this.servicesStore.add(services);
+        } else {
+            this.window.hide();
+            MessageBox.alert(null, "Error getting list of available services!", null);
+        }
+
     }
 
     private void onCancelled(AppEvent event) {
@@ -360,9 +311,35 @@ public class StateCreator extends View {
                 });
     }
 
+    private void onLoadSensorsComplete(List<TreeModel> sensors) {
+        this.sensorsStore.removeAll();
+        this.servicesStore.removeAll();
+        this.dataFieldsStore.removeAll();
+
+        if (sensors != null) {
+            this.sensorsStore.add(sensors, true);
+        } else {
+            this.window.hide();
+            MessageBox.alert(null, "Error getting list of source sensors!", null);
+        }
+    }
+
     private void onShow(AppEvent event) {
         this.form.reset();
         this.window.show();
+        this.window.center();
+
+        fireEvent(StateEvents.LoadSensors);
+    }
+
+    private void setBusy(boolean busy) {
+        if (busy) {
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.cancelButton.disable();
+        } else {
+            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.cancelButton.enable();
+        }
     }
 
     private void submitForm() {
@@ -374,15 +351,5 @@ public class StateCreator extends View {
         event.setData("sensor", this.sensorsTree.getSelectionModel().getSelectedItem());
         event.setData("dataFields", this.dataFieldsGrid.getSelectionModel().getSelectedItems());
         fireEvent(event);
-    }
-
-    private void setBusy(boolean busy) {
-        if (busy) {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
-            this.cancelButton.disable();
-        } else {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
-            this.cancelButton.enable();
-        }
     }
 }
