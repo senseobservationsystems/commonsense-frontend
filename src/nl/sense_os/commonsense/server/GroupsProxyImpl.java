@@ -8,13 +8,12 @@ import nl.sense_os.commonsense.client.services.GroupsProxy;
 import nl.sense_os.commonsense.server.utility.GroupConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.GroupModel;
 import nl.sense_os.commonsense.shared.UserModel;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
 
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy {
@@ -24,7 +23,7 @@ public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy
     private static final long serialVersionUID = 1L;
 
     @Override
-    public List<TreeModel> getGroups(String sessionId) throws DbConnectionException,
+    public List<GroupModel> getGroups(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
         // get list of groups
@@ -32,21 +31,21 @@ public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy
         String response = Requester.request(url, sessionId, "GET", null);
         List<ModelData> groupsIds = GroupConverter.parseGroupIds(response);
 
-        List<TreeModel> groups = new ArrayList<TreeModel>();
+        List<GroupModel> groups = new ArrayList<GroupModel>();
         for (ModelData model : groupsIds) {
             String groupId = model.get("group_id");
 
             url = Constants.URL_GROUPS + "/" + groupId;
             response = Requester.request(url, sessionId, "GET", null);
-            ModelData details = GroupConverter.parseGroup(response);
+            GroupModel details = GroupConverter.parseGroup(response);
 
             url = Constants.URL_GROUPS + "/" + groupId + "/users";
             response = Requester.request(url, sessionId, "GET", null);
             List<UserModel> users = UserConverter.parseGroupUsers(response);
 
-            TreeModel group = new BaseTreeModel(details.getProperties());
-            for (ModelData userModel : users) {
-                group.add(new BaseTreeModel(userModel.getProperties()));
+            GroupModel group = new GroupModel(details.getProperties());
+            for (UserModel userModel : users) {
+                group.add(new UserModel(userModel.getProperties()));
             }
             groups.add(group);
         }

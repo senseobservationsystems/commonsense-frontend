@@ -193,13 +193,23 @@ public class StateCreator extends View {
                     @Override
                     public void selectionChanged(SelectionChangedEvent<ServiceModel> se) {
                         ServiceModel selected = se.getSelectedItem();
-
+                        TreeModel sensor = sensorsTree.getSelectionModel().getSelectedItem();
                         dataFieldsStore.removeAll();
-                        if (null != selected) {
-                            Log.d(TAG, "Selected " + selected.get(ServiceModel.NAME));
+
+                        if (null != selected && sensor instanceof SensorModel) {
+                            String sensorName = sensor.<String> get(SensorModel.KEY_NAME);
+                            sensorName = sensorName.replace(' ', '_');
+
+                            Log.d(TAG, "Selected \'" + selected.get(ServiceModel.NAME) + "\', \'"
+                                    + sensorName + "\'");
+
                             List<String> dataFields = selected
                                     .<List<String>> get(ServiceModel.DATA_FIELDS);
                             for (String fieldName : dataFields) {
+                                if (fieldName.contains(sensorName)) {
+                                    int beginIndex = sensorName.length() + 1;
+                                    fieldName = fieldName.substring(beginIndex, fieldName.length());
+                                }
                                 ModelData fieldModel = new BaseModelData();
                                 fieldModel.set("text", fieldName);
                                 dataFieldsStore.add(fieldModel);
@@ -227,7 +237,6 @@ public class StateCreator extends View {
         this.form.add(this.servicesField, formData);
         this.form.add(this.dataFieldsField, formData);
     }
-
     private void initForm() {
 
         this.form = new FormPanel();

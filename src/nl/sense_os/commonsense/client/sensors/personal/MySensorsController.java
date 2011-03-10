@@ -27,6 +27,7 @@ public class MySensorsController extends Controller {
     private View treeView;
     private View shareView;
     private boolean isGettingMySensors;
+    private AsyncCallback<List<TreeModel>> getMySensorsCallback;
 
     public MySensorsController() {
         registerEventTypes(MainEvents.Init);
@@ -47,6 +48,10 @@ public class MySensorsController extends Controller {
 
     private void getMySensors(final AsyncCallback<List<TreeModel>> proxyCallback) {
 
+        if (null == this.getMySensorsCallback) {
+            this.getMySensorsCallback = proxyCallback;
+        }
+        
         if (false == this.isGettingMySensors) {
             this.isGettingMySensors = true;
             forwardToView(treeView, new AppEvent(MySensorsEvents.Working));
@@ -61,8 +66,8 @@ public class MySensorsController extends Controller {
                     forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
                     Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
 
-                    if (null != proxyCallback) {
-                        proxyCallback.onFailure(caught);
+                    if (null != getMySensorsCallback) {
+                        getMySensorsCallback.onFailure(caught);
                     }
                     isGettingMySensors = false;
                 }
@@ -74,8 +79,8 @@ public class MySensorsController extends Controller {
                     forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
                     Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
 
-                    if (null != proxyCallback) {
-                        proxyCallback.onSuccess(result);
+                    if (null != getMySensorsCallback) {
+                        getMySensorsCallback.onSuccess(result);
                     }
                     isGettingMySensors = false;
                 }
@@ -83,9 +88,6 @@ public class MySensorsController extends Controller {
             service.getMySensors(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get my sensors: already working on an earlier request");
-            if (null != proxyCallback) {
-                proxyCallback.onFailure(null);
-            }
         }
     }
 

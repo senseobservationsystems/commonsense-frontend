@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.client.groups;
 import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.GroupModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -31,7 +31,7 @@ public class GroupInviter extends View {
     private TextField<String> username;
     private Button inviteButton;
     private Button cancelButton;
-    private TreeModel group;
+    private GroupModel group;
 
     public GroupInviter(Controller c) {
         super(c);
@@ -136,8 +136,8 @@ public class GroupInviter extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.group = event.<TreeModel> getData();
-        Log.d(TAG, "Invite users for group " + group.get("id"));
+        this.group = event.<GroupModel> getData("group");
+        Log.d(TAG, "Invite users for group " + group.get(GroupModel.KEY_ID));
         this.form.reset();
 
         this.window.show();
@@ -148,7 +148,7 @@ public class GroupInviter extends View {
         setBusy(true);
 
         AppEvent event = new AppEvent(GroupEvents.InviteRequested);
-        event.setData("groupId", this.group.<String> get("id"));
+        event.setData("groupId", this.group.<String> get(GroupModel.KEY_ID));
         event.setData("username", this.username.getValue());
         fireEvent(event);
     }

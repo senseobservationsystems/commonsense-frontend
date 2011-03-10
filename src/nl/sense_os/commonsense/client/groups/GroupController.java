@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.groups;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
@@ -10,6 +11,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.GroupModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -27,6 +29,7 @@ public class GroupController extends Controller {
     private View creator;
     private View inviter;
     private boolean isGettingGroups;
+    private AsyncCallback<List<TreeModel>> getGroupsCallback;
 
     public GroupController() {
         // events to update the list of groups
@@ -84,41 +87,42 @@ public class GroupController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void getGroups(AppEvent event) {
-        final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
+    private void getGroups(final AsyncCallback<List<TreeModel>> proxyCallback ) {
+        
+        if (null == this.getGroupsCallback) {
+            this.getGroupsCallback = proxyCallback;
+        }
+        
         if (false == this.isGettingGroups) {
             this.isGettingGroups = true;
             Dispatcher.forwardEvent(GroupEvents.Working);
 
             GroupsProxyAsync service = Registry.<GroupsProxyAsync> get(Constants.REG_GROUPS_SVC);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-            AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+            AsyncCallback<List<GroupModel>> callback = new AsyncCallback<List<GroupModel>>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
                     Dispatcher.forwardEvent(GroupEvents.ListUpdated);
                     isGettingGroups = false;
-                    if (null != proxyCallback) {
-                        proxyCallback.onFailure(caught);
+                    if (null != getGroupsCallback) {
+                        getGroupsCallback.onFailure(caught);
                     }
                 }
 
                 @Override
-                public void onSuccess(List<TreeModel> result) {
+                public void onSuccess(List<GroupModel> result) {
                     Registry.register(Constants.REG_GROUPS, result);
                     Dispatcher.forwardEvent(GroupEvents.ListUpdated, result);
                     isGettingGroups = false;
-                    if (null != proxyCallback) {
-                        proxyCallback.onSuccess(result);
+                    if (null != getGroupsCallback) {
+                        getGroupsCallback.onSuccess(new ArrayList<TreeModel>(result));
                     }
                 }
             };
             service.getGroups(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get groups: already working on an earlier request");
-            if (null != proxyCallback) {
-                proxyCallback.onFailure(null);
-            }
         }
     }
 
@@ -127,7 +131,8 @@ public class GroupController extends Controller {
         final EventType type = event.getType();
         if (type.equals(GroupEvents.ListRequest)) {
             Log.d(TAG, "ListRequest");
-            getGroups(event);
+            final AsyncCallback<List<TreeModel>> callback = event.<AsyncCallback<List<TreeModel>>>getData();
+            getGroups(callback);
 
         } else if (type.equals(GroupEvents.LeaveRequested)) {
             // Log.d(TAG, "LeaveRequested");

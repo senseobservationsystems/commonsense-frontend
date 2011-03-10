@@ -202,9 +202,15 @@ public class GroupSensorsTree extends View {
             @Override
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 List<TreeModel> selection = se.getSelection();
-                if (selection.size() > 0) {
+                if (selection != null && selection.size() > 0) {
                     vizButton.enable();
-                    removeButton.enable();
+
+                    List<SensorModel> sensors = getSelectedSensors();
+                    if (sensors.size() > 0) {
+                        removeButton.enable();
+                    } else {
+                        removeButton.disable();
+                    }
                 } else {
                     vizButton.disable();
                     removeButton.disable();

@@ -101,7 +101,7 @@ public class AjaxController extends Controller {
      *            AppEvent to dispatch
      */
     public void onSuccess(String response, AppEvent onSuccess) {
-        Log.d(TAG, "onSuccess");
+        // Log.d(TAG, "onSuccess");
         onSuccess.setData("response", response);
         Dispatcher.forwardEvent(onSuccess);
     }

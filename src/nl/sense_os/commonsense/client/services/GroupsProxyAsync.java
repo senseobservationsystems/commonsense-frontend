@@ -2,10 +2,11 @@ package nl.sense_os.commonsense.client.services;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.TreeModel;
+import nl.sense_os.commonsense.shared.GroupModel;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface GroupsProxyAsync {
 
-    void getGroups(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getGroups(String sessionId, AsyncCallback<List<GroupModel>> callback);
 }

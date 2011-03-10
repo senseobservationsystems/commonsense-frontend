@@ -12,6 +12,7 @@ import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.GroupModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -48,6 +49,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupGrid extends View {
@@ -94,16 +96,16 @@ public class GroupGrid extends View {
             setBusy(true);
 
         } else if (type.equals(GroupEvents.CreateComplete)) {
-            // Log.d(TAG, "CreateComplete");
-            refreshLoader(true);
+            Log.d(TAG, "CreateComplete");
+            onListDirty();
 
         } else if (type.equals(GroupEvents.LeaveComplete)) {
             // Log.d(TAG, "LeaveComplete");
-            refreshLoader(true);
+            onListDirty();
 
         } else if (type.equals(GroupEvents.InviteComplete)) {
-            // Log.d(TAG, "InviteComplete");
-            refreshLoader(true);
+            Log.d(TAG, "InviteComplete");
+            onListDirty();
 
         } else if (type.equals(GroupEvents.LeaveFailed)) {
             Log.w(TAG, "LeaveFailed");
@@ -112,6 +114,16 @@ public class GroupGrid extends View {
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void onListDirty() {
+        new Timer() {
+
+            @Override
+            public void run() {
+                refreshLoader(true);
+            }
+        }.schedule(100);
     }
 
     private void initGrid() {
@@ -263,9 +275,7 @@ public class GroupGrid extends View {
                 } else if (source.equals(joinButton)) {
                     Log.d(TAG, "Join group");
                 } else if (source.equals(inviteButton)) {
-                    AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
-                    invite.setData(grid.getSelectionModel().getSelectedItem());
-                    fireEvent(invite);
+                    onInviteClick();
                 }
             }
         };
@@ -292,6 +302,22 @@ public class GroupGrid extends View {
         this.panel.setTopComponent(toolBar);
     }
 
+    protected void onInviteClick() {
+        TreeModel selected = grid.getSelectionModel().getSelectedItem();
+        GroupModel group = null;
+        if (selected instanceof GroupModel) {
+            group = (GroupModel) selected;
+        } else if (selected.getParent() instanceof GroupModel) {
+            group = (GroupModel) selected.getParent();
+        } else {
+            MessageBox.alert(null, "Cannot invite user to group: no group selected.", null);
+            return;
+        }
+
+        AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
+        invite.setData("group", group);
+        fireEvent(invite);
+    }
     protected void leaveGroup() {
         TreeModel group = grid.getSelectionModel().getSelectedItem();
         while (null != group.getParent()) {

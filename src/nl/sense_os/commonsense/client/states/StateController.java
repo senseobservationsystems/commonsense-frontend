@@ -41,6 +41,7 @@ public class StateController extends Controller {
     private View connecter;
     private View editor;
     private boolean isGettingMyServices;
+    private AsyncCallback<List<TreeModel>> getMyServicesCallback;
     private boolean isLoadingSensors;
 
     public StateController() {
@@ -127,7 +128,7 @@ public class StateController extends Controller {
 
         // create request body
         String serviceJson = "\"service\":{";
-        serviceJson += "\"name\":\"" + service.<String> get("service_name") + "\"";
+        serviceJson += "\"name\":\"" + service.<String> get(ServiceModel.NAME) + "\"";
         serviceJson += ",\"data_fields\":[";
         for (ModelData dataField : dataFields) {
             serviceJson += "\"" + dataField.get("text") + "\",";
@@ -287,12 +288,16 @@ public class StateController extends Controller {
         forwardToView(this.creator, new AppEvent(StateEvents.AvailableServicesNotUpdated));
     }
 
-    private void getMyServices(AppEvent event) {
+    private void getMyServices(final AsyncCallback<List<TreeModel>> proxyCallback) {
+        
+        if (null == this.getMyServicesCallback) {
+            this.getMyServicesCallback = proxyCallback;
+        }
+        
         if (false == isGettingMyServices) {
             this.isGettingMyServices = true;
             Dispatcher.forwardEvent(StateEvents.Working);
-
-            final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
+           
             SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
@@ -301,8 +306,8 @@ public class StateController extends Controller {
                 public void onFailure(Throwable caught) {
                     Dispatcher.forwardEvent(StateEvents.Done);
                     isGettingMyServices = false;
-                    if (null != proxyCallback) {
-                        proxyCallback.onFailure(caught);
+                    if (null != getMyServicesCallback) {
+                        getMyServicesCallback.onFailure(caught);
                     }
                 }
 
@@ -311,18 +316,14 @@ public class StateController extends Controller {
                     Registry.register(Constants.REG_SERVICES, result);
                     Dispatcher.forwardEvent(StateEvents.Done);
                     isGettingMyServices = false;
-                    if (null != proxyCallback) {
-                        proxyCallback.onSuccess(result);
+                    if (null != getMyServicesCallback) {
+                        getMyServicesCallback.onSuccess(result);
                     }
                 }
             };
             service.getMyServices(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get my services: already working on an earlier request");
-            final AsyncCallback<List<TreeModel>> proxyCallback = event.getData();
-            if (null != proxyCallback) {
-                proxyCallback.onFailure(null);
-            }
         }
     }
 
@@ -365,7 +366,8 @@ public class StateController extends Controller {
 
         if (type.equals(StateEvents.ListRequested)) {
             // Log.d(TAG, "ListRequested");
-            getMyServices(event);
+            AsyncCallback<List<TreeModel>> callback = event.<AsyncCallback<List<TreeModel>>> getData();
+            getMyServices(callback);
 
         } else if (type.equals(StateEvents.LoadSensors)) {
             // Log.d(TAG, "LoadSensors");
@@ -378,12 +380,12 @@ public class StateController extends Controller {
             loadSensors();
 
         } else if (type.equals(StateEvents.AvailableServicesRequested)) {
-            Log.d(TAG, "AvailableServicesRequested");
+            // Log.d(TAG, "AvailableServicesRequested");
             final SensorModel sensor = event.getData("sensor");
             getAvailableServices(sensor);
 
         } else if (type.equals(StateEvents.AjaxAvailableServiceSuccess)) {
-            Log.d(TAG, "AjaxAvailableServiceSuccess");
+            // Log.d(TAG, "AjaxAvailableServiceSuccess");
             final String response = event.getData("response");
             getAvailableServicesCallback(response);
 
@@ -593,7 +595,12 @@ public class StateController extends Controller {
         mySensorsParent.set("text", "My personal sensors");
         if (null != mySensors) {
             for (TreeModel sensor : mySensors) {
-                mySensorsParent.add(sensor);
+                mySensorsParent.add(new BaseTreeModel(sensor.getProperties()));
+                List<ModelData> children = sensor.getChildren();
+                
+                for (ModelData child : children) {
+                    
+                }
             }
         } else {
             Log.w(TAG, "Getting list of personal sensors for state sensor creation");

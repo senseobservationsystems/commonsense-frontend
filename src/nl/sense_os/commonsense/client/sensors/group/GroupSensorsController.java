@@ -24,6 +24,7 @@ public class GroupSensorsController extends Controller {
     private static final String TAG = "GroupSensorsController";
     private View sensorsTree;
     private boolean isGettingList;
+    private AsyncCallback<List<TreeModel>> getGroupSensorsCallback;
 
     public GroupSensorsController() {
         registerEventTypes(MainEvents.Init);
@@ -47,7 +48,7 @@ public class GroupSensorsController extends Controller {
             getGroupSensors(callback);
 
         } else if (isGettingList && type.equals(GroupEvents.ListUpdated)) {
-            Log.d(TAG, "ListRequest");
+            Log.d(TAG, "Group ListUpdated");
             isGettingList = false;
             getGroupSensors(null);
 
@@ -63,8 +64,13 @@ public class GroupSensorsController extends Controller {
     }
 
     private void getGroupSensors(final AsyncCallback<List<TreeModel>> proxyCallback) {
-
-        if (this.isGettingList == false) {
+        
+        // keep track of the callback to the view
+        if (null == getGroupSensorsCallback) {
+            getGroupSensorsCallback = proxyCallback;
+        }
+        
+        if (false == this.isGettingList) {
             this.isGettingList = true;
 
             forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
@@ -82,23 +88,22 @@ public class GroupSensorsController extends Controller {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
-                    if (null != proxyCallback) {
-                        proxyCallback.onFailure(caught);
+                    if (null != getGroupSensorsCallback) {
+                        getGroupSensorsCallback.onFailure(caught);
                     }
+                    forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
                     isGettingList = false;
                 }
 
                 @Override
                 public void onSuccess(List<TreeModel> sharedSensors) {
                     Registry.register(Constants.REG_GROUP_SENSORS, sharedSensors);
+                    if (null != getGroupSensorsCallback) {
+                         getGroupSensorsCallback.onSuccess(sharedSensors);
+                    }
 
                     forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
                     Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
-
-                    if (null != proxyCallback) {
-                        proxyCallback.onSuccess(sharedSensors);
-                    }
                     isGettingList = false;
                 }
             };
@@ -106,9 +111,6 @@ public class GroupSensorsController extends Controller {
 
         } else {
             Log.w(TAG, "Ignoring request to get group sensors, already working on earlier requests");
-            if (null != proxyCallback) {
-                proxyCallback.onFailure(null);
-            }
         }
     }
 }

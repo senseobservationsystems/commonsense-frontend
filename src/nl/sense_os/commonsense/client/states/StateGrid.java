@@ -262,15 +262,14 @@ public class StateGrid extends View {
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    if (selection.get("service_name") == null) {
-                        editButton.enable();
-                        feedbackButton.enable();
-                        connectButton.enable();
+                    editButton.enable();
+                    feedbackButton.enable();
+                    connectButton.enable();
+
+                    // only able to disconnect if sensor is selected
+                    if (selection.getParent() != null) {
                         disconnectButton.enable();
                     } else {
-                        editButton.enable();
-                        feedbackButton.enable();
-                        connectButton.enable();
                         disconnectButton.disable();
                     }
                 } else {
@@ -337,7 +336,6 @@ public class StateGrid extends View {
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
-
     protected void onAddClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
         if (selectedService.get("service_name") == null) {

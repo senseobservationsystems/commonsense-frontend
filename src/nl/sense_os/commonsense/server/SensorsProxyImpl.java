@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.server.utility.DeviceConverter;
 import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;
+import nl.sense_os.commonsense.shared.GroupModel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.ServiceModel;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -216,7 +217,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return new ArrayList<DeviceModel>(devices.values());
     }
 
-    private TreeModel getGroupSensors(String sessionId, TreeModel group)
+    private TreeModel getGroupSensors(String sessionId, GroupModel group)
             throws DbConnectionException, WrongResponseException {
 
         // get all sensors that the group can see
@@ -225,9 +226,9 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<SensorModel> allSensors = getAllSensors(sessionId, params);
 
         // the sensors will be sorted for the group members
-        Map<String, TreeModel> members = new HashMap<String, TreeModel>();
+        Map<String, UserModel> members = new HashMap<String, UserModel>();
         for (ModelData groupMember : group.getChildren()) {
-            members.put(groupMember.<String> get("id"), (TreeModel) groupMember);
+            members.put(groupMember.<String> get("id"), (UserModel) groupMember);
         }
 
         // delete anything that is in the group
@@ -245,7 +246,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             for (ModelData sensorUser : sensorUsers) {
                 String userId = sensorUser.<String> get("id");
 
-                TreeModel user = members.get(userId);
+                UserModel user = members.get(userId);
                 if (null != user) {
                     user.add(new SensorModel(sensor.getProperties()));
                     members.put(userId, user);
@@ -345,8 +346,12 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
 
         // get the groups that we are member of
         for (TreeModel group : groups) {
-            group = getGroupSensors(sessionId, group);
-            result.add(group);
+            if (group instanceof GroupModel) {
+                group = getGroupSensors(sessionId, (GroupModel) group);
+                result.add(group);
+            } else {
+                log.severe("Group is not instance of GroupModel: " + group);
+            }
         }
 
         return result;
@@ -522,23 +527,23 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-            case 0:
-                feeds.add(sensor);
-                break;
-            case 1:
-                devices.add(sensor);
-                break;
-            case 2:
-                states.add(sensor);
-                break;
-            case 3:
-                environments.add(sensor);
-                break;
-            case 4:
-                apps.add(sensor);
-                break;
-            default:
-                log.warning("Unexpected sensor type: " + type);
+                case 0 :
+                    feeds.add(sensor);
+                    break;
+                case 1 :
+                    devices.add(sensor);
+                    break;
+                case 2 :
+                    states.add(sensor);
+                    break;
+                case 3 :
+                    environments.add(sensor);
+                    break;
+                case 4 :
+                    apps.add(sensor);
+                    break;
+                default :
+                    log.warning("Unexpected sensor type: " + type);
             }
         }
 

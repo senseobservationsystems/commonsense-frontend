@@ -98,7 +98,7 @@ public class RemoveDialog extends View {
 
         this.text = new Text();
         this.text.setStyleAttribute("font-size", "13px");
-        this.text.setStyleAttribute("margin", "2px");
+        this.text.setStyleAttribute("margin", "10px");
         this.window.add(text);
 
         initButtons();
@@ -122,11 +122,13 @@ public class RemoveDialog extends View {
 
         this.sensors = sensors;
 
-        String message = "Are you sure you want to remove the selected sensor?";
+        String message = "Are you sure you want to remove the selected sensor from your list?";
         if (sensors.size() > 1) {
             message = "Are you sure you want to remove the " + sensors.size()
-                    + " selected sensors?";
+                    + " selected sensors from your list?";
         }
+        message += "<br><br>";
+        message += "Warning: the removal can not be undone! Any data you stored for this sensor will be lost. Forever.";
 
         this.text.setText(message);
         this.window.show();
