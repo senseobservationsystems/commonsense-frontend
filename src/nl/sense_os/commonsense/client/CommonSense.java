@@ -45,7 +45,7 @@ import com.google.gwt.user.client.Timer;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Mar 7 9:10 CET 2011";
+    public static final String LAST_DEPLOYED = "Fri Mar 11 10:18 CET 2011";
 
     /**
      * @return a pretty String to show the current time

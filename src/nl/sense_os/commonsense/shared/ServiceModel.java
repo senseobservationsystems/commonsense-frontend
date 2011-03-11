@@ -10,6 +10,7 @@ public class ServiceModel extends BaseTreeModel {
     private static final long serialVersionUID = 1L;
     public static final String DATA_FIELDS = "data_fields";
     public static final String NAME = "name";
+    public static final String ID = "id";
 
     public ServiceModel() {
         super();

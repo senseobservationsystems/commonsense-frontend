@@ -338,7 +338,7 @@ public class StateGrid extends View {
     }
     protected void onAddClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
-        if (selectedService.get("service_name") == null) {
+        if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
         Dispatcher.forwardEvent(StateEvents.ShowSensorConnecter, selectedService);

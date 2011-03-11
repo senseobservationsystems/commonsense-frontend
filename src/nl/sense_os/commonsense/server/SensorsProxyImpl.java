@@ -59,7 +59,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return sensors;
     }
 
-    private List<DeviceModel> getAvailableDevices(String sessionId, TreeModel service)
+    private List<DeviceModel> getAvailableDevices(String sessionId, String serviceName)
             throws WrongResponseException, DbConnectionException {
         String url = Constants.URL_DEVICES;
         String response = Requester.request(url, sessionId, "GET", null);
@@ -79,7 +79,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             List<SensorModel> deviceSensors = requestDeviceSensors(sessionId, deviceId);
             for (SensorModel childSensor : deviceSensors) {
                 String sensorId = childSensor.<String> get("id");
-                if (isSensorAvailable(sessionId, sensorId, service)) {
+                if (isSensorAvailable(sessionId, sensorId, serviceName)) {
                     TreeModel sensor = new SensorModel(childSensor.getProperties());
                     device.add(sensor);
                 }
@@ -95,17 +95,19 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
     public List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
             throws WrongResponseException, DbConnectionException {
 
+        String serviceName = getServiceName(sessionId, service);
+        if (null == serviceName) {
+            return new ArrayList<TreeModel>();
+        }
+
         // request all sensors from server
         List<SensorModel> sensors = getAllSensors(sessionId, "owned=1");
 
         // check non-device sensors
         List<SensorModel> availableSensors = new ArrayList<SensorModel>();
         for (SensorModel sensor : sensors) {
-            int type = Integer.parseInt(sensor.<String> get("type"));
-            if (type != 1) {
-                if (isSensorAvailable(sessionId, sensor.<String> get("id"), service)) {
-                    availableSensors.add(sensor);
-                }
+            if (isSensorAvailable(sessionId, sensor.<String> get(SensorModel.ID), serviceName)) {
+                availableSensors.add(sensor);
             }
         }
 
@@ -118,18 +120,44 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<TreeModel> sorted = sortSensors(availableSensors, devices, environments, apps, feeds,
                 states);
 
-        List<DeviceModel> sortedDevices = getAvailableDevices(sessionId, service);
-        for (TreeModel category : sorted) {
-            if (category.<String> get("text").equalsIgnoreCase("devices")) {
-                category.removeAll();
-                for (DeviceModel device : sortedDevices) {
-                    category.add(device);
-                }
-                break;
+        // List<DeviceModel> sortedDevices = getAvailableDevices(sessionId, serviceName);
+        // for (TreeModel category : sorted) {
+        // if (category.<String> get("text").equalsIgnoreCase("devices")) {
+        // category.removeAll();
+        // for (DeviceModel device : sortedDevices) {
+        // category.add(device);
+        // }
+        // break;
+        // }
+        // }
+
+        return sorted;
+    }
+
+    private String getServiceName(String sessionId, TreeModel service)
+            throws WrongResponseException, DbConnectionException {
+
+        if (service.getChildCount() == 0) {
+            return null;
+        }
+
+        SensorModel sensor = (SensorModel) service.getChild(0);
+
+        String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
+                + "/services";
+        String response = Requester.request(url, sessionId, "GET", null);
+        List<ServiceModel> runningServices = parseAvailableServices(response);
+
+        // compare services that are running on the sensor to the required service
+        String requiredId = service.<String> get(ServiceModel.ID);
+        for (ServiceModel runningService : runningServices) {
+            String runningId = runningService.<String> get(ServiceModel.ID);
+            if (requiredId.equals(runningId)) {
+                return runningService.get(ServiceModel.NAME);
             }
         }
 
-        return sorted;
+        return null;
     }
 
     @Override
@@ -186,16 +214,15 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         for (SensorModel sensor : sensors) {
 
             // get the device TreeModel, or create a new one
-            String deviceKey = sensor.<String> get(SensorModel.KEY_DEVICE_ID)
-                    + sensor.<String> get(SensorModel.KEY_DEVICE_DEVTYPE);
+            String deviceKey = sensor.<String> get(SensorModel.DEVICE_ID)
+                    + sensor.<String> get(SensorModel.DEVICE_DEVTYPE);
 
             DeviceModel device = devices.get(deviceKey);
             if (device == null) {
                 device = new DeviceModel();
                 device.set(DeviceModel.KEY_ID, deviceKey);
-                device.set(DeviceModel.KEY_UUID, sensor.<String> get(SensorModel.KEY_DEVICE_ID));
-                device.set(DeviceModel.KEY_TYPE,
-                        sensor.<String> get(SensorModel.KEY_DEVICE_DEVTYPE));
+                device.set(DeviceModel.KEY_UUID, sensor.<String> get(SensorModel.DEVICE_ID));
+                device.set(DeviceModel.KEY_TYPE, sensor.<String> get(SensorModel.DEVICE_DEVTYPE));
 
                 // front end-only properties
                 device.set("tagType", TagModel.TYPE_DEVICE);
@@ -410,7 +437,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return sorted;
     }
 
-    private boolean isSensorAvailable(String sessionId, String sensorId, TreeModel service)
+    private boolean isSensorAvailable(String sessionId, String sensorId, String serviceName)
             throws WrongResponseException, DbConnectionException {
 
         // request all available services for this sensor
@@ -419,8 +446,9 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<ServiceModel> availableServices = parseAvailableServices(response);
 
         // add sensor to availableSensors list if it the requested service is available
-        for (ModelData avilableService : availableServices) {
-            if (avilableService.get(ServiceModel.NAME).equals(service.get(ServiceModel.NAME))) {
+        for (ModelData availableService : availableServices) {
+            String availableName = availableService.get(ServiceModel.NAME);
+            if (null != availableName && availableName.equals(serviceName)) {
                 return true;
             }
         }
@@ -434,10 +462,15 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         // Convert JSON response to list of tags
         try {
             List<ServiceModel> result = new ArrayList<ServiceModel>();
-            JSONArray services = (JSONArray) new JSONObject(response).get("available_services");
+            JSONObject objecy = new JSONObject(response);
+            JSONArray services = objecy.optJSONArray("available_services");
+            if (null == services) {
+                services = objecy.optJSONArray("services");
+            }
             for (int i = 0; i < services.length(); i++) {
                 JSONObject sensor = services.getJSONObject(i);
 
+                String serviceId = sensor.optString(ServiceModel.ID);
                 String serviceName = sensor.getString(ServiceModel.NAME);
                 JSONArray dataFieldsArray = sensor.getJSONArray(ServiceModel.DATA_FIELDS);
                 List<String> dataFields = new ArrayList<String>();
@@ -446,6 +479,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
                 }
 
                 HashMap<String, Object> properties = new HashMap<String, Object>();
+                properties.put(ServiceModel.ID, serviceId);
                 properties.put(ServiceModel.NAME, serviceName);
                 properties.put(ServiceModel.DATA_FIELDS, dataFields);
 

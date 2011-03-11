@@ -19,25 +19,25 @@ public class SensorConverter {
     public static SensorModel parseSensor(JSONObject json) throws JSONException {
 
         HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put(SensorModel.KEY_ID, json.getString(SensorModel.KEY_ID));
-        properties.put(SensorModel.KEY_DATA_TYPE_ID, json.optString(SensorModel.KEY_DATA_TYPE_ID));
-        properties.put(SensorModel.KEY_PAGER_TYPE, json.getString(SensorModel.KEY_PAGER_TYPE));
-        properties.put(SensorModel.KEY_DEVICE_TYPE, json.getString(SensorModel.KEY_DEVICE_TYPE));
-        properties.put(SensorModel.KEY_NAME, json.getString(SensorModel.KEY_NAME));
-        properties.put(SensorModel.KEY_TYPE, json.getString(SensorModel.KEY_TYPE));
-        properties.put(SensorModel.KEY_DATA_TYPE, json.optString(SensorModel.KEY_DATA_TYPE));
-        properties.put(SensorModel.KEY_DATA_TYPE_ID, json.optString(SensorModel.KEY_DATA_TYPE_ID));
-        properties.put(SensorModel.KEY_DATA_STRUCTURE,
-                json.optString(SensorModel.KEY_DATA_STRUCTURE));
-        properties.put(SensorModel.KEY_OWNER_ID, json.optString(SensorModel.KEY_OWNER_ID));
-        properties.put(SensorModel.KEY_DEVICE_DEVTYPE,
-                json.optString(SensorModel.KEY_DEVICE_DEVTYPE));
-        properties.put(SensorModel.KEY_DEVICE_ID, json.optString(SensorModel.KEY_DEVICE_ID));
+        properties.put(SensorModel.ID, json.getString(SensorModel.ID));
+        properties.put(SensorModel.DATA_TYPE_ID, json.optString(SensorModel.DATA_TYPE_ID));
+        properties.put(SensorModel.PAGER_TYPE, json.getString(SensorModel.PAGER_TYPE));
+        properties.put(SensorModel.DEVICE_TYPE, json.getString(SensorModel.DEVICE_TYPE));
+        properties.put(SensorModel.NAME, json.getString(SensorModel.NAME));
+        properties.put(SensorModel.TYPE, json.getString(SensorModel.TYPE));
+        properties.put(SensorModel.DATA_TYPE, json.optString(SensorModel.DATA_TYPE));
+        properties.put(SensorModel.DATA_TYPE_ID, json.optString(SensorModel.DATA_TYPE_ID));
+        properties.put(SensorModel.DATA_STRUCTURE,
+                json.optString(SensorModel.DATA_STRUCTURE));
+        properties.put(SensorModel.OWNER_ID, json.optString(SensorModel.OWNER_ID));
+        properties.put(SensorModel.DEVICE_DEVTYPE,
+                json.optString(SensorModel.DEVICE_DEVTYPE));
+        properties.put(SensorModel.DEVICE_ID, json.optString(SensorModel.DEVICE_ID));
 
         // front end-only properties
         properties.put("tagType", TagModel.TYPE_SENSOR);
-        String name = (String) properties.get(SensorModel.KEY_NAME);
-        String deviceType = (String) properties.get(SensorModel.KEY_DEVICE_TYPE);
+        String name = (String) properties.get(SensorModel.NAME);
+        String deviceType = (String) properties.get(SensorModel.DEVICE_TYPE);
         if (name.equals(deviceType) || "".equals(deviceType)) {
             properties.put("text", name);
         } else {

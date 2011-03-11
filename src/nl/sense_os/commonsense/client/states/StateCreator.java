@@ -197,7 +197,7 @@ public class StateCreator extends View {
                         dataFieldsStore.removeAll();
 
                         if (null != selected && sensor instanceof SensorModel) {
-                            String sensorName = sensor.<String> get(SensorModel.KEY_NAME);
+                            String sensorName = sensor.<String> get(SensorModel.NAME);
                             sensorName = sensorName.replace(' ', '_');
 
                             Log.d(TAG, "Selected \'" + selected.get(ServiceModel.NAME) + "\', \'"
@@ -206,7 +206,8 @@ public class StateCreator extends View {
                             List<String> dataFields = selected
                                     .<List<String>> get(ServiceModel.DATA_FIELDS);
                             for (String fieldName : dataFields) {
-                                if (fieldName.contains(sensorName)) {
+                                if (fieldName.contains(sensorName)
+                                        && fieldName.length() > sensorName.length()) {
                                     int beginIndex = sensorName.length() + 1;
                                     fieldName = fieldName.substring(beginIndex, fieldName.length());
                                 }

@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -13,9 +14,8 @@ import nl.sense_os.commonsense.shared.TagModel;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -178,9 +178,11 @@ public class StateSensorConnecter extends View {
     protected void initialize() {
         super.initialize();
 
-        this.window = new Window();
+        this.window = new CenteredWindow();
         this.window.setSize(404, 250);
         this.window.setResizable(false);
+        this.window.setPlain(true);
+        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
         this.window.setHeading("Connect sensor(s) to state");
 
@@ -190,11 +192,10 @@ public class StateSensorConnecter extends View {
     private void initTree() {
 
         // trees store
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        DataProxy proxy = new DataProxy() {
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
             @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 if (null == loadConfig) {
                     AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
                     event.setData("service", service);
@@ -202,7 +203,11 @@ public class StateSensorConnecter extends View {
                     Dispatcher.forwardEvent(event);
                 } else if (loadConfig instanceof TreeModel) {
                     List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    callback.onSuccess(childrenModels);
+                    List<TreeModel> children = new ArrayList<TreeModel>();
+                    for (ModelData model : childrenModels) {
+                        children.add((TreeModel) model);
+                    }
+                    callback.onSuccess(children);
                 } else {
                     callback.onSuccess(new ArrayList<TreeModel>());
                 }
@@ -230,11 +235,20 @@ public class StateSensorConnecter extends View {
         this.store.removeAll();
         refreshLoader();
 
+        requestServiceName();
+
         this.submitButton.disable();
         setBusy(false);
         this.window.show();
+        this.window.center();
     }
 
+    private void requestServiceName() {
+        AppEvent request = new AppEvent(StateEvents.ServiceNameRequest);
+        request.setData("service", service);
+        fireEvent(request);
+
+    }
     private void setBusy(boolean busy) {
         if (busy) {
             this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));

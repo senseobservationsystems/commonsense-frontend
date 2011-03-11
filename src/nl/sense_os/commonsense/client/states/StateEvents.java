@@ -51,16 +51,22 @@ public class StateEvents {
     public static final EventType FeedbackFailed = new EventType();
 
     // Ajax-related event types
-    public static final EventType AjaxMethodSuccess = new EventType();
-    public static final EventType AjaxMethodFailure = new EventType();
-    public static final EventType AjaxConnectSuccess = new EventType();
-    public static final EventType AjaxConnectFailure = new EventType();
-    public static final EventType AjaxDisconnectSuccess = new EventType();
-    public static final EventType AjaxDisconnectFailure = new EventType();
-    public static final EventType AjaxCreateSuccess = new EventType();
-    public static final EventType AjaxCreateFailure = new EventType();
-    public static final EventType AjaxGetMethodsSuccess = new EventType();
-    public static final EventType AjaxGetMethodsFailure = new EventType();
-    public static final EventType AjaxFeedbackSuccess = new EventType();
-    public static final EventType AjaxFeedbackFailure = new EventType();
+    protected static final EventType AjaxMethodSuccess = new EventType();
+    protected static final EventType AjaxMethodFailure = new EventType();
+    protected static final EventType AjaxConnectSuccess = new EventType();
+    protected static final EventType AjaxConnectFailure = new EventType();
+    protected static final EventType AjaxDisconnectSuccess = new EventType();
+    protected static final EventType AjaxDisconnectFailure = new EventType();
+    protected static final EventType AjaxCreateSuccess = new EventType();
+    protected static final EventType AjaxCreateFailure = new EventType();
+    protected static final EventType AjaxGetMethodsSuccess = new EventType();
+    protected static final EventType AjaxGetMethodsFailure = new EventType();
+    protected static final EventType AjaxFeedbackSuccess = new EventType();
+    protected static final EventType AjaxFeedbackFailure = new EventType();
+
+    protected static final EventType ServiceNameRequest = new EventType();
+    protected static final EventType ServiceNameSuccess = new EventType();
+    protected static final EventType ServiceNameFailure = new EventType();
+    protected static final EventType AjaxServiceNameSuccess = new EventType();
+    protected static final EventType AjaxServiceNameFailure = new EventType();
 }
