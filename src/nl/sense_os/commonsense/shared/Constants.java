@@ -14,7 +14,7 @@ public class Constants {
     /**
      * Registry key for the groups proxy, stored as @link {@link GroupsProxyAsync}.
      */
-    public static final String REG_GROUPS_SVC = "GroupsService";
+    public static final String REG_GROUPS_PROXY = "GroupsService";
 
     /**
      * Registry key for the session ID, stored as String
@@ -24,7 +24,7 @@ public class Constants {
     /**
      * Registry key for the sensors proxy, stored as @link {@link SensorsProxyAsync}.
      */
-    public static final String REG_TAGS_SVC = "TagsService";
+    public static final String REG_SENSORS_PROXY = "TagsService";
 
     /**
      * Registry key for the current User

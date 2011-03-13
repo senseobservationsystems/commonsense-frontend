@@ -48,10 +48,7 @@ public class AjaxController extends Controller {
         AppEvent onSuccess = event.<AppEvent> getData("onSuccess");
         AppEvent onFailure = event.<AppEvent> getData("onFailure");
 
-        // @@ TODO: are extra http params needed?
-        HashMap<String, Object> params = new HashMap<String, Object>();
-
-        Ajax.request(method, url, sessionId, body, params, onSuccess, onFailure, this);
+        Ajax.request(method, url, sessionId, body, onSuccess, onFailure, this);
     }
 
     /**
@@ -78,7 +75,7 @@ public class AjaxController extends Controller {
      * Dispatches an event to signal the request has failed. Adds the request's HTTP status code to
      * the "code" property of the onFailure AppEvent. NB: this is not a reliable indicator that
      * there was an authentication error! This method will only be called in Google Chrome, other
-     * browsers will return to {@link #onFailure(int, AppEvent)} of the request was forbidden.
+     * browsers will return to {@link #onFailure(int, AppEvent)} when the request was forbidden.
      * 
      * @param statusCode
      *            HTTP code of the response (should be 403)
@@ -104,5 +101,11 @@ public class AjaxController extends Controller {
         // Log.d(TAG, "onSuccess");
         onSuccess.setData("response", response);
         Dispatcher.forwardEvent(onSuccess);
+    }
+
+    public void onTimeOut(String method, String url, String sessionId, String body,
+            AppEvent onFailure) {
+        Log.w(TAG, "onTimeOut");
+        onFailure(method, url, sessionId, body, -1, onFailure);
     }
 }

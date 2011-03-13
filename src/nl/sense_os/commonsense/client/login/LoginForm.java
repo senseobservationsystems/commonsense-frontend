@@ -33,9 +33,9 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Cookies;
 
-public class LoginView extends View {
+public class LoginForm extends View {
 
-    private static final String TAG = "LoginView";
+    private static final String TAG = "LoginForm";
     private CenteredWindow window;
     private FormPanel form;
     private TextField<String> password;
@@ -44,12 +44,12 @@ public class LoginView extends View {
     private Button submit;
     private TextField<String> username;
 
-    public LoginView(Controller controller) {
+    public LoginForm(Controller controller) {
         super(controller);
     }
 
     private void cancelLogin() {
-        Dispatcher.forwardEvent(LoginEvents.CancelLogin);
+        fireEvent(LoginEvents.CancelLogin);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class LoginView extends View {
 
         } else if (type.equals(LoginEvents.Show)) {
             // Log.d(TAG, "Show");
-            onShow(event);
+            showWindow();
 
         } else if (type.equals(LoginEvents.Hide)) {
             // Log.d(TAG, "Hide");
@@ -164,8 +164,6 @@ public class LoginView extends View {
         initButtons();
 
         this.window.add(form);
-
-        resetFormValues();
     }
 
     @Override
@@ -232,12 +230,6 @@ public class LoginView extends View {
         resetFormValues();
     }
 
-    private void onShow(AppEvent event) {
-        resetFormValues();
-        this.window.show();
-        this.window.center();
-    }
-
     private void requestLogin() {
         setBusy(true);
         AppEvent event = new AppEvent(LoginEvents.RequestLogin);
@@ -247,6 +239,9 @@ public class LoginView extends View {
     }
 
     private void resetFormValues() {
+
+        this.username.clear();
+
         // auto-fill username field from cookie
         final String cookieName = Cookies.getCookie("username");
         if (null != cookieName) {
@@ -303,5 +298,11 @@ public class LoginView extends View {
             }
 
         });
+    }
+
+    private void showWindow() {
+        resetFormValues();
+        this.window.show();
+        this.window.center();
     }
 }

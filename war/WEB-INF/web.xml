@@ -46,6 +46,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>PhoneNumberParserServlet</servlet-name>
+    <servlet-class>nl.sense_os.commonsense.server.PhoneNumberParserImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>SensorsServlet</servlet-name>
     <servlet-class>nl.sense_os.commonsense.server.SensorsProxyImpl</servlet-class>
   </servlet>
@@ -83,6 +88,11 @@
   <servlet-mapping>
     <servlet-name>IVOTagServlet</servlet-name>
     <url-pattern>/ivo/tags</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>PhoneNumberParserServlet</servlet-name>
+    <url-pattern>/commonsense/phonenumbers</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

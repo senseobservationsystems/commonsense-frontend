@@ -32,9 +32,9 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
-public class MySensorsShareDialog extends View {
+public class ShareDialog extends View {
 
-    private static final String TAG = "MySensorsShareDialog";
+    private static final String TAG = "ShareDialog";
     private Window window;
     private FormPanel form;
     private TextField<String> user;
@@ -42,7 +42,9 @@ public class MySensorsShareDialog extends View {
     private Button cancelButton;
     private List<SensorModel> sensors;
 
-    public MySensorsShareDialog(Controller c) {
+    private ListStore<TreeModel> store;
+
+    public ShareDialog(Controller c) {
         super(c);
     }
 
@@ -52,15 +54,19 @@ public class MySensorsShareDialog extends View {
         if (type.equals(MySensorsEvents.ShowShareDialog)) {
             // Log.d(TAG, "Show");
             onShow(event);
+
         } else if (type.equals(MySensorsEvents.ShareCancelled)) {
             // Log.d(TAG, "Cancelled");
             hideWindow();
+
         } else if (type.equals(MySensorsEvents.ShareComplete)) {
             // Log.d(TAG, "Complete");
             onComplete(event);
+
         } else if (type.equals(MySensorsEvents.ShareFailed)) {
             Log.w(TAG, "Failed");
             onFailed(event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -91,7 +97,7 @@ public class MySensorsShareDialog extends View {
             }
         };
 
-        this.createButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.createButton = new Button("Share", IconHelper.create(Constants.ICON_BUTTON_GO), l);
         this.cancelButton = new Button("Cancel", l);
 
         final FormButtonBinding binding = new FormButtonBinding(this.form);
@@ -101,8 +107,6 @@ public class MySensorsShareDialog extends View {
         this.form.addButton(this.createButton);
         this.form.addButton(this.cancelButton);
     }
-
-    private ListStore<TreeModel> store;
 
     private void initFields() {
 

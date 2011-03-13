@@ -70,7 +70,9 @@ public class LoginController extends Controller {
 
         if (eventType.equals(LoginEvents.RequestLogin)) {
             // Log.d(TAG, "RequestLogin");
-            login(event);
+            final String username = event.<String> getData("username");
+            final String password = event.<String> getData("password");
+            login(username, password);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             // Log.d(TAG, "RequestLogout");
@@ -88,7 +90,11 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
             Log.w(TAG, "AjaxLoginFailure");
             final int code = event.getData("code");
-            onLoginError(code);
+            if (code == 403) {
+                onAuthenticationFailure();
+            } else {
+                onLoginError(code);
+            }
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
             // Log.d(TAG, "AjaxLogoutSuccess");
@@ -118,10 +124,10 @@ public class LoginController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.loginView = new LoginView(this);
+        this.loginView = new LoginForm(this);
     }
 
-    private void login(AppEvent event) {
+    private void login(String username, String password) {
 
         // update controller status
         this.isLoggingIn = true;
@@ -129,10 +135,8 @@ public class LoginController extends Controller {
 
         // prepare request properties
         String url = Constants.URL_LOGIN + ".json";
-        String name = event.<String> getData("username");
-        String pass = event.<String> getData("password");
-        String hashPass = Md5Hasher.hash(pass);
-        String body = "{\"username\":\"" + name + "\",\"password\":\"" + hashPass + "\"}";
+        String hashPass = Md5Hasher.hash(password);
+        String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
 
         // send request to AjaxController
         AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
@@ -160,7 +164,7 @@ public class LoginController extends Controller {
         Dispatcher.forwardEvent(requestEvent);
     }
 
-    public void onAuthenticationFailure() {
+    private void onAuthenticationFailure() {
         this.isLoggingIn = false;
         if (false == this.isCancelled) {
             forwardToView(this.loginView, new AppEvent(LoginEvents.AuthenticationFailure));
@@ -176,7 +180,7 @@ public class LoginController extends Controller {
         }
     }
 
-    public void onCurrentUser(UserModel user) {
+    private void onCurrentUser(UserModel user) {
         this.isLoggingIn = false;
         if (false == this.isCancelled) {
             Registry.register(Constants.REG_USER, user);
@@ -186,7 +190,7 @@ public class LoginController extends Controller {
         }
     }
 
-    public void onLoggedIn(String sessionId) {
+    private void onLoggedIn(String sessionId) {
         if (false == this.isCancelled) {
             Registry.register(Constants.REG_SESSION_ID, sessionId);
             getCurrentUser();
@@ -196,7 +200,7 @@ public class LoginController extends Controller {
         }
     }
 
-    public void onLoggedOut(String response) {
+    private void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
         Registry.unregister(Constants.REG_MY_SENSORS);
@@ -207,7 +211,8 @@ public class LoginController extends Controller {
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 
-    public void onLoginError(int code) {
+    private void onLoginError(int code) {
+
         this.isLoggingIn = false;
         if (false == this.isCancelled) {
             AppEvent errorEvent = new AppEvent(LoginEvents.LoginError);
@@ -218,7 +223,7 @@ public class LoginController extends Controller {
         }
     }
 
-    public void onLogoutError(int code) {
+    private void onLogoutError(int code) {
         // TODO handle logout error events
         onLoggedOut("Status code: " + code);
     }

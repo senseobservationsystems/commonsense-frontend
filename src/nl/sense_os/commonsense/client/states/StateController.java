@@ -63,8 +63,8 @@ public class StateController extends Controller {
         registerEventTypes(StateEvents.LoadSensors);
         registerEventTypes(StateEvents.AvailableServicesRequested,
                 StateEvents.AjaxAvailableServiceSuccess, StateEvents.AjaxAvailableServiceFailure);
-        registerEventTypes(StateEvents.ShowSensorConnecter, StateEvents.ConnectComplete,
-                StateEvents.ConnectFailed, StateEvents.ConnectRequested,
+        registerEventTypes(StateEvents.ShowSensorConnecter, StateEvents.ConnectSuccess,
+                StateEvents.ConnectFailure, StateEvents.ConnectRequested,
                 StateEvents.AvailableSensorsRequested, StateEvents.AvailableSensorsNotUpdated,
                 StateEvents.AvailableSensorsUpdated);
         registerEventTypes(StateEvents.ShowEditor, StateEvents.MethodsRequested,
@@ -83,7 +83,7 @@ public class StateController extends Controller {
                 StateEvents.AjaxServiceNameFailure);
     }
 
-    private void connectService(TreeModel sensor, TreeModel service) {
+    private void connectService(TreeModel sensor, TreeModel service, String serviceName) {
 
         // prepare request properties
         final String method = "POST";
@@ -96,7 +96,7 @@ public class StateController extends Controller {
         // prepare request body
         String body = "{\"service\":{";
         body += "\"id\":\"" + service.<String> get(SensorModel.ID) + "\"";
-        body += ",\"name\":\"" + service.<String> get("service_name") + "\"";
+        body += ",\"name\":\"" + serviceName + "\"";
         body += "}}";
 
         // send request to AjaxController
@@ -110,13 +110,13 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void connectServiceCallback(String response) {
-        forwardToView(this.connecter, new AppEvent(StateEvents.ConnectComplete));
-        forwardToView(this.grid, new AppEvent(StateEvents.ConnectComplete));
+    private void connectServiceCallback(String response) {
+        forwardToView(this.connecter, new AppEvent(StateEvents.ConnectSuccess));
+        forwardToView(this.grid, new AppEvent(StateEvents.ConnectSuccess));
     }
 
-    public void connectServiceErrorCallback(int code) {
-        forwardToView(this.connecter, new AppEvent(StateEvents.ConnectFailed));
+    private void connectServiceErrorCallback(int code) {
+        forwardToView(this.connecter, new AppEvent(StateEvents.ConnectFailure));
     }
 
     private void createService(String name, TreeModel service, ModelData sensor,
@@ -156,12 +156,12 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void createServiceCallback(String response) {
+    private void createServiceCallback(String response) {
         forwardToView(this.creator, new AppEvent(StateEvents.CreateServiceComplete));
         forwardToView(this.grid, new AppEvent(StateEvents.CreateServiceComplete));
     }
 
-    public void createServiceErrorCallback(int code) {
+    private void createServiceErrorCallback(int code) {
         forwardToView(this.creator, new AppEvent(StateEvents.CreateServiceFailed));
     }
 
@@ -185,20 +185,18 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void disconnectServiceCallback(String response) {
+    private void disconnectServiceCallback(String response) {
         forwardToView(this.grid, new AppEvent(StateEvents.RemoveComplete));
     }
 
-    public void disconnectServiceErrorCallback(int code) {
+    private void disconnectServiceErrorCallback(int code) {
         forwardToView(this.grid, new AppEvent(StateEvents.RemoveFailed));
     }
 
-    private void getAvailableSensors(AppEvent event) {
-        TreeModel serviceModel = event.<TreeModel> getData("service");
-        final AsyncCallback<List<TreeModel>> proxyCallback = event
-                .<AsyncCallback<List<TreeModel>>> getData("callback");
+    private void getAvailableSensors(String serviceName,
+            final AsyncCallback<List<TreeModel>> proxyCallback) {
 
-        SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+        SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
@@ -213,7 +211,7 @@ public class StateController extends Controller {
                 proxyCallback.onSuccess(result);
             }
         };
-        service.getAvailableSensors(sessionId, serviceModel, callback);
+        service.getAvailableSensors(sessionId, serviceName, callback);
     }
 
     private void getAvailableServices(SensorModel sensor) {
@@ -302,7 +300,8 @@ public class StateController extends Controller {
             this.isGettingMyServices = true;
             Dispatcher.forwardEvent(StateEvents.Working);
 
-            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry
+                    .<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
@@ -325,7 +324,7 @@ public class StateController extends Controller {
                     }
                 }
             };
-            service.getMyServices(sessionId, callback);
+            service.getStateSensors(sessionId, callback);
         } else {
             Log.d(TAG, "Ignored request to get my services: already working on an earlier request");
         }
@@ -356,12 +355,90 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void getServiceMethodsCallback(List<ModelData> methods) {
+    private void getServiceMethodsCallback(List<ModelData> methods) {
         forwardToView(this.editor, new AppEvent(StateEvents.MethodsUpdated, methods));
     }
 
-    public void getServiceMethodsErrorCallback(int code) {
+    private void getServiceMethodsErrorCallback(int code) {
         forwardToView(this.editor, new AppEvent(StateEvents.MethodsNotUpdated));
+    }
+
+    private void getServiceName(TreeModel service) {
+
+        if (service.getChildCount() == 0) {
+            // if a service has no child sensors, we cannot get the name
+            getServiceNameError();
+            return;
+        }
+        SensorModel sensor = (SensorModel) service.getChild(0);
+
+        final String method = "GET";
+        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
+                + "/services";
+        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxServiceNameSuccess);
+        onSuccess.setData("service", service);
+        final AppEvent onFailure = new AppEvent(StateEvents.AjaxServiceNameFailure);
+
+        // send request to AjaxController
+        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+        ajaxRequest.setData("method", method);
+        ajaxRequest.setData("url", url);
+        ajaxRequest.setData("session_id", sessionId);
+        ajaxRequest.setData("onSuccess", onSuccess);
+        ajaxRequest.setData("onFailure", onFailure);
+        Dispatcher.forwardEvent(ajaxRequest);
+
+    }
+
+    private void getServiceNameCallback(TreeModel service, String response) {
+        if (response != null) {
+            // try to get "methods" array
+            JSONObject json = JSONParser.parseStrict(response).isObject();
+            JSONValue jsonVal = json.get("services");
+            if (null != jsonVal) {
+                JSONArray services = jsonVal.isArray();
+                if (null != services) {
+
+                    List<ServiceModel> result = new ArrayList<ServiceModel>();
+                    for (int i = 0; i < services.size(); i++) {
+                        JSONObject serviceJson = services.get(i).isObject();
+                        if (serviceJson != null) {
+                            String id = serviceJson.get(ServiceModel.ID).isString().stringValue();
+                            if (id.equals(service.<String> get(SensorModel.ID))) {
+                                String name = serviceJson.get(ServiceModel.NAME).isString()
+                                        .stringValue();
+
+                                // forward event to Connecter
+                                AppEvent event = new AppEvent(StateEvents.ServiceNameSuccess);
+                                event.setData("name", name);
+                                forwardToView(connecter, event);
+                            }
+                        }
+                    }
+
+                    AppEvent success = new AppEvent(StateEvents.AvailableServicesUpdated);
+                    success.setData("services", result);
+                    forwardToView(this.creator, success);
+
+                } else {
+                    Log.e(TAG,
+                            "Error parsing running services response: \"services\" is not a JSON Array");
+                    getServiceNameError();
+                }
+            } else {
+                Log.e(TAG, "Error parsing running services response: \"services\" is is not found");
+                getServiceNameError();
+            }
+        } else {
+            Log.e(TAG, "Error parsing running services response: response=null");
+            getServiceNameError();
+        }
+
+    }
+
+    private void getServiceNameError() {
+        forwardToView(this.connecter, new AppEvent(StateEvents.ServiceNameFailure));
     }
 
     @Override
@@ -378,10 +455,10 @@ public class StateController extends Controller {
             // Log.d(TAG, "LoadSensors");
             loadSensors();
 
-        } else if (isLoadingSensors
+        } else if (this.isLoadingSensors
                 && (type.equals(MySensorsEvents.ListUpdated) || type
                         .equals(GroupSensorsEvents.ListUpdated))) {
-            // Log.d(TAG, "LoadSensors");
+            // Log.d(TAG, "Sensor lists updated: LoadSensors");
             loadSensors();
 
         } else if (type.equals(StateEvents.AvailableServicesRequested)) {
@@ -390,14 +467,14 @@ public class StateController extends Controller {
             getAvailableServices(sensor);
 
         } else if (type.equals(StateEvents.ServiceNameRequest)) {
-            Log.d(TAG, "ServiceNameRequest");
-            final TreeModel service = event.getData("service");
+            // Log.d(TAG, "ServiceNameRequest");
+            final TreeModel service = event.<TreeModel> getData("service");
             getServiceName(service);
 
         } else if (type.equals(StateEvents.AjaxServiceNameSuccess)) {
             // Log.d(TAG, "AjaxServiceNameSuccess");
-            final TreeModel service = event.getData("service");
-            final String response = event.getData("response");
+            final TreeModel service = event.<TreeModel> getData("service");
+            final String response = event.<String> getData("response");
             getServiceNameCallback(service, response);
 
         } else if (type.equals(StateEvents.AjaxServiceNameFailure)) {
@@ -415,7 +492,10 @@ public class StateController extends Controller {
 
         } else if (type.equals(StateEvents.AvailableSensorsRequested)) {
             // Log.d(TAG, "AvailableSensorsRequested");
-            getAvailableSensors(event);
+            final String serviceName = event.<String> getData("name");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getAvailableSensors(serviceName, callback);
 
         } else if (type.equals(StateEvents.CreateServiceRequested)) {
             // Log.d(TAG, "CreateRequested");
@@ -435,7 +515,8 @@ public class StateController extends Controller {
             // Log.d(TAG, "ConnectRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final TreeModel service = event.<TreeModel> getData("service");
-            connectService(sensor, service);
+            final String serviceName = event.<String> getData("serviceName");
+            connectService(sensor, service, serviceName);
 
         } else if (type.equals(StateEvents.MethodsRequested)) {
             // Log.d(TAG, "MethodsRequested");
@@ -503,9 +584,8 @@ public class StateController extends Controller {
             forwardToView(this.creator, event);
         }
 
-        if (type.equals(StateEvents.ShowSensorConnecter)
-                || type.equals(StateEvents.ConnectComplete)
-                || type.equals(StateEvents.ConnectFailed)
+        if (type.equals(StateEvents.ShowSensorConnecter) || type.equals(StateEvents.ConnectSuccess)
+                || type.equals(StateEvents.ConnectFailure)
                 || type.equals(StateEvents.AvailableSensorsUpdated)
                 || type.equals(StateEvents.AvailableSensorsNotUpdated)) {
             forwardToView(this.connecter, event);
@@ -521,48 +601,11 @@ public class StateController extends Controller {
         if (type.equals(StateEvents.ShowGrid) || type.equals(StateEvents.Done)
                 || type.equals(MainEvents.Init) || type.equals(StateEvents.RemoveComplete)
                 || type.equals(StateEvents.RemoveFailed) || type.equals(StateEvents.Working)
-                || type.equals(VizEvents.Show) || type.equals(StateEvents.ConnectComplete)
+                || type.equals(VizEvents.Show) || type.equals(StateEvents.ConnectSuccess)
                 || type.equals(StateEvents.CreateServiceComplete)
                 || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.grid, event);
         }
-    }
-
-    private void getServiceNameError() {
-        forwardToView(connecter, new AppEvent(StateEvents.ServiceNameFailure));
-    }
-
-    private void getServiceNameCallback(TreeModel service, String response) {
-        // TODO Auto-generated method stub
-
-    }
-
-    private void getServiceName(TreeModel service) {
-
-        if (service.getChildCount() == 0) {
-            // if a service has no child sensors, we cannot get the name
-            forwardToView(connecter, new AppEvent(StateEvents.ServiceNameFailure));
-            return;
-        }
-        SensorModel sensor = (SensorModel) service.getChild(0);
-
-        final String method = "GET";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
-                + "/services";
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxServiceNameSuccess);
-        onSuccess.setData(service);
-        final AppEvent onFailure = new AppEvent(StateEvents.AjaxServiceNameFailure);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
-
     }
 
     @Override
@@ -570,7 +613,7 @@ public class StateController extends Controller {
         super.initialize();
         this.grid = new StateGrid(this);
         this.creator = new StateCreator(this);
-        this.connecter = new StateSensorConnecter(this);
+        this.connecter = new StateConnecter(this);
         this.editor = new StateEditor(this);
     }
 
@@ -612,7 +655,7 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void invokeMethodCallback(String response) {
+    private void invokeMethodCallback(String response) {
 
         if (response != null) {
             // try to get "methods" array
@@ -639,7 +682,7 @@ public class StateController extends Controller {
         }
     }
 
-    public void invokeMethodErrorCallback(int code) {
+    private void invokeMethodErrorCallback(int code) {
         forwardToView(this.editor, new AppEvent(StateEvents.InvokeMethodFailed));
     }
 
@@ -656,7 +699,6 @@ public class StateController extends Controller {
                 mySensorsParent.add(copy);
             }
         } else {
-            Log.w(TAG, "Getting list of personal sensors for state sensor creation");
             Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
             return;
         }
@@ -671,7 +713,6 @@ public class StateController extends Controller {
                 groupSensorsParent.add(copy);
             }
         } else {
-            Log.w(TAG, "Getting list of group sensors for state sensor creation");
             Dispatcher.forwardEvent(GroupSensorsEvents.ListRequest);
             return;
         }

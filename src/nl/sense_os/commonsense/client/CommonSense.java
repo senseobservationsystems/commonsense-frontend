@@ -8,6 +8,7 @@ import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.register.RegisterController;
 import nl.sense_os.commonsense.client.sensors.SensorsController;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
@@ -45,46 +46,22 @@ import com.google.gwt.user.client.Timer;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Fri Mar 11 10:18 CET 2011";
+    public static final String LAST_DEPLOYED = "Sat Mar 12 16:16 CET 2011";
 
     /**
-     * @return a pretty String to show the current time
+     * Dispatches initialization event to the Controllers, and shows the UI after initialization.
      */
-    private String now() {
-        return DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
-    }
+    private void initControllers() {
 
-    @Override
-    public void onModuleLoad() {
-
-        Log.d(TAG, "===== Module Load (" + now() + ") =====");
-
-        // load services and put them in Registry
-        final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
-        Registry.register(Constants.REG_BUILDING_SVC, buildingService);
-        final GroupsProxyAsync groupsService = GWT.create(GroupsProxy.class);
-        Registry.register(Constants.REG_GROUPS_SVC, groupsService);
-        final SensorsProxyAsync tagsService = GWT.create(SensorsProxy.class);
-        Registry.register(Constants.REG_TAGS_SVC, tagsService);
-
-        // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
-        dispatcher.addController(new MainController());
-        dispatcher.addController(new LoginController());
-        dispatcher.addController(new VizController());
-        dispatcher.addController(new MySensorsController());
-        dispatcher.addController(new GroupController());
-        dispatcher.addController(new StateController());
-        dispatcher.addController(new BuildingController());
-        dispatcher.addController(new GroupSensorsController());
-        dispatcher.addController(new FeedbackController());
-        dispatcher.addController(new MapController());
-        dispatcher.addController(new SensorsController());
-        dispatcher.addController(new AjaxController());
 
-        initControllers();
+        // start initializing all views
+        dispatcher.dispatch(MainEvents.Init);
 
-        loadMapsApi();
+        // notify the main controller that all views are ready
+        dispatcher.dispatch(MainEvents.UiReady);
+
+        GXT.hideLoadingPanel("loading");
     }
 
     /**
@@ -132,16 +109,44 @@ public class CommonSense implements EntryPoint {
         }.schedule(1000 * 10);
     }
 
-    protected void initControllers() {
+    /**
+     * @return a pretty String to show the current time
+     */
+    private String now() {
+        return DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
+    }
 
+    @Override
+    public void onModuleLoad() {
+
+        Log.d(TAG, "===== Module Load (" + now() + ") =====");
+
+        // load services and put them in Registry
+        final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
+        Registry.register(Constants.REG_BUILDING_SVC, buildingService);
+        final GroupsProxyAsync groupsProxy = GWT.create(GroupsProxy.class);
+        Registry.register(Constants.REG_GROUPS_PROXY, groupsProxy);
+        final SensorsProxyAsync sensorsProxy = GWT.create(SensorsProxy.class);
+        Registry.register(Constants.REG_SENSORS_PROXY, sensorsProxy);
+
+        // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.addController(new MainController());
+        dispatcher.addController(new LoginController());
+        dispatcher.addController(new RegisterController());
+        dispatcher.addController(new VizController());
+        dispatcher.addController(new MySensorsController());
+        dispatcher.addController(new GroupController());
+        dispatcher.addController(new StateController());
+        dispatcher.addController(new BuildingController());
+        dispatcher.addController(new GroupSensorsController());
+        dispatcher.addController(new FeedbackController());
+        dispatcher.addController(new MapController());
+        dispatcher.addController(new SensorsController());
+        dispatcher.addController(new AjaxController());
 
-        // start initializing all views
-        dispatcher.dispatch(MainEvents.Init);
+        initControllers();
 
-        // notify the main controller that all views are ready
-        dispatcher.dispatch(MainEvents.UiReady);
-
-        GXT.hideLoadingPanel("loading");
+        loadMapsApi();
     }
 }

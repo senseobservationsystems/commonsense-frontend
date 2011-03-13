@@ -92,7 +92,7 @@ public class FeedbackController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    public void onFeedbackMarked(TreeModel service, String label, List<ModelData> feedback) {
+    private void onFeedbackMarked(TreeModel service, String label, List<ModelData> feedback) {
 
         if (feedback.size() > 1) {
             // remove 0th feedback item, repeat
@@ -103,7 +103,7 @@ public class FeedbackController extends Controller {
         }
     }
 
-    public void onFeedbackFailed(int code) {
+    private void onFeedbackFailed(int code) {
         forwardToView(this.form, new AppEvent(StateEvents.FeedbackFailed));
     }
 }

@@ -29,8 +29,8 @@ public class StateEvents {
 
     protected static final EventType ShowSensorConnecter = new EventType();
     protected static final EventType ConnectRequested = new EventType();
-    protected static final EventType ConnectComplete = new EventType();
-    protected static final EventType ConnectFailed = new EventType();
+    protected static final EventType ConnectSuccess = new EventType();
+    protected static final EventType ConnectFailure = new EventType();
     protected static final EventType AvailableSensorsRequested = new EventType();
     protected static final EventType AvailableSensorsUpdated = new EventType();
     protected static final EventType AvailableSensorsNotUpdated = new EventType();

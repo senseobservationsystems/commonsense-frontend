@@ -81,7 +81,7 @@ public class StateEditor extends View {
         }
     }
 
-    protected void hideWindow() {
+    private void hideWindow() {
         this.window.hide();
     }
 
@@ -242,7 +242,7 @@ public class StateEditor extends View {
     }
 
     @SuppressWarnings("unchecked")
-    protected void onSubmit() {
+    private void onSubmit() {
         setBusy(true);
 
         ModelData method = methodField.getValue();
@@ -259,7 +259,7 @@ public class StateEditor extends View {
         Dispatcher.forwardEvent(event);
     }
 
-    protected void updateParametersField(ModelData method) {
+    private void updateParametersField(ModelData method) {
         List<String> params = method.<List<String>> get("parameters");
 
         paramFields.removeAll();
@@ -282,7 +282,7 @@ public class StateEditor extends View {
         paramFields.layout();
     }
 
-    protected void updateReturnField(ModelData method) {
+    private void updateReturnField(ModelData method) {
         String returns = method.<String> get("return");
 
         if (returns.length() > 0) {

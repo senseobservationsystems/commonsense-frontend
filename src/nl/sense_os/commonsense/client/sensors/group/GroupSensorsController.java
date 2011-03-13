@@ -82,7 +82,7 @@ public class GroupSensorsController extends Controller {
             }
 
             forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Working));
-            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
             String sessionId = Registry.get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

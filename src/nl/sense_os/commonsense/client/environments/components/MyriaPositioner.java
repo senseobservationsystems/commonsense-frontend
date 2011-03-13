@@ -53,7 +53,7 @@ public class MyriaPositioner extends ContentPanel {
     private TreePanel<TreeModel> tagTree;
 
     public MyriaPositioner() {
-        sensorDataService = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+        sensorDataService = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
 
         // building selection panel for west part of widget
         Component tagPanel = createTagPanel();
@@ -155,7 +155,7 @@ public class MyriaPositioner extends ContentPanel {
     }
 
     private void getTags() {
-        SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+        SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
         AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 

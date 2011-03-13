@@ -13,7 +13,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("sensors")
 public interface SensorsProxy extends RemoteService {
 
-    List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
+    List<TreeModel> getAvailableSensors(String sessionId, String serviceName)
             throws WrongResponseException, DbConnectionException;
 
     List<TreeModel> getSharedSensors(String sessionId, List<TreeModel> groups)
@@ -22,7 +22,7 @@ public interface SensorsProxy extends RemoteService {
     List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException;
 
-    List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
+    List<TreeModel> getStateSensors(String sessionId) throws DbConnectionException,
             WrongResponseException;
 
     List<ServiceModel> getAvailableServices(String sessionId) throws DbConnectionException,

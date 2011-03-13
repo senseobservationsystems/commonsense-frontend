@@ -122,8 +122,8 @@ public class StateGrid extends View {
             // Log.d(TAG, "Working");
             setBusy(true);
 
-        } else if (type.equals(StateEvents.ConnectComplete)) {
-            // Log.d(TAG, "ConnectComplete");
+        } else if (type.equals(StateEvents.ConnectSuccess)) {
+            // Log.d(TAG, "ConnectSuccess");
             refreshLoader(true);
 
         } else if (type.equals(StateEvents.CreateServiceComplete)) {
@@ -164,7 +164,7 @@ public class StateGrid extends View {
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         ColumnConfig id = new ColumnConfig("id", "Id", 50);
-        ColumnConfig name = new ColumnConfig("name", "Name", 150);
+        ColumnConfig name = new ColumnConfig("text", "Name", 150);
 
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
         ColumnModel cm = new ColumnModel(Arrays.asList(name, id));
@@ -172,7 +172,7 @@ public class StateGrid extends View {
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
         this.grid.setId("stateGrid");
         this.grid.setAutoLoad(true);
-        this.grid.setAutoExpandColumn("name");
+        this.grid.setAutoExpandColumn("text");
         this.grid.setStateful(true);
         this.grid.setIconProvider(new SensorIconProvider());
 
@@ -336,6 +336,7 @@ public class StateGrid extends View {
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
+
     protected void onAddClick() {
         TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {

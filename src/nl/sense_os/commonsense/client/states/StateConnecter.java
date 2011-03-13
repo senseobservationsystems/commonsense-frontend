@@ -44,9 +44,9 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class StateSensorConnecter extends View {
+public class StateConnecter extends View {
 
-    private static final String TAG = "StateSensorConnecter";
+    private static final String TAG = "StateConnecter";
     private Window window;
     private FormPanel form;
     private Button submitButton;
@@ -55,8 +55,10 @@ public class StateSensorConnecter extends View {
     private TreePanel<TreeModel> tree;
     private BaseTreeLoader<TreeModel> loader;
     private TreeModel service;
+    private String serviceName;
+    private MessageBox waitDialog;
 
-    public StateSensorConnecter(Controller c) {
+    public StateConnecter(Controller c) {
         super(c);
     }
 
@@ -64,35 +66,31 @@ public class StateSensorConnecter extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateEvents.ShowSensorConnecter)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(StateEvents.ConnectComplete)) {
-            Log.d(TAG, "ConnectComplete");
+        } else if (type.equals(StateEvents.ConnectSuccess)) {
+            // Log.d(TAG, "ConnectSuccess");
             hideWindow();
-        } else if (type.equals(StateEvents.ConnectFailed)) {
-            Log.w(TAG, "ConnectFailed");
-            onConnectFailed();
+
+        } else if (type.equals(StateEvents.ConnectFailure)) {
+            Log.w(TAG, "ConnectFailure");
+            onConnectFailure();
+
+        } else if (type.equals(StateEvents.ServiceNameSuccess)) {
+            Log.d(TAG, "ServiceNameSuccess");
+            final String serviceName = event.getData("name");
+            onServiceNameSuccess(serviceName);
+
+        } else if (type.equals(StateEvents.ServiceNameFailure)) {
+            Log.w(TAG, "ServiceNameFailure");
+            onServiceNameFailure();
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
     }
 
-    private void onConnectFailed() {
-        setBusy(false);
-        MessageBox.confirm(null, "Connect failed, retry?", new Listener<MessageBoxEvent>() {
-
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                    submitForm();
-                } else {
-                    hideWindow();
-                }
-            }
-        });
-    }
-
-    protected void hideWindow() {
+    private void hideWindow() {
         window.hide();
     }
 
@@ -198,7 +196,7 @@ public class StateSensorConnecter extends View {
             public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 if (null == loadConfig) {
                     AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
-                    event.setData("service", service);
+                    event.setData("name", serviceName);
                     event.setData("callback", callback);
                     Dispatcher.forwardEvent(event);
                 } else if (loadConfig instanceof TreeModel) {
@@ -226,16 +224,46 @@ public class StateSensorConnecter extends View {
         this.tree.setIconProvider(new SensorIconProvider());
     }
 
-    private void refreshLoader() {
-        this.loader.load();
+    private void onConnectFailure() {
+        setBusy(false);
+        MessageBox.confirm(null, "Connect failed, retry?", new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                    submitForm();
+                } else {
+                    hideWindow();
+                }
+            }
+        });
     }
 
-    private void onShow(AppEvent event) {
-        this.service = event.getData();
+    private void onServiceNameFailure() {
+
+        this.waitDialog.close();
+
+        MessageBox.confirm(null, "Failed to get service name, retry?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            requestServiceName();
+                        } else {
+                            hideWindow();
+                        }
+                    }
+                });
+    }
+
+    private void onServiceNameSuccess(String serviceName) {
+        this.serviceName = serviceName;
+
+        this.waitDialog.close();
+
         this.store.removeAll();
         refreshLoader();
-
-        requestServiceName();
 
         this.submitButton.disable();
         setBusy(false);
@@ -243,12 +271,24 @@ public class StateSensorConnecter extends View {
         this.window.center();
     }
 
-    private void requestServiceName() {
-        AppEvent request = new AppEvent(StateEvents.ServiceNameRequest);
-        request.setData("service", service);
-        fireEvent(request);
+    private void onShow(AppEvent event) {
+        this.service = event.getData();
 
+        requestServiceName();
     }
+
+    private void refreshLoader() {
+        this.loader.load();
+    }
+
+    private void requestServiceName() {
+        this.waitDialog = MessageBox.wait(null, "Please wait.", "Getting service details...");
+
+        AppEvent request = new AppEvent(StateEvents.ServiceNameRequest);
+        request.setData("service", this.service);
+        fireEvent(request);
+    }
+
     private void setBusy(boolean busy) {
         if (busy) {
             this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
@@ -259,10 +299,11 @@ public class StateSensorConnecter extends View {
         }
     }
 
-    protected void submitForm() {
+    private void submitForm() {
         TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
         AppEvent event = new AppEvent(StateEvents.ConnectRequested);
         event.setData("service", service);
+        event.setData("serviceName", serviceName);
         event.setData("sensor", sensor);
         Dispatcher.forwardEvent(event);
 

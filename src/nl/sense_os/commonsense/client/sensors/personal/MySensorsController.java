@@ -56,7 +56,7 @@ public class MySensorsController extends Controller {
             this.isGettingMySensors = true;
             forwardToView(treeView, new AppEvent(MySensorsEvents.Working));
 
-            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_TAGS_SVC);
+            SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
             String sessionId = Registry.get(Constants.REG_SESSION_ID);
             AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
 
@@ -139,7 +139,7 @@ public class MySensorsController extends Controller {
     protected void initialize() {
         super.initialize();
         this.treeView = new MySensorsTree(this);
-        this.shareView = new MySensorsShareDialog(this);
+        this.shareView = new ShareDialog(this);
     }
 
     /**

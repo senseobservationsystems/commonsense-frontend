@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface SensorsProxyAsync {
 
-    void getAvailableSensors(String sessionId, TreeModel service,
+    void getAvailableSensors(String sessionId, String serviceName,
             AsyncCallback<List<TreeModel>> callback);
 
     void getSharedSensors(String sessionId, List<TreeModel> groups,
@@ -17,7 +17,7 @@ public interface SensorsProxyAsync {
 
     void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
 
-    void getMyServices(String sessionId, AsyncCallback<List<TreeModel>> callback);
+    void getStateSensors(String sessionId, AsyncCallback<List<TreeModel>> callback);
 
     void getAvailableServices(String sessionId, AsyncCallback<List<ServiceModel>> callback);
 }

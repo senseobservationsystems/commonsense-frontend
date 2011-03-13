@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.services.SensorsProxy;
-import nl.sense_os.commonsense.server.utility.DeviceConverter;
 import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;
@@ -59,55 +58,22 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return sensors;
     }
 
-    private List<DeviceModel> getAvailableDevices(String sessionId, String serviceName)
-            throws WrongResponseException, DbConnectionException {
-        String url = Constants.URL_DEVICES;
-        String response = Requester.request(url, sessionId, "GET", null);
-
-        // Convert JSON response to list of tags
-        List<DeviceModel> models = DeviceConverter.parseDevices(response);
-
-        // add child sensors for each device
-        List<DeviceModel> devices = new ArrayList<DeviceModel>();
-        for (DeviceModel model : models) {
-
-            // convert "flat" device ModelData to TreeModel
-            DeviceModel device = new DeviceModel(model.getProperties());
-
-            // get the device's sensors
-            String deviceId = model.<String> get("id");
-            List<SensorModel> deviceSensors = requestDeviceSensors(sessionId, deviceId);
-            for (SensorModel childSensor : deviceSensors) {
-                String sensorId = childSensor.<String> get("id");
-                if (isSensorAvailable(sessionId, sensorId, serviceName)) {
-                    TreeModel sensor = new SensorModel(childSensor.getProperties());
-                    device.add(sensor);
-                }
-            }
-
-            // add device to the tags
-            devices.add(device);
-        }
-        return devices;
-    }
-
     @Override
-    public List<TreeModel> getAvailableSensors(String sessionId, TreeModel service)
+    public List<TreeModel> getAvailableSensors(String sessionId, String serviceName)
             throws WrongResponseException, DbConnectionException {
-
-        String serviceName = getServiceName(sessionId, service);
-        if (null == serviceName) {
-            return new ArrayList<TreeModel>();
-        }
 
         // request all sensors from server
         List<SensorModel> sensors = getAllSensors(sessionId, "owned=1");
 
-        // check non-device sensors
+        // remove sensors that are not available for the selected service
         List<SensorModel> availableSensors = new ArrayList<SensorModel>();
         for (SensorModel sensor : sensors) {
-            if (isSensorAvailable(sessionId, sensor.<String> get(SensorModel.ID), serviceName)) {
-                availableSensors.add(sensor);
+            String sensorId = sensor.<String> get(SensorModel.ID);
+            String sensorType = sensor.<String> get(SensorModel.TYPE);
+            if (false == sensorType.equals("1")) {
+                if (isSensorAvailable(sessionId, sensorId, serviceName)) {
+                    availableSensors.add(sensor);
+                }
             }
         }
 
@@ -120,44 +86,38 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<TreeModel> sorted = sortSensors(availableSensors, devices, environments, apps, feeds,
                 states);
 
-        // List<DeviceModel> sortedDevices = getAvailableDevices(sessionId, serviceName);
-        // for (TreeModel category : sorted) {
-        // if (category.<String> get("text").equalsIgnoreCase("devices")) {
-        // category.removeAll();
-        // for (DeviceModel device : sortedDevices) {
-        // category.add(device);
-        // }
-        // break;
-        // }
-        // }
+        // special handling of device sensors
+        List<DeviceModel> sortedDevices = getDevices(sessionId, serviceName);
+        List<DeviceModel> availableDevices = new ArrayList<DeviceModel>();
+        for (DeviceModel device : sortedDevices) {
+            List<ModelData> deviceSensors = device.getChildren();
+            List<ModelData> availableDeviceSensors = new ArrayList<ModelData>();
+            for (ModelData sensor : deviceSensors) {
+                String sensorId = sensor.<String> get(SensorModel.ID);
+                if (isSensorAvailable(sessionId, sensorId, serviceName)) {
+                    availableDeviceSensors.add(sensor);
+                }
+            }
 
-        return sorted;
-    }
-
-    private String getServiceName(String sessionId, TreeModel service)
-            throws WrongResponseException, DbConnectionException {
-
-        if (service.getChildCount() == 0) {
-            return null;
-        }
-
-        SensorModel sensor = (SensorModel) service.getChild(0);
-
-        String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
-                + "/services";
-        String response = Requester.request(url, sessionId, "GET", null);
-        List<ServiceModel> runningServices = parseAvailableServices(response);
-
-        // compare services that are running on the sensor to the required service
-        String requiredId = service.<String> get(ServiceModel.ID);
-        for (ServiceModel runningService : runningServices) {
-            String runningId = runningService.<String> get(ServiceModel.ID);
-            if (requiredId.equals(runningId)) {
-                return runningService.get(ServiceModel.NAME);
+            if (availableDeviceSensors.size() > 0) {
+                DeviceModel availableDevice = new DeviceModel(device.getProperties());
+                for (ModelData availableSensor : availableDeviceSensors) {
+                    availableDevice.add(availableSensor);
+                }
+                availableDevices.add(availableDevice);
             }
         }
 
-        return null;
+        // add device category to sorted sensors
+        TreeModel deviceCategory = new BaseTreeModel();
+        deviceCategory.set("text", "Devices");
+        deviceCategory.set("tagType", TagModel.TYPE_CATEGORY);
+        for (DeviceModel device : availableDevices) {
+            deviceCategory.add(device);
+        }
+        sorted.add(deviceCategory);
+
+        return sorted;
     }
 
     @Override
@@ -295,39 +255,44 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
     public List<TreeModel> getMySensors(String sessionId) throws DbConnectionException,
             WrongResponseException {
 
-        return getSortedSensors(sessionId, "1", null);
-    }
-
-    @Override
-    public List<TreeModel> getMyServices(String sessionId) throws DbConnectionException,
-            WrongResponseException {
-
         // request all sensors from server
-        List<SensorModel> sensors = getAllSensors(sessionId, "owned=1");
+        String params = "owned=1";
+        List<SensorModel> unsortedSensors = getAllSensors(sessionId, params);
 
-        // gather the services that are connected to the sensors
-        List<TreeModel> services = new ArrayList<TreeModel>();
-        for (SensorModel sensor : sensors) {
-            int type = Integer.parseInt(sensor.<String> get("type"));
-            if (type == 2) {
-                services.add(new SensorModel(sensor.getProperties()));
-            }
+        // store alias and owner information for future use
+        for (ModelData sensor : unsortedSensors) {
+            sensor.set("owned", "1");
         }
 
-        // request the sensor name that is associated with each service
-        for (TreeModel service : services) {
-            String url = Constants.URL_SENSORS + "/" + service.<String> get("id") + "/sensors";
-            String response = Requester.request(url, sessionId, "GET", null);
+        List<SensorModel> feedsSensors = new ArrayList<SensorModel>();
+        List<SensorModel> deviceSensors = new ArrayList<SensorModel>();
+        List<SensorModel> stateSensors = new ArrayList<SensorModel>();
+        List<SensorModel> environmentSensors = new ArrayList<SensorModel>();
+        List<SensorModel> apps = new ArrayList<SensorModel>();
+        List<TreeModel> sorted = sortSensors(unsortedSensors, deviceSensors, environmentSensors,
+                apps, feedsSensors, stateSensors);
 
-            List<SensorModel> serviceSources = new ArrayList<SensorModel>();
-            SensorConverter.parseSensors(response, serviceSources);
-
-            for (TreeModel sourceSensor : serviceSources) {
-                service.add(new SensorModel(sourceSensor.getProperties()));
+        // handle nested devices
+        for (TreeModel cat : sorted) {
+            if (cat.<String> get("text").equalsIgnoreCase("devices")) {
+                // remove the Device category if it is already present
+                sorted.remove(cat);
+                break;
             }
         }
+        // add a special category of devices
+        List<DeviceModel> devices = getDevices(sessionId, params);
+        if (devices.size() > 0) {
+            TreeModel deviceCat = new BaseTreeModel();
+            deviceCat.set("text", "Devices");
+            deviceCat.set("tagType", TagModel.TYPE_CATEGORY);
+            for (DeviceModel child : devices) {
+                deviceCat.add(child);
+            }
+            sorted.add(deviceCat);
+        }
 
-        return services;
+        return sorted;
     }
 
     private List<ModelData> getSensorUsers(String id, String sessionId, String params)
@@ -371,7 +336,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         }
         result.addAll(owners.values());
 
-        // get the groups that we are member of
+        // get the sensors for the groups that I am member of
         for (TreeModel group : groups) {
             if (group instanceof GroupModel) {
                 group = getGroupSensors(sessionId, (GroupModel) group);
@@ -384,57 +349,36 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return result;
     }
 
-    private List<TreeModel> getSortedSensors(String sessionId, String owned, String alias)
-            throws WrongResponseException, DbConnectionException {
+    @Override
+    public List<TreeModel> getStateSensors(String sessionId) throws DbConnectionException,
+            WrongResponseException {
 
         // request all sensors from server
-        String params = "";
-        if (null != owned) {
-            if (null != alias) {
-                params = "owned=" + owned + "&alias=" + alias;
-            } else {
-                params = "owned=" + owned;
-            }
-        } else if (null != alias) {
-            params = "alias=" + alias;
-        }
-        List<SensorModel> unsortedSensors = getAllSensors(sessionId, params);
+        List<SensorModel> sensors = getAllSensors(sessionId, "owned=1");
 
-        // store alias and owner information for future use
-        for (ModelData sensor : unsortedSensors) {
-            sensor.set("owned", owned);
-            sensor.set("alias", alias);
-        }
-
-        List<SensorModel> feedsSensors = new ArrayList<SensorModel>();
-        List<SensorModel> deviceSensors = new ArrayList<SensorModel>();
-        List<SensorModel> stateSensors = new ArrayList<SensorModel>();
-        List<SensorModel> environmentSensors = new ArrayList<SensorModel>();
-        List<SensorModel> apps = new ArrayList<SensorModel>();
-        List<TreeModel> sorted = sortSensors(unsortedSensors, deviceSensors, environmentSensors,
-                apps, feedsSensors, stateSensors);
-
-        // handle nested devices
-        for (TreeModel cat : sorted) {
-            if (cat.<String> get("text").equalsIgnoreCase("devices")) {
-                // remove the Device category if it is already present
-                sorted.remove(cat);
-                break;
+        // gather the services that are connected to the sensors
+        List<TreeModel> services = new ArrayList<TreeModel>();
+        for (SensorModel sensor : sensors) {
+            int type = Integer.parseInt(sensor.<String> get("type"));
+            if (type == 2) {
+                services.add(new SensorModel(sensor.getProperties()));
             }
         }
-        // add a special category of devices
-        List<DeviceModel> devices = getDevices(sessionId, params);
-        if (devices.size() > 0) {
-            TreeModel deviceCat = new BaseTreeModel();
-            deviceCat.set("text", "Devices");
-            deviceCat.set("tagType", TagModel.TYPE_CATEGORY);
-            for (DeviceModel child : devices) {
-                deviceCat.add(child);
+
+        // request the sensor name that is associated with each service
+        for (TreeModel service : services) {
+            String url = Constants.URL_SENSORS + "/" + service.<String> get("id") + "/sensors";
+            String response = Requester.request(url, sessionId, "GET", null);
+
+            List<SensorModel> serviceSources = new ArrayList<SensorModel>();
+            SensorConverter.parseSensors(response, serviceSources);
+
+            for (TreeModel sourceSensor : serviceSources) {
+                service.add(new SensorModel(sourceSensor.getProperties()));
             }
-            sorted.add(deviceCat);
         }
 
-        return sorted;
+        return services;
     }
 
     private boolean isSensorAvailable(String sessionId, String sensorId, String serviceName)
@@ -452,6 +396,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
                 return true;
             }
         }
+
         return false;
     }
 
@@ -540,18 +485,6 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         return result;
     }
 
-    private List<SensorModel> requestDeviceSensors(String sessionId, String deviceId)
-            throws DbConnectionException, WrongResponseException {
-
-        String url = Constants.URL_DEVICE_SENSORS.replace("<id>", deviceId);
-        String response = Requester.request(url, sessionId, "GET", null);
-
-        // Convert JSON response to list of tags
-        List<SensorModel> sensors = new ArrayList<SensorModel>();
-        SensorConverter.parseSensors(response, sensors);
-        return sensors;
-    }
-
     private List<TreeModel> sortSensors(List<SensorModel> unsorted, List<SensorModel> devices,
             List<SensorModel> environments, List<SensorModel> apps, List<SensorModel> feeds,
             List<SensorModel> states) throws DbConnectionException, WrongResponseException {
@@ -561,23 +494,23 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-                case 0 :
-                    feeds.add(sensor);
-                    break;
-                case 1 :
-                    devices.add(sensor);
-                    break;
-                case 2 :
-                    states.add(sensor);
-                    break;
-                case 3 :
-                    environments.add(sensor);
-                    break;
-                case 4 :
-                    apps.add(sensor);
-                    break;
-                default :
-                    log.warning("Unexpected sensor type: " + type);
+            case 0:
+                feeds.add(sensor);
+                break;
+            case 1:
+                devices.add(sensor);
+                break;
+            case 2:
+                states.add(sensor);
+                break;
+            case 3:
+                environments.add(sensor);
+                break;
+            case 4:
+                apps.add(sensor);
+                break;
+            default:
+                log.warning("Unexpected sensor type: " + type);
             }
         }
 

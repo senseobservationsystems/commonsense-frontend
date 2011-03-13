@@ -97,7 +97,7 @@ public class GroupController extends Controller {
             this.isGettingGroups = true;
             Dispatcher.forwardEvent(GroupEvents.Working);
 
-            GroupsProxyAsync service = Registry.<GroupsProxyAsync> get(Constants.REG_GROUPS_SVC);
+            GroupsProxyAsync service = Registry.<GroupsProxyAsync> get(Constants.REG_GROUPS_PROXY);
             String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             AsyncCallback<List<GroupModel>> callback = new AsyncCallback<List<GroupModel>>() {
 

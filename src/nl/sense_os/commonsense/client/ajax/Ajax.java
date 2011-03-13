@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.ajax;
 
-import java.util.HashMap;
-
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
@@ -30,14 +28,13 @@ public class Ajax {
      * @param onFailure
      *            AppEvent to dispatch if the request fails
      * @param handler
-     *            AjaxController instance to return the ajax result to
+     *            AjaxController instance to return the Ajax result to
      * 
      * @see <a href="http://goo.gl/ajJWN">Making cross domain JavaScript requests</a>
      */
     // @formatter:off
     public static native void request(String method, String url, String sessionId, String body,
-            HashMap<String, Object> params, AppEvent onSuccess, AppEvent onFailure,
-            AjaxController handler) /*-{
+            AppEvent onSuccess, AppEvent onFailure, AjaxController handler) /*-{
 
 		var isIE8 = window.XDomainRequest ? true : false;
 		var xhr = createCrossDomainRequest();
@@ -64,7 +61,16 @@ public class Ajax {
 		}
 
 		function handleFailure() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
+			if (isIE8) {
+				// IE8 does not give access to xhr.status
+				handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, -1, onFailure);
+			} else {
+				handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
+			}
+		}
+
+		function handleTimeOut() {
+			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onTimeOut(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, onFailure);
 		}
 
 		function handleSuccess() {
@@ -75,18 +81,23 @@ public class Ajax {
 			if (isIE8) {
 				// IE does not support custom headers: add session ID to URL parameters 
 				if (undefined != sessionId) {
-					url = url + "?session_id=" + sessionId;
+					if (url.indexOf("?") != -1) {
+						url = url + "&session_id=" + sessionId;
+					} else {
+						url = url + "?session_id=" + sessionId;
+					}
 				}
 
 				// IE does not support DELETE or PUT requests: use custom URL parameter
 				if ("DELETE" === method || "PUT" === method) {
 					url = url + "&_METHOD=" + method;
-					method = "GET";
+					method = "POST";
 				}
 
 				xhr.open(method, url);
 				xhr.onload = handleSuccess;
 				xhr.onerror = handleFailure;
+				xhr.ontimeout = handleTimeOut;
 				xhr.send(body);
 			} else {
 				xhr.open(method, url, true);

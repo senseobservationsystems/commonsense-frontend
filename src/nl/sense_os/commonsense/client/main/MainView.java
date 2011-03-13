@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
+import nl.sense_os.commonsense.client.register.RegisterEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.UserModel;
@@ -146,6 +147,9 @@ public class MainView extends View {
             if (location.equals(NavPanel.SIGN_IN)) {
                 newContent = new LayoutContainer();
                 Dispatcher.forwardEvent(LoginEvents.Show);
+            } else if (location.equals(NavPanel.REGISTER)) {
+                newContent = new LayoutContainer();
+                Dispatcher.forwardEvent(RegisterEvents.Show);
             } else if (location.equals(NavPanel.SIGN_OUT)) {
                 newContent = new LayoutContainer();
                 Dispatcher.forwardEvent(LoginEvents.RequestLogout);
@@ -180,6 +184,9 @@ public class MainView extends View {
         if (NavPanel.SIGN_IN.equalsIgnoreCase(oldLocation)
                 && !NavPanel.SIGN_IN.equalsIgnoreCase(location)) {
             Dispatcher.forwardEvent(LoginEvents.Hide);
+        } else if (NavPanel.REGISTER.equalsIgnoreCase(oldLocation)
+                && !NavPanel.REGISTER.equalsIgnoreCase(location)) {
+            Dispatcher.forwardEvent(RegisterEvents.Hide);
         }
 
         // update navigation panel
