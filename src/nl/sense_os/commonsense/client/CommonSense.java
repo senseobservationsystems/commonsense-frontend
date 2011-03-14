@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.Date;
-
 import nl.sense_os.commonsense.client.ajax.AjaxController;
 import nl.sense_os.commonsense.client.environments.BuildingController;
 import nl.sense_os.commonsense.client.groups.GroupController;
@@ -27,17 +25,13 @@ import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.maps.client.Maps;
-import com.google.gwt.user.client.Timer;
+
+import java.util.Date;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -46,7 +40,7 @@ import com.google.gwt.user.client.Timer;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Sat Mar 12 16:16 CET 2011";
+    public static final String LAST_DEPLOYED = "Mon Mar 14 17:42 CET 2011";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -62,51 +56,6 @@ public class CommonSense implements EntryPoint {
         dispatcher.dispatch(MainEvents.UiReady);
 
         GXT.hideLoadingPanel("loading");
-    }
-
-    /**
-     * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
-     * window is shown.
-     */
-    private void loadMapsApi() {
-
-        // Asynchronously load the Maps API.
-        if (Maps.isLoaded()) {
-            Log.d(TAG, "Google Maps API already loaded");
-            return;
-        }
-
-        Maps.loadMapsApi(
-                "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA",
-                "2", false, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
-                        // initControllers();
-                    }
-                });
-
-        // double check that the API has been loaded within 10 seconds
-        new Timer() {
-
-            @Override
-            public void run() {
-                if (false == Maps.isLoaded()) {
-                    MessageBox.confirm(null, "Google Maps API not loaded, retry?",
-                            new Listener<MessageBoxEvent>() {
-
-                                @Override
-                                public void handleEvent(MessageBoxEvent be) {
-                                    final Button b = be.getButtonClicked();
-                                    if ("yes".equalsIgnoreCase(b.getText())) {
-                                        loadMapsApi();
-                                    }
-                                }
-                            });
-                }
-            }
-        }.schedule(1000 * 10);
     }
 
     /**
@@ -146,7 +95,5 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new AjaxController());
 
         initControllers();
-
-        loadMapsApi();
     }
 }

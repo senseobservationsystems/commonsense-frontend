@@ -1,13 +1,13 @@
 package nl.sense_os.commonsense.client.ajax;
 
-import java.util.HashMap;
-
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+
+import java.util.HashMap;
 
 public class AjaxController extends Controller {
 
@@ -62,7 +62,7 @@ public class AjaxController extends Controller {
      */
     public void onFailure(String method, String url, String sessionId, String body, int statusCode,
             AppEvent onFailure) {
-        Log.w(TAG, "onFailure");
+        Log.w(TAG, "onFailure: " + statusCode);
         onFailure.setData("method", method);
         onFailure.setData("url", url);
         onFailure.setData("session_id", sessionId);

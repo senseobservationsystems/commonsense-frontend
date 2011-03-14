@@ -18,7 +18,7 @@ public class RegisterController extends Controller {
     private View form;
 
     public RegisterController() {
-        registerEventTypes(RegisterEvents.Show, RegisterEvents.Hide);
+        registerEventTypes(RegisterEvents.Show);
         registerEventTypes(RegisterEvents.RegisterRequest, RegisterEvents.AjaxRegisterSuccess,
                 RegisterEvents.AjaxRegisterFailure);
     }
@@ -57,7 +57,7 @@ public class RegisterController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.form = new RegisterForm(this);
+        this.form = new RegisterPanel(this);
     }
 
     private void register(String username, String password, String name, String surname,

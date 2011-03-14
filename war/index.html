@@ -11,6 +11,20 @@
     <link rel="stylesheet" type="text/css" href="gxt/css/gxt-all.css" />
     <link rel="stylesheet" type="text/css" href="gxt/css/gxt-gray.css" />
     <link rel="stylesheet" type="text/css" href="css/sense.css" />
+    
+    <script src="http://closure-library.googlecode.com/svn/trunk/closure/goog/base.js"></script>
+    <script>
+      goog.require('goog.dom');
+      goog.require('goog.json');
+      goog.require('goog.proto2.ObjectSerializer');
+      goog.require('goog.string.StringBuffer');
+    </script>
+    <script src="commonsense/phonemetadata.pb.js"></script>
+    <script src="commonsense/phonenumber.pb.js"></script>
+    <script src="commonsense/metadata.js"></script>
+    <script src="commonsense/phonenumberutil.js"></script>
+    <!-- <script src="commonsense/asyoutypeformatter.js"></script> -->
+
   </head>
 
   <body style="background: #FFFFFF url('img/bg/left_bot_pre-light.png') no-repeat left bottom; " >
@@ -24,9 +38,9 @@
     
     <!-- required for Google Maps API (does not load the real API yet) -->
     <!-- common-sense-test.appspot.com key -->
-    <!-- <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA"></script> -->
+    <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA"></script>
     <!-- common-sense.appspot.com key -->
-    <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw"></script>
+    <!-- <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw"></script> -->
     
     <script type="text/javascript" language="javascript" src="commonsense/commonsense.nocache.js"></script>
     

@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.groups;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -37,6 +33,7 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -51,6 +48,10 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GroupGrid extends View {
 
@@ -77,7 +78,8 @@ public class GroupGrid extends View {
 
         } else if (type.equals(GroupEvents.ShowGrid)) {
             // Log.d(TAG, "ShowGrid");
-            onShow(event);
+            final LayoutContainer parent = event.getData("parent");
+            showPanel(parent);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
             // Log.d(TAG, "ListUpdated");
@@ -114,16 +116,6 @@ public class GroupGrid extends View {
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
-    }
-
-    private void onListDirty() {
-        new Timer() {
-
-            @Override
-            public void run() {
-                refreshLoader(true);
-            }
-        }.schedule(100);
     }
 
     private void initGrid() {
@@ -302,6 +294,15 @@ public class GroupGrid extends View {
         this.panel.setTopComponent(toolBar);
     }
 
+    protected void leaveGroup() {
+        TreeModel group = grid.getSelectionModel().getSelectedItem();
+        while (null != group.getParent()) {
+            group = group.getParent();
+        }
+        String groupId = group.get("id");
+        fireEvent(new AppEvent(GroupEvents.LeaveRequested, groupId));
+    }
+
     protected void onInviteClick() {
         TreeModel selected = grid.getSelectionModel().getSelectedItem();
         GroupModel group = null;
@@ -317,14 +318,6 @@ public class GroupGrid extends View {
         AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
         invite.setData("group", group);
         fireEvent(invite);
-    }
-    protected void leaveGroup() {
-        TreeModel group = grid.getSelectionModel().getSelectedItem();
-        while (null != group.getParent()) {
-            group = group.getParent();
-        }
-        String groupId = group.get("id");
-        fireEvent(new AppEvent(GroupEvents.LeaveRequested, groupId));
     }
 
     private void onLeaveClick() {
@@ -354,18 +347,18 @@ public class GroupGrid extends View {
         });
     }
 
-    private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
+    private void onListDirty() {
+        new Timer() {
+
+            @Override
+            public void run() {
+                refreshLoader(true);
+            }
+        }.schedule(100);
     }
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show groups panel: parent=null");
-        }
+    private void onLoggedOut(AppEvent event) {
+        this.store.removeAll();
     }
 
     private void refreshLoader(boolean force) {
@@ -377,5 +370,14 @@ public class GroupGrid extends View {
     private void setBusy(boolean busy) {
         String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
+    }
+
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show groups panel: parent=null");
+        }
     }
 }

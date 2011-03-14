@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.sensors.personal;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.SensorsEvents;
@@ -38,6 +35,7 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -48,6 +46,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MySensorsTree extends View {
 
@@ -95,7 +96,8 @@ public class MySensorsTree extends View {
 
         } else if (type.equals(MySensorsEvents.ShowTree)) {
             // Log.d(TAG, "ShowTree");
-            onShow(event);
+            final LayoutContainer parent = event.getData("parent");
+            showPanel(parent);
 
         } else if (type.equals(SensorsEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
@@ -341,16 +343,6 @@ public class MySensorsTree extends View {
         fireEvent(shareEvent);
     }
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show my sensors panel: parent=null");
-        }
-    }
-
     private void onVizClick() {
         List<TreeModel> selection = tree.getSelectionModel().getSelection();
         // TODO get child sensors of selected users, groups and devices
@@ -374,5 +366,14 @@ public class MySensorsTree extends View {
     private void setupDragDrop() {
         TreePanelDragSource source = new TreePanelDragSource(this.tree);
         source.setTreeStoreState(true);
+    }
+
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show my sensors panel: parent=null");
+        }
     }
 }

@@ -21,9 +21,7 @@ public class NavPanel extends LayoutContainer {
     private static final String TAG = "NavPanel";
     public static final String HELP = "help";
     public static final String HOME = "home";
-    public static final String REGISTER = "register";
     public static final String SETTINGS = "settings";
-    public static final String SIGN_IN = "signin";
     public static final String SIGN_OUT = "signout";
     public static final String VISUALIZATION = "viz";
     private boolean isLoggedIn = false;
@@ -32,9 +30,7 @@ public class NavPanel extends LayoutContainer {
     private Hyperlink current;
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("home", HOME);
-    private final Hyperlink login = new Hyperlink("sign in", SIGN_IN);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
-    private final Hyperlink register = new Hyperlink("register", REGISTER);
     private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
     private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
 
@@ -52,12 +48,8 @@ public class NavPanel extends LayoutContainer {
         this.help.setWidth("auto");
         this.home.setStylePrimaryName("x-sense-nav-deselected");
         this.home.setWidth("auto");
-        this.login.setStylePrimaryName("x-sense-nav-deselected");
-        this.login.setWidth("auto");
         this.logout.setStylePrimaryName("x-sense-nav-deselected");
         this.logout.setWidth("auto");
-        this.register.setStylePrimaryName("x-sense-nav-deselected");
-        this.register.setWidth("auto");
         this.settings.setStylePrimaryName("x-sense-nav-deselected");
         this.settings.setWidth("auto");
         this.viz.setStylePrimaryName("x-sense-nav-deselected");
@@ -97,9 +89,7 @@ public class NavPanel extends LayoutContainer {
         } else {
             this.add(this.home, startData);
             this.add(this.stretch, stretchData);
-            this.add(this.help, itemData);
-            this.add(this.register, itemData);
-            this.add(this.login, endData);
+            this.add(this.help, endData);
         }
     }
 
@@ -129,10 +119,6 @@ public class NavPanel extends LayoutContainer {
             this.current = this.help;
         } else if (highlight.equals(SIGN_OUT)) {
             this.current = this.logout;
-        } else if (highlight.equals(SIGN_IN)) {
-            this.current = this.login;
-        } else if (highlight.equals(REGISTER)) {
-            this.current = this.register;
         } else {
             Log.w(TAG, "Unexpected highlight: " + highlight);
         }

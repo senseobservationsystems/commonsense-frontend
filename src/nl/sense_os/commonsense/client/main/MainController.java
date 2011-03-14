@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.main;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.UserModel;
 
@@ -16,6 +17,7 @@ import com.google.gwt.user.client.History;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
+    private static final String TAG = "MainController";
     private View mainView;
     private String currentToken;
 
@@ -62,10 +64,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     private void goToFirstScreen() {
 
         // supply initial History token
-        String token = History.getToken();
-        boolean needsLogin = (token.equals(NavPanel.SIGN_IN) || token.equals(NavPanel.SETTINGS) || token
-                .equals(NavPanel.VISUALIZATION));
-        String startLocation = needsLogin ? NavPanel.SIGN_IN : NavPanel.HOME;
+        String startLocation = NavPanel.HOME;
         History.newItem(startLocation);
         History.fireCurrentHistoryState();
     }
@@ -82,7 +81,8 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (isLoginRequired(token)) {
             UserModel user = Registry.<UserModel> get(Constants.REG_USER);
             if (null == user) {
-                History.newItem(NavPanel.SIGN_IN);
+                Log.w(TAG, "Not signed in: refusing new history token " + token);
+                History.newItem(NavPanel.HOME);
                 History.fireCurrentHistoryState();
                 return;
             }
@@ -103,9 +103,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private boolean isValidLocation(String token) {
-        boolean valid = token.equals(NavPanel.REGISTER);
-        valid = valid || token.equals(NavPanel.SIGN_IN);
-        valid = valid || token.equals(NavPanel.SIGN_OUT);
+        boolean valid = token.equals(NavPanel.SIGN_OUT);
         valid = valid || token.equals(NavPanel.HOME);
         valid = valid || token.equals(NavPanel.HELP);
         valid = valid || token.equals(NavPanel.SETTINGS);

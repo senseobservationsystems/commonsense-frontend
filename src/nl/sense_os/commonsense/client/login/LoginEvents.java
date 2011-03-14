@@ -25,6 +25,5 @@ public class LoginEvents {
     public static final EventType AjaxUserSuccess = new EventType();
 
     // layout-related event types
-    public static final EventType Hide = new EventType();
     public static final EventType Show = new EventType();
 }

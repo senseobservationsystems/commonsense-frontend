@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.visualization.map;
 
-import java.util.List;
-
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.components.MapPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -13,6 +11,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+
+import java.util.List;
 
 public class MapView extends View {
 
@@ -27,18 +27,18 @@ public class MapView extends View {
         EventType evtType = event.getType();
 
         if (evtType.equals(MapEvents.Show)) {
-            Log.d(TAG, "Show");
+            // Log.d(TAG, "Show");
             onCreateMap(event);
 
         } else if (evtType.equals(MapEvents.AddData)) {
-            Log.d(TAG, "AddData");
+            // Log.d(TAG, "AddData");
             final MapPanel panel = event.<MapPanel> getData("panel");
             final SensorValueModel[] data = event.<SensorValueModel[]> getData("data");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             panel.addData(sensor, data);
 
         } else if (evtType.equals(MapEvents.LoadSuccess)) {
-            Log.d(TAG, "LoadSuccess");
+            // Log.d(TAG, "LoadSuccess");
             final MapPanel panel = event.<MapPanel> getData("panel");
             panel.finishLoading();
 

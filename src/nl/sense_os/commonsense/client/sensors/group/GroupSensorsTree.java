@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.sensors.group;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -39,6 +36,7 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -49,6 +47,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GroupSensorsTree extends View {
 
@@ -96,7 +97,8 @@ public class GroupSensorsTree extends View {
 
         } else if (type.equals(GroupSensorsEvents.ShowTree)) {
             // Log.d(TAG, "ShowTree");
-            onShow(event);
+            final LayoutContainer parent = event.getData("parent");
+            showPanel(parent);
 
         } else if (type.equals(GroupSensorsEvents.Done)) {
             // Log.d(TAG, "ListUpdated");
@@ -334,16 +336,6 @@ public class GroupSensorsTree extends View {
         }
     }
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show group sensors panel: parent=null");
-        }
-    }
-
     private void onVizClick() {
         List<SensorModel> selection = getSelectedSensors();
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
@@ -366,5 +358,14 @@ public class GroupSensorsTree extends View {
     private void setupDragDrop() {
         TreePanelDragSource source = new TreePanelDragSource(this.tree);
         source.setTreeStoreState(true);
+    }
+
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show group sensors panel: parent=null");
+        }
     }
 }

@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.states;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -37,6 +33,7 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -54,6 +51,10 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class StateGrid extends View {
 
@@ -96,7 +97,8 @@ public class StateGrid extends View {
 
         } else if (type.equals(StateEvents.ShowGrid)) {
             // Log.d(TAG, "ShowGrid");
-            onShow(event);
+            final LayoutContainer parent = event.getData("parent");
+            showPanel(parent);
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
@@ -382,16 +384,6 @@ public class StateGrid extends View {
                 });
     }
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show states panel: parent=null");
-        }
-    }
-
     private void refreshLoader(boolean force) {
         if (force || this.store.getChildCount() == 0) {
             loader.load();
@@ -423,5 +415,14 @@ public class StateGrid extends View {
         AppEvent event = new AppEvent(StateEvents.ShowFeedback);
         event.setData("service", selected);
         Dispatcher.forwardEvent(event);
+    }
+
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show states panel: parent=null");
+        }
     }
 }

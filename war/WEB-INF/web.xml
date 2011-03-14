@@ -1,108 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<web-app 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://java.sun.com/xml/ns/javaee"
-  xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
-  id="WebApp_ID"
-  version="2.5">
-  
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>BuildingServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.BuildingServiceImpl</servlet-class>
-  </servlet>
+<web-app
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    id="WebApp_ID"
+    version="2.5">
 
-  <servlet>
-    <servlet-name>FloorImgServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.FloorImgServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>GroupsServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.GroupsProxyImpl</servlet-class>
-  </servlet>
-    
-  <servlet>
-    <servlet-name>IVOCleanupServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOCleanupServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>IVOSensorTypeServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorTypeServlet</servlet-class>
-  </servlet>
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>BuildingServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.BuildingServiceImpl</servlet-class>
+    </servlet>
 
-  <servlet>
-    <servlet-name>IVOSensorValueServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorValueServlet</servlet-class>
-  </servlet>
+    <servlet>
+        <servlet-name>FloorImgServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.FloorImgServlet</servlet-class>
+    </servlet>
 
-  <servlet>
-    <servlet-name>IVOTagServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.ivo.IVOTagServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>PhoneNumberParserServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.PhoneNumberParserImpl</servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>SensorsServlet</servlet-name>
-    <servlet-class>nl.sense_os.commonsense.server.SensorsProxyImpl</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>BuildingServlet</servlet-name>
-    <url-pattern>/commonsense/building</url-pattern>
-  </servlet-mapping>
+    <servlet>
+        <servlet-name>GroupsServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.GroupsProxyImpl</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>FloorImgServlet</servlet-name>
-    <url-pattern>/floorupload</url-pattern>
-  </servlet-mapping>
+    <servlet>
+        <servlet-name>IVOCleanupServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.ivo.IVOCleanupServlet</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>GroupsServlet</servlet-name>
-    <url-pattern>/commonsense/groups</url-pattern>
-  </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>IVOCleanupServlet</servlet-name>
-    <url-pattern>/ivo/cleanup</url-pattern>
-  </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>IVOSensorTypeServlet</servlet-name>
-    <url-pattern>/ivo/sensortypes</url-pattern>
-  </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>IVOSensorValueServlet</servlet-name>
-    <url-pattern>/ivo/sensorvalues</url-pattern>
-  </servlet-mapping>	
-    
-  <servlet-mapping>
-    <servlet-name>IVOTagServlet</servlet-name>
-    <url-pattern>/ivo/tags</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>PhoneNumberParserServlet</servlet-name>
-    <url-pattern>/commonsense/phonenumbers</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>SensorsServlet</servlet-name>
-    <url-pattern>/commonsense/sensors</url-pattern>
-  </servlet-mapping>
-    
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-  </welcome-file-list>
+    <servlet>
+        <servlet-name>IVOSensorTypeServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorTypeServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>IVOSensorValueServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.ivo.IVOSensorValueServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>IVOTagServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.ivo.IVOTagServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SensorsServlet</servlet-name>
+        <servlet-class>nl.sense_os.commonsense.server.SensorsProxyImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>BuildingServlet</servlet-name>
+        <url-pattern>/commonsense/building</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>FloorImgServlet</servlet-name>
+        <url-pattern>/floorupload</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GroupsServlet</servlet-name>
+        <url-pattern>/commonsense/groups</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>IVOCleanupServlet</servlet-name>
+        <url-pattern>/ivo/cleanup</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>IVOSensorTypeServlet</servlet-name>
+        <url-pattern>/ivo/sensortypes</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>IVOSensorValueServlet</servlet-name>
+        <url-pattern>/ivo/sensorvalues</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>IVOTagServlet</servlet-name>
+        <url-pattern>/ivo/tags</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SensorsServlet</servlet-name>
+        <url-pattern>/commonsense/sensors</url-pattern>
+    </servlet-mapping>
+
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
 
 </web-app>

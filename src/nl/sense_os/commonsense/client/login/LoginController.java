@@ -43,7 +43,7 @@ public class LoginController extends Controller {
                 LoginEvents.AjaxUserSuccess, LoginEvents.AjaxUserFailure);
 
         // layout events
-        registerEventTypes(LoginEvents.Show, LoginEvents.Hide);
+        registerEventTypes(LoginEvents.Show);
     }
 
     /**
@@ -124,7 +124,7 @@ public class LoginController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.loginView = new LoginForm(this);
+        this.loginView = new LoginPanel(this);
     }
 
     private void login(String username, String password) {

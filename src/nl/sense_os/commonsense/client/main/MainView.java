@@ -1,16 +1,23 @@
 package nl.sense_os.commonsense.client.main;
 
 import nl.sense_os.commonsense.client.CommonSense;
+import nl.sense_os.commonsense.client.environments.BuildingEvents;
+import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.register.RegisterEvents;
+import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
+import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
+import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -21,54 +28,30 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
 
     private static final String TAG = "MainView";
-    private Viewport viewport;
-    private LayoutContainer center;
-    private NavPanel navPanel;
-    private Component homeComponent;
+    private LayoutContainer centerContent;
     private Component helpComponent;
+    private Component homeComponent;
+    private NavPanel navPanel;
+    private Viewport viewport;
+    private LayoutContainer westContent;
 
     public MainView(Controller controller) {
         super(controller);
-    }
-
-    private void createCenter() {
-        this.center = new LayoutContainer(new FitLayout());
-
-        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-        this.viewport.add(this.center, centerData);
-
-    }
-
-    private void createFooter() {
-        LayoutContainer footer = new LayoutContainer(new CenterLayout());
-        Text footerText = new Text("&#169;2011 Sense Observation Systems - Last update: "
-                + CommonSense.LAST_DEPLOYED);
-        footer.add(footerText);
-        footer.setId("footer-bar");
-
-        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 30);
-        southData.setMargins(new Margins(0));
-        southData.setSplit(false);
-        this.viewport.add(footer, southData);
-    }
-
-    private void createNavigation() {
-        this.navPanel = new NavPanel();
-        this.navPanel.setId("navigation-bar");
-
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 23);
-        northData.setMargins(new Margins(0));
-        northData.setSplit(false);
-        this.viewport.add(this.navPanel, northData);
     }
 
     @Override
@@ -104,6 +87,46 @@ public class MainView extends View {
         }
     }
 
+    private void initCenter() {
+        LayoutContainer center = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
+        center.setScrollMode(Scroll.AUTOY);
+        center.setBorders(false);
+
+        // banner
+        final Text bannerText = new Text("CommonSense");
+        bannerText.setId("banner-text");
+        final LayoutContainer bannerContainer = new LayoutContainer(new CenterLayout());
+        bannerContainer.setId("banner-container");
+        bannerContainer.setSize(728, 90);
+        bannerContainer.add(bannerText);
+        final LayoutContainer banner = new LayoutContainer(new CenterLayout());
+        banner.setId("banner");
+        banner.add(bannerContainer);
+        banner.setHeight(90);
+        center.add(banner, new RowData(1, -1, new Margins(0)));
+
+        this.centerContent = new LayoutContainer(new FitLayout());
+        this.centerContent.setId("center-content");
+        center.add(this.centerContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+
+        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        centerData.setMargins(new Margins(5));
+        this.viewport.add(center, centerData);
+    }
+
+    private void initFooter() {
+        LayoutContainer footer = new LayoutContainer(new CenterLayout());
+        Text footerText = new Text("&#169;2011 Sense Observation Systems &#149; Last update: "
+                + CommonSense.LAST_DEPLOYED);
+        footer.add(footerText);
+        footer.setId("footer-bar");
+
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 23);
+        southData.setMargins(new Margins(0));
+        southData.setSplit(false);
+        this.viewport.add(footer, southData);
+    }
+
     @Override
     protected void initialize() {
         super.initialize();
@@ -115,9 +138,54 @@ public class MainView extends View {
         this.viewport.setStyleAttribute("background",
                 "url('img/bg/right_top_pre-light.png') no-repeat top right;");
 
-        createNavigation();
-        createCenter();
-        createFooter();
+        initNavigation();
+        initWest();
+        initCenter();
+        initFooter();
+    }
+
+    private void initNavigation() {
+        this.navPanel = new NavPanel();
+        this.navPanel.setId("navigation-bar");
+
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 23);
+        northData.setMargins(new Margins(0));
+        northData.setSplit(false);
+        this.viewport.add(this.navPanel, northData);
+    }
+
+    private void initWest() {
+
+        final LayoutContainer west = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
+        west.setBorders(false);
+
+        // Sense logo
+        final Image logo = new Image("/img/logo_sense-150.png");
+        logo.setPixelSize(131, 68);
+        logo.addMouseDownHandler(new MouseDownHandler() {
+            @Override
+            public void onMouseDown(MouseDownEvent event) {
+                Log.d(TAG, "relative x: " + event.getRelativeX(logo.getElement()));
+                Log.d(TAG, "relative y: " + event.getRelativeY(logo.getElement()));
+            }
+        });
+        final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
+        logoContainer.setId("logo-container");
+        logoContainer.setHeight(90);
+        logoContainer.add(logo);
+        west.add(logoContainer, new RowData(-1, -1, new Margins(0)));
+
+        // real content
+        this.westContent = new LayoutContainer(new FitLayout());
+        this.westContent.setId("west-content");
+        this.westContent.setScrollMode(Scroll.AUTOY);
+        west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+
+        // add to viewport
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275);
+        westData.setMargins(new Margins(5));
+        westData.setSplit(false);
+        this.viewport.add(west, westData);
     }
 
     private void onError(AppEvent event) {
@@ -144,27 +212,71 @@ public class MainView extends View {
         // select the new center content
         Component newContent = null;
         if (null != location) {
-            if (location.equals(NavPanel.SIGN_IN)) {
-                newContent = new LayoutContainer();
-                Dispatcher.forwardEvent(LoginEvents.Show);
-            } else if (location.equals(NavPanel.REGISTER)) {
-                newContent = new LayoutContainer();
-                Dispatcher.forwardEvent(RegisterEvents.Show);
-            } else if (location.equals(NavPanel.SIGN_OUT)) {
-                newContent = new LayoutContainer();
-                Dispatcher.forwardEvent(LoginEvents.RequestLogout);
-            } else if (location.equals(NavPanel.HOME)) {
+            if (location.equals(NavPanel.HOME)) {
                 if (null == this.homeComponent) {
                     this.homeComponent = new HomeScreen();
                 }
                 newContent = this.homeComponent;
+
+                westContent.removeAll();
+                westContent.setLayout(new AccordionLayout());
+
+                // login panel
+                AppEvent displayLogin = new AppEvent(LoginEvents.Show);
+                displayLogin.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayLogin);
+
+                // register panel
+                AppEvent displayRegister = new AppEvent(RegisterEvents.Show);
+                displayRegister.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayRegister);
+
+            } else if (location.equals(NavPanel.VISUALIZATION)) {
+
+                this.centerContent.removeAll();
+                this.westContent.removeAll();
+                this.westContent.setLayout(new AccordionLayout());
+
+                // my sensors panel
+                AppEvent displayMySensors = new AppEvent(MySensorsEvents.ShowTree);
+                displayMySensors.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayMySensors);
+
+                // group sensors panel
+                AppEvent displayGroupSensors = new AppEvent(GroupSensorsEvents.ShowTree);
+                displayGroupSensors.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayGroupSensors);
+
+                // groups panel
+                AppEvent displayGroups = new AppEvent(GroupEvents.ShowGrid);
+                displayGroups.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayGroups);
+
+                // states panel
+                AppEvent displayStates = new AppEvent(StateEvents.ShowGrid);
+                displayStates.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayStates);
+
+                // environments panel
+                AppEvent displayEnvironments = new AppEvent(BuildingEvents.ShowGrid);
+                displayEnvironments.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displayEnvironments);
+
+                // visualizations panel
+                AppEvent displayVisualization = new AppEvent(VizEvents.Show);
+                displayVisualization.setData("parent", this.centerContent);
+                Dispatcher.forwardEvent(displayVisualization);
+
             } else if (location.equals(NavPanel.HELP)) {
                 if (null == this.helpComponent) {
                     this.helpComponent = new HelpScreen();
                 }
                 newContent = this.helpComponent;
-            } else if (location.equals(NavPanel.VISUALIZATION)) {
-                Dispatcher.forwardEvent(VizEvents.Show, this.center);
+
+            } else if (location.equals(NavPanel.SIGN_OUT)) {
+                newContent = new LayoutContainer();
+                Dispatcher.forwardEvent(LoginEvents.RequestLogout);
+
             } else {
                 LayoutContainer lc = new LayoutContainer(new CenterLayout());
                 lc.add(new Text("Under construction..."));
@@ -174,19 +286,9 @@ public class MainView extends View {
 
         // remove old center content
         if (null != newContent) {
-            newContent.setId("center-content");
-            this.center.removeAll();
-            this.center.add(newContent);
-            this.center.layout();
-        }
-
-        // hide login window
-        if (NavPanel.SIGN_IN.equalsIgnoreCase(oldLocation)
-                && !NavPanel.SIGN_IN.equalsIgnoreCase(location)) {
-            Dispatcher.forwardEvent(LoginEvents.Hide);
-        } else if (NavPanel.REGISTER.equalsIgnoreCase(oldLocation)
-                && !NavPanel.REGISTER.equalsIgnoreCase(location)) {
-            Dispatcher.forwardEvent(RegisterEvents.Hide);
+            this.centerContent.removeAll();
+            this.centerContent.add(newContent);
+            this.centerContent.layout();
         }
 
         // update navigation panel

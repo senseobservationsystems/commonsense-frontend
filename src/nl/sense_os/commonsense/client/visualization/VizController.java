@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.visualization;
 
-import java.util.Date;
-import java.util.HashMap;
-
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -39,6 +36,9 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
+import java.util.Date;
+import java.util.HashMap;
+
 public class VizController extends Controller {
 
     private static final String TAG = "VizController";
@@ -60,8 +60,6 @@ public class VizController extends Controller {
         registerEventTypes(MapEvents.MapReady);
 
         registerEventTypes(VizEvents.AjaxDataFailure, VizEvents.AjaxDataSuccess);
-
-        loadVizApi();
     }
 
     @Override
@@ -69,7 +67,7 @@ public class VizController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(VizEvents.DataRequested)) {
-            Log.d(TAG, "DataRequested");
+            // Log.d(TAG, "DataRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final double startDate = event.<Double> getData("startDate");
             final double endDate = event.<Double> getData("endDate");
@@ -108,6 +106,8 @@ public class VizController extends Controller {
         super.initialize();
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
+
+        loadVizApi();
     }
 
     private void loadVizApi() {
@@ -125,7 +125,7 @@ public class VizController extends Controller {
         VisualizationUtils.loadVisualizationApi(vizCallback, Timeline.PACKAGE);
 
         // double check that the API has been loaded within 10 seconds
-        Timer timer = new Timer() {
+        new Timer() {
 
             @Override
             public void run() {
@@ -143,8 +143,7 @@ public class VizController extends Controller {
                             });
                 }
             }
-        };
-        timer.schedule(1000 * 10);
+        }.schedule(1000 * 10);
     }
 
     public void onDataFailed(int code) {
@@ -268,7 +267,7 @@ public class VizController extends Controller {
             return null;
         }
 
-        Log.d(TAG, "Finished parsing received data points");
+        // Log.d(TAG, "Finished parsing received data points");
 
         return values;
     }

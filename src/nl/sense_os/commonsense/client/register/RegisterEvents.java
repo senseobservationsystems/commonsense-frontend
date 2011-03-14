@@ -5,7 +5,6 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class RegisterEvents {
 
     public static final EventType Show = new EventType();
-    public static final EventType Hide = new EventType();
 
     protected static final EventType RegisterRequest = new EventType();
     protected static final EventType AjaxRegisterSuccess = new EventType();

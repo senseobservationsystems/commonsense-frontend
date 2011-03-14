@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.environments;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -33,6 +29,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -44,6 +41,10 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class BuildingGrid extends View {
 
@@ -77,7 +78,8 @@ public class BuildingGrid extends View {
 
         } else if (type.equals(BuildingEvents.ShowGrid)) {
             // Log.d(TAG, "ShowGrid");
-            onShow(event);
+            final LayoutContainer parent = event.getData("parent");
+            showPanel(parent);
 
         } else if (type.equals(BuildingEvents.ListNotUpdated)) {
             Log.w(TAG, "ListNotUpdated");
@@ -110,7 +112,7 @@ public class BuildingGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -274,16 +276,6 @@ public class BuildingGrid extends View {
         this.store.removeAll();
     }
 
-    private void onShow(AppEvent event) {
-        ContentPanel parent = event.<ContentPanel> getData();
-        if (null != parent) {
-            parent.add(this.panel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show buildings panel: parent=null");
-        }
-    }
-
     protected void refreshLoader() {
         if (this.store.getChildCount() == 0) {
             loader.load();
@@ -293,5 +285,14 @@ public class BuildingGrid extends View {
     private void setBusyIcon(boolean busy) {
         String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
+    }
+
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.panel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show buildings panel: parent=null");
+        }
     }
 }
