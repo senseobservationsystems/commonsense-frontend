@@ -19,7 +19,7 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 
-public class UserForm extends FormPanel {
+public class RegisterForm extends FormPanel {
 
     private class PhoneValidator implements Validator {
 
@@ -39,7 +39,7 @@ public class UserForm extends FormPanel {
         }
     }
 
-    private static final String TAG = "UserForm";
+    private static final String TAG = "RegisterForm";
     private static final String EMAIL_REGEX = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[a-zA-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)";
 
     private static native final String validatePhoneNumber(String phoneNumber, String regionCode) /*-{
@@ -66,7 +66,6 @@ public class UserForm extends FormPanel {
 		}
     }-*/;
 
-    private String phoneValidatorMessage;
     private TextField<String> username;
     private TextField<String> password;
     private TextField<String> name;
@@ -75,7 +74,7 @@ public class UserForm extends FormPanel {
     private TextField<String> mobile;
     private Button submit;
 
-    public UserForm() {
+    public RegisterForm() {
         super();
 
         this.setLabelSeparator("");
@@ -126,7 +125,7 @@ public class UserForm extends FormPanel {
         };
 
         // submit button
-        this.submit = new Button("Submit", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submit = new Button("Register", IconHelper.create(Constants.ICON_BUTTON_GO), l);
         this.submit.setType("submit");
 
         this.setButtonAlign(HorizontalAlignment.CENTER);
@@ -182,6 +181,15 @@ public class UserForm extends FormPanel {
         this.add(this.surname, formData);
         this.add(this.email, formData);
         this.add(this.mobile, formData);
+    }
+
+    public void reset() {
+        setUsername(null);
+        setPassword(null);
+        setName(null);
+        setSurname(null);
+        setEmail(null);
+        setMobile(null);
     }
 
     public void setBusy(boolean busy) {

@@ -6,7 +6,6 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.IconHelper;
@@ -22,17 +21,15 @@ public class LoginForm extends FormPanel {
     private TextField<String> username;
     private TextField<String> password;
     private CheckBox rememberMe;
-    private Button cancel;
     private Button submit;
 
     public LoginForm() {
         super();
 
-        this.setLabelSeparator("");
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setScrollMode(Scroll.AUTOY);
-        this.setHeight(175);
+        this.setHeight(135);
 
         initFields();
         initButtons();
@@ -58,22 +55,16 @@ public class LoginForm extends FormPanel {
                 final Button b = be.getButton();
                 if (b.equals(submit)) {
                     submit();
-                } else if (b.equals(cancel)) {
-                    fireEvent(Events.CancelEdit);
                 }
             }
         };
 
         // submit button
-        this.submit = new Button("Submit", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submit = new Button("Sign in", IconHelper.create(Constants.ICON_BUTTON_GO), l);
         this.submit.setType("submit");
-
-        this.cancel = new Button("Cancel", l);
-        this.cancel.disable();
 
         this.setButtonAlign(HorizontalAlignment.CENTER);
         this.addButton(submit);
-        this.addButton(cancel);
 
         final FormButtonBinding binding = new FormButtonBinding(this);
         binding.addButton(submit);
@@ -87,12 +78,12 @@ public class LoginForm extends FormPanel {
 
         // username field
         this.username = new TextField<String>();
-        this.username.setFieldLabel("Username:");
+        this.username.setFieldLabel("Username");
         this.username.setAllowBlank(false);
 
         // password field
         this.password = new TextField<String>();
-        this.password.setFieldLabel("Password:");
+        this.password.setFieldLabel("Password");
         this.password.setAllowBlank(false);
         this.password.setPassword(true);
 
@@ -110,10 +101,8 @@ public class LoginForm extends FormPanel {
     public void setBusy(boolean busy) {
         if (busy) {
             this.submit.setIcon(IconHelper.create(Constants.ICON_LOADING));
-            this.cancel.enable();
         } else {
             this.submit.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
-            this.cancel.disable();
         }
     }
 

@@ -1,10 +1,11 @@
 package nl.sense_os.commonsense.client.login;
 
+import java.util.Date;
+
 import nl.sense_os.commonsense.client.common.forms.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -20,8 +21,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Cookies;
 
-import java.util.Date;
-
 public class LoginPanel extends View {
 
     private static final String TAG = "LoginPanel";
@@ -30,10 +29,6 @@ public class LoginPanel extends View {
 
     public LoginPanel(Controller controller) {
         super(controller);
-    }
-
-    private void cancelLogin() {
-        fireEvent(LoginEvents.CancelLogin);
     }
 
     @Override
@@ -45,27 +40,23 @@ public class LoginPanel extends View {
         } else if (type.equals(LoginEvents.Show)) {
             // Log.d(TAG, "Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
-            showWindow(parent);
+            showPanel(parent);
 
         } else if (type.equals(LoginEvents.AuthenticationFailure)) {
             Log.w(TAG, "AuthenticationFailure");
             onAuthenticationFailure(event);
 
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
+        } else if (type.equals(LoginEvents.LoginSuccess)) {
+            // Log.d(TAG, "LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(LoginEvents.LoginError)) {
-            Log.w(TAG, "LoginError");
+        } else if (type.equals(LoginEvents.LoginFailure)) {
+            Log.w(TAG, "LoginFailure");
             onError(event);
-
-        } else if (type.equals(LoginEvents.LoginCancelled)) {
-            // Log.d(TAG, "LoginCancelled");
-            onCancelled(event);
 
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
@@ -89,15 +80,9 @@ public class LoginPanel extends View {
             }
 
         });
-        this.form.addListener(Events.CancelEdit, new Listener<BaseEvent>() {
-
-            @Override
-            public void handleEvent(BaseEvent be) {
-                cancelLogin();
-            }
-
-        });
         this.panel.add(this.form);
+
+        this.form.layout();
     }
 
     private void onAuthenticationFailure(AppEvent event) {
@@ -111,10 +96,6 @@ public class LoginPanel extends View {
                     }
                 });
         setBusy(false);
-    }
-
-    private void onCancelled(AppEvent event) {
-        resetFormValues();
     }
 
     private void onError(AppEvent event) {
@@ -146,7 +127,7 @@ public class LoginPanel extends View {
 
     private void requestLogin() {
         setBusy(true);
-        AppEvent event = new AppEvent(LoginEvents.RequestLogin);
+        AppEvent event = new AppEvent(LoginEvents.LoginRequest);
         event.setData("username", this.form.getUsername());
         event.setData("password", this.form.getPassword());
         Dispatcher.forwardEvent(event);
@@ -175,7 +156,7 @@ public class LoginPanel extends View {
         this.form.setBusy(busy);
     }
 
-    private void showWindow(LayoutContainer parent) {
+    private void showPanel(LayoutContainer parent) {
         resetFormValues();
         parent.add(this.panel);
         parent.layout();

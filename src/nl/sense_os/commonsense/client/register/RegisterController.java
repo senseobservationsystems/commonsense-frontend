@@ -95,7 +95,7 @@ public class RegisterController extends Controller {
     }
 
     private void registerCallback(String response, String username, String password) {
-        AppEvent loginRequest = new AppEvent(LoginEvents.RequestLogin);
+        AppEvent loginRequest = new AppEvent(LoginEvents.LoginRequest);
         loginRequest.setData("username", username);
         loginRequest.setData("password", password);
         Dispatcher.forwardEvent(loginRequest);

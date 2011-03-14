@@ -22,20 +22,17 @@ public class LoginController extends Controller {
 
     private static final String TAG = "LoginController";
     private View loginView;
-    private boolean isCancelled;
-    private boolean isLoggingIn;
 
     public LoginController() {
 
         registerEventTypes(MainEvents.Init);
 
         // general login events
-        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut, LoginEvents.RequestLogin,
-                LoginEvents.RequestLogout);
+        registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut,
+                LoginEvents.LoginRequest, LoginEvents.RequestLogout);
 
         // local events
-        registerEventTypes(LoginEvents.LoginError, LoginEvents.AuthenticationFailure,
-                LoginEvents.CancelLogin, LoginEvents.LoginCancelled);
+        registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
 
         // ajax events
         registerEventTypes(LoginEvents.AjaxLoginSuccess, LoginEvents.AjaxLoginFailure,
@@ -68,8 +65,8 @@ public class LoginController extends Controller {
     public void handleEvent(AppEvent event) {
         EventType eventType = event.getType();
 
-        if (eventType.equals(LoginEvents.RequestLogin)) {
-            // Log.d(TAG, "RequestLogin");
+        if (eventType.equals(LoginEvents.LoginRequest)) {
+            // Log.d(TAG, "LoginRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             login(username, password);
@@ -77,10 +74,6 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             // Log.d(TAG, "RequestLogout");
             logout(event);
-
-        } else if (eventType.equals(LoginEvents.CancelLogin)) {
-            // Log.d(TAG, "CancelLogin");
-            onCancel(event);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
             // Log.d(TAG, "AjaxLoginSuccess");
@@ -93,7 +86,7 @@ public class LoginController extends Controller {
             if (code == 403) {
                 onAuthenticationFailure();
             } else {
-                onLoginError(code);
+                onLoginFailure(code);
             }
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
@@ -104,7 +97,7 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
             Log.w(TAG, "AjaxLogoutFailure");
             final int code = event.getData("code");
-            onLogoutError(code);
+            onLogoutFailure(code);
 
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
             // Log.d(TAG, "AjaxUserSuccess");
@@ -114,7 +107,7 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
             Log.w(TAG, "AjaxUserFailure");
             final int code = event.getData("code");
-            onLoginError(code);
+            onLoginFailure(code);
 
         } else {
             forwardToView(this.loginView, event);
@@ -128,10 +121,6 @@ public class LoginController extends Controller {
     }
 
     private void login(String username, String password) {
-
-        // update controller status
-        this.isLoggingIn = true;
-        this.isCancelled = false;
 
         // prepare request properties
         String url = Constants.URL_LOGIN + ".json";
@@ -165,39 +154,17 @@ public class LoginController extends Controller {
     }
 
     private void onAuthenticationFailure() {
-        this.isLoggingIn = false;
-        if (false == this.isCancelled) {
-            forwardToView(this.loginView, new AppEvent(LoginEvents.AuthenticationFailure));
-        } else {
-            this.isCancelled = false;
-        }
-    }
-
-    private void onCancel(AppEvent event) {
-        if (true == this.isLoggingIn) {
-            this.isCancelled = true;
-            forwardToView(this.loginView, new AppEvent(LoginEvents.LoginCancelled));
-        }
+        forwardToView(this.loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
 
     private void onCurrentUser(UserModel user) {
-        this.isLoggingIn = false;
-        if (false == this.isCancelled) {
-            Registry.register(Constants.REG_USER, user);
-            Dispatcher.forwardEvent(LoginEvents.LoggedIn, user);
-        } else {
-            this.isCancelled = false;
-        }
+        Registry.register(Constants.REG_USER, user);
+        Dispatcher.forwardEvent(LoginEvents.LoginSuccess, user);
     }
 
     private void onLoggedIn(String sessionId) {
-        if (false == this.isCancelled) {
-            Registry.register(Constants.REG_SESSION_ID, sessionId);
-            getCurrentUser();
-        } else {
-            this.isLoggingIn = false;
-            this.isCancelled = false;
-        }
+        Registry.register(Constants.REG_SESSION_ID, sessionId);
+        getCurrentUser();
     }
 
     private void onLoggedOut(String response) {
@@ -211,19 +178,13 @@ public class LoginController extends Controller {
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 
-    private void onLoginError(int code) {
-
-        this.isLoggingIn = false;
-        if (false == this.isCancelled) {
-            AppEvent errorEvent = new AppEvent(LoginEvents.LoginError);
-            errorEvent.setData("code", code);
-            forwardToView(this.loginView, errorEvent);
-        } else {
-            this.isCancelled = false;
-        }
+    private void onLoginFailure(int code) {
+        AppEvent errorEvent = new AppEvent(LoginEvents.LoginFailure);
+        errorEvent.setData("code", code);
+        forwardToView(this.loginView, errorEvent);
     }
 
-    private void onLogoutError(int code) {
+    private void onLogoutFailure(int code) {
         // TODO handle logout error events
         onLoggedOut("Status code: " + code);
     }
@@ -242,15 +203,15 @@ public class LoginController extends Controller {
                     onLoggedIn(sessionId);
                 } else {
                     Log.e(TAG, "Error parsing login response: \"session_id\" is not a JSON String");
-                    onLoginError(0);
+                    onLoginFailure(0);
                 }
             } else {
                 Log.e(TAG, "Error parsing login response: \"session_id\" is is not found");
-                onLoginError(0);
+                onLoginFailure(0);
             }
         } else {
             Log.e(TAG, "Error parsing login response: response=null");
-            onLoginError(0);
+            onLoginFailure(0);
         }
     }
 
@@ -285,15 +246,15 @@ public class LoginController extends Controller {
                 } else {
                     Log.e(TAG, "Error parsing current user response: "
                             + "\"user\" is not a valid JSONObject");
-                    onLoginError(0);
+                    onLoginFailure(0);
                 }
             } else {
                 Log.e(TAG, "Error parsing current user response: \"user\" JSONValue not found");
-                onLoginError(0);
+                onLoginFailure(0);
             }
         } else {
             Log.e(TAG, "Error parsing current user response: response=null");
-            onLoginError(0);
+            onLoginFailure(0);
         }
     }
 }

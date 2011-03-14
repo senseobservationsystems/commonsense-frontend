@@ -23,7 +23,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
-        registerEventTypes(LoginEvents.LoggedIn, LoginEvents.LoggedOut);
+        registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (type.equals(MainEvents.UiReady)) {
             forwardToView(mainView, event);
             goToFirstScreen();
-        } else if (type.equals(LoginEvents.LoggedIn)) {
+        } else if (type.equals(LoginEvents.LoginSuccess)) {
             onLoggedIn();
             forwardToView(this.mainView, event);
         } else if (type.equals(LoginEvents.LoggedOut)) {

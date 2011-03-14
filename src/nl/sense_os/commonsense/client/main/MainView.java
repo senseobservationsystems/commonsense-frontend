@@ -74,8 +74,8 @@ public class MainView extends View {
             // Log.d(TAG, "Navigate: \'" + event.<String> getData() + "\'");
             onNavigate(event);
 
-        } else if (type.equals(LoginEvents.LoggedIn)) {
-            // Log.d(TAG, "LoggedIn");
+        } else if (type.equals(LoginEvents.LoginSuccess)) {
+            // Log.d(TAG, "LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -160,8 +160,8 @@ public class MainView extends View {
         west.setBorders(false);
 
         // Sense logo
-        final Image logo = new Image("/img/logo_sense-150.png");
-        logo.setPixelSize(131, 68);
+        final Image logo = new Image("/img/logo_sense-162x90.png");
+        logo.setPixelSize(162, 90);
         logo.addMouseDownHandler(new MouseDownHandler() {
             @Override
             public void onMouseDown(MouseDownEvent event) {
@@ -173,7 +173,7 @@ public class MainView extends View {
         logoContainer.setId("logo-container");
         logoContainer.setHeight(90);
         logoContainer.add(logo);
-        west.add(logoContainer, new RowData(-1, -1, new Margins(0)));
+        west.add(logoContainer, new RowData(1, -1, new Margins(0)));
 
         // real content
         this.westContent = new LayoutContainer(new FitLayout());
@@ -219,7 +219,11 @@ public class MainView extends View {
                 newContent = this.homeComponent;
 
                 westContent.removeAll();
-                westContent.setLayout(new AccordionLayout());
+                westContent.layout();
+
+                AccordionLayout layout = new AccordionLayout();
+                layout.setFill(false);
+                westContent.setLayout(layout);
 
                 // login panel
                 AppEvent displayLogin = new AppEvent(LoginEvents.Show);
@@ -273,8 +277,10 @@ public class MainView extends View {
                 }
                 newContent = this.helpComponent;
 
+                westContent.removeAll();
+
             } else if (location.equals(NavPanel.SIGN_OUT)) {
-                newContent = new LayoutContainer();
+                newContent = null;
                 Dispatcher.forwardEvent(LoginEvents.RequestLogout);
 
             } else {

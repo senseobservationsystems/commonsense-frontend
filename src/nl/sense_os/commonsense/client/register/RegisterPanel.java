@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.register;
 
-import nl.sense_os.commonsense.client.common.forms.UserForm;
+import nl.sense_os.commonsense.client.common.forms.RegisterForm;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -21,7 +21,7 @@ public class RegisterPanel extends View {
 
     private static final String TAG = "RegisterPanel";
     private ContentPanel panel;
-    private UserForm form;
+    private RegisterForm form;
 
     public RegisterPanel(Controller c) {
         super(c);
@@ -34,11 +34,11 @@ public class RegisterPanel extends View {
         if (type.equals(RegisterEvents.Show)) {
             // Log.d(TAG, "Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
-            showWindow(parent);
+            showPanel(parent);
 
         } else if (type.equals(RegisterEvents.RegisterSuccess)) {
             // Log.d(TAG, "RegisterSuccess");
-            setBusy(false);
+            onSuccess();
 
         } else if (type.equals(RegisterEvents.RegisterFailure)) {
             Log.w(TAG, "RegisterFailure");
@@ -57,9 +57,7 @@ public class RegisterPanel extends View {
         this.panel.setLayout(new FitLayout());
         this.panel.setHeading("Register");
 
-        this.form = new UserForm();
-        this.panel.add(form);
-
+        this.form = new RegisterForm();
         this.form.addListener(Events.BeforeSubmit, new Listener<FormEvent>() {
 
             @Override
@@ -68,6 +66,12 @@ public class RegisterPanel extends View {
             }
 
         });
+        this.panel.add(form);
+    }
+
+    private void onSuccess() {
+        setBusy(false);
+        this.form.reset();
     }
 
     private void onFailure() {
@@ -103,21 +107,12 @@ public class RegisterPanel extends View {
         fireEvent(request);
     }
 
-    private void resetFields() {
-        this.form.setUsername(null);
-        this.form.setPassword(null);
-        this.form.setName(null);
-        this.form.setSurname(null);
-        this.form.setEmail(null);
-        this.form.setMobile(null);
-    }
-
     private void setBusy(boolean busy) {
         this.form.setBusy(busy);
     }
 
-    private void showWindow(LayoutContainer parent) {
-        resetFields();
+    private void showPanel(LayoutContainer parent) {
+        this.form.reset();
         parent.add(this.panel);
         parent.layout();
     }
