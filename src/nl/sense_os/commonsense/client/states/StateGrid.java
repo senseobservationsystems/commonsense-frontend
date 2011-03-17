@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.states;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -51,10 +55,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class StateGrid extends View {
 
@@ -173,8 +173,9 @@ public class StateGrid extends View {
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
         this.grid.setId("stateGrid");
-        this.grid.setAutoLoad(true);
+        // this.grid.setAutoLoad(true);
         this.grid.setAutoExpandColumn("text");
+        this.grid.setLoadMask(true);
         this.grid.setStateful(true);
         this.grid.setIconProvider(new SensorIconProvider());
 
@@ -211,7 +212,6 @@ public class StateGrid extends View {
 
         this.panel.add(content);
     }
-
     private void initHeaderTool() {
         ToolButton refresh = new ToolButton("x-tool-refresh");
         refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {

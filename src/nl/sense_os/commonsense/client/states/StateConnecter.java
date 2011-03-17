@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -177,12 +177,9 @@ public class StateConnecter extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
-        this.window.setSize(404, 250);
-        this.window.setResizable(false);
-        this.window.setPlain(true);
-        this.window.setMonitorWindowResize(true);
-        this.window.setLayout(new FitLayout());
         this.window.setHeading("Connect sensor(s) to state");
+        this.window.setSize(404, 250);
+        this.window.setLayout(new FitLayout());
 
         initForm();
     }
@@ -195,11 +192,17 @@ public class StateConnecter extends View {
             @Override
             public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
                 if (null == loadConfig) {
+
+                    tree.disable();
+
                     AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
                     event.setData("name", serviceName);
                     event.setData("callback", callback);
                     Dispatcher.forwardEvent(event);
                 } else if (loadConfig instanceof TreeModel) {
+
+                    tree.enable();
+
                     List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
                     List<TreeModel> children = new ArrayList<TreeModel>();
                     for (ModelData model : childrenModels) {
@@ -221,6 +224,7 @@ public class StateConnecter extends View {
         this.tree = new TreePanel<TreeModel>(store);
         this.tree.setBorders(false);
         this.tree.setDisplayProperty("text");
+        this.tree.setAutoLoad(true);
         this.tree.setIconProvider(new SensorIconProvider());
     }
 

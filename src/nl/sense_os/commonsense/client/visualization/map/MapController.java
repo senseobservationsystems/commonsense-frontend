@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.visualization.map;
 
+import java.util.Date;
+import java.util.HashMap;
+
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -31,9 +34,6 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 
-import java.util.Date;
-import java.util.HashMap;
-
 public class MapController extends Controller {
 
     private static final String TAG = "MapController";
@@ -56,7 +56,7 @@ public class MapController extends Controller {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(MapEvents.LoadData)) {
-            Log.d(TAG, "LoadData");
+            // Log.d(TAG, "LoadData");
             final MapPanel panel = event.<MapPanel> getData("panel");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final double startDate = event.getData("startDate");
@@ -67,13 +67,13 @@ public class MapController extends Controller {
             requestData(panel, sensor, startDate, endDate, page, pagedValues);
 
         } else if (type.equals(MapEvents.AjaxDataFailure)) {
-            Log.d(TAG, "AjaxDataFailure");
+            Log.w(TAG, "AjaxDataFailure");
             final int code = event.getData("code");
             final MapPanel panel = event.getData("panel");
             onDataFailed(code, panel);
 
         } else if (type.equals(MapEvents.AjaxDataSuccess)) {
-            Log.d(TAG, "AjaxDataSuccess");
+            // Log.d(TAG, "AjaxDataSuccess");
             final MapPanel panel = event.<MapPanel> getData("panel");
             final String response = event.<String> getData("response");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
@@ -285,13 +285,6 @@ public class MapController extends Controller {
      */
     private void requestData(MapPanel panel, TreeModel sensor, double startDate, double endDate,
             int page, SensorValueModel[] pagedValues) {
-
-        Log.d(TAG, "requestData");
-        Log.d(TAG, "panel " + panel);
-        Log.d(TAG, "sensor " + sensor);
-        Log.d(TAG, "startDate " + startDate + ", endDate " + endDate);
-        Log.d(TAG, "page " + page);
-        Log.d(TAG, "pagedValues " + pagedValues);
 
         // set retry count as sensor property
         sensor.set("retryCount", 0);

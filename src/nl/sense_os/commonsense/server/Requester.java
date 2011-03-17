@@ -29,7 +29,8 @@ public class Requester {
             connection.setConnectTimeout(30000);
             connection.setRequestProperty("X-SESSION_ID", sessionId);
             connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Cache-Control", "no-cache,max-age=10");
+            connection.setRequestProperty("Cache-Control", "no-cache,max-age=0");
+            connection.addRequestProperty("Pragma", "no-cache");
 
             // log.info(method + " " + connection.getURL().getPath());
 

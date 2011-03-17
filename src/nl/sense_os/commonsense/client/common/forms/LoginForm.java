@@ -29,7 +29,8 @@ public class LoginForm extends FormPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setScrollMode(Scroll.AUTOY);
-        this.setHeight(135);
+        this.setHeight(170);
+        this.setLabelAlign(LabelAlign.TOP);
 
         initFields();
         initButtons();
@@ -89,13 +90,13 @@ public class LoginForm extends FormPanel {
 
         // remember me check box
         this.rememberMe = new CheckBox();
-        this.rememberMe.setLabelSeparator("");
+        this.rememberMe.setHideLabel(true);
         this.rememberMe.setBoxLabel("Remember username");
         this.rememberMe.setValue(true);
 
         this.add(this.username, formData);
         this.add(this.password, formData);
-        this.add(this.rememberMe);
+        this.add(this.rememberMe, formData);
     }
 
     public void setBusy(boolean busy) {

@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.environments;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -42,13 +46,9 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+public class EnvGrid extends View {
 
-public class BuildingGrid extends View {
-
-    protected static final String TAG = "BuildingGrid";
+    protected static final String TAG = "EnvGrid";
     private Button createButton;
     private Button deleteButton;
     private TreeGrid<TreeModel> grid;
@@ -58,12 +58,12 @@ public class BuildingGrid extends View {
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
 
-    public BuildingGrid(Controller controller) {
+    public EnvGrid(Controller controller) {
         super(controller);
     }
 
     protected void create() {
-        Log.w(TAG, "Create button logic not implemented");
+        fireEvent(EnvEvents.ShowCreator);
     }
 
     protected void delete() {
@@ -76,16 +76,16 @@ public class BuildingGrid extends View {
         if (type.equals(MainEvents.Init)) {
             // do nothing, initialization is done in initialize()
 
-        } else if (type.equals(BuildingEvents.ShowGrid)) {
+        } else if (type.equals(EnvEvents.ShowGrid)) {
             // Log.d(TAG, "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(BuildingEvents.ListNotUpdated)) {
+        } else if (type.equals(EnvEvents.ListNotUpdated)) {
             Log.w(TAG, "ListNotUpdated");
             onGroupsNotUpdated(event);
 
-        } else if (type.equals(BuildingEvents.ListUpdated)) {
+        } else if (type.equals(EnvEvents.ListUpdated)) {
             Log.d(TAG, "ListUpdated");
             onListUpdated(event);
 
@@ -97,7 +97,7 @@ public class BuildingGrid extends View {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(BuildingEvents.Working)) {
+        } else if (type.equals(EnvEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusyIcon(true);
 
@@ -112,7 +112,7 @@ public class BuildingGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override
@@ -120,7 +120,7 @@ public class BuildingGrid extends View {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
-                        Dispatcher.forwardEvent(BuildingEvents.ListRequested, callback);
+                        Dispatcher.forwardEvent(EnvEvents.ListRequested, callback);
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
                         callback.onSuccess(childrenModels);

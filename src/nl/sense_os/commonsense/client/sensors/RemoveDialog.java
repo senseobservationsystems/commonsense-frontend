@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.sensors;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -88,13 +88,9 @@ public class RemoveDialog extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
+        this.window.setHeading("Remove sensors");
         this.window.setLayout(new FitLayout());
         this.window.setSize(323, 200);
-        this.window.setResizable(false);
-        this.window.setPlain(true);
-        this.window.setHeading("Remove sensors");
-        this.window.setMonitorWindowResize(true);
-        this.window.setResizable(false);
 
         this.text = new Text();
         this.text.setStyleAttribute("font-size", "13px");

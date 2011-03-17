@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.visualization;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.MapEvents;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -98,10 +99,10 @@ public class VizTypeChooser extends View {
 
         this.vizEvent = new AppEvent(VizEvents.ShowLineChart);
 
-        this.window = new Window();
+        this.window = new CenteredWindow();
         this.window.setHeading("Visualization wizard");
-        this.window.setSize(323, 200);
-        this.window.setResizable(false);
+        this.window.setMinWidth(323);
+        this.window.setMinHeight(200);
 
         this.layout = new CardLayout();
         this.window.setLayout(this.layout);

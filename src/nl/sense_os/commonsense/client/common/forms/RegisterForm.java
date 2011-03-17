@@ -81,6 +81,7 @@ public class RegisterForm extends FormPanel {
         this.setBodyBorder(false);
         this.setHeaderVisible(false);
         this.setScrollMode(Scroll.AUTOY);
+        this.setLabelAlign(LabelAlign.TOP);
 
         initFields();
         initButtons();

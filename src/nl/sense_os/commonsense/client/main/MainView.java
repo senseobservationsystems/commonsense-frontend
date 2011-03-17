@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.main;
 
 import nl.sense_os.commonsense.client.CommonSense;
-import nl.sense_os.commonsense.client.environments.BuildingEvents;
+import nl.sense_os.commonsense.client.environments.EnvEvents;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
@@ -182,9 +182,9 @@ public class MainView extends View {
         west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         // add to viewport
-        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275);
-        westData.setMargins(new Margins(5));
-        westData.setSplit(false);
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275, 275, 2000);
+        westData.setMargins(new Margins(5, 0, 5, 5));
+        westData.setSplit(true);
         this.viewport.add(west, westData);
     }
 
@@ -262,7 +262,7 @@ public class MainView extends View {
                 Dispatcher.forwardEvent(displayStates);
 
                 // environments panel
-                AppEvent displayEnvironments = new AppEvent(BuildingEvents.ShowGrid);
+                AppEvent displayEnvironments = new AppEvent(EnvEvents.ShowGrid);
                 displayEnvironments.setData("parent", this.westContent);
                 Dispatcher.forwardEvent(displayEnvironments);
 

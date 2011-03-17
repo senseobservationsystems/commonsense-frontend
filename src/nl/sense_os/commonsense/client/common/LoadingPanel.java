@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common.grid;
+package nl.sense_os.commonsense.client.common;
 
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.util.Padding;

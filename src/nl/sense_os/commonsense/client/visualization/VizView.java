@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
@@ -26,7 +29,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -35,9 +38,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.user.client.ui.Frame;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class VizView extends View {
 
@@ -138,7 +138,7 @@ public class VizView extends View {
 
         } else if (type.equals(StateEvents.FeedbackReady)) {
             // Log.d(TAG, "FeedbackReady");
-            final ContentPanel feedbackPanel = event.getData();
+            final Component feedbackPanel = event.getData();
             showFeedback(feedbackPanel);
 
         } else if (type.equals(VizEvents.ShowLineChart)) {
@@ -155,7 +155,7 @@ public class VizView extends View {
 
         } else if (type.equals(MapEvents.MapReady)) {
             // Log.d(TAG, "MapReady");
-            final ContentPanel mapPanel = event.getData();
+            final Component mapPanel = event.getData();
             showMap(mapPanel);
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
@@ -301,7 +301,7 @@ public class VizView extends View {
         }
     }
 
-    public void showFeedback(ContentPanel feedbackPanel) {
+    public void showFeedback(Component feedbackPanel) {
 
         // add line chart tab item
         final TabItem item = new TabItem("Feedback");
@@ -329,7 +329,7 @@ public class VizView extends View {
         startRequests(sensors, startTime, endTime);
     }
 
-    public void showMap(ContentPanel mapPanel) {
+    public void showMap(Component mapPanel) {
         // add map tab item
         final TabItem item = new TabItem("Map");
         item.setLayout(new FitLayout());

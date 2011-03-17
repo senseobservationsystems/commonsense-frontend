@@ -1,7 +1,9 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.Date;
+
 import nl.sense_os.commonsense.client.ajax.AjaxController;
-import nl.sense_os.commonsense.client.environments.BuildingController;
+import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
@@ -31,8 +33,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
-import java.util.Date;
-
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -40,7 +40,7 @@ import java.util.Date;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Mar 14 17:42 CET 2011";
+    public static final String LAST_DEPLOYED = "Wed Mar 16 13:45 CET 2011";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -87,7 +87,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
         dispatcher.addController(new StateController());
-        dispatcher.addController(new BuildingController());
+        dispatcher.addController(new EnvController());
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new MapController());

@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -178,12 +178,9 @@ public class StateEditor extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
+        this.window.setHeading("Set or get algorithm parameters");
         this.window.setSize(400, 247);
-        this.window.setResizable(true);
-        this.window.setPlain(true);
-        this.window.setMonitorWindowResize(true);
         this.window.setLayout(new FitLayout());
-        this.window.setHeading("Set/get service parameters");
 
         initForm();
     }

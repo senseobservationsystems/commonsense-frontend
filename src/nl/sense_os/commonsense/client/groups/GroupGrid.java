@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.groups;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -48,10 +52,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class GroupGrid extends View {
 
@@ -157,6 +157,7 @@ public class GroupGrid extends View {
         this.grid.setId("groupGrid");
         this.grid.setStateful(true);
         this.grid.setAutoExpandColumn("text");
+        this.grid.setLoadMask(true);
         this.grid.setIconProvider(new SensorIconProvider());
 
         TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();

@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.sensors.personal;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -139,12 +139,9 @@ public class ShareDialog extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
+        this.window.setHeading("Manage data sharing");
         this.window.setLayout(new FitLayout());
         this.window.setSize(323, 200);
-        this.window.setResizable(false);
-        this.window.setPlain(true);
-        this.window.setMonitorWindowResize(true);
-        this.window.setHeading("Manage data sharing");
 
         initForm();
     }

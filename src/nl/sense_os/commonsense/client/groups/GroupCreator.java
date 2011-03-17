@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.groups;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -159,12 +159,9 @@ public class GroupCreator extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
-        this.window.setSize(323, 200);
-        this.window.setResizable(false);
-        this.window.setPlain(true);
-        this.window.setMonitorWindowResize(true);
-        this.window.setLayout(new FitLayout());
         this.window.setHeading("Create group");
+        this.window.setSize(323, 200);
+        this.window.setLayout(new FitLayout());
 
         initForm();
     }

@@ -40,13 +40,13 @@ public class MapView extends View {
         } else if (evtType.equals(MapEvents.LoadSuccess)) {
             // Log.d(TAG, "LoadSuccess");
             final MapPanel panel = event.<MapPanel> getData("panel");
-            panel.finishLoading();
+            panel.hideNotificationBar();
 
         } else if (evtType.equals(MapEvents.LoadFailure)) {
             Log.w(TAG, "LoadFailure");
             // TODO handle this
             final MapPanel panel = event.<MapPanel> getData("panel");
-            panel.finishLoading();
+            panel.hideNotificationBar();
 
         } else {
             Log.e(TAG, "Unexpected event received!");

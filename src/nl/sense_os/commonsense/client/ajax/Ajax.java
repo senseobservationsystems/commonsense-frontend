@@ -91,7 +91,7 @@ public class Ajax {
 				// IE does not support DELETE or PUT requests: use custom URL parameter
 				if ("DELETE" === method || "PUT" === method) {
 					url = url + "&_METHOD=" + method;
-					method = "POST";
+					method = "GET";
 				}
 
 				xhr.open(method, url);

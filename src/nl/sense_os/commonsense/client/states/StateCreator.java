@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.CenteredWindow;
+import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -75,7 +75,9 @@ public class StateCreator extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateEvents.ShowCreator)) {
-            onShow(event);
+            // Log.d(TAG, "ShowCreator");
+            showWindow();
+
         } else if (type.equals(StateEvents.CreateServiceCancelled)) {
             // Log.d(TAG, "CreateCancelled");
             onCancelled(event);
@@ -89,7 +91,7 @@ public class StateCreator extends View {
             onFailed(event);
 
         } else if (type.equals(StateEvents.LoadSensorsSuccess)) {
-            Log.d(TAG, "LoadSensorsSuccess");
+            // Log.d(TAG, "LoadSensorsSuccess");
             final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
@@ -256,12 +258,9 @@ public class StateCreator extends View {
         super.initialize();
 
         this.window = new CenteredWindow();
-        this.window.setSize(400, 550);
-        this.window.setResizable(false);
-        this.window.setPlain(true);
-        this.window.setMonitorWindowResize(true);
-        this.window.setLayout(new FitLayout());
         this.window.setHeading("Create state sensor");
+        this.window.setSize(400, 550);
+        this.window.setLayout(new FitLayout());
 
         initForm();
     }
@@ -334,14 +333,6 @@ public class StateCreator extends View {
         }
     }
 
-    private void onShow(AppEvent event) {
-        this.form.reset();
-        this.window.show();
-        this.window.center();
-
-        fireEvent(StateEvents.LoadSensors);
-    }
-
     private void setBusy(boolean busy) {
         if (busy) {
             this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
@@ -350,6 +341,14 @@ public class StateCreator extends View {
             this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
             this.cancelButton.enable();
         }
+    }
+
+    private void showWindow() {
+        this.form.reset();
+        this.window.show();
+        this.window.center();
+
+        fireEvent(StateEvents.LoadSensors);
     }
 
     private void submitForm() {

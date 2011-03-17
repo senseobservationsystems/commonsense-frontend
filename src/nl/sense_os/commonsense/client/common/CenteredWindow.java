@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common.grid;
+package nl.sense_os.commonsense.client.common;
 
 import com.extjs.gxt.ui.client.widget.Window;
 
@@ -10,8 +10,10 @@ public class CenteredWindow extends Window {
     public CenteredWindow() {
         super();
         setMonitorWindowResize(true);
+        setPlain(true);
     }
 
+    @Override
     protected void onWindowResize(int width, int height) {
         final int x = (width - this.getWidth()) >> 1;
         final int y = (height - this.getHeight()) >> 1;
