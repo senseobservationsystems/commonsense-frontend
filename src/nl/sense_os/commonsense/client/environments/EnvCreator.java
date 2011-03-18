@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.environments;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -30,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.Point;
+import com.google.gwt.maps.client.overlay.Marker;
 
 public class EnvCreator extends View {
 
@@ -39,6 +41,7 @@ public class EnvCreator extends View {
     private LayoutContainer mapContainer;
     private TreePanel<TreeModel> sensors;
     private TreeStore<TreeModel> store;
+    private HashMap<SensorModel, Marker> markers;
 
     public EnvCreator(Controller c) {
         super(c);
@@ -73,6 +76,9 @@ public class EnvCreator extends View {
     }
 
     private void setupDragDrop() {
+
+        this.markers = new HashMap<SensorModel, Marker>();
+
         TreePanelDragSource source = new TreePanelDragSource(this.sensors);
         source.setTreeStoreState(true);
         source.setGroup("env-creator");
@@ -95,7 +101,8 @@ public class EnvCreator extends View {
         Log.d(TAG, "onSensorsDropped");
 
         LatLng latLng = this.map.convertDivPixelToLatLng(Point.newInstance(x, y));
-        Log.d(TAG, "latlong: " + latLng.toUrlValue(6));
+        Marker marker = new Marker(latLng);
+        map.addOverlay(marker);
     }
 
     /**

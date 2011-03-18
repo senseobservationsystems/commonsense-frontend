@@ -36,12 +36,14 @@ public class MapPanel extends LayoutContainer {
     private Slider startSlider;
     private Slider endSlider;
     private SensorValueModel[] sensorData = new SensorValueModel[]{};
-    private LatLngBounds traceBounds;
+    private Polyline trace;
+    private int traceStartIndex;
+    private int traceEndIndex;
 
     public MapPanel() {
 
         this.setLayout(new BorderLayout());
-        this.setStyleAttribute("background", "rgba(0,0,0,0)");
+        this.setStyleAttribute("background", "rgba(0, 0, 0, 0)");
         this.setId("viz-map");
 
         initNotificationBar();
@@ -62,7 +64,7 @@ public class MapPanel extends LayoutContainer {
         this.sensorData = data;
 
         calcSliderRange(data);
-        updateTrace();
+        drawTrace();
         centerMap();
     }
 
@@ -85,7 +87,7 @@ public class MapPanel extends LayoutContainer {
         } else if (max - min < 60 * 60 * 24) {
             interval = 60 * 60; // 1 hour
         } else {
-            interval = 60 * 60 * 4; // 4 hour
+            interval = 60 * 60 * 4; // 4 hours
         }
 
         startSlider.setMinValue(min);
@@ -100,8 +102,9 @@ public class MapPanel extends LayoutContainer {
     }
 
     private void centerMap() {
-        this.map.setCenter(this.traceBounds.getCenter());
-        this.map.setZoomLevel(this.map.getBoundsZoomLevel(this.traceBounds));
+        final LatLngBounds bounds = this.trace.getBounds();
+        this.map.setCenter(bounds.getCenter());
+        this.map.setZoomLevel(this.map.getBoundsZoomLevel(bounds));
     }
 
     /**
@@ -115,7 +118,7 @@ public class MapPanel extends LayoutContainer {
      * Initializes a Google map.
      */
     private void initMapWidget() {
-        // Create the map.
+
         this.map = new MapWidget();
         this.map.setWidth("100%");
 
@@ -145,6 +148,7 @@ public class MapPanel extends LayoutContainer {
      * specified with the sliders.
      */
     private void initSliders() {
+
         FormPanel slidersForm = new FormPanel();
         slidersForm.setHeaderVisible(false);
         slidersForm.setBorders(false);
@@ -184,36 +188,38 @@ public class MapPanel extends LayoutContainer {
         data.setMargins(new Margins(0, 5, 5, 5));
         this.add(slidersForm, data);
     }
-
     private void showNotificationBar() {
         this.notificationText.setVisible(true);
     }
 
     /**
-     * This method is called when it used the endSlider below the map. It filters the points to draw
-     * a line depending on the time.
-     * 
-     * @param time
+     * This method is called when data is first added to the map. It draws the complete trace on the
+     * map, based on the current setting of the sliders.
      */
-    private LatLngBounds updateTrace() {
+    private void drawTrace() {
 
+        // clean the map
+        this.map.clearOverlays();
+        this.trace = null;
+
+        // get the time window for the trace from the sliders
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
-
-        // Clean the map.
-        this.map.clearOverlays();
-        this.traceBounds = null;
 
         // Draw the filtered points.
         if (sensorData.length > 0 && maxTime > minTime) {
             LatLng[] points = new LatLng[sensorData.length];
 
-            int lastPoint = 0;
+            this.traceStartIndex = -1;
+            this.traceEndIndex = -1;
+            int lastPoint = -1;
 
-            // All the points between the startTime and endTime will be drawn
+            // find the start index of the trace
+            JsonValueModel value = null;
+            Map<String, Object> fields = null;
             for (int i = 0, j = 0; i < sensorData.length; i++) {
-                JsonValueModel value = (JsonValueModel) sensorData[i];
-                Map<String, Object> fields = value.getFields();
+                value = (JsonValueModel) sensorData[i];
+                fields = value.getFields();
 
                 double latitude = (Double) fields.get("latitude");
                 double longitude = (Double) fields.get("longitude");
@@ -222,35 +228,131 @@ public class MapPanel extends LayoutContainer {
                 long timestamp = value.getTimestamp().getTime() / 1000;
 
                 if (timestamp > minTime && timestamp < maxTime) {
+                    // update indices
                     lastPoint = j;
+                    traceEndIndex = i;
+                    if (-1 == this.traceStartIndex) {
+                        traceStartIndex = i;
+                    }
+                    // store coordinate
                     LatLng coordinate = LatLng.newInstance(latitude, longitude);
                     points[j++] = coordinate;
-                    if (null == this.traceBounds) {
-                        this.traceBounds = LatLngBounds.newInstance(coordinate, coordinate);
-                    } else {
-                        this.traceBounds.extend(coordinate);
-                    }
                 }
             }
 
             // Add the first marker
             Marker startMarker = new Marker(points[0]);
             startMarker.setDraggingEnabled(true);
-            map.addOverlay(startMarker);
+            this.map.addOverlay(startMarker);
 
             // Add the last marker
             Marker endMarker = new Marker(points[lastPoint]);
             endMarker.setDraggingEnabled(true);
-            map.addOverlay(endMarker);
+            this.map.addOverlay(endMarker);
 
             // Draw a track line
             PolylineOptions lineOptions = PolylineOptions.newInstance(false, true);
-            Polyline trace = new Polyline(points, "#FF7F00", 5, 1, lineOptions);
-            map.addOverlay(trace);
+            this.trace = new Polyline(points, "#FF7F00", 5, 1, lineOptions);
+            this.map.addOverlay(this.trace);
         } else {
             Log.w(TAG, "No position values in selected time range");
         }
+    }
 
-        return this.traceBounds;
+    private void updateTrace() {
+
+        Log.d(TAG, "updateTrace ");
+
+        if (null == trace || false == trace.isVisible()) {
+            Log.d(TAG, "updateTrace skipped");
+            return;
+        }
+
+        int minTime = startSlider.getValue();
+        int maxTime = endSlider.getValue();
+
+        // find the start end end indices of the trace in the sensor data array
+        int newTraceStartIndex = -1, newTraceEndIndex = -1;
+        JsonValueModel value = null;
+        long timestamp;
+        for (int i = 0; i < sensorData.length; i++) {
+            // get timestamp
+            value = (JsonValueModel) sensorData[i];
+            timestamp = value.getTimestamp().getTime() / 1000;
+
+            if (timestamp > minTime && newTraceStartIndex == -1) {
+                // this is the first index with start of visible range
+                newTraceStartIndex = i;
+            }
+            if (timestamp > maxTime && newTraceEndIndex == -1) {
+                // this is the first index after the end of visible range
+                newTraceEndIndex = i - 1;
+                break;
+            }
+        }
+
+        Log.d(TAG, "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
+        Log.d(TAG, "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
+
+        // change start of trace
+        if (newTraceStartIndex != -1) {
+            // add vertices at START of trace if newTraceStart < traceStartIndex
+            if (newTraceStartIndex < traceStartIndex) {
+                Log.d(TAG, "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
+                Map<String, Object> fields = null;
+                for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
+                    value = (JsonValueModel) this.sensorData[i];
+                    fields = value.getFields();
+                    double lat = (Double) fields.get("latitude");
+                    double lon = (Double) fields.get("longitude");
+                    LatLng coordinate = LatLng.newInstance(lat, lon);
+
+                    this.trace.insertVertex(0, coordinate);
+                }
+            }
+
+            // delete vertices at START of trace if newTraceStart > traceStartIndex
+            if (newTraceStartIndex > traceStartIndex) {
+                Log.d(TAG, "Delete " + (newTraceStartIndex - traceStartIndex)
+                        + " vertices at start");
+                for (int i = this.traceStartIndex; i < newTraceStartIndex; i++) {
+                    this.trace.deleteVertex(0);
+                }
+            }
+        } else {
+            newTraceStartIndex = this.traceStartIndex;
+        }
+
+        // change end of trace
+        if (newTraceEndIndex != -1) {
+            // add vertices at END of trace if newTraceEnd > traceEndIndex
+            if (newTraceEndIndex > traceEndIndex) {
+                Log.d(TAG, "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
+                Map<String, Object> fields = null;
+                for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
+                    value = (JsonValueModel) this.sensorData[i];
+                    fields = value.getFields();
+                    double lat = (Double) fields.get("latitude");
+                    double lon = (Double) fields.get("longitude");
+                    LatLng coordinate = LatLng.newInstance(lat, lon);
+
+                    this.trace.insertVertex(this.trace.getVertexCount(), coordinate);
+                }
+            }
+
+            // delete vertices at END of trace if newTraceEnd < traceEndIndex
+            if (newTraceEndIndex < traceEndIndex) {
+                Log.d(TAG, "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
+                for (int i = this.traceEndIndex; i > newTraceEndIndex; i--) {
+                    this.trace.deleteVertex(this.trace.getVertexCount() - 1);
+                }
+            }
+        } else {
+            newTraceEndIndex = this.traceEndIndex;
+        }
+
+        // update trace indexes
+        this.traceStartIndex = newTraceStartIndex;
+        this.traceEndIndex = newTraceEndIndex;
     }
 }

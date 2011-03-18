@@ -63,7 +63,7 @@ public class EnvGrid extends View {
     }
 
     protected void create() {
-        fireEvent(EnvEvents.ShowCreator);
+        // fireEvent(EnvEvents.ShowCreator);
     }
 
     protected void delete() {
