@@ -25,6 +25,7 @@ import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.LatLngBounds;
 import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.maps.client.overlay.PolylineOptions;
 
@@ -36,6 +37,8 @@ public class MapPanel extends LayoutContainer {
     private Slider startSlider;
     private Slider endSlider;
     private SensorValueModel[] sensorData = new SensorValueModel[]{};
+    private Marker startMarker;
+    private Marker endMarker;
     private Polyline trace;
     private int traceStartIndex;
     private int traceEndIndex;
@@ -241,13 +244,12 @@ public class MapPanel extends LayoutContainer {
             }
 
             // Add the first marker
-            Marker startMarker = new Marker(points[0]);
-            startMarker.setDraggingEnabled(true);
+            final MarkerOptions markerOptions = MarkerOptions.newInstance();
+            this.startMarker = new Marker(points[0], markerOptions);
             this.map.addOverlay(startMarker);
 
             // Add the last marker
-            Marker endMarker = new Marker(points[lastPoint]);
-            endMarker.setDraggingEnabled(true);
+            this.endMarker = new Marker(points[lastPoint], markerOptions);
             this.map.addOverlay(endMarker);
 
             // Draw a track line
@@ -261,7 +263,7 @@ public class MapPanel extends LayoutContainer {
 
     private void updateTrace() {
 
-        Log.d(TAG, "updateTrace ");
+        // Log.d(TAG, "updateTrace ");
 
         if (null == trace || false == trace.isVisible()) {
             Log.d(TAG, "updateTrace skipped");
@@ -291,11 +293,11 @@ public class MapPanel extends LayoutContainer {
             }
         }
 
-        Log.d(TAG, "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
-        Log.d(TAG, "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
+        // Log.d(TAG, "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
+        // Log.d(TAG, "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
 
         // change start of trace
-        if (newTraceStartIndex != -1) {
+        if (newTraceStartIndex != -1 && newTraceEndIndex > newTraceStartIndex) {
             // add vertices at START of trace if newTraceStart < traceStartIndex
             if (newTraceStartIndex < traceStartIndex) {
                 Log.d(TAG, "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
@@ -319,12 +321,21 @@ public class MapPanel extends LayoutContainer {
                     this.trace.deleteVertex(0);
                 }
             }
+
+            // update end marker
+            JsonValueModel startValue = (JsonValueModel) this.sensorData[newTraceStartIndex];
+            Map<String, Object> fields = startValue.getFields();
+            double lat = (Double) fields.get("latitude");
+            double lon = (Double) fields.get("longitude");
+            LatLng coordinate = LatLng.newInstance(lat, lon);
+            this.startMarker.setLatLng(coordinate);
+
         } else {
             newTraceStartIndex = this.traceStartIndex;
         }
 
         // change end of trace
-        if (newTraceEndIndex != -1) {
+        if (newTraceEndIndex != -1 && newTraceEndIndex > newTraceStartIndex) {
             // add vertices at END of trace if newTraceEnd > traceEndIndex
             if (newTraceEndIndex > traceEndIndex) {
                 Log.d(TAG, "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
@@ -347,6 +358,15 @@ public class MapPanel extends LayoutContainer {
                     this.trace.deleteVertex(this.trace.getVertexCount() - 1);
                 }
             }
+
+            // update end marker
+            JsonValueModel endValue = (JsonValueModel) this.sensorData[newTraceEndIndex];
+            Map<String, Object> fields = endValue.getFields();
+            double lat = (Double) fields.get("latitude");
+            double lon = (Double) fields.get("longitude");
+            LatLng coordinate = LatLng.newInstance(lat, lon);
+            this.endMarker.setLatLng(coordinate);
+
         } else {
             newTraceEndIndex = this.traceEndIndex;
         }
