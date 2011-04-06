@@ -164,6 +164,8 @@ public class StateCreator extends View {
 
                     @Override
                     public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+
+                        servicesField.clear();
                         TreeModel selected = se.getSelectedItem();
                         if (selected instanceof SensorModel) {
                             AppEvent getServices = new AppEvent(
