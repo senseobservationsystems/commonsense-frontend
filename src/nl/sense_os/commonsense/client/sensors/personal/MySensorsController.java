@@ -126,10 +126,21 @@ public class MySensorsController extends Controller {
             }
         }
 
-        getMySensorsCallback.onSuccess(categories);
+        Registry.register(Constants.REG_MY_SENSORS, categories);
+
+        forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
+        Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
+
+        if (null != getMySensorsCallback) {
+            getMySensorsCallback.onSuccess(categories);
+        }
     }
 
     private void getDevicesFailure() {
+
+        forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
+        Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
+
         if (null != getMySensorsCallback) {
             getMySensorsCallback.onFailure(null);
         }
@@ -140,6 +151,8 @@ public class MySensorsController extends Controller {
         if (null == this.getMySensorsCallback) {
             this.getMySensorsCallback = proxyCallback;
         }
+
+        forwardToView(this.treeView, new AppEvent(MySensorsEvents.Working));
 
         // prepare request properties
         final String method = "GET";
@@ -221,6 +234,10 @@ public class MySensorsController extends Controller {
     }
 
     private void getMySensorsFailure() {
+
+        forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
+        Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
+
         if (null != getMySensorsCallback) {
             getMySensorsCallback.onFailure(null);
         }
