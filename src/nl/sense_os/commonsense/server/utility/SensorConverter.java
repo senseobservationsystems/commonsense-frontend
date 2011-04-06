@@ -20,18 +20,15 @@ public class SensorConverter {
 
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(SensorModel.ID, json.getString(SensorModel.ID));
-        properties.put(SensorModel.DATA_TYPE_ID, json.optString(SensorModel.DATA_TYPE_ID));
         properties.put(SensorModel.PAGER_TYPE, json.getString(SensorModel.PAGER_TYPE));
         properties.put(SensorModel.DEVICE_TYPE, json.getString(SensorModel.DEVICE_TYPE));
         properties.put(SensorModel.NAME, json.getString(SensorModel.NAME));
         properties.put(SensorModel.TYPE, json.getString(SensorModel.TYPE));
         properties.put(SensorModel.DATA_TYPE, json.optString(SensorModel.DATA_TYPE));
         properties.put(SensorModel.DATA_TYPE_ID, json.optString(SensorModel.DATA_TYPE_ID));
-        properties.put(SensorModel.DATA_STRUCTURE,
-                json.optString(SensorModel.DATA_STRUCTURE));
+        properties.put(SensorModel.DATA_STRUCTURE, json.optString(SensorModel.DATA_STRUCTURE));
         properties.put(SensorModel.OWNER_ID, json.optString(SensorModel.OWNER_ID));
-        properties.put(SensorModel.DEVICE_DEVTYPE,
-                json.optString(SensorModel.DEVICE_DEVTYPE));
+        properties.put(SensorModel.DEVICE_DEVTYPE, json.optString(SensorModel.DEVICE_DEVTYPE));
         properties.put(SensorModel.DEVICE_ID, json.optString(SensorModel.DEVICE_ID));
 
         // front end-only properties

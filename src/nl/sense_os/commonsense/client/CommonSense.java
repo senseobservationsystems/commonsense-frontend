@@ -40,7 +40,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Mar 21 18:20 CET 2011";
+    public static final String LAST_DEPLOYED = "Wed Apr 6 16:30 CET 2011";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.

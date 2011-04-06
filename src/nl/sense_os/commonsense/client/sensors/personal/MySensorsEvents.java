@@ -21,4 +21,8 @@ public class MySensorsEvents {
     // Ajax-related event types
     public static final EventType AjaxShareFailure = new EventType();
     public static final EventType AjaxShareSuccess = new EventType();
+    public static final EventType AjaxSensorsFailure = new EventType();
+    public static final EventType AjaxSensorsSuccess = new EventType();
+    public static final EventType AjaxDevicesFailure = new EventType();
+    public static final EventType AjaxDevicesSuccess = new EventType();
 }

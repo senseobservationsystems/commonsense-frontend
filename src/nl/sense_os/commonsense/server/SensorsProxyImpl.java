@@ -260,7 +260,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         List<SensorModel> unsortedSensors = getAllSensors(sessionId, params);
 
         // store alias and owner information for future use
-        for (ModelData sensor : unsortedSensors) {
+        for (SensorModel sensor : unsortedSensors) {
             sensor.set("owned", "1");
         }
 
@@ -273,9 +273,9 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
                 apps, feedsSensors, stateSensors);
 
         // handle nested devices
+        // remove the Device category if it is already present
         for (TreeModel cat : sorted) {
             if (cat.<String> get("text").equalsIgnoreCase("devices")) {
-                // remove the Device category if it is already present
                 sorted.remove(cat);
                 break;
             }
@@ -494,23 +494,23 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-            case 0:
-                feeds.add(sensor);
-                break;
-            case 1:
-                devices.add(sensor);
-                break;
-            case 2:
-                states.add(sensor);
-                break;
-            case 3:
-                environments.add(sensor);
-                break;
-            case 4:
-                apps.add(sensor);
-                break;
-            default:
-                log.warning("Unexpected sensor type: " + type);
+                case 0 :
+                    feeds.add(sensor);
+                    break;
+                case 1 :
+                    devices.add(sensor);
+                    break;
+                case 2 :
+                    states.add(sensor);
+                    break;
+                case 3 :
+                    environments.add(sensor);
+                    break;
+                case 4 :
+                    apps.add(sensor);
+                    break;
+                default :
+                    log.warning("Unexpected sensor type: " + type);
             }
         }
 

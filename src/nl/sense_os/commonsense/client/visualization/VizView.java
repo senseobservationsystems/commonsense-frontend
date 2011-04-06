@@ -83,7 +83,7 @@ public class VizView extends View {
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
         welcomeItem.setLayout(new FitLayout());
-        LayoutData data = new FitData(new Margins(-150, 0, 0, 0));
+        LayoutData data = new FitData(new Margins(0));
         welcomeItem.add(welcomeFrame, data);
         this.tabPanel.add(welcomeItem);
 

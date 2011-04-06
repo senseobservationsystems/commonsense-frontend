@@ -17,7 +17,7 @@ public class HelpScreen extends LayoutContainer {
         Frame frame = new Frame("http://welcome.sense-os.nl/node/6");
         frame.setStylePrimaryName("senseFrame");
 
-        LayoutData data = new FitData(new Margins(-150, 0, 0, 0));
+        LayoutData data = new FitData(new Margins(0));
 
         this.setLayout(new FitLayout());
         this.add(frame, data);
