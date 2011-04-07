@@ -1,20 +1,20 @@
 package nl.sense_os.commonsense.shared;
 
-import java.util.Map;
-
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
+import java.util.Map;
+
 public class UserModel extends BaseTreeModel {
 
-    public static final String KEY_EMAIL = "email";
-    public static final String KEY_ID = "id";
-    public static final String KEY_MOBILE = "mobile";
-    public static final String KEY_NAME = "name";
-    public static final String KEY_SURNAME = "surname";
-    public static final String KEY_USERNAME = "username";
+    public static final String ID = "id";
+    public static final String EMAIL = "email";
+    public static final String MOBILE = "mobile";
+    public static final String NAME = "name";
+    public static final String SURNAME = "surname";
+    public static final String USERNAME = "username";
+    private static final String UUID = "uuid";
     private static final long serialVersionUID = 1L;
-    private static final String KEY_UUID = "uuid";
 
     public UserModel() {
         super();
@@ -28,7 +28,7 @@ public class UserModel extends BaseTreeModel {
         super(parent);
     }
 
-    public UserModel(int id, String username, String email, String name, String surname,
+    public UserModel(String id, String username, String email, String name, String surname,
             String mobile, String uuid) {
         setId(id);
         setUsername(username);
@@ -40,61 +40,61 @@ public class UserModel extends BaseTreeModel {
     }
 
     private void setUuid(String uuid) {
-        set(KEY_UUID, uuid);
+        set(UUID, uuid);
     }
 
     public String getEmail() {
-        return get(KEY_EMAIL);
+        return get(EMAIL);
     }
 
-    public int getId() {
-        return get(KEY_ID, -1);
+    public String getId() {
+        return get(ID);
     }
 
     public String getMobile() {
-        return get(KEY_MOBILE);
+        return get(MOBILE);
     }
 
     public String getName() {
-        return get(KEY_NAME);
+        return get(NAME);
     }
 
     public String getSurname() {
-        return get(KEY_SURNAME);
+        return get(SURNAME);
     }
 
     public String getUsername() {
-        return get(KEY_USERNAME);
+        return get(USERNAME);
     }
 
     private UserModel setEmail(String email) {
-        set(KEY_EMAIL, email);
+        set(EMAIL, email);
         return this;
 
     }
 
-    public UserModel setId(int id) {
-        set(KEY_ID, id);
+    public UserModel setId(String id) {
+        set(ID, id);
         return this;
     }
 
     private UserModel setMobile(String mobile) {
-        set(KEY_MOBILE, mobile);
+        set(MOBILE, mobile);
         return this;
     }
 
     public UserModel setName(String name) {
-        set(KEY_NAME, name);
+        set(NAME, name);
         return this;
     }
 
     private UserModel setSurname(String surname) {
-        set(KEY_SURNAME, surname);
+        set(SURNAME, surname);
         return this;
     }
 
     private UserModel setUsername(String username) {
-        set(KEY_USERNAME, username);
+        set(USERNAME, username);
         set("text", username);
         return this;
     }
@@ -105,6 +105,6 @@ public class UserModel extends BaseTreeModel {
     }
 
     public String getUuid() {
-        return get(KEY_UUID);
+        return get(UUID);
     }
 }

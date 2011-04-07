@@ -26,12 +26,12 @@ public class UserConverter {
                 JSONObject user = users.getJSONObject(i);
 
                 HashMap<String, Object> properties = new HashMap<String, Object>();
-                properties.put(UserModel.KEY_ID, user.getString(UserModel.KEY_ID));
-                properties.put(UserModel.KEY_EMAIL, user.optString(UserModel.KEY_EMAIL));
-                properties.put(UserModel.KEY_NAME, user.optString(UserModel.KEY_NAME));
-                properties.put(UserModel.KEY_SURNAME, user.optString(UserModel.KEY_SURNAME));
-                properties.put(UserModel.KEY_USERNAME, user.optString(UserModel.KEY_USERNAME));
-                properties.put(UserModel.KEY_MOBILE, user.optString(UserModel.KEY_MOBILE));
+                properties.put(UserModel.ID, user.getString(UserModel.ID));
+                properties.put(UserModel.EMAIL, user.optString(UserModel.EMAIL));
+                properties.put(UserModel.NAME, user.optString(UserModel.NAME));
+                properties.put(UserModel.SURNAME, user.optString(UserModel.SURNAME));
+                properties.put(UserModel.USERNAME, user.optString(UserModel.USERNAME));
+                properties.put(UserModel.MOBILE, user.optString(UserModel.MOBILE));
 
                 // front end-only properties
                 properties.put("tagType", TagModel.TYPE_USER);

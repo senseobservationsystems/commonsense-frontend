@@ -233,7 +233,7 @@ public class LoginController extends Controller {
                     JSONString jsonMobile = jsonUser.get("mobile").isString();
                     JSONString jsonUuid = jsonUser.get("UUID").isString();
 
-                    int id = jsonId != null ? Integer.parseInt(jsonId.stringValue()) : -1;
+                    String id = jsonId != null ? jsonId.stringValue() : "";
                     String username = jsonUsername != null ? jsonUsername.stringValue() : "";
                     String name = jsonName != null ? jsonName.stringValue() : "";
                     String surname = jsonSurname != null ? jsonSurname.stringValue() : "";

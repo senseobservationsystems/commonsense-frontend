@@ -26,10 +26,16 @@ public class GroupEvents {
     protected static final EventType InviteCancelled = new EventType();
 
     // Ajax-related events
-    public static final EventType AjaxCreateSuccess = new EventType();
-    public static final EventType AjaxCreateFailure = new EventType();
-    public static final EventType AjaxInviteSuccess = new EventType();
-    public static final EventType AjaxInviteFailure = new EventType();
-    public static final EventType AjaxLeaveSuccess = new EventType();
-    public static final EventType AjaxLeaveFailure = new EventType();
+    protected static final EventType AjaxCreateSuccess = new EventType();
+    protected static final EventType AjaxCreateFailure = new EventType();
+    protected static final EventType AjaxInviteSuccess = new EventType();
+    protected static final EventType AjaxInviteFailure = new EventType();
+    protected static final EventType AjaxLeaveSuccess = new EventType();
+    protected static final EventType AjaxLeaveFailure = new EventType();
+    protected static final EventType AjaxGroupIdsSuccess = new EventType();
+    protected static final EventType AjaxGroupIdsFailure = new EventType();
+    protected static final EventType AjaxGroupDetailsSuccess = new EventType();
+    protected static final EventType AjaxGroupDetailsFailure = new EventType();
+    protected static final EventType AjaxGroupMembersSuccess = new EventType();
+    protected static final EventType AjaxGroupMembersFailure = new EventType();
 }

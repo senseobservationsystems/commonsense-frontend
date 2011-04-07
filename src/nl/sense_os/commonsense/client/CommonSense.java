@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.Date;
-
 import nl.sense_os.commonsense.client.ajax.AjaxController;
 import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
@@ -33,6 +31,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
+import java.util.Date;
+
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -40,7 +40,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Wed Apr 6 16:30 CET 2011";
+    public static final String LAST_DEPLOYED = "Thu Apr 7 12:00 CET 2011";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
