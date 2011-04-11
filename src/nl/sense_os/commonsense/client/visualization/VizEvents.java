@@ -19,6 +19,10 @@ public class VizEvents {
     public static final EventType Show = new EventType();
 
     // Ajax-related event types
-    public static final EventType AjaxDataSuccess = new EventType();
-    public static final EventType AjaxDataFailure = new EventType();
+    protected static final EventType AjaxDataSuccess = new EventType();
+    protected static final EventType AjaxDataFailure = new EventType();
+
+    protected static final EventType ShowProgress = new EventType();
+    protected static final EventType UpdateProgress = new EventType();
+    protected static final EventType HideProgress = new EventType();
 }

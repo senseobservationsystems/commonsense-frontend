@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.ajax.parsers;
+package nl.sense_os.commonsense.client.json.parsers;
 
 import java.util.HashMap;
 import java.util.List;

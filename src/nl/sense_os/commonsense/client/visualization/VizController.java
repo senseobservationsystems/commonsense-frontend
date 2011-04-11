@@ -1,12 +1,18 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.Date;
+import java.util.HashMap;
+
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.map.MapEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.sensorvalues.BooleanValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
@@ -27,7 +33,8 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -36,13 +43,12 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-
 public class VizController extends Controller {
 
     private static final String TAG = "VizController";
+    private static final int PER_PAGE = 1000; // max: 1000
     private View vizView;
+    private View progressDialog;
     private View typeChooser;
     private boolean isVizApiLoaded;
 
@@ -68,11 +74,14 @@ public class VizController extends Controller {
 
         if (type.equals(VizEvents.DataRequested)) {
             // Log.d(TAG, "DataRequested");
+
+            showWaitDialog();
+
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final double startDate = event.<Double> getData("startDate");
             final double endDate = event.<Double> getData("endDate");
             final int page = 0;
-            final SensorValueModel[] pagedValues = new SensorValueModel[0];
+            final SensorValueModel[] pagedValues = null;
             requestData(sensor, startDate, endDate, page, pagedValues);
 
         } else if (type.equals(VizEvents.ShowTypeChoice)
@@ -93,8 +102,9 @@ public class VizController extends Controller {
             final SensorValueModel[] pagedValues = event
                     .<SensorValueModel[]> getData("paged_values");
 
-            final SensorValueModel[] newValues = parseDataResponse(response);
-            onDataSucces(sensor, startDate, endDate, page, pagedValues, newValues);
+            SensorValueModel[] newValues = parseDataResponse(response, sensor, pagedValues, page
+                    * PER_PAGE);
+            onDataSucces(sensor, startDate, endDate, page, newValues);
 
         } else {
             forwardToView(this.vizView, event);
@@ -105,6 +115,7 @@ public class VizController extends Controller {
     protected void initialize() {
         super.initialize();
         this.vizView = new VizView(this);
+        this.progressDialog = new ProgressDialog(this);
         this.typeChooser = new VizTypeChooser(this);
 
         loadVizApi();
@@ -146,71 +157,84 @@ public class VizController extends Controller {
         }.schedule(1000 * 10);
     }
 
-    public void onDataFailed(int code) {
+    private void onDataFailed(int code) {
         Dispatcher.forwardEvent(VizEvents.DataNotReceived);
     }
 
-    public void onDataReceived(TaggedDataModel data) {
+    private void onDataReceived(TaggedDataModel data) {
         forwardToView(this.vizView, new AppEvent(VizEvents.DataReceived, data));
+
+        hideWaitDialog();
+    }
+
+    private void hideWaitDialog() {
+        forwardToView(progressDialog, new AppEvent(VizEvents.HideProgress));
     }
 
     private void onDataSucces(TreeModel sensor, double startDate, double endDate, int page,
-            SensorValueModel[] pagedValues, SensorValueModel[] newValues) {
+            SensorValueModel[] pagedValues) {
 
-        // merge new values with paged values
-        SensorValueModel[] allValues = newValues;
-        if (pagedValues != null) {
-            allValues = new SensorValueModel[pagedValues.length + newValues.length];
-            System.arraycopy(pagedValues, 0, allValues, 0, pagedValues.length);
-            System.arraycopy(newValues, 0, allValues, pagedValues.length, newValues.length);
-        }
+        updateWaitDialog(Math.min(PER_PAGE * (page + 1), pagedValues.length), pagedValues.length);
 
         // finish up, or request another page of data
-        if (newValues.length < 1000) {
-            sensor.set("cached_data", allValues);
+        if (PER_PAGE * (page + 1) >= pagedValues.length) {
+            sensor.set("cached_data", pagedValues);
 
             TagModel mdl = new TagModel(sensor.<String> get("name") + "/", 0, 0,
                     TagModel.TYPE_SENSOR);
-            TaggedDataModel taggedData = new TaggedDataModel(mdl, allValues);
+            TaggedDataModel taggedData = new TaggedDataModel(mdl, pagedValues);
             onDataReceived(taggedData);
         } else {
-            // exactly 1000 values? see if there are more pages
-            pagedValues = allValues;
+            // see if there are more pages
             page++;
 
             requestData(sensor, startDate, endDate, page, pagedValues);
         }
     }
 
-    private SensorValueModel[] parseDataResponse(String response) {
-        SensorValueModel[] values = null;
+    private SensorValueModel[] parseDataResponse(String response, TreeModel sensor,
+            SensorValueModel[] result, int offset) {
+
         try {
-            JSONObject obj = JSONParser.parseStrict(response).isObject();
-            JSONArray data = obj.get("data").isArray();
+            Log.d(TAG, "Start overlaying...");
+            SensorDataResponse jsResponse = JsonUtils.<SensorDataResponse> safeEval(response);
+            Log.d(TAG, "Overlay done!");
 
-            Log.d(TAG, "Received " + data.size() + " sensor data points");
+            JsArray<DataPoint> data = jsResponse.getData();
+            int total = jsResponse.getTotal();
+            if (offset == 0 || result == null) {
+                result = new SensorValueModel[total];
+            }
 
-            values = new SensorValueModel[data.size()];
-            JSONObject datapoint;
+            // update UI
+            updateWaitDialog(offset + (data.length() >> 1), total);
+
+            Log.d(TAG, "Received " + data.length() + " overlayed sensor data points");
+
+            // get information on how to parse the data
+            String dataType = sensor.get(SensorModel.DATA_TYPE);
+            // TODO can we use the data structure info?
+            // String dataStructure = sensor.get(SensorModel.DATA_STRUCTURE);
+
+            DataPoint datapoint;
             double decimalTime;
             Date timestamp;
             String rawValue;
             String cleanValue;
             SensorValueModel value;
-            for (int i = 0; i < data.size(); i++) {
+            for (int i = 0; i < data.length(); i++) {
 
-                datapoint = data.get(i).isObject();
+                datapoint = data.get(i);
 
                 // parse time
-                decimalTime = Double.parseDouble(datapoint.get("date").isString().stringValue());
+                decimalTime = Double.parseDouble(datapoint.getDate());
                 timestamp = new Date((long) (decimalTime * 1000));
 
                 // get value (always a String initially)
-                rawValue = datapoint.get("value").isString().stringValue();
+                rawValue = datapoint.getValue();
                 cleanValue = rawValue.replaceAll("//", "");
 
-                if ((cleanValue.charAt(0) == '{')
-                        && (cleanValue.charAt(cleanValue.length() - 1) == '}')) {
+                if (dataType.equals("json")) {
                     JSONObject jsonValue = JSONParser.parseStrict(cleanValue).isObject();
                     if (null != jsonValue) {
                         // Log.d(TAG, "JsonValue");
@@ -233,55 +257,76 @@ public class VizController extends Controller {
                             fields.put(fieldKey, fieldValue.toString());
                         }
                         value = new JsonValueModel(timestamp, fields);
-                        values[i] = value;
+                        result[offset + i] = value;
                         continue;
                     }
-                }
 
-                try {
-                    double doubleValue = Double.parseDouble(cleanValue);
-                    // Log.d(TAG, "FloatValue");
-                    value = new FloatValueModel(timestamp, doubleValue);
-                    values[i] = value;
+                } else if (dataType.equals("float")) {
+                    try {
+                        double doubleValue = Double.parseDouble(cleanValue);
+                        // Log.d(TAG, "FloatValue");
+                        value = new FloatValueModel(timestamp, doubleValue);
+                        result[offset + i] = value;
+                        continue;
+                    } catch (NumberFormatException e) {
+                        // do nothing
+                    }
+
+                } else if (dataType.equals("bool")) {
+                    boolean boolValue = Boolean.parseBoolean(cleanValue);
+                    if (!boolValue && cleanValue.equalsIgnoreCase("false")) {
+                        // Log.d(TAG, "BooleanValue");
+                        value = new BooleanValueModel(timestamp, boolValue);
+                        result[offset + i] = value;
+                        continue;
+                    }
+
+                } else if (dataType.equals("string")) {
+                    // Log.d(TAG, "StringValue");
+                    value = new StringValueModel(timestamp, cleanValue);
+                    result[offset + i] = value;
                     continue;
-                } catch (NumberFormatException e) {
-                    // do nothing
-                }
 
-                boolean boolValue = Boolean.parseBoolean(cleanValue);
-                if (!boolValue && cleanValue.equalsIgnoreCase("false")) {
-                    // Log.d(TAG, "BooleanValue");
-                    value = new BooleanValueModel(timestamp, boolValue);
-                    values[i] = value;
+                } else {
+                    Log.w(TAG, "Missing data type information!");
+                    value = new StringValueModel(timestamp, cleanValue);
+                    result[offset + i] = value;
                     continue;
                 }
-
-                // Log.d(TAG, "StringValue");
-                value = new StringValueModel(timestamp, cleanValue);
-                values[i] = value;
-                continue;
             }
 
         } catch (NullPointerException e) {
             Log.e(TAG, "NullPointerException parsing sensor data: " + e.getMessage());
             return null;
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "IllegalArgumentException parsing sensor data: " + e.getMessage());
+            return null;
         }
 
-        // Log.d(TAG, "Finished parsing received data points");
+        Log.d(TAG, "Finished parsing received data points");
 
-        return values;
+        return result;
+    }
+
+    private void updateWaitDialog(double progress, double total) {
+        Log.d(TAG, "Update progress: " + (progress / total));
+        AppEvent update = new AppEvent(VizEvents.UpdateProgress);
+        update.setData("progress", progress);
+        update.setData("total", total);
+        forwardToView(progressDialog, update);
+    }
+
+    private void showWaitDialog() {
+        forwardToView(progressDialog, new AppEvent(VizEvents.ShowProgress));
     }
 
     private void requestData(TreeModel sensor, double startDate, double endDate, int page,
             SensorValueModel[] pagedValues) {
 
-        // set retry count as sensor property
-        sensor.set("retryCount", 0);
-
         final String method = "GET";
-        String url = Constants.URL_DATA.replace("<id>", "" + sensor.<String> get("id"));
+        String url = Constants.URL_DATA.replace("<id>", sensor.<String> get("id"));
         url += "?page=" + page;
-        url += "&per_page=" + 1000;
+        url += "&per_page=" + PER_PAGE;
         url += "&start_date=" + startDate;
         url += "&end_date=" + endDate;
         if (null != sensor.get("alias")) {

@@ -70,42 +70,6 @@ public class VizView extends View {
         Dispatcher.forwardEvent(requestEvent);
     }
 
-    private void initTabPanel() {
-        // Tabs panel
-        this.tabPanel = new TabPanel();
-        this.tabPanel.setId("tab-panel");
-        this.tabPanel.setSize("100%", "100%");
-        this.tabPanel.setPlain(true);
-        this.tabPanel.addStyleName("transparent");
-
-        // Welcome tab item
-        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
-        welcomeFrame.setStylePrimaryName("senseFrame");
-        final TabItem welcomeItem = new TabItem("Welcome");
-        welcomeItem.setLayout(new FitLayout());
-        LayoutData data = new FitData(new Margins(0));
-        welcomeItem.add(welcomeFrame, data);
-        this.tabPanel.add(welcomeItem);
-
-        // Track trace
-        final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
-                + "http://demo.almende.com/tracker/ictdelta");
-        trackTrace.setStylePrimaryName("senseFrame");
-        final TabItem trackTraceItem = new TabItem("Track & Trace demo");
-        trackTraceItem.setLayout(new FitLayout());
-        trackTraceItem.add(trackTrace);
-        this.tabPanel.add(trackTraceItem);
-
-        // Humidity
-        final Frame humid3d = new Frame(
-                "http://demo.almende.com/links/storm/day_40_humid_animation.html");
-        humid3d.setStylePrimaryName("senseFrame");
-        final TabItem humid3dItem = new TabItem("3D Humidity");
-        humid3dItem.setLayout(new FitLayout());
-        humid3dItem.add(humid3d);
-        this.tabPanel.add(humid3dItem);
-    }
-
     @Override
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -174,24 +138,93 @@ public class VizView extends View {
         setupDragDrop();
     }
 
-    /**
-     * Handles failed requests for sensor data. Retries the request 3 times, and then passes null to
-     * {@link #onSensorValuesReceived(TaggedDataModel)} to indicate definite failure.
-     */
-    public void onRequestFailed() {
-        Log.w(TAG, "Request failed");
+    private void initTabPanel() {
+        // Tabs panel
+        this.tabPanel = new TabPanel();
+        this.tabPanel.setId("tab-panel");
+        this.tabPanel.setSize("100%", "100%");
+        this.tabPanel.setPlain(true);
+        this.tabPanel.addStyleName("transparent");
 
-        onSensorValuesReceived(null);
+        // Welcome tab item
+        final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
+        welcomeFrame.setStylePrimaryName("senseFrame");
+        final TabItem welcomeItem = new TabItem("Welcome");
+        welcomeItem.setLayout(new FitLayout());
+        LayoutData data = new FitData(new Margins(0));
+        welcomeItem.add(welcomeFrame, data);
+        this.tabPanel.add(welcomeItem);
+
+        // Track trace
+        final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
+                + "http://demo.almende.com/tracker/ictdelta");
+        trackTrace.setStylePrimaryName("senseFrame");
+        final TabItem trackTraceItem = new TabItem("Track & Trace demo");
+        trackTraceItem.setLayout(new FitLayout());
+        trackTraceItem.add(trackTrace);
+        this.tabPanel.add(trackTraceItem);
+
+        // Humidity
+        final Frame humid3d = new Frame(
+                "http://demo.almende.com/links/storm/day_40_humid_animation.html");
+        humid3d.setStylePrimaryName("senseFrame");
+        final TabItem humid3dItem = new TabItem("3D Humidity");
+        humid3dItem.setLayout(new FitLayout());
+        humid3dItem.add(humid3d);
+        this.tabPanel.add(humid3dItem);
     }
 
     private void onLoggedOut(AppEvent event) {
         resetTabs();
     }
 
-    private void resetTabs() {
-        for (TabItem items : tabPanel.getItems()) {
-            if (items.isClosable()) {
-                this.tabPanel.remove(items);
+    /**
+     * Handles failed requests for sensor data. Retries the request 3 times, and then passes null to
+     * {@link #onSensorValuesReceived(TaggedDataModel)} to indicate definite failure.
+     */
+    private void onRequestFailed() {
+        Log.w(TAG, "Request failed");
+
+        onSensorValuesReceived(null);
+    }
+
+    /**
+     * Handles the callback from the sensor data RPC request. Adds the received data to the open
+     * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
+     * requests. Otherwise removes the "waiting for data" label from the tab and displays any errors
+     * that might have occurred during the series of requests.
+     * 
+     * @param data
+     *            the received TaggedDataModel
+     */
+    private void onSensorValuesReceived(TaggedDataModel data) {
+
+        // remove the tag from outstandingReqs
+        if (this.outstandingReqs == null || this.outstandingReqs.size() == 0) {
+            return;
+        }
+        this.outstandingReqs.remove(0);
+
+        if (null != data) {
+            Log.d(TAG, "Received sensor data from service!");
+
+            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            charts.addData(data);
+        } else {
+            this.reqFailCount++;
+        }
+
+        // show the results or request more data if there are still tags left
+        if (this.outstandingReqs.size() > 0) {
+            getSensorData(this.outstandingReqs.get(0));
+        } else {
+            // Log.d(TAG, "Finalizing visualization tab...");
+            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
+            charts.setWaitingText(false);
+
+            if (this.reqFailCount > 0) {
+                String msg = "There was a problem getting some of the sensor data. Please try again.";
+                MessageBox.alert("CommonSense", msg, null);
             }
         }
     }
@@ -229,50 +262,17 @@ public class VizView extends View {
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
     }
 
-    /**
-     * Handles the callback from the sensor data RPC request. Adds the received data to the open
-     * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
-     * requests. Otherwise removes the "waiting for data" label from the tab and displays any errors
-     * that might have occurred during the series of requests.
-     * 
-     * @param data
-     *            the received TaggedDataModel
-     */
-    public void onSensorValuesReceived(TaggedDataModel data) {
-
-        // remove the tag from outstandingReqs
-        if (this.outstandingReqs == null || this.outstandingReqs.size() == 0) {
-            return;
-        }
-        this.outstandingReqs.remove(0);
-
-        if (null != data) {
-            Log.d(TAG, "Received sensor data from service!");
-
-            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
-            charts.addData(data);
-        } else {
-            this.reqFailCount++;
-        }
-
-        // show the results or request more data if there are still tags left
-        if (this.outstandingReqs.size() > 0) {
-            getSensorData(this.outstandingReqs.get(0));
-        } else {
-            // Log.d(TAG, "Finalizing visualization tab...");
-            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
-            charts.setWaitingText(false);
-
-            if (this.reqFailCount > 0) {
-                String msg = "There was a problem getting some of the sensor data. Please try again.";
-                MessageBox.alert("CommonSense", msg, null);
-            }
-        }
-    }
-
-    public void removeFeedback() {
+    private void removeFeedback() {
         // TODO this ain't right
         this.tabPanel.remove(this.tabPanel.getSelectedItem());
+    }
+
+    private void resetTabs() {
+        for (TabItem items : tabPanel.getItems()) {
+            if (items.isClosable()) {
+                this.tabPanel.remove(items);
+            }
+        }
     }
 
     /**
@@ -292,16 +292,7 @@ public class VizView extends View {
         });
     }
 
-    private void showPanel(LayoutContainer parent) {
-        if (null != parent) {
-            parent.add(this.tabPanel);
-            parent.layout();
-        } else {
-            Log.e(TAG, "Failed to show visualization panel: parent=null");
-        }
-    }
-
-    public void showFeedback(Component feedbackPanel) {
+    private void showFeedback(Component feedbackPanel) {
 
         // add line chart tab item
         final TabItem item = new TabItem("Feedback");
@@ -313,7 +304,7 @@ public class VizView extends View {
         this.unfinishedTab = item;
     }
 
-    public void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
+    private void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add line chart tab item
         final TabItem item = new TabItem("Line chart");
@@ -329,7 +320,7 @@ public class VizView extends View {
         startRequests(sensors, startTime, endTime);
     }
 
-    public void showMap(Component mapPanel) {
+    private void showMap(Component mapPanel) {
         // add map tab item
         final TabItem item = new TabItem("Map");
         item.setLayout(new FitLayout());
@@ -342,7 +333,16 @@ public class VizView extends View {
         this.unfinishedTab = item;
     }
 
-    public void showTable(List<SensorModel> sensors) {
+    private void showPanel(LayoutContainer parent) {
+        if (null != parent) {
+            parent.add(this.tabPanel);
+            parent.layout();
+        } else {
+            Log.e(TAG, "Failed to show visualization panel: parent=null");
+        }
+    }
+
+    private void showTable(List<SensorModel> sensors) {
 
         // add table tab item
         final TabItem item = new TabItem("Table");

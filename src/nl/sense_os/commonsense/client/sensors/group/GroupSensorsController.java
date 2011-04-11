@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.ajax.parsers.GroupParser;
-import nl.sense_os.commonsense.client.ajax.parsers.SensorParser;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
+import nl.sense_os.commonsense.client.json.parsers.GroupParser;
+import nl.sense_os.commonsense.client.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.SensorsEvents;
@@ -139,6 +139,8 @@ public class GroupSensorsController extends Controller {
 
         // add the sensors to the group
         for (SensorModel sensor : sensors) {
+            String alias = groups.get(index).get(GroupModel.ID);
+            sensor.set("alias", alias);
             groups.get(index).add(sensor);
         }
 
@@ -212,6 +214,10 @@ public class GroupSensorsController extends Controller {
         // sort the sensors according to the group members that own them
         Map<String, UserModel> memberMap = new HashMap<String, UserModel>();
         for (SensorModel sensor : sensors) {
+            // set the sensor's alias (for fetching data
+            String alias = groups.get(index).get(GroupModel.ID);
+            sensor.set("alias", alias);
+
             // get the sensor's owner
             UserModel owner = sensor.<UserModel> get(SensorModel.OWNER);
 

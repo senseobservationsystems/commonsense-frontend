@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.ajax.parsers.SensorParser;
+import nl.sense_os.commonsense.client.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;

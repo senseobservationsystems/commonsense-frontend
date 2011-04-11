@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.ajax.parsers.GroupParser;
-import nl.sense_os.commonsense.client.ajax.parsers.UserParser;
+import nl.sense_os.commonsense.client.json.parsers.GroupParser;
+import nl.sense_os.commonsense.client.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
