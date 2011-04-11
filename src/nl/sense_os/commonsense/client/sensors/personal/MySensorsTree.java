@@ -313,7 +313,7 @@ public class MySensorsTree extends View {
         if (sensors.size() > 0) {
             this.isRemoving = true;
 
-            AppEvent event = new AppEvent(SensorsEvents.ShowRemoveDialog);
+            AppEvent event = new AppEvent(SensorsEvents.ShowDeleteDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 

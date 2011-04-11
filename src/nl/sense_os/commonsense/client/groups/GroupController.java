@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.groups;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.ajax.parsers.GroupParser;
 import nl.sense_os.commonsense.client.ajax.parsers.UserParser;
@@ -13,7 +16,6 @@ import nl.sense_os.commonsense.shared.GroupModel;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -21,9 +23,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GroupController extends Controller {
 
@@ -53,8 +52,7 @@ public class GroupController extends Controller {
         registerEventTypes(GroupEvents.AjaxCreateFailure, GroupEvents.AjaxCreateSuccess);
         registerEventTypes(GroupEvents.AjaxInviteFailure, GroupEvents.AjaxInviteSuccess);
         registerEventTypes(GroupEvents.AjaxLeaveFailure, GroupEvents.AjaxLeaveSuccess);
-        registerEventTypes(GroupEvents.AjaxGroupIdsSuccess, GroupEvents.AjaxGroupIdsSuccess);
-        registerEventTypes(GroupEvents.AjaxGroupDetailsSuccess, GroupEvents.AjaxGroupDetailsFailure);
+        registerEventTypes(GroupEvents.AjaxGroupsSuccess, GroupEvents.AjaxGroupsSuccess);
         registerEventTypes(GroupEvents.AjaxGroupMembersSuccess, GroupEvents.AjaxGroupMembersFailure);
 
         registerEventTypes(VizEvents.Show);
@@ -92,106 +90,16 @@ public class GroupController extends Controller {
     }
 
     /**
-     * Gets details (name etc) of a group from CommonSense, using an Ajax request. The response is
-     * handled by {@link #getGroupDetailsCallback(String, List, List, AsyncCallback)} or
-     * {@link #getGroupDetailsFailure(List, List, AsyncCallback)}. If the details for all groups are
-     * complete, the lists of group members will be requested.
-     * 
-     * @param ids
-     *            List of group IDs that need details. The details are requested one at a time, so
-     *            this method is called once for each ID in the list.
-     * @param details
-     *            List of group details that were received earlier.
-     * @param callback
-     *            Optional callback for a DataProxy. Will be called when the list of sensors is
-     *            complete.
-     */
-    private void getGroupDetails(List<ModelData> ids, List<TreeModel> details,
-            AsyncCallback<List<TreeModel>> callback) {
-
-        if (details.size() < ids.size()) {
-            int index = details.size();
-            String groupId = ids.get(index).get("group_id");
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Constants.URL_GROUPS + "/" + groupId;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxGroupDetailsSuccess);
-            onSuccess.setData("callback", callback);
-            onSuccess.setData("details", details);
-            onSuccess.setData("ids", ids);
-            final AppEvent onFailure = new AppEvent(GroupEvents.AjaxGroupDetailsFailure);
-            onFailure.setData("callback", callback);
-            onFailure.setData("details", details);
-            onFailure.setData("ids", details);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-        } else {
-            // done getting the group details for all IDs
-            getGroupMembers(0, details, callback);
-        }
-    }
-
-    /**
-     * Handles the response from CommonSense to the request for group details. Parses the JSON
-     * object with information, and calls back to
-     * {@link #getGroupDetails(List, List, AsyncCallback)} to get the details for the next group.
-     * 
-     * @param response
-     *            response from CommonSense (JSON String)
-     * @param ids
-     *            List of group IDs that need details. Used to recursively call
-     *            {@link #getGroupDetails(List, List, AsyncCallback)}
-     * @param details
-     *            List of group details that were received earlier. The new details will be added to
-     *            this list.
-     * @param callback
-     *            Optional callback for a DataProxy. Will be called when the list of groups is
-     *            complete.
-     */
-    private void getGroupDetailsCallback(String response, List<ModelData> ids,
-            List<TreeModel> details, AsyncCallback<List<TreeModel>> callback) {
-
-        GroupModel group = GroupParser.parseGroup(response);
-
-        if (group != null) {
-            details.add(group);
-            getGroupDetails(ids, details, callback);
-        } else {
-            // something went wrong
-            getGroupDetailsFailure(ids, details, callback);
-        }
-    }
-
-    private void getGroupDetailsFailure(List<ModelData> todo, List<TreeModel> details,
-            AsyncCallback<List<TreeModel>> callback) {
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
-
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
-    /**
-     * Gets a list of group IDs that the user is a member of, using an Ajax request to CommonSense.
-     * The response is handled by {@link #getGroupIdsCallback(String, AsyncCallback)} or
-     * {@link #getGroupIdsFailure(AsyncCallback)}. Afterwards, the group details can be fetched
-     * using the list of IDs.
+     * Gets a list of groups that the user is a member of, using an Ajax request to CommonSense. The
+     * response is handled by {@link #getGroupsCallback(String, AsyncCallback)} or
+     * {@link #getGroupsFailure(AsyncCallback)}. Afterwards, the members of the group are fetched by
+     * {@link #getGroupMembers(int, List, AsyncCallback)}.
      * 
      * @param callback
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupIds(AsyncCallback<List<TreeModel>> callback) {
+    private void getGroups(AsyncCallback<List<TreeModel>> callback) {
 
         Dispatcher.forwardEvent(GroupEvents.Working);
 
@@ -199,9 +107,9 @@ public class GroupController extends Controller {
         final String method = "GET";
         final String url = Constants.URL_GROUPS;
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxGroupIdsSuccess);
+        final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxGroupsSuccess);
         onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(GroupEvents.AjaxGroupIdsFailure);
+        final AppEvent onFailure = new AppEvent(GroupEvents.AjaxGroupsFailure);
         onFailure.setData("callback", callback);
 
         // send request to AjaxController
@@ -216,8 +124,8 @@ public class GroupController extends Controller {
     }
 
     /**
-     * Handles the response from CommonSense to the request for group IDs. Parses the JSON array
-     * with IDs, and calls through to {@link #getGroupDetails(List, List, AsyncCallback)}.
+     * Handles the response from CommonSense to the request for groups. Parses the JSON array with
+     * group details, and calls through to {@link #getGroupMembers(int, List, AsyncCallback)}.
      * 
      * @param response
      *            Response from CommonSense (JSON String).
@@ -225,17 +133,16 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of groups is
      *            complete.
      */
-    private void getGroupIdsCallback(String response, AsyncCallback<List<TreeModel>> callback) {
+    private void getGroupsCallback(String response, AsyncCallback<List<TreeModel>> callback) {
 
         // parse the array with IDs
-        List<ModelData> ids = GroupParser.parseGroupIds(response);
+        List<GroupModel> groups = GroupParser.parseGroups(response);
 
         // get the group details for each ID
-        List<TreeModel> details = new ArrayList<TreeModel>();
-        getGroupDetails(ids, details, callback);
+        getGroupMembers(groups, 0, callback);
     }
 
-    private void getGroupIdsFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void getGroupsFailure(AsyncCallback<List<TreeModel>> callback) {
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         if (null != callback) {
@@ -252,17 +159,17 @@ public class GroupController extends Controller {
      * @param count
      *            Count for the number of groups that already have members. The details are
      *            requested one at a time, so this method is called once for each group.
-     * @param details
+     * @param groups
      *            List of group details that were received earlier.
      * @param callback
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupMembers(int count, List<TreeModel> details,
+    private void getGroupMembers(List<GroupModel> groups, int count,
             AsyncCallback<List<TreeModel>> callback) {
-        if (count < details.size()) {
-            GroupModel group = (GroupModel) details.get(count);
-            String groupId = group.get(GroupModel.KEY_ID);
+        if (count < groups.size()) {
+            GroupModel group = groups.get(count);
+            String groupId = group.get(GroupModel.ID);
 
             // prepare request properties
             final String method = "GET";
@@ -270,11 +177,11 @@ public class GroupController extends Controller {
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxGroupMembersSuccess);
             onSuccess.setData("callback", callback);
-            onSuccess.setData("details", details);
+            onSuccess.setData("groups", groups);
             onSuccess.setData("count", count);
             final AppEvent onFailure = new AppEvent(GroupEvents.AjaxGroupMembersFailure);
             onFailure.setData("callback", callback);
-            onFailure.setData("details", details);
+            onFailure.setData("groups", groups);
             onSuccess.setData("count", count);
 
             // send request to AjaxController
@@ -288,12 +195,13 @@ public class GroupController extends Controller {
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
             // done getting the group members for all groups
-            Registry.register(Constants.REG_GROUPS, details);
+            Registry.register(Constants.REG_GROUPS, groups);
 
             Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
             if (null != callback) {
-                callback.onSuccess(details);
+                List<TreeModel> result = new ArrayList<TreeModel>(groups);
+                callback.onSuccess(result);
             }
         }
     }
@@ -314,16 +222,16 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of groups is
      *            complete.
      */
-    private void getGroupMembersCallback(String response, List<TreeModel> details, int count,
+    private void getGroupMembersCallback(String response, List<GroupModel> groups, int count,
             AsyncCallback<List<TreeModel>> callback) {
-        TreeModel group = details.get(count);
+        GroupModel group = groups.get(count);
         List<UserModel> users = UserParser.parseGroupUsers(response);
         for (UserModel user : users) {
             group.add(user);
         }
 
         count++;
-        getGroupMembers(count, details, callback);
+        getGroupMembers(groups, count, callback);
     }
 
     private void getGroupMembersFailure(List<TreeModel> details, int count,
@@ -342,7 +250,7 @@ public class GroupController extends Controller {
             // Log.d(TAG, "ListRequest");
             final AsyncCallback<List<TreeModel>> callback = event
                     .<AsyncCallback<List<TreeModel>>> getData();
-            getGroupIds(callback);
+            getGroups(callback);
 
         } else if (type.equals(GroupEvents.LeaveRequested)) {
             // Log.d(TAG, "LeaveRequested");
@@ -356,17 +264,17 @@ public class GroupController extends Controller {
             final String password = event.getData("password");
             createGroup(name, username, password);
 
-        } else if (type.equals(GroupEvents.AjaxGroupIdsFailure)) {
-            Log.w(TAG, "AjaxGroupIdsFailure");
+        } else if (type.equals(GroupEvents.AjaxGroupsFailure)) {
+            Log.w(TAG, "AjaxGroupsFailure");
             // final int code = event.getData("code");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            getGroupIdsFailure(callback);
+            getGroupsFailure(callback);
 
-        } else if (type.equals(GroupEvents.AjaxGroupIdsSuccess)) {
-            // Log.d(TAG, "AjaxGroupIdsSuccess");
+        } else if (type.equals(GroupEvents.AjaxGroupsSuccess)) {
+            // Log.d(TAG, "AjaxGroupsSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            getGroupIdsCallback(response, callback);
+            getGroupsCallback(response, callback);
 
         } else if (type.equals(GroupEvents.AjaxGroupMembersFailure)) {
             Log.w(TAG, "AjaxGroupMembersFailure");
@@ -380,25 +288,9 @@ public class GroupController extends Controller {
             // Log.d(TAG, "AjaxGroupMembersSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            final List<TreeModel> details = event.getData("details");
+            final List<GroupModel> groups = event.getData("groups");
             final int count = event.getData("count");
-            getGroupMembersCallback(response, details, count, callback);
-
-        } else if (type.equals(GroupEvents.AjaxGroupDetailsFailure)) {
-            Log.w(TAG, "AjaxGroupDetailsFailure");
-            // final int code = event.getData("code");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            final List<TreeModel> details = event.getData("details");
-            final List<ModelData> ids = event.getData("ids");
-            getGroupDetailsFailure(ids, details, callback);
-
-        } else if (type.equals(GroupEvents.AjaxGroupDetailsSuccess)) {
-            // Log.d(TAG, "AjaxGroupDetailsSuccess");
-            final String response = event.getData("response");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            final List<TreeModel> details = event.getData("details");
-            final List<ModelData> ids = event.getData("ids");
-            getGroupDetailsCallback(response, ids, details, callback);
+            getGroupMembersCallback(response, groups, count, callback);
 
         } else if (type.equals(GroupEvents.AjaxInviteFailure)) {
             Log.w(TAG, "AjaxInviteFailure");

@@ -1,5 +1,10 @@
 package nl.sense_os.commonsense.client.sensors.personal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.ajax.parsers.SensorParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
@@ -21,11 +26,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MySensorsController extends Controller {
 
@@ -184,14 +184,14 @@ public class MySensorsController extends Controller {
 
     /**
      * Gets list of sensors that are owned by the user, using Ajax request to CommonSense. The Ajax
-     * request returns to {@link #getMySensorsCallback(String, AsyncCallback)} or
-     * {@link #getMySensorsFailure(AsyncCallback)}.
+     * request returns to {@link #getSensorsCallback(String, AsyncCallback)} or
+     * {@link #getSensorsFailure(AsyncCallback)}.
      * 
      * @param callback
      *            optional callback for a DataProxy, will be called when the list of sensors is
      *            complete.
      */
-    private void getMySensors(final AsyncCallback<List<TreeModel>> callback) {
+    private void getSensors(final AsyncCallback<List<TreeModel>> callback) {
 
         forwardToView(this.treeView, new AppEvent(MySensorsEvents.Working));
 
@@ -226,7 +226,7 @@ public class MySensorsController extends Controller {
      *            optional callback for a DataProxy, will be called when the list of sensors is
      *            complete.
      */
-    private void getMySensorsCallback(String response, AsyncCallback<List<TreeModel>> callback) {
+    private void getSensorsCallback(String response, AsyncCallback<List<TreeModel>> callback) {
         // parse response
         ArrayList<SensorModel> unsortedSensors = new ArrayList<SensorModel>();
         int total = SensorParser.parseSensors(response, unsortedSensors);
@@ -248,7 +248,7 @@ public class MySensorsController extends Controller {
      * @param callback
      *            optional callback for a DataProxy, will be called to notify the proxy of failure.
      */
-    private void getMySensorsFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void getSensorsFailure(AsyncCallback<List<TreeModel>> callback) {
 
         forwardToView(treeView, new AppEvent(MySensorsEvents.Done));
         Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
@@ -264,7 +264,7 @@ public class MySensorsController extends Controller {
         if (type.equals(MySensorsEvents.ListRequested)) {
             // Log.d(TAG, "ListRequested");
             final AsyncCallback<List<TreeModel>> callback = event.getData();
-            getMySensors(callback);
+            getSensors(callback);
 
         } else if (type.equals(MySensorsEvents.ShareRequested)) {
             // Log.d(TAG, "ShareRequested");
@@ -283,16 +283,16 @@ public class MySensorsController extends Controller {
             shareSensorCallback(event);
 
         } else if (type.equals(MySensorsEvents.AjaxSensorsFailure)) {
-            Log.w(TAG, "AjaxSensorsFailure");
+            Log.w(TAG, "AjaxUnownedFailure");
             // final int code = event.getData("code");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            getMySensorsFailure(callback);
+            getSensorsFailure(callback);
 
         } else if (type.equals(MySensorsEvents.AjaxSensorsSuccess)) {
-            // Log.d(TAG, "AjaxSensorsSuccess");
+            // Log.d(TAG, "AjaxUnownedSuccess");
             final String response = event.<String> getData("response");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
-            getMySensorsCallback(response, callback);
+            getSensorsCallback(response, callback);
 
         } else if (type.equals(MySensorsEvents.AjaxDevicesFailure)) {
             Log.w(TAG, "AjaxDevicesFailure");
@@ -417,23 +417,23 @@ public class MySensorsController extends Controller {
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get(SensorModel.TYPE));
             switch (type) {
-            case 0:
-                feeds.add(sensor);
-                break;
-            case 1:
-                devices.add(sensor);
-                break;
-            case 2:
-                states.add(sensor);
-                break;
-            case 3:
-                environments.add(sensor);
-                break;
-            case 4:
-                apps.add(sensor);
-                break;
-            default:
-                Log.w(TAG, "Unexpected sensor type: " + type);
+                case 0 :
+                    feeds.add(sensor);
+                    break;
+                case 1 :
+                    devices.add(sensor);
+                    break;
+                case 2 :
+                    states.add(sensor);
+                    break;
+                case 3 :
+                    environments.add(sensor);
+                    break;
+                case 4 :
+                    apps.add(sensor);
+                    break;
+                default :
+                    Log.w(TAG, "Unexpected sensor type: " + type);
             }
         }
 

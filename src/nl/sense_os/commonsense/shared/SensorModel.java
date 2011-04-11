@@ -17,7 +17,7 @@ public class SensorModel extends BaseTreeModel {
     public static final String PAGER_TYPE = "pager_type";
     public static final String DATA_TYPE = "data_type";
     public static final String DATA_STRUCTURE = "data_structure";
-    public static final String OWNER_ID = "owner_id";
+    public static final String OWNER = "owner";
     public static final String USERS = "users";
 
     public static final String DEVICE_DEVTYPE = "device_device_type";

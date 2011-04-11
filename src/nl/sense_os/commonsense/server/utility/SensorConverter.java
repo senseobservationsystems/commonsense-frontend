@@ -27,7 +27,10 @@ public class SensorConverter {
         properties.put(SensorModel.DATA_TYPE, json.optString(SensorModel.DATA_TYPE));
         properties.put(SensorModel.DATA_TYPE_ID, json.optString(SensorModel.DATA_TYPE_ID));
         properties.put(SensorModel.DATA_STRUCTURE, json.optString(SensorModel.DATA_STRUCTURE));
-        properties.put(SensorModel.OWNER_ID, json.optString(SensorModel.OWNER_ID));
+        JSONObject owner = json.optJSONObject(SensorModel.OWNER);
+        if (null != owner) {
+            properties.put(SensorModel.OWNER, UserConverter.parseUser(owner));
+        }
         properties.put(SensorModel.DEVICE_DEVTYPE, json.optString(SensorModel.DEVICE_DEVTYPE));
         properties.put(SensorModel.DEVICE_ID, json.optString(SensorModel.DEVICE_ID));
 

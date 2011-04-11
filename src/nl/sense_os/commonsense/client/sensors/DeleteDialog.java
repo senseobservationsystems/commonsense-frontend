@@ -21,16 +21,16 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class RemoveDialog extends View {
+public class DeleteDialog extends View {
 
-    private static final String TAG = "RemoveDialog";
+    private static final String TAG = "DeleteDialog";
     private Window window;
     private Text text;
     private Button removeButton;
     private Button cancelButton;
     private List<SensorModel> sensors;
 
-    public RemoveDialog(Controller c) {
+    public DeleteDialog(Controller c) {
         super(c);
     }
 
@@ -43,7 +43,7 @@ public class RemoveDialog extends View {
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(SensorsEvents.ShowRemoveDialog)) {
+        if (type.equals(SensorsEvents.ShowDeleteDialog)) {
             Log.d(TAG, "Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
@@ -52,7 +52,7 @@ public class RemoveDialog extends View {
             onRemoveSuccess();
 
         } else if (type.equals(SensorsEvents.DeleteFailure)) {
-            // Log.d(TAG, "DeleteFailure");
+            Log.w(TAG, "DeleteFailure");
             onRemoveFailure();
 
         } else {

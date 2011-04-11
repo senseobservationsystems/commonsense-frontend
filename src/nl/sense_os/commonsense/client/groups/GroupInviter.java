@@ -134,7 +134,7 @@ public class GroupInviter extends View {
 
     private void onShow(AppEvent event) {
         this.group = event.<GroupModel> getData("group");
-        Log.d(TAG, "Invite users for group " + group.get(GroupModel.KEY_ID));
+        Log.d(TAG, "Invite users for group " + group.get(GroupModel.ID));
         this.form.reset();
 
         this.window.show();
@@ -145,7 +145,7 @@ public class GroupInviter extends View {
         setBusy(true);
 
         AppEvent event = new AppEvent(GroupEvents.InviteRequested);
-        event.setData("groupId", this.group.<String> get(GroupModel.KEY_ID));
+        event.setData("groupId", this.group.<String> get(GroupModel.ID));
         event.setData("username", this.username.getValue());
         fireEvent(event);
     }

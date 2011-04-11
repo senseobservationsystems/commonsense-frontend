@@ -25,25 +25,7 @@ public class UserConverter {
             for (int i = 0; i < users.length(); i++) {
                 JSONObject user = users.getJSONObject(i);
 
-                HashMap<String, Object> properties = new HashMap<String, Object>();
-                properties.put(UserModel.ID, user.getString(UserModel.ID));
-                properties.put(UserModel.EMAIL, user.optString(UserModel.EMAIL));
-                properties.put(UserModel.NAME, user.optString(UserModel.NAME));
-                properties.put(UserModel.SURNAME, user.optString(UserModel.SURNAME));
-                properties.put(UserModel.USERNAME, user.optString(UserModel.USERNAME));
-                properties.put(UserModel.MOBILE, user.optString(UserModel.MOBILE));
-
-                // front end-only properties
-                properties.put("tagType", TagModel.TYPE_USER);
-                String text = user.optString("name", "") + " " + user.optString("surname", "");
-                if (text.length() < 3) {
-                    text = "User #" + properties.get("id");
-                }
-                properties.put("text", text);
-
-                UserModel model = new UserModel(properties);
-
-                result.add(model);
+                result.add(parseUser(user));
             }
 
             // return list of tags
@@ -53,5 +35,34 @@ public class UserConverter {
             log.severe("GET GROUP DETAILS JSONException: " + e.getMessage());
             throw (new WrongResponseException(e.getMessage()));
         }
+    }
+
+    public static UserModel parseUser(JSONObject user) throws JSONException {
+        HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put(UserModel.ID, user.getString(UserModel.ID));
+        properties.put(UserModel.EMAIL, user.optString(UserModel.EMAIL));
+        properties.put(UserModel.NAME, user.optString(UserModel.NAME));
+        properties.put(UserModel.SURNAME, user.optString(UserModel.SURNAME));
+        properties.put(UserModel.USERNAME, user.optString(UserModel.USERNAME));
+        properties.put(UserModel.MOBILE, user.optString(UserModel.MOBILE));
+
+        // front end-only properties
+        properties.put("tagType", TagModel.TYPE_USER);
+        String text = (String) properties.get(UserModel.NAME);
+        if (text != null && text.length() > 0) {
+            String surname = (String) properties.get(UserModel.SURNAME);
+            if (surname != null && surname.length() > 0) {
+                text += " " + surname;
+            }
+        } else {
+            text = (String) properties.get(UserModel.USERNAME);
+        }
+        if (text == null || text.length() == 0) {
+            // when all else fails:
+            text = "User #" + properties.get("id");
+        }
+        properties.put("text", text);
+
+        return new UserModel(properties);
     }
 }

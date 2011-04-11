@@ -8,11 +8,10 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 public class GroupModel extends BaseTreeModel {
 
     private static final long serialVersionUID = 1L;
-    public static final String KEY_ID = "id";
-    public static final String KEY_EMAIL = "email";
-    public static final String KEY_USERNAME = "username";
-    public static final String KEY_NAME = "name";
-    public static final String KEY_UUID = "UUID";
+    public static final String ID = "id";
+    public static final String EMAIL = "email";
+    public static final String USERNAME = "username";
+    public static final String NAME = "name";
 
     public GroupModel() {
         super();

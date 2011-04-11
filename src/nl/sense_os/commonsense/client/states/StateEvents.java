@@ -69,4 +69,9 @@ public class StateEvents {
     protected static final EventType ServiceNameFailure = new EventType();
     protected static final EventType AjaxServiceNameSuccess = new EventType();
     protected static final EventType AjaxServiceNameFailure = new EventType();
+
+    protected static final EventType AjaxSensorsSuccess = new EventType();
+    protected static final EventType AjaxSensorsFailure = new EventType();
+    protected static final EventType AjaxConnectedSuccess = new EventType();
+    protected static final EventType AjaxConnectedFailure = new EventType();
 }

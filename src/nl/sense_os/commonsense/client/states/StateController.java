@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.ajax.parsers.SensorParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
@@ -41,8 +42,6 @@ public class StateController extends Controller {
     private View creator;
     private View connecter;
     private View editor;
-    private boolean isGettingMyServices;
-    private AsyncCallback<List<TreeModel>> getMyServicesCallback;
     private boolean isLoadingSensors;
 
     public StateController() {
@@ -81,6 +80,8 @@ public class StateController extends Controller {
 
         registerEventTypes(StateEvents.ServiceNameRequest, StateEvents.AjaxServiceNameSuccess,
                 StateEvents.AjaxServiceNameFailure);
+        registerEventTypes(StateEvents.AjaxSensorsSuccess, StateEvents.AjaxSensorsFailure);
+        registerEventTypes(StateEvents.AjaxConnectedSuccess, StateEvents.AjaxConnectedFailure);
     }
 
     private void connectService(TreeModel sensor, TreeModel service, String serviceName) {
@@ -290,44 +291,65 @@ public class StateController extends Controller {
         forwardToView(this.creator, new AppEvent(StateEvents.AvailableServicesNotUpdated));
     }
 
-    private void getMyServices(final AsyncCallback<List<TreeModel>> proxyCallback) {
+    private void getMyServices(final AsyncCallback<List<TreeModel>> callback) {
 
-        if (null == this.getMyServicesCallback) {
-            this.getMyServicesCallback = proxyCallback;
-        }
+        Dispatcher.forwardEvent(StateEvents.Working);
 
-        if (false == isGettingMyServices) {
-            this.isGettingMyServices = true;
-            Dispatcher.forwardEvent(StateEvents.Working);
+        // prepare request properties
+        final String method = "GET";
+        final String url = Constants.URL_SENSORS + "?owned=1";
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxSensorsSuccess);
+        onSuccess.setData("callback", callback);
+        final AppEvent onFailure = new AppEvent(StateEvents.AjaxSensorsFailure);
+        onFailure.setData("callback", callback);
 
-            SensorsProxyAsync service = Registry
-                    .<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
-            String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-            AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+        // send request to AjaxController
+        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+        ajaxRequest.setData("method", method);
+        ajaxRequest.setData("url", url);
+        ajaxRequest.setData("session_id", sessionId);
+        ajaxRequest.setData("onSuccess", onSuccess);
+        ajaxRequest.setData("onFailure", onFailure);
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    Dispatcher.forwardEvent(StateEvents.Done);
-                    isGettingMyServices = false;
-                    if (null != getMyServicesCallback) {
-                        getMyServicesCallback.onFailure(caught);
-                    }
-                }
+        Dispatcher.forwardEvent(ajaxRequest);
 
-                @Override
-                public void onSuccess(List<TreeModel> result) {
-                    Registry.register(Constants.REG_SERVICES, result);
-                    Dispatcher.forwardEvent(StateEvents.Done);
-                    isGettingMyServices = false;
-                    if (null != getMyServicesCallback) {
-                        getMyServicesCallback.onSuccess(result);
-                    }
-                }
-            };
-            service.getStateSensors(sessionId, callback);
-        } else {
-            Log.d(TAG, "Ignored request to get my services: already working on an earlier request");
-        }
+        // if (null == this.getMyServicesCallback) {
+        // this.getMyServicesCallback = proxyCallback;
+        // }
+        //
+        // if (false == isGettingMyServices) {
+        // this.isGettingMyServices = true;
+        // Dispatcher.forwardEvent(StateEvents.Working);
+        //
+        // SensorsProxyAsync service = Registry
+        // .<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
+        // String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+        // AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+        //
+        // @Override
+        // public void onFailure(Throwable caught) {
+        // Dispatcher.forwardEvent(StateEvents.Done);
+        // isGettingMyServices = false;
+        // if (null != getMyServicesCallback) {
+        // getMyServicesCallback.onFailure(caught);
+        // }
+        // }
+        //
+        // @Override
+        // public void onSuccess(List<TreeModel> result) {
+        // Registry.register(Constants.REG_SERVICES, result);
+        // Dispatcher.forwardEvent(StateEvents.Done);
+        // isGettingMyServices = false;
+        // if (null != getMyServicesCallback) {
+        // getMyServicesCallback.onSuccess(result);
+        // }
+        // }
+        // };
+        // service.getStateSensors(sessionId, callback);
+        // } else {
+        // Log.d(TAG, "Ignored request to get my services: already working on an earlier request");
+        // }
     }
 
     private void getServiceMethods(TreeModel service) {
@@ -471,6 +493,34 @@ public class StateController extends Controller {
             final TreeModel service = event.<TreeModel> getData("service");
             getServiceName(service);
 
+        } else if (type.equals(StateEvents.AjaxSensorsSuccess)) {
+            // Log.d(TAG, "AjaxSensorsSuccess");
+            final String response = event.<String> getData("response");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getMyServicesCallback(response, callback);
+
+        } else if (type.equals(StateEvents.AjaxSensorsFailure)) {
+            Log.w(TAG, "AjaxSensorsFailure");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getMyServicesFailure(callback);
+
+        } else if (type.equals(StateEvents.AjaxConnectedSuccess)) {
+            // Log.d(TAG, "AjaxConnectedSuccess");
+            final String response = event.<String> getData("response");
+            final List<SensorModel> states = event.<List<SensorModel>> getData("states");
+            final int index = event.getData("index");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getConnectedCallback(response, states, index, callback);
+
+        } else if (type.equals(StateEvents.AjaxConnectedFailure)) {
+            Log.w(TAG, "AjaxConnectedFailure");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getConnectedFailure(callback);
+
         } else if (type.equals(StateEvents.AjaxServiceNameSuccess)) {
             // Log.d(TAG, "AjaxServiceNameSuccess");
             final TreeModel service = event.<TreeModel> getData("service");
@@ -605,6 +655,82 @@ public class StateController extends Controller {
                 || type.equals(StateEvents.CreateServiceComplete)
                 || type.equals(LoginEvents.LoggedOut)) {
             forwardToView(this.grid, event);
+        }
+    }
+    private void getConnectedFailure(AsyncCallback<List<TreeModel>> callback) {
+        forwardToView(grid, new AppEvent(StateEvents.Done));
+        if (null != callback) {
+            callback.onFailure(null);
+        }
+    }
+
+    private void getConnectedCallback(String response, List<SensorModel> states, int index,
+            AsyncCallback<List<TreeModel>> callback) {
+        List<SensorModel> sensors = new ArrayList<SensorModel>();
+        SensorParser.parseSensors(response, sensors);
+
+        for (SensorModel sensor : sensors) {
+            states.get(index).add(sensor);
+        }
+        index++;
+        getConnected(states, index, callback);
+    }
+
+    private void getMyServicesFailure(AsyncCallback<List<TreeModel>> callback) {
+        forwardToView(grid, new AppEvent(StateEvents.Done));
+        if (null != callback) {
+            callback.onFailure(null);
+        }
+    }
+
+    private void getMyServicesCallback(String response, AsyncCallback<List<TreeModel>> callback) {
+        List<SensorModel> sensors = new ArrayList<SensorModel>();
+        SensorParser.parseSensors(response, sensors);
+
+        List<SensorModel> states = new ArrayList<SensorModel>();
+        for (SensorModel sensor : sensors) {
+            if (sensor.get(SensorModel.TYPE).equals("2")) {
+                states.add(sensor);
+            }
+        }
+
+        getConnected(states, 0, callback);
+    }
+
+    private void getConnected(List<SensorModel> states, int index,
+            AsyncCallback<List<TreeModel>> callback) {
+
+        if (index < states.size()) {
+            String stateId = states.get(index).get(SensorModel.ID);
+
+            // prepare request properties
+            final String method = "GET";
+            final String url = Constants.URL_SENSORS + "/" + stateId + "/sensors";
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(StateEvents.AjaxConnectedSuccess);
+            onSuccess.setData("states", states);
+            onSuccess.setData("index", index);
+            onSuccess.setData("callback", callback);
+            final AppEvent onFailure = new AppEvent(StateEvents.AjaxConnectedFailure);
+            onFailure.setData("callback", callback);
+
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+
+            Dispatcher.forwardEvent(ajaxRequest);
+        } else {
+            // completed the list of state sensors
+            Registry.register(Constants.REG_SERVICES, states);
+
+            forwardToView(grid, new AppEvent(StateEvents.Done));
+            if (null != callback) {
+                callback.onSuccess(new ArrayList<TreeModel>(states));
+            }
         }
     }
 

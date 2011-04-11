@@ -39,8 +39,9 @@ public class SensorParser {
             props.put(SensorModel.DATA_STRUCTURE, json.get(SensorModel.DATA_STRUCTURE).isString()
                     .stringValue());
         }
-        if (null != json.get(SensorModel.OWNER_ID)) {
-            props.put(SensorModel.OWNER_ID, json.get(SensorModel.OWNER_ID).isString().stringValue());
+        if (null != json.get(SensorModel.OWNER)) {
+            JSONObject owner = json.get(SensorModel.OWNER).isObject();
+            props.put(SensorModel.OWNER, UserParser.parseUser(owner));
         }
         if (null != json.get(SensorModel.DEVICE_DEVTYPE)) {
             props.put(SensorModel.DEVICE_DEVTYPE, json.get(SensorModel.DEVICE_DEVTYPE).isString()

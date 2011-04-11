@@ -9,4 +9,11 @@ public class GroupSensorsEvents {
 
     protected static final EventType Done = new EventType();
     protected static final EventType Working = new EventType();
+
+    protected static final EventType AjaxGroupsSuccess = new EventType();
+    protected static final EventType AjaxGroupsFailure = new EventType();
+    protected static final EventType AjaxUnownedSuccess = new EventType();
+    protected static final EventType AjaxUnownedFailure = new EventType();
+    protected static final EventType AjaxOwnedSuccess = new EventType();
+    protected static final EventType AjaxOwnedFailure = new EventType();
 }

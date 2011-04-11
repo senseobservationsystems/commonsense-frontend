@@ -24,20 +24,19 @@ public class GroupConverter {
         try {
             JSONObject responseJson = new JSONObject(response);
             JSONObject group = responseJson.getJSONObject("group");
-            
+
             HashMap<String, Object> properties = new HashMap<String, Object>();
-            properties.put(GroupModel.KEY_ID, group.getString(GroupModel.KEY_ID));
-            properties.put(GroupModel.KEY_EMAIL, group.getString(GroupModel.KEY_EMAIL));
-            properties.put(GroupModel.KEY_USERNAME, group.getString(GroupModel.KEY_USERNAME));
-            properties.put(GroupModel.KEY_NAME, group.getString(GroupModel.KEY_NAME));
-            properties.put(GroupModel.KEY_UUID, group.getString(GroupModel.KEY_UUID));
+            properties.put(GroupModel.ID, group.getString(GroupModel.ID));
+            properties.put(GroupModel.EMAIL, group.getString(GroupModel.EMAIL));
+            properties.put(GroupModel.USERNAME, group.getString(GroupModel.USERNAME));
+            properties.put(GroupModel.NAME, group.getString(GroupModel.NAME));
 
             // font end-only properties
             properties.put("tagType", TagModel.TYPE_GROUP);
-            properties.put("text", properties.get(GroupModel.KEY_NAME));
+            properties.put("text", properties.get(GroupModel.NAME));
 
             return new GroupModel(properties);
-            
+
         } catch (JSONException e) {
             log.severe("JSONException parsing group details: " + e.getMessage());
             log.severe("Raw response: " + response);

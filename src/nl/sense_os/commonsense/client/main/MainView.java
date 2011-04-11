@@ -63,11 +63,11 @@ public class MainView extends View {
             onError(event);
 
         } else if (type.equals(MainEvents.Init)) {
-            Log.d(TAG, "Init");
+            // Log.d(TAG, "Init");
             // do nothing: actual initialization is done in initialize()
 
         } else if (type.equals(MainEvents.UiReady)) {
-            Log.d(TAG, "UiReady");
+            // Log.d(TAG, "UiReady");
             onUiReady(event);
 
         } else if (type.equals(MainEvents.Navigate)) {

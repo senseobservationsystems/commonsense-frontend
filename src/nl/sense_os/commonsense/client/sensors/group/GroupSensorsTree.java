@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.sensors.group;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -11,6 +14,7 @@ import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -48,13 +52,10 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GroupSensorsTree extends View {
 
     private static final String TAG = "GroupSensorsTree";
-    private Button removeButton;
+    private Button unshareButton;
     private ContentPanel panel;
     private boolean isCollapsed;
     private ToolButton refreshButton;
@@ -62,7 +63,6 @@ public class GroupSensorsTree extends View {
     private TreeStore<TreeModel> store;
     private TreePanel<TreeModel> tree;
     private BaseTreeLoader<TreeModel> loader;
-    private boolean isRemoving;
 
     public GroupSensorsTree(Controller c) {
         super(c);
@@ -76,18 +76,27 @@ public class GroupSensorsTree extends View {
         for (TreeModel item : selection) {
             if (item instanceof SensorModel) {
                 sensors.add((SensorModel) item);
+                Log.d(TAG, "Owner " + item.get(SensorModel.OWNER));
             } else {
                 List<ModelData> children = item.getChildren();
                 for (ModelData child : children) {
                     if (child instanceof SensorModel) {
                         sensors.add((SensorModel) child);
+                        Log.d(TAG, "Owner " + child.get(SensorModel.OWNER));
+                    } else if (child instanceof TreeModel) {
+                        List<ModelData> grandchildren = ((TreeModel) child).getChildren();
+                        for (ModelData grandchild : grandchildren) {
+                            if (grandchild instanceof SensorModel) {
+                                sensors.add((SensorModel) grandchild);
+                                Log.d(TAG, "Owner " + grandchild.get(SensorModel.OWNER));
+                            }
+                        }
                     }
                 }
             }
         }
         return sensors;
     }
-
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
@@ -112,12 +121,12 @@ public class GroupSensorsTree extends View {
             // Log.d(TAG, "Group ListUpdated");
             refreshLoader(true);
 
-        } else if (type.equals(SensorsEvents.DeleteSuccess)) {
-            // Log.d(TAG, "DeleteSuccess");
+        } else if (type.equals(SensorsEvents.UnshareSuccess)) {
+            // Log.d(TAG, "UnshareSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(SensorsEvents.DeleteFailure)) {
-            // Log.d(TAG, "DeleteFailure");
+        } else if (type.equals(SensorsEvents.UnshareFailure)) {
+            Log.w(TAG, "UnshareFailure");
             onRemoveFailure();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
@@ -181,7 +190,7 @@ public class GroupSensorsTree extends View {
                 Button source = ce.getButton();
                 if (source.equals(vizButton)) {
                     onVizClick();
-                } else if (source.equals(removeButton)) {
+                } else if (source.equals(unshareButton)) {
                     onRemoveClick();
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
@@ -193,8 +202,8 @@ public class GroupSensorsTree extends View {
         this.vizButton = new Button("Visualize", l);
         this.vizButton.disable();
 
-        this.removeButton = new Button("Remove", l);
-        this.removeButton.disable();
+        this.unshareButton = new Button("Unshare", l);
+        this.unshareButton.disable();
 
         // listen to selection of tree items to enable/disable buttons
         TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
@@ -203,19 +212,13 @@ public class GroupSensorsTree extends View {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                List<TreeModel> selection = se.getSelection();
-                if (selection != null && selection.size() > 0) {
+                List<SensorModel> sensors = getSelectedSensors();
+                if (sensors.size() > 0) {
                     vizButton.enable();
-
-                    List<SensorModel> sensors = getSelectedSensors();
-                    if (sensors.size() > 0) {
-                        removeButton.enable();
-                    } else {
-                        removeButton.disable();
-                    }
+                    unshareButton.enable();
                 } else {
                     vizButton.disable();
-                    removeButton.disable();
+                    unshareButton.disable();
                 }
             }
         });
@@ -224,7 +227,7 @@ public class GroupSensorsTree extends View {
         // create tool bar
         final ToolBar toolBar = new ToolBar();
         toolBar.add(this.vizButton);
-        toolBar.add(this.removeButton);
+        toolBar.add(this.unshareButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
@@ -311,29 +314,31 @@ public class GroupSensorsTree extends View {
         final List<SensorModel> sensors = getSelectedSensors();
 
         if (sensors.size() > 0) {
-            this.isRemoving = true;
 
-            AppEvent event = new AppEvent(SensorsEvents.ShowRemoveDialog);
+            // add the ID of the user or group that the sensor is shared with
+            for (SensorModel sensor : sensors) {
+                TreeModel parent = sensor.getParent();
+                while (parent.getParent() != null) {
+                    parent = parent.getParent();
+                }
+                sensor.set("user", parent.get(UserModel.ID));
+            }
+
+            AppEvent event = new AppEvent(SensorsEvents.ShowUnshareDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 
         } else {
+            // should never happen
             MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
         }
     }
-
     private void onRemoveFailure() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
+        refreshLoader(true);
     }
 
     private void onRemoveSuccess() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
+        refreshLoader(true);
     }
 
     private void onVizClick() {
