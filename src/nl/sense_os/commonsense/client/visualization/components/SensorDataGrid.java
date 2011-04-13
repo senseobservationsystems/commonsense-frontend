@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.grid.PaginationGridPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -47,10 +48,6 @@ public class SensorDataGrid extends LayoutContainer {
 
         // Grid.
         PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize);
-
-        // Grid config.
-        gridPanel.setTitle("Sensor data");
-        gridPanel.setCollapsible(true);
 
         // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
 

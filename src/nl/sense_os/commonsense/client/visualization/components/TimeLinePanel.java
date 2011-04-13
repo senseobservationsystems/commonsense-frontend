@@ -20,11 +20,11 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
-public class TimeLinePanel extends LayoutContainer implements VizPanel {
+public class TimeLinePanel extends ContentPanel implements VizPanel {
 
     private static final String TAG = "TimeLinePanel";
     private TimeLineChart floatChart;
@@ -36,6 +36,7 @@ public class TimeLinePanel extends LayoutContainer implements VizPanel {
         super();
 
         // set up layout
+        setHeaderVisible(false);
         setLayout(new RowLayout(Orientation.VERTICAL));
         setScrollMode(Scroll.AUTOY);
 
