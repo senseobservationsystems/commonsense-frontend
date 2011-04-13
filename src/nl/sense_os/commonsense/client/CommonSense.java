@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.ajax.AjaxController;
+import nl.sense_os.commonsense.client.data.DataController;
 import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
@@ -22,7 +23,6 @@ import nl.sense_os.commonsense.client.states.FeedbackController;
 import nl.sense_os.commonsense.client.states.StateController;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizController;
-import nl.sense_os.commonsense.client.visualization.map.MapController;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -40,7 +40,7 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Apr 11 23:08 CET 2011";
+    public static final String LAST_DEPLOYED = "Wed Apr 13 12:34 CET 2011";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -84,13 +84,13 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new VizController());
+        dispatcher.addController(new DataController());
         dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
         dispatcher.addController(new StateController());
         dispatcher.addController(new EnvController());
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
-        dispatcher.addController(new MapController());
         dispatcher.addController(new SensorsController());
         dispatcher.addController(new AjaxController());
 

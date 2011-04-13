@@ -7,13 +7,12 @@ import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.visualization.components.MapPanel;
 import nl.sense_os.commonsense.client.visualization.components.SensorDataGrid;
-import nl.sense_os.commonsense.client.visualization.components.TimeLineCharts;
-import nl.sense_os.commonsense.client.visualization.components.VisualizationTab;
-import nl.sense_os.commonsense.client.visualization.map.MapEvents;
+import nl.sense_os.commonsense.client.visualization.components.TimeLinePanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
-import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -28,10 +27,10 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
+import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
@@ -43,31 +42,9 @@ public class VizView extends View {
 
     private static final String TAG = "VizView";
     private TabPanel tabPanel;
-    private List<SensorModel> outstandingReqs;
-    private TabItem unfinishedTab;
-    private int reqFailCount;
-    private long startTime;
-    private long endTime;
 
     public VizView(Controller controller) {
         super(controller);
-    }
-
-    /**
-     * Requests the sensor values for a given tagged sensor type.
-     * 
-     * @param tag
-     *            the tag to request data for
-     * @see #startRequests(TagModel[])
-     */
-    private void getSensorData(TreeModel tag) {
-        Log.d(TAG, "Request sensor data: " + tag.<String> get("id"));
-
-        AppEvent requestEvent = new AppEvent(VizEvents.DataRequested);
-        requestEvent.setData("sensor", tag);
-        requestEvent.setData("startDate", (this.startTime / 1000d));
-        requestEvent.setData("endDate", (this.endTime / 1000d));
-        Dispatcher.forwardEvent(requestEvent);
     }
 
     @Override
@@ -86,15 +63,6 @@ public class VizView extends View {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(VizEvents.DataNotReceived)) {
-            Log.w(TAG, "DataNotReceived");
-            onRequestFailed();
-
-        } else if (type.equals(VizEvents.DataReceived)) {
-            // Log.d(TAG, "DataReceived");
-            final TaggedDataModel data = event.<TaggedDataModel> getData();
-            onSensorValuesReceived(data);
-
         } else if (type.equals(StateEvents.FeedbackComplete)
                 || type.equals(StateEvents.FeedbackCancelled)) {
             // Log.d(TAG, "FeedbackComplete");
@@ -108,8 +76,8 @@ public class VizView extends View {
         } else if (type.equals(VizEvents.ShowLineChart)) {
             // Log.d(TAG, "ShowLineChart");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long startTime = event.<Long> getData("startTime");
-            final long endTime = event.<Long> getData("endTime");
+            final long startTime = event.getData("startTime");
+            final long endTime = event.getData("endTime");
             showLineChart(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTable)) {
@@ -117,10 +85,12 @@ public class VizView extends View {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             showTable(sensors);
 
-        } else if (type.equals(MapEvents.MapReady)) {
-            // Log.d(TAG, "MapReady");
-            final Component mapPanel = event.getData();
-            showMap(mapPanel);
+        } else if (type.equals(VizEvents.ShowMap)) {
+            // Log.d(TAG, "ShowMap");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final long startTime = event.getData("startTime");
+            final long endTime = event.getData("endTime");
+            showMap(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
             Log.w(TAG, "ShowNetwork not implemented");
@@ -150,6 +120,7 @@ public class VizView extends View {
         final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
+        welcomeItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "help.png"));
         welcomeItem.setLayout(new FitLayout());
         LayoutData data = new FitData(new Margins(0));
         welcomeItem.add(welcomeFrame, data);
@@ -159,7 +130,9 @@ public class VizView extends View {
         final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
                 + "http://demo.almende.com/tracker/ictdelta");
         trackTrace.setStylePrimaryName("senseFrame");
-        final TabItem trackTraceItem = new TabItem("Track & Trace demo");
+        final TabItem trackTraceItem = new TabItem("Demo: Track & Trace");
+        trackTraceItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH
+                + "sense_orange.gif"));
         trackTraceItem.setLayout(new FitLayout());
         trackTraceItem.add(trackTrace);
         this.tabPanel.add(trackTraceItem);
@@ -168,7 +141,9 @@ public class VizView extends View {
         final Frame humid3d = new Frame(
                 "http://demo.almende.com/links/storm/day_40_humid_animation.html");
         humid3d.setStylePrimaryName("senseFrame");
-        final TabItem humid3dItem = new TabItem("3D Humidity");
+        final TabItem humid3dItem = new TabItem("Preview: 3D Chart");
+        humid3dItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH
+                + "sense_orange.gif"));
         humid3dItem.setLayout(new FitLayout());
         humid3dItem.add(humid3d);
         this.tabPanel.add(humid3dItem);
@@ -176,57 +151,6 @@ public class VizView extends View {
 
     private void onLoggedOut(AppEvent event) {
         resetTabs();
-    }
-
-    /**
-     * Handles failed requests for sensor data. Retries the request 3 times, and then passes null to
-     * {@link #onSensorValuesReceived(TaggedDataModel)} to indicate definite failure.
-     */
-    private void onRequestFailed() {
-        Log.w(TAG, "Request failed");
-
-        onSensorValuesReceived(null);
-    }
-
-    /**
-     * Handles the callback from the sensor data RPC request. Adds the received data to the open
-     * visualization tab. Requests data for the next tagged sensor, if there are still outstanding
-     * requests. Otherwise removes the "waiting for data" label from the tab and displays any errors
-     * that might have occurred during the series of requests.
-     * 
-     * @param data
-     *            the received TaggedDataModel
-     */
-    private void onSensorValuesReceived(TaggedDataModel data) {
-
-        // remove the tag from outstandingReqs
-        if (this.outstandingReqs == null || this.outstandingReqs.size() == 0) {
-            return;
-        }
-        this.outstandingReqs.remove(0);
-
-        if (null != data) {
-            Log.d(TAG, "Received sensor data from service!");
-
-            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
-            charts.addData(data);
-        } else {
-            this.reqFailCount++;
-        }
-
-        // show the results or request more data if there are still tags left
-        if (this.outstandingReqs.size() > 0) {
-            getSensorData(this.outstandingReqs.get(0));
-        } else {
-            // Log.d(TAG, "Finalizing visualization tab...");
-            final VisualizationTab charts = (VisualizationTab) this.unfinishedTab.getItem(0);
-            charts.setWaitingText(false);
-
-            if (this.reqFailCount > 0) {
-                String msg = "There was a problem getting some of the sensor data. Please try again.";
-                MessageBox.alert("CommonSense", msg, null);
-            }
-        }
     }
 
     /**
@@ -296,41 +220,58 @@ public class VizView extends View {
 
         // add line chart tab item
         final TabItem item = new TabItem("Feedback");
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "sense_magenta.gif"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
         item.add(feedbackPanel);
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
-        this.unfinishedTab = item;
+    }
+
+    private String createChartTitle(List<SensorModel> sensors) {
+        String title = null;
+        for (SensorModel sensor : sensors) {
+            title = sensor.<String> get("text") + ", ";
+        }
+
+        // remove trailing ", "
+        title = title.substring(0, title.length() - 2);
+
+        // trim to max length
+        if (title.length() > 18) {
+            title = title.substring(0, 15) + "...";
+        }
+        return title;
     }
 
     private void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add line chart tab item
-        final TabItem item = new TabItem("Line chart");
+        final TabItem item = new TabItem(createChartTitle(sensors));
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "chart.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
-        final VisualizationTab charts = new TimeLineCharts();
-        charts.setWaitingText(true);
+
+        final TimeLinePanel charts = new TimeLinePanel(sensors, startTime, endTime);
         item.add(charts);
+
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
-        this.unfinishedTab = item;
-
-        startRequests(sensors, startTime, endTime);
     }
 
-    private void showMap(Component mapPanel) {
+    private void showMap(List<SensorModel> sensors, long startTime, long endTime) {
+
         // add map tab item
-        final TabItem item = new TabItem("Map");
+        final TabItem item = new TabItem(createChartTitle(sensors));
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "map.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
-        item.add(mapPanel);
-        item.layout();
+
+        MapPanel map = new MapPanel(sensors, startTime, endTime);
+        item.add(map);
 
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
-        this.unfinishedTab = item;
     }
 
     private void showPanel(LayoutContainer parent) {
@@ -345,7 +286,8 @@ public class VizView extends View {
     private void showTable(List<SensorModel> sensors) {
 
         // add table tab item
-        final TabItem item = new TabItem("Table");
+        final TabItem item = new TabItem(createChartTitle(sensors));
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "table.png"));
         item.setClosable(true);
         item.setScrollMode(Scroll.AUTO);
         item.setLayout(new FitLayout());
@@ -355,26 +297,5 @@ public class VizView extends View {
         // add sensor data grid
         item.add(new SensorDataGrid(sensors), new FitData());
         item.layout();
-    }
-
-    /**
-     * Prepares for a series of RPC requests for data from a list of tags. Initializes some
-     * constants and starts the first request with <code>requestSensorValues</code>.
-     * 
-     * @param tags
-     *            the list of tagged sensors
-     */
-    private void startRequests(List<SensorModel> sensors, long startTime, long endTime) {
-
-        // start requesting data for the list of tags
-        this.outstandingReqs = sensors;
-        this.unfinishedTab = this.tabPanel.getSelectedItem();
-        this.reqFailCount = 0;
-        this.startTime = startTime;
-        this.endTime = endTime;
-
-        if (sensors.size() > 0) {
-            getSensorData(sensors.get(0));
-        }
     }
 }

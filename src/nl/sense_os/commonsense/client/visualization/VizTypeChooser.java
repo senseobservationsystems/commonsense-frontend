@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.map.MapEvents;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -32,13 +32,11 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 public class VizTypeChooser extends View {
 
     private static final String TAG = "VizTypeChooser";
+
     private Window window;
     private CardLayout layout;
     private FormPanel typeForm;
     private FormPanel timeRangeForm;
-    private List<SensorModel> sensors;
-    private List<SensorModel> locationSensors;
-    private AppEvent vizEvent;
     private Button buttonComplete;
     private Button buttonToTimeRange;
     private Button buttonToTypes;
@@ -48,6 +46,10 @@ public class VizTypeChooser extends View {
     private Radio table;
     private Radio map;
     private Radio network;
+
+    private List<SensorModel> sensors;
+    private List<SensorModel> locationSensors;
+    private AppEvent submitEvent;
 
     public VizTypeChooser(Controller c) {
         super(c);
@@ -75,17 +77,20 @@ public class VizTypeChooser extends View {
         }
         return true;
     }
+
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(VizEvents.ShowTypeChoice)) {
-            onShow(event);
+            List<SensorModel> sensors = event.<List<SensorModel>> getData();
+            showWindow(sensors);
+
         } else if (type.equals(VizEvents.TypeChoiceCancelled)) {
             hideWindow();
+
         } else {
             Log.d(TAG, "Unexpected event type: " + type);
         }
-
     }
 
     private void hideWindow() {
@@ -97,7 +102,7 @@ public class VizTypeChooser extends View {
     protected void initialize() {
         super.initialize();
 
-        this.vizEvent = new AppEvent(VizEvents.ShowLineChart);
+        this.submitEvent = new AppEvent(DataEvents.DataRequested);
 
         this.window = new CenteredWindow();
         this.window.setHeading("Visualization wizard");
@@ -210,8 +215,8 @@ public class VizTypeChooser extends View {
                         layout.setActiveItem(timeRangeForm);
                     } else {
                         // skip time range selection
-                        vizEvent.setData("startTime", System.currentTimeMillis());
-                        vizEvent.setData("endTime", 0);
+                        submitEvent.setData("startTime", System.currentTimeMillis());
+                        submitEvent.setData("endTime", 0);
                         submitForm();
                     }
                 } else {
@@ -289,8 +294,8 @@ public class VizTypeChooser extends View {
         this.window.add(this.typeForm);
     }
 
-    private void onShow(AppEvent event) {
-        this.sensors = event.<List<SensorModel>> getData();
+    private void showWindow(List<SensorModel> sensors) {
+        this.sensors = sensors;
         if (this.sensors.size() > 0) {
             this.window.show();
         } else {
@@ -301,6 +306,11 @@ public class VizTypeChooser extends View {
             this.map.enable();
         } else {
             this.map.disable();
+
+            // make sure the map radio button is not selected
+            if (this.typesField.getValue().equals(this.map)) {
+                this.typesField.setValue(this.lineChart);
+            }
         }
     }
 
@@ -315,14 +325,6 @@ public class VizTypeChooser extends View {
         final long hour = 1000 * 60 * 60;
         final long day = 24 * hour;
         final long week = 7 * day;
-
-        /*
-         * // hack the end time for some specific demos long end = System.currentTimeMillis();
-         * UserModel user = Registry.get(Constants.REG_USER); if (null != user && user.getId() ==
-         * 134) { Log.d(TAG, "delfgauw time hack"); end = 1283603962000l; // 4 september, 14:39.220
-         * CEST } else if (null != user && user.getId() == 142) { Log.d(TAG,
-         * "greenhouse time hack"); end = 1288609200000l; // 2 november, 12:00 CET }
-         */
 
         String label = this.timeRangeField.getValue().getBoxLabel();
         long startTime = endTime;
@@ -339,8 +341,8 @@ public class VizTypeChooser extends View {
         }
 
         // save the start and end time in the event
-        this.vizEvent.setData("startTime", startTime);
-        this.vizEvent.setData("endTime", endTime);
+        this.submitEvent.setData("startTime", startTime);
+        this.submitEvent.setData("endTime", endTime);
     }
 
     /**
@@ -350,26 +352,30 @@ public class VizTypeChooser extends View {
     private void saveSelectedType() {
         Radio label = typesField.getValue();
         if (label.equals(this.lineChart)) {
-            this.vizEvent.setType(VizEvents.ShowLineChart);
-            this.vizEvent.setData("sensors", this.sensors);
+            this.submitEvent = new AppEvent(VizEvents.ShowLineChart);
+            this.submitEvent.setData("sensors", this.sensors);
 
-            buttonToTimeRange.setText("Next");
+            this.buttonToTimeRange.setText("Next");
+
         } else if (label.equals(this.table)) {
-            this.vizEvent.setType(VizEvents.ShowTable);
-            this.vizEvent.setData("sensors", this.sensors);
+            this.submitEvent = new AppEvent(VizEvents.ShowTable);
+            this.submitEvent.setData("sensors", this.sensors);
 
-            buttonToTimeRange.setText("Go!");
+            this.buttonToTimeRange.setText("Go!");
+
         } else if (label.equals(this.map)) {
-            this.vizEvent.setType(MapEvents.Show);
-            this.vizEvent.setData("sensors", this.locationSensors);
-            // this.vizEvent.setData("sensors", this.sensors);
+            this.submitEvent = new AppEvent(VizEvents.ShowMap);
+            this.submitEvent.setData("sensors", this.locationSensors);
+            // this.submitEvent.setData("sensors", this.sensors);
 
-            buttonToTimeRange.setText("Next");
+            this.buttonToTimeRange.setText("Next");
+
         } else if (label.equals(this.network)) {
-            this.vizEvent.setType(VizEvents.ShowNetwork);
-            this.vizEvent.setData("sensors", this.sensors);
+            this.submitEvent = new AppEvent(VizEvents.ShowNetwork);
+            this.submitEvent.setData("sensors", this.sensors);
 
-            buttonToTimeRange.setText("Next");
+            this.buttonToTimeRange.setText("Next");
+
         } else {
             Log.w(TAG, "Unexpected selection: " + label);
         }
@@ -378,7 +384,7 @@ public class VizTypeChooser extends View {
     private void submitForm() {
         saveSelectedType();
         saveSelectedTimes();
-        Dispatcher.forwardEvent(this.vizEvent);
+        Dispatcher.forwardEvent(this.submitEvent);
         hideWindow();
     }
 }

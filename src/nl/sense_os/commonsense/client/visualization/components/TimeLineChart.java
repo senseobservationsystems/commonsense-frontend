@@ -1,17 +1,14 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
+import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
+import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
+
 import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
-
-import java.util.List;
-
-import nl.sense_os.commonsense.shared.TagModel;
-import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.TaggedDataModel;
 
 public class TimeLineChart extends ContentPanel {
 
@@ -20,18 +17,9 @@ public class TimeLineChart extends ContentPanel {
     private Graph linksGraph;
     private DataTable dataTable;
 
-    public TimeLineChart(List<TaggedDataModel> taggedDatas, String title) {
+    public TimeLineChart(SensorModel sensor, SensorValueModel[] values, String title) {
 
-        for (final TaggedDataModel taggedData : taggedDatas) {
-            addData(taggedData);
-        }
-
-        setupLayout(title);
-    }
-
-    public TimeLineChart(TaggedDataModel taggedData, String title) {
-
-        addData(taggedData);
+        addData(sensor, values);
 
         setupLayout(title);
     }
@@ -41,10 +29,10 @@ public class TimeLineChart extends ContentPanel {
      * 
      * @param taggedData
      */
-    public void addData(TaggedDataModel taggedData) {
+    public void addData(SensorModel sensor, SensorValueModel[] values) {
 
         // add data to data table
-        addDataColumn(taggedData);
+        addDataColumn(sensor, values);
 
         // draw new data table (if chart is visible)
         if (null != linksGraph) {
@@ -57,10 +45,7 @@ public class TimeLineChart extends ContentPanel {
      * 
      * @param taggedData
      */
-    private void addDataColumn(TaggedDataModel taggedData) {
-
-        final TagModel tag = taggedData.getTag();
-        final SensorValueModel[] values = taggedData.getData();
+    private void addDataColumn(SensorModel sensor, SensorValueModel[] values) {
 
         // create dataTable if necessary
         if (null == this.dataTable) {
@@ -68,7 +53,7 @@ public class TimeLineChart extends ContentPanel {
             this.dataTable.addColumn(ColumnType.DATETIME, "Date/Time");
         }
 
-        this.dataTable.addColumn(ColumnType.NUMBER, tag.<String> get("text"));
+        this.dataTable.addColumn(ColumnType.NUMBER, sensor.<String> get("text"));
 
         // fill table with values of next tag
         this.dataTable.addRows(values.length);
@@ -83,26 +68,17 @@ public class TimeLineChart extends ContentPanel {
         }
     }
 
-    /**
-     * Recreates the annotated time line chart after the chart panel is resized. The time line
-     * widget does not seem to be able to resize after being created.
-     */
-    @Override
-    protected void onResize(int width, int height) {
-        super.onResize(width, height);
-
-        // Log.d(TAG, "onResize(" + width + ", " + height + ")");
-
-        // only resize the panel if it is rendered
+    public void redraw() {
+        // only redraw if the graph is already drawn
         if (null != this.linksGraph && this.linksGraph.isAttached()) {
             this.linksGraph.redraw();
         }
     }
 
     @Override
-    public boolean layout() {
-        // TODO Auto-generated method stub
-        return super.layout();
+    protected void onResize(int width, int height) {
+        super.onResize(width, height);
+        redraw();
     }
 
     /**

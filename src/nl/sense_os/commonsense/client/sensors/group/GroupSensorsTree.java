@@ -76,19 +76,16 @@ public class GroupSensorsTree extends View {
         for (TreeModel item : selection) {
             if (item instanceof SensorModel) {
                 sensors.add((SensorModel) item);
-                Log.d(TAG, "Owner " + item.get(SensorModel.OWNER));
             } else {
                 List<ModelData> children = item.getChildren();
                 for (ModelData child : children) {
                     if (child instanceof SensorModel) {
                         sensors.add((SensorModel) child);
-                        Log.d(TAG, "Owner " + child.get(SensorModel.OWNER));
                     } else if (child instanceof TreeModel) {
                         List<ModelData> grandchildren = ((TreeModel) child).getChildren();
                         for (ModelData grandchild : grandchildren) {
                             if (grandchild instanceof SensorModel) {
                                 sensors.add((SensorModel) grandchild);
-                                Log.d(TAG, "Owner " + grandchild.get(SensorModel.OWNER));
                             }
                         }
                     }

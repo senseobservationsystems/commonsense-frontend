@@ -1,0 +1,2009 @@
+Collection name: FatCow Hosting Icons
+Author: FatCow
+Author homepage: http://www.fatcow.com/
+Services: 
+License: CC Attribution 3.0 United States
+License URL: http://creativecommons.org/licenses/by/3.0/us/
+License description: 
+Commercial usage: Allowed
+Readme: 
+32_bit: 32 Bit: 32 Bit, Shield
+3d_glasses: 3D Glasses: 3D, Glasses
+64_bit: 64 Bit: 64 Bit, Shield
+accept: Accept: Accept, Ok, Check, Yes
+accordion: Accordion: Accordion
+account_balances: Account Balances: Account, Balances, Users, Clients
+action_log: Action Log: Action, Log, Statistic, Graph
+active_sessions: Active Sessions: Active, Sessions, Lock, Documents
+add: Add: Add, Plus
+administrator: Administrator: Administrator, User
+advanced_data_grid: Advanced Data Grid: Advanced, Data, Grid
+advertising: Advertising: Advertising
+agp: Agp: Agp, Hardware
+alarm_bell: Alarm Bell: Alarm, Bell
+align_above: Align Above: Align, Above, Text
+align_bellow: Align Bellow: Align, Bellow, Text
+align_center: Align Center: Align, Center, Text
+align_compact: Align Compact: Align, Compact, Text
+align_left: Align Left: Align, Left, Text
+align_middle: Align Middle: Align, Middle, Text
+align_none: Align None: Align, None, Text
+align_right: Align Right: Align, Right, Text
+all_right_reserved: All Right Reserved: All, Right, Reserved
+american_express: American Express: American, Express, Credit, Card
+anchor: Anchor: Anchor, Link
+android: Android: Android, Robot
+angel: Angel: Angel, User
+anti_xss: Anti Xss: Anti, Xss
+aol_mail: Aol Mail: Aol, Mail
+apple: Apple: Apple, Fruit, Food
+apple_half: Apple Half: Apple, Half, Fruit, Food
+application: Application: Application, Window
+application_add: Application Add: Application, Add, Plus, Window
+application_cascade: Application Cascade: Application, Cascade, Windows
+application_control_bar: Application Control Bar: Application, Control, Bar
+application_delete: Application Delete: Application, Delete, Remove, Window
+application_double: Application Double: Application, Double, Windows
+application_edit: Application Edit: Application, Edit, Window
+application_error: Application Error: Application, Error, Window
+application_form: Application Form: Application, Form, Window
+application_form_add: Application Form Add: Application, Form, Add, Plus, Window
+application_form_delete: Application Form Delete: Application, Form, Delete, Remove, Window
+application_form_edit: Application Form Edit: Application, Form, Edit, Window
+application_form_magnify: Application Form Magnify: Application, Form, Magnify, Window, Find
+application_from_storage: Application From Storage: Application, From, Storage, Windows
+application_get: Application Get: Application, Get, Window, Up
+application_go: Application Go: Application, Go, Window, Left
+application_home: Application Home: Application, Home, House, Window
+application_key: Application Key: Application, Key, Window
+application_lightning: Application Lightning: Application, Lightning, Window
+application_link: Application Link: Application, Link, Window
+application_osx: Application Osx: Application, Osx, Window
+application_osx_terminal: Application Osx Terminal: Application, Osx, Terminal, Window
+application_put: Application Put: Application, Put, Window, Down
+application_side_boxes: Application Side Boxes: Application, Side, Boxes, Window
+application_side_contract: Application Side Contract: Application, Side, Contract, Window
+application_side_expand: Application Side Expand: Application, Side, Expand, Window
+application_side_list: Application Side List: Application, Side, List, Window
+application_side_tree: Application Side Tree: Application, Side, Tree, Window
+application_split: Application Split: Application, Split, Window
+application_tile_horizontal: Application Tile Horizontal: Application, Tile, Horizontal, Window
+application_tile_vertical: Application Tile Vertical: Application, Tile, Vertical, Window
+application_view_columns: Application View Columns: Application, View, Columns, Window
+application_view_detail: Application View Detail: Application, View, Detail, Window
+application_view_gallery: Application View Gallery: Application, View, Gallery, Window
+application_view_icons: Application View Icons: Application, View, Window
+application_view_list: Application View List: Application, View, List, Window
+application_view_tile: Application View Tile: Application, View, Tile, Window
+application_xp: Application XP: Application, XP, Window
+application_xp_terminal: Application XP Terminal: Application, XP, Terminal, Window
+areachart: Areachart: Areachart, Graph, 2D
+arrow_branch: Arrow Branch: Arrow, Branch, Green
+arrow_divide: Arrow Divide: Arrow, Divide, Green
+arrow_down: Arrow Down: Arrow, Down, Green
+arrow_in: Arrow In: Arrow, In, Green
+arrow_inout: Arrow In Out: Arrow, In, Out, Green
+arrow_join: Arrow Join: Arrow, Join, Green
+arrow_left: Arrow Left: Arrow, Left, Green
+arrow_merge: Arrow Merge: Arrow, Merge, Green
+arrow_out: Arrow Out: Arrow, Out, Green
+arrow_redo: Arrow Redo: Arrow, Redo, Green
+arrow_refresh: Arrow Refresh: Arrow, Refresh, Green
+arrow_refresh_small: Arrow Refresh Small: Arrow, Refresh, Small, Green
+arrow_right: Arrow Right: Arrow, Right, Green
+arrow_rotate_anticlockwise: Arrow Rotate Anticlockwise: Arrow, Rotate, Anticlockwise, Green
+arrow_rotate_clockwise: Arrow Rotate Clockwise: Arrow, Rotate, Clockwise, Green
+arrow_switch: Arrow Switch: Arrow, Switch, Green
+arrow_turn_left: Arrow Turn Left: Arrow, Turn, Left, Green
+arrow_turn_right: Arrow Turn Right: Arrow, Turn, Right, Green
+arrow_undo: Arrow Undo: Arrow, Undo, Green
+arrow_up: Arrow Up: Arrow, Up, Green
+artwork: Artwork: Artwork, Picture, Image
+ask_and_answer: Ask And Answer: Ask, And, Answer
+asterisk_orange: Asterisk Orange: Asterisk, Orange
+asterisk_yellow: Asterisk Yellow: Asterisk, Yellow
+atm: ATM: ATM, Bank
+attach: Attach: Attach, Email
+attributes_display: Attributes Display: Attributes, Display
+attribution: Attribution: Attribution
+auction_hammer_gavel: Auction Hammer Gavel: Auction, Hammer, Gavel
+autos: Autos: Autos, Car, Transport
+award_star_add: Award Star Add: Award, Star, Add, Plus
+award_star_bronze_1: Award Star Bronze 1: Award, Star, Bronze
+award_star_bronze_2: Award Star Bronze 2: Award, Star, Bronze
+award_star_bronze_3: Award Star Bronze 3: Award, Star, Bronze
+award_star_delete: Award Star Delete: Award, Star, Delete, Remove
+award_star_gold_1: Award Star Gold 1: Award, Star, Gold
+award_star_gold_2: Award Star Gold 2: Award, Star, Gold
+award_star_gold_3: Award Star Gold 3: Award, Star, Gold
+award_star_silver_1: Award Star Silver 1: Award, Star, Silver
+award_star_silver_2: Award Star Silver 2: Award, Star, Silver
+award_star_silver_3: Award Star Silver 3: Award, Star, Silver
+backpack: Backpack: Backpack
+backup_manager: Backup Manager: Backup, Manager, Discs
+balance: Balance: Balance, Justice, Law
+balance_unbalance: Balance Unbalance: Balance, Unbalance
+ballon: Ballon: Ballon, Red
+baloon: Baloon: Baloon, Blue
+bandaid: Bandaid: Bandaid, Medical
+barchart: Barchart: Barchart, Graph, 2D
+barcode: Barcode: Barcode, Price
+basket: Basket: Basket, Shopping, Cart, Ecommerce
+basket_add: Basket Add: Basket, Shopping, Cart, Add, Plus
+basket_delete: Basket Delete: Basket, Shopping, Cart, Delete, Remove
+basket_edit: Basket Edit: Basket, Shopping, Cart, Edit
+basket_error: Basket Error: Basket, Shopping, Cart, Error
+basket_go: Basket Go: Basket, Shopping, Cart, Go
+basket_put: Basket Put: Basket, Shopping, Cart, Put
+basket_remove: Basket Remove: Basket, Shopping, Cart, Remove, Delete
+battery: Battery: Battery, Power
+battery_charge: Battery Charge: Battery, Charge, Power
+battery_full: Battery Full: Battery, Full, Power
+battery_half: Battery Half: Battery, Half, Power
+battery_low: Battery Low: Battery, Low, Power
+battery_plug: Battery Plug: Battery, Plug, Power
+bell: Bell: Bell, Alarm, Alert
+bell_add: Bell Add: Bell, Add, Plus, Alarm, Alert
+bell_delete: Bell Delete: Bell, Delete, Remove, Alarm, Alert
+bell_error: Bell Error: Bell, Error, Alarm, Alert
+bell_go: Bell Go: Bell, Go, Alarm, Alert
+bell_link: Bell Link: Bell, Link, Alarm, Alert
+billiard_marker: Billiard Marker: Billiard, Marker, Edit
+bin: Bin: Recycle, Bin, Full
+bin_closed: Bin Closed: Recycle, Bin, Closed
+bin_empty: Bin Empty: Recycle, Bin, Empty
+bios: Bios: Bios, Hardware
+blackberry: Blackberry: Blackberry, Smartphone
+blackberry_white: Blackberry White: Blackberry, White, Smartphone
+blackboard_drawing: Blackboard Drawing: Blackboard, Drawing
+blackboard_empty: Blackboard Empty: Blackboard, Empty
+blackboard_steps: Blackboard Steps: Blackboard, Steps
+blackboard_sum: Blackboard Sum: Blackboard, Sum
+blogs: Blogs: Blogs
+bluetooth: Bluetooth: Bluetooth
+bomb: Bomb: Bomb
+book: Book: Book
+bookmark: Bookmark: Bookmark, Book
+books: Books: Books
+book_add: Book Add: Book, Add, Plus
+book_addresses: Book Addresses: Book, Addresses, Addressbook, Contacts
+book_delete: Book Delete: Book, Delete, Remove
+book_edit: Book Edit: Book, Edit
+book_error: Book Error: Book, Error
+book_go: Book Go: Book, Go
+book_keeping: Book Keeping: Book, Keeping
+book_key: Book Key: Book, Key
+book_link: Book Link: Book, Link
+book_next: Book Next: Book, Next
+book_open: Book Open: Book, Open
+book_picture: Book Picture: Book, Picture
+book_previous: Book Previous: Book, Previous
+book_spelling: Book Spelling: Book, Spelling
+border_1: Border 1: Border
+border_1d_around: Border 1d Around: Border, 1d, Around
+border_1d_bottom: Border 1d Bottom: Border, 1d, Bottom
+border_1d_left: Border 1d Left: Border, 1d, Left
+border_1d_right: Border 1d Right: Border, 1d, Right
+border_1d_top: Border 1d Top: Border, 1d, Top
+border_1_bottom: Border 1 Bottom: Border, Bottom
+border_1_hor: Border 1 Hor: Border, Hor
+border_1_left: Border 1 Left: Border, Left
+border_1_middle: Border 1 Middle: Border, Middle
+border_1_none: Border 1 None: Border, None
+border_1_outer: Border 1 Outer: Border, Outer
+border_1_right: Border 1 Right: Border, Right
+border_1_top: Border 1 Top: Border, Top
+border_1_ver: Border 1 Ver: Border, Ver
+border_2_bottom: Border 2 Bottom: Border, Bottom
+border_2_left: Border 2 Left: Border, Left
+border_2_outer: Border 2 Outer: Border, Outer
+border_2_right: Border 2 Right: Border, Right
+border_2_top: Border 2 Top: Border, Top
+box: Box: Box, Package, Shipping
+box_closed: Box Closed: Box, Closed, Package, Shipping
+box_down: Box Down: Box, Down, Package, Shipping
+box_front: Box Front: Box, Front, Package, Shipping
+box_open: Box Open: Box, Open, Package, Shipping
+brain: Brain: Brain, Brainstorming
+brain_trainer: Brain Trainer: Brain, Trainer, Brainstorming
+breeze: Breeze: Breeze, Wind
+brick: Brick: Brick
+bricks: Bricks: Bricks
+brick_add: Brick Add: Brick, Add, Plus
+brick_delete: Brick Delete: Brick, Delete, Remove
+brick_edit: Brick Edit: Brick, Edit
+brick_error: Brick Error: Brick, Error
+brick_go: Brick Go: Brick, Go
+brick_link: Brick Link: Brick, Link
+briefcase: Briefcase: Briefcase, Work
+brushes: Brushes: Brushes, Paint
+bubblechart: Bubblechart: Bubblechart, Graph
+bug: Bug: Bug, Insect
+bug_add: Bug Add: Bug, Add, Plus
+bug_delete: Bug Delete: Bug, Delete, Remove
+bug_edit: Bug Edit: Bug, Edit
+bug_error: Bug Error: Bug, Error
+bug_go: Bug Go: Bug, Go
+bug_link: Bug Link: Bug, Link
+building: Building: Building, Office, Company
+building_add: Building Add: Building, Add, Plus, Company
+building_delete: Building Delete: Building, Delete, Remove, Company
+building_edit: Building Edit: Building, Edit, Company
+building_error: Building Error: Building, Error, Company
+building_go: Building Go: Building, Go, Company
+building_key: Building Key: Building, Key, Company
+building_link: Building Link: Building, Link, Company
+bulb: Bulb: Bulb, Light, Tip
+bullet_add: Bullet Add: Bullet, Add, Plus
+bullet_arrow_bottom: Bullet Arrow Bottom: Bullet, Arrow, Bottom
+bullet_arrow_down: Bullet Arrow Down: Bullet, Arrow, Down
+bullet_arrow_top: Bullet Arrow Top: Bullet, Arrow, Top
+bullet_arrow_up: Bullet Arrow Up: Bullet, Arrow, Up
+bullet_black: Bullet Black: Bullet, Black
+bullet_blue: Bullet Blue: Bullet, Blue
+bullet_delete: Bullet Delete: Bullet, Delete, Remove
+bullet_disk: Bullet Disk: Bullet, Disk
+bullet_error: Bullet Error: Bullet, Error
+bullet_feed: Bullet Feed: Bullet, Feed, RSS
+bullet_go: Bullet Go: Bullet, Go
+bullet_green: Bullet Green: Bullet, Green
+bullet_key: Bullet Key: Bullet, Key
+bullet_orange: Bullet Orange: Bullet, Orange
+bullet_picture: Bullet Picture: Bullet, Picture, Image
+bullet_pink: Bullet Pink: Bullet, Pink
+bullet_purple: Bullet Purple: Bullet, Purple
+bullet_red: Bullet Red: Bullet, Red
+bullet_star: Bullet Star: Bullet, Star
+bullet_toggle_minus: Bullet Toggle Minus: Bullet, Toggle, Minus
+bullet_toggle_plus: Bullet Toggle Plus: Bullet, Toggle, Plus, Add
+bullet_white: Bullet White: Bullet, White
+bullet_wrench: Bullet Wrench: Bullet, Wrench
+bullet_yellow: Bullet Yellow: Bullet, Yellow
+butterfly: Butterfly: Butterfly, Insect
+button: Button: Button
+buttonbar: Buttonbar: Buttonbar
+buzz: Buzz: Buzz
+cactus: Cactus: Cactus
+cake: Cake: Cake, Food
+calculator: Calculator: Calculator
+calculator_add: Calculator Add: Calculator, Add, Plus
+calculator_black: Calculator Black: Calculator, Black
+calculator_delete: Calculator Delete: Calculator, Delete, Remove
+calculator_edit: Calculator Edit: Calculator, Edit
+calculator_error: Calculator Error: Calculator, Error
+calculator_link: Calculator Link: Calculator, Link
+calendar: Calendar: Calendar, Tasks
+calendar_add: Calendar Add: Calendar, Add, Plus
+calendar_copy: Calendar Copy: Calendar, Copy
+calendar_delete: Calendar Delete: Calendar, Delete, Remove
+calendar_edit: Calendar Edit: Calendar, Edit
+calendar_link: Calendar Link: Calendar, Link
+calendar_view_day: Calendar View Day: Calendar, View, Day
+calendar_view_month: Calendar View Month: Calendar, View, Month
+calendar_view_week: Calendar View Week: Calendar, View, Week
+camera: Camera: Camera, Photo
+camera_add: Camera Add: Camera, Photo, Add, Plus
+camera_delete: Camera Delete: Camera, Photo, Delete, Remove
+camera_edit: Camera Edit: Camera, Photo, Edit
+camera_error: Camera Error: Camera, Photo, Error
+camera_go: Camera Go: Camera, Photo, Go
+camera_link: Camera Link: Camera, Photo, Link
+camera_small: Camera Small: Camera, Photo, Small
+cancel: Cancel: Cancel, Stop
+candle: Candle: Candle
+candlestickchart: Candlestickchart: Candlestickchart, Graph
+candy_cane: Candy Cane: Candy, Cane
+canvas: Canvas: Canvas
+canvas_size: Canvas Size: Canvas, Size
+car: Car: Car, Transport
+cards: Cards: Cards, Games
+cards_binds: Cards Binds: Cards, Binds
+card_amazon: Card Amazon: Card, Amazon
+card_amex_gold: Card Amex Gold: Card, Amex, Gold
+card_amex_gray: Card Amex Gray: Card, Amex, Gray
+card_amex_green: Card Amex Green: Card, Amex, Green
+card_apple: Card Apple: Card, Apple
+card_back: Card Back: Card, Back
+card_bank: Card Bank: Card, Bank
+card_chase: Card Chase: Card, Chase
+card_chip_gold: Card Chip Gold: Card, Chip, Gold
+card_chip_silver: Card Chip Silver: Card, Chip, Silver
+card_credit: Card Credit: Card, Credit
+card_debit: Card Debit: Card, Debit
+card_discover_black: Card Discover Black: Card, Discover, Black
+card_discover_novus: Card Discover Novus: Card, Discover, Novus
+card_echeck: Card Echeck: Card, Echeck
+card_export: Card Export: Card, Export
+card_front: Card Front: Card, Front
+card_gift: Card Gift: Card, Gift
+card_gift_2: Card Gift 2: Card, Gift
+card_gold: Card Gold: Card, Gold
+card_import: Card Import: Card, Import
+card_ipod: Card iPod: Card, iPod
+card_miles: Card Miles: Card, Miles
+card_money: Card Money: Card, Money
+card_sapphire: Card Sapphire: Card, Sapphire
+card_save: Card Save: Card, Save
+card_solo: Card Solo: Card, Solo
+cart: Cart: Cart, Shopping
+cart_add: Cart Add: Cart, Add, Plus, Shopping
+cart_delete: Cart Delete: Cart, Delete, Remove, Shopping
+cart_edit: Cart Edit: Cart, Edit, Shopping
+cart_error: Cart Error: Cart, Error, Shopping
+cart_go: Cart Go: Cart, Go, Shopping
+cart_put: Cart Put: Cart, Put, Shopping
+cart_remove: Cart Remove: Cart, Remove, Delete, Shopping
+car_add: Car Add: Car, Add, Plus
+car_delete: Car Delete: Car, Delete, Remove
+cash_register: Cash Register: Cash, Register
+cash_register_2: Cash Register 2: Cash, Register
+cash_stack: Cash Stack: Cash, Stack, Money
+cash_terminal: Cash Terminal: Cash, Terminal
+cat: Cat: Cat, Animal
+cats_display: Cats Display: Cats, Display
+cctv_camera: Cctv Camera: Cctv, Camera, Video
+cd: CD: CD, Disc
+cd_add: CD Add: CD, Add, Plus, Disc
+cd_burn: CD Burn: CD, Burn, Disc
+cd_case: CD Case: CD, Case, Disc
+cd_case_empty: CD Case Empty: CD, Case, Empty, Disc
+cd_delete: CD Delete: CD, Delete, Remove, Disc
+cd_edit: CD Edit: CD, Edit, Disc
+cd_eject: CD Eject: CD, Eject, Disc
+cd_go: CD Go: CD, Go, Disc
+celsius: Celsius: Celsius, Temperature
+centroid: Centroid: Centroid
+ceo: Ceo: Ceo, User, Client
+chair: Chair: Chair
+chameleon: Chameleon: Chameleon, Animal
+change_password: Change Password: Change, Password, Lock
+chart_bar: Chart Bar: Chart, Bar, Graph, 2D
+chart_bar_add: Chart Bar Add: Chart, Bar, Add, Plus
+chart_bar_delete: Chart Bar Delete: Chart, Bar, Delete, Remove
+chart_bar_edit: Chart Bar Edit: Chart, Bar, Edit
+chart_bar_error: Chart Bar Error: Chart, Bar, Error
+chart_bar_link: Chart Bar Link: Chart, Bar, Link
+chart_bullseye: Chart Bullseye: Chart, Bullseye
+chart_column: Chart Column: Chart, Column, Graph, 2D
+chart_column_2: Chart Column 2: Chart, Column, Graph, 2D
+chart_curve: Chart Curve: Chart, Curve, Graph, 2D
+chart_curve_add: Chart Curve Add: Chart, Curve, Add, Plus
+chart_curve_delete: Chart Curve Delete: Chart, Curve, Delete, Remove
+chart_curve_edit: Chart Curve Edit: Chart, Curve, Edit
+chart_curve_error: Chart Curve Error: Chart, Curve, Error
+chart_curve_go: Chart Curve Go: Chart, Curve, Go
+chart_curve_link: Chart Curve Link: Chart, Curve, Link
+chart_down_color: Chart Down Color: Chart, Down, Color
+chart_line: Chart Line: Chart, Line, Graph, 2D
+chart_line_add: Chart Line Add: Chart, Line, Add, Plus
+chart_line_delete: Chart Line Delete: Chart, Line, Delete, Remove
+chart_line_edit: Chart Line Edit: Chart, Line, Edit
+chart_line_error: Chart Line Error: Chart, Line, Error
+chart_line_link: Chart Line Link: Chart, Line, Link
+chart_organisation: Chart Organisation: Chart, Organisation
+chart_organisation_add: Chart Organisation Add: Chart, Organisation, Add, Plus
+chart_organisation_delete: Chart Organisation Delete: Chart, Organisation, Delete, Remove
+chart_pie: Chart Pie: Chart, Pie, Graph, 2D
+chart_pie_add: Chart Pie Add: Chart, Pie, Add, Plus
+chart_pie_alternative: Chart Pie Alternative: Chart, Pie, Alternative
+chart_pie_delete: Chart Pie Delete: Chart, Pie, Delete, Remove
+chart_pie_edit: Chart Pie Edit: Chart, Pie, Edit
+chart_pie_error: Chart Pie Error: Chart, Pie, Error
+chart_pie_link: Chart Pie Link: Chart, Pie, Link
+chart_stock: Chart Stock: Chart, Stock, Graph, 2D
+chart_up_color: Chart Up Color: Chart, Up, Color
+checkerboard: Checkerboard: Checkerboard
+check_box: Check Box: Check, Box, Options
+cheque: Cheque: Cheque
+chess_horse: Chess Horse: Chess, Horse
+chess_tower: Chess Tower: Chess, Tower
+christmas_tree: Christmas Tree: Christmas, Tree
+church: Church: Church, Building
+cigarette: Cigarette: Cigarette
+cirrus: Cirrus: Cirrus, Card
+client_account_template: Client Account Template: Client, Account, Template, User
+clipboard_empty: Clipboard Empty: Clipboard, Empty
+clipboard_sign: Clipboard Sign: Clipboard, Sign
+clipboard_sign_out: Clipboard Sign Out: Clipboard, Sign, Out
+clip_splitter: Clip Splitter: Clip, Splitter, Cut
+clock: Clock: Clock, Time
+clock_add: Clock Add: Clock, Add, Plus
+clock_delete: Clock Delete: Clock, Delete, Remove
+clock_edit: Clock Edit: Clock, Edit
+clock_error: Clock Error: Clock, Error
+clock_go: Clock Go: Clock, Go
+clock_history_frame: Clock History Frame: Clock, History, Frame
+clock_link: Clock Link: Clock, Link
+clock_pause: Clock Pause: Clock, Pause
+clock_play: Clock Play: Clock, Play
+clock_red: Clock Red: Clock, Red
+clock_select_remain: Clock Select Remain: Clock, Select, Remain
+clock_stop: Clock Stop: Clock, Stop
+co2: Co2: Co2
+code: Code: Code
+cog: Cog: Cog, Gear, Settings, Options
+cog_add: Cog Add: Cog, Add, Plus
+cog_delete: Cog Delete: Cog, Delete, Remove
+cog_edit: Cog Edit: Cog, Edit
+cog_error: Cog Error: Cog, Error
+cog_go: Cog Go: Cog, Go
+coins: Coins: Coins, Money
+coins_add: Coins Add: Coins, Add, Plus
+coins_delete: Coins Delete: Coins, Delete, Remove
+coins_in_hand: Coins In Hand: Coins, Hand, Money
+coin_single_cooper: Coin Single Cooper: Coin, Single, Cooper, Money
+coin_single_gold: Coin Single Gold: Coin, Single, Gold
+coin_single_silver: Coin Single Silver: Coin, Single, Silver
+coin_stack_gold: Coin Stack Gold: Coin, Stack, Gold
+cold: Cold: Cold, Temperature, Ice
+color_adjustment: Color Adjustment: Color, Adjustment
+color_gradient: Color Gradient: Color, Gradient
+color_management: Color Management: Color, Management
+color_picker: Color Picker: Color, Picker
+color_picker_alternative: Color Picker Alternative: Color, Picker, Alternative
+color_swatch: Color Swatch: Color, Swatch
+color_wheel: Color Wheel: Color, Wheel
+columnchart: Columnchart: Columnchart, Graph, 2D
+column_double: Column Double: Column, Double
+column_four: Column Four: Column, Four
+column_left: Column Left: Column, Left
+column_one: Column One: Column, One
+column_right: Column Right: Column, Right
+column_single: Column Single: Column, Single
+column_tree: Column Tree: Column, Tree
+column_two: Column Two: Column, Two
+combo_box: Combo Box: Combo, Box
+comment: Comment: Comment
+comments: Comments: Comments, Chat
+comments_add: Comments Add: Comments, Add, Plus
+comments_delete: Comments Delete: Comments, Delete, Remove
+comment_add: Comment Add: Comment, Add, Plus
+comment_delete: Comment Delete: Comment, Delete, Remove
+comment_edit: Comment Edit: Comment, Edit
+company_generosity: Company Generosity: Company, Generosity
+compass: Compass: Compass
+compress: Compress: Compress, ZIP, Archive
+computer: Computer: Computer, PC
+computer_add: Computer Add: Computer, Add, Plus
+computer_delete: Computer Delete: Computer, Delete, Remove
+computer_edit: Computer Edit: Computer, Edit
+computer_error: Computer Error: Computer, Error
+computer_go: Computer Go: Computer, Go
+computer_key: Computer Key: Computer, Key
+computer_link: Computer Link: Computer, Link
+connect: Connect: Connect
+construction: Construction: Construction
+contact_email: Contact Email: Contact, Email
+contrast: Contrast: Contrast
+contrast_decrease: Contrast Decrease: Contrast, Decrease
+contrast_high: Contrast High: Contrast, High
+contrast_increase: Contrast Increase: Contrast, Increase
+contrast_low: Contrast Low: Contrast, Low
+controlbar: Controlbar: Controlbar
+controller: Controller: Controller
+controller_add: Controller Add: Controller, Add, Plus
+controller_delete: Controller Delete: Controller, Delete, Remove
+controller_error: Controller Error: Controller, Error
+control_eject: Control Eject: Control, Eject
+control_eject_blue: Control Eject Blue: Control, Eject, Blue
+control_end: Control End: Control, End
+control_end_blue: Control End Blue: Control, End, Blue
+control_equalizer: Control Equalizer: Control, Equalizer
+control_equalizer_blue: Control Equalizer Blue: Control, Equalizer, Blue
+control_fastforward: Control Fastforward: Control, Fastforward
+control_fastforward_blue: Control Fastforward Blue: Control, Fastforward, Blue
+control_panel: Control Panel: Control, Panel
+control_panel_access: Control Panel Access: Control, Panel, Access
+control_panel_branding: Control Panel Branding: Control, Panel, Branding
+control_pause: Control Pause: Control, Pause
+control_pause_blue: Control Pause Blue: Control, Pause, Blue
+control_pause_record: Control Pause Record: Control, Pause, Record
+control_play: Control Play: Control, Play
+control_play_blue: Control Play Blue: Control, Play, Blue
+control_repeat: Control Repeat: Control, Repeat
+control_repeat_blue: Control Repeat Blue: Control, Repeat, Blue
+control_rewind: Control Rewind: Control, Rewind
+control_rewind_blue: Control Rewind Blue: Control, Rewind, Blue
+control_start: Control Start: Control, Start
+control_start_blue: Control Start Blue: Control, Start, Blue
+control_stop: Control Stop: Control, Stop
+control_stop_blue: Control Stop Blue: Control, Stop, Blue
+conversion_of_currency: Conversion Of Currency: Conversion, Currency
+convert_color_to_gray: Convert Color To Gray: Convert, Color, Gray
+convert_gray_to_color: Convert Gray To Color: Convert, Gray, Color
+cookies: Cookies: Cookies, Food
+cookie_chocolate: Cookie Chocolate: Cookie, Chocolate, Food
+cooler: Cooler: Cooler
+copying_and_distribution: Copying And Distribution: Copying, Distribution
+copyleft: Copyleft: Copyleft
+creative_commons: Creative Commons: Creative, Commons
+credit: Credit: Credit, Card, Money
+creditcards: Creditcards: Creditcards
+cricket: Cricket: Cricket
+cross: Cross: Cross
+cross_promotion_selling: Cross Promotion Selling: Cross, Promotion, Selling
+css: CSS: CSS
+css_add: CSS Add: CSS, Add, Plus
+css_delete: CSS Delete: CSS, Delete, Remove
+css_go: CSS Go: CSS, Go
+css_valid: CSS Valid: CSS, Valid
+cup: Cup: Cup, Coffee, Drink
+cup_add: Cup Add: Cup, Add, Plus
+cup_delete: Cup Delete: Cup, Delete, Remove
+cup_edit: Cup Edit: Cup, Edit
+cup_error: Cup Error: Cup, Error
+cup_go: Cup Go: Cup, Go
+cup_key: Cup Key: Cup, Key
+cup_link: Cup Link: Cup, Link
+curriculum_vitae: Curriculum Vitae: Curriculum, Vitae
+cursor: Cursor: Cursor, Arrow
+cut: Cut: Cut, Scissors
+cut_red: Cut Red: Cut, Red, Scissors
+database: Database: Database
+database_add: Database Add: Database, Add, Plus
+database_connect: Database Connect: Database, Connect
+database_delete: Database Delete: Database, Delete, Remove
+database_edit: Database Edit: Database, Edit
+database_error: Database Error: Database, Error
+database_gear: Database Gear: Database, Gear, Settings
+database_go: Database Go: Database, Go
+database_key: Database Key: Database, Key
+database_lightning: Database Lightning: Database, Lightning
+database_link: Database Link: Database, Link
+database_refresh: Database Refresh: Database, Refresh
+database_save: Database Save: Database, Save
+database_server: Database Server: Database, Server
+database_table: Database Table: Database, Table
+data_chooser: Data Chooser: Data, Chooser
+data_field: Data Field: Data, Field
+data_grid: Data Grid: Data, Grid
+data_sort: Data Sort: Data, Sort
+data_table: Data Table: Data, Table
+date: Date: Date, Calendar
+date_add: Date Add: Date, Add, Plus
+date_delete: Date Delete: Date, Delete, Remove
+date_edit: Date Edit: Date, Edit
+date_error: Date Error: Date, Error
+date_go: Date Go: Date, Go
+date_link: Date Link: Date, Link
+date_magnify: Date Magnify: Date, Magnify
+date_next: Date Next: Date, Next
+date_previous: Date Previous: Date, Previous
+ddr_memory: DDR Memory: DDR, Memory, Hardware
+decimal_less: Decimal Less: Decimal, Less
+decimal_more: Decimal More: Decimal, More
+delete: Delete: Delete, Remove
+derivatives: Derivatives: Derivatives
+diagramm: Diagramm: Diagramm
+dialog: Dialog: Dialog
+diamond: Diamond: Diamond
+dice: Dice: Dice, Games
+digital_signature: Digital Signature: Digital, Signature
+dinersclub: Dinersclub: Dinersclub, Card
+direction: Direction: Direction
+directory_listing: Directory Listing: Directory, Listing, Document
+disconnect: Disconnect: Disconnect
+discover: Discover: Discover, Card
+disk: Disk: Disk, Diskette
+disk_multiple: Disk Multiple: Disk, Multiple
+distribution_partnerships: Distribution Partnerships: Distribution, Partnerships
+dns: DNS: DNS, Network
+dns_setting: DNS Setting: DNS, Setting, Network
+documents_email: Documents Email: Documents, Email
+document_back: Document Back: Document, Back
+document_background: Document Background: Document, Background, Paint
+document_break: Document Break: Document, Break
+document_center: Document Center: Document, Center
+document_check_compatibility: Document Check Compatibility: Document, Check, Compatibility
+document_comments: Document Comments: Document, Comments
+document_comment_above: Document Comment Above: Document, Comment, Above
+document_comment_behind: Document Comment Behind: Document, Comment, Behind
+document_comment_below: Document Comment Below: Document, Comment, Below
+document_copies: Document Copies: Document, Copies
+document_editing: Document Editing: Document, Editing
+document_empty: Document Empty: Document, Empty
+document_export: Document Export: Document, Export
+document_font: Document Font: Document, Font
+document_font_wizard: Document Font Wizard: Document, Font, Wizard
+document_image: Document Image: Document, Image
+document_image_hor: Document Image Hor: Document, Image, Hor
+document_image_ver: Document Image Ver: Document, Image, Ver
+document_import: Document Import: Document, Import
+document_index: Document Index: Document, Index
+document_info: Document Info: Document, Info
+document_insert: Document Insert: Document, Insert
+document_inspect: Document Inspect: Document, Inspect
+document_inspector: Document Inspector: Document, Inspector
+document_layout: Document Layout: Document, Layout
+document_margins: Document Margins: Document, Margins
+document_mark_as_final: Document Mark As Final: Document, Mark, As, Final
+document_move: Document Move: Document, Move
+document_next: Document Next: Document, Next
+document_notes: Document Notes: Document, Notes
+document_num: Document Num: Document, Num
+document_page: Document Page: Document, Page
+document_page_last: Document Page Last: Document, Page, Last
+document_page_next: Document Page Next: Document, Page, Next
+document_page_previous: Document Page Previous: Document, Page, Previous
+document_plus: Document Plus: Document, Plus, Add
+document_prepare: Document Prepare: Document, Prepare
+document_properties: Document Properties: Document, Properties
+document_quote: Document Quote: Document, Quote
+document_redirect: Document Redirect: Document, Redirect
+document_rename: Document Rename: Document, Rename
+document_shapes: Document Shapes: Document, Shapes
+document_shred: Document Shred: Document, Shred
+document_signature: Document Signature: Document, Signature
+document_spacing: Document Spacing: Document, Spacing
+document_split: Document Split: Document, Split
+document_stand: Document Stand: Document, Stand
+document_tag: Document Tag: Document, Tag
+document_todo: Document Todo: Document, Todo
+document_valid: Document Valid: Document, Valid
+document_vertical: Document Vertical: Document, Vertical
+document_view_book: Document View Book: Document, View, Book
+dog: Dog: Dog, Animal
+domain_template: Domain Template: Domain, Template, Web
+door: Door: Door, Exit
+door_in: Door In: Door, In, Exit
+door_open: Door Open: Door, Open, Exit
+door_out: Door Out: Door, Out
+download: Download: Download, Arrow
+download_for_linux: Download For Linux: Download, Linux
+download_for_mac: Download For Mac: Download, Mac
+download_for_windows: Download For Windows: Download, Windows
+drawer: Drawer: Drawer
+drawer_open: Drawer Open: Drawer, Open
+draw_airbrush: Draw Airbrush: Draw, Airbrush
+draw_calligraphic: Draw Calligraphic: Draw, Calligraphic
+draw_clone: Draw Clone: Draw, Clone
+draw_convolve: Draw Convolve: Draw, Convolve
+draw_dodge_burn: Draw Dodge Burn: Draw, Dodge, Burn
+draw_ellipse: Draw Ellipse: Draw, Ellipse
+draw_eraser: Draw Eraser: Draw, Eraser
+draw_ink: Draw Ink: Draw, Ink
+draw_island: Draw Island: Draw, Island
+draw_line: Draw Line: Draw, Line
+draw_path: Draw Path: Draw, Path
+draw_points: Draw Points: Draw, Points
+draw_polygon: Draw Polygon: Draw, Polygon
+draw_polygon_curves: Draw Polygon Curves: Draw, Polygon, Curves
+draw_polyline: Draw Polyline: Draw, Polyline
+draw_ring: Draw Ring: Draw, Ring
+draw_smudge: Draw Smudge: Draw, Smudge
+draw_spiral: Draw Spiral: Draw, Spiral
+draw_star: Draw Star: Draw, Star
+draw_vertex: Draw Vertex: Draw, Vertex
+draw_wave: Draw Wave: Draw, Wave
+drill: Drill: Drill, Work
+drink: Drink: Drink, Cocktail
+drink_empty: Drink Empty: Drink, Empty
+drive: Drive: Drive
+drive_add: Drive Add: Drive, Add, Plus
+drive_burn: Drive Burn: Drive, Burn
+drive_cd: Drive CD: Drive, CD
+drive_cd_empty: Drive CD Empty: Drive, CD, Empty
+drive_delete: Drive Delete: Drive, Delete, Remove
+drive_disk: Drive Disk: Drive, Disk
+drive_edit: Drive Edit: Drive, Edit
+drive_error: Drive Error: Drive, Error
+drive_go: Drive Go: Drive, Go
+drive_key: Drive Key: Drive, Key
+drive_link: Drive Link: Drive, Link
+drive_magnify: Drive Magnify: Drive, Magnify
+drive_network: Drive Network: Drive, Network
+drive_rename: Drive Rename: Drive, Rename
+drive_user: Drive User: Drive, User
+drive_web: Drive Web: Drive, Web
+drugs_com: Drugs Com: Drugs, Com
+drum: Drum: Drum
+dvd: DVD: DVD, Disc
+dvd_add: DVD Add: DVD, Add, Plus, Disc
+dvd_delete: DVD Delete: DVD, Delete, Remove, Disc
+dvd_edit: DVD Edit: DVD, Edit, Disc
+dvd_error: DVD Error: DVD, Error, Disc
+dvd_go: DVD Go: DVD, Go, Disc
+dvd_key: DVD Key: DVD, Key, Disc
+dvd_link: DVD Link: DVD, Link, Disc
+dynamite: Dynamite: Dynamite
+ebay: Ebay: Ebay
+echeck: Echeck: Echeck
+edit_chain: Edit Chain: Edit, Chain
+edit_diff: Edit Diff: Edit, Diff
+edit_free: Edit Free: Edit, Free
+edit_path: Edit Path: Edit, Path
+education: Education: Education, Books
+ehow: Ehow: Ehow
+elements: Elements: Elements
+email: Email: Email
+email_add: Email Add: Email, Add, Plus
+email_attach: Email Attach: Email, Attach
+email_delete: Email Delete: Email, Delete, Remove
+email_edit: Email Edit: Email, Edit
+email_error: Email Error: Email, Error
+email_go: Email Go: Email, Go
+email_link: Email Link: Email, Link
+email_open: Email Open: Email, Open
+email_open_image: Email Open Image: Email, Open, Image
+email_to_friend: Email To Friend: Email, To, Friend
+emotion_evilgrin: Emotion Evilgrin: Emotion, Evilgrin
+emotion_grin: Emotion Grin: Emotion, Grin
+emotion_happy: Emotion Happy: Emotion, Happy
+emotion_smile: Emotion Smile: Emotion, Smile
+emotion_suprised: Emotion Suprised: Emotion, Suprised
+emotion_tongue: Emotion Tongue: Emotion, Tongue
+emotion_unhappy: Emotion Unhappy: Emotion, Unhappy
+emotion_waii: Emotion Waii: Emotion, Waii
+emotion_wink: Emotion Wink: Emotion, Wink
+entity: Entity: Entity, Library
+error: Error: Error, Warning
+error_add: Error Add: Error, Add, Plus, Warning
+error_delete: Error Delete: Error, Delete, Remove, Warning
+error_go: Error Go: Error, Go, Warning
+events: Events: Events, Blog
+exclamation: Exclamation: Exclamation, Warning
+export_excel: Export Excel: Export, Excel, Microsoft
+extract_foreground_objects: Extract Foreground Objects: Extract, Foreground, Objects
+eye: Eye: Eye, Browse, Look
+factory: Factory: Factory, Work, Building
+fatcow: Fatcow: Fatcow
+fax: Fax: Fax
+feed: Feed: Feed, RSS
+feed_add: Feed Add: Feed, RSS, Add, Plus
+feed_delete: Feed Delete: Feed, RSS, Delete, Remove
+feed_disk: Feed Disk: Feed, RSS, Disk
+feed_edit: Feed Edit: Feed, RSS, Edit
+feed_error: Feed Error: Feed, RSS, Error
+feed_go: Feed Go: Feed, RSS, Go
+feed_key: Feed Key: Feed, RSS, Key
+feed_magnify: Feed Magnify: Feed, RSS, Magnify
+female: Female: Female
+file_extension_3gp: File Extension 3gp: File, Extension, 3gp
+file_extension_7z: File Extension 7z: File, Extension, 7z
+file_extension_ace: File Extension Ace: File, Extension, Ace
+file_extension_ai: File Extension AI: File, Extension, AI
+file_extension_aif: File Extension Aif: File, Extension, Aif
+file_extension_aiff: File Extension Aiff: File, Extension, Aiff
+file_extension_amr: File Extension Amr: File, Extension, Amr
+file_extension_asf: File Extension Asf: File, Extension, Asf
+file_extension_asx: File Extension Asx: File, Extension, Asx
+file_extension_bat: File Extension Bat: File, Extension, Bat
+file_extension_bin: File Extension Bin: File, Extension, Bin
+file_extension_bmp: File Extension BMP: File, Extension, BMP
+file_extension_bup: File Extension Bup: File, Extension, Bup
+file_extension_cab: File Extension CAB: File, Extension, CAB
+file_extension_cbr: File Extension Cbr: File, Extension, Cbr
+file_extension_cda: File Extension Cda: File, Extension, Cda
+file_extension_cdl: File Extension Cdl: File, Extension, Cdl
+file_extension_cdr: File Extension Cdr: File, Extension, Cdr
+file_extension_chm: File Extension CHM: File, Extension, CHM
+file_extension_dat: File Extension Dat: File, Extension, Dat
+file_extension_divx: File Extension Divx: File, Extension, Divx
+file_extension_dll: File Extension DLL: File, Extension, DLL
+file_extension_dmg: File Extension Dmg: File, Extension, Dmg
+file_extension_doc: File Extension Doc: File, Extension, Doc
+file_extension_dss: File Extension Dss: File, Extension, Dss
+file_extension_dvf: File Extension Dvf: File, Extension, Dvf
+file_extension_dwg: File Extension Dwg: File, Extension, Dwg
+file_extension_eml: File Extension Eml: File, Extension, Eml
+file_extension_eps: File Extension EPS: File, Extension, EPS
+file_extension_exe: File Extension EXE: File, Extension, EXE
+file_extension_fla: File Extension FLA: File, Extension, FLA
+file_extension_flv: File Extension FLV: File, Extension, FLV
+file_extension_gif: File Extension GIF: File, Extension, GIF
+file_extension_gz: File Extension Gz: File, Extension, Gz
+file_extension_hqx: File Extension Hqx: File, Extension, Hqx
+file_extension_htm: File Extension Htm: File, Extension, Htm
+file_extension_html: File Extension HTML: File, Extension, HTML
+file_extension_ifo: File Extension Ifo: File, Extension, Ifo
+file_extension_indd: File Extension INDD: File, Extension, INDD
+file_extension_iso: File Extension ISO: File, Extension, ISO
+file_extension_jar: File Extension Jar: File, Extension, Jar
+file_extension_jpeg: File Extension Jpeg: File, Extension, Jpeg
+file_extension_jpg: File Extension JPG: File, Extension, JPG
+file_extension_lnk: File Extension Lnk: File, Extension, Lnk
+file_extension_log: File Extension Log: File, Extension, Log
+file_extension_m4a: File Extension M4a: File, Extension, M4a
+file_extension_m4b: File Extension M4b: File, Extension, M4b
+file_extension_m4p: File Extension M4p: File, Extension, M4p
+file_extension_m4v: File Extension M4v: File, Extension, M4v
+file_extension_mcd: File Extension Mcd: File, Extension, Mcd
+file_extension_mdb: File Extension MDB: File, Extension, MDB
+file_extension_mid: File Extension Mid: File, Extension, Mid
+file_extension_mov: File Extension MOV: File, Extension, MOV
+file_extension_mp2: File Extension Mp2: File, Extension, Mp2
+file_extension_mp4: File Extension MP4: File, Extension, MP4
+file_extension_mpeg: File Extension Mpeg: File, Extension, Mpeg
+file_extension_mpg: File Extension Mpg: File, Extension, Mpg
+file_extension_msi: File Extension Msi: File, Extension, Msi
+file_extension_mswmm: File Extension Mswmm: File, Extension, Mswmm
+file_extension_ogg: File Extension OGG: File, Extension, OGG
+file_extension_pdf: File Extension PDF: File, Extension, PDF
+file_extension_png: File Extension PNG: File, Extension, PNG
+file_extension_pps: File Extension PPS: File, Extension, PPS
+file_extension_ps: File Extension Ps: File, Extension, Ps
+file_extension_psd: File Extension PSD: File, Extension, PSD
+file_extension_pst: File Extension Pst: File, Extension, Pst
+file_extension_ptb: File Extension Ptb: File, Extension, Ptb
+file_extension_pub: File Extension Pub: File, Extension, Pub
+file_extension_qbb: File Extension Qbb: File, Extension, Qbb
+file_extension_qbw: File Extension Qbw: File, Extension, Qbw
+file_extension_qxd: File Extension Qxd: File, Extension, Qxd
+file_extension_ram: File Extension Ram: File, Extension, Ram
+file_extension_rar: File Extension RAR: File, Extension, RAR
+file_extension_rm: File Extension RM: File, Extension, RM
+file_extension_rmvb: File Extension Rmvb: File, Extension, Rmvb
+file_extension_rtf: File Extension RTF: File, Extension, RTF
+file_extension_sea: File Extension Sea: File, Extension, Sea
+file_extension_ses: File Extension Ses: File, Extension, Ses
+file_extension_sit: File Extension Sit: File, Extension, Sit
+file_extension_sitx: File Extension Sitx: File, Extension, Sitx
+file_extension_ss: File Extension Ss: File, Extension, Ss
+file_extension_swf: File Extension SWF: File, Extension, SWF
+file_extension_tgz: File Extension Tgz: File, Extension, Tgz
+file_extension_thm: File Extension Thm: File, Extension, Thm
+file_extension_tif: File Extension Tif: File, Extension, Tif
+file_extension_tmp: File Extension Tmp: File, Extension, Tmp
+file_extension_torrent: File Extension Torrent: File, Extension, Torrent
+file_extension_ttf: File Extension TTF: File, Extension, TTF
+file_extension_txt: File Extension TXT: File, Extension, TXT
+file_extension_vcd: File Extension Vcd: File, Extension, Vcd
+file_extension_vob: File Extension Vob: File, Extension, Vob
+file_extension_wav: File Extension WAV: File, Extension, WAV
+file_extension_wma: File Extension WMA: File, Extension, WMA
+file_extension_wmv: File Extension WMV: File, Extension, WMV
+file_extension_wps: File Extension Wps: File, Extension, Wps
+file_extension_xls: File Extension XLS: File, Extension, XLS
+file_extension_xpi: File Extension Xpi: File, Extension, Xpi
+file_extension_zip: File Extension ZIP: File, Extension, ZIP, Archive
+file_manager: File Manager: File, Manager
+film: Film: Film, Movie
+film_add: Film Add: Film, Add, Plus, Movie
+film_delete: Film Delete: Film, Delete, Remove, Movie
+film_edit: Film Edit: Film, Edit, Movie
+film_error: Film Error: Film, Error, Movie
+film_go: Film Go: Film, Go, Movie
+film_key: Film Key: Film, Key, Movie
+film_link: Film Link: Film, Link, Movie
+film_save: Film Save: Film, Save, Movie
+filter: Filter: Filter, Funnel
+filter_add: Filter Add: Filter, Add, Plus
+filter_delete: Filter Delete: Filter, Delete, Remove
+finance: Finance: Finance
+find: Find: Find, Search
+fire: Fire: Fire, Burn
+firefox: Firefox: Firefox, Browser
+firewall: Firewall: Firewall
+firewall_burn: Firewall Burn: Firewall, Burn
+fire_extinguisher: Fire Extinguisher: Fire, Extinguisher
+flag_1: Flag 1: Flag, Green
+flag_2: Flag 2: Flag, Blue
+flag_3: Flag 3: Flag, Red
+flag_blue: Flag Blue: Flag, Blue
+flag_finish: Flag Finish: Flag, Finish
+flag_green: Flag Green: Flag, Green
+flag_orange: Flag Orange: Flag, Orange
+flag_pink: Flag Pink: Flag, Pink
+flag_purple: Flag Purple: Flag, Purple
+flag_red: Flag Red: Flag, Red
+flag_yellow: Flag Yellow: Flag, Yellow
+flamingo: Flamingo: Flamingo, Bird, Animals
+flashdisk: Flashdisk: Flashdisk
+flashlight: Flashlight: Flashlight
+flashlight_shine: Flashlight Shine: Flashlight, Shine
+flask: Flask: Flask, Laboratory
+flask_empty: Flask Empty: Flask, Empty, Laboratory
+flex: Flex: Flex
+flex_builder: Flex Builder: Flex, Builder
+flickr: Flickr: Flickr
+flood_it: Flood It: Flood, Puzzle
+flower: Flower: Flower
+fog: Fog: Fog
+folder: Folder: Folder
+folders: Folders: Folders
+folders_explorer: Folders Explorer: Folders, Explorer
+folder_add: Folder Add: Folder, Add, Plus
+folder_bell: Folder Bell: Folder, Bell
+folder_brick: Folder Brick: Folder, Brick
+folder_bug: Folder Bug: Folder, Bug
+folder_camera: Folder Camera: Folder, Camera, Photo
+folder_database: Folder Database: Folder, Database
+folder_delete: Folder Delete: Folder, Delete, Remove
+folder_edit: Folder Edit: Folder, Edit
+folder_error: Folder Error: Folder, Error
+folder_explore: Folder Explore: Folder, Explore
+folder_feed: Folder Feed: Folder, Feed, RSS
+folder_find: Folder Find: Folder, Find
+folder_go: Folder Go: Folder, Go
+folder_heart: Folder Heart: Folder, Heart
+folder_image: Folder Image: Folder, Image
+folder_key: Folder Key: Folder, Key
+folder_lightbulb: Folder Lightbulb: Folder, Lightbulb
+folder_link: Folder Link: Folder, Link
+folder_page: Folder Page: Folder, Page
+folder_page_white: Folder Page White: Folder, Page, White
+folder_palette: Folder Palette: Folder, Palette
+folder_picture: Folder Picture: Folder, Picture
+folder_star: Folder Star: Folder, Star
+folder_table: Folder Table: Folder, Table
+folder_user: Folder User: Folder, User
+folder_wrench: Folder Wrench: Folder, Wrench, Settings
+font: Font: Font
+font_add: Font Add: Font, Add, Plus
+font_colors: Font Colors: Font, Colors
+font_delete: Font Delete: Font, Delete, Remove
+font_go: Font Go: Font, Go
+font_red: Font Red: Font, Red
+font_red_delete: Font Red Delete: Font, Red, Delete, Remove
+font_subscript: Font Subscript: Font, Subscript
+font_superscript: Font Superscript: Font, Superscript
+form: Form: Form
+formheading: Formheading: Formheading
+ftp: FTP: FTP, Web, Folder
+gas: Gas: Gas
+gcp: Gcp: Gcp
+gcp_rms: Gcp Rms: Gcp, Rms
+gear_in: Gear In: Gears, Gear
+georectify: Georectify: Georectify
+gift_add: Gift Add: Gift, Add, Plus
+global_telecom: Global Telecom: Global, Telecom
+globe_model: Globe Model: Globe, Internet, Earth, World, Model
+google: Google: Google
+google_adsense: Google Adsense: Google, Adsense
+google_custom_search: Google Custom Search: Google, Custom, Search
+google_map: Google Map: Google, Map
+google_new: Google New: Google, New
+google_webmaster_tools: Google Webmaster Tools: Google, Webmaster, Tools, Settings, Preferences
+google_web_elements: Google Web Elements: Google, Web, Elements
+grass: Grass: Grass
+green: Green Leaf: Green, Leaf
+grid: Grid: Grid
+group: Group: Group, Users, Clients
+group_add: Group Add: Group, Add, Plus
+group_delete: Group Delete: Group, Delete, Remove
+group_edit: Group Edit: Group, Edit
+group_error: Group Error: Group, Error
+group_gear: Group Gear: Group, Gear
+group_go: Group Go: Group, Go
+group_key: Group Key: Group, Key
+group_link: Group Link: Group, Link
+hammer: Hammer: Hammer, Tool
+hand: Hand: Hand, Stop
+handbag: Handbag: Handbag
+hand_point: Hand Point: Hand, Point
+hand_point_090: Hand Point 090: Hand, Point
+hand_point_180: Hand Point 180: Hand, Point
+hand_point_270: Hand Point 270: Hand, Point
+hand_property: Hand Property: Hand, Property
+hardware_building_oem: Hardware Building Oem: Hardware, Building, Oem
+hat: Hat: Hat
+hbox: Horizontal Box: Horizontal, Box
+hdividedbox: Horizontal Divided Box: Horizontal, Divided, Box
+hd_1080: HD 1080: HD, Video, 1080
+hd_720: HD 720: HD, Video, 720
+hd_ready: HD Ready: HD, Video, Ready
+headphone: Headphone: Headphones, Audio
+headphone_mic: Headphone Mic: Headphones, Mic, Support
+health: Health: Health, Medical
+heart: Heart: Heart, Love
+heart_add: Heart Add: Heart, Add, Plus
+heart_delete: Heart Delete: Heart, Delete, Remove
+helmet: Helmet: Helmet, Worker
+help: Help: Help, Support
+hlocchart: Horizontal Lock Chart: Horizontal, Lock, Chart
+holly: Holly: Holly
+home_page: Home Page: Home, House, Page
+horizontal_list: Horizontal List: Horizontal, List
+horoscopes: Horoscopes: Horoscopes
+hostname: Hostname: Hostname, Home
+hot: Hot: Hot, Temperature
+hotjobs: Hot Jobs: Hot, Jobs, Work
+hourglass: Hourglass: Hourglass, Wait
+hourglass_add: Hourglass Add: Hourglass, Add, Plus
+hourglass_delete: Hourglass Delete: Hourglass, Delete, Remove
+hourglass_go: Hourglass Go: Hourglass, Go
+hourglass_link: Hourglass Link: Hourglass, Link
+house: House: House, Home
+house_go: House Go: House, Home, Go
+house_link: House Link: House, Home, Link
+hrule: Horizontal Ruler: Horizontal, Ruler
+hslider: Horizontal Slider: Horizontal, Slider
+html: HTML: HTML
+html_add: HTML Add: HTML, Add, Plus
+html_delete: HTML Delete: HTML, Delete, Remove
+html_go: HTML Go: HTML, Go
+html_valid: HTML Valid: HTML, Valid
+hummingbird: Hummingbird: Hummingbird, Bird, Animal
+icecream: Icecream: Icecream, Food
+image: Image: Image, Picture
+images: Images: Images, Pictures
+image_add: Image Add: Image, Add, Plus
+image_delete: Image Delete: Image, Delete, Remove
+image_edit: Image Edit: Image, Edit
+image_link: Image Link: Image, Link
+index-cards: Index Cards: Index, Cards
+information: Information: Information
+info_rhombus: Info Rhombus: Info, Rhombus
+injection: Injection: Injection, Medical, Syringe
+insert_element: Insert Element: Insert, Element
+insert_object: Insert Object: Insert, Object
+installer_box: Installer Box: Installer, Box, Package
+interface_preferences: Interface Preferences: Interface, Preferences, Settings
+internet_explorer: Internet Explorer: Internet, Explorer
+investment_menu_quality: Investment Menu Quality: Investment, Menu, Quality
+ip: IP: IP, Address
+iphone: iPhone: iPhone, Phone
+ipod: iPod: iPod, Player
+ipod_cast: iPod Cast: iPod, Cast
+ipod_cast_add: iPod Cast Add: iPod, Cast, Add, Plus
+ipod_cast_delete: iPod Cast Delete: iPod, Cast, Delete, Remove
+ipod_sound: iPod Sound: iPod, Sound
+ip_block: IP Block: IP, Block
+ip_class: IP Class: IP, Class
+italy: Italy: Italy
+jar_empty: Jar Empty: Jar, Empty
+jar_open: Jar Open: Jar, Open
+joystick: Joystick: Joystick, Games
+joystick_add: Joystick Add: Joystick, Add, Plus
+joystick_delete: Joystick Delete: Joystick, Delete, Remove
+joystick_error: Joystick Error: Joystick, Error
+key: Key: Key, Lock, Private
+keyboard: Keyboard: Keyboard
+keyboard_add: Keyboard Add: Keyboard, Add, Plus
+keyboard_delete: Keyboard Delete: Keyboard, Delete, Remove
+keyboard_magnify: Keyboard Magnify: Keyboard, Magnify
+key_a: Key A: Key
+key_add: Key Add: Key, Add, Plus
+key_b: Key B: Key
+key_c: Key C: Key
+key_d: Key D: Key
+key_delete: Key Delete: Key, Delete, Remove
+key_e: Key E: Key
+key_escape: Key Escape: Key, Escape
+key_f: Key F: Key
+key_g: Key G: Key
+key_go: Key Go: Key, Go
+key_i: Key I: Key
+key_j: Key J: Key
+key_k: Key K: Key
+key_l: Key L: Key
+key_m: Key M: Key
+key_n: Key N: Key
+key_o: Key O: Key
+key_p: Key P: Key
+key_q: Key Q: Key
+key_s: Key S: Key
+key_t: Key T: Key
+key_u: Key U: Key
+key_v: Key V: Key
+key_w: Key W: Key
+key_x: Key X: Key
+key_y: Key Y: Key
+key_z: Key Z: Key
+kids: Kids: Kids
+ladybird: Ladybird: Ladybird, Bug, Insect
+landmarks: Landmarks: Landmarks, Tower
+laptop: Laptop: Laptop, Notebook, Computer
+large_tiles: Large Tiles: Large, Tiles
+layer: Layer: Layer
+layers: Layers: Layers
+layers_map: Layers Map: Layers, Map
+layer_add: Layer Add: Layer, Add, Plus
+layer_aspect_arrow: Layer Aspect Arrow: Layer, Aspect, Arrow
+layer_cell_cats: Layer Cell Cats: Layer, Cell, Cats
+layer_chart: Layer Chart: Layer, Chart
+layer_command: Layer Command: Layer, Command
+layer_create: Layer Create: Layer, Create
+layer_database: Layer Database: Layer, Database
+layer_delete: Layer Delete: Layer, Delete, Remove
+layer_edit: Layer Edit: Layer, Edit
+layer_export: Layer Export: Layer, Export
+layer_gps: Layer Gps: Layer, Gps
+layer_grid: Layer Grid: Layer, Grid
+layer_group: Layer Group: Layer, Group
+layer_his: Layer His: Layer, His
+layer_histogram: Layer Histogram: Layer, Histogram
+layer_import: Layer Import: Layer, Import
+layer_label: Layer Label: Layer, Label
+layer_open: Layer Open: Layer, Open
+layer_raster: Layer Raster: Layer, Raster
+layer_raster_3d: Layer Raster 3D: Layer, Raster, 3D
+layer_redraw: Layer Redraw: Layer, Redraw
+layer_remove: Layer Remove: Layer, Remove, Delete
+layer_rgb: Layer RGB: Layer, RGB
+layer_save: Layer Save: Layer, Save
+layer_shaded_relief: Layer Shaded Relief: Layer, Shaded, Relief
+layer_to_image_size: Layer To Image Size: Layer, Image, Size
+layer_vector: Layer Vector: Layer, Vector
+layer_wms: Layer Wms: Layer, Wms
+layout: Layout: Layout
+layout_add: Layout Add: Layout, Add, Plus
+layout_content: Layout Content: Layout, Content
+layout_delete: Layout Delete: Layout, Delete, Remove
+layout_edit: Layout Edit: Layout, Edit
+layout_error: Layout Error: Layout, Error
+layout_header: Layout Header: Layout, Header
+layout_link: Layout Link: Layout, Link
+layout_sidebar: Layout Sidebar: Layout, Sidebar
+legend: Legend: Legend
+license_management: License Management: License, Management
+life_vest: Life Vest: Life, Vest
+lightbulb: Lightbulb: Lightbulb, Tip
+lightbulb_add: Lightbulb Add: Lightbulb, Add, Plus, Tip
+lightbulb_delete: Lightbulb Delete: Lightbulb, Delete, Remove, Tip
+lightbulb_off: Lightbulb Off: Lightbulb, Off, Tip
+lighthouse: Lighthouse: Lighthouse
+lightning: Lightning: Lightning
+lightning_add: Lightning Add: Lightning, Add, Plus
+lightning_delete: Lightning Delete: Lightning, Delete, Remove
+lightning_go: Lightning Go: Lightning, Go
+light_circle_green: Light Circle Green: Light, Circle, Green
+linechart: Line Chart: Linechart
+line_split: Line Split: Line, Split
+link: Link: Link
+linkbar: Linkbar: Linkbar
+link_add: Link Add: Link, Add, Plus
+link_break: Link Break: Link, Break
+link_button: Link Button: Link, Button
+link_delete: Link Delete: Link, Delete, Remove
+link_edit: Link Edit: Link, Edit
+link_go: Link Go: Link, Go
+list: List: List
+locate: Locate: Locate
+location_pin: Location Pin: Location, Pin
+lock: Lock: Lock
+lock_add: Lock Add: Lock, Add, Plus
+lock_break: Lock Break: Lock, Break
+lock_delete: Lock Delete: Lock, Delete, Remove
+lock_edit: Lock Edit: Lock, Edit
+lock_go: Lock Go: Lock, Go
+lock_open: Lock Open: Lock, Open
+lollipop: Lollipop: Lollipop
+lorry: Lorry: Lorry, Transport, Truck, Deliver
+lorry_add: Lorry Add: Lorry, Add, Plus, Deliver
+lorry_delete: Lorry Delete: Lorry, Delete, Remove, Deliver
+lorry_error: Lorry Error: Lorry, Error, Deliver
+lorry_flatbed: Lorry Flatbed: Lorry, Flatbed, Deliver
+lorry_go: Lorry Go: Lorry, Go, Deliver
+lorry_link: Lorry Link: Lorry, Link, Deliver
+magnet: Magnet: Magnet
+magnifier: Magnifier: Magnifier, Zoom, Search
+magnifier_zoom_in: Magnifier Zoom In: Magnifier, Zoom, In
+magnifier_zoom_out: Magnifier Zoom Out: Magnifier, Zoom, Out
+mail-trash: Mail Trash: Mail, Trash
+mail_box: Mail Box: Mail, Box
+mail_server_setting: Mail Server Setting: Mail, Server, Setting
+male: Male: Male
+map: Map: Map
+map_add: Map Add: Map, Add, Plus
+map_delete: Map Delete: Map, Delete, Remove
+map_edit: Map Edit: Map, Edit
+map_go: Map Go: Map, Go
+map_magnify: Map Magnify: Map, Magnify
+marketwatch: Marketwatch: Marketwatch
+master_card: Master Card: Master, Card
+measure: Measure: Measure, Ruler
+measure_crop: Measure Crop: Measure, Crop, Ruler
+medal_bronze_1: Medal Bronze 1: Medal, Bronze
+medal_bronze_2: Medal Bronze 2: Medal, Bronze
+medal_bronze_3: Medal Bronze 3: Medal, Bronze
+medal_bronze_add: Medal Bronze Add: Medal, Bronze, Add, Plus
+medal_bronze_delete: Medal Bronze Delete: Medal, Bronze, Delete, Remove
+medal_gold_1: Medal Gold 1: Medal, Gold
+medal_gold_2: Medal Gold 2: Medal, Gold
+medal_gold_3: Medal Gold 3: Medal, Gold
+medal_gold_add: Medal Gold Add: Medal, Gold, Add, Plus
+medal_gold_delete: Medal Gold Delete: Medal, Gold, Delete, Remove
+medal_silver_1: Medal Silver 1: Medal, Silver
+medal_silver_2: Medal Silver 2: Medal, Silver
+medal_silver_3: Medal Silver 3: Medal, Silver
+medal_silver_add: Medal Silver Add: Medal, Silver, Add, Plus
+medal_silver_delete: Medal Silver Delete: Medal, Silver, Delete, Remove
+menubar: Menubar: Menubar
+messenger: Messenger: Messenger
+metro: Metro: Metro
+metronome: Metronome: Metronome
+microphone: Microphone: Microphone, Record, Sound
+micro_sd: Micro SD: Micro, SD
+micro_sd_blue: Micro SD Blue: Micro, SD, Blue
+milestone: Milestone: Milestone
+mixer: Mixer: Mixer
+money: Money: Money, Cash
+moneybox: Moneybox: Moneybox, Pig
+money_add: Money Add: Money, Add, Plus
+money_bag: Money Bag: Money, Bag
+money_bookers: Money Bookers: Money, Bookers
+money_delete: Money Delete: Money, Delete, Remove
+money_dollar: Money Dollar: Money, Dollar
+money_euro: Money Euro: Money, Euro
+money_in_envelope: Money In Envelope: Money, In, Envelope
+money_pound: Money Pound: Money, Pound
+money_yen: Money Yen: Money, Yen
+monitor: Monitor: Monitor, Computer
+monitor_add: Monitor Add: Monitor, Add, Plus
+monitor_delete: Monitor Delete: Monitor, Delete, Remove
+monitor_edit: Monitor Edit: Monitor, Edit
+monitor_error: Monitor Error: Monitor, Error
+monitor_go: Monitor Go: Monitor, Go
+monitor_lightning: Monitor Lightning: Monitor, Lightning
+monitor_link: Monitor Link: Monitor, Link
+monitor_screensaver: Monitor Screensaver: Monitor, Screensaver
+monitor_sidebar: Monitor Sidebar: Monitor, Sidebar
+monitor_wallpaper: Monitor Wallpaper: Monitor, Wallpaper
+monitor_window: Monitor Window: Monitor, Window
+monitor_window_3d: Monitor Window 3D: Monitor, Window, 3D
+motherboard: Motherboard: Motherboard, Hardware
+mouse: Mouse: Mouse
+mouse_2: Mouse 2: Mouse
+mouse_add: Mouse Add: Mouse, Add, Plus
+mouse_delete: Mouse Delete: Mouse, Delete, Remove
+mouse_error: Mouse Error: Mouse, Error
+mouse_select_left: Mouse Select Left: Mouse, Select, Left
+mouse_select_right: Mouse Select Right: Mouse, Select, Right
+mouse_select_scroll: Mouse Select Scroll: Mouse, Select, Scroll
+move_to_folder: Move To Folder: Move, Folder
+movies: Movies: Movies, Video
+ms_exchange: MS Exchange: MS, Exchange
+ms_frontpage: MS Frontpage: MS, Frontpage
+multitool: Multitool: Multitool, Knife
+music: Music: Music, Note
+nameboard_open: Nameboard Open: Nameboard, Open
+network-share: Network Share: Network, Share
+networking: Networking: Networking
+networking_green: Networking Green: Networking, Green
+networking_red: Networking Red: Networking, Red
+network_adapter: Network Adapter: Network, Adapter, Hardware
+network_folder: Network Folder: Network, Folder
+new: New: New
+newspaper: Newspaper: Newspaper
+newspaper_add: Newspaper Add: Newspaper, Add, Plus
+newspaper_delete: Newspaper Delete: Newspaper, Delete, Remove
+newspaper_go: Newspaper Go: Newspaper, Go
+newspaper_link: Newspaper Link: Newspaper, Link
+node-tree: Node Tree: Node, Tree
+nokia_s60: Nokia S60: Nokia, S60, Phone
+non_derivative: Non Derivative: Non, Derivative
+note: Note: Note
+note_add: Note Add: Note, Add, Plus
+note_delete: Note Delete: Note, Delete, Remove
+note_edit: Note Edit: Note, Edit
+note_error: Note Error: Note, Error
+note_go: Note Go: Note, Go
+no_commercial: No Commercial: No, Commercial
+no_drm_trm: No Drm Trm: No, Drm, Trm
+no_image: No Image: No, Image
+no_requirements: No Requirements: No, Requirements
+numeric_stepper: Numeric Stepper: Numeric, Stepper
+oil: Oil: Oil
+openid: OpenID: OpenID
+open_folder: Open Folder: Open, Folder
+opera: Opera: Opera, Browser
+orbit: Orbit: Orbit
+ornament_gold: Ornament Gold: Ornament, Gold, Ball
+other_phone: Other Phone: Other, Phone
+package: Package: Package, Box
+package_add: Package Add: Package, Add, Plus
+package_delete: Package Delete: Package, Delete, Remove
+package_go: Package Go: Package, Go
+package_green: Package Green: Package, Green
+package_link: Package Link: Package, Link
+page: Page: Page, Document
+page_add: Page Add: Page, Add, Plus, Document
+page_attach: Page Attach: Page, Attach, Document
+page_code: Page Code: Page, Code, Document
+page_copy: Page Copy: Page, Copy, Document
+page_delete: Page Delete: Page, Delete, Remove, Document
+page_edit: Page Edit: Page, Edit, Document
+page_error: Page Error: Page, Error, Document
+page_excel: Page Excel: Page, Excel, Document
+page_find: Page Find: Page, Find, Document
+page_gear: Page Gear: Page, Gear, Document
+page_go: Page Go: Page, Go, Document
+page_green: Page Green: Page, Green, Document
+page_key: Page Key: Page, Key, Document
+page_lightning: Page Lightning: Page, Lightning, Document
+page_link: Page Link: Page, Link, Document
+page_magnifier: Page Magnifier: Page, Magnifier, Document
+page_paintbrush: Page Paintbrush: Page, Paintbrush, Document
+page_paste: Page Paste: Page, Paste, Document
+page_red: Page Red: Page, Red, Document
+page_refresh: Page Refresh: Page, Refresh, Document
+page_save: Page Save: Page, Save, Document
+page_white: Page White: Page, White, Document
+page_white_acrobat: Page White Acrobat: Page, White, Acrobat, Document
+page_white_actionscript: Page White Actionscript: Page, White, Actionscript, Document
+page_white_add: Page White Add: Page, White, Add, Plus, Document
+page_white_c: Page White C: Page, White, Document
+page_white_camera: Page White Camera: Page, White, Camera, Photo, Document
+page_white_cd: Page White CD: Page, White, CD, Document
+page_white_code: Page White Code: Page, White, Code, Document
+page_white_code_red: Page White Code Red: Page, White, Code, Red, Document
+page_white_compress: Page White Compress: Page, White, Compress, Document
+page_white_copy: Page White Copy: Page, White, Copy, Document
+page_white_cplusplus: Page White Cplusplus: Page, White, Cplusplus, Document
+page_white_csharp: Page White Csharp: Page, White, Csharp, Document
+page_white_cup: Page White Cup: Page, White, Cup, Document
+page_white_database: Page White Database: Page, White, Database, Document
+page_white_delete: Page White Delete: Page, White, Delete, Remove, Document
+page_white_dvd: Page White DVD: Page, White, DVD, Document
+page_white_edit: Page White Edit: Page, White, Edit, Document
+page_white_error: Page White Error: Page, White, Error, Document
+page_white_excel: Page White Excel: Page, White, Excel, Document
+page_white_find: Page White Find: Page, White, Find, Document
+page_white_flash: Page White Flash: Page, White, Flash, Document
+page_white_gear: Page White Gear: Page, White, Gear, Document
+page_white_get: Page White Get: Page, White, Get, Document
+page_white_go: Page White Go: Page, White, Go, Document
+page_white_h: Page White H: Page, White, Document
+page_white_horizontal: Page White Horizontal: Page, White, Horizontal, Document
+page_white_key: Page White Key: Page, White, Key, Document
+page_white_lightning: Page White Lightning: Page, White, Lightning, Document
+page_white_link: Page White Link: Page, White, Link, Document
+page_white_magnify: Page White Magnify: Page, White, Magnify, Document
+page_white_medal: Page White Medal: Page, White, Medal, Document
+page_white_office: Page White Office: Page, White, Office, Document
+page_white_paint: Page White Paint: Page, White, Paint, Document
+page_white_paintbrush: Page White Paintbrush: Page, White, Paintbrush, Document
+page_white_paste: Page White Paste: Page, White, Paste, Document
+page_white_php: Page White PHP: Page, White, PHP, Document
+page_white_picture: Page White Picture: Page, White, Picture, Document
+page_white_powerpoint: Page White Powerpoint: Page, White, Powerpoint, Document
+page_white_put: Page White Put: Page, White, Put, Document
+page_white_ruby: Page White Ruby: Page, White, Ruby, Document
+page_white_stack: Page White Stack: Page, White, Stack, Document
+page_white_star: Page White Star: Page, White, Star, Document
+page_white_text: Page White Text: Page, White, Text, Document
+page_white_text_width: Page White Text Width: Page, White, Text, Width, Document
+page_white_tux: Page White Tux: Page, White, Tux, Document
+page_white_vector: Page White Vector: Page, White, Vector, Document
+page_white_visualstudio: Page White Visualstudio: Page, White, Visualstudio, Document
+page_white_width: Page White Width: Page, White, Width, Document
+page_white_word: Page White Word: Page, White, Word, Document
+page_white_world: Page White World: Page, White, World, Web, Document
+page_white_wrench: Page White Wrench: Page, White, Wrench, Document
+page_white_zip: Page White ZIP: Page, White, ZIP, Archive, Document
+page_word: Page Word: Page, Word
+page_world: Page World: Page, World, Internet, Globe, Earth
+paintbrush: Paintbrush: Paintbrush, Paint, Brush
+paintcan: Paintcan: Paintcan
+palette: Palette: Palette
+panel: Panel: Panel
+paper_airplane: Paper Airplane: Paper, Airplane
+parrot: Parrot: Parrot, Bird, Animal
+participation_rate: Participation Rate: Participation, Rate, Users, Clients
+paste_plain: Paste Plain: Paste, Plain
+paste_word: Paste Word: Paste, Word
+paypal-2: Paypal 2: Paypal
+paypal: Paypal: Paypal
+pci: Pci: Pci, Hardware
+peacock: Peacock: Peacock, Bird, Animal
+peak_cap: Peak Cap: Peak, Cap
+pencil: Pencil: Pencil, Edit
+pencil_add: Pencil Add: Pencil, Add, Plus
+pencil_delete: Pencil Delete: Pencil, Delete, Remove
+pencil_go: Pencil Go: Pencil, Go
+perfomance: Perfomance: Perfomance
+personals: Personals: Personals, Love, Hearts
+personal_finance: Personal Finance: Personal, Finance
+phone: Phone: Phone
+phone_add: Phone Add: Phone, Add, Plus
+phone_Android: Phone Android: Phone, Android
+phone_delete: Phone Delete: Phone, Delete, Remove
+phone_sound: Phone Sound: Phone, Sound
+photo: Photo: Photo, Image, Picture
+photos: Photos: Photos, Images, Pictures
+photo_add: Photo Add: Photo, Add, Plus
+photo_delete: Photo Delete: Photo, Delete, Remove
+photo_link: Photo Link: Photo, Link
+picture: Picture: Picture, Image
+pictures: Pictures: Pictures, Images
+picture_add: Picture Add: Picture, Add, Plus, Image
+picture_delete: Picture Delete: Picture, Delete, Remove, Image
+picture_edit: Picture Edit: Picture, Edit, Image
+picture_empty: Picture Empty: Picture, Empty, Image
+picture_error: Picture Error: Picture, Error, Image
+picture_frame: Picture Frame: Picture, Frame, Image
+picture_go: Picture Go: Picture, Go, Image
+picture_key: Picture Key: Picture, Key, Image
+picture_link: Picture Link: Picture, Link, Image
+picture_save: Picture Save: Picture, Save, Image
+piechart: Pie Chart: Pie, Chart
+pilcrow: Pilcrow: Pilcrow
+pill: Pill: Pill, Medical
+pill_add: Pill Add: Pill, Add, Plus
+pill_delete: Pill Delete: Pill, Delete, Remove
+pill_go: Pill Go: Pill, Go
+pirate_flag: Pirate Flag: Pirate, Flag
+pi_math: Pi Math: Pi, Math
+places: Places: Places, Store
+Plant: Plant: Plant, Green
+plotchart: Plot Chart: Plot, Chart
+plugin: Plugin: Plugin, Component
+plugin_add: Plugin Add: Plugin, Add, Plus
+plugin_delete: Plugin Delete: Plugin, Delete, Remove
+plugin_disabled: Plugin Disabled: Plugin, Disabled
+plugin_edit: Plugin Edit: Plugin, Edit
+plugin_error: Plugin Error: Plugin, Error
+plugin_go: Plugin Go: Plugin, Go
+plugin_link: Plugin Link: Plugin, Link
+poker: Poker: Poker, Game
+popcorn: Popcorn: Popcorn
+pop_mail: Pop Mail: Pop, Mail
+port: Port: Port
+postage_stamp: Postage Stamp: Postage, Stamp, Mail
+preferences: Preferences: Preferences, Settings
+premium_support: Premium Support: Premium, Support
+price_alert: Price Alert: Price, Alert
+price_comparison: Price Comparison: Price, Comparison
+price_watch: Price Watch: Price, Watch
+printer: Printer: Printer, Print
+printer_add: Printer Add: Printer, Add, Plus
+printer_delete: Printer Delete: Printer, Delete, Remove
+printer_empty: Printer Empty: Printer, Empty
+printer_error: Printer Error: Printer, Error
+print_size: Print Size: Print, Size
+private: Private: Private
+processor: Processor: Processor, Hardware
+production_copyleft: Production Copyleft: Production, Copyleft
+profiles: Profiles: Profiles, Timer
+progressbar: Progressbar: Progressbar
+qip_angry: Qip Angry: Qip, Angry
+qip_at_home: Qip At Home: Qip, Home
+qip_at_work: Qip At Work: Qip, Work
+qip_away: Qip Away: Qip, Away
+qip_bad_mood: Qip Bad Mood: Qip, Bad, Mood
+qip_dnd: Qip Dnd: Qip, Dnd
+qip_eating: Qip Eating: Qip, Eating
+qip_free_for_chat: Qip Free For Chat: Qip, Free, For, Chat
+qip_invisible: Qip Invisible: Qip, Invisible
+qip_invisible_for_all: Qip Invisible For All: Qip, Invisible, All
+qip_not_available: Qip Not Available: Qip, Not, Available
+qip_occupied: Qip Occupied: Qip, Occupied
+qip_offline: Qip Offline: Qip, Offline
+qip_online: Qip Online: Qip, Online
+question: Question: Question, Help
+radioactivity: Radioactivity: Radioactivity
+radiobutton: Radio Button: Radio, Button
+radiobutton_group: Radio Button Group: Radio, Button, Group
+radiolocator: Radio Locator: Radio, Locator, Location
+radio_1: Radio 1: Radio
+radio_2: Radio 2: Radio
+rain: Rain: Rain
+rainbow: Rainbow: Rainbow
+rainbow_cloud: Rainbow Cloud: Rainbow, Cloud
+real_estate: Real Estate: Real, Estate
+recycle: Recycle: Recycle
+recycle_bag: Recycle Bag: Recycle, Bag
+red_line: Red Line: Red, Line
+remote: Remote: Remote
+report: Report: Report
+report_add: Report Add: Report, Add, Plus
+report_delete: Report Delete: Report, Delete, Remove
+report_disk: Report Disk: Report, Disk
+report_edit: Report Edit: Report, Edit
+report_go: Report Go: Report, Go
+report_key: Report Key: Report, Key
+report_link: Report Link: Report, Link
+report_magnify: Report Magnify: Report, Magnify, Search
+report_picture: Report Picture: Report, Picture
+report_user: Report User: Report, User
+report_word: Report Word: Report, Word
+reseller_account: Reseller Account: Reseller, Account, Client
+reseller_account_template: Reseller Account Template: Reseller, Account, Template, Client
+reseller_programm: Reseller Programm: Reseller, Programm, Clients
+resize_picture: Resize Picture: Resize, Picture, Image
+resources: Resources: Resources
+resource_usage: Resource Usage: Resource, Usage
+resultset_first: Result Set First: Result, Results, First
+resultset_last: Result Set Last: Result, Results, Last
+resultset_next: Result Set Next: Result, Results, Next
+resultset_previous: Result Set Previous: Result, Results, Previous
+ribbon: Ribbon: Ribbon
+richtext_editor: Richtext Editor: Richtext, Editor, Text, Edit
+ring: Ring: Ring
+roadworks: Roadworks: Roadworks
+road_sign: Road Sign: Road, Sign
+role: Role: Role, Worker, User
+rosette: Rosette: Rosette
+rotate_90: Rotate 90: Rotate
+router: Router: Router
+routing_around: Routing Around: Routing, Around
+routing_forward: Routing Forward: Routing, Forward
+routing_go_left: Routing Go Left: Routing, Go, Left
+routing_go_right: Routing Go Right: Routing, Go, Right
+routing_go_straight_left: Routing Go Straight Left: Routing, Go, Straight, Left
+routing_go_straight_right: Routing Go Straight Right: Routing, Go, Straight, Right
+routing_intersection_right: Routing Intersection Right: Routing, Intersection, Right
+routing_turnaround_left: Routing Turnaround Left: Routing, Turnaround, Left
+routing_turnaround_right: Routing Turnaround Right: Routing, Turnaround, Right
+routing_turning_left: Routing Turning Left: Routing, Turning, Left
+routing_turning_right: Routing Turning Right: Routing, Turning, Right
+routing_turn_arround_left: Routing Turn Arround Left: Routing, Turn, Arround, Left
+routing_turn_arround_right: Routing Turn Arround Right: Routing, Turn, Arround, Right
+routing_turn_left: Routing Turn Left: Routing, Turn, Left
+routing_turn_left_2: Routing Turn Left 2: Routing, Turn, Left
+routing_turn_left_crossroads: Routing Turn Left Crossroads: Routing, Turn, Left, Crossroads
+routing_turn_right: Routing Turn Right: Routing, Turn, Right
+routing_turn_right_2: Routing Turn Right 2: Routing, Turn, Right
+routing_turn_u: Routing Turn U: Routing, Turn
+rss: RSS: RSS, Feed
+rss_add: RSS Add: RSS, Feed, Add, Plus
+rss_delete: RSS Delete: RSS, Feed, Delete, Remove
+rss_go: RSS Go: RSS, Feed, Go
+rss_valid: RSS Valid: RSS, Feed, Valid
+ruby: Ruby: Ruby
+ruby_add: Ruby Add: Ruby, Add, Plus
+ruby_delete: Ruby Delete: Ruby, Delete, Remove
+ruby_gear: Ruby Gear: Ruby, Gear
+ruby_get: Ruby Get: Ruby, Get
+ruby_go: Ruby Go: Ruby, Go
+ruby_key: Ruby Key: Ruby, Key
+ruby_link: Ruby Link: Ruby, Link
+ruby_put: Ruby Put: Ruby, Put
+safari_browser: Safari Browser: Safari, Browser
+safe: Safe: Safe, Money
+sallary_deferrais: Sallary Deferrais: Sallary, Deferrais
+santa: Santa: Santa
+satellite: Satellite: Satellite
+satellite_dish: Satellite Dish: Satellite, Dish
+save_as: Save As: Save, As
+scale_image: Scale Image: Scale, Image
+scanner: Scanner: Scanner
+screen_error: Screen Error: Screen, Error, Monitor
+screwdriver: Screwdriver: Screwdriver, Tool
+script: Script: Script
+scripts: Scripts: Scripts
+script_add: Script Add: Script, Add, Plus
+script_code: Script Code: Script, Code
+script_code_red: Script Code Red: Script, Code, Red
+script_delete: Script Delete: Script, Delete, Remove
+script_edit: Script Edit: Script, Edit
+script_error: Script Error: Script, Error
+script_gear: Script Gear: Script, Gear
+script_go: Script Go: Script, Go
+script_key: Script Key: Script, Key
+script_lightning: Script Lightning: Script, Lightning
+script_link: Script Link: Script, Link
+script_palette: Script Palette: Script, Palette
+script_save: Script Save: Script, Save
+scroller_bar: Scroller Bar: Scroller, Bar
+scull: Scull: Scull
+search_minus: Search Minus: Search, Minus, Zoom, Out
+search_plus: Search Plus: Search, Plus, Add, Zoom, In
+select: Select: Select
+select_by_adding_to_selection: Select By Adding To Selection: Select, By, Adding, To, Selection
+select_by_color: Select By Color: Select, Color
+select_by_difference: Select By Difference: Select, Difference
+select_by_intersection: Select By Intersection: Select, Intersection
+select_continuous_area: Select Continuous Area: Select, Continuous, Area
+select_ellipse: Select Ellipse: Select, Ellipse
+select_invert: Select Invert: Select, Invert
+select_lasso: Select Lasso: Select, Lasso
+select_restangular: Select Restangular: Select, Restangular
+sertificate: Sertificate: Sertificate
+server: Server: Server, Computer
+server_add: Server Add: Server, Add, Plus
+server_chart: Server Chart: Server, Chart
+server_components: Server Components: Server, Components
+server_compress: Server Compress: Server, Compress
+server_connect: Server Connect: Server, Connect
+server_database: Server Database: Server, Database
+server_delete: Server Delete: Server, Delete, Remove
+server_edit: Server Edit: Server, Edit
+server_error: Server Error: Server, Error
+server_go: Server Go: Server, Go
+server_information: Server Information: Server, Information
+server_key: Server Key: Server, Key
+server_lightning: Server Lightning: Server, Lightning
+server_link: Server Link: Server, Link
+server_stanchion: Server Stanchion: Server, Stanchion
+server_uncompress: Server Uncompress: Server, Uncompress
+session_idle_time: Session Idle Time: Session, Idle, Time
+setting_tools: Setting Tools: Tools, Settings, Preferences
+set_security_question: Set Security Question: Security, Question
+shading: Shading: Shading
+shape_align_bottom: Shape Align Bottom: Shape, Align, Bottom
+shape_align_center: Shape Align Center: Shape, Align, Center
+shape_align_left: Shape Align Left: Shape, Align, Left
+shape_align_middle: Shape Align Middle: Shape, Align, Middle
+shape_align_right: Shape Align Right: Shape, Align, Right
+shape_align_top: Shape Align Top: Shape, Align, Top
+shape_flip_horizontal: Shape Flip Horizontal: Shape, Flip, Horizontal
+shape_flip_vertical: Shape Flip Vertical: Shape, Flip, Vertical
+shape_group: Shape Group: Shape, Group
+shape_handles: Shape Handles: Shape, Handles
+shape_move_back: Shape Move Back: Shape, Move, Back
+shape_move_backwards: Shape Move Backwards: Shape, Move, Backwards
+shape_move_forwards: Shape Move Forwards: Shape, Move, Forwards
+shape_move_front: Shape Move Front: Shape, Move, Front
+shape_rotate_anticlockwise: Shape Rotate Anticlockwise: Shape, Rotate, Anticlockwise
+shape_rotate_clockwise: Shape Rotate Clockwise: Shape, Rotate, Clockwise
+shape_square: Shape Square: Shape, Square
+shape_square_add: Shape Square Add: Shape, Square, Add, Plus
+shape_square_delete: Shape Square Delete: Shape, Square, Delete, Remove
+shape_square_edit: Shape Square Edit: Shape, Square, Edit
+shape_square_error: Shape Square Error: Shape, Square, Error
+shape_square_go: Shape Square Go: Shape, Square, Go
+shape_square_key: Shape Square Key: Shape, Square, Key
+shape_square_link: Shape Square Link: Shape, Square, Link
+shape_ungroup: Shape Ungroup: Shape, Ungroup
+share: Share: Share
+sharpen: Sharpen: Sharpen, Effect
+sheduled_task: Sheduled Task: Sheduled, Task
+shield: Shield: Shield
+shield_add: Shield Add: Shield, Add, Plus
+shield_delete: Shield Delete: Shield, Delete, Remove
+shield_go: Shield Go: Shield, Go
+shopping: Shopping: Shopping, Gift, Box
+showel: Showel: Showel
+shuriken: Shuriken: Shuriken
+sign: Sign: Sign
+siren: Siren: Siren
+sitemap: Sitemap: Sitemap
+sitemap_color: Sitemap Color: Sitemap, Color
+site_backup_and_restore: Site Backup And Restore: Site, Backup, Restore
+site_enhancer: Site Enhancer: Site, Enhancer
+size_horizontal: Size Horizontal: Size, Horizontal
+size_vertical: Size Vertical: Size, Vertical
+skate: Skate: Skate
+skins: Skins: Skins, Colors
+slideshow: Slideshow: Slideshow, Image, Gallery
+small_business: Small Business: Small, Business
+small_car: Small Car: Small, Car, Transport
+small_tiles: Small Tiles: Small, Tiles
+snapshot: Snapshot: Snapshot, Camera
+snowman: Snowman: Snowman
+snow_rain: Snow Rain: Snow, Rain
+soap: Soap: Soap
+soil_layers: Soil Layers: Soil, Layers
+solar: Solar: Solar
+sort_ascending: Sort Ascending: Sort, Ascending
+sort_columns: Sort Columns: Sort, Columns
+sort_descending: Sort Descending: Sort, Descending
+sound: Sound: Sound, Audio, Volume
+sound_add: Sound Add: Sound, Add, Plus, Volume
+sound_delete: Sound Delete: Sound, Delete, Remove, Volume
+sound_low: Sound Low: Sound, Low, Volume
+sound_mute: Sound Mute: Sound, Mute, Volume
+sound_none: Sound None: Sound, None, Volume
+source_code: Source Code: Source, Code
+spacer: Spacer: Spacer
+spam: Spam: Spam
+spam_filter: Spam Filter: Spam, Filter
+speakers: Speakers: Speakers
+speedometer: Speedometer: Speedometer
+spellcheck: Spellcheck: Spellcheck, Check
+spellcheck_error: Spellcheck Error: Spellcheck, Error
+spider_web: Spider Web: Spider, Web
+sport: Sport: Sport, Game
+sport_8ball: Sport 8ball: Sport, 8ball
+sport_basketball: Sport Basketball: Sport, Basketball
+sport_football: Sport Football: Sport, Football
+sport_golf: Sport Golf: Sport, Golf
+sport_raquet: Sport Raquet: Sport, Raquet
+sport_shuttlecock: Sport Shuttlecock: Sport, Shuttlecock
+sport_soccer: Sport Soccer: Sport, Soccer
+sport_tennis: Sport Tennis: Sport, Tennis
+spring: Spring: Spring
+sql_join: Sql Join: Sql, Join
+sql_join_inner: Sql Join Inner: Sql, Join, Inner
+sql_join_left: Sql Join Left: Sql, Join, Left
+sql_join_left_exclude: Sql Join Left Exclude: Sql, Join, Left, Exclude
+sql_join_outer: Sql Join Outer: Sql, Join, Outer
+sql_join_outer_exclude: Sql Join Outer Exclude: Sql, Join, Outer, Exclude
+sql_join_right: Sql Join Right: Sql, Join, Right
+sql_join_right_exclude: Sql Join Right Exclude: Sql, Join, Right, Exclude
+ssl_certificates: Ssl Certificates: Ssl, Certificates
+stamp_pattern: Stamp Pattern: Stamp, Pattern
+star: Star: Star, Yellow
+statistics: Statistics: Statistics, Chart
+status_away: Status Away: Status, Away
+status_busy: Status Busy: Status, Busy
+status_offline: Status Offline: Status, Offline
+status_online: Status Online: Status, Online
+steering_wheel: Steering Wheel: Steering, Wheel
+stop: Stop: Stop
+stopwatch_finish: Stopwatch Finish: Stopwatch, Finish
+stopwatch_pause: Stopwatch Pause: Stopwatch, Pause
+stopwatch_start: Stopwatch Start: Stopwatch, Start
+storage: Storage: Storage, Database
+street_stall: Street Stall: Street, Stall
+style: Style: Style, Fonts
+style_add: Style Add: Style, Add, Plus
+style_delete: Style Delete: Style, Delete, Remove
+style_edit: Style Edit: Style, Edit
+style_go: Style Go: Style, Go
+subwoofer: Subwoofer: Subwoofer, Speaker
+sum: Sum: Sum, Math
+sun_cloudy: Sun Cloudy: Sun, Cloudy
+sun_rain: Sun Rain: Sun, Rain
+support: Support: Support, Help, Lifesaver
+swf_loader: SWF Loader: SWF, Loader, Image
+switch: Switch: Switch
+system_monitor: System Monitor: System, Monitor
+system_time: System Time: System, Time, Clock
+tab: Tab: Tab
+tabbar: Tab Bar: Tab, Bar
+table: Table: Table
+table_add: Table Add: Table, Add, Plus
+table_chart: Table Chart: Table, Chart
+table_delete: Table Delete: Table, Delete, Remove
+table_edit: Table Edit: Table, Edit
+table_error: Table Error: Table, Error
+table_excel: Table Excel: Table, Excel
+table_export: Table Export: Table, Export
+table_gear: Table Gear: Table, Gear
+table_go: Table Go: Table, Go
+table_heatmap: Table Heatmap: Table, Heatmap
+table_import: Table Import: Table, Import
+table_insert: Table Insert: Table, Insert
+table_key: Table Key: Table, Key
+table_lightning: Table Lightning: Table, Lightning
+table_link: Table Link: Table, Link
+table_money: Table Money: Table, Money
+table_multiple: Table Multiple: Table, Multiple
+table_paint_can: Table Paint Can: Table, Paint, Can
+table_refresh: Table Refresh: Table, Refresh
+table_relationship: Table Relationship: Table, Relationship
+table_replace: Table Replace: Table, Replace
+table_row_delete: Table Row Delete: Table, Row, Delete, Remove
+table_row_insert: Table Row Insert: Table, Row, Insert
+table_save: Table Save: Table, Save
+table_select: Table Select: Table, Select
+table_select_all: Table Select All: Table, Select, All
+table_select_big: Table Select Big: Table, Select, Big
+table_select_column: Table Select Column: Table, Select, Column
+table_select_row: Table Select Row: Table, Select, Row
+table_sheet: Table Sheet: Table, Sheet
+table_sort: Table Sort: Table, Sort
+table_split: Table Split: Table, Split
+table_sum: Table Sum: Table, Sum
+table_tab: Table Tab: Table, Tab
+table_tab_resize: Table Tab Resize: Table, Tab, Resize
+table_tab_search: Table Tab Search: Table, Tab, Search
+tabnavigator: Tab Navigator: Tab, Navigator
+tab_add: Tab Add: Tab, Add, Plus
+tab_delete: Tab Delete: Tab, Delete, Remove
+tab_edit: Tab Edit: Tab, Edit
+tab_go: Tab Go: Tab, Go
+tag: Tag: Tag
+tags_cloud: Tags Cloud: Tags, Cloud
+tag_blue: Tag Blue: Tag, Blue
+tag_blue_add: Tag Blue Add: Tag, Blue, Add, Plus
+tag_blue_delete: Tag Blue Delete: Tag, Blue, Delete, Remove
+tag_blue_edit: Tag Blue Edit: Tag, Blue, Edit
+tag_green: Tag Green: Tag, Green
+tag_orange: Tag Orange: Tag, Orange
+tag_pink: Tag Pink: Tag, Pink
+tag_purple: Tag Purple: Tag, Purple
+tag_red: Tag Red: Tag, Red
+tag_yellow: Tag Yellow: Tag, Yellow
+teddy_bear: Teddy Bear: Teddy, Bear, Toy
+telephone: Telephone: Telephone, Phone
+telephone_add: Telephone Add: Telephone, Add, Plus
+telephone_delete: Telephone Delete: Telephone, Delete, Remove
+telephone_edit: Telephone Edit: Telephone, Edit
+telephone_error: Telephone Error: Telephone, Error
+telephone_go: Telephone Go: Telephone, Go
+telephone_key: Telephone Key: Telephone, Key
+telephone_link: Telephone Link: Telephone, Link
+television: Television: Television, TV
+television_add: Television Add: Television, Add, Plus
+television_delete: Television Delete: Television, Delete, Remove
+temperature_1: Temperature 1: Temperature
+temperature_2: Temperature 2: Temperature
+temperature_3: Temperature 3: Temperature
+temperature_4: Temperature 4: Temperature
+temperature_5: Temperature 5: Temperature
+terminal: Terminal: Terminal, Computer, Monitor
+text: Text: Text
+textfield: Text Field: Text, Field
+textfield_add: Text Field Add: Text Field, Add, Plus
+textfield_delete: Text Field Delete: Text Field, Delete, Remove
+textfield_key: Text Field Key: Text Field, Key
+textfield_rename: Text Field Rename: Text Field, Rename
+text_align_center: Text Align Center: Text, Align, Center
+text_align_justity: Text Align Justity: Text, Align, Justity
+text_align_left: Text Align Left: Text, Align, Left
+text_align_right: Text Align Right: Text, Align, Right
+text_allcaps: Text All Caps: Text, All Caps
+text_area: Text Area: Text, Area
+text_bold: Text Bold: Text, Bold
+text_columns: Text Columns: Text, Columns
+text_document: Text Document: Text, Document
+text_document_wrap: Text Document Wrap: Text, Document, Wrap
+text_drama: Text Drama: Text, Drama
+text_dropcaps: Text Drop Caps: Text, Drop Caps
+text_heading_1: Text Heading 1: Text, Heading
+text_heading_2: Text Heading 2: Text, Heading
+text_heading_3: Text Heading 3: Text, Heading
+text_heading_4: Text Heading 4: Text, Heading
+text_heading_5: Text Heading 5: Text, Heading
+text_heading_6: Text Heading 6: Text, Heading
+text_horizontalrule: Text Horizontal Rule: Text, Horizontal Rule
+text_indent: Text Indent: Text, Indent
+text_indent_remove: Text Indent Remove: Text, Indent, Remove, Delete
+text_italic: Text Italic: Text, Italic
+text_kerning: Text Kerning: Text, Kerning
+text_large_cap: Text Large Cap: Text, Large, Cap
+text_letterspacing: Text Letter Spacing: Text, Letter Spacing
+text_letter_omega: Text Letter Omega: Text, Letter, Omega
+text_linespacing: Text Line Spacing: Text, Line Spacing
+text_list_bullets: Text List Bullets: Text, List, Bullets
+text_list_numbers: Text List Numbers: Text, List, Numbers
+text_lowercase: Text Lowercase: Text, Lowercase
+text_padding_bottom: Text Padding Bottom: Text, Padding, Bottom
+text_padding_left: Text Padding Left: Text, Padding, Left
+text_padding_right: Text Padding Right: Text, Padding, Right
+text_padding_top: Text Padding Top: Text, Padding, Top
+text_pagination: Text Pagination: Text, Pagination
+text_pagination_100: Text Pagination 100: Text, Pagination
+text_prose: Text Prose: Text, Prose
+text_replace: Text Replace: Text, Replace
+text_resize: Text Resize: Text, Resize
+text_signature: Text Signature: Text, Signature
+text_smallcaps: Text Smallcaps: Text, Smallcaps
+text_strikethroungh: Text Strikethroungh: Text, Strikethroungh
+text_subscript: Text Subscript: Text, Subscript
+text_superscript: Text Superscript: Text, Superscript
+text_underline: Text Underline: Text, Underline
+text_uppercase: Text Uppercase: Text, Uppercase
+text_width: Text Width: Text, Width
+things_beauty: Things Beauty: Things, Beauty
+things_digital: Things Digital: Things, Digital
+three_tags: Three Tags: Three, Tags
+thumb_down: Thumb Down: Thumb, Down
+thumb_up: Thumb Up: Thumb, Up
+tick: Tick: Tick, Check, Ok
+tilelist: Tilelist: Tilelist
+time: Time: Time, Clock
+timeline: Timeline: Timeline, Clock
+timeline_marker: Timeline Marker: Timeline, Marker
+time_add: Time Add: Time, Add, Plus
+time_delete: Time Delete: Time, Delete, Remove
+time_go: Time Go: Time, Go
+title_window: Title Window: Title, Window
+toolbox: Toolbox: Toolbox, Tools
+tooth: Tooth: Tooth
+tornado: Tornado: Tornado
+toster: Toster: Toster, Food
+total_plan_cost: Total Plan Cost: Total, Plan, Cost
+toucan: Toucan: Toucan, Bird, Animal
+tower: Tower: Tower
+toxic: Toxic: Toxic
+to_do_list: To Do List: To Do, List, Edit
+to_do_list_cheked_1: To Do List Cheked 1: To Do, List, Cheked
+to_do_list_cheked_all: To Do List Cheked All: To Do, List, Cheked, All
+traffic_lights: Traffic Lights: Traffic, Lights
+traffic_lights_green: Traffic Lights Green: Traffic, Lights, Green
+traffic_lights_red: Traffic Lights Red: Traffic, Lights, Red
+traffic_lights_yellow: Traffic Lights Yellow: Traffic, Lights, Yellow
+traffic_usage: Traffic Usage: Traffic, Usage
+transform_crop: Transform Crop: Transform, Crop
+transform_crop_resize: Transform Crop Resize: Transform, Crop, Resize
+transform_flip: Transform Flip: Transform, Flip
+transform_layer: Transform Layer: Transform, Layer
+transform_move: Transform Move: Transform, Move
+transform_path: Transform Path: Transform, Path
+transform_perspective: Transform Perspective: Transform, Perspective
+transform_rotate: Transform Rotate: Transform, Rotate
+transform_rotate_180: Transform Rotate 180: Transform, Rotate
+transform_rotate_270: Transform Rotate 270: Transform, Rotate
+transform_rotate_90: Transform Rotate 90: Transform, Rotate
+transform_scale: Transform Scale: Transform, Scale
+transform_selection: Transform Selection: Transform, Selection
+transform_shear: Transform Shear: Transform, Shear
+transmit: Transmit: Transmit
+transmit_add: Transmit Add: Transmit, Add, Plus
+transmit_blue: Transmit Blue: Transmit, Blue
+transmit_delete: Transmit Delete: Transmit, Delete, Remove
+transmit_edit: Transmit Edit: Transmit, Edit
+transmit_error: Transmit Error: Transmit, Error
+transmit_go: Transmit Go: Transmit, Go
+travel: Travel: Travel, Suitcase
+tree: Tree: Tree
+tux: Tux: Tux
+twitter_1: Twitter 1: Twitter
+twitter_2: Twitter 2: Twitter
+umbrella: Umbrella: Umbrella
+underle_dictionary: Underle Dictionary: Underle, Dictionary
+understanding: Understanding: Understanding
+universal_binary: Universal Binary: Universal, Binary
+update: Update: Update, Refresh
+user: User: User, Client, Man
+user_add: User Add: User, Add, Plus
+user_blondy: User Blondy: User, Blondy, Woman
+user_catwomen: User Catwomen: User, Catwomen
+user_comment: User Comment: User, Comment
+user_delete: User Delete: User, Delete, Remove
+user_edit: User Edit: User, Edit
+user_female: User Female: User, Female, Woman
+user_go: User Go: User, Go
+user_gray: User Gray: User, Gray, Client, Man
+user_green: User Green: User, Green, Client, Man
+user_maid: User Maid: User, Maid, Woman
+user_orange: User Orange: User, Orange, Client, Man
+user_policeman: User Policeman: User, Policeman
+user_red: User Red: User, Red, Client, Man
+user_silhouette: User Silhouette: User, Silhouette, Client, Man
+user_suit: User Suit: User, Suit, Client, Man
+user_zorro: User Zorro: User, Zorro
+vbox: Vbox: Vbox
+vcard: Vcard: Vcard, Contact
+vcard_add: Vcard Add: Vcard, Add, Plus
+vcard_delete: Vcard Delete: Vcard, Delete, Remove
+vcard_edit: Vcard Edit: Vcard, Edit
+vdividedbox: V Divided Box: Vertical, Divided, Box
+vector: Vector: Vector
+vector_add: Vector Add: Vector, Add, Plus
+vector_delete: Vector Delete: Vector, Delete, Remove
+vhs: VHS: VHS, Video, Cassette
+video: Video: Video, Movie, Camera
+videodisplay: Video Display: Video Display
+video_mode: Video Mode: Video, Movie, Mode, Monitor
+viewstack: Viewstack: Viewstack
+virus_protection: Virus Protection: Virus, Protection, Shield
+visa: Visa: Visa, Card
+visa_2: Visa 2: Visa, Card
+visa_electron: Visa Electron: Visa, Electron, Card
+vlc: VLC: VLC, Player
+vrule: Vertical Rule: Vertical, Rule
+vslider: Verical Slider: Vertical, Slider
+walk: Walk: Walk
+wand: Wand: Wand, Wizard
+weather_clouds: Weather Clouds: Weather, Clouds
+weather_cloudy: Weather Cloudy: Weather, Cloudy
+weather_lightning: Weather Lightning: Weather, Lightning
+weather_rain: Weather Rain: Weather, Rain
+weather_snow: Weather Snow: Weather, Snow
+weather_sun: Weather Sun: Weather, Sun
+webcam: Webcam: Webcam
+webcam_add: Webcam Add: Webcam, Add, Plus
+webcam_delete: Webcam Delete: Webcam, Delete, Remove
+webcam_error: Webcam Error: Webcam, Error
+web_concierge: Web Concierge: Web, Concierge
+weight: Weight: Weight, Gram
+whistle: Whistle: Whistle
+widescreen: Widescreen: Widescreen, Monitor
+widgets: Widgets: Widgets, Settings, Gears
+windy: Windy: Windy
+wine_pairings: Wine Pairings: Wine, Pairings, Drink
+winrar_add: Winrar Add: Winrar, Add, Plus
+winrar_extract: Winrar Extract: Winrar, Extract
+winrar_view: Winrar View: Winrar, View
+wishlist_add: Wishlist Add: Wishlist, Add, Plus
+wizard: Wizard: Wizard, Hat
+wordpress: Wordpress: Wordpress
+wordpress_blog: Wordpress Blog: Wordpress, Blog
+workspace: Workspace: Workspace
+world: World: World, Internet, Globe, Earth
+world_add: World Add: World, Internet, Globe, Add, Plus
+world_delete: World Delete: World, Internet, Globe, Delete, Remove
+world_edit: World Edit: World, Internet, Globe, Edit
+world_go: World Go: World, Internet, Globe, Go
+world_link: World Link: World, Internet, Globe, Link
+wrapping_behind: Wrapping Behind: Wrapping, Behind
+wrapping_between: Wrapping Between: Wrapping, Between
+wrapping_edit: Wrapping Edit: Wrapping, Edit
+wrapping_inline: Wrapping Inline: Wrapping, Inline
+wrapping_in_front: Wrapping In Front: Wrapping, In Front
+wrapping_magazine: Wrapping Magazine: Wrapping, Magazine
+wrapping_square: Wrapping Square: Wrapping, Square
+wrapping_tight: Wrapping Tight: Wrapping, Tight
+wrench: Wrench: Wrench, Tool
+wrench_orange: Wrench Orange: Wrench, Orange
+www_page: Www Page: Www, Page, Web
+xhtml: XHTML: XHTML
+xhtml_add: XHTML Add: XHTML, Add, Plus
+xhtml_delete: XHTML Delete: XHTML, Delete, Remove
+xhtml_go: XHTML Go: XHTML, Go
+xhtml_valid: XHTML Valid: XHTML, Valid
+yellow_submarine: Yellow Submarine: Yellow, Submarine
+zoom: Zoom: Zoom, Search
+zoom_extend: Zoom Extend: Zoom, Extend
+zoom_in: Zoom In: Zoom, In
+zoom_last: Zoom Last: Zoom, Last, Search
+zoom_layer: Zoom Layer: Zoom, Layer
+zoom_out: Zoom Out: Zoom, Out
+zoom_refresh: Zoom Refresh: Zoom, Refresh, Search
+zoom_selection: Zoom Selection: Zoom, Selection

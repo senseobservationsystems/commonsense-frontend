@@ -24,10 +24,6 @@ public class UserModel extends BaseTreeModel {
         super(properties);
     }
 
-    public UserModel(TreeModel parent) {
-        super(parent);
-    }
-
     public UserModel(String id, String username, String email, String name, String surname,
             String mobile, String uuid) {
         setId(id);
@@ -39,8 +35,8 @@ public class UserModel extends BaseTreeModel {
         setUuid(uuid);
     }
 
-    private void setUuid(String uuid) {
-        set(UUID, uuid);
+    public UserModel(TreeModel parent) {
+        super(parent);
     }
 
     public String getEmail() {
@@ -65,6 +61,10 @@ public class UserModel extends BaseTreeModel {
 
     public String getUsername() {
         return get(USERNAME);
+    }
+
+    public String getUuid() {
+        return get(UUID);
     }
 
     private UserModel setEmail(String email) {
@@ -99,12 +99,12 @@ public class UserModel extends BaseTreeModel {
         return this;
     }
 
+    private void setUuid(String uuid) {
+        set(UUID, uuid);
+    }
+
     @Override
     public String toString() {
         return get("text", super.toString());
-    }
-
-    public String getUuid() {
-        return get(UUID);
     }
 }

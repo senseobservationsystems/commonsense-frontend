@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.login;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
@@ -225,23 +226,7 @@ public class LoginController extends Controller {
                 JSONObject jsonUser = jsonValue.isObject();
 
                 if (null != jsonUser) {
-                    JSONString jsonId = jsonUser.get("id").isString();
-                    JSONString jsonEmail = jsonUser.get("email").isString();
-                    JSONString jsonUsername = jsonUser.get("username").isString();
-                    JSONString jsonName = jsonUser.get("name").isString();
-                    JSONString jsonSurname = jsonUser.get("surname").isString();
-                    JSONString jsonMobile = jsonUser.get("mobile").isString();
-                    JSONString jsonUuid = jsonUser.get("UUID").isString();
-
-                    String id = jsonId != null ? jsonId.stringValue() : "";
-                    String username = jsonUsername != null ? jsonUsername.stringValue() : "";
-                    String name = jsonName != null ? jsonName.stringValue() : "";
-                    String surname = jsonSurname != null ? jsonSurname.stringValue() : "";
-                    String mobile = jsonMobile != null ? jsonMobile.stringValue() : "";
-                    String email = jsonEmail != null ? jsonEmail.stringValue() : "";
-                    String uuid = jsonUuid != null ? jsonUuid.stringValue() : "";
-                    UserModel user = new UserModel(id, username, email, name, surname, mobile, uuid);
-
+                    UserModel user = UserParser.parseUser(jsonUser);
                     onCurrentUser(user);
                 } else {
                     Log.e(TAG, "Error parsing current user response: "
