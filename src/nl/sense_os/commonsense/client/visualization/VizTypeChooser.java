@@ -102,7 +102,7 @@ public class VizTypeChooser extends View {
     protected void initialize() {
         super.initialize();
 
-        this.submitEvent = new AppEvent(DataEvents.DataRequested);
+        this.submitEvent = new AppEvent(DataEvents.DataRequest);
 
         this.window = new CenteredWindow();
         this.window.setHeading("Visualization wizard");

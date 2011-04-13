@@ -58,7 +58,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
     public MapPanel(List<SensorModel> sensors, long startTime, long endTime) {
         this();
 
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequested);
+        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
         dataRequest.setData("sensors", sensors);
         dataRequest.setData("startTime", startTime);
         dataRequest.setData("endTime", endTime);

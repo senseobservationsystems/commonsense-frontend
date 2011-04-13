@@ -36,7 +36,6 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
     private final Map<String, TimeLineChart> jsonCharts;
     private int nrOfCharts;
     private final Map<SensorModel, SensorValueModel[]> data;
-    private long lastRefresh;
 
     public TimeLinePanel() {
         super();
@@ -52,7 +51,6 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         this.data = new HashMap<SensorModel, SensorValueModel[]>();
         this.jsonCharts = new HashMap<String, TimeLineChart>();
         this.nrOfCharts = 0;
-        this.lastRefresh = System.currentTimeMillis();
     }
 
     public TimeLinePanel(List<SensorModel> sensors, long startTime, long endTime) {
@@ -286,16 +284,15 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
 
     private void refreshData() {
         final List<SensorModel> sensors = new ArrayList<SensorModel>(data.keySet());
-        final long startTime = this.lastRefresh;
-        final long endTime = System.currentTimeMillis();
-        requestData(sensors, startTime, endTime);
 
-        // reset refresh start time
-        this.lastRefresh = System.currentTimeMillis();
+        AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
+        refreshRequest.setData("sensors", sensors);
+        refreshRequest.setData("vizPanel", this);
+        Dispatcher.forwardEvent(refreshRequest);
     }
 
     private void requestData(List<SensorModel> sensors, long startTime, long endTime) {
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequested);
+        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
         dataRequest.setData("sensors", sensors);
         dataRequest.setData("startTime", startTime);
         dataRequest.setData("endTime", endTime);

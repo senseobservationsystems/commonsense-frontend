@@ -58,22 +58,22 @@ public class SensorValueParser {
      */
     public static JsonValueModel parseJsonValue(DataPoint dataPoint) {
 
-        JSONValue json = JSONParser.parseStrict(dataPoint.getCleanValue());
+        final JSONValue json = JSONParser.parseStrict(dataPoint.getCleanValue());
         if (null != json) {
-            JSONObject object = json.isObject();
+            final JSONObject object = json.isObject();
 
             if (null != object) {
-                HashMap<String, Object> fields = new HashMap<String, Object>();
+                final HashMap<String, Object> fields = new HashMap<String, Object>();
                 for (String fieldKey : object.keySet()) {
-                    JSONValue fieldValue = object.get(fieldKey);
+                    final JSONValue fieldValue = object.get(fieldKey);
 
-                    JSONNumber numberField = fieldValue.isNumber();
+                    final JSONNumber numberField = fieldValue.isNumber();
                     if (null != numberField) {
                         fields.put(fieldKey, numberField.doubleValue());
                         continue;
                     }
 
-                    JSONString stringField = fieldValue.isString();
+                    final JSONString stringField = fieldValue.isString();
                     if (null != stringField) {
                         fields.put(fieldKey, stringField.stringValue());
                         continue;
