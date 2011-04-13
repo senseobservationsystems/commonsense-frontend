@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataController extends Controller {
 
@@ -96,14 +97,16 @@ public class DataController extends Controller {
 
     private void onDataFailed(int code) {
         // TODO give the user feedback on failed request
+        Log.e(TAG, "Data retrieval failed! If you read this: please inform the user.");
     }
 
     private void onDataReceived(String response, List<SensorModel> sensors, int index,
             long startTime, long endTime, Map<SensorModel, SensorValueModel[]> pagedValues,
             int page, VizPanel vizPanel) {
+        Log.d(TAG, "onDataReceived...");
 
         final SensorModel sensor = sensors.get(index);
-        final SensorValueModel[] currentPagedValues = pagedValues.get(sensor);
+        SensorValueModel[] currentPagedValues = pagedValues.get(sensor);
 
         // update UI after reception of data (if possible)
         if (page > 0) {
@@ -118,17 +121,16 @@ public class DataController extends Controller {
         // parse the incoming data
         parseDataResponse(response, sensors, index, pagedValues, page);
 
-        // update UI after parsing data (if possible)
-        if (page > 0) {
-            final int offset = page * PER_PAGE;
-            final int increment = PER_PAGE;
-            final int total = currentPagedValues.length; // total > 0 to prevent NaN
-            final int progress = Math.min(offset + increment, total);
-            updateSubProgress(progress, total);
-        }
+        // update UI after parsing data
+        currentPagedValues = pagedValues.get(sensor);
+        final int offset = page * PER_PAGE;
+        final int increment = PER_PAGE;
+        final int total = currentPagedValues.length;
+        final int progress = Math.min(offset + increment, total);
+        updateSubProgress(progress, total);
 
         // check if there are more pages to request for this sensor
-        if (null != currentPagedValues && PER_PAGE * page >= currentPagedValues.length) {
+        if (null != currentPagedValues && PER_PAGE * (page + 1) >= currentPagedValues.length) {
             // completed all pages for this sensor
             index++;
             page = 0;
@@ -149,6 +151,7 @@ public class DataController extends Controller {
 
     private void parseDataResponse(String response, List<SensorModel> sensors, int index,
             Map<SensorModel, SensorValueModel[]> pagedValues, int page) {
+        Log.d(TAG, "parseDataResponse...");
 
         try {
             // Overlay the response JSON object for easy access in Java
@@ -219,6 +222,7 @@ public class DataController extends Controller {
 
     private void requestData(List<SensorModel> sensors, int index, long startTime, long endTime,
             int page, Map<SensorModel, SensorValueModel[]> pagedValues, VizPanel vizPanel) {
+        Log.d(TAG, "requestData...");
 
         if (index < sensors.size()) {
 
@@ -228,8 +232,8 @@ public class DataController extends Controller {
             String url = Constants.URL_DATA.replace("<id>", sensor.<String> get(SensorModel.ID));
             url += "?page=" + page;
             url += "&per_page=" + PER_PAGE;
-            url += "&start_date=" + startTime / 1000d;
-            url += "&end_date=" + endTime / 1000d;
+            url += "&start_date=" + NumberFormat.getFormat("#.000").format(startTime / 1000d);
+            url += "&end_date=" + NumberFormat.getFormat("#.000").format(endTime / 1000d);
             if (null != sensor.get("alias")) {
                 url += "&alias=" + sensor.get("alias");
             }
@@ -265,6 +269,7 @@ public class DataController extends Controller {
     }
 
     private void updateMainProgress(int progress, int total) {
+        Log.d(TAG, "updateMainProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
         update.setData("progress", progress);
         update.setData("total", total);
@@ -272,6 +277,7 @@ public class DataController extends Controller {
     }
 
     private void updateSubProgress(double progress, double total) {
+        Log.d(TAG, "updateSubProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateDataProgress);
         update.setData("progress", progress);
         update.setData("total", total);

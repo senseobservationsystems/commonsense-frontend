@@ -43,7 +43,8 @@ public class TimeLineChart extends ContentPanel {
     /**
      * Adds a new column to the data table that is backing the chart.
      * 
-     * @param taggedData
+     * @param sensor
+     * @param values
      */
     private void addDataColumn(SensorModel sensor, SensorValueModel[] values) {
 
@@ -60,11 +61,11 @@ public class TimeLineChart extends ContentPanel {
         final int offset = this.dataTable.getNumberOfRows() - values.length;
         final int colIndex = this.dataTable.getNumberOfColumns() - 1;
 
-        for (int i = 0; i < values.length; i++) {
+        for (int i = 0, j = offset; i < values.length; i++, j++) {
             final FloatValueModel value = (FloatValueModel) values[i];
 
-            this.dataTable.setValue(i + offset, 0, value.getTimestamp());
-            this.dataTable.setValue(i + offset, colIndex, value.getValue());
+            this.dataTable.setValue(j, 0, value.getTimestamp());
+            this.dataTable.setValue(j, colIndex, value.getValue());
         }
     }
 
@@ -94,6 +95,8 @@ public class TimeLineChart extends ContentPanel {
         } else {
             setHeaderVisible(false);
         }
+
+        setBodyBorder(false);
 
         // Graph options
         final Graph.Options options = Graph.Options.create();
