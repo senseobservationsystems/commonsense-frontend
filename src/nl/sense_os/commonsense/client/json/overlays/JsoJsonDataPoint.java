@@ -5,6 +5,7 @@ import java.util.Map;
 
 import nl.sense_os.commonsense.client.utility.Log;
 
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -14,20 +15,26 @@ import com.google.gwt.json.client.JSONValue;
 /**
  * JavaScript object overlay for data point of JSON type.
  */
-public class JsoJsonDataPoint extends JsoDataPoint implements AbstractJsonDataPoint {
+public class JsoJsonDataPoint extends JsoDataPoint {
 
     private static final String TAG = "JsoJsonDataPoint";
+
     // private Map<String, Object> fields;
 
     protected JsoJsonDataPoint() {
         // empty protected constructor
     }
 
-    public final Map<String, Object> getFields() {
+    public final Map<String, JsoDataPoint> getFields() {
 
         // if (fields == null) {
 
-        Map<String, Object> fields = new HashMap<String, Object>();
+        final String jsoStart = "{\"date\":\"" + getDate() + "\",\"id\":\"" + getId()
+                + "\",\"sensor_id\":\"" + getSensorId() + "\",\"week\":\"" + getWeek()
+                + "\",\"month\":\"" + getMonth() + "\",\"year\":\"" + getYear() + "\",\"value\":";
+        final String jsoEnd = "}";
+
+        Map<String, JsoDataPoint> fields = new HashMap<String, JsoDataPoint>();
 
         final JSONValue json = JSONParser.parseStrict(this.getCleanValue());
         if (null != json) {
@@ -40,16 +47,24 @@ public class JsoJsonDataPoint extends JsoDataPoint implements AbstractJsonDataPo
 
                     final JSONNumber numberField = fieldValue.isNumber();
                     if (null != numberField) {
-                        fields.put(fieldKey, numberField.doubleValue());
+                        String value = numberField.toString();
+                        fields.put(
+                                fieldKey,
+                                JsonUtils.<JsoFloatDataPoint> unsafeEval(jsoStart + "\"" + value
+                                        + "\"" + jsoEnd));
                         continue;
                     }
 
                     final JSONString stringField = fieldValue.isString();
                     if (null != stringField) {
-                        fields.put(fieldKey, stringField.stringValue());
+                        String value = stringField.toString();
+                        Log.d(TAG, jsoStart + value + jsoEnd);
+                        fields.put(fieldKey,
+                                JsonUtils.<JsoDataPoint> unsafeEval(jsoStart + value + jsoEnd));
                         continue;
                     }
-                    fields.put(fieldKey, fieldValue.toString());
+
+                    Log.e(TAG, "Field value is not a valid sensor value: " + fieldValue.toString());
                 }
             } else {
                 Log.e(TAG, "Sensor value is not a valid JSONObject: " + json.toString());

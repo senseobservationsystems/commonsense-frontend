@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
-public class JsoDataPoint extends JavaScriptObject implements AbstractDataPoint {
+public class JsoDataPoint extends JavaScriptObject {
 
     protected JsoDataPoint() {
         // empty protected constructor

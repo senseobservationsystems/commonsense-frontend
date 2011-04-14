@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.json.overlays;
 /**
  * JavaScript object overlay for data point of float type.
  */
-public class JsoFloatDataPoint extends JsoDataPoint implements AbstractFloatDataPoint {
+public class JsoFloatDataPoint extends JsoDataPoint {
 
     protected JsoFloatDataPoint() {
         // empty protected constructor

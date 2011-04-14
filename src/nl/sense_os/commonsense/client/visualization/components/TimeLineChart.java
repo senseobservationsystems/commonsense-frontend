@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
-import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.AbstractFloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.chap.links.client.Graph;
@@ -17,7 +17,7 @@ public class TimeLineChart extends ContentPanel {
     private Graph linksGraph;
     private DataTable dataTable;
 
-    public TimeLineChart(SensorModel sensor, AbstractDataPoint[] values, String title) {
+    public TimeLineChart(SensorModel sensor, JsoDataPoint[] values, String title) {
 
         addData(sensor, values);
 
@@ -29,7 +29,7 @@ public class TimeLineChart extends ContentPanel {
      * 
      * @param taggedData
      */
-    public void addData(SensorModel sensor, AbstractDataPoint[] values) {
+    public void addData(SensorModel sensor, JsoDataPoint[] values) {
 
         // add data to data table
         addDataColumn(sensor, values);
@@ -46,7 +46,7 @@ public class TimeLineChart extends ContentPanel {
      * @param sensor
      * @param values
      */
-    private void addDataColumn(SensorModel sensor, AbstractDataPoint[] values) {
+    private void addDataColumn(SensorModel sensor, JsoDataPoint[] values) {
 
         // create dataTable if necessary
         if (null == this.dataTable) {
@@ -72,7 +72,7 @@ public class TimeLineChart extends ContentPanel {
         final int colIndex = this.dataTable.getNumberOfColumns() - 1;
 
         for (int i = 0, j = offset; i < values.length; i++, j++) {
-            final AbstractFloatDataPoint value = (AbstractFloatDataPoint) values[i];
+            final JsoFloatDataPoint value = (JsoFloatDataPoint) values[i];
 
             this.dataTable.setValue(j, 0, value.getTimestamp());
             this.dataTable.setValue(j, colIndex, value.getFloatValue());

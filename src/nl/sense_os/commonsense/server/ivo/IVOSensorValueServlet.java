@@ -15,63 +15,62 @@ import nl.sense_os.commonsense.server.persistent.PMF;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
-
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class IVOSensorValueServlet extends IVOServlet {
-	
-	private HashMap<Integer, SensorType> sensorTypes;
-	private PersistenceManager pm;
-	
-	@Override
-    @SuppressWarnings("unchecked")
-	protected void initialize() {
-		sensorTypes = new HashMap<Integer, SensorType>();
-		pm = PMF.get().getPersistenceManager();
-			String query = "select from " + SensorType.class.getName() + " order by id";
-			List<SensorType> rawList = (List<SensorType>) pm.newQuery(query).execute();
-			SensorType s;
-			for (int i = 0; i < rawList.size(); i++) {
-				s = rawList.get(i);
-				sensorTypes.put(s.getId(), s);
-			}
-	}
-	
-	@Override
-    protected String create(JSONObject change) throws JSONException {
-			if (sensorTypes.size() > 0) {
-				SensorType sensorType = sensorTypes.get(change.getInt("sensor_type"));
-				switch (sensorType.getType()) {
-					case SensorType.BOOL: 
-						pm.makePersistent(BooleanValueConverter.jsonToEntity(change));
-						break;
-					case SensorType.FLOAT: 
-						pm.makePersistent(FloatValueConverter.jsonToEntity(change));
-						break;
-					case SensorType.JSON: 
-						pm.makePersistent(JsonValueConverter.jsonToEntity(change));
-						break;
-					case SensorType.STRING: 
-						pm.makePersistent(StringValueConverter.jsonToEntity(change));
-						break;
-				}
-			} else
-				log.warning("Could not find corresponding sensor type in datastore.");
-        return change.getString("id");
-	}
-		
-	@Override
-    protected String update(JSONObject change) throws JSONException {
-		return Integer.toString(((JSONObject) change.get("old")).getInt("id"));
-	}
 
-	@Override
+    private HashMap<Integer, SensorType> sensorTypes;
+    private PersistenceManager pm;
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void initialize() {
+        sensorTypes = new HashMap<Integer, SensorType>();
+        pm = PMF.get().getPersistenceManager();
+        String query = "select from " + SensorType.class.getName() + " order by id";
+        List<SensorType> rawList = (List<SensorType>) pm.newQuery(query).execute();
+        SensorType s;
+        for (int i = 0; i < rawList.size(); i++) {
+            s = rawList.get(i);
+            sensorTypes.put(s.getId(), s);
+        }
+    }
+
+    @Override
+    protected String create(JSONObject change) throws JSONException {
+        if (sensorTypes.size() > 0) {
+            SensorType sensorType = sensorTypes.get(change.getInt("sensor_type"));
+            switch (sensorType.getType()) {
+            case SensorType.BOOL:
+                pm.makePersistent(BooleanValueConverter.jsonToEntity(change));
+                break;
+            case SensorType.FLOAT:
+                pm.makePersistent(FloatValueConverter.jsonToEntity(change));
+                break;
+            case SensorType.JSON:
+                pm.makePersistent(JsonValueConverter.jsonToEntity(change));
+                break;
+            case SensorType.STRING:
+                pm.makePersistent(StringValueConverter.jsonToEntity(change));
+                break;
+            }
+        } else
+            log.warning("Could not find corresponding sensor type in datastore.");
+        return change.getString("id");
+    }
+
+    @Override
+    protected String update(JSONObject change) throws JSONException {
+        return Integer.toString(((JSONObject) change.get("old")).getInt("id"));
+    }
+
+    @Override
     protected String delete(JSONObject change) throws JSONException {
         return Integer.toString(change.getInt("id"));
-	}
-	
-	@Override
+    }
+
+    @Override
     protected void finalize() {
-		pm.close();
-	}
+        pm.close();
+    }
 
 }

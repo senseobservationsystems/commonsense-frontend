@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
 import nl.sense_os.commonsense.client.json.overlays.JsoBoolDataPoint;
 import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
 import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
@@ -34,9 +33,9 @@ public class DataController extends Controller {
         public long start;
         @SuppressWarnings("unused")
         public long end;
-        public AbstractDataPoint[] values;
+        public JsoDataPoint[] values;
 
-        public CacheEntry(long start, long end, AbstractDataPoint[] values) {
+        public CacheEntry(long start, long end, JsoDataPoint[] values) {
             this.start = start;
             this.end = end;
             this.values = values;
@@ -88,8 +87,8 @@ public class DataController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int sensorIndex = event.getData("sensorIndex");
             final int pageIndex = event.getData("pageIndex");
-            final Map<SensorModel, AbstractDataPoint[]> pagedValues = event
-                    .<Map<SensorModel, AbstractDataPoint[]>> getData("pagedValues");
+            final Map<SensorModel, JsoDataPoint[]> pagedValues = event
+                    .<Map<SensorModel, JsoDataPoint[]>> getData("pagedValues");
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
 
             onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, pagedValues,
@@ -104,7 +103,7 @@ public class DataController extends Controller {
         long start = System.currentTimeMillis();
         for (SensorModel sensor : sensors) {
             CacheEntry cachedEntry = cache.get(sensor.get(SensorModel.ID));
-            AbstractDataPoint[] cachedValues = cachedEntry.values;
+            JsoDataPoint[] cachedValues = cachedEntry.values;
             long lastCache = cachedValues[cachedValues.length - 1].getTimestamp().getTime();
             if (lastCache < start) {
                 start = lastCache;
@@ -123,14 +122,14 @@ public class DataController extends Controller {
         this.progressDialog = new ProgressDialog(this);
     }
 
-    private void onDataComplete(long start, long end, Map<SensorModel, AbstractDataPoint[]> values,
+    private void onDataComplete(long start, long end, Map<SensorModel, JsoDataPoint[]> values,
             VizPanel vizPanel) {
         // Log.d(TAG, "onDataComplete...");
 
         hideProgress();
 
         // cache result
-        for (Entry<SensorModel, AbstractDataPoint[]> data : values.entrySet()) {
+        for (Entry<SensorModel, JsoDataPoint[]> data : values.entrySet()) {
             if (data.getValue().length > 0) {
                 CacheEntry cacheData = new CacheEntry(start, end, data.getValue());
                 cache.put(data.getKey().<String> get(SensorModel.ID), cacheData);
@@ -147,7 +146,7 @@ public class DataController extends Controller {
     }
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
-            int sensorIndex, int pageIndex, Map<SensorModel, AbstractDataPoint[]> pagedValues,
+            int sensorIndex, int pageIndex, Map<SensorModel, JsoDataPoint[]> pagedValues,
             VizPanel vizPanel) {
         // Log.d(TAG, "onDataReceived...");
 
@@ -185,14 +184,14 @@ public class DataController extends Controller {
     private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
         final int page = 0;
         final int index = 0;
-        final Map<SensorModel, AbstractDataPoint[]> pagedValues = new HashMap<SensorModel, AbstractDataPoint[]>();
+        final Map<SensorModel, JsoDataPoint[]> pagedValues = new HashMap<SensorModel, JsoDataPoint[]>();
 
         showProgress(sensors.size());
         requestData(start, end, sensors, index, page, pagedValues, vizPanel);
     }
 
     private int parseDataResponse(String response, List<SensorModel> sensors, int sensorIndex,
-            Map<SensorModel, AbstractDataPoint[]> pagedValues) {
+            Map<SensorModel, JsoDataPoint[]> pagedValues) {
         // Log.d(TAG, "parseDataResponse...");
 
         int total = 0;
@@ -207,15 +206,15 @@ public class DataController extends Controller {
 
             // get paged values for the current sensor, so we can add the new data to the array
             final SensorModel sensor = sensors.get(sensorIndex);
-            AbstractDataPoint[] result = pagedValues.get(sensor);
+            JsoDataPoint[] result = pagedValues.get(sensor);
 
             // increase size of the array if there are already pages stored
             int offset = 0;
             if (result == null) {
-                result = new AbstractDataPoint[data.length()];
+                result = new JsoDataPoint[data.length()];
             } else {
                 offset = result.length;
-                AbstractDataPoint[] copy = new AbstractDataPoint[result.length + data.length()];
+                JsoDataPoint[] copy = new JsoDataPoint[result.length + data.length()];
                 System.arraycopy(result, 0, copy, 0, result.length);
                 result = copy;
             }
@@ -260,7 +259,7 @@ public class DataController extends Controller {
     }
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            int pageIndex, Map<SensorModel, AbstractDataPoint[]> pagedValues, VizPanel vizPanel) {
+            int pageIndex, Map<SensorModel, JsoDataPoint[]> pagedValues, VizPanel vizPanel) {
         // Log.d(TAG, "requestData...");
 
         if (sensorIndex < sensors.size()) {
@@ -275,7 +274,7 @@ public class DataController extends Controller {
                 if (null != cacheEntry) {
                     if (cacheEntry.start <= start) {
                         // Log.d(TAG, "Using cached data!");
-                        AbstractDataPoint[] cachedValues = cacheEntry.values;
+                        JsoDataPoint[] cachedValues = cacheEntry.values;
                         realStart = cachedValues[cachedValues.length - 1].getTimestamp().getTime();
                         pagedValues.put(sensor, cachedValues);
                         cache.remove(cacheKey);

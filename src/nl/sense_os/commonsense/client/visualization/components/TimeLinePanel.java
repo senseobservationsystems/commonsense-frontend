@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.data.DataEvents;
-import nl.sense_os.commonsense.client.json.overlays.AbstractBoolDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.AbstractJsonDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoBoolDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoJsonDataPoint;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -60,32 +60,34 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param sensor
      *            Sensor that the data belongs to.
      * @param values
-     *            AbstractDataPoint[] to plot on the chart, consisting of AbstractBoolDataPoint.
+     *            JsoDataPoint[] to plot on the chart, consisting of AbstractBoolDataPoint.
      */
-    private void addBoolChart(SensorModel sensor, AbstractDataPoint[] values) {
+    private void addBoolChart(SensorModel sensor, JsoDataPoint[] values) {
 
-        AbstractDataPoint value;
+        JsoDataPoint value;
         double floatValue;
         for (int i = 0; i < values.length; i++) {
             value = values[i];
-            floatValue = ((AbstractBoolDataPoint) value).getBoolValue() ? 1 : 0;
-            values[i] = new FloatDataPoint(floatValue, value.getTimestamp());
+            floatValue = ((JsoBoolDataPoint) value).getBoolValue() ? 1 : 0;
+            // TODO
+            // values[i] = new JsoFloatDataPoint(floatValue, value.getTimestamp());
         }
 
-        visualize(sensor, values);
+        Log.w(TAG, "Skipping boolean sensor " + sensor.get("text"));
+        // visualize(sensor, values);
     }
 
     /**
      * Convenience method for adding data from more than one sensor at a time.
      * 
-     * @see #addData(SensorModel, AbstractDataPoint[])
+     * @see #addData(SensorModel, JsoDataPoint[])
      * @param data
      *            Map with of sensors and sensor values to display
      */
     @Override
-    public void addData(Map<SensorModel, AbstractDataPoint[]> data) {
+    public void addData(Map<SensorModel, JsoDataPoint[]> data) {
 
-        for (Entry<SensorModel, AbstractDataPoint[]> entry : data.entrySet()) {
+        for (Entry<SensorModel, JsoDataPoint[]> entry : data.entrySet()) {
             addData(entry.getKey(), entry.getValue());
         }
     }
@@ -96,10 +98,10 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param sensor
      *            Sensor that the data belongs to.
      * @param values
-     *            AbstractDataPoint[] to plot on the chart.
+     *            JsoDataPoint[] to plot on the chart.
      */
     @Override
-    public void addData(SensorModel sensor, AbstractDataPoint[] values) {
+    public void addData(SensorModel sensor, JsoDataPoint[] values) {
 
         // Log.d(TAG, "addData... (" + data.getData().length + " points)");
         boolean isAlreadyVisualized = false;
@@ -139,20 +141,20 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param sensor
      *            Sensor that the data belongs to.
      * @param values
-     *            AbstractDataPoint[] to plot on the chart, consisting of AbstractJsonDataPoint.
+     *            JsoDataPoint[] to plot on the chart, consisting of AbstractJsonDataPoint.
      */
-    private void addJsonCharts(SensorModel sensor, AbstractDataPoint[] values) {
+    private void addJsonCharts(SensorModel sensor, JsoDataPoint[] values) {
         // get numerical fields on the JSON object
-        final Map<String, AbstractDataPoint[]> numFields = jsonToFloats(sensor, values);
+        final Map<String, JsoDataPoint[]> numFields = jsonToFloats(sensor, values);
 
         final String sensorName = sensor.get("text");
 
-        for (final Map.Entry<String, AbstractDataPoint[]> field : numFields.entrySet()) {
+        for (final Map.Entry<String, JsoDataPoint[]> field : numFields.entrySet()) {
             final String chartName = field.getKey();
 
             // Log.d(TAG, "addJsonCharts... field: " + chartName);
 
-            final AbstractDataPoint[] fieldData = field.getValue();
+            final JsoDataPoint[] fieldData = field.getValue();
 
             // add JSON data into float chart
             SensorModel sensorCopy = new SensorModel(sensor.getProperties());
@@ -186,17 +188,15 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param values
      * @return a Map with the retrieved pairs of field names and numerical data from the input
      */
-    private Map<String, AbstractDataPoint[]> jsonToFloats(SensorModel sensor,
-            AbstractDataPoint[] values) {
+    private Map<String, JsoDataPoint[]> jsonToFloats(SensorModel sensor, JsoDataPoint[] values) {
 
         // take each individual JSON value apart and put the field contents in a separate list
-        final Map<String, ArrayList<AbstractDataPoint>> sortedValues = sortJsonFields(values);
+        final Map<String, ArrayList<JsoDataPoint>> sortedValues = sortJsonFields(values);
 
         // convert the ArrayLists into TaggedDataModel types
-        final Map<String, AbstractDataPoint[]> sortedData = new HashMap<String, AbstractDataPoint[]>();
-        for (final Entry<String, ArrayList<AbstractDataPoint>> fieldData : sortedValues.entrySet()) {
-            final AbstractDataPoint[] fieldValues = fieldData.getValue().toArray(
-                    new AbstractDataPoint[0]);
+        final Map<String, JsoDataPoint[]> sortedData = new HashMap<String, JsoDataPoint[]>();
+        for (final Entry<String, ArrayList<JsoDataPoint>> fieldData : sortedValues.entrySet()) {
+            final JsoDataPoint[] fieldValues = fieldData.getValue().toArray(new JsoDataPoint[0]);
             sortedData.put(fieldData.getKey(), fieldValues);
         }
 
@@ -243,70 +243,39 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         }
     }
 
-    private Map<String, ArrayList<AbstractDataPoint>> sortJsonFields(AbstractDataPoint[] unsorted) {
+    private Map<String, ArrayList<JsoDataPoint>> sortJsonFields(JsoDataPoint[] unsorted) {
 
         // for every sensor value in the list
-        final Map<String, ArrayList<AbstractDataPoint>> sortedValues = new HashMap<String, ArrayList<AbstractDataPoint>>();
-        for (final AbstractDataPoint genericValue : unsorted) {
-            final AbstractJsonDataPoint value = (AbstractJsonDataPoint) genericValue;
-            final Map<String, Object> fields = value.getFields();
+        final Map<String, ArrayList<JsoDataPoint>> sortedValues = new HashMap<String, ArrayList<JsoDataPoint>>();
+        for (final JsoDataPoint genericValue : unsorted) {
+            final JsoJsonDataPoint value = (JsoJsonDataPoint) genericValue;
+            final Map<String, JsoDataPoint> fields = value.getFields();
 
             // for every JSON field in the sensor value
-            for (final Map.Entry<String, Object> field : fields.entrySet()) {
+            for (final Map.Entry<String, JsoDataPoint> field : fields.entrySet()) {
 
                 // try to parse the field properties to doubles
                 final String fieldName = field.getKey();
-                final Object fieldValue = field.getValue();
-                if (fieldValue instanceof Integer) {
+                final JsoDataPoint fieldValue = field.getValue();
+                if (fieldValue instanceof JsoFloatDataPoint) {
                     // simple int field!
-                    final int parsed = (Integer) fieldValue;
-                    ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
-                    final FloatDataPoint floatValue = new FloatDataPoint(parsed,
-                            value.getTimestamp());
+                    final JsoFloatDataPoint parsed = (JsoFloatDataPoint) fieldValue;
+                    ArrayList<JsoDataPoint> list = sortedValues.get(fieldName);
                     if (null != list) {
-                        list.add(floatValue);
+                        list.add(parsed);
                     } else {
-                        list = new ArrayList<AbstractDataPoint>();
-                        list.add(floatValue);
+                        list = new ArrayList<JsoDataPoint>();
+                        list.add(parsed);
                     }
                     sortedValues.put(fieldName, list);
-                } else if (fieldValue instanceof Double) {
-                    // simple double field!
-                    final double parsed = (Double) fieldValue;
-                    ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
-                    final FloatDataPoint floatValue = new FloatDataPoint(parsed,
-                            value.getTimestamp());
-                    if (null != list) {
-                        list.add(floatValue);
-                    } else {
-                        list = new ArrayList<AbstractDataPoint>();
-                        list.add(floatValue);
-                    }
-                    sortedValues.put(fieldName, list);
-                } else if (fieldValue instanceof String) {
-                    // Strings might be parsed as doubles
-                    try {
-                        final double parsed = Double.parseDouble((String) fieldValue);
-                        ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
-                        final FloatDataPoint floatValue = new FloatDataPoint(parsed,
-                                value.getTimestamp());
-                        if (null != list) {
-                            list.add(floatValue);
-                        } else {
-                            list = new ArrayList<AbstractDataPoint>();
-                            list.add(floatValue);
-                        }
-                        sortedValues.put(fieldName, list);
-                    } catch (final NumberFormatException e) {
-                        // not a valid field
-                        // Log.e(TAG, "field " + fieldName + " is not parsable! Value: " +
-                        // fieldValue);
-                    }
+
+                } else if (fieldValue instanceof JsoBoolDataPoint) {
+                    // TODO
+                    Log.w(TAG, "Skipping boolean field " + field.getKey());
 
                 } else {
-                    // not a valid field
-                    Log.e(TAG, "field " + field.getKey()
-                            + " is not a String, int or double! Value: " + fieldValue);
+                    // TODO
+                    Log.w(TAG, "Skipping String field " + field.getKey());
                 }
             }
         }
@@ -321,7 +290,7 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param values
      *            SensorValueModel[] to plot on the chart, consisting of FloatValueModel.
      */
-    private void visualize(SensorModel sensor, AbstractDataPoint[] values) {
+    private void visualize(SensorModel sensor, JsoDataPoint[] values) {
         if (null == this.chart) {
             this.chart = new TimeLineChart(sensor, values, null);
             showChart(this.chart);

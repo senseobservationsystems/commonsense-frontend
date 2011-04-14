@@ -15,6 +15,12 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
+/**
+ * Contains methods for parsing JSON sensor values into SensorValueModel instances.
+ * 
+ * @deprecated use {@link JsoDataPoint} types instead.
+ */
+@Deprecated
 public class SensorValueParser {
 
     private static final String TAG = "SensorValueParser";
