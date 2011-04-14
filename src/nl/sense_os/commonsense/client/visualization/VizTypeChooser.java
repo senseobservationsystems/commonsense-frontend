@@ -298,6 +298,7 @@ public class VizTypeChooser extends View {
         this.sensors = sensors;
         if (this.sensors.size() > 0) {
             this.window.show();
+            this.window.center();
         } else {
             MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);
         }

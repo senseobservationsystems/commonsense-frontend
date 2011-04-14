@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.data.DataEvents;
+import nl.sense_os.commonsense.client.json.overlays.AbstractBoolDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.AbstractJsonDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.sensorvalues.BooleanValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -31,11 +31,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 public class TimeLinePanel extends ContentPanel implements VizPanel {
 
     private static final String TAG = "TimeLinePanel";
-    private TimeLineChart floatChart;
-    private TimeLineChart boolChart;
-    private final Map<String, TimeLineChart> jsonCharts;
-    private int nrOfCharts;
-    private final Map<SensorModel, SensorValueModel[]> data;
+    private TimeLineChart chart;
+    private final List<SensorModel> sensors;
 
     public TimeLinePanel() {
         super();
@@ -48,9 +45,7 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
 
         initToolBar();
 
-        this.data = new HashMap<SensorModel, SensorValueModel[]>();
-        this.jsonCharts = new HashMap<String, TimeLineChart>();
-        this.nrOfCharts = 0;
+        this.sensors = new ArrayList<SensorModel>();
     }
 
     public TimeLinePanel(List<SensorModel> sensors, long startTime, long endTime) {
@@ -62,107 +57,60 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
     /**
      * Adds a chart for simple boolean sensor values.
      * 
-     * @param data
-     *            the sensor values to display
+     * @param sensor
+     *            Sensor that the data belongs to.
+     * @param values
+     *            AbstractDataPoint[] to plot on the chart, consisting of AbstractBoolDataPoint.
      */
-    private void addBoolChart(SensorModel sensor, SensorValueModel[] values) {
+    private void addBoolChart(SensorModel sensor, AbstractDataPoint[] values) {
 
-        SensorValueModel value;
+        AbstractDataPoint value;
         double floatValue;
         for (int i = 0; i < values.length; i++) {
             value = values[i];
-            floatValue = ((BooleanValueModel) value).getValue() ? 1 : 0;
-            Log.d(TAG, "floatValue: " + floatValue);
-            values[i] = new FloatValueModel(value.getTimestamp(), floatValue);
+            floatValue = ((AbstractBoolDataPoint) value).getBoolValue() ? 1 : 0;
+            values[i] = new FloatDataPoint(floatValue, value.getTimestamp());
         }
 
-        addFloatChart(sensor, values);
-
-        // if (null == this.boolChart) {
-        // this.boolChart = new TimeLineChart(sensor, values, null);
-        // addChart(this.boolChart);
-        // } else {
-        // this.boolChart.addData(sensor, values);
-        // }
+        visualize(sensor, values);
     }
 
     /**
-     * Adds a chart to the charts that are already displayed, resizing them if necessary.
+     * Convenience method for adding data from more than one sensor at a time.
      * 
-     * @param chart
-     */
-    private void addChart(TimeLineChart chart) {
-
-        // Log.d(TAG, "addChart");
-        TimeLineChart firstChart = null;
-
-        if (0 == this.nrOfCharts) {
-            // remove empty text message
-            Component emptyText = this.getItemByItemId("empty_text");
-            if (null != emptyText) {
-                this.remove(emptyText);
-            }
-
-            chart.setId("chart_" + this.nrOfCharts);
-            this.add(chart, new RowData(-1, 1, new Margins(5)));
-
-        } else if (1 == this.nrOfCharts) {
-            // re-add first chart with new size
-            firstChart = (TimeLineChart) this.getItemByItemId("chart_" + 0);
-            this.remove(firstChart);
-            this.add(firstChart, new RowData(-1, 0.8, new Margins(5)));
-
-            this.add(chart, new RowData(-1, 0.8, new Margins(5)));
-
-        } else {
-            this.add(chart, new RowData(-1, 0.8, new Margins(5)));
-
-        }
-        this.nrOfCharts++;
-
-        // do layout to show added charts
-        try {
-            this.layout();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (null != firstChart) {
-            firstChart.redraw();
-        }
-    }
-
-    /**
-     * Convenience method for adding data from more than one tag at a time.
-     * 
-     * @see #addData(SensorModel, SensorValueModel[])
+     * @see #addData(SensorModel, AbstractDataPoint[])
      * @param data
      *            Map with of sensors and sensor values to display
      */
     @Override
-    public void addData(Map<SensorModel, SensorValueModel[]> data) {
+    public void addData(Map<SensorModel, AbstractDataPoint[]> data) {
 
-        for (Entry<SensorModel, SensorValueModel[]> entry : data.entrySet()) {
+        for (Entry<SensorModel, AbstractDataPoint[]> entry : data.entrySet()) {
             addData(entry.getKey(), entry.getValue());
         }
     }
 
     /**
-     * Adds extra tagged sensor value data to the already visible charts.
+     * Adds data to the chart.
      * 
-     * @param data
-     *            the sensor values to display.
+     * @param sensor
+     *            Sensor that the data belongs to.
+     * @param values
+     *            AbstractDataPoint[] to plot on the chart.
      */
     @Override
-    public void addData(SensorModel sensor, SensorValueModel[] values) {
+    public void addData(SensorModel sensor, AbstractDataPoint[] values) {
 
         // Log.d(TAG, "addData... (" + data.getData().length + " points)");
-        SensorValueModel[] cachedValues = data.get(sensor);
-        if (null != cachedValues) {
-            appendValues(sensor, values, cachedValues);
-            return;
-        } else {
-            data.put(sensor, values);
+        boolean isAlreadyVisualized = false;
+        for (SensorModel cachedSensor : sensors) {
+            if (cachedSensor.get(SensorModel.ID).equals(sensor.get(SensorModel.ID))) {
+                isAlreadyVisualized = true;
+                break;
+            }
+        }
+        if (false == isAlreadyVisualized) {
+            this.sensors.add(sensor);
         }
 
         // see of there are any data points before making chart
@@ -171,7 +119,7 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
             // different charts for different data types
             String dataType = sensor.get(SensorModel.DATA_TYPE);
             if (dataType.equals("float")) {
-                addFloatChart(sensor, values);
+                visualize(sensor, values);
             } else if (dataType.equals("json")) {
                 addJsonCharts(sensor, values);
             } else if (dataType.equals("bool")) {
@@ -186,59 +134,32 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
     }
 
     /**
-     * Adds a chart for simple float sensor values.
-     * 
-     * @param data
-     *            the sensor values to display
-     */
-    private void addFloatChart(SensorModel sensor, SensorValueModel[] values) {
-        if (null == this.floatChart) {
-            this.floatChart = new TimeLineChart(sensor, values, null);
-            addChart(this.floatChart);
-        } else {
-            this.floatChart.addData(sensor, values);
-        }
-    }
-
-    /**
      * Adds one or more charts from the fields of JSON sensor values.
      * 
-     * @param data
-     *            the sensor values to display
+     * @param sensor
+     *            Sensor that the data belongs to.
+     * @param values
+     *            AbstractDataPoint[] to plot on the chart, consisting of AbstractJsonDataPoint.
      */
-    private void addJsonCharts(SensorModel sensor, SensorValueModel[] values) {
-        // get numerical fields on the json object
-        final Map<String, SensorValueModel[]> numFields = jsonToFloats(sensor, values);
+    private void addJsonCharts(SensorModel sensor, AbstractDataPoint[] values) {
+        // get numerical fields on the JSON object
+        final Map<String, AbstractDataPoint[]> numFields = jsonToFloats(sensor, values);
 
         final String sensorName = sensor.get("text");
 
-        for (final Map.Entry<String, SensorValueModel[]> field : numFields.entrySet()) {
+        for (final Map.Entry<String, AbstractDataPoint[]> field : numFields.entrySet()) {
             final String chartName = field.getKey();
 
             // Log.d(TAG, "addJsonCharts... field: " + chartName);
 
-            final SensorValueModel[] fieldData = field.getValue();
+            final AbstractDataPoint[] fieldData = field.getValue();
 
-            // add json data into float chart
+            // add JSON data into float chart
             SensorModel sensorCopy = new SensorModel(sensor.getProperties());
             sensorCopy.set("text", sensorName + " " + chartName);
 
-            addFloatChart(sensorCopy, fieldData);
-
-            // TimeLineChart chart = this.jsonCharts.get(chartName);
-            // if (null == chart) {
-            // chart = new TimeLineChart(sensor, fieldData, chartName);
-            // addChart(chart);
-            // this.jsonCharts.put(chartName, chart);
-            // } else {
-            // chart.addData(sensor, fieldData);
-            // }
+            visualize(sensorCopy, fieldData);
         }
-    }
-
-    private void appendValues(SensorModel sensor, SensorValueModel[] values,
-            SensorValueModel[] cachedValues) {
-        Log.d(TAG, "append " + values.length + " values to " + sensor.get("text"));
     }
 
     private void initToolBar() {
@@ -261,21 +182,21 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * Retrieves fields with numerical values from JSON sensor values by trying to parse them as
      * doubles.
      * 
-     * @param data
-     *            the tagged json data to convert to numerical data
+     * @param sensors
+     * @param values
      * @return a Map with the retrieved pairs of field names and numerical data from the input
      */
-    private Map<String, SensorValueModel[]> jsonToFloats(SensorModel sensor,
-            SensorValueModel[] values) {
+    private Map<String, AbstractDataPoint[]> jsonToFloats(SensorModel sensor,
+            AbstractDataPoint[] values) {
 
         // take each individual JSON value apart and put the field contents in a separate list
-        final Map<String, ArrayList<SensorValueModel>> sortedValues = sortJsonFields(values);
+        final Map<String, ArrayList<AbstractDataPoint>> sortedValues = sortJsonFields(values);
 
         // convert the ArrayLists into TaggedDataModel types
-        final Map<String, SensorValueModel[]> sortedData = new HashMap<String, SensorValueModel[]>();
-        for (final Entry<String, ArrayList<SensorValueModel>> fieldData : sortedValues.entrySet()) {
-            final SensorValueModel[] fieldValues = fieldData.getValue().toArray(
-                    new SensorValueModel[0]);
+        final Map<String, AbstractDataPoint[]> sortedData = new HashMap<String, AbstractDataPoint[]>();
+        for (final Entry<String, ArrayList<AbstractDataPoint>> fieldData : sortedValues.entrySet()) {
+            final AbstractDataPoint[] fieldValues = fieldData.getValue().toArray(
+                    new AbstractDataPoint[0]);
             sortedData.put(fieldData.getKey(), fieldValues);
         }
 
@@ -283,8 +204,6 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
     }
 
     private void refreshData() {
-        final List<SensorModel> sensors = new ArrayList<SensorModel>(data.keySet());
-
         AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
         refreshRequest.setData("sensors", sensors);
         refreshRequest.setData("vizPanel", this);
@@ -300,12 +219,36 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         Dispatcher.forwardEvent(dataRequest);
     }
 
-    private Map<String, ArrayList<SensorValueModel>> sortJsonFields(SensorValueModel[] unsorted) {
+    /**
+     * Adds a chart to the charts that are already displayed, resizing them if necessary.
+     * 
+     * @param chart
+     */
+    private void showChart(TimeLineChart chart) {
+        // Log.d(TAG, "addChart");
+
+        // remove empty text message
+        Component emptyText = this.getItemByItemId("empty_text");
+        if (null != emptyText) {
+            this.remove(emptyText);
+        }
+
+        this.add(chart, new RowData(-1, 1, new Margins(5)));
+
+        // do layout to show added chart
+        try {
+            this.layout();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Map<String, ArrayList<AbstractDataPoint>> sortJsonFields(AbstractDataPoint[] unsorted) {
 
         // for every sensor value in the list
-        final Map<String, ArrayList<SensorValueModel>> sortedValues = new HashMap<String, ArrayList<SensorValueModel>>();
-        for (final SensorValueModel genericValue : unsorted) {
-            final JsonValueModel value = (JsonValueModel) genericValue;
+        final Map<String, ArrayList<AbstractDataPoint>> sortedValues = new HashMap<String, ArrayList<AbstractDataPoint>>();
+        for (final AbstractDataPoint genericValue : unsorted) {
+            final AbstractJsonDataPoint value = (AbstractJsonDataPoint) genericValue;
             final Map<String, Object> fields = value.getFields();
 
             // for every JSON field in the sensor value
@@ -317,26 +260,26 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
                 if (fieldValue instanceof Integer) {
                     // simple int field!
                     final int parsed = (Integer) fieldValue;
-                    ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
-                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(),
-                            parsed);
+                    ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
+                    final FloatDataPoint floatValue = new FloatDataPoint(parsed,
+                            value.getTimestamp());
                     if (null != list) {
                         list.add(floatValue);
                     } else {
-                        list = new ArrayList<SensorValueModel>();
+                        list = new ArrayList<AbstractDataPoint>();
                         list.add(floatValue);
                     }
                     sortedValues.put(fieldName, list);
                 } else if (fieldValue instanceof Double) {
                     // simple double field!
                     final double parsed = (Double) fieldValue;
-                    ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
-                    final FloatValueModel floatValue = new FloatValueModel(value.getTimestamp(),
-                            parsed);
+                    ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
+                    final FloatDataPoint floatValue = new FloatDataPoint(parsed,
+                            value.getTimestamp());
                     if (null != list) {
                         list.add(floatValue);
                     } else {
-                        list = new ArrayList<SensorValueModel>();
+                        list = new ArrayList<AbstractDataPoint>();
                         list.add(floatValue);
                     }
                     sortedValues.put(fieldName, list);
@@ -344,13 +287,13 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
                     // Strings might be parsed as doubles
                     try {
                         final double parsed = Double.parseDouble((String) fieldValue);
-                        ArrayList<SensorValueModel> list = sortedValues.get(fieldName);
-                        final FloatValueModel floatValue = new FloatValueModel(
-                                value.getTimestamp(), parsed);
+                        ArrayList<AbstractDataPoint> list = sortedValues.get(fieldName);
+                        final FloatDataPoint floatValue = new FloatDataPoint(parsed,
+                                value.getTimestamp());
                         if (null != list) {
                             list.add(floatValue);
                         } else {
-                            list = new ArrayList<SensorValueModel>();
+                            list = new ArrayList<AbstractDataPoint>();
                             list.add(floatValue);
                         }
                         sortedValues.put(fieldName, list);
@@ -368,5 +311,22 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
             }
         }
         return sortedValues;
+    }
+
+    /**
+     * Displays the data on the chart
+     * 
+     * @param sensor
+     *            Sensor that the data belongs to.
+     * @param values
+     *            SensorValueModel[] to plot on the chart, consisting of FloatValueModel.
+     */
+    private void visualize(SensorModel sensor, AbstractDataPoint[] values) {
+        if (null == this.chart) {
+            this.chart = new TimeLineChart(sensor, values, null);
+            showChart(this.chart);
+        } else {
+            this.chart.addData(sensor, values);
+        }
     }
 }

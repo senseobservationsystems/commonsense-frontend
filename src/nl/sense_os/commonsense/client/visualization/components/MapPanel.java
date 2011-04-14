@@ -6,10 +6,10 @@ import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.common.DateSlider;
 import nl.sense_os.commonsense.client.data.DataEvents;
+import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.AbstractJsonDataPoint;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.sensorvalues.JsonValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.Events;
@@ -39,7 +39,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
     private MapWidget map;
     private Slider startSlider;
     private Slider endSlider;
-    private SensorValueModel[] sensorData = new SensorValueModel[]{};
+    private AbstractDataPoint[] sensorData = new AbstractDataPoint[]{};
     private Marker startMarker;
     private Marker endMarker;
     private Polyline trace;
@@ -67,15 +67,15 @@ public class MapPanel extends LayoutContainer implements VizPanel {
     }
 
     @Override
-    public void addData(Map<SensorModel, SensorValueModel[]> data) {
+    public void addData(Map<SensorModel, AbstractDataPoint[]> data) {
 
-        for (Entry<SensorModel, SensorValueModel[]> entry : data.entrySet()) {
+        for (Entry<SensorModel, AbstractDataPoint[]> entry : data.entrySet()) {
             addData(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public void addData(SensorModel sensor, SensorValueModel[] values) {
+    public void addData(SensorModel sensor, AbstractDataPoint[] values) {
         // Store the sensor data to be used from other methods.
         this.sensorData = values;
 
@@ -90,11 +90,11 @@ public class MapPanel extends LayoutContainer implements VizPanel {
      * @param data
      *            JsonValueModels with positional sensor data over time
      */
-    private void calcSliderRange(SensorValueModel[] data) {
+    private void calcSliderRange(AbstractDataPoint[] data) {
 
-        JsonValueModel v = (JsonValueModel) data[0];
+        AbstractJsonDataPoint v = (AbstractJsonDataPoint) data[0];
         int min = (int) (v.getTimestamp().getTime() / 1000);
-        v = (JsonValueModel) data[data.length - 1];
+        v = (AbstractJsonDataPoint) data[data.length - 1];
         int max = (int) (v.getTimestamp().getTime() / 1000);
 
         int interval = 1;
@@ -146,10 +146,10 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             int lastPoint = -1;
 
             // find the start index of the trace
-            JsonValueModel value = null;
+            AbstractJsonDataPoint value = null;
             Map<String, Object> fields = null;
             for (int i = 0, j = 0; i < sensorData.length; i++) {
-                value = (JsonValueModel) sensorData[i];
+                value = (AbstractJsonDataPoint) sensorData[i];
                 fields = value.getFields();
 
                 double latitude = (Double) fields.get("latitude");
@@ -266,11 +266,11 @@ public class MapPanel extends LayoutContainer implements VizPanel {
 
         // find the start end end indices of the trace in the sensor data array
         int newTraceStartIndex = -1, newTraceEndIndex = -1;
-        JsonValueModel value = null;
+        AbstractJsonDataPoint value = null;
         long timestamp;
         for (int i = 0; i < sensorData.length; i++) {
             // get timestamp
-            value = (JsonValueModel) sensorData[i];
+            value = (AbstractJsonDataPoint) sensorData[i];
             timestamp = value.getTimestamp().getTime() / 1000;
 
             if (timestamp > minTime && newTraceStartIndex == -1) {
@@ -294,7 +294,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
                 Log.d(TAG, "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
                 Map<String, Object> fields = null;
                 for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
-                    value = (JsonValueModel) this.sensorData[i];
+                    value = (AbstractJsonDataPoint) this.sensorData[i];
                     fields = value.getFields();
                     double lat = (Double) fields.get("latitude");
                     double lon = (Double) fields.get("longitude");
@@ -314,7 +314,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             }
 
             // update end marker
-            JsonValueModel startValue = (JsonValueModel) this.sensorData[newTraceStartIndex];
+            AbstractJsonDataPoint startValue = (AbstractJsonDataPoint) this.sensorData[newTraceStartIndex];
             Map<String, Object> fields = startValue.getFields();
             double lat = (Double) fields.get("latitude");
             double lon = (Double) fields.get("longitude");
@@ -332,7 +332,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
                 Log.d(TAG, "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
                 Map<String, Object> fields = null;
                 for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
-                    value = (JsonValueModel) this.sensorData[i];
+                    value = (AbstractJsonDataPoint) this.sensorData[i];
                     fields = value.getFields();
                     double lat = (Double) fields.get("latitude");
                     double lon = (Double) fields.get("longitude");
@@ -351,7 +351,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             }
 
             // update end marker
-            JsonValueModel endValue = (JsonValueModel) this.sensorData[newTraceEndIndex];
+            AbstractJsonDataPoint endValue = (AbstractJsonDataPoint) this.sensorData[newTraceEndIndex];
             Map<String, Object> fields = endValue.getFields();
             double lat = (Double) fields.get("latitude");
             double lon = (Double) fields.get("longitude");

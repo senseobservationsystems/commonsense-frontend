@@ -40,7 +40,8 @@ public class ProgressDialog extends View {
         } else if (type.equals(DataEvents.UpdateDataProgress)) {
             final double progress = event.getData("progress");
             final double total = event.getData("total");
-            updateSubProgress(progress, total);
+            final String text = event.getData("text");
+            updateSubProgress(progress, total, text);
 
         } else if (type.equals(DataEvents.UpdateMainProgress)) {
             final int progress = event.getData("progress");
@@ -114,11 +115,17 @@ public class ProgressDialog extends View {
      * @param total
      *            Total number of items.
      */
-    private void updateSubProgress(double progress, double total) {
-        double value = progress / total;
-        String valueString = NumberFormat.getPercentFormat().format(value);
-        // Log.d(TAG, "Update sub: " + value + " ( " + progress + " / " + total + ")");
-        subProgress.updateProgress(value, valueString);
+    private void updateSubProgress(double progress, double total, String text) {
+        if (progress > 0 && total > 0) {
+            double value = progress / total;
+            String valueString = NumberFormat.getPercentFormat().format(value);
+            // Log.d(TAG, "Update sub: " + value + " ( " + progress + " / " + total + ")");
+            subProgress.updateProgress(value, valueString);
+        }
+
+        if (text != null) {
+            // TODO update field label
+        }
     }
 
     /**

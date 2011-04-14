@@ -10,7 +10,7 @@ public class SensorDataResponse extends JavaScriptObject {
         // empty protected constructor
     }
 
-    public final native JsArray<DataPoint> getData() /*-{
+    public final native JsArray<JsoDataPoint> getData() /*-{
 		return this.data;
     }-*/;
 

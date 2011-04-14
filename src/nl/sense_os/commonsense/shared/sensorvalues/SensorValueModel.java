@@ -1,9 +1,18 @@
 package nl.sense_os.commonsense.shared.sensorvalues;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
-
 import java.util.Date;
 
+import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
+
+import com.extjs.gxt.ui.client.data.BaseModel;
+
+/**
+ * Model for sensor values.
+ * 
+ * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link JsoDataPoint}
+ *             instead.
+ */
+@Deprecated
 public abstract class SensorValueModel extends BaseModel {
     /**
      * Boolean sensor value.
@@ -23,23 +32,23 @@ public abstract class SensorValueModel extends BaseModel {
      */
     public static final int STRING = 4;
 
-
     public SensorValueModel() {
         // empty constructor necessary for serializing
     }
+
     public SensorValueModel(Date timestamp, int type) {
         setTimestamp(timestamp);
         setType(type);
     }
-    
+
     public Date getTimestamp() {
         return get("timestamp");
     }
-    
+
     public int getType() {
         return get("type", -1);
     }
-    
+
     public SensorValueModel setTimestamp(Date timestamp) {
         set("timestamp", timestamp);
         return this;
@@ -50,4 +59,3 @@ public abstract class SensorValueModel extends BaseModel {
         return this;
     }
 }
-

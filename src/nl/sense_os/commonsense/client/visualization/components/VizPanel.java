@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.visualization.components;
 
 import java.util.Map;
 
+import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 public interface VizPanel {
 
@@ -15,14 +15,14 @@ public interface VizPanel {
      * @param values
      *            The sensor values to visualize.
      */
-    public abstract void addData(SensorModel sensor, SensorValueModel[] values);
+    public abstract void addData(SensorModel sensor, AbstractDataPoint[] values);
 
     /**
      * Convenience method for adding data from more than one sensor at a time.
      * 
      * @param data
      *            Map with sensors and sensor values to display.
-     * @see #addData(SensorModel, SensorValueModel[])
+     * @see #addData(SensorModel, AbstractDataPoint[])
      */
-    public abstract void addData(Map<SensorModel, SensorValueModel[]> data);
+    public abstract void addData(Map<SensorModel, AbstractDataPoint[]> data);
 }

@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.json.parsers;
 
 import java.util.HashMap;
 
-import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.sensorvalues.BooleanValueModel;
 import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
@@ -24,10 +24,10 @@ public class SensorValueParser {
      *            The raw sensor data point to parse the value for.
      * @return A BooleanValueModel, or <code>null</code> if parsing failed.
      */
-    public static BooleanValueModel parseBoolValue(DataPoint dataPoint) {
+    public static BooleanValueModel parseBoolValue(JsoDataPoint dataPoint) {
 
         final boolean value = Boolean.parseBoolean(dataPoint.getRawValue());
-        if (!value && dataPoint.getRawValue().equalsIgnoreCase("false")) {
+        if (value || dataPoint.getRawValue() != null) {
             return new BooleanValueModel(dataPoint.getTimestamp(), value);
         } else {
             Log.e(TAG, "Sensor value is not valid boolean value: " + dataPoint.getRawValue());
@@ -40,7 +40,7 @@ public class SensorValueParser {
      *            The raw sensor data point to parse the value for.
      * @return A FloatValueModel, or <code>null</code> if parsing failed.
      */
-    public static FloatValueModel parseFloatValue(DataPoint dataPoint) {
+    public static FloatValueModel parseFloatValue(JsoDataPoint dataPoint) {
 
         try {
             final double value = Double.parseDouble(dataPoint.getRawValue());
@@ -56,7 +56,7 @@ public class SensorValueParser {
      *            The raw sensor data point to parse the value for.
      * @return A JsonValueModel, or <code>null</code> if parsing failed.
      */
-    public static JsonValueModel parseJsonValue(DataPoint dataPoint) {
+    public static JsonValueModel parseJsonValue(JsoDataPoint dataPoint) {
 
         final JSONValue json = JSONParser.parseStrict(dataPoint.getCleanValue());
         if (null != json) {
@@ -97,7 +97,7 @@ public class SensorValueParser {
      *            The raw sensor data point to parse the value for.
      * @return A StringValueModel, or <code>null</code> if parsing failed.
      */
-    public static StringValueModel parseStringValue(DataPoint dataPoint) {
+    public static StringValueModel parseStringValue(JsoDataPoint dataPoint) {
 
         return new StringValueModel(dataPoint.getTimestamp(), dataPoint.getCleanValue());
     }

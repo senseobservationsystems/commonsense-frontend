@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
+import nl.sense_os.commonsense.client.json.overlays.AbstractDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.AbstractFloatDataPoint;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.sensorvalues.FloatValueModel;
-import nl.sense_os.commonsense.shared.sensorvalues.SensorValueModel;
 
 import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -17,7 +17,7 @@ public class TimeLineChart extends ContentPanel {
     private Graph linksGraph;
     private DataTable dataTable;
 
-    public TimeLineChart(SensorModel sensor, SensorValueModel[] values, String title) {
+    public TimeLineChart(SensorModel sensor, AbstractDataPoint[] values, String title) {
 
         addData(sensor, values);
 
@@ -29,7 +29,7 @@ public class TimeLineChart extends ContentPanel {
      * 
      * @param taggedData
      */
-    public void addData(SensorModel sensor, SensorValueModel[] values) {
+    public void addData(SensorModel sensor, AbstractDataPoint[] values) {
 
         // add data to data table
         addDataColumn(sensor, values);
@@ -46,7 +46,7 @@ public class TimeLineChart extends ContentPanel {
      * @param sensor
      * @param values
      */
-    private void addDataColumn(SensorModel sensor, SensorValueModel[] values) {
+    private void addDataColumn(SensorModel sensor, AbstractDataPoint[] values) {
 
         // create dataTable if necessary
         if (null == this.dataTable) {
@@ -54,7 +54,17 @@ public class TimeLineChart extends ContentPanel {
             this.dataTable.addColumn(ColumnType.DATETIME, "Date/Time");
         }
 
-        this.dataTable.addColumn(ColumnType.NUMBER, sensor.<String> get("text"));
+        // check if this sensor already has a column
+        String columnLabel = sensor.<String> get("text");
+        for (int i = 1; i < this.dataTable.getNumberOfColumns(); i++) {
+            if (this.dataTable.getColumnLabel(i).equals(columnLabel)) {
+                // Log.d(TAG, "Replacing sensor " + columnLabel);
+                this.dataTable.removeColumn(i);
+                break;
+            }
+        }
+
+        this.dataTable.addColumn(ColumnType.NUMBER, columnLabel);
 
         // fill table with values of next tag
         this.dataTable.addRows(values.length);
@@ -62,10 +72,10 @@ public class TimeLineChart extends ContentPanel {
         final int colIndex = this.dataTable.getNumberOfColumns() - 1;
 
         for (int i = 0, j = offset; i < values.length; i++, j++) {
-            final FloatValueModel value = (FloatValueModel) values[i];
+            final AbstractFloatDataPoint value = (AbstractFloatDataPoint) values[i];
 
             this.dataTable.setValue(j, 0, value.getTimestamp());
-            this.dataTable.setValue(j, colIndex, value.getValue());
+            this.dataTable.setValue(j, colIndex, value.getFloatValue());
         }
     }
 
