@@ -2,12 +2,12 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.json.overlays.JsoBoolDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.BoolDataPoint;
 
 /**
  * Model for sensor values of boolean data type.
  * 
- * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link JsoBoolDataPoint}
+ * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link BoolDataPoint}
  *             instead.
  */
 @Deprecated

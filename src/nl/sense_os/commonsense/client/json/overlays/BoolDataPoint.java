@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.client.json.overlays;
 /**
  * JavaScript object overlay for data point of boolean type.
  */
-public class JsoBoolDataPoint extends JsoDataPoint {
+public class BoolDataPoint extends DataPoint {
 
-    protected JsoBoolDataPoint() {
+    protected BoolDataPoint() {
         // empty protected constructor
     }
 

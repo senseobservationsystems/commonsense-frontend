@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.json.overlays.JsoBoolDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.JsoJsonDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.BoolDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.JsonDataPoint;
 import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.components.VizPanel;
@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -33,9 +34,9 @@ public class DataController extends Controller {
         public long start;
         @SuppressWarnings("unused")
         public long end;
-        public JsoDataPoint[] values;
+        public DataPoint[] values;
 
-        public CacheEntry(long start, long end, JsoDataPoint[] values) {
+        public CacheEntry(long start, long end, DataPoint[] values) {
             this.start = start;
             this.end = end;
             this.values = values;
@@ -45,6 +46,7 @@ public class DataController extends Controller {
     private static final String TAG = "DataController";
     private View progressDialog;
     private final Map<String, CacheEntry> cache = new HashMap<String, CacheEntry>();
+    private JavaScriptObject newCache;
 
     private static final int PER_PAGE = 1000; // max: 1000
 
@@ -87,8 +89,8 @@ public class DataController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int sensorIndex = event.getData("sensorIndex");
             final int pageIndex = event.getData("pageIndex");
-            final Map<SensorModel, JsoDataPoint[]> pagedValues = event
-                    .<Map<SensorModel, JsoDataPoint[]>> getData("pagedValues");
+            final Map<SensorModel, DataPoint[]> pagedValues = event
+                    .<Map<SensorModel, DataPoint[]>> getData("pagedValues");
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
 
             onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, pagedValues,
@@ -103,7 +105,7 @@ public class DataController extends Controller {
         long start = System.currentTimeMillis();
         for (SensorModel sensor : sensors) {
             CacheEntry cachedEntry = cache.get(sensor.get(SensorModel.ID));
-            JsoDataPoint[] cachedValues = cachedEntry.values;
+            DataPoint[] cachedValues = cachedEntry.values;
             long lastCache = cachedValues[cachedValues.length - 1].getTimestamp().getTime();
             if (lastCache < start) {
                 start = lastCache;
@@ -122,14 +124,14 @@ public class DataController extends Controller {
         this.progressDialog = new ProgressDialog(this);
     }
 
-    private void onDataComplete(long start, long end, Map<SensorModel, JsoDataPoint[]> values,
+    private void onDataComplete(long start, long end, Map<SensorModel, DataPoint[]> values,
             VizPanel vizPanel) {
         // Log.d(TAG, "onDataComplete...");
 
         hideProgress();
 
         // cache result
-        for (Entry<SensorModel, JsoDataPoint[]> data : values.entrySet()) {
+        for (Entry<SensorModel, DataPoint[]> data : values.entrySet()) {
             if (data.getValue().length > 0) {
                 CacheEntry cacheData = new CacheEntry(start, end, data.getValue());
                 cache.put(data.getKey().<String> get(SensorModel.ID), cacheData);
@@ -137,8 +139,12 @@ public class DataController extends Controller {
         }
 
         // pass data on to visualization
-        vizPanel.addData(values);
+        vizPanel.addData(dataFromCache(newCache));
     }
+
+    private native JavaScriptObject dataFromCache(JavaScriptObject cache) /*-{
+		return cache.content;
+    }-*/;
 
     private void onDataFailed(int code) {
         hideProgress();
@@ -146,7 +152,7 @@ public class DataController extends Controller {
     }
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
-            int sensorIndex, int pageIndex, Map<SensorModel, JsoDataPoint[]> pagedValues,
+            int sensorIndex, int pageIndex, Map<SensorModel, DataPoint[]> pagedValues,
             VizPanel vizPanel) {
         // Log.d(TAG, "onDataReceived...");
 
@@ -184,14 +190,14 @@ public class DataController extends Controller {
     private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
         final int page = 0;
         final int index = 0;
-        final Map<SensorModel, JsoDataPoint[]> pagedValues = new HashMap<SensorModel, JsoDataPoint[]>();
+        final Map<SensorModel, DataPoint[]> pagedValues = new HashMap<SensorModel, DataPoint[]>();
 
         showProgress(sensors.size());
         requestData(start, end, sensors, index, page, pagedValues, vizPanel);
     }
 
     private int parseDataResponse(String response, List<SensorModel> sensors, int sensorIndex,
-            Map<SensorModel, JsoDataPoint[]> pagedValues) {
+            Map<SensorModel, DataPoint[]> pagedValues) {
         // Log.d(TAG, "parseDataResponse...");
 
         int total = 0;
@@ -201,20 +207,23 @@ public class DataController extends Controller {
             final SensorDataResponse jsResponse = JsonUtils.<SensorDataResponse> safeEval(response);
 
             // get JsArray with data points
-            final JsArray<JsoDataPoint> data = jsResponse.getData();
+            final JsArray<DataPoint> data = jsResponse.getData();
             total = jsResponse.getTotal();
 
             // get paged values for the current sensor, so we can add the new data to the array
             final SensorModel sensor = sensors.get(sensorIndex);
-            JsoDataPoint[] result = pagedValues.get(sensor);
+            DataPoint[] result = pagedValues.get(sensor);
+
+            JavaScriptObject jso = Cache.toJso(response);
+            newCache = Cache.parseData(sensor.<String> get(SensorModel.ID), jso, newCache);
 
             // increase size of the array if there are already pages stored
             int offset = 0;
             if (result == null) {
-                result = new JsoDataPoint[data.length()];
+                result = new DataPoint[data.length()];
             } else {
                 offset = result.length;
-                JsoDataPoint[] copy = new JsoDataPoint[result.length + data.length()];
+                DataPoint[] copy = new DataPoint[result.length + data.length()];
                 System.arraycopy(result, 0, copy, 0, result.length);
                 result = copy;
             }
@@ -222,19 +231,19 @@ public class DataController extends Controller {
             // get information on how to parse the data
             final String dataType = sensor.get(SensorModel.DATA_TYPE);
 
-            JsoDataPoint dataPoint;
+            DataPoint dataPoint;
             for (int i = 0; i < data.length(); i++) {
 
                 dataPoint = data.get(i);
 
                 if (dataType.equals("json")) {
-                    result[offset + i] = (JsoJsonDataPoint) dataPoint;
+                    result[offset + i] = (JsonDataPoint) dataPoint;
 
                 } else if (dataType.equals("float")) {
-                    result[offset + i] = (JsoFloatDataPoint) dataPoint;
+                    result[offset + i] = (FloatDataPoint) dataPoint;
 
                 } else if (dataType.equals("bool")) {
-                    result[offset + i] = (JsoBoolDataPoint) dataPoint;
+                    result[offset + i] = (BoolDataPoint) dataPoint;
 
                 } else if (dataType.equals("string")) {
                     result[offset + i] = dataPoint;
@@ -259,7 +268,7 @@ public class DataController extends Controller {
     }
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            int pageIndex, Map<SensorModel, JsoDataPoint[]> pagedValues, VizPanel vizPanel) {
+            int pageIndex, Map<SensorModel, DataPoint[]> pagedValues, VizPanel vizPanel) {
         // Log.d(TAG, "requestData...");
 
         if (sensorIndex < sensors.size()) {
@@ -274,7 +283,7 @@ public class DataController extends Controller {
                 if (null != cacheEntry) {
                     if (cacheEntry.start <= start) {
                         // Log.d(TAG, "Using cached data!");
-                        JsoDataPoint[] cachedValues = cacheEntry.values;
+                        DataPoint[] cachedValues = cacheEntry.values;
                         realStart = cachedValues[cachedValues.length - 1].getTimestamp().getTime();
                         pagedValues.put(sensor, cachedValues);
                         cache.remove(cacheKey);

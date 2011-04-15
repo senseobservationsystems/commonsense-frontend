@@ -37,6 +37,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -116,9 +118,12 @@ public class MainView extends View {
 
     private void initFooter() {
         LayoutContainer footer = new LayoutContainer(new CenterLayout());
-        Text footerText = new Text("&#169;2011 Sense Observation Systems &#149; Last update: "
-                + CommonSense.LAST_DEPLOYED);
-        footer.add(footerText);
+        String copyright = "&copy;2011 Sense";
+        String bullet = "&nbsp;&nbsp;&#8226;&nbsp;&nbsp;";
+        Anchor website = new Anchor("Sense Home", "http://www.sense-os.nl", "_blank");
+        String update = "Last update: " + CommonSense.LAST_DEPLOYED;
+        HTML footerLink = new HTML(copyright + bullet + website.toString() + bullet + update);
+        footer.add(footerLink);
         footer.setId("footer-bar");
 
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 23);

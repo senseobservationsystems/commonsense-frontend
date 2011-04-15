@@ -2,14 +2,14 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 
 /**
  * Model for sensor values.
  * 
- * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link JsoDataPoint}
+ * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link DataPoint}
  *             instead.
  */
 @Deprecated

@@ -15,17 +15,17 @@ import com.google.gwt.json.client.JSONValue;
 /**
  * JavaScript object overlay for data point of JSON type.
  */
-public class JsoJsonDataPoint extends JsoDataPoint {
+public class JsonDataPoint extends DataPoint {
 
-    private static final String TAG = "JsoJsonDataPoint";
+    private static final String TAG = "JsonDataPoint";
 
     // private Map<String, Object> fields;
 
-    protected JsoJsonDataPoint() {
+    protected JsonDataPoint() {
         // empty protected constructor
     }
 
-    public final Map<String, JsoDataPoint> getFields() {
+    public final Map<String, DataPoint> getFields() {
 
         // if (fields == null) {
 
@@ -34,7 +34,7 @@ public class JsoJsonDataPoint extends JsoDataPoint {
                 + "\",\"month\":\"" + getMonth() + "\",\"year\":\"" + getYear() + "\",\"value\":";
         final String jsoEnd = "}";
 
-        Map<String, JsoDataPoint> fields = new HashMap<String, JsoDataPoint>();
+        Map<String, DataPoint> fields = new HashMap<String, DataPoint>();
 
         final JSONValue json = JSONParser.parseStrict(this.getCleanValue());
         if (null != json) {
@@ -50,7 +50,7 @@ public class JsoJsonDataPoint extends JsoDataPoint {
                         String value = numberField.toString();
                         fields.put(
                                 fieldKey,
-                                JsonUtils.<JsoFloatDataPoint> unsafeEval(jsoStart + "\"" + value
+                                JsonUtils.<FloatDataPoint> unsafeEval(jsoStart + "\"" + value
                                         + "\"" + jsoEnd));
                         continue;
                     }
@@ -60,7 +60,7 @@ public class JsoJsonDataPoint extends JsoDataPoint {
                         String value = stringField.toString();
                         Log.d(TAG, jsoStart + value + jsoEnd);
                         fields.put(fieldKey,
-                                JsonUtils.<JsoDataPoint> unsafeEval(jsoStart + value + jsoEnd));
+                                JsonUtils.<DataPoint> unsafeEval(jsoStart + value + jsoEnd));
                         continue;
                     }
 

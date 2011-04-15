@@ -297,7 +297,7 @@ public class StateController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?owned=1";
+        final String url = Constants.URL_SENSORS + "?per_page=1000&owned=1";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateEvents.AjaxSensorsSuccess);
         onSuccess.setData("callback", callback);

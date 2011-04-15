@@ -1,35 +1,51 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
-import nl.sense_os.commonsense.client.json.overlays.JsoDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.chap.links.client.Graph;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 
-public class TimeLineChart extends ContentPanel {
+public class TimeLineChart extends LayoutContainer {
 
     @SuppressWarnings("unused")
     private static final String TAG = "TimeLineChart";
     private Graph linksGraph;
     private DataTable dataTable;
 
-    public TimeLineChart(SensorModel sensor, JsoDataPoint[] values, String title) {
+    private TimeLineChart() {
+        setupLayout();
+    }
 
+    public TimeLineChart(SensorModel sensor, DataPoint[] values) {
+        this();
         addData(sensor, values);
 
-        setupLayout(title);
+        // create graph
+        this.linksGraph = new Graph(this.dataTable, options);
+        add(this.linksGraph, new FlowData(0));
+    }
+
+    public TimeLineChart(JavaScriptObject data) {
+        this();
+
+        // create graph
+        this.linksGraph = new Graph(data, options);
+        add(this.linksGraph, new FlowData(0));
     }
 
     /**
      * Adds data to the collection of displayed data.
      * 
-     * @param taggedData
+     * @param sensor
+     * @param values
      */
-    public void addData(SensorModel sensor, JsoDataPoint[] values) {
+    public void addData(SensorModel sensor, DataPoint[] values) {
 
         // add data to data table
         addDataColumn(sensor, values);
@@ -41,12 +57,25 @@ public class TimeLineChart extends ContentPanel {
     }
 
     /**
+     * Adds data to the collection of displayed data.
+     * 
+     * @param data
+     */
+    public void addData(JavaScriptObject data) {
+
+        // draw new data table (if chart is visible)
+        if (null != linksGraph) {
+            this.linksGraph.draw(data, options);
+        }
+    }
+
+    /**
      * Adds a new column to the data table that is backing the chart.
      * 
      * @param sensor
      * @param values
      */
-    private void addDataColumn(SensorModel sensor, JsoDataPoint[] values) {
+    private void addDataColumn(SensorModel sensor, DataPoint[] values) {
 
         // create dataTable if necessary
         if (null == this.dataTable) {
@@ -72,7 +101,7 @@ public class TimeLineChart extends ContentPanel {
         final int colIndex = this.dataTable.getNumberOfColumns() - 1;
 
         for (int i = 0, j = offset; i < values.length; i++, j++) {
-            final JsoFloatDataPoint value = (JsoFloatDataPoint) values[i];
+            final FloatDataPoint value = (FloatDataPoint) values[i];
 
             this.dataTable.setValue(j, 0, value.getTimestamp());
             this.dataTable.setValue(j, colIndex, value.getFloatValue());
@@ -92,32 +121,20 @@ public class TimeLineChart extends ContentPanel {
         redraw();
     }
 
-    /**
-     * Sets up the initial layout with the chart panel
-     * 
-     * @param title
-     *            (optional) title of this chart
-     */
-    private void setupLayout(String title) {
-        if (null != title) {
-            setHeading(title);
-            setHeaderVisible(true);
-        } else {
-            setHeaderVisible(false);
-        }
+    private Graph.Options options;
 
-        setBodyBorder(false);
+    /**
+     * Sets up the initial layout with the chart panel and chart
+     */
+    private void setupLayout() {
 
         // Graph options
-        final Graph.Options options = Graph.Options.create();
+        options = Graph.Options.create();
         options.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
         options.setLineRadius(2);
         options.setWidth("100%");
         options.setHeight("100%");
-        options.setEnableVisibility(true);
-
-        // create graph
-        this.linksGraph = new Graph(this.dataTable, options);
-        add(this.linksGraph, new FlowData(0));
+        options.setLegendToggleVisibility(true);
+        options.setLegendWidth("20%");
     }
 }

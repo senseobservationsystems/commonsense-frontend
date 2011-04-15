@@ -2,12 +2,12 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.json.overlays.JsoFloatDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
 
 /**
  * Model for sensor values of float data type.
  * 
- * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link JsoFloatDataPoint}
+ * @deprecated To benefit from the speedier JavaScriptObject overlays, use {@link FloatDataPoint}
  *             instead.
  */
 @Deprecated
