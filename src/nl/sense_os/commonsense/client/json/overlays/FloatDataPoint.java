@@ -9,7 +9,7 @@ public class FloatDataPoint extends DataPoint {
         // empty protected constructor
     }
 
-    public final double getFloatValue() {
-        return Double.parseDouble(getRawValue());
-    }
+    public final native double getValue() /*-{
+		return this.value;
+    }-*/;
 }

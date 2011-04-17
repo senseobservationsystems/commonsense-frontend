@@ -9,7 +9,7 @@ public class BoolDataPoint extends DataPoint {
         // empty protected constructor
     }
 
-    public final boolean getBoolValue() {
-        return Boolean.parseBoolean(this.getRawValue());
-    }
+    public final native boolean getValue() /*-{
+		return this.value;
+    }-*/;
 }

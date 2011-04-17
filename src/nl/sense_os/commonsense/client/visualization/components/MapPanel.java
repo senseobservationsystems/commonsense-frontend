@@ -1,14 +1,12 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import nl.sense_os.commonsense.client.common.DateSlider;
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.JsonDataPoint;
+import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -20,13 +18,12 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.LatLngBounds;
@@ -39,9 +36,10 @@ public class MapPanel extends LayoutContainer implements VizPanel {
 
     private static final String TAG = "MapPanel";
     private MapWidget map;
-    private Slider startSlider;
-    private Slider endSlider;
-    private DataPoint[] sensorData = new DataPoint[]{};
+    private DateSlider startSlider;
+    private DateSlider endSlider;
+    private Timeseries latTimeseries;
+    private Timeseries lonTimeseries;
     private Marker startMarker;
     private Marker endMarker;
     private Polyline trace;
@@ -69,21 +67,19 @@ public class MapPanel extends LayoutContainer implements VizPanel {
     }
 
     @Override
-    public void addData(Map<SensorModel, DataPoint[]> data) {
+    public void addData(JsArray<Timeseries> data) {
 
-        for (Entry<SensorModel, DataPoint[]> entry : data.entrySet()) {
-            addData(entry.getKey(), entry.getValue());
+        // sort lat/lon data
+        Timeseries ts;
+        for (int i = 0; i < data.length(); i++) {
+            ts = data.get(i);
+            if (ts.getLabel().endsWith("latitude")) {
+                this.latTimeseries = ts;
+            } else if (ts.getLabel().endsWith("longitude")) {
+                this.lonTimeseries = ts;
+            }
         }
-    }
-
-    @Override
-    public void addData(SensorModel sensor, DataPoint[] values) {
-        // Store the sensor data to be used from other methods.
-        this.sensorData = values;
-
-        calcSliderRange(values);
-        drawTrace();
-        centerMap();
+        visualize();
     }
 
     /**
@@ -92,12 +88,13 @@ public class MapPanel extends LayoutContainer implements VizPanel {
      * @param data
      *            JsonValueModels with positional sensor data over time
      */
-    private void calcSliderRange(DataPoint[] data) {
+    private void calcSliderRange() {
 
-        JsonDataPoint v = (JsonDataPoint) data[0];
-        int min = (int) (v.getTimestamp().getTime() / 1000);
-        v = (JsonDataPoint) data[data.length - 1];
-        int max = (int) (v.getTimestamp().getTime() / 1000);
+        JsArray<DataPoint> values = this.latTimeseries.getData();
+        DataPoint v = values.get(0);
+        int min = (int) (v.getTimestamp().getTime() / 1000l);
+        v = values.get(values.length() - 1);
+        int max = (int) (v.getTimestamp().getTime() / 1000l);
 
         int interval = 1;
         if (max - min < 60 * 60) {
@@ -111,12 +108,16 @@ public class MapPanel extends LayoutContainer implements VizPanel {
         startSlider.setMinValue(min);
         startSlider.setMaxValue(max);
         startSlider.setIncrement(interval);
+        startSlider.disableEvents(true);
         startSlider.setValue(min);
+        startSlider.enableEvents(true);
 
         endSlider.setMinValue(min);
         endSlider.setMaxValue(max);
         endSlider.setIncrement(interval);
+        endSlider.disableEvents(true);
         endSlider.setValue(max);
+        endSlider.enableEvents(true);
     }
 
     private void centerMap() {
@@ -139,26 +140,27 @@ public class MapPanel extends LayoutContainer implements VizPanel {
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
 
+        // get the sensor values
+        JsArray<DataPoint> latValues = this.latTimeseries.getData().cast();
+        JsArray<DataPoint> lonValues = this.lonTimeseries.getData().cast();
+
+        Log.d(TAG, "Number of points: " + latValues.length());
+
         // Draw the filtered points.
-        if (sensorData.length > 0 && maxTime > minTime) {
-            LatLng[] points = new LatLng[sensorData.length];
+        if (latValues.length() > 0 && maxTime > minTime) {
+            LatLng[] points = new LatLng[latValues.length()];
 
             this.traceStartIndex = -1;
             this.traceEndIndex = -1;
             int lastPoint = -1;
-
-            // find the start index of the trace
-            JsonDataPoint value = null;
-            Map<String, DataPoint> fields = null;
-            for (int i = 0, j = 0; i < sensorData.length; i++) {
-                value = (JsonDataPoint) sensorData[i];
-                fields = value.getFields();
-
-                FloatDataPoint latitude = (FloatDataPoint) fields.get("latitude");
-                FloatDataPoint longitude = (FloatDataPoint) fields.get("longitude");
+            FloatDataPoint latitude;
+            FloatDataPoint longitude;
+            for (int i = 0, j = 0; i < latValues.length(); i++) {
+                latitude = latValues.get(i).cast();
+                longitude = lonValues.get(i).cast();
 
                 // timestamp in secs
-                long timestamp = value.getTimestamp().getTime() / 1000;
+                long timestamp = latitude.getTimestamp().getTime() / 1000;
 
                 if (timestamp > minTime && timestamp < maxTime) {
                     // update indices
@@ -168,9 +170,11 @@ public class MapPanel extends LayoutContainer implements VizPanel {
                         traceStartIndex = i;
                     }
                     // store coordinate
-                    LatLng coordinate = LatLng.newInstance(latitude.getFloatValue(),
-                            longitude.getFloatValue());
+                    Log.d(TAG, "get value...");
+                    LatLng coordinate = LatLng.newInstance(latitude.getValue(),
+                            longitude.getValue());
                     points[j++] = coordinate;
+                    Log.d(TAG, "done.");
                 }
             }
 
@@ -264,16 +268,19 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             return;
         }
 
+        // get the sensor values
+        JsArray<FloatDataPoint> latValues = this.latTimeseries.getData().cast();
+        JsArray<FloatDataPoint> lonValues = this.lonTimeseries.getData().cast();
+
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
 
         // find the start end end indices of the trace in the sensor data array
         int newTraceStartIndex = -1, newTraceEndIndex = -1;
-        JsonDataPoint value = null;
         long timestamp;
-        for (int i = 0; i < sensorData.length; i++) {
+        for (int i = 0; i < latValues.length(); i++) {
             // get timestamp
-            value = (JsonDataPoint) sensorData[i];
+            DataPoint value = latValues.get(i);
             timestamp = value.getTimestamp().getTime() / 1000;
 
             if (timestamp > minTime && newTraceStartIndex == -1) {
@@ -295,16 +302,12 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             // add vertices at START of trace if newTraceStart < traceStartIndex
             if (newTraceStartIndex < traceStartIndex) {
                 Log.d(TAG, "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
-                Map<String, DataPoint> fields = null;
+                FloatDataPoint lat;
+                FloatDataPoint lon;
                 for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
-                    value = (JsonDataPoint) this.sensorData[i];
-                    fields = value.getFields();
-                    FloatDataPoint lat = (FloatDataPoint) fields.get("latitude");
-                    FloatDataPoint lon = (FloatDataPoint) fields.get("longitude");
-                    LatLng coordinate = LatLng
-                            .newInstance(lat.getFloatValue(), lon.getFloatValue());
-
-                    this.trace.insertVertex(0, coordinate);
+                    lat = latValues.get(i).cast();
+                    lon = lonValues.get(i).cast();
+                    this.trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
                 }
             }
 
@@ -318,11 +321,9 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             }
 
             // update end marker
-            JsonDataPoint startValue = (JsonDataPoint) this.sensorData[newTraceStartIndex];
-            Map<String, DataPoint> fields = startValue.getFields();
-            FloatDataPoint lat = (FloatDataPoint) fields.get("latitude");
-            FloatDataPoint lon = (FloatDataPoint) fields.get("longitude");
-            LatLng coordinate = LatLng.newInstance(lat.getFloatValue(), lon.getFloatValue());
+            FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
+            FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
+            LatLng coordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
             this.startMarker.setLatLng(coordinate);
 
         } else {
@@ -334,16 +335,13 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             // add vertices at END of trace if newTraceEnd > traceEndIndex
             if (newTraceEndIndex > traceEndIndex) {
                 Log.d(TAG, "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
-                Map<String, DataPoint> fields = null;
+                FloatDataPoint lat;
+                FloatDataPoint lon;
                 for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
-                    value = (JsonDataPoint) this.sensorData[i];
-                    fields = value.getFields();
-                    FloatDataPoint lat = (FloatDataPoint) fields.get("latitude");
-                    FloatDataPoint lon = (FloatDataPoint) fields.get("longitude");
-                    LatLng coordinate = LatLng
-                            .newInstance(lat.getFloatValue(), lon.getFloatValue());
-
-                    this.trace.insertVertex(this.trace.getVertexCount(), coordinate);
+                    lat = latValues.get(i).cast();
+                    lon = lonValues.get(i).cast();
+                    this.trace.insertVertex(this.trace.getVertexCount(),
+                            LatLng.newInstance(lat.getValue(), lon.getValue()));
                 }
             }
 
@@ -356,11 +354,9 @@ public class MapPanel extends LayoutContainer implements VizPanel {
             }
 
             // update end marker
-            JsonDataPoint endValue = (JsonDataPoint) this.sensorData[newTraceEndIndex];
-            Map<String, DataPoint> fields = endValue.getFields();
-            FloatDataPoint lat = (FloatDataPoint) fields.get("latitude");
-            FloatDataPoint lon = (FloatDataPoint) fields.get("longitude");
-            LatLng coordinate = LatLng.newInstance(lat.getFloatValue(), lon.getFloatValue());
+            FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
+            FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
+            LatLng coordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
             this.endMarker.setLatLng(coordinate);
 
         } else {
@@ -372,9 +368,11 @@ public class MapPanel extends LayoutContainer implements VizPanel {
         this.traceEndIndex = newTraceEndIndex;
     }
 
-    @Override
-    public void addData(JavaScriptObject data) {
-        // TODO Auto-generated method stub
-
+    private void visualize() {
+        if (this.latTimeseries != null && this.lonTimeseries != null) {
+            calcSliderRange();
+            drawTrace();
+            centerMap();
+        }
     }
 }

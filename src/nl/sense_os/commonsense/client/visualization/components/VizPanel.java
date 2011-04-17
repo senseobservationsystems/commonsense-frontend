@@ -1,39 +1,16 @@
 package nl.sense_os.commonsense.client.visualization.components;
 
-import java.util.Map;
+import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 
-import nl.sense_os.commonsense.client.json.overlays.DataPoint;
-import nl.sense_os.commonsense.shared.SensorModel;
-
-import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 
 public interface VizPanel {
 
     /**
-     * Adds sensor data to the visualization.
-     * 
-     * @param sensor
-     *            The sensor that the data belongs to.
-     * @param values
-     *            The sensor values to visualize.
-     */
-    public abstract void addData(SensorModel sensor, DataPoint[] values);
-
-    /**
-     * Convenience method for adding data from more than one sensor at a time.
+     * Adds data to the visualization.
      * 
      * @param data
-     *            Map with sensors and sensor values to display.
-     * @see #addData(SensorModel, AbstractDataPoint[])
+     *            Timeseries to display.
      */
-    public abstract void addData(Map<SensorModel, DataPoint[]> data);
-
-    /**
-     * Convenience method for adding data from more than one sensor at a time.
-     * 
-     * @param data
-     *            Map with sensors and sensor values to display.
-     * @see #addData(SensorModel, AbstractDataPoint[])
-     */
-    public abstract void addData(JavaScriptObject data);
+    public void addData(JsArray<Timeseries> data);
 }

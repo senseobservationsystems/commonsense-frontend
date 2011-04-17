@@ -79,7 +79,7 @@ public class ProgressDialog extends View {
         window = new CenteredWindow();
         window.setLayout(new FitLayout());
         window.setHeading("Please wait...");
-        window.setSize(323, 175);
+        window.setSize(300, 165);
 
         FormPanel form = new FormPanel();
         form.setBodyBorder(false);

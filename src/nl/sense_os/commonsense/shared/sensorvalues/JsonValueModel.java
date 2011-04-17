@@ -3,8 +3,6 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 import java.util.Date;
 import java.util.Map;
 
-import nl.sense_os.commonsense.client.json.overlays.JsonDataPoint;
-
 /**
  * Model for sensor values of JSON data type.
  * 

@@ -10,40 +10,15 @@ public class DataPoint extends JavaScriptObject {
         // empty protected constructor
     }
 
-    public final String getCleanValue() {
-        return getRawValue().replaceAll("//", "");
-    }
-
-    public final native String getDate() /*-{
+    protected final native double getRawDate() /*-{
 		return this.date;
     }-*/;
 
-    public final native String getId() /*-{
-		return this.id;
-    }-*/;
-
-    public final native String getMonth() /*-{
-		return this.month;
-    }-*/;
-
-    public final native String getRawValue() /*-{
+    protected final native String getRawValue() /*-{
 		return this.value;
     }-*/;
 
-    public final native String getSensorId() /*-{
-		return this.sensor_id;
-    }-*/;
-
     public final Date getTimestamp() {
-        final double decimalTime = Double.parseDouble(this.getDate());
-        return new Date((long) (decimalTime * 1000));
+        return new Date(Math.round(this.getRawDate()));
     }
-
-    public final native String getWeek() /*-{
-		return this.week;
-    }-*/;
-
-    public final native String getYear() /*-{
-		return this.year;
-    }-*/;
 }

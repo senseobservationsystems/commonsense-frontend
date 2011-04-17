@@ -1,47 +1,119 @@
 package nl.sense_os.commonsense.client.data;
 
+import java.util.List;
+
+import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.shared.SensorModel;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsonUtils;
 
 public class Cache {
 
     /**
-     * Converts a String to a JavaScriptObject. Also converts any "embedded"
-     * JSON-disguised-as-String objects, e.g. <code>{"foo":"{\"bar\":\"baz\"}"}</code> will work.
-     * 
-     * @param raw
-     *            the raw String to convert to JSON
-     * @return a JavaScriptObject containing the evaluated String
+     * JSO with lists of cached sensor data.
      */
-    public final static native JavaScriptObject toJso(String raw) /*-{
+    private static JavaScriptObject cache;
 
-		function stripslashes(str) {
-			return (str + '').replace(/\\(.?)/g, function(s, n1) {
-				switch (n1) {
-				case '\\':
-					return '\\';
-				case '0':
-					return '\u0000';
-				case '':
-					return '';
-				default:
-					return n1;
-				}
-			});
+    public static void remove(SensorModel sensor) {
+        cache = remove(sensor.getId(), cache);
+    }
+
+    private final static native JavaScriptObject remove(String id, JavaScriptObject cache) /*-{
+		if (cache == undefined) {
+			return null;
 		}
-		var stripped = stripslashes(raw);
-		var jsonFixed = stripped.replace(/:\"{/g, ':{').replace(/}\"/g, '}');
-		return eval('(' + jsonFixed + ')');
+
+		for ( var i = 0; i < cache.content.length; i++) {
+			var entry = cache.content[i];
+			if (entry.id == id) {
+				entry.data = [];
+			}
+		}
+		return cache;
     }-*/;
 
-    public final static native JavaScriptObject parseData(String sensor, JavaScriptObject jso,
+    /**
+     * Gets sensor data from the cache, if available.
+     * 
+     * @param ids
+     *            IDs of the sensors to get the data for.
+     * @param cache
+     *            Cache with sensor data.
+     * @return Cached data, as JavaScriptObject that can be used directly by Jos' timeline graph.
+     */
+    private static native JsArray<Timeseries> request(JsArray<?> ids, JavaScriptObject cache) /*-{
+		if (cache == undefined) {
+			return [];
+		}
+
+		var data = [];
+		for ( var i = 0; i < ids.length; i++) {
+			var id = ids[i]
+			for ( var j = 0; j < cache.content.length; j++) {
+				var entry = cache.content[j];
+				if (entry.id == id) {
+					data.push(entry);
+				}
+			}
+		}
+		return data;
+    }-*/;
+
+    /**
+     * Gets sensor data from the cache, if available.
+     * 
+     * @param sensors
+     *            List of sensors to get the data for.
+     * @return Cached data, as JavaScriptObject that can be used directly by Jos' timeline graph.
+     */
+    public static JsArray<Timeseries> request(List<SensorModel> sensors) {
+        String ids = "[";
+        for (SensorModel sensor : sensors) {
+            ids += sensor.getId() + ", ";
+        }
+        if (sensors.size() > 0) {
+            ids = ids.substring(0, ids.length() - 2);
+        }
+        ids += "]";
+        return request(JsonUtils.<JsArray<?>> safeEval(ids), cache);
+    }
+
+    /**
+     * Appends data from CommonSense to the local cache.
+     * 
+     * @param sensor
+     *            SensorModel that this data belongs to.
+     * @param csData
+     *            Raw data response from CommonSense.
+     * @return The total number of values in the request.
+     */
+    public static void store(SensorModel sensor, JsArray<?> data) {
+        cache = store(sensor.getId(), sensor.<String> get("text"), data, cache);
+    }
+
+    /**
+     * Stores
+     * 
+     * @param id
+     * @param sensor
+     * @param values
+     * @param cache
+     * @return
+     */
+    private static native JavaScriptObject store(String id, String sensor, JsArray<?> values,
             JavaScriptObject cache) /*-{
 
-		function appendValue(label, newValue) {
+		function appendValue(id, label, newValue) {
+			var key = id + '. ' + label;
+
 			// find earlier data (add if needed)
-			var index = cache.mapping[label];
+			var index = cache.mapping[key];
 			if (index == undefined) {
 				// create new entry
 				var newEntry = {
+					'id' : id,
 					'label' : label,
 					'type' : typeof (newValue.value),
 					'data' : [ newValue ]
@@ -49,7 +121,7 @@ public class Cache {
 
 				// add new index
 				index = cache.content.push(newEntry) - 1;
-				cache.mapping[label] = index;
+				cache.mapping[key] = index;
 
 			} else {
 				// push onto earlier entry
@@ -58,15 +130,14 @@ public class Cache {
 		}
 
 		if (cache == undefined) {
-			console.log("create new cache");
 			cache = {
 				'mapping' : {},
 				'content' : []
 			};
 		}
-		var data = jso.data;
-		for ( var i = 0, len = data.length; i < len; i++) {
-			var obj = data[i];
+
+		for ( var i = 0, len = values.length; i < len; i++) {
+			var obj = values[i];
 			var date = obj.date;
 			var value = obj.value;
 
@@ -75,22 +146,22 @@ public class Cache {
 
 				// prepare new value for the 'values' array
 				var newValue = {
-					'date' : parseFloat(date),
+					'date' : Math.round(parseFloat(date) * 1000),
 					'value' : parseFloat(value)
 				};
 
-				appendValue(sensor, newValue);
+				appendValue(id, sensor, newValue);
 
 			} else if (typeof (value) == 'string') {
 				// The value contains a string
 
 				// prepare new value for the 'values' array
 				var newValue = {
-					'date' : parseFloat(date),
+					'date' : Math.round(parseFloat(date) * 1000),
 					'value' : value
 				};
 
-				appendValue(sensor, newValue);
+				appendValue(id, sensor, newValue);
 
 			} else {
 				// the value can contain multiple properties
@@ -98,16 +169,15 @@ public class Cache {
 				for (prop in value) {
 					// prepare new value for the 'values' array
 					var newValue = {
-						'date' : parseFloat(date),
+						'date' : Math.round(parseFloat(date) * 1000),
 						'value' : value[prop]
 					};
 
-					appendValue(sensor + ' ' + prop, newValue);
+					appendValue(id, sensor + ' ' + prop, newValue);
 				}
 			}
 		}
-		console.log('converted ' + sensor);
-		console.log(cache);
+
 		return cache;
     }-*/;
 }
