@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization.components;
+package nl.sense_os.commonsense.client.visualization.linechart;
 
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 

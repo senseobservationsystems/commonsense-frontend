@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.states;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -42,8 +38,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
@@ -51,17 +45,19 @@ import com.extjs.gxt.ui.client.widget.menu.MenuBarItem;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class StateGrid extends View {
+import java.util.ArrayList;
+import java.util.List;
 
-    protected static final String TAG = "StateGrid";
+public class StateTree extends View {
+
+    protected static final String TAG = "StateTree";
     private ContentPanel panel;
     private boolean isCollapsed;
-    private TreeGrid<TreeModel> grid;
+    private TreePanel<TreeModel> tree;
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
     private MenuItem createButton;
@@ -70,7 +66,7 @@ public class StateGrid extends View {
     private MenuItem editButton;
     private MenuItem feedbackButton;
 
-    public StateGrid(Controller controller) {
+    public StateTree(Controller controller) {
         super(controller);
     }
 
@@ -137,7 +133,7 @@ public class StateGrid extends View {
         }
     }
 
-    private void initGrid() {
+    private void initTree() {
         // tree store
         RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
 
@@ -165,19 +161,11 @@ public class StateGrid extends View {
         this.store.setKeyProvider(new SensorKeyProvider());
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
-        ColumnConfig id = new ColumnConfig("id", "Id", 50);
-        ColumnConfig name = new ColumnConfig("text", "Name", 150);
-
-        name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnModel cm = new ColumnModel(Arrays.asList(name, id));
-
-        this.grid = new TreeGrid<TreeModel>(this.store, cm);
-        this.grid.setId("stateGrid");
-        // this.grid.setAutoLoad(true);
-        this.grid.setAutoExpandColumn("text");
-        this.grid.setLoadMask(true);
-        this.grid.setStateful(true);
-        this.grid.setIconProvider(new SensorIconProvider());
+        this.tree = new TreePanel<TreeModel>(this.store);
+        this.tree.setId("stateGrid");
+        this.tree.setDisplayProperty("text");
+        this.tree.setStateful(true);
+        this.tree.setIconProvider(new SensorIconProvider());
 
         // toolbar with filter field
         ToolBar filterBar = new ToolBar();
@@ -208,10 +196,11 @@ public class StateGrid extends View {
         content.setBodyBorder(false);
         content.setHeaderVisible(false);
         content.setTopComponent(filterBar);
-        content.add(this.grid);
+        content.add(this.tree);
 
         this.panel.add(content);
     }
+
     private void initHeaderTool() {
         ToolButton refresh = new ToolButton("x-tool-refresh");
         refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
@@ -250,13 +239,13 @@ public class StateGrid extends View {
         panel.addListener(Events.Expand, collapseListener);
         panel.addListener(Events.Collapse, collapseListener);
 
-        initGrid();
+        initTree();
         initHeaderTool();
         initToolBar();
     }
 
     private void initToolBar() {
-        TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
+        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
         selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
 
@@ -282,7 +271,7 @@ public class StateGrid extends View {
                 }
             }
         });
-        this.grid.setSelectionModel(selectionModel);
+        this.tree.setSelectionModel(selectionModel);
 
         final SelectionListener<MenuEvent> l = new SelectionListener<MenuEvent>() {
 
@@ -340,7 +329,7 @@ public class StateGrid extends View {
     }
 
     protected void onAddClick() {
-        TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
@@ -352,7 +341,7 @@ public class StateGrid extends View {
     }
 
     protected void onEditClick() {
-        TreeModel selectedService = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
@@ -391,7 +380,7 @@ public class StateGrid extends View {
     }
 
     protected void removeService() {
-        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
         TreeModel service = sensor.getParent();
 
         AppEvent event = new AppEvent(StateEvents.RemoveRequested);
@@ -407,7 +396,7 @@ public class StateGrid extends View {
     }
 
     protected void showFeedback() {
-        TreeModel selected = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel selected = this.tree.getSelectionModel().getSelectedItem();
         while (selected.getParent() != null) {
             selected = selected.getParent();
         }

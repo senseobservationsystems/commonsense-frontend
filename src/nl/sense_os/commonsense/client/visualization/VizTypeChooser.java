@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.visualization;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -29,6 +26,9 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VizTypeChooser extends View {
 
     private static final String TAG = "VizTypeChooser";
@@ -43,6 +43,7 @@ public class VizTypeChooser extends View {
     private RadioGroup timeRangeField;
     private RadioGroup typesField;
     private Radio lineChart;
+    private Radio timeLine;
     private Radio table;
     private Radio map;
     private Radio network;
@@ -194,7 +195,8 @@ public class VizTypeChooser extends View {
             @Override
             public void handleEvent(FieldEvent be) {
                 Radio label = typesField.getValue();
-                if (label.equals(lineChart) || label.equals(map) || label.equals(network)) {
+                if (label.equals(lineChart) || label.equals(timeLine) || label.equals(map)
+                        || label.equals(network)) {
                     buttonToTimeRange.setText("Next");
 
                 } else if (label.equals(table)) {
@@ -249,6 +251,9 @@ public class VizTypeChooser extends View {
         this.lineChart.setBoxLabel("Line chart");
         this.lineChart.setValue(true);
 
+        this.timeLine = new Radio();
+        this.timeLine.setBoxLabel("Time line");
+
         this.table = new Radio();
         this.table.setBoxLabel("Table");
 
@@ -271,6 +276,7 @@ public class VizTypeChooser extends View {
 
         // add the choices to the typesfield
         this.typesField.add(lineChart);
+        this.typesField.add(timeLine);
         this.typesField.add(table);
         this.typesField.add(map);
         this.typesField.add(network);
@@ -354,6 +360,12 @@ public class VizTypeChooser extends View {
         Radio label = typesField.getValue();
         if (label.equals(this.lineChart)) {
             this.submitEvent = new AppEvent(VizEvents.ShowLineChart);
+            this.submitEvent.setData("sensors", this.sensors);
+
+            this.buttonToTimeRange.setText("Next");
+
+        } else if (label.equals(this.timeLine)) {
+            this.submitEvent = new AppEvent(VizEvents.ShowTimeLine);
             this.submitEvent.setData("sensors", this.sensors);
 
             this.buttonToTimeRange.setText("Next");

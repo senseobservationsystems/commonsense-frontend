@@ -1,10 +1,9 @@
-package nl.sense_os.commonsense.client.visualization.components;
-
-import java.util.List;
+package nl.sense_os.commonsense.client.visualization.linechart;
 
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -16,21 +15,26 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.user.client.ui.Widget;
 
-public class TimeLinePanel extends ContentPanel implements VizPanel {
+import java.util.List;
 
-    private static final String TAG = "TimeLinePanel";
+public class LineChartPanel extends ContentPanel implements VizPanel {
+
+    private static final String TAG = "LineChartPanel";
     private TimeLineChart chart;
     private List<SensorModel> sensors;
     private long start;
+    @SuppressWarnings("unused")
     private long end;
 
-    public TimeLinePanel() {
+    private LineChartPanel() {
         super();
 
         // set up layout
@@ -42,33 +46,45 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         initToolBar();
     }
 
-    public TimeLinePanel(List<SensorModel> sensors, long startTime, long endTime) {
+    /**
+     * Creates new LineChartPanel instance for the given list of sensors.
+     * 
+     * @param sensors
+     *            List with SensorModels to display in a line chart.
+     * @param start
+     *            Start time of the period to display.
+     * @param end
+     *            End time of the period to display.
+     */
+    public LineChartPanel(List<SensorModel> sensors, long start, long end) {
         this();
         this.sensors = sensors;
-        this.start = startTime;
-        this.end = endTime;
-        requestData(sensors, startTime, endTime);
+        this.start = start;
+        this.end = end;
+        requestData(sensors, start, end);
     }
 
     @Override
     public void addData(JsArray<Timeseries> data) {
-        Log.d(TAG, "addData...");
+        // Log.d(TAG, "addData...");
 
         JsArray<Timeseries> floatData = JsArray.createArray().cast();
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getType().equalsIgnoreCase("number")) {
-                Log.d(TAG, "found float data: " + ts.getLabel());
                 floatData.push(ts);
             }
         }
 
-        Log.d(TAG, "visualize!");
-        if (null == this.chart) {
-            this.chart = new TimeLineChart(floatData);
-            showChart(this.chart);
+        if (floatData.length() > 0) {
+            if (null == this.chart) {
+                this.chart = new TimeLineChart(floatData);
+                showChart(this.chart);
+            } else {
+                this.chart.addData(floatData);
+            }
         } else {
-            this.chart.addData(floatData);
+            Log.w(TAG, "No float data to visualize...");
         }
     }
 
@@ -88,6 +104,20 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         this.setTopComponent(toolbar);
     }
 
+    protected void hidePanel() {
+        Widget parent = this.getParent();
+        if (parent instanceof TabItem) {
+            // remove tab item from tab panel
+            parent.removeFromParent();
+        } else {
+            this.removeFromParent();
+        }
+        this.hide();
+    }
+
+    /**
+     * Dispatches request for refreshing the sensor data.
+     */
     private void refreshData() {
         AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
         refreshRequest.setData("sensors", this.sensors);
@@ -96,11 +126,21 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
         Dispatcher.forwardEvent(refreshRequest);
     }
 
-    private void requestData(List<SensorModel> sensors, long startTime, long endTime) {
+    /**
+     * Dispatches request for sensor data.
+     * 
+     * @param sensors
+     *            List with SensorModels to get data for.
+     * @param start
+     *            Start time of the period to get data for.
+     * @param end
+     *            End time of the period to get data for.
+     */
+    private void requestData(List<SensorModel> sensors, long start, long end) {
         AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
         dataRequest.setData("sensors", sensors);
-        dataRequest.setData("startTime", startTime);
-        dataRequest.setData("endTime", endTime);
+        dataRequest.setData("startTime", start);
+        dataRequest.setData("endTime", end);
         dataRequest.setData("vizPanel", this);
         Dispatcher.forwardEvent(dataRequest);
     }

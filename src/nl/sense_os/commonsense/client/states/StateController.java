@@ -737,7 +737,7 @@ public class StateController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.grid = new StateGrid(this);
+        this.grid = new StateTree(this);
         this.creator = new StateCreator(this);
         this.connecter = new StateConnecter(this);
         this.editor = new StateEditor(this);

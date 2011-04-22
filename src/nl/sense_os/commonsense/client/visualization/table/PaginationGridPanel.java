@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common.grid;
+package nl.sense_os.commonsense.client.visualization.table;
 
 import java.util.List;
 

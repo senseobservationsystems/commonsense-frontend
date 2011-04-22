@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.states;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -39,6 +35,10 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class FeedbackForm extends View {
 
@@ -100,6 +100,16 @@ public class FeedbackForm extends View {
         data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
         data.addColumn(DataTable.ColumnType.STRING, "content");
 
+        data.addRow();
+        data.setValue(0, 0, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 3));
+        data.setValue(0, 1, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 2));
+        data.setValue(0, 2, "foo");
+
+        data.addRow();
+        data.setValue(1, 0, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 1));
+        data.setValue(1, 1, new Date());
+        data.setValue(1, 2, "bar");
+
         return data;
     }
 
@@ -131,7 +141,7 @@ public class FeedbackForm extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateEvents.ShowFeedback)) {
-            // Log.d(TAG, "Show");
+            Log.d(TAG, "Show");
             onShow(event);
         } else if (type.equals(StateEvents.FeedbackComplete)) {
             Log.d(TAG, "FeedbackComplete");

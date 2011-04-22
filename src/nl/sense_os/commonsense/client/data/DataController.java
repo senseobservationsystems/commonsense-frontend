@@ -1,17 +1,14 @@
 package nl.sense_os.commonsense.client.data;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.data.cache.Cache;
 import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.components.VizPanel;
+import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -71,22 +68,15 @@ public class DataController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int sensorIndex = event.getData("sensorIndex");
             final int pageIndex = event.getData("pageIndex");
-            final Map<SensorModel, DataPoint[]> pagedValues = event
-                    .<Map<SensorModel, DataPoint[]>> getData("pagedValues");
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
 
-            onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, pagedValues,
-                    vizPanel);
+            onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, vizPanel);
         }
     }
 
-    private void onRefreshRequest(List<SensorModel> sensors, long start, VizPanel vizPanel) {
-
-        // get the oldest cached entry for each sensor
-        // not very important to get the optimal value: cache will be checked again in requestData()
-        onDataRequest(start, System.currentTimeMillis(), sensors, vizPanel);
-    }
-
+    /**
+     * Hides the progress bar View.
+     */
     private void hideProgress() {
         forwardToView(this.progressDialog, new AppEvent(DataEvents.HideProgress));
     }
@@ -112,8 +102,7 @@ public class DataController extends Controller {
     }
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
-            int sensorIndex, int pageIndex, Map<SensorModel, DataPoint[]> pagedValues,
-            VizPanel vizPanel) {
+            int sensorIndex, int pageIndex, VizPanel vizPanel) {
         // Log.d(TAG, "onDataReceived...");
 
         updateSubProgress(-1, -1, "Parsing received data chunk...");
@@ -124,7 +113,7 @@ public class DataController extends Controller {
 
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
-        Cache.store(sensor, jsoResponse.getData());
+        Cache.store(sensor, start, end, jsoResponse.getData());
 
         // update UI after parsing data
         final int offset = pageIndex * PER_PAGE;
@@ -145,7 +134,7 @@ public class DataController extends Controller {
 
         // check if there are still sensors left to do
         if (sensorIndex < sensors.size()) {
-            requestData(start, end, sensors, sensorIndex, pageIndex, pagedValues, vizPanel);
+            requestData(start, end, sensors, sensorIndex, pageIndex, vizPanel);
         } else {
             // completed all pages for all sensors
             onDataComplete(start, end, sensors, vizPanel);
@@ -155,14 +144,20 @@ public class DataController extends Controller {
     private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
         final int page = 0;
         final int index = 0;
-        final Map<SensorModel, DataPoint[]> pagedValues = new HashMap<SensorModel, DataPoint[]>();
 
         showProgress(sensors.size());
-        requestData(start, end, sensors, index, page, pagedValues, vizPanel);
+        requestData(start, end, sensors, index, page, vizPanel);
+    }
+
+    private void onRefreshRequest(List<SensorModel> sensors, long start, VizPanel vizPanel) {
+
+        // get the oldest cached entry for each sensor
+        // not very important to get the optimal value: cache will be checked again in requestData()
+        onDataRequest(start, System.currentTimeMillis(), sensors, vizPanel);
     }
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            int pageIndex, Map<SensorModel, DataPoint[]> pagedValues, VizPanel vizPanel) {
+            int pageIndex, VizPanel vizPanel) {
         // Log.d(TAG, "requestData...");
 
         if (sensorIndex < sensors.size()) {
@@ -173,19 +168,13 @@ public class DataController extends Controller {
             long realStart = start;
             if (pageIndex == 0) {
                 JsArray<Timeseries> cacheContent = Cache.request(Arrays.asList(sensor));
-                if (cacheContent.length() > 0) {
-                    for (int i = 0; i < cacheContent.length(); i++) {
-                        Timeseries timeseries = cacheContent.get(i);
-                        JsArray<DataPoint> dataPoints = timeseries.getData();
-                        if (dataPoints.length() > 0) {
-                            Date first = dataPoints.get(0).getTimestamp();
-                            if (first.getTime() < realStart) {
-                                Date last = dataPoints.get(dataPoints.length() - 1).getTimestamp();
-                                realStart = last.getTime();
-                            } else {
-                                Cache.remove(sensor);
-                            }
-                        }
+                for (int i = 0; i < cacheContent.length(); i++) {
+                    Timeseries timeseries = cacheContent.get(i);
+                    if (timeseries.getStart() <= realStart) {
+                        realStart = timeseries.getEnd();
+                        Log.d(TAG, "Changed realStart to " + realStart);
+                    } else {
+                        Cache.remove(sensor);
                     }
                 }
             }
@@ -206,7 +195,6 @@ public class DataController extends Controller {
             onSuccess.setData("sensors", sensors);
             onSuccess.setData("sensorIndex", sensorIndex);
             onSuccess.setData("pageIndex", pageIndex);
-            onSuccess.setData("pagedValues", pagedValues);
             onSuccess.setData("vizPanel", vizPanel);
             final AppEvent onFailure = new AppEvent(DataEvents.AjaxDataFailure);
 

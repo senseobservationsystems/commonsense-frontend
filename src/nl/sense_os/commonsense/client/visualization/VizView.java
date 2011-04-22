@@ -1,16 +1,14 @@
 package nl.sense_os.commonsense.client.visualization;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.visualization.components.MapPanel;
-import nl.sense_os.commonsense.client.visualization.components.SensorDataGrid;
-import nl.sense_os.commonsense.client.visualization.components.TimeLinePanel;
+import nl.sense_os.commonsense.client.visualization.linechart.LineChartPanel;
+import nl.sense_os.commonsense.client.visualization.map.MapPanel;
+import nl.sense_os.commonsense.client.visualization.table.SensorDataGrid;
+import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
@@ -38,6 +36,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.user.client.ui.Frame;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VizView extends View {
 
     private static final String TAG = "VizView";
@@ -45,6 +46,22 @@ public class VizView extends View {
 
     public VizView(Controller controller) {
         super(controller);
+    }
+
+    private String createChartTitle(List<SensorModel> sensors) {
+        String title = null;
+        for (SensorModel sensor : sensors) {
+            title = sensor.<String> get("text") + ", ";
+        }
+
+        // remove trailing ", "
+        title = title.substring(0, title.length() - 2);
+
+        // trim to max length
+        if (title.length() > 18) {
+            title = title.substring(0, 15) + "...";
+        }
+        return title;
     }
 
     @Override
@@ -69,7 +86,7 @@ public class VizView extends View {
             removeFeedback();
 
         } else if (type.equals(StateEvents.FeedbackReady)) {
-            // Log.d(TAG, "FeedbackReady");
+            Log.d(TAG, "FeedbackReady");
             final Component feedbackPanel = event.getData();
             showFeedback(feedbackPanel);
 
@@ -79,6 +96,13 @@ public class VizView extends View {
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showLineChart(sensors, startTime, endTime);
+
+        } else if (type.equals(VizEvents.ShowTimeLine)) {
+            // Log.d(TAG, "ShowTimeLine");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final long startTime = event.getData("startTime");
+            final long endTime = event.getData("endTime");
+            showTimeLine(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTable)) {
             // Log.d(TAG, "ShowTable");
@@ -228,22 +252,6 @@ public class VizView extends View {
         this.tabPanel.setSelection(item);
     }
 
-    private String createChartTitle(List<SensorModel> sensors) {
-        String title = null;
-        for (SensorModel sensor : sensors) {
-            title = sensor.<String> get("text") + ", ";
-        }
-
-        // remove trailing ", "
-        title = title.substring(0, title.length() - 2);
-
-        // trim to max length
-        if (title.length() > 18) {
-            title = title.substring(0, 15) + "...";
-        }
-        return title;
-    }
-
     private void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add line chart tab item
@@ -252,8 +260,8 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final TimeLinePanel charts = new TimeLinePanel(sensors, startTime, endTime);
-        item.add(charts);
+        final LineChartPanel chart = new LineChartPanel(sensors, startTime, endTime);
+        item.add(chart);
 
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
@@ -297,5 +305,19 @@ public class VizView extends View {
         // add sensor data grid
         item.add(new SensorDataGrid(sensors), new FitData());
         item.layout();
+    }
+
+    private void showTimeLine(List<SensorModel> sensors, long startTime, long endTime) {
+        // add time line tab item
+        final TabItem item = new TabItem(createChartTitle(sensors));
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "timeline.png"));
+        item.setLayout(new FitLayout());
+        item.setClosable(true);
+
+        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime);
+        item.add(chart);
+
+        this.tabPanel.add(item);
+        this.tabPanel.setSelection(item);
     }
 }

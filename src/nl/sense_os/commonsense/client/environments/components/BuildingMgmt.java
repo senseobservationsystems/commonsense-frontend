@@ -1,5 +1,14 @@
 package nl.sense_os.commonsense.client.environments.components;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.building.BuildingModel;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -28,16 +37,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.sense_os.commonsense.client.common.LoadingPanel;
-import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.UserModel;
-import nl.sense_os.commonsense.shared.building.BuildingModel;
-
 public class BuildingMgmt extends ContentPanel {
 
     private static final String TAG = BuildingMgmt.class.getName();
@@ -49,11 +48,11 @@ public class BuildingMgmt extends ContentPanel {
     private BuildingEditor editor;
     private BuildingModel lastSelected;
     private final BuildingServiceAsync buildingService;
-    
+
     public BuildingMgmt() {
 
         buildingService = Registry.<BuildingServiceAsync> get(Constants.REG_BUILDING_SVC);
-        
+
         // building selection panel for west part of widget
         Component gridPanel = createSelectionPanel();
         gridPanel.setItemId("west_gridpanel");
@@ -67,7 +66,7 @@ public class BuildingMgmt extends ContentPanel {
         this.add(gridPanel, new BorderLayoutData(LayoutRegion.WEST));
 
         this.setHeading("Building management");
-        
+
         getRecentBuildings();
     }
 
@@ -192,47 +191,46 @@ public class BuildingMgmt extends ContentPanel {
 
     private void getRecentBuildings() {
 
-        // show loading message
-        showLoading();
-
         // do request
         UserModel user = Registry.get(Constants.REG_USER);
         if (null == user) {
             Log.e(TAG, "No user object in Registry");
             return;
         }
-        buildingService.getUserBuildings("" + user.getId(), new AsyncCallback<List<BuildingModel>>() {
+        buildingService.getUserBuildings("" + user.getId(),
+                new AsyncCallback<List<BuildingModel>>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                removeAll();
-                final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
                     @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        getRecentBuildings();
+                    public void onFailure(Throwable caught) {
+                        removeAll();
+                        final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
+                            @Override
+                            public void handleEvent(MessageBoxEvent be) {
+                                getRecentBuildings();
+                            }
+                        };
+                        MessageBox.alert("CommonSense Web Application",
+                                "Failure getting building data:\n" + caught.getMessage()
+                                        + ".\nRetry?", l);
                     }
-                };
-                MessageBox.alert("CommonSense Web Application",
-                        "Failure getting building data:\n" + caught.getMessage() + ".\nRetry?", l);
-            }
 
-            @Override
-            public void onSuccess(List<BuildingModel> buildings) {
-                
-                showSelectionGrid();
-                
-                // update building grid
-                buildingStore.removeAll();
-                buildingStore.add(buildings);
+                    @Override
+                    public void onSuccess(List<BuildingModel> buildings) {
 
-                // select the first model
-                if (buildings.size() > 0) {
-                    buildingGrid.getSelectionModel().select(0, false);
-                } else {
-                    showCreator();
-                }
-            }
-        });
+                        showSelectionGrid();
+
+                        // update building grid
+                        buildingStore.removeAll();
+                        buildingStore.add(buildings);
+
+                        // select the first model
+                        if (buildings.size() > 0) {
+                            buildingGrid.getSelectionModel().select(0, false);
+                        } else {
+                            showCreator();
+                        }
+                    }
+                });
     }
 
     private void showCreator() {
@@ -310,40 +308,17 @@ public class BuildingMgmt extends ContentPanel {
         }
     }
 
-    private void showLoading() {
-        Component gridPanel = getItemByItemId("west_gridpanel");
-        if (null != gridPanel) {
-            remove(gridPanel);
-        }
-        Component oldLoading = getItemByItemId("west_loading");
-        if (null != oldLoading) {
-            // loading is already shown
-            return;
-        }
-        
-        LoadingPanel loading = new LoadingPanel();
-        loading.setTitle("Sense");
-        loading.setItemId("west_loading");
-        
-        add(loading, new BorderLayoutData(LayoutRegion.WEST));
-    }
-    
     private void showSelectionGrid() {
-
-        Component loading = getItemByItemId("west_loading");
-        if (null != loading) {
-            remove(loading);
-        }
         Component oldGrid = getItemByItemId("west_gridpanel");
         if (null != oldGrid) {
             // gridpanel is already shown
             return;
         }
-        
+
         // building selection panel for west part of widget
         Component gridPanel = createSelectionPanel();
         gridPanel.setItemId("west_gridpanel");
-        
+
         add(gridPanel, new BorderLayoutData(LayoutRegion.WEST));
     }
 }

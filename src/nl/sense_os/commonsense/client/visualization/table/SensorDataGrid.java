@@ -5,13 +5,12 @@
  *
  * http://extjs.com/license
  */
-package nl.sense_os.commonsense.client.visualization.components;
+package nl.sense_os.commonsense.client.visualization.table;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.grid.PaginationGridPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 

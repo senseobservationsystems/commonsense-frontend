@@ -140,8 +140,7 @@ public class MainView extends View {
         this.viewport = new Viewport();
         this.viewport.setId("viewport");
         this.viewport.setLayout(new BorderLayout());
-        this.viewport.setStyleAttribute("background",
-                "url('img/bg/right_top_pre-light.png') no-repeat top right;");
+        this.viewport.setStyleAttribute("background", "transparent;");
 
         initNavigation();
         initWest();
@@ -307,6 +306,6 @@ public class MainView extends View {
     }
 
     private void onUiReady(AppEvent event) {
-        RootPanel.get().add(this.viewport);
+        RootPanel.get("gwt").add(this.viewport);
     }
 }

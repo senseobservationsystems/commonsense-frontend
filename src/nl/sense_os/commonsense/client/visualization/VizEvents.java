@@ -7,6 +7,7 @@ public class VizEvents {
     public static final EventType TypeChoiceCancelled = new EventType();
 
     public static final EventType ShowLineChart = new EventType();
+    public static final EventType ShowTimeLine = new EventType();
     public static final EventType ShowTable = new EventType();
     public static final EventType ShowMap = new EventType();
     public static final EventType ShowNetwork = new EventType();

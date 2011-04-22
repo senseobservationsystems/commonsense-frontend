@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common;
+package nl.sense_os.commonsense.client.visualization.map;
 
 import java.util.Date;
 
@@ -14,6 +14,9 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
  */
 public class DateSlider extends Slider {
 
+    private final DateTimeFormat format = DateTimeFormat
+            .getFormat(PredefinedFormat.DATE_TIME_SHORT);
+
     public DateSlider() {
         super();
     }
@@ -23,8 +26,7 @@ public class DateSlider extends Slider {
      */
     @Override
     protected String onFormatValue(int value) {
-        Date date = new Date(value * 1000l);
-        DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
-        return format.format(date);
+        return format.format(new Date(value * 1000l));
     }
+
 }

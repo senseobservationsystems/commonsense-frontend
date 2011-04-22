@@ -10,18 +10,34 @@ public class Timeseries extends JavaScriptObject {
     }
 
     public final native JsArray<DataPoint> getData() /*-{
-		return this.data;
+        return this.data;
     }-*/;
 
+    public final long getEnd() {
+        return Math.round(getRawEnd());
+    }
+
     public final native String getId() /*-{
-		return this.id;
+        return this.id;
     }-*/;
 
     public final native String getLabel() /*-{
-		return this.label;
+        return this.label;
     }-*/;
 
+    private final native double getRawEnd() /*-{
+        return this.end;
+    }-*/;
+
+    private final native double getRawStart() /*-{
+        return this.start;
+    }-*/;
+
+    public final long getStart() {
+        return Math.round(getRawStart());
+    }
+
     public final native String getType() /*-{
-		return this.type;
+        return this.type;
     }-*/;
 }
