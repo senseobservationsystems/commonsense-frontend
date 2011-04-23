@@ -1,20 +1,24 @@
 package nl.sense_os.commonsense.client.visualization.linechart;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -23,10 +27,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.ui.Widget;
 
-import java.util.List;
-
 public class LineChartPanel extends ContentPanel implements VizPanel {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "LineChartPanel";
     private TimeLineChart chart;
     private List<SensorModel> sensors;
@@ -84,7 +87,17 @@ public class LineChartPanel extends ContentPanel implements VizPanel {
                 this.chart.addData(floatData);
             }
         } else {
-            Log.w(TAG, "No float data to visualize...");
+            String msg = "No data to visualize! "
+                    + "Please make sure that the sensor contains numerical data and that you selected a proper time range.";
+            MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+                @Override
+                public void handleEvent(MessageBoxEvent be) {
+                    if (null == chart) {
+                        hidePanel();
+                    }
+                }
+            });
         }
     }
 
@@ -104,7 +117,7 @@ public class LineChartPanel extends ContentPanel implements VizPanel {
         this.setTopComponent(toolbar);
     }
 
-    protected void hidePanel() {
+    private void hidePanel() {
         Widget parent = this.getParent();
         if (parent instanceof TabItem) {
             // remove tab item from tab panel

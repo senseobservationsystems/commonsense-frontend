@@ -64,7 +64,7 @@ public class TimeLineChart extends LayoutContainer {
         options.setLineRadius(2);
         options.setWidth("100%");
         options.setHeight("100%");
-        options.setLegendToggleVisibility(true);
+        options.setLegendCheckboxes(true);
         options.setLegendWidth("20%");
     }
 }

@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -15,19 +18,21 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+import com.extjs.gxt.ui.client.widget.layout.ColumnData;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class VizTypeChooser extends View {
 
@@ -244,26 +249,49 @@ public class VizTypeChooser extends View {
 
     private void initTypeFields() {
 
+        LayoutContainer main = new LayoutContainer();
+        main.setLayout(new ColumnLayout());
+
+        LayoutContainer left = new LayoutContainer();
+        left.setStyleAttribute("paddingRight", "10px");
+        FormLayout layout = new FormLayout();
+        left.setLayout(layout);
+
         this.typesField = new RadioGroup();
         this.typesField.setFieldLabel("Select a visualization type");
 
         this.lineChart = new Radio();
         this.lineChart.setBoxLabel("Line chart");
+        this.lineChart.setHideLabel(true);
         this.lineChart.setValue(true);
+        left.add(this.lineChart, new FormData());
 
         this.timeLine = new Radio();
         this.timeLine.setBoxLabel("Time line");
+        this.timeLine.setHideLabel(true);
+        left.add(this.timeLine, new FormData());
 
         this.table = new Radio();
         this.table.setBoxLabel("Table");
+        this.table.setHideLabel(true);
+        left.add(this.table, new FormData());
+
+        LayoutContainer right = new LayoutContainer();
+        right.setStyleAttribute("paddingLeft", "10px");
+        layout = new FormLayout();
+        right.setLayout(layout);
 
         this.map = new Radio();
         this.map.setBoxLabel("Map");
+        this.map.setHideLabel(true);
         this.map.disable();
+        right.add(this.map, new FormData());
 
         this.network = new Radio();
         this.network.setBoxLabel("Network");
+        this.network.setHideLabel(true);
         this.network.disable();
+        right.add(this.network, new FormData());
 
         // listen to changes in types field
         this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
@@ -283,8 +311,16 @@ public class VizTypeChooser extends View {
         this.typesField.setOriginalValue(lineChart);
         this.typesField.setSelectionRequired(true);
 
-        final FormData formData = new FormData("-10");
-        this.typeForm.add(this.typesField, formData);
+        main.add(left, new ColumnData(.5));
+        main.add(right, new ColumnData(.5));
+
+        LabelField label = new LabelField("Select a visualization type:");
+        label.setHideLabel(true);
+        this.typeForm.add(label, new FormData());
+        this.typeForm.add(main, new FormData("100%"));
+
+        // final FormData formData = new FormData("-10");
+        // this.typeForm.add(main, formData);
     }
 
     private void initTypePanel() {

@@ -11,8 +11,8 @@
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/>  
-  <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.chap.links.Graph'/>
+  <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.google.gwt.visualization.Visualization'/>  
   <inherits name='com.google.gwt.maps.GoogleMaps' />
   
@@ -27,5 +27,4 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
-
 </module>

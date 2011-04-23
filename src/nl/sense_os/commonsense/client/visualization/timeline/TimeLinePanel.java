@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.visualization.timeline;
 
+import java.util.Date;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
@@ -10,24 +13,27 @@ import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
-
-import java.util.Date;
-import java.util.List;
 
 public class TimeLinePanel extends ContentPanel implements VizPanel {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "TimeLinePanel";
     private Timeline timeline;
     private final DataTable dataTable;
@@ -172,13 +178,36 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
             }
         }
 
-        if (null == this.timeline) {
-            Timeline.Options options = Timeline.Options.create();
-            this.timeline = new Timeline(this.dataTable, options);
-            showChart(this.timeline);
+        if (dataTable.getNumberOfRows() > 0) {
+            if (null == this.timeline) {
+                Timeline.Options options = Timeline.Options.create();
+                this.timeline = new Timeline(this.dataTable, options);
+                showChart(this.timeline);
+            } else {
+                this.timeline.redraw();
+            }
         } else {
-            this.timeline.redraw();
+            String msg = "No data to visualize! "
+                    + "Please make sure that you selected a proper time range.";
+            MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+                @Override
+                public void handleEvent(MessageBoxEvent be) {
+                    hidePanel();
+                }
+            });
         }
+    }
+
+    private void hidePanel() {
+        Widget parent = this.getParent();
+        if (parent instanceof TabItem) {
+            // remove tab item from tab panel
+            parent.removeFromParent();
+        } else {
+            this.removeFromParent();
+        }
+        this.hide();
     }
 
     private void initToolBar() {

@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.Date;
+
 import nl.sense_os.commonsense.client.ajax.AjaxController;
 import nl.sense_os.commonsense.client.data.DataController;
 import nl.sense_os.commonsense.client.environments.EnvController;
@@ -35,8 +37,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
-import java.util.Date;
-
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -44,7 +44,7 @@ import java.util.Date;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Tue Apr 19 15:32";
+    public static final String LAST_DEPLOYED = "Sat Apr 23 18:12";
     private Timeline timeline;
 
     /**
@@ -103,6 +103,7 @@ public class CommonSense implements EntryPoint {
         initControllers();
     }
 
+    @SuppressWarnings("unused")
     private void test() {
 
         // Create a callback to be called when the visualization API
@@ -146,8 +147,7 @@ public class CommonSense implements EntryPoint {
             }
         };
 
-        // Load the visualization api, passing the onLoadCallback to be called
-        // when loading is done.
+        // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
     }
 }
