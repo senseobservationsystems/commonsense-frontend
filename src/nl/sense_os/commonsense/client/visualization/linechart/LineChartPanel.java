@@ -2,69 +2,44 @@ package nl.sense_os.commonsense.client.visualization.linechart;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.IconButton;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.layout.FillData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.ui.Widget;
 
-public class LineChartPanel extends ContentPanel implements VizPanel {
+public class LineChartPanel extends VizPanel {
 
     @SuppressWarnings("unused")
     private static final String TAG = "LineChartPanel";
-    private TimeLineChart chart;
-    private List<SensorModel> sensors;
-    private long start;
-    @SuppressWarnings("unused")
-    private long end;
+    private Graph graph;
+    private final Graph.Options options;
 
-    private LineChartPanel() {
+    public LineChartPanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
         // set up layout
-        setHeaderVisible(false);
+        setHeading("Line chart: " + title);
         setBodyBorder(false);
-        setLayout(new RowLayout(Orientation.VERTICAL));
-        setScrollMode(Scroll.AUTOY);
+        setLayout(new FillLayout());
 
-        initToolBar();
-    }
+        // Graph options
+        this.options = Graph.Options.create();
+        this.options.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
+        this.options.setLineRadius(2);
+        this.options.setWidth("100%");
+        this.options.setHeight("100%");
+        this.options.setLegendCheckboxes(true);
+        this.options.setLegendWidth("20%");
 
-    /**
-     * Creates new LineChartPanel instance for the given list of sensors.
-     * 
-     * @param sensors
-     *            List with SensorModels to display in a line chart.
-     * @param start
-     *            Start time of the period to display.
-     * @param end
-     *            End time of the period to display.
-     */
-    public LineChartPanel(List<SensorModel> sensors, long start, long end) {
-        this();
-        this.sensors = sensors;
-        this.start = start;
-        this.end = end;
-        requestData(sensors, start, end);
+        visualize(sensors, start, end);
     }
 
     @Override
@@ -80,105 +55,53 @@ public class LineChartPanel extends ContentPanel implements VizPanel {
         }
 
         if (floatData.length() > 0) {
-            if (null == this.chart) {
-                this.chart = new TimeLineChart(floatData);
-                showChart(this.chart);
+            if (null == this.graph) {
+                createGraph(floatData);
             } else {
-                this.chart.addData(floatData);
+                this.graph.draw(floatData, this.options);
             }
-        } else {
-            String msg = "No data to visualize! "
-                    + "Please make sure that the sensor contains numerical data and that you selected a proper time range.";
-            MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
 
-                @Override
-                public void handleEvent(MessageBoxEvent be) {
-                    if (null == chart) {
-                        hidePanel();
-                    }
+        } else {
+            onNoData();
+        }
+    }
+
+    private void createGraph(JsArray<Timeseries> data) {
+
+        this.graph = new Graph(data, this.options);
+
+        // this LayoutContainer ensures that the graph is sized and resized correctly
+        LayoutContainer graphWrapper = new LayoutContainer() {
+            @Override
+            protected void onResize(int width, int height) {
+                super.onResize(width, height);
+                redrawGraph();
+            }
+        };
+        graphWrapper.add(this.graph);
+
+        this.add(graphWrapper, new FillData(5));
+        this.layout();
+    }
+
+    private void onNoData() {
+        String msg = "No data to visualize! "
+                + "Please make sure that the sensor contains numerical data and that you selected a proper time range.";
+        MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (null == graph) {
+                    LineChartPanel.this.hide();
                 }
-            });
-        }
+            }
+        });
     }
 
-    private void initToolBar() {
-
-        IconButton refresh = new IconButton("x-tbar-refresh",
-                new SelectionListener<IconButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refreshData();
-                    }
-                });
-
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(refresh);
-        this.setTopComponent(toolbar);
-    }
-
-    private void hidePanel() {
-        Widget parent = this.getParent();
-        if (parent instanceof TabItem) {
-            // remove tab item from tab panel
-            parent.removeFromParent();
-        } else {
-            this.removeFromParent();
-        }
-        this.hide();
-    }
-
-    /**
-     * Dispatches request for refreshing the sensor data.
-     */
-    private void refreshData() {
-        AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
-        refreshRequest.setData("sensors", this.sensors);
-        refreshRequest.setData("start", this.start);
-        refreshRequest.setData("vizPanel", this);
-        Dispatcher.forwardEvent(refreshRequest);
-    }
-
-    /**
-     * Dispatches request for sensor data.
-     * 
-     * @param sensors
-     *            List with SensorModels to get data for.
-     * @param start
-     *            Start time of the period to get data for.
-     * @param end
-     *            End time of the period to get data for.
-     */
-    private void requestData(List<SensorModel> sensors, long start, long end) {
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
-        dataRequest.setData("sensors", sensors);
-        dataRequest.setData("startTime", start);
-        dataRequest.setData("endTime", end);
-        dataRequest.setData("vizPanel", this);
-        Dispatcher.forwardEvent(dataRequest);
-    }
-
-    /**
-     * Adds a chart to the charts that are already displayed, resizing them if necessary.
-     * 
-     * @param chart
-     */
-    private void showChart(TimeLineChart chart) {
-        // Log.d(TAG, "addChart");
-
-        // remove empty text message
-        Component emptyText = this.getItemByItemId("empty_text");
-        if (null != emptyText) {
-            this.remove(emptyText);
-        }
-
-        this.add(chart, new RowData(-1, 1, new Margins(5)));
-
-        // do layout to show added chart
-        try {
-            this.layout();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void redrawGraph() {
+        // only redraw if the graph is already drawn
+        if (null != this.graph && this.graph.isAttached()) {
+            this.graph.redraw();
         }
     }
 }

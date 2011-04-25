@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors;
+package nl.sense_os.commonsense.client.sensors.group;
 
 import java.util.List;
 
@@ -43,15 +43,15 @@ public class UnshareDialog extends View {
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(SensorsEvents.ShowUnshareDialog)) {
+        if (type.equals(GroupSensorsEvents.ShowUnshareDialog)) {
             Log.d(TAG, "Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
-        } else if (type.equals(SensorsEvents.UnshareSuccess)) {
+        } else if (type.equals(GroupSensorsEvents.UnshareSuccess)) {
             // Log.d(TAG, "UnshareSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(SensorsEvents.UnshareFailure)) {
+        } else if (type.equals(GroupSensorsEvents.UnshareFailure)) {
             Log.w(TAG, "UnshareFailure");
             onRemoveFailure();
 
@@ -144,7 +144,7 @@ public class UnshareDialog extends View {
 
     private void remove() {
         setBusy(true);
-        AppEvent delete = new AppEvent(SensorsEvents.UnshareRequest);
+        AppEvent delete = new AppEvent(GroupSensorsEvents.UnshareRequest);
         delete.setData("sensors", sensors);
         fireEvent(delete);
     }

@@ -190,7 +190,7 @@ public class ShareDialog extends View {
         final String user = this.user.getValue();
         final List<SensorModel> sensors = new ArrayList<SensorModel>(this.sensors);
 
-        AppEvent event = new AppEvent(MySensorsEvents.ShareRequested);
+        AppEvent event = new AppEvent(MySensorsEvents.ShareRequest);
         event.setData("user", user);
         event.setData("sensors", sensors);
 

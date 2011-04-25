@@ -7,7 +7,7 @@ import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.register.RegisterEvents;
+import nl.sense_os.commonsense.client.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;

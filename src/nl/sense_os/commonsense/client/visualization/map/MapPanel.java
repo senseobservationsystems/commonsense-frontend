@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.visualization.map;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
@@ -14,10 +13,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SliderEvent;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -32,7 +28,7 @@ import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.maps.client.overlay.PolylineOptions;
 
-public class MapPanel extends LayoutContainer implements VizPanel {
+public class MapPanel extends VizPanel {
 
     private static final String TAG = "MapPanel";
     private MapWidget map;
@@ -46,24 +42,17 @@ public class MapPanel extends LayoutContainer implements VizPanel {
     private int traceStartIndex;
     private int traceEndIndex;
 
-    public MapPanel() {
+    public MapPanel(List<SensorModel> sensors, long start, long end, String title) {
+        super();
+
+        this.setHeading("Map: " + title);
         this.setLayout(new BorderLayout());
-        this.setStyleAttribute("background", "rgba(0, 0, 0, 0)");
         this.setId("viz-map");
 
         initSliders();
         initMapWidget();
-    }
 
-    public MapPanel(List<SensorModel> sensors, long startTime, long endTime) {
-        this();
-
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
-        dataRequest.setData("sensors", sensors);
-        dataRequest.setData("startTime", startTime);
-        dataRequest.setData("endTime", endTime);
-        dataRequest.setData("vizPanel", this);
-        Dispatcher.forwardEvent(dataRequest);
+        visualize(sensors, start, end);
     }
 
     @Override
@@ -79,7 +68,12 @@ public class MapPanel extends LayoutContainer implements VizPanel {
                 this.lonTimeseries = ts;
             }
         }
-        visualize();
+
+        if (this.latTimeseries != null && this.lonTimeseries != null) {
+            calcSliderRange();
+            drawTrace();
+            centerMap();
+        }
     }
 
     /**
@@ -144,7 +138,7 @@ public class MapPanel extends LayoutContainer implements VizPanel {
         JsArray<DataPoint> latValues = this.latTimeseries.getData().cast();
         JsArray<DataPoint> lonValues = this.lonTimeseries.getData().cast();
 
-        Log.d(TAG, "Number of points: " + latValues.length());
+        // Log.d(TAG, "Number of points: " + latValues.length());
 
         // Draw the filtered points.
         if (latValues.length() > 0 && maxTime > minTime) {
@@ -170,11 +164,9 @@ public class MapPanel extends LayoutContainer implements VizPanel {
                         traceStartIndex = i;
                     }
                     // store coordinate
-                    Log.d(TAG, "get value...");
                     LatLng coordinate = LatLng.newInstance(latitude.getValue(),
                             longitude.getValue());
                     points[j++] = coordinate;
-                    Log.d(TAG, "done.");
                 }
             }
 
@@ -366,13 +358,5 @@ public class MapPanel extends LayoutContainer implements VizPanel {
         // update trace indexes
         this.traceStartIndex = newTraceStartIndex;
         this.traceEndIndex = newTraceEndIndex;
-    }
-
-    private void visualize() {
-        if (this.latTimeseries != null && this.lonTimeseries != null) {
-            calcSliderRange();
-            drawTrace();
-            centerMap();
-        }
     }
 }

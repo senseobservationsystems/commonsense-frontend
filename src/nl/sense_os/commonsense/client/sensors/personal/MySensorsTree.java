@@ -5,7 +5,6 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -99,11 +98,11 @@ public class MySensorsTree extends View {
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(SensorsEvents.DeleteSuccess)) {
+        } else if (type.equals(MySensorsEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(SensorsEvents.DeleteFailure)) {
+        } else if (type.equals(MySensorsEvents.DeleteFailure)) {
             // Log.d(TAG, "DeleteFailure");
             onRemoveFailure();
 
@@ -313,7 +312,7 @@ public class MySensorsTree extends View {
         if (sensors.size() > 0) {
             this.isRemoving = true;
 
-            AppEvent event = new AppEvent(SensorsEvents.ShowDeleteDialog);
+            AppEvent event = new AppEvent(MySensorsEvents.ShowDeleteDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 

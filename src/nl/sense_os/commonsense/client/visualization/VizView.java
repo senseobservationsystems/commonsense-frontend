@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
@@ -36,9 +39,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.user.client.ui.Frame;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VizView extends View {
 
     private static final String TAG = "VizView";
@@ -57,10 +57,10 @@ public class VizView extends View {
         // remove trailing ", "
         title = title.substring(0, title.length() - 2);
 
-        // trim to max length
-        if (title.length() > 18) {
-            title = title.substring(0, 15) + "...";
-        }
+        // // trim to max length
+        // if (title.length() > 18) {
+        // title = title.substring(0, 15) + "...";
+        // }
         return title;
     }
 
@@ -138,6 +138,8 @@ public class VizView extends View {
         this.tabPanel.setId("tab-panel");
         this.tabPanel.setSize("100%", "100%");
         this.tabPanel.setPlain(true);
+        this.tabPanel.setMinTabWidth(120);
+        this.tabPanel.setResizeTabs(true);
         this.tabPanel.addStyleName("transparent");
 
         // Welcome tab item
@@ -255,12 +257,13 @@ public class VizView extends View {
     private void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add line chart tab item
-        final TabItem item = new TabItem(createChartTitle(sensors));
+        String title = createChartTitle(sensors);
+        final TabItem item = new TabItem(title);
         item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "chart.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final LineChartPanel chart = new LineChartPanel(sensors, startTime, endTime);
+        final LineChartPanel chart = new LineChartPanel(sensors, startTime, endTime, title);
         item.add(chart);
 
         this.tabPanel.add(item);
@@ -270,12 +273,13 @@ public class VizView extends View {
     private void showMap(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add map tab item
-        final TabItem item = new TabItem(createChartTitle(sensors));
+        String title = createChartTitle(sensors);
+        final TabItem item = new TabItem(title);
         item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "map.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        MapPanel map = new MapPanel(sensors, startTime, endTime);
+        MapPanel map = new MapPanel(sensors, startTime, endTime, title);
         item.add(map);
 
         this.tabPanel.add(item);
@@ -309,12 +313,13 @@ public class VizView extends View {
 
     private void showTimeLine(List<SensorModel> sensors, long startTime, long endTime) {
         // add time line tab item
-        final TabItem item = new TabItem(createChartTitle(sensors));
+        final String title = createChartTitle(sensors);
+        final TabItem item = new TabItem(title);
         item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "timeline.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime);
+        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime, title);
         item.add(chart);
 
         this.tabPanel.add(item);

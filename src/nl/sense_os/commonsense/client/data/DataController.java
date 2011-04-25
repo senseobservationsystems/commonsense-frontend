@@ -172,7 +172,7 @@ public class DataController extends Controller {
                     Timeseries timeseries = cacheContent.get(i);
                     if (timeseries.getStart() <= realStart) {
                         realStart = timeseries.getEnd();
-                        Log.d(TAG, "Changed realStart to " + realStart);
+                        // Log.d(TAG, "Changed realStart to " + realStart);
                     } else {
                         Cache.remove(sensor);
                     }

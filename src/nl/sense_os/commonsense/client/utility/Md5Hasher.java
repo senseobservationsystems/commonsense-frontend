@@ -7,6 +7,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class Md5Hasher {
 
+    private Md5Hasher() {
+        // Private constructor to make sure this class is not instantiated.
+    }
+
     /**
      * Creates an MD5 hash of a String, for hashing the password before sending it.
      * 

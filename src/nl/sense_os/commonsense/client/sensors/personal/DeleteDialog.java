@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors;
+package nl.sense_os.commonsense.client.sensors.personal;
 
 import java.util.List;
 
@@ -43,15 +43,15 @@ public class DeleteDialog extends View {
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(SensorsEvents.ShowDeleteDialog)) {
+        if (type.equals(MySensorsEvents.ShowDeleteDialog)) {
             Log.d(TAG, "Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
-        } else if (type.equals(SensorsEvents.DeleteSuccess)) {
+        } else if (type.equals(MySensorsEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(SensorsEvents.DeleteFailure)) {
+        } else if (type.equals(MySensorsEvents.DeleteFailure)) {
             Log.w(TAG, "DeleteFailure");
             onRemoveFailure();
 
@@ -133,7 +133,7 @@ public class DeleteDialog extends View {
 
     private void remove() {
         setBusy(true);
-        AppEvent delete = new AppEvent(SensorsEvents.DeleteRequest);
+        AppEvent delete = new AppEvent(MySensorsEvents.DeleteRequest);
         delete.setData("sensors", sensors);
         fireEvent(delete);
     }

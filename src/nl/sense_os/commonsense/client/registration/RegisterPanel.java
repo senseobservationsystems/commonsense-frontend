@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.register;
+package nl.sense_os.commonsense.client.registration;
 
 import nl.sense_os.commonsense.client.common.forms.RegisterForm;
 import nl.sense_os.commonsense.client.utility.Log;

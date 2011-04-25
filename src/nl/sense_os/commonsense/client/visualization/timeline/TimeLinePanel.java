@@ -3,57 +3,29 @@ package nl.sense_os.commonsense.client.visualization.timeline;
 import java.util.Date;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.chap.links.client.Timeline;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.chap.links.client.Timeline.Options;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.IconButton;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.DataTable;
 
-public class TimeLinePanel extends ContentPanel implements VizPanel {
+public class TimeLinePanel extends VizPanel {
 
     @SuppressWarnings("unused")
     private static final String TAG = "TimeLinePanel";
     private Timeline timeline;
+    private final Timeline.Options options;
     private final DataTable dataTable;
-    private List<SensorModel> sensors;
-    private long start;
-    @SuppressWarnings("unused")
-    private long end;
-
-    private TimeLinePanel() {
-        super();
-
-        // set up layout
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        setLayout(new RowLayout(Orientation.VERTICAL));
-        setScrollMode(Scroll.AUTOY);
-
-        initToolBar();
-        this.dataTable = createDataTable();
-    }
 
     /**
      * Creates new TimeLinePanel instance for the given list of sensors.
@@ -65,67 +37,22 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
      * @param end
      *            End time of the period to display.
      */
-    public TimeLinePanel(List<SensorModel> sensors, long start, long end) {
-        this();
-        this.sensors = sensors;
-        this.start = start;
-        this.end = end;
-        requestData(sensors, start, end);
-    }
+    public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
+        super();
 
-    /**
-     * Returns a table filled with data
-     * 
-     * @return data
-     */
-    private DataTable createDataTable() {
+        // set up layout
+        setHeading("Time line: " + title);
+        setBodyBorder(false);
+        setLayout(new FitLayout());
 
-        DataTable data = DataTable.create();
-        data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
-        data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
-        data.addColumn(DataTable.ColumnType.STRING, "content");
+        this.options = Options.create();
+        this.options.setWidth("100%");
+        this.options.setHeight("100%");
+        this.options.setAnimate(false);
+        this.options.setStackEvents(false);
+        this.dataTable = createDataTable();
 
-        // data.addRow();
-        // data.setValue(0, 0, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 3));
-        // data.setValue(0, 1, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 2));
-        // data.setValue(0, 2, "foo");
-        //
-        // data.addRow();
-        // data.setValue(0, 0, new Date(System.currentTimeMillis() - 1000 * 60 * 60 * 1));
-        // data.setValue(0, 1, new Date());
-        // data.setValue(0, 2, "bar");
-
-        return data;
-    }
-
-    /**
-     * Dispatches request for refreshing the sensor data.
-     */
-    private void refreshData() {
-        AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
-        refreshRequest.setData("sensors", this.sensors);
-        refreshRequest.setData("start", this.start);
-        refreshRequest.setData("vizPanel", this);
-        Dispatcher.forwardEvent(refreshRequest);
-    }
-
-    /**
-     * Requests sensor data.
-     * 
-     * @param sensors
-     *            List with SensorModels to get data for.
-     * @param start
-     *            Start time of the period to get data for.
-     * @param end
-     *            End time of the period to get data for.
-     */
-    private void requestData(List<SensorModel> sensors, long start, long end) {
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
-        dataRequest.setData("sensors", sensors);
-        dataRequest.setData("startTime", start);
-        dataRequest.setData("endTime", end);
-        dataRequest.setData("vizPanel", this);
-        Dispatcher.forwardEvent(dataRequest);
+        visualize(sensors, start, end);
     }
 
     @Override
@@ -157,6 +84,7 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
                         index++;
                         this.dataTable.setValue(index, 0, dataPoint.getTimestamp());
                         this.dataTable.setValue(index, 2, dataPoint.getRawValue());
+                        this.dataTable.setValue(index, 3, ts.getLabel());
                     } else {
                         // only the end time has to be changed
                     }
@@ -165,6 +93,7 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
                     this.dataTable.addRow();
                     this.dataTable.setValue(index, 0, dataPoint.getTimestamp());
                     this.dataTable.setValue(index, 2, dataPoint.getRawValue());
+                    this.dataTable.setValue(index, 3, ts.getLabel());
                 }
 
                 // set end time
@@ -180,73 +109,63 @@ public class TimeLinePanel extends ContentPanel implements VizPanel {
 
         if (dataTable.getNumberOfRows() > 0) {
             if (null == this.timeline) {
-                Timeline.Options options = Timeline.Options.create();
-                this.timeline = new Timeline(this.dataTable, options);
-                showChart(this.timeline);
+                createTimeline();
             } else {
                 this.timeline.redraw();
             }
         } else {
-            String msg = "No data to visualize! "
-                    + "Please make sure that you selected a proper time range.";
-            MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
-
-                @Override
-                public void handleEvent(MessageBoxEvent be) {
-                    hidePanel();
-                }
-            });
+            onNoData();
         }
-    }
-
-    private void hidePanel() {
-        Widget parent = this.getParent();
-        if (parent instanceof TabItem) {
-            // remove tab item from tab panel
-            parent.removeFromParent();
-        } else {
-            this.removeFromParent();
-        }
-        this.hide();
-    }
-
-    private void initToolBar() {
-
-        IconButton refresh = new IconButton("x-tbar-refresh",
-                new SelectionListener<IconButtonEvent>() {
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refreshData();
-                    }
-                });
-
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(refresh);
-        this.setTopComponent(toolbar);
     }
 
     /**
-     * Adds a chart to the charts that are already displayed, resizing them if necessary.
-     * 
-     * @param chart
+     * @return An empty DataTable with the correct columns for Timeline visualization.
      */
-    private void showChart(Timeline timeline) {
-        // Log.d(TAG, "showChart");
+    private DataTable createDataTable() {
 
-        // remove empty text message
-        Component emptyText = this.getItemByItemId("empty_text");
-        if (null != emptyText) {
-            this.remove(emptyText);
-        }
+        DataTable data = DataTable.create();
+        data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
+        data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
+        data.addColumn(DataTable.ColumnType.STRING, "content");
+        data.addColumn(DataTable.ColumnType.STRING, "group");
 
-        this.add(timeline, new RowData(-1, 1, new Margins(5)));
+        return data;
+    }
 
-        // do layout to show added chart
-        try {
-            this.layout();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void createTimeline() {
+
+        this.timeline = new Timeline(this.dataTable, this.options);
+
+        // this LayoutContainer ensures that the graph is sized and resized correctly
+        LayoutContainer wrapper = new LayoutContainer() {
+            @Override
+            protected void onResize(int width, int height) {
+                super.onResize(width, height);
+                redrawTimeline();
+            }
+        };
+        wrapper.add(this.timeline);
+
+        this.add(wrapper, new FitData(5));
+        this.layout();
+    }
+
+    private void onNoData() {
+        String msg = "No data to visualize! "
+                + "Please make sure that you selected a proper time range.";
+        MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                TimeLinePanel.this.hide();
+            }
+        });
+    }
+
+    private void redrawTimeline() {
+        // only redraw if the time line is already drawn
+        if (null != this.timeline && this.timeline.isAttached()) {
+            this.timeline.redraw();
         }
     }
 }

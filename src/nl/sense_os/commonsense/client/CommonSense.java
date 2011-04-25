@@ -9,8 +9,7 @@ import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.register.RegisterController;
-import nl.sense_os.commonsense.client.sensors.SensorsController;
+import nl.sense_os.commonsense.client.registration.RegisterController;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -29,6 +28,7 @@ import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.util.Theme;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -45,7 +45,6 @@ public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
     public static final String LAST_DEPLOYED = "Sat Apr 23 18:12";
-    private Timeline timeline;
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -59,8 +58,6 @@ public class CommonSense implements EntryPoint {
 
         // notify the main controller that all views are ready
         dispatcher.dispatch(MainEvents.UiReady);
-
-        GXT.hideLoadingPanel("loading");
     }
 
     /**
@@ -74,6 +71,8 @@ public class CommonSense implements EntryPoint {
     public void onModuleLoad() {
 
         Log.d(TAG, "===== Module Load (" + now() + ") =====");
+
+        GXT.setDefaultTheme(Theme.GRAY, true);
 
         // load services and put them in Registry
         final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
@@ -96,11 +95,12 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new EnvController());
         dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new FeedbackController());
-        dispatcher.addController(new SensorsController());
         dispatcher.addController(new AjaxController());
 
         // test();
         initControllers();
+
+        GXT.hideLoadingPanel("loading");
     }
 
     @SuppressWarnings("unused")
@@ -141,9 +141,9 @@ public class CommonSense implements EntryPoint {
                 options.setEditable(true);
 
                 // create the timeline, with data and options
-                timeline = new Timeline(data, options);
+                Timeline timeline = new Timeline(data, options);
 
-                RootPanel.get().add(timeline);
+                RootPanel.get("gwt").add(timeline);
             }
         };
 

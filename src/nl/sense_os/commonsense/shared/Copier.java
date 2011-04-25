@@ -9,6 +9,10 @@ import com.extjs.gxt.ui.client.data.TreeModel;
  */
 public class Copier {
 
+    private Copier() {
+        // Private constructor to make sure this class is not instantiated.
+    }
+
     /**
      * Copies a TreeModel by creating a new instance, including it's children. This is useful
      * because otherwise the original TreeModel will be detached from it's original parent.

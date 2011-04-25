@@ -6,7 +6,6 @@ import java.util.List;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -94,6 +93,7 @@ public class GroupSensorsTree extends View {
         }
         return sensors;
     }
+
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
@@ -118,11 +118,11 @@ public class GroupSensorsTree extends View {
             // Log.d(TAG, "Group ListUpdated");
             refreshLoader(true);
 
-        } else if (type.equals(SensorsEvents.UnshareSuccess)) {
+        } else if (type.equals(GroupSensorsEvents.UnshareSuccess)) {
             // Log.d(TAG, "UnshareSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(SensorsEvents.UnshareFailure)) {
+        } else if (type.equals(GroupSensorsEvents.UnshareFailure)) {
             Log.w(TAG, "UnshareFailure");
             onRemoveFailure();
 
@@ -321,7 +321,7 @@ public class GroupSensorsTree extends View {
                 sensor.set("user", parent.get(UserModel.ID));
             }
 
-            AppEvent event = new AppEvent(SensorsEvents.ShowUnshareDialog);
+            AppEvent event = new AppEvent(GroupSensorsEvents.ShowUnshareDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 
@@ -330,6 +330,7 @@ public class GroupSensorsTree extends View {
             MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
         }
     }
+
     private void onRemoveFailure() {
         refreshLoader(true);
     }

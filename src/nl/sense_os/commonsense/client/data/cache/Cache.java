@@ -17,6 +17,8 @@ public class Cache {
     public static void remove(SensorModel sensor) {
         if (cache != null) {
             cache.remove(sensor.getId());
+        } else {
+            Log.w(TAG, "Cannot remove cached data: cache=null");
         }
     }
 
@@ -39,7 +41,7 @@ public class Cache {
             ids += "]";
             return cache.request(JsonUtils.<JsArray<?>> safeEval(ids));
         } else {
-            Log.d(TAG, "No cache object, returning empty array...");
+            // Log.d(TAG, "No cache object, returning empty array...");
             return JsArray.createArray().cast();
         }
     }
@@ -56,7 +58,7 @@ public class Cache {
     public static void store(SensorModel sensor, long start, long end, JsArray<?> data) {
         if (null == cache) {
             // create cache object
-            Log.d(TAG, "Create cache...");
+            // Log.d(TAG, "Create cache...");
             cache = CacheJso.create();
         }
         cache.store(sensor.getId(), sensor.<String> get("text"), start, end, data);

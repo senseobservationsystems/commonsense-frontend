@@ -99,12 +99,9 @@ div.graph-canvas div.graph-legend {
     color: #555555;
 }
 
-#navigation-bar a:hover, #footer-bar a:hover {
-    background-color: #ff7f00;
-    color: #fff;
-    /*-moz-border-radius: 3px;*/
-    border-radius: 3px;
-    /*-webkit-border-radius: 3px;*/
+#navigation-bar a:hover {	
+    text-decoration: underline;
+    color: #ff7f00;
 }
 
 /* Footer styles */
@@ -117,14 +114,14 @@ div.graph-canvas div.graph-legend {
 }
 
 #footer-bar a {
-    color: #555555;
+	color: #555555;
 }
 
 /* Banner style */
 #banner-text {
-	color: #ff7f00;
+	color: #555555; 
 	font-family: helvetica, arial, sans-serif;
-	font-size: 36px;
+	font-size: 42px;
 	font-weight: bold;
 }
 

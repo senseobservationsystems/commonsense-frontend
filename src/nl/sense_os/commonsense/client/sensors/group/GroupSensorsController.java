@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.client.json.parsers.GroupParser;
 import nl.sense_os.commonsense.client.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.sensors.SensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.GroupModel;
@@ -19,6 +18,7 @@ import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -30,23 +30,92 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class GroupSensorsController extends Controller {
 
     private static final String TAG = "GroupSensorsController";
-    private View sensorsTree;
+    private View unshareDialog;
+    private View tree;
 
     public GroupSensorsController() {
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
-        registerEventTypes(GroupSensorsEvents.ShowTree);
-        registerEventTypes(GroupEvents.ListUpdated);
-        registerEventTypes(SensorsEvents.UnshareSuccess, SensorsEvents.UnshareFailure);
-
-        // local event types
-        registerEventTypes(GroupSensorsEvents.ListRequest, GroupSensorsEvents.Done,
+        registerEventTypes(GroupSensorsEvents.ShowTree, GroupSensorsEvents.Done,
                 GroupSensorsEvents.Working);
+
+        // get list of groups sensors events
+        registerEventTypes(GroupSensorsEvents.ListRequest);
+        registerEventTypes(GroupEvents.ListUpdated);
         registerEventTypes(GroupSensorsEvents.AjaxGroupsSuccess,
                 GroupSensorsEvents.AjaxGroupsFailure);
         registerEventTypes(GroupSensorsEvents.AjaxUnownedSuccess,
                 GroupSensorsEvents.AjaxUnownedFailure);
         registerEventTypes(GroupSensorsEvents.AjaxOwnedSuccess, GroupSensorsEvents.AjaxOwnedFailure);
+        registerEventTypes(GroupSensorsEvents.AjaxDirectSharesSuccess,
+                GroupSensorsEvents.AjaxDirectSharesFailure);
+
+        // remove shared sensor events
+        registerEventTypes(GroupSensorsEvents.ShowUnshareDialog, GroupSensorsEvents.UnshareRequest,
+                GroupSensorsEvents.AjaxUnshareSuccess, GroupSensorsEvents.AjaxUnshareFailure);
+    }
+
+    private void getDirectShares(List<GroupModel> groups, AsyncCallback<List<TreeModel>> callback) {
+        // prepare request properties
+        final String method = "GET";
+        final String url = Constants.URL_SENSORS + "?per_page=1000&owned=0";
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        final AppEvent onSuccess = new AppEvent(GroupSensorsEvents.AjaxDirectSharesSuccess);
+        onSuccess.setData("groups", groups);
+        onSuccess.setData("callback", callback);
+        final AppEvent onFailure = new AppEvent(GroupSensorsEvents.AjaxDirectSharesFailure);
+        onFailure.setData("callback", callback);
+
+        // send request to AjaxController
+        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+        ajaxRequest.setData("method", method);
+        ajaxRequest.setData("url", url);
+        ajaxRequest.setData("session_id", sessionId);
+        ajaxRequest.setData("onSuccess", onSuccess);
+        ajaxRequest.setData("onFailure", onFailure);
+
+        Dispatcher.forwardEvent(ajaxRequest);
+    }
+
+    private void getDirectSharesFailure(AsyncCallback<List<TreeModel>> callback) {
+        Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
+        forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
+
+        if (null != callback) {
+            callback.onFailure(null);
+        }
+    }
+
+    private void getDirectSharesCallback(String response, List<GroupModel> groups,
+            AsyncCallback<List<TreeModel>> callback) {
+        // parse the sensors
+        List<SensorModel> sensors = new ArrayList<SensorModel>();
+        SensorParser.parseSensors(response, sensors);
+
+        Map<String, UserModel> owners = new HashMap<String, UserModel>();
+        for (SensorModel sensor : sensors) {
+            // get the user that owns the sensors
+            UserModel owner = sensor.getOwner();
+            if (null != owners.get(owner.getId())) {
+                owner = owners.get(owner.getId());
+            }
+            owner.add(sensor);
+            owners.put(owner.getId(), owner);
+        }
+
+        // add the owners to the list of group sensors
+        ArrayList<TreeModel> list = new ArrayList<TreeModel>(groups);
+        list.addAll(owners.values());
+
+        // aaaand we're done
+        Registry.register(Constants.REG_GROUP_SENSORS, list);
+
+        forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
+        Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
+
+        if (null != callback) {
+            callback.onSuccess(list);
+        }
     }
 
     private void getGroups(AsyncCallback<List<TreeModel>> callback) {
@@ -88,7 +157,7 @@ public class GroupSensorsController extends Controller {
 
     private void getGroupsFailure(AsyncCallback<List<TreeModel>> callback) {
         Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
-        forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
+        forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
 
         if (null != callback) {
             callback.onFailure(null);
@@ -124,7 +193,7 @@ public class GroupSensorsController extends Controller {
         } else {
             // should never happen
             Log.w(TAG, "Something is wrong with the index!");
-            forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
+            forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
             if (null != callback) {
                 callback.onFailure(null);
             }
@@ -150,7 +219,7 @@ public class GroupSensorsController extends Controller {
 
     private void getOwnedFailure(AsyncCallback<List<TreeModel>> callback) {
         Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
-        forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
+        forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
 
         if (null != callback) {
             callback.onFailure(null);
@@ -159,7 +228,7 @@ public class GroupSensorsController extends Controller {
 
     private void getSensors(final AsyncCallback<List<TreeModel>> callback) {
 
-        forwardToView(this.sensorsTree, new AppEvent(GroupSensorsEvents.Working));
+        forwardToView(this.tree, new AppEvent(GroupSensorsEvents.Working));
 
         // get list of groups before getting the group sensors
         getGroups(callback);
@@ -193,15 +262,8 @@ public class GroupSensorsController extends Controller {
 
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
-            // aaaand we're done
-            Registry.register(Constants.REG_GROUP_SENSORS, groups);
-
-            forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
-            Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
-
-            if (null != callback) {
-                callback.onSuccess(new ArrayList<TreeModel>(groups));
-            }
+            // continue the list by getting the sensors that are shared directly with me
+            getDirectShares(groups, callback);
         }
     }
 
@@ -242,7 +304,7 @@ public class GroupSensorsController extends Controller {
 
     private void getUnownedFailure(AsyncCallback<List<TreeModel>> callback) {
         Dispatcher.forwardEvent(GroupSensorsEvents.ListUpdated);
-        forwardToView(sensorsTree, new AppEvent(GroupSensorsEvents.Done));
+        forwardToView(tree, new AppEvent(GroupSensorsEvents.Done));
 
         if (null != callback) {
             callback.onFailure(null);
@@ -254,12 +316,12 @@ public class GroupSensorsController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(GroupSensorsEvents.ListRequest)) {
-            Log.d(TAG, "ListRequest");
+            // Log.d(TAG, "ListRequest");
             final AsyncCallback<List<TreeModel>> callback = event.getData();
             getSensors(callback);
 
         } else if (type.equals(GroupSensorsEvents.AjaxGroupsSuccess)) {
-            Log.d(TAG, "AjaxGroupsSuccess");
+            // Log.d(TAG, "AjaxGroupsSuccess");
             final String response = event.<String> getData("response");
             final AsyncCallback<List<TreeModel>> callback = event
                     .<AsyncCallback<List<TreeModel>>> getData("callback");
@@ -272,7 +334,7 @@ public class GroupSensorsController extends Controller {
             getGroupsFailure(callback);
 
         } else if (type.equals(GroupSensorsEvents.AjaxUnownedSuccess)) {
-            Log.d(TAG, "AjaxUnownedSuccess");
+            // Log.d(TAG, "AjaxUnownedSuccess");
             final String response = event.<String> getData("response");
             final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
             final int index = event.getData("index");
@@ -287,7 +349,7 @@ public class GroupSensorsController extends Controller {
             getUnownedFailure(callback);
 
         } else if (type.equals(GroupSensorsEvents.AjaxOwnedSuccess)) {
-            Log.d(TAG, "AjaxOwnedSuccess");
+            // Log.d(TAG, "AjaxOwnedSuccess");
             final String response = event.<String> getData("response");
             final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
             final int index = event.getData("index");
@@ -301,14 +363,118 @@ public class GroupSensorsController extends Controller {
                     .<AsyncCallback<List<TreeModel>>> getData("callback");
             getOwnedFailure(callback);
 
+        } else if (type.equals(GroupSensorsEvents.AjaxDirectSharesSuccess)) {
+            // Log.d(TAG, "AjaxDirectSharesSuccess");
+            final String response = event.<String> getData("response");
+            final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getDirectSharesCallback(response, groups, callback);
+
+        } else if (type.equals(GroupSensorsEvents.AjaxDirectSharesFailure)) {
+            Log.w(TAG, "AjaxDirectSharesFailure");
+            final AsyncCallback<List<TreeModel>> callback = event
+                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            getDirectSharesFailure(callback);
+
+        } else if (type.equals(GroupSensorsEvents.UnshareRequest)) {
+            // Log.d(TAG, "UnshareRequest");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            unshare(sensors, 0);
+
+        } else if (type.equals(GroupSensorsEvents.AjaxUnshareSuccess)) {
+            // Log.d(TAG, "AjaxUnshareSuccess");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            unshareCallback(sensors);
+
+        } else if (type.equals(GroupSensorsEvents.AjaxUnshareFailure)) {
+            Log.w(TAG, "AjaxUnshareFailure");
+            // final int code = event.getData("code");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final int retryCount = event.<Integer> getData("retry");
+            unshareFailure(sensors, retryCount);
+
+        } else if (type.equals(GroupSensorsEvents.ShowUnshareDialog)) {
+            forwardToView(this.unshareDialog, event);
+
         } else {
-            forwardToView(this.sensorsTree, event);
+            forwardToView(this.tree, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.sensorsTree = new GroupSensorsTree(this);
+        this.tree = new GroupSensorsTree(this);
+        this.unshareDialog = new UnshareDialog(this);
+    }
+
+    /**
+     * Unshares a list of sensors from certain users, using Ajax requests to CommonSense.
+     * 
+     * @param sensors
+     *            The list of sensors that have to be unshared. The sensors must have a "user"
+     *            property, containing the ID of the user to unshare.
+     * @param retryCount
+     *            Counter for failed requests that were retried.
+     */
+    private void unshare(List<SensorModel> sensors, int retryCount) {
+        if (null != sensors && sensors.size() > 0) {
+            ModelData sensor = sensors.get(0);
+
+            // get the user that we want to unshare the sensor with
+            String userId = sensor.get("user");
+
+            // prepare request properties
+            final String method = "DELETE";
+            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/users/"
+                    + userId;
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(GroupSensorsEvents.AjaxUnshareSuccess);
+            onSuccess.setData("sensors", sensors);
+            final AppEvent onFailure = new AppEvent(GroupSensorsEvents.AjaxUnshareFailure);
+            onFailure.setData("sensors", sensors);
+            onFailure.setData("retry", retryCount);
+
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+            Dispatcher.forwardEvent(ajaxRequest);
+        } else {
+            forwardToView(this.unshareDialog, new AppEvent(GroupSensorsEvents.UnshareSuccess));
+            forwardToView(this.tree, new AppEvent(GroupSensorsEvents.UnshareSuccess));
+        }
+    }
+
+    private void unshareCallback(List<SensorModel> sensors) {
+        // Goodbye sensor!
+        sensors.remove(0);
+
+        // continue with the rest of the list
+        unshare(sensors, 0);
+    }
+
+    /**
+     * Handles a failed unshare request. Retries the request up to three times, after this it gives
+     * up and dispatches {@link SensorsEvents#UnshareFailure}.
+     * 
+     * @param sensors
+     *            List of sensors that have to be unshared.
+     * @param retryCount
+     *            Number of times this request was attempted.
+     */
+    private void unshareFailure(List<SensorModel> sensors, int retryCount) {
+
+        if (retryCount < 3) {
+            retryCount++;
+            unshare(sensors, retryCount);
+        } else {
+            forwardToView(this.unshareDialog, new AppEvent(GroupSensorsEvents.UnshareFailure));
+            forwardToView(this.tree, new AppEvent(GroupSensorsEvents.UnshareFailure));
+        }
     }
 }
