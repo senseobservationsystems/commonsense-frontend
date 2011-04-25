@@ -44,7 +44,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Sat Apr 23 18:12";
+    public static final String LAST_DEPLOYED = "Mon Apr 25 23:02";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.

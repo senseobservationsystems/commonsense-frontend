@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.visualization.linechart.LineChartPanel;
 import nl.sense_os.commonsense.client.visualization.map.MapPanel;
 import nl.sense_os.commonsense.client.visualization.table.SensorDataGrid;
 import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel;
@@ -89,13 +88,6 @@ public class VizView extends View {
             Log.d(TAG, "FeedbackReady");
             final Component feedbackPanel = event.getData();
             showFeedback(feedbackPanel);
-
-        } else if (type.equals(VizEvents.ShowLineChart)) {
-            // Log.d(TAG, "ShowLineChart");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long startTime = event.getData("startTime");
-            final long endTime = event.getData("endTime");
-            showLineChart(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
             // Log.d(TAG, "ShowTimeLine");
@@ -254,22 +246,6 @@ public class VizView extends View {
         this.tabPanel.setSelection(item);
     }
 
-    private void showLineChart(List<SensorModel> sensors, long startTime, long endTime) {
-
-        // add line chart tab item
-        String title = createChartTitle(sensors);
-        final TabItem item = new TabItem(title);
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "chart.png"));
-        item.setLayout(new FitLayout());
-        item.setClosable(true);
-
-        final LineChartPanel chart = new LineChartPanel(sensors, startTime, endTime, title);
-        item.add(chart);
-
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
-    }
-
     private void showMap(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add map tab item
@@ -312,10 +288,11 @@ public class VizView extends View {
     }
 
     private void showTimeLine(List<SensorModel> sensors, long startTime, long endTime) {
-        // add time line tab item
-        final String title = createChartTitle(sensors);
+
+        // add line chart tab item
+        String title = createChartTitle(sensors);
         final TabItem item = new TabItem(title);
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "timeline.png"));
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "chart.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 

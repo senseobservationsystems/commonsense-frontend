@@ -5,51 +5,55 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
+import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;
 import com.chap.links.client.Timeline.Options;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FillData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
 public class TimeLinePanel extends VizPanel {
 
-    @SuppressWarnings("unused")
     private static final String TAG = "TimeLinePanel";
+    private Graph graph;
+    private final Graph.Options graphOpts;
     private Timeline timeline;
-    private final Timeline.Options options;
+    private final Timeline.Options tlineOpts;
     private final DataTable dataTable;
 
-    /**
-     * Creates new TimeLinePanel instance for the given list of sensors.
-     * 
-     * @param sensors
-     *            List with SensorModels to display in a line chart.
-     * @param start
-     *            Start time of the period to display.
-     * @param end
-     *            End time of the period to display.
-     */
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
         // set up layout
         setHeading("Time line: " + title);
         setBodyBorder(false);
-        setLayout(new FitLayout());
+        setLayout(new FillLayout());
 
-        this.options = Options.create();
-        this.options.setWidth("100%");
-        this.options.setHeight("100%");
-        this.options.setAnimate(false);
-        this.options.setStackEvents(false);
+        // Graph options
+        this.graphOpts = Graph.Options.create();
+        this.graphOpts.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
+        this.graphOpts.setLineRadius(2);
+        this.graphOpts.setWidth("100%");
+        this.graphOpts.setHeight("100%");
+        this.graphOpts.setLegendCheckboxes(true);
+        this.graphOpts.setLegendWidth("20%");
+
+        // time line options
+        this.tlineOpts = Options.create();
+        this.tlineOpts.setWidth("100%");
+        this.tlineOpts.setHeight("100%");
+        this.tlineOpts.setAnimate(false);
+        this.tlineOpts.setStackEvents(false);
         this.dataTable = createDataTable();
 
         visualize(sensors, start, end);
@@ -57,7 +61,155 @@ public class TimeLinePanel extends VizPanel {
 
     @Override
     public void addData(JsArray<Timeseries> data) {
+        // Log.d(TAG, "addData...");
 
+        if (data.length() == 0) {
+            onNoData();
+            return;
+        }
+
+        JsArray<Timeseries> numberData = JsArray.createArray().cast();
+        JsArray<Timeseries> stringData = JsArray.createArray().cast();
+        for (int i = 0; i < data.length(); i++) {
+            Timeseries ts = data.get(i);
+            if (ts.getType().equalsIgnoreCase("number")) {
+                Log.d(TAG, ts.getLabel() + " (number data)");
+                numberData.push(ts);
+            } else {
+                Log.d(TAG, ts.getLabel() + " (" + ts.getType() + " data)");
+                stringData.push(ts);
+            }
+        }
+
+        // show the string data in a time line
+        if (stringData.length() > 0) {
+            showStringData(stringData);
+        }
+
+        // show the numerical data in a line graph
+        if (numberData.length() > 0) {
+            showNumberData(numberData);
+        }
+    }
+
+    /**
+     * @return An empty DataTable with the correct columns for Timeline visualization.
+     */
+    private DataTable createDataTable() {
+
+        DataTable data = DataTable.create();
+        data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
+        data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
+        data.addColumn(DataTable.ColumnType.STRING, "content");
+        data.addColumn(DataTable.ColumnType.STRING, "group");
+
+        return data;
+    }
+
+    private void createGraph(JsArray<Timeseries> data) {
+
+        this.graph = new Graph(data, this.graphOpts);
+
+        this.graph.addRangeChangeHandler(new RangeChangeHandler() {
+
+            @Override
+            public void onRangeChange(RangeChangeEvent event) {
+                if (null != timeline) {
+                    timeline.setVisibleChartRange(event.getStart(), event.getEnd());
+                }
+            }
+        });
+
+        // this LayoutContainer ensures that the graph is sized and resized correctly
+        LayoutContainer graphWrapper = new LayoutContainer() {
+            @Override
+            protected void onResize(int width, int height) {
+                super.onResize(width, height);
+                redrawGraph();
+            }
+        };
+        graphWrapper.add(this.graph);
+
+        this.add(graphWrapper, new FillData(0));
+        this.layout();
+    }
+
+    private void createTimeline() {
+
+        this.timeline = new Timeline(this.dataTable, this.tlineOpts);
+
+        this.timeline.addRangeChangeHandler(new RangeChangeHandler() {
+
+            @Override
+            public void onRangeChange(RangeChangeEvent event) {
+                if (null != graph) {
+                    graph.setVisibleChartRange(event.getStart(), event.getEnd());
+                    graph.redraw();
+                }
+            }
+        });
+
+        // this LayoutContainer ensures that the graph is sized and resized correctly
+        LayoutContainer wrapper = new LayoutContainer() {
+            @Override
+            protected void onResize(int width, int height) {
+                super.onResize(width, height);
+                redrawTimeline();
+            }
+        };
+        wrapper.add(this.timeline);
+
+        this.insert(wrapper, 0, new FillData(5));
+        this.layout();
+    }
+
+    private void onNoData() {
+        String msg = "No data to visualize! "
+                + "Please make sure that you selected a time range that contains sensor readings.";
+        MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                if (null == graph && null == timeline) {
+                    TimeLinePanel.this.hide();
+                }
+            }
+        });
+    }
+
+    private void redrawGraph() {
+        // only redraw if the graph is already drawn
+        if (null != this.graph && this.graph.isAttached()) {
+            this.graph.redraw();
+        } else {
+            Log.w(TAG, "Cannot redraw line graph: it is not visible!");
+        }
+    }
+
+    private void redrawTimeline() {
+        // only redraw if the time line is already drawn
+        if (null != this.timeline && this.timeline.isAttached()) {
+            Log.d(TAG, "Redraw time line...");
+            this.timeline.redraw();
+        } else {
+            Log.w(TAG, "Cannot redraw time line: it is not visible!");
+        }
+    }
+
+    private void showNumberData(JsArray<Timeseries> data) {
+        if (null == this.graph) {
+            createGraph(data);
+        } else {
+            redrawGraph();
+        }
+    }
+
+    private void showStringData(JsArray<Timeseries> data) {
+
+        // clear the data table
+        this.dataTable.removeRows(0, this.dataTable.getNumberOfRows());
+
+        // put the time series values to the data table
         Timeseries ts;
         JsArray<DataPoint> values;
         DataPoint lastPoint = null, dataPoint = null, nextPoint = null;
@@ -111,61 +263,10 @@ public class TimeLinePanel extends VizPanel {
             if (null == this.timeline) {
                 createTimeline();
             } else {
-                this.timeline.redraw();
-            }
-        } else {
-            onNoData();
-        }
-    }
-
-    /**
-     * @return An empty DataTable with the correct columns for Timeline visualization.
-     */
-    private DataTable createDataTable() {
-
-        DataTable data = DataTable.create();
-        data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
-        data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
-        data.addColumn(DataTable.ColumnType.STRING, "content");
-        data.addColumn(DataTable.ColumnType.STRING, "group");
-
-        return data;
-    }
-
-    private void createTimeline() {
-
-        this.timeline = new Timeline(this.dataTable, this.options);
-
-        // this LayoutContainer ensures that the graph is sized and resized correctly
-        LayoutContainer wrapper = new LayoutContainer() {
-            @Override
-            protected void onResize(int width, int height) {
-                super.onResize(width, height);
                 redrawTimeline();
             }
-        };
-        wrapper.add(this.timeline);
-
-        this.add(wrapper, new FitData(5));
-        this.layout();
-    }
-
-    private void onNoData() {
-        String msg = "No data to visualize! "
-                + "Please make sure that you selected a proper time range.";
-        MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
-
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                TimeLinePanel.this.hide();
-            }
-        });
-    }
-
-    private void redrawTimeline() {
-        // only redraw if the time line is already drawn
-        if (null != this.timeline && this.timeline.isAttached()) {
-            this.timeline.redraw();
+        } else {
+            Log.w(TAG, "No data for time line visualization!");
         }
     }
 }

@@ -47,7 +47,6 @@ public class VizTypeChooser extends View {
     private Button buttonToTypes;
     private RadioGroup timeRangeField;
     private RadioGroup typesField;
-    private Radio lineChart;
     private Radio timeLine;
     private Radio table;
     private Radio map;
@@ -200,8 +199,7 @@ public class VizTypeChooser extends View {
             @Override
             public void handleEvent(FieldEvent be) {
                 Radio label = typesField.getValue();
-                if (label.equals(lineChart) || label.equals(timeLine) || label.equals(map)
-                        || label.equals(network)) {
+                if (label.equals(timeLine) || label.equals(map) || label.equals(network)) {
                     buttonToTimeRange.setText("Next");
 
                 } else if (label.equals(table)) {
@@ -260,15 +258,10 @@ public class VizTypeChooser extends View {
         this.typesField = new RadioGroup();
         this.typesField.setFieldLabel("Select a visualization type");
 
-        this.lineChart = new Radio();
-        this.lineChart.setBoxLabel("Line chart");
-        this.lineChart.setHideLabel(true);
-        this.lineChart.setValue(true);
-        left.add(this.lineChart, new FormData());
-
         this.timeLine = new Radio();
         this.timeLine.setBoxLabel("Time line");
         this.timeLine.setHideLabel(true);
+        this.timeLine.setValue(true);
         left.add(this.timeLine, new FormData());
 
         this.table = new Radio();
@@ -303,12 +296,11 @@ public class VizTypeChooser extends View {
         });
 
         // add the choices to the typesfield
-        this.typesField.add(lineChart);
         this.typesField.add(timeLine);
         this.typesField.add(table);
         this.typesField.add(map);
         this.typesField.add(network);
-        this.typesField.setOriginalValue(lineChart);
+        this.typesField.setOriginalValue(timeLine);
         this.typesField.setSelectionRequired(true);
 
         main.add(left, new ColumnData(.5));
@@ -352,7 +344,7 @@ public class VizTypeChooser extends View {
 
             // make sure the map radio button is not selected
             if (this.typesField.getValue().equals(this.map)) {
-                this.typesField.setValue(this.lineChart);
+                this.typesField.setValue(this.timeLine);
             }
         }
     }
@@ -394,13 +386,7 @@ public class VizTypeChooser extends View {
      */
     private void saveSelectedType() {
         Radio label = typesField.getValue();
-        if (label.equals(this.lineChart)) {
-            this.submitEvent = new AppEvent(VizEvents.ShowLineChart);
-            this.submitEvent.setData("sensors", this.sensors);
-
-            this.buttonToTimeRange.setText("Next");
-
-        } else if (label.equals(this.timeLine)) {
+        if (label.equals(this.timeLine)) {
             this.submitEvent = new AppEvent(VizEvents.ShowTimeLine);
             this.submitEvent.setData("sensors", this.sensors);
 
