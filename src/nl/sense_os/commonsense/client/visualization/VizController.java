@@ -33,9 +33,7 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.Show);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowTimeLine, VizEvents.ShowTable, VizEvents.ShowMap,
-                VizEvents.ShowNetwork);
-        registerEventTypes(StateEvents.FeedbackReady, StateEvents.FeedbackComplete,
-                StateEvents.FeedbackCancelled);
+                VizEvents.ShowNetwork, StateEvents.ShowFeedback);
     }
 
     @Override

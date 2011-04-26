@@ -7,22 +7,38 @@ import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
 
 public abstract class VizPanel extends ContentPanel {
 
+    private class RefreshTimer extends Timer {
+
+        @Override
+        public void run() {
+            refreshData();
+        }
+    }
+
     private static final String TAG = "VizPanel";
+    private static final int REFRESH_PERIOD = 1000 * 10;
     private List<SensorModel> sensors;
     private long start;
     private long end;
+    private RefreshTimer refreshTimer;
+    protected boolean isAutoRefresh;
 
     /**
      * Creates new VizPanel instance.
@@ -52,8 +68,74 @@ public abstract class VizPanel extends ContentPanel {
                         refreshData();
                     }
                 });
+        final ToolButton autoRefresh = new ToolButton("x-tool-gear",
+                new SelectionListener<IconButtonEvent>() {
 
-        this.getHeader().addTool(refresh);
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+
+                        if (null == refreshTimer) {
+                            registerHideListener();
+                            refreshTimer = new RefreshTimer();
+                            isAutoRefresh = false;
+                        }
+
+                        if (!isAutoRefresh) {
+                            refreshData();
+                            refreshTimer.scheduleRepeating(REFRESH_PERIOD);
+                            isAutoRefresh = true;
+                        } else {
+                            refreshTimer.cancel();
+                            isAutoRefresh = false;
+                        }
+                    }
+                });
+
+        Header header = this.getHeader();
+        header.addTool(autoRefresh);
+        header.addTool(refresh);
+    }
+
+    private void registerHideListener() {
+        Widget parent = VizPanel.this.getParent();
+        if (parent instanceof TabItem) {
+            ((TabItem) parent).addListener(Events.Hide, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    Log.d(TAG, "hide");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Close, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    Log.d(TAG, "close");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Show, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    Log.d(TAG, "show");
+                    if (isAutoRefresh) {
+                        refreshData();
+                        refreshTimer.scheduleRepeating(REFRESH_PERIOD);
+                    }
+                }
+
+            });
+        } else {
+            Log.d(TAG, "Cannot register show/hide listeners: Parent is not a tabitem!");
+        }
     }
 
     @Override

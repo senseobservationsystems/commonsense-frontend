@@ -44,7 +44,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Mon Apr 25 23:02";
+    public static final String LAST_DEPLOYED = "Tue Apr 26 15:12";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -115,6 +115,7 @@ public class CommonSense implements EntryPoint {
                 data.addColumn(DataTable.ColumnType.DATETIME, "startdate");
                 data.addColumn(DataTable.ColumnType.DATETIME, "enddate");
                 data.addColumn(DataTable.ColumnType.STRING, "content");
+                data.addColumn(DataTable.ColumnType.STRING, "group");
 
                 DateTimeFormat dtf = DateTimeFormat.getFormat("yyyy-MM-dd");
 
@@ -123,15 +124,22 @@ public class CommonSense implements EntryPoint {
                 data.setValue(0, 0, dtf.parse("2010-08-23"));
                 data.setValue(0, 1, dtf.parse("2010-08-30"));
                 data.setValue(0, 2, "Project A");
+                data.setValue(0, 3, "battery sensor level");
                 data.addRow();
                 data.setValue(1, 0, dtf.parse("2010-08-28"));
+                data.setValue(1, 1, dtf.parse("2010-09-03"));
                 data.setValue(1, 2, "Meeting");
+                data.setValue(1, 3, "battery sensor level");
                 data.addRow();
-                data.setValue(2, 0, dtf.parse("2010-09-02"));
+                data.setValue(2, 0, dtf.parse("2010-08-20"));
+                data.setValue(2, 1, dtf.parse("2010-08-25"));
                 data.setValue(2, 2, "Phone Call");
+                data.setValue(2, 3, "foo");
                 data.addRow();
-                data.setValue(3, 0, dtf.parse("2010-09-03"));
+                data.setValue(3, 0, dtf.parse("2010-08-27"));
+                data.setValue(3, 1, dtf.parse("2010-08-30"));
                 data.setValue(3, 2, "Finished");
+                data.setValue(3, 3, "foo");
 
                 // create options
                 Timeline.Options options = Timeline.Options.create();

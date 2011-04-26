@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.states;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 
@@ -35,10 +39,6 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.SelectHandler;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class FeedbackForm extends View {
 

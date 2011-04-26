@@ -51,6 +51,14 @@ div.graph-canvas div.graph-legend {
 	background-color: white;
 }
 
+div.timeline-groups-text {
+    width: 120px;
+}
+
+div.graph-axis-text-vertical {
+    width: 125px;
+}
+
 /** #loading for the initial "Loading" div that is shown before the rootpanel is filled */
 #loading {
 	position: absolute;

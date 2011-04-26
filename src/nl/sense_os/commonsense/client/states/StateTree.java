@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.states;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -8,6 +11,7 @@ import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.visualization.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -49,9 +53,6 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StateTree extends View {
 
     protected static final String TAG = "StateTree";
@@ -65,9 +66,14 @@ public class StateTree extends View {
     private MenuItem connectButton;
     private MenuItem editButton;
     private MenuItem feedbackButton;
+    private MenuItem defaultsButton;
 
     public StateTree(Controller controller) {
         super(controller);
+    }
+
+    protected void checkDefaultStates() {
+        fireEvent(new AppEvent(StateEvents.CheckDefaults));
     }
 
     private void confirmRemove() {
@@ -128,77 +134,17 @@ public class StateTree extends View {
             // Log.d(TAG, "CreateServiceComplete");
             refreshLoader(true);
 
+        } else if (type.equals(StateEvents.CheckDefaultsSuccess)) {
+            // Log.d(TAG, "CheckDefaultsSuccess");
+            refreshLoader(true);
+
+        } else if (type.equals(StateEvents.CheckDefaultsFailure)) {
+            Log.w(TAG, "CheckDefaultsFailure");
+            onDefaultsFailed();
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
-    }
-
-    private void initTree() {
-        // tree store
-        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
-
-            @Override
-            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
-                // only load when the panel is not collapsed
-                if (false == isCollapsed) {
-                    if (null == loadConfig) {
-                        Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
-                    } else if (loadConfig instanceof TreeModel) {
-                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        List<TreeModel> children = new ArrayList<TreeModel>();
-                        for (ModelData model : childrenModels) {
-                            children.add((TreeModel) model);
-                        }
-                        callback.onSuccess(children);
-                    } else {
-                        callback.onSuccess(new ArrayList<TreeModel>());
-                    }
-                }
-            }
-        };
-        this.loader = new BaseTreeLoader<TreeModel>(proxy);
-        this.store = new TreeStore<TreeModel>(loader);
-        this.store.setKeyProvider(new SensorKeyProvider());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
-
-        this.tree = new TreePanel<TreeModel>(this.store);
-        this.tree.setId("stateGrid");
-        this.tree.setDisplayProperty("text");
-        this.tree.setStateful(true);
-        this.tree.setIconProvider(new SensorIconProvider());
-
-        // toolbar with filter field
-        ToolBar filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
-
-            @Override
-            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
-                    String property, String filter) {
-                // only match leaf nodes
-                if (record.getChildCount() > 0) {
-                    return false;
-                }
-                String name = record.get("text");
-                name = name.toLowerCase();
-                if (name.startsWith(filter.toLowerCase())) {
-                    return true;
-                }
-                return false;
-            }
-
-        };
-        filter.bind(store);
-        filterBar.add(filter);
-
-        // add grid to panel
-        ContentPanel content = new ContentPanel(new FitLayout());
-        content.setBodyBorder(false);
-        content.setHeaderVisible(false);
-        content.setTopComponent(filterBar);
-        content.add(this.tree);
-
-        this.panel.add(content);
     }
 
     private void initHeaderTool() {
@@ -288,6 +234,8 @@ public class StateTree extends View {
                     confirmRemove();
                 } else if (source.equals(feedbackButton)) {
                     showFeedback();
+                } else if (source.equals(defaultsButton)) {
+                    onDefaultClick();
                 } else {
                     Log.w(TAG, "Unexpected button clicked");
                 }
@@ -299,6 +247,9 @@ public class StateTree extends View {
 
         this.createButton = new MenuItem("New State", l);
         serviceMenu.add(createButton);
+
+        this.defaultsButton = new MenuItem("Default States", l);
+        serviceMenu.add(defaultsButton);
 
         this.editButton = new MenuItem("Algorithm Parameters", l);
         this.editButton.disable();
@@ -328,7 +279,75 @@ public class StateTree extends View {
         this.panel.setTopComponent(toolBar);
     }
 
-    protected void onAddClick() {
+    private void initTree() {
+        // tree store
+        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
+
+            @Override
+            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
+                // only load when the panel is not collapsed
+                if (false == isCollapsed) {
+                    if (null == loadConfig) {
+                        Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
+                    } else if (loadConfig instanceof TreeModel) {
+                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
+                        List<TreeModel> children = new ArrayList<TreeModel>();
+                        for (ModelData model : childrenModels) {
+                            children.add((TreeModel) model);
+                        }
+                        callback.onSuccess(children);
+                    } else {
+                        callback.onSuccess(new ArrayList<TreeModel>());
+                    }
+                }
+            }
+        };
+        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        this.store = new TreeStore<TreeModel>(loader);
+        this.store.setKeyProvider(new SensorKeyProvider());
+        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+
+        this.tree = new TreePanel<TreeModel>(this.store);
+        this.tree.setId("stateGrid");
+        this.tree.setDisplayProperty("text");
+        this.tree.setStateful(true);
+        this.tree.setIconProvider(new SensorIconProvider());
+
+        // toolbar with filter field
+        ToolBar filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
+
+            @Override
+            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
+                    String property, String filter) {
+                // only match leaf nodes
+                if (record.getChildCount() > 0) {
+                    return false;
+                }
+                String name = record.get("text");
+                name = name.toLowerCase();
+                if (name.startsWith(filter.toLowerCase())) {
+                    return true;
+                }
+                return false;
+            }
+
+        };
+        filter.bind(store);
+        filterBar.add(filter);
+
+        // add grid to panel
+        ContentPanel content = new ContentPanel(new FitLayout());
+        content.setBodyBorder(false);
+        content.setHeaderVisible(false);
+        content.setTopComponent(filterBar);
+        content.add(this.tree);
+
+        this.panel.add(content);
+    }
+
+    private void onAddClick() {
         TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
@@ -336,11 +355,37 @@ public class StateTree extends View {
         Dispatcher.forwardEvent(StateEvents.ShowSensorConnecter, selectedService);
     }
 
-    protected void onCreateClick() {
+    private void onCreateClick() {
         Dispatcher.forwardEvent(StateEvents.ShowCreator);
     }
 
-    protected void onEditClick() {
+    private void onDefaultClick() {
+        MessageBox.confirm(null, "Are you sure you want to create default state sensors?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            checkDefaultStates();
+                        }
+                    }
+                });
+    }
+
+    private void onDefaultsFailed() {
+        MessageBox.confirm(null, "Failed to create default state sensors! Retry?",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            checkDefaultStates();
+                        }
+                    }
+                });
+    }
+
+    private void onEditClick() {
         TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
@@ -401,8 +446,16 @@ public class StateTree extends View {
             selected = selected.getParent();
         }
 
+        List<SensorModel> sensors = new ArrayList<SensorModel>();
+        sensors.add((SensorModel) selected);
+        for (ModelData model : selected.getChildren()) {
+            sensors.add((SensorModel) model);
+        }
+
         AppEvent event = new AppEvent(StateEvents.ShowFeedback);
-        event.setData("service", selected);
+        event.setData("sensors", sensors);
+        event.setData("startTime", System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 7));
+        event.setData("endTime", System.currentTimeMillis());
         Dispatcher.forwardEvent(event);
     }
 

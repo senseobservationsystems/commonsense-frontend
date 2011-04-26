@@ -5,12 +5,13 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.states.FeedbackPanel;
 import nl.sense_os.commonsense.client.states.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.visualization.map.MapPanel;
 import nl.sense_os.commonsense.client.visualization.table.SensorDataGrid;
-import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel;
+import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel2;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
@@ -29,7 +30,6 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -79,15 +79,12 @@ public class VizView extends View {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(StateEvents.FeedbackComplete)
-                || type.equals(StateEvents.FeedbackCancelled)) {
-            // Log.d(TAG, "FeedbackComplete");
-            removeFeedback();
-
-        } else if (type.equals(StateEvents.FeedbackReady)) {
-            Log.d(TAG, "FeedbackReady");
-            final Component feedbackPanel = event.getData();
-            showFeedback(feedbackPanel);
+        } else if (type.equals(StateEvents.ShowFeedback)) {
+            Log.d(TAG, "ShowFeedback");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final long startTime = event.getData("startTime");
+            final long endTime = event.getData("endTime");
+            showFeedback(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
             // Log.d(TAG, "ShowTimeLine");
@@ -204,11 +201,6 @@ public class VizView extends View {
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
     }
 
-    private void removeFeedback() {
-        // TODO this ain't right
-        this.tabPanel.remove(this.tabPanel.getSelectedItem());
-    }
-
     private void resetTabs() {
         for (TabItem items : tabPanel.getItems()) {
             if (items.isClosable()) {
@@ -234,14 +226,18 @@ public class VizView extends View {
         });
     }
 
-    private void showFeedback(Component feedbackPanel) {
+    private void showFeedback(List<SensorModel> sensors, long startTime, long endTime) {
 
-        // add line chart tab item
-        final TabItem item = new TabItem("Feedback");
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "sense_magenta.gif"));
+        // add map tab item
+        String title = createChartTitle(sensors);
+        final TabItem item = new TabItem(title);
+        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "setting_tools.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
-        item.add(feedbackPanel);
+
+        FeedbackPanel feedback = new FeedbackPanel(sensors, startTime, endTime, title);
+        item.add(feedback);
+
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);
     }
@@ -296,7 +292,7 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime, title);
+        final TimeLinePanel2 chart = new TimeLinePanel2(sensors, startTime, endTime, title);
         item.add(chart);
 
         this.tabPanel.add(item);

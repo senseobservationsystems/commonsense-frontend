@@ -17,7 +17,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 public class FeedbackController extends Controller {
 
     private static final String TAG = "FeedbackController";
-    private FeedbackForm form;
+    // private FeedbackForm form;
 
     public FeedbackController() {
         registerEventTypes(StateEvents.ShowFeedback, StateEvents.FeedbackSubmit,
@@ -50,14 +50,15 @@ public class FeedbackController extends Controller {
             onFeedbackMarked(service, label, feedback);
 
         } else {
-            forwardToView(this.form, event);
+            // TODO
+            // forwardToView(this.form, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.form = new FeedbackForm(this);
+        // this.form = new FeedbackForm(this);
     }
 
     private void markFeedback(TreeModel service, String label, List<ModelData> feedback) {
@@ -99,11 +100,13 @@ public class FeedbackController extends Controller {
             feedback.remove(0);
             markFeedback(service, label, feedback);
         } else {
-            forwardToView(this.form, new AppEvent(StateEvents.FeedbackComplete));
+            // TODO
+            // forwardToView(this.form, new AppEvent(StateEvents.FeedbackComplete));
         }
     }
 
     private void onFeedbackFailed(int code) {
-        forwardToView(this.form, new AppEvent(StateEvents.FeedbackFailed));
+        // TODO
+        // forwardToView(this.form, new AppEvent(StateEvents.FeedbackFailed));
     }
 }

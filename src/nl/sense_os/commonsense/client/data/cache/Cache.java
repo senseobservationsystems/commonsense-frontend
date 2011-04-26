@@ -22,6 +22,10 @@ public class Cache {
         }
     }
 
+    public static void clear() {
+        cache = null;
+    }
+
     /**
      * Gets sensor data from the cache, if available.
      * 

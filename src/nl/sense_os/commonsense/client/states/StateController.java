@@ -38,7 +38,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class StateController extends Controller {
 
     private static final String TAG = "StateController";
-    private View grid;
+    private View tree;
     private View creator;
     private View connecter;
     private View editor;
@@ -82,6 +82,10 @@ public class StateController extends Controller {
                 StateEvents.AjaxServiceNameFailure);
         registerEventTypes(StateEvents.AjaxSensorsSuccess, StateEvents.AjaxSensorsFailure);
         registerEventTypes(StateEvents.AjaxConnectedSuccess, StateEvents.AjaxConnectedFailure);
+
+        // check default states events
+        registerEventTypes(StateEvents.CheckDefaults, StateEvents.AjaxDefaultsSuccess,
+                StateEvents.AjaxDefaultsFailure);
     }
 
     private void connectService(TreeModel sensor, TreeModel service, String serviceName) {
@@ -113,7 +117,7 @@ public class StateController extends Controller {
 
     private void connectServiceCallback(String response) {
         forwardToView(this.connecter, new AppEvent(StateEvents.ConnectSuccess));
-        forwardToView(this.grid, new AppEvent(StateEvents.ConnectSuccess));
+        forwardToView(this.tree, new AppEvent(StateEvents.ConnectSuccess));
     }
 
     private void connectServiceErrorCallback(int code) {
@@ -159,7 +163,7 @@ public class StateController extends Controller {
 
     private void createServiceCallback(String response) {
         forwardToView(this.creator, new AppEvent(StateEvents.CreateServiceComplete));
-        forwardToView(this.grid, new AppEvent(StateEvents.CreateServiceComplete));
+        forwardToView(this.tree, new AppEvent(StateEvents.CreateServiceComplete));
     }
 
     private void createServiceErrorCallback(int code) {
@@ -187,11 +191,11 @@ public class StateController extends Controller {
     }
 
     private void disconnectServiceCallback(String response) {
-        forwardToView(this.grid, new AppEvent(StateEvents.RemoveComplete));
+        forwardToView(this.tree, new AppEvent(StateEvents.RemoveComplete));
     }
 
     private void disconnectServiceErrorCallback(int code) {
-        forwardToView(this.grid, new AppEvent(StateEvents.RemoveFailed));
+        forwardToView(this.tree, new AppEvent(StateEvents.RemoveFailed));
     }
 
     private void getAvailableSensors(String serviceName,
@@ -626,12 +630,21 @@ public class StateController extends Controller {
             // Log.d(TAG, "AjaxGetMethodsSuccess");
             final String response = event.<String> getData("response");
             parseServiceMethods(response);
+
+        } else if (type.equals(StateEvents.CheckDefaults)) {
+            Log.d(TAG, "CheckDefaults");
+            checkDefaults();
+
+        } else if (type.equals(StateEvents.AjaxDefaultsSuccess)) {
+            Log.d(TAG, "AjaxDefaultsSuccess");
+            final String response = event.<String> getData("response");
+            checkDefaultsCallback(response);
         }
 
-        if (type.equals(StateEvents.ShowCreator) || type.equals(StateEvents.CreateServiceComplete)
-                || type.equals(StateEvents.CreateServiceFailed)
-                || type.equals(StateEvents.CreateServiceCancelled)) {
-            forwardToView(this.creator, event);
+        if (type.equals(StateEvents.AjaxDefaultsFailure)) {
+            Log.w(TAG, "AjaxDefaultsFailure");
+            // final int code = event.getData("code");
+            checkDefaultsFailure();
         }
 
         if (type.equals(StateEvents.ShowSensorConnecter) || type.equals(StateEvents.ConnectSuccess)
@@ -654,11 +667,39 @@ public class StateController extends Controller {
                 || type.equals(VizEvents.Show) || type.equals(StateEvents.ConnectSuccess)
                 || type.equals(StateEvents.CreateServiceComplete)
                 || type.equals(LoginEvents.LoggedOut)) {
-            forwardToView(this.grid, event);
+            forwardToView(this.tree, event);
         }
     }
+
+    private void checkDefaultsFailure() {
+        forwardToView(this.tree, new AppEvent(StateEvents.CheckDefaultsFailure));
+    }
+
+    private void checkDefaultsCallback(String response) {
+        forwardToView(this.tree, new AppEvent(StateEvents.CheckDefaultsSuccess));
+    }
+
+    private void checkDefaults() {
+        // prepare request properties
+        final String method = "GET";
+        final String url = Constants.URL_STATES + "/default/check";
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxDefaultsSuccess);
+        final AppEvent onFailure = new AppEvent(StateEvents.AjaxDefaultsFailure);
+
+        // send request to AjaxController
+        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+        ajaxRequest.setData("method", method);
+        ajaxRequest.setData("url", url);
+        ajaxRequest.setData("session_id", sessionId);
+        ajaxRequest.setData("onSuccess", onSuccess);
+        ajaxRequest.setData("onFailure", onFailure);
+
+        Dispatcher.forwardEvent(ajaxRequest);
+    }
+
     private void getConnectedFailure(AsyncCallback<List<TreeModel>> callback) {
-        forwardToView(grid, new AppEvent(StateEvents.Done));
+        forwardToView(tree, new AppEvent(StateEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
@@ -677,7 +718,7 @@ public class StateController extends Controller {
     }
 
     private void getMyServicesFailure(AsyncCallback<List<TreeModel>> callback) {
-        forwardToView(grid, new AppEvent(StateEvents.Done));
+        forwardToView(tree, new AppEvent(StateEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
@@ -727,7 +768,7 @@ public class StateController extends Controller {
             // completed the list of state sensors
             Registry.register(Constants.REG_SERVICES, states);
 
-            forwardToView(grid, new AppEvent(StateEvents.Done));
+            forwardToView(tree, new AppEvent(StateEvents.Done));
             if (null != callback) {
                 callback.onSuccess(new ArrayList<TreeModel>(states));
             }
@@ -737,7 +778,7 @@ public class StateController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.grid = new StateTree(this);
+        this.tree = new StateTree(this);
         this.creator = new StateCreator(this);
         this.connecter = new StateConnecter(this);
         this.editor = new StateEditor(this);

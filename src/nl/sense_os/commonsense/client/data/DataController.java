@@ -7,6 +7,7 @@ import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.data.cache.Cache;
 import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizPanel;
 import nl.sense_os.commonsense.shared.Constants;
@@ -31,6 +32,7 @@ public class DataController extends Controller {
     public DataController() {
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
+        registerEventTypes(LoginEvents.LoggedOut);
     }
 
     @Override
@@ -71,6 +73,10 @@ public class DataController extends Controller {
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
 
             onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, vizPanel);
+        } else if (type.equals(LoginEvents.LoggedOut)) {
+            Cache.clear();
+        } else {
+            Log.w(TAG, "Unexpected event received!");
         }
     }
 
