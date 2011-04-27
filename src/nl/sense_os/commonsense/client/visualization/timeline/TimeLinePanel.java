@@ -23,16 +23,16 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
-public class TimeLinePanel2 extends VizPanel {
+public class TimeLinePanel extends VizPanel {
 
-    private static final String TAG = "TimeLinePanel2";
+    private static final String TAG = "TimeLinePanel";
     protected Graph graph;
     protected final Graph.Options graphOpts;
     protected Timeline timeline;
     protected final Timeline.Options tlineOpts;
     protected final DataTable dataTable;
 
-    public TimeLinePanel2(List<SensorModel> sensors, long start, long end, String title) {
+    public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
         // set up layout
@@ -182,7 +182,7 @@ public class TimeLinePanel2 extends VizPanel {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 if (null == graph && null == timeline) {
-                    TimeLinePanel2.this.hide();
+                    TimeLinePanel.this.hide();
                 }
             }
         });

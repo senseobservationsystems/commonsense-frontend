@@ -11,7 +11,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.visualization.map.MapPanel;
 import nl.sense_os.commonsense.client.visualization.table.SensorDataGrid;
-import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel2;
+import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
@@ -292,7 +292,7 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final TimeLinePanel2 chart = new TimeLinePanel2(sensors, startTime, endTime, title);
+        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime, title);
         item.add(chart);
 
         this.tabPanel.add(item);
