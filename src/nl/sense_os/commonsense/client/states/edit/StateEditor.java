@@ -1,7 +1,4 @@
-package nl.sense_os.commonsense.client.states;
-
-import java.util.ArrayList;
-import java.util.List;
+package nl.sense_os.commonsense.client.states.edit;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -41,6 +38,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StateEditor extends View {
 
     private static final String TAG = "StateEditor";
@@ -61,21 +61,26 @@ public class StateEditor extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.ShowEditor)) {
-            Log.d(TAG, "Show");
+        if (type.equals(StateEditEvents.ShowEditor)) {
+            // Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(StateEvents.InvokeMethodComplete)) {
-            Log.d(TAG, "InvokeMethodComplete");
+
+        } else if (type.equals(StateEditEvents.InvokeMethodComplete)) {
+            // Log.d(TAG, "InvokeMethodComplete");
             onInvokeComplete(event);
-        } else if (type.equals(StateEvents.InvokeMethodFailed)) {
+
+        } else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
             Log.w(TAG, "InvokeMethodFailed");
             onInvokeFailed(event);
-        } else if (type.equals(StateEvents.MethodsUpdated)) {
-            Log.d(TAG, "MethodsUpdated");
+
+        } else if (type.equals(StateEditEvents.MethodsUpdated)) {
+            // Log.d(TAG, "MethodsUpdated");
             onMethodsUpdated(event);
-        } else if (type.equals(StateEvents.MethodsNotUpdated)) {
+
+        } else if (type.equals(StateEditEvents.MethodsNotUpdated)) {
             Log.w(TAG, "MethodsNotUpdated");
             onMethodsNotUpdated(event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
@@ -229,7 +234,7 @@ public class StateEditor extends View {
 
     private void onShow(AppEvent event) {
         service = event.<TreeModel> getData();
-        event.setType(StateEvents.MethodsRequested);
+        event.setType(StateEditEvents.MethodsRequested);
         Dispatcher.forwardEvent(event);
 
         this.store.removeAll();
@@ -249,7 +254,7 @@ public class StateEditor extends View {
                 params.add(((TextField<String>) c).getValue());
             }
         }
-        AppEvent event = new AppEvent(StateEvents.InvokeMethodRequested);
+        AppEvent event = new AppEvent(StateEditEvents.InvokeMethodRequested);
         event.setData("service", service);
         event.setData("method", method);
         event.setData("parameters", params);

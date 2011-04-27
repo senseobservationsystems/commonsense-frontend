@@ -1,7 +1,4 @@
-package nl.sense_os.commonsense.client.states;
-
-import java.util.ArrayList;
-import java.util.List;
+package nl.sense_os.commonsense.client.states.connect;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -44,6 +41,9 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StateConnecter extends View {
 
     private static final String TAG = "StateConnecter";
@@ -65,23 +65,24 @@ public class StateConnecter extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.ShowSensorConnecter)) {
+        if (type.equals(StateConnectEvents.ShowSensorConnecter)) {
             // Log.d(TAG, "Show");
             onShow(event);
-        } else if (type.equals(StateEvents.ConnectSuccess)) {
+
+        } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
             // Log.d(TAG, "ConnectSuccess");
             hideWindow();
 
-        } else if (type.equals(StateEvents.ConnectFailure)) {
+        } else if (type.equals(StateConnectEvents.ConnectFailure)) {
             Log.w(TAG, "ConnectFailure");
             onConnectFailure();
 
-        } else if (type.equals(StateEvents.ServiceNameSuccess)) {
-            Log.d(TAG, "ServiceNameSuccess");
+        } else if (type.equals(StateConnectEvents.ServiceNameSuccess)) {
+            // Log.d(TAG, "ServiceNameSuccess");
             final String serviceName = event.getData("name");
             onServiceNameSuccess(serviceName);
 
-        } else if (type.equals(StateEvents.ServiceNameFailure)) {
+        } else if (type.equals(StateConnectEvents.ServiceNameFailure)) {
             Log.w(TAG, "ServiceNameFailure");
             onServiceNameFailure();
 
@@ -195,7 +196,7 @@ public class StateConnecter extends View {
 
                     tree.disable();
 
-                    AppEvent event = new AppEvent(StateEvents.AvailableSensorsRequested);
+                    AppEvent event = new AppEvent(StateConnectEvents.AvailableSensorsRequested);
                     event.setData("name", serviceName);
                     event.setData("callback", callback);
                     Dispatcher.forwardEvent(event);
@@ -288,7 +289,7 @@ public class StateConnecter extends View {
     private void requestServiceName() {
         this.waitDialog = MessageBox.wait(null, "Please wait.", "Getting service details...");
 
-        AppEvent request = new AppEvent(StateEvents.ServiceNameRequest);
+        AppEvent request = new AppEvent(StateConnectEvents.ServiceNameRequest);
         request.setData("service", this.service);
         fireEvent(request);
     }
@@ -305,7 +306,7 @@ public class StateConnecter extends View {
 
     private void submitForm() {
         TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
-        AppEvent event = new AppEvent(StateEvents.ConnectRequested);
+        AppEvent event = new AppEvent(StateConnectEvents.ConnectRequested);
         event.setData("service", service);
         event.setData("serviceName", serviceName);
         event.setData("sensor", sensor);

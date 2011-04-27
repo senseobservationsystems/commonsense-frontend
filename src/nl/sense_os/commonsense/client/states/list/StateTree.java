@@ -1,10 +1,11 @@
-package nl.sense_os.commonsense.client.states;
-
-import java.util.ArrayList;
-import java.util.List;
+package nl.sense_os.commonsense.client.states.list;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
+import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
+import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -52,6 +53,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StateTree extends View {
 
@@ -114,6 +118,10 @@ public class StateTree extends View {
             // Log.d(TAG, "ListUpdated");
             setBusy(false);
 
+        } else if (type.equals(StateEvents.Working)) {
+            // Log.d(TAG, "Working");
+            setBusy(true);
+
         } else if (type.equals(StateEvents.RemoveComplete)) {
             // Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
@@ -122,15 +130,11 @@ public class StateTree extends View {
             Log.w(TAG, "RemoveFailed");
             onRemoveFailed(event);
 
-        } else if (type.equals(StateEvents.Working)) {
-            // Log.d(TAG, "Working");
-            setBusy(true);
-
-        } else if (type.equals(StateEvents.ConnectSuccess)) {
+        } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
             // Log.d(TAG, "ConnectSuccess");
             refreshLoader(true);
 
-        } else if (type.equals(StateEvents.CreateServiceComplete)) {
+        } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
             // Log.d(TAG, "CreateServiceComplete");
             refreshLoader(true);
 
@@ -229,7 +233,7 @@ public class StateTree extends View {
                 } else if (source.equals(editButton)) {
                     onEditClick();
                 } else if (source.equals(connectButton)) {
-                    onAddClick();
+                    onConnectClick();
                 } else if (source.equals(disconnectButton)) {
                     confirmRemove();
                 } else if (source.equals(feedbackButton)) {
@@ -347,16 +351,16 @@ public class StateTree extends View {
         this.panel.add(content);
     }
 
-    private void onAddClick() {
+    private void onConnectClick() {
         TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
-        Dispatcher.forwardEvent(StateEvents.ShowSensorConnecter, selectedService);
+        Dispatcher.forwardEvent(StateConnectEvents.ShowSensorConnecter, selectedService);
     }
 
     private void onCreateClick() {
-        Dispatcher.forwardEvent(StateEvents.ShowCreator);
+        Dispatcher.forwardEvent(StateCreateEvents.ShowCreator);
     }
 
     private void onDefaultClick() {
@@ -390,7 +394,7 @@ public class StateTree extends View {
         if (selectedService.getParent() != null) {
             selectedService = selectedService.getParent();
         }
-        AppEvent event = new AppEvent(StateEvents.ShowEditor);
+        AppEvent event = new AppEvent(StateEditEvents.ShowEditor);
         event.setData(selectedService);
         Dispatcher.forwardEvent(event);
     }
@@ -441,18 +445,18 @@ public class StateTree extends View {
     }
 
     protected void showFeedback() {
-        TreeModel selected = this.tree.getSelectionModel().getSelectedItem();
-        while (selected.getParent() != null) {
-            selected = selected.getParent();
+        TreeModel state = this.tree.getSelectionModel().getSelectedItem();
+        while (state.getParent() != null) {
+            state = state.getParent();
         }
 
         List<SensorModel> sensors = new ArrayList<SensorModel>();
-        sensors.add((SensorModel) selected);
-        for (ModelData model : selected.getChildren()) {
+        for (ModelData model : state.getChildren()) {
             sensors.add((SensorModel) model);
         }
 
-        AppEvent event = new AppEvent(StateEvents.ShowFeedback);
+        AppEvent event = new AppEvent(FeedbackEvents.ShowFeedback);
+        event.setData("state", state);
         event.setData("sensors", sensors);
         event.setData("startTime", System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 7));
         event.setData("endTime", System.currentTimeMillis());

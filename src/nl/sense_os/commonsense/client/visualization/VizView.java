@@ -1,12 +1,9 @@
 package nl.sense_os.commonsense.client.visualization;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.states.FeedbackPanel;
-import nl.sense_os.commonsense.client.states.StateEvents;
+import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
+import nl.sense_os.commonsense.client.states.feedback.FeedbackPanel;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.visualization.map.MapPanel;
@@ -37,6 +34,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.user.client.ui.Frame;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VizView extends View {
 
@@ -79,12 +79,13 @@ public class VizView extends View {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(StateEvents.ShowFeedback)) {
+        } else if (type.equals(FeedbackEvents.ShowFeedback)) {
             Log.d(TAG, "ShowFeedback");
+            final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
-            showFeedback(sensors, startTime, endTime);
+            showFeedback(state, sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
             // Log.d(TAG, "ShowTimeLine");
@@ -226,7 +227,8 @@ public class VizView extends View {
         });
     }
 
-    private void showFeedback(List<SensorModel> sensors, long startTime, long endTime) {
+    private void showFeedback(SensorModel state, List<SensorModel> sensors, long startTime,
+            long endTime) {
 
         // add map tab item
         String title = createChartTitle(sensors);
@@ -235,7 +237,7 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        FeedbackPanel feedback = new FeedbackPanel(sensors, startTime, endTime, title);
+        FeedbackPanel feedback = new FeedbackPanel(state, sensors, title);
         item.add(feedback);
 
         this.tabPanel.add(item);

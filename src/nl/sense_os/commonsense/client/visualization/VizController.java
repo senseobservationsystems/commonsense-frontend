@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.visualization;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.states.StateEvents;
+import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.chap.links.client.Timeline;
@@ -33,7 +33,7 @@ public class VizController extends Controller {
         registerEventTypes(VizEvents.Show);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
         registerEventTypes(VizEvents.ShowTimeLine, VizEvents.ShowTable, VizEvents.ShowMap,
-                VizEvents.ShowNetwork, StateEvents.ShowFeedback);
+                VizEvents.ShowNetwork, FeedbackEvents.ShowFeedback);
     }
 
     @Override

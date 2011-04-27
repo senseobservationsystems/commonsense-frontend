@@ -1,7 +1,4 @@
-package nl.sense_os.commonsense.client.states;
-
-import java.util.Arrays;
-import java.util.List;
+package nl.sense_os.commonsense.client.states.create;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -49,6 +46,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class StateCreator extends View {
 
     private static final String TAG = "StateCreator";
@@ -74,37 +74,37 @@ public class StateCreator extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(StateEvents.ShowCreator)) {
-            // Log.d(TAG, "ShowCreator");
+        if (type.equals(StateCreateEvents.ShowCreator)) {
+            Log.d(TAG, "ShowCreator");
             showWindow();
 
-        } else if (type.equals(StateEvents.CreateServiceCancelled)) {
+        } else if (type.equals(StateCreateEvents.CreateServiceCancelled)) {
             // Log.d(TAG, "CreateCancelled");
             onCancelled(event);
 
-        } else if (type.equals(StateEvents.CreateServiceComplete)) {
+        } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
             // Log.d(TAG, "CreateComplete");
             onComplete(event);
 
-        } else if (type.equals(StateEvents.CreateServiceFailed)) {
+        } else if (type.equals(StateCreateEvents.CreateServiceFailed)) {
             Log.w(TAG, "CreateFailed");
             onFailed(event);
 
-        } else if (type.equals(StateEvents.LoadSensorsSuccess)) {
+        } else if (type.equals(StateCreateEvents.LoadSensorsSuccess)) {
             // Log.d(TAG, "LoadSensorsSuccess");
             final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
-        } else if (type.equals(StateEvents.LoadSensorsFailure)) {
+        } else if (type.equals(StateCreateEvents.LoadSensorsFailure)) {
             Log.w(TAG, "LoadSensorsFailure");
             onLoadSensorsComplete(null);
 
-        } else if (type.equals(StateEvents.AvailableServicesUpdated)) {
+        } else if (type.equals(StateCreateEvents.AvailableServicesUpdated)) {
             // Log.d(TAG, "AvailableServicesUpdated");
             final List<ServiceModel> services = event.<List<ServiceModel>> getData("services");
             onAvailableServicesComplete(services);
 
-        } else if (type.equals(StateEvents.AvailableServicesNotUpdated)) {
+        } else if (type.equals(StateCreateEvents.AvailableServicesNotUpdated)) {
             Log.w(TAG, "AvailableServicesNotUpdated");
             onAvailableServicesComplete(null);
 
@@ -124,7 +124,7 @@ public class StateCreator extends View {
                         submitForm();
                     }
                 } else if (pressed.equals(cancelButton)) {
-                    StateCreator.this.fireEvent(StateEvents.CreateServiceCancelled);
+                    StateCreator.this.fireEvent(StateCreateEvents.CreateServiceCancelled);
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
                 }
@@ -169,7 +169,7 @@ public class StateCreator extends View {
                         TreeModel selected = se.getSelectedItem();
                         if (selected instanceof SensorModel) {
                             AppEvent getServices = new AppEvent(
-                                    StateEvents.AvailableServicesRequested);
+                                    StateCreateEvents.AvailableServicesRequested);
                             getServices.setData("sensor", selected);
                             StateCreator.this.fireEvent(getServices);
                         } else {
@@ -242,6 +242,7 @@ public class StateCreator extends View {
         this.form.add(this.servicesField, formData);
         this.form.add(this.dataFieldsField, formData);
     }
+
     private void initForm() {
 
         this.form = new FormPanel();
@@ -350,13 +351,13 @@ public class StateCreator extends View {
         this.window.show();
         this.window.center();
 
-        fireEvent(StateEvents.LoadSensors);
+        fireEvent(StateCreateEvents.LoadSensors);
     }
 
     private void submitForm() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(StateEvents.CreateServiceRequested);
+        AppEvent event = new AppEvent(StateCreateEvents.CreateServiceRequested);
         event.setData("name", this.nameField.getValue());
         event.setData("service", this.servicesField.getValue());
         event.setData("sensor", this.sensorsTree.getSelectionModel().getSelectedItem());

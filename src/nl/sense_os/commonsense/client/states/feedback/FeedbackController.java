@@ -1,6 +1,4 @@
-package nl.sense_os.commonsense.client.states;
-
-import java.util.List;
+package nl.sense_os.commonsense.client.states.feedback;
 
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -14,34 +12,36 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
+import java.util.List;
+
 public class FeedbackController extends Controller {
 
     private static final String TAG = "FeedbackController";
-    // private FeedbackForm form;
 
     public FeedbackController() {
-        registerEventTypes(StateEvents.ShowFeedback, StateEvents.FeedbackSubmit,
-                StateEvents.FeedbackComplete, StateEvents.FeedbackFailed);
-        registerEventTypes(StateEvents.AjaxFeedbackFailure, StateEvents.AjaxFeedbackSuccess);
+        registerEventTypes(FeedbackEvents.ShowFeedback);
+
+        registerEventTypes(FeedbackEvents.FeedbackSubmit, FeedbackEvents.AjaxFeedbackFailure,
+                FeedbackEvents.AjaxFeedbackSuccess);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
 
-        if (type.equals(StateEvents.FeedbackSubmit)) {
+        if (type.equals(FeedbackEvents.FeedbackSubmit)) {
             Log.d(TAG, "FeedbackSubmit");
             final TreeModel service = event.<TreeModel> getData("service");
             final String label = event.<String> getData("label");
             final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
             markFeedback(service, label, feedback);
 
-        } else if (type.equals(StateEvents.AjaxFeedbackFailure)) {
+        } else if (type.equals(FeedbackEvents.AjaxFeedbackFailure)) {
             Log.w(TAG, "AjaxFeedbackFailure");
             final int code = event.getData("code");
             onFeedbackFailed(code);
 
-        } else if (type.equals(StateEvents.AjaxFeedbackSuccess)) {
+        } else if (type.equals(FeedbackEvents.AjaxFeedbackSuccess)) {
             Log.d(TAG, "AjaxFeedbackSuccess");
             // final String response = event.<String> getData("response");
             final TreeModel service = event.<TreeModel> getData("service");
@@ -50,15 +50,14 @@ public class FeedbackController extends Controller {
             onFeedbackMarked(service, label, feedback);
 
         } else {
-            // TODO
-            // forwardToView(this.form, event);
+            // TODO create a view for the feedback panel
+            Log.w(TAG, "Unexpected event type!");
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        // this.form = new FeedbackForm(this);
     }
 
     private void markFeedback(TreeModel service, String label, List<ModelData> feedback) {
@@ -71,11 +70,11 @@ public class FeedbackController extends Controller {
         final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/"
                 + service.<String> get("id") + "/manualLearn.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxFeedbackSuccess);
+        final AppEvent onSuccess = new AppEvent(FeedbackEvents.AjaxFeedbackSuccess);
         onSuccess.setData("service", service);
         onSuccess.setData("label", label);
         onSuccess.setData("feedback", feedback);
-        final AppEvent onFailure = new AppEvent(StateEvents.AjaxFeedbackFailure);
+        final AppEvent onFailure = new AppEvent(FeedbackEvents.AjaxFeedbackFailure);
 
         // prepare request body
         String body = "{\"start_date\":\"" + feedbackPeriod.get("start") + "\"";
@@ -101,12 +100,14 @@ public class FeedbackController extends Controller {
             markFeedback(service, label, feedback);
         } else {
             // TODO
+            Log.d(TAG, "Feedback success");
             // forwardToView(this.form, new AppEvent(StateEvents.FeedbackComplete));
         }
     }
 
     private void onFeedbackFailed(int code) {
         // TODO
+        Log.d(TAG, "Feedback failure");
         // forwardToView(this.form, new AppEvent(StateEvents.FeedbackFailed));
     }
 }

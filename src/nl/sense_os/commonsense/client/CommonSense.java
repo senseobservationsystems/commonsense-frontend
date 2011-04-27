@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.Date;
-
 import nl.sense_os.commonsense.client.ajax.AjaxController;
 import nl.sense_os.commonsense.client.data.DataController;
 import nl.sense_os.commonsense.client.environments.EnvController;
@@ -18,8 +16,11 @@ import nl.sense_os.commonsense.client.services.GroupsProxy;
 import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
 import nl.sense_os.commonsense.client.services.SensorsProxy;
 import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
-import nl.sense_os.commonsense.client.states.FeedbackController;
-import nl.sense_os.commonsense.client.states.StateController;
+import nl.sense_os.commonsense.client.states.connect.StateConnectController;
+import nl.sense_os.commonsense.client.states.create.StateCreateController;
+import nl.sense_os.commonsense.client.states.edit.StateEditController;
+import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
+import nl.sense_os.commonsense.client.states.list.StateController;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.VizController;
 import nl.sense_os.commonsense.shared.Constants;
@@ -36,6 +37,8 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
+
+import java.util.Date;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -91,10 +94,13 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new DataController());
         dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
-        dispatcher.addController(new StateController());
-        dispatcher.addController(new EnvController());
         dispatcher.addController(new GroupSensorsController());
+        dispatcher.addController(new StateController());
+        dispatcher.addController(new StateConnectController());
+        dispatcher.addController(new StateCreateController());
+        dispatcher.addController(new StateEditController());
         dispatcher.addController(new FeedbackController());
+        dispatcher.addController(new EnvController());
         dispatcher.addController(new AjaxController());
 
         // test();
