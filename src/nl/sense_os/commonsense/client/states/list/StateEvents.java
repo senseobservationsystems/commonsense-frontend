@@ -14,6 +14,8 @@ public class StateEvents {
     protected static final EventType AjaxSensorsFailure = new EventType();
     protected static final EventType AjaxConnectedSuccess = new EventType();
     protected static final EventType AjaxConnectedFailure = new EventType();
+    protected static final EventType GetMethodsAjaxSuccess = new EventType();
+    protected static final EventType GetMethodsAjaxFailure = new EventType();
 
     // disconnect sensor from service
     protected static final EventType RemoveRequested = new EventType();

@@ -1,9 +1,11 @@
 package nl.sense_os.commonsense.client.visualization;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.client.states.feedback.FeedbackPanel;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.visualization.map.MapPanel;
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -34,9 +37,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.user.client.ui.Frame;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class VizView extends View {
 
@@ -81,11 +81,9 @@ public class VizView extends View {
 
         } else if (type.equals(FeedbackEvents.ShowFeedback)) {
             Log.d(TAG, "ShowFeedback");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long startTime = event.getData("startTime");
-            final long endTime = event.getData("endTime");
-            showFeedback(state, sensors, startTime, endTime);
+            final ContentPanel panel = event.<ContentPanel> getData("panel");
+            final String title = event.<String> getData("title");
+            showFeedback(panel, title);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
             // Log.d(TAG, "ShowTimeLine");
@@ -227,18 +225,15 @@ public class VizView extends View {
         });
     }
 
-    private void showFeedback(SensorModel state, List<SensorModel> sensors, long startTime,
-            long endTime) {
+    private void showFeedback(ContentPanel panel, String title) {
 
-        // add map tab item
-        String title = createChartTitle(sensors);
+        // add feedback tab item
         final TabItem item = new TabItem(title);
         item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "setting_tools.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        FeedbackPanel feedback = new FeedbackPanel(state, sensors, title);
-        item.add(feedback);
+        item.add(panel);
 
         this.tabPanel.add(item);
         this.tabPanel.setSelection(item);

@@ -1,8 +1,12 @@
 package nl.sense_os.commonsense.client.states.feedback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -11,24 +15,35 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-
-import java.util.List;
+import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 
 public class FeedbackController extends Controller {
 
     private static final String TAG = "FeedbackController";
+    private View feedback;
 
     public FeedbackController() {
-        registerEventTypes(FeedbackEvents.ShowFeedback);
+        registerEventTypes(FeedbackEvents.FeedbackInit);
 
-        registerEventTypes(FeedbackEvents.FeedbackSubmit, FeedbackEvents.AjaxFeedbackFailure,
-                FeedbackEvents.AjaxFeedbackSuccess);
+        registerEventTypes(FeedbackEvents.FeedbackSubmit, FeedbackEvents.FeedbackAjaxFailure,
+                FeedbackEvents.FeedbackAjaxSuccess);
+
+        registerEventTypes(FeedbackEvents.LabelsRequest, FeedbackEvents.LabelsAjaxSuccess,
+                FeedbackEvents.LabelsAjaxFailure);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
 
+        /*
+         * Submit feedback data.
+         */
         if (type.equals(FeedbackEvents.FeedbackSubmit)) {
             Log.d(TAG, "FeedbackSubmit");
             final TreeModel service = event.<TreeModel> getData("service");
@@ -36,12 +51,12 @@ public class FeedbackController extends Controller {
             final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
             markFeedback(service, label, feedback);
 
-        } else if (type.equals(FeedbackEvents.AjaxFeedbackFailure)) {
+        } else if (type.equals(FeedbackEvents.FeedbackAjaxFailure)) {
             Log.w(TAG, "AjaxFeedbackFailure");
             final int code = event.getData("code");
             onFeedbackFailed(code);
 
-        } else if (type.equals(FeedbackEvents.AjaxFeedbackSuccess)) {
+        } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
             Log.d(TAG, "AjaxFeedbackSuccess");
             // final String response = event.<String> getData("response");
             final TreeModel service = event.<TreeModel> getData("service");
@@ -49,15 +64,161 @@ public class FeedbackController extends Controller {
             final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
             onFeedbackMarked(service, label, feedback);
 
+        } else
+
+        /*
+         * Get state labels.
+         */
+        if (type.equals(FeedbackEvents.LabelsRequest)) {
+            Log.d(TAG, "LabelsRequest");
+            final SensorModel state = event.getData("state");
+            final List<SensorModel> sensors = event.getData("sensors");
+            getLabels(state, sensors);
+
+        } else if (type.equals(FeedbackEvents.LabelsAjaxSuccess)) {
+            Log.d(TAG, "LabelsAjaxSuccess");
+            final String response = event.getData("response");
+            final SensorModel state = event.getData("state");
+            final List<SensorModel> sensors = event.getData("sensors");
+            getLabelsCallback(response, state, sensors);
+
+        } else if (type.equals(FeedbackEvents.LabelsAjaxFailure)) {
+            Log.w(TAG, "LabelsAjaxFailure");
+            final int code = event.getData("code");
+            getLabelsFailure(code);
+
+        } else
+
+        /*
+         * Pass through to view.
+         */
+        {
+            forwardToView(this.feedback, event);
+        }
+    }
+
+    private void getLabelsFailure(int code) {
+        forwardToView(this.feedback, new AppEvent(FeedbackEvents.LabelsFailure));
+    }
+
+    private void getLabelsCallback(String response, SensorModel state, List<SensorModel> sensors) {
+
+        if (response != null) {
+            JSONValue rawJson = JSONParser.parseStrict(response);
+            if (null != rawJson) {
+                JSONObject json = rawJson.isObject();
+                if (null != json) {
+                    JSONValue rawResult = json.get("result");
+                    if (null != rawResult) {
+                        JSONString rawResultString = rawResult.isString();
+                        if (null != rawResultString) {
+                            String resultString = rawResultString.stringValue();
+                            resultString = resultString.replaceAll("&quot;", "\"");
+                            rawResult = JSONParser.parseStrict(resultString);
+                            if (null != rawResult) {
+                                JSONObject result = rawResult.isObject();
+                                JSONValue rawLabels = result.get("classLabels");
+                                if (null != rawLabels) {
+                                    JSONArray labels = rawLabels.isArray();
+                                    if (null != labels) {
+                                        List<String> list = new ArrayList<String>();
+                                        JSONString rawString;
+                                        for (int i = 0; i < labels.size(); i++) {
+                                            rawString = labels.get(i).isString();
+                                            if (null != rawString) {
+                                                list.add(rawString.stringValue());
+                                            } else {
+                                                Log.w(TAG, "label is not a JSON string");
+                                                getLabelsFailure(0);
+                                            }
+                                        }
+
+                                        AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
+                                        event.setData("state", state);
+                                        event.setData("sensors", sensors);
+                                        event.setData("labels", list);
+                                        forwardToView(this.feedback, event);
+                                    } else {
+                                        Log.w(TAG, "\"classLabels\" is not a JSON array");
+                                        getLabelsFailure(0);
+                                    }
+                                } else {
+                                    Log.w(TAG, "\"classLabels\" is not valid JSON");
+                                    getLabelsFailure(0);
+                                }
+                            } else {
+                                Log.w(TAG, "result is not valid JSON");
+                                getLabelsFailure(0);
+                            }
+                        } else {
+                            Log.w(TAG, "\"result\" is not a JSON string");
+                            getLabelsFailure(0);
+                        }
+                    } else {
+                        Log.w(TAG, "\"result\" is not valid JSON");
+                        getLabelsFailure(0);
+                    }
+                } else {
+                    Log.w(TAG, "response is not a JSON object");
+                    getLabelsFailure(0);
+                }
+            } else {
+                Log.w(TAG, "response is not valid JSON");
+                getLabelsFailure(0);
+            }
         } else {
-            // TODO create a view for the feedback panel
-            Log.w(TAG, "Unexpected event type!");
+            Log.w(TAG, "response=null");
+            getLabelsFailure(0);
+        }
+
+    }
+
+    private void getLabels(SensorModel state, List<SensorModel> sensors) {
+
+        List<ModelData> methods = state.<List<ModelData>> get("methods");
+        boolean canHazClassLabels = false;
+        for (ModelData method : methods) {
+            if (method.get("name").equals("GetClassLabels")) {
+                canHazClassLabels = true;
+                break;
+            }
+        }
+        if (false == canHazClassLabels) {
+            Log.w(TAG, "Cannot give feedback on this state: unable to get class labels!");
+            getLabelsFailure(0);
+        }
+
+        if (sensors.size() > 0) {
+            SensorModel sensor = sensors.get(0);
+
+            // prepare request properties
+            final String method = "GET";
+            final String url = Constants.URL_SENSORS + "/" + sensor.getId() + "/services/"
+                    + state.getId() + "/GetClassLabels.json";
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(FeedbackEvents.LabelsAjaxSuccess);
+            onSuccess.setData("state", state);
+            onSuccess.setData("sensors", sensors);
+            final AppEvent onFailure = new AppEvent(FeedbackEvents.LabelsAjaxFailure);
+
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+            Dispatcher.forwardEvent(ajaxRequest);
+        } else {
+            Log.w(TAG, "No sensors!");
+            getLabelsFailure(0);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
+        this.feedback = new FeedbackView(this);
     }
 
     private void markFeedback(TreeModel service, String label, List<ModelData> feedback) {
@@ -70,11 +231,11 @@ public class FeedbackController extends Controller {
         final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/"
                 + service.<String> get("id") + "/manualLearn.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(FeedbackEvents.AjaxFeedbackSuccess);
+        final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
         onSuccess.setData("service", service);
         onSuccess.setData("label", label);
         onSuccess.setData("feedback", feedback);
-        final AppEvent onFailure = new AppEvent(FeedbackEvents.AjaxFeedbackFailure);
+        final AppEvent onFailure = new AppEvent(FeedbackEvents.FeedbackAjaxFailure);
 
         // prepare request body
         String body = "{\"start_date\":\"" + feedbackPeriod.get("start") + "\"";

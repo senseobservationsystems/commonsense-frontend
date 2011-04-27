@@ -103,7 +103,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    Log.d(TAG, "hide");
+                    // Log.d(TAG, "hide");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -114,7 +114,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    Log.d(TAG, "close");
+                    // Log.d(TAG, "close");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -125,7 +125,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    Log.d(TAG, "show");
+                    // Log.d(TAG, "show");
                     if (isAutoRefresh) {
                         refreshData();
                         refreshTimer.scheduleRepeating(REFRESH_PERIOD);
@@ -134,7 +134,7 @@ public abstract class VizPanel extends ContentPanel {
 
             });
         } else {
-            Log.d(TAG, "Cannot register show/hide listeners: Parent is not a tabitem!");
+            Log.w(TAG, "Cannot register show/hide listeners: Parent is not a tabitem!");
         }
     }
 

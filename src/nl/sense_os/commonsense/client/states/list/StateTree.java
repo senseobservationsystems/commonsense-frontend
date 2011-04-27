@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.states.list;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
@@ -53,9 +56,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StateTree extends View {
 
@@ -455,11 +455,9 @@ public class StateTree extends View {
             sensors.add((SensorModel) model);
         }
 
-        AppEvent event = new AppEvent(FeedbackEvents.ShowFeedback);
+        AppEvent event = new AppEvent(FeedbackEvents.FeedbackInit);
         event.setData("state", state);
         event.setData("sensors", sensors);
-        event.setData("startTime", System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 7));
-        event.setData("endTime", System.currentTimeMillis());
         Dispatcher.forwardEvent(event);
     }
 

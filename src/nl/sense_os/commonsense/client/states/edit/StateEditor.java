@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.states.edit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
@@ -38,9 +41,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StateEditor extends View {
 
     private static final String TAG = "StateEditor";
@@ -72,14 +72,6 @@ public class StateEditor extends View {
         } else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
             Log.w(TAG, "InvokeMethodFailed");
             onInvokeFailed(event);
-
-        } else if (type.equals(StateEditEvents.MethodsUpdated)) {
-            // Log.d(TAG, "MethodsUpdated");
-            onMethodsUpdated(event);
-
-        } else if (type.equals(StateEditEvents.MethodsNotUpdated)) {
-            Log.w(TAG, "MethodsNotUpdated");
-            onMethodsNotUpdated(event);
 
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
@@ -221,26 +213,20 @@ public class StateEditor extends View {
         });
     }
 
-    private void onMethodsNotUpdated(AppEvent event) {
-        this.store.removeAll();
-    }
-
-    private void onMethodsUpdated(AppEvent event) {
-        List<ModelData> methods = event.<List<ModelData>> getData();
-        Log.d(TAG, "List of methods size: " + methods.size());
-        this.store.removeAll();
-        this.store.add(methods);
-    }
-
     private void onShow(AppEvent event) {
         service = event.<TreeModel> getData();
-        event.setType(StateEditEvents.MethodsRequested);
-        Dispatcher.forwardEvent(event);
+        List<ModelData> methods = service.get("methods");
 
-        this.store.removeAll();
+        if (null != methods) {
 
-        this.window.show();
-        this.window.center();
+            this.store.removeAll();
+            this.store.add(methods);
+
+            this.window.show();
+            this.window.center();
+        } else {
+            MessageBox.alert(null, "This state algorithm cannot be edited!", null);
+        }
     }
 
     @SuppressWarnings("unchecked")
