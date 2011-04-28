@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
+import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
-import nl.sense_os.commonsense.client.json.parsers.GroupParser;
-import nl.sense_os.commonsense.client.json.parsers.SensorParser;
-import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;

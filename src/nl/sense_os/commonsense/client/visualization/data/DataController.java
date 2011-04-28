@@ -1,14 +1,14 @@
-package nl.sense_os.commonsense.client.data;
+package nl.sense_os.commonsense.client.visualization.data;
 
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.data.cache.Cache;
-import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
-import nl.sense_os.commonsense.client.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.json.overlays.SensorDataResponse;
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.data.cache.Cache;
 import nl.sense_os.commonsense.client.visualization.panels.VizPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;

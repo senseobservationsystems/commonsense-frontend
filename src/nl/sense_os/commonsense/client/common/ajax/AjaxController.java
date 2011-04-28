@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.ajax;
+package nl.sense_os.commonsense.client.common.ajax;
 
 import nl.sense_os.commonsense.client.utility.Log;
 

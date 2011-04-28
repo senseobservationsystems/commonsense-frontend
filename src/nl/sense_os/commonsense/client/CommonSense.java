@@ -2,14 +2,13 @@ package nl.sense_os.commonsense.client;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.ajax.AjaxController;
-import nl.sense_os.commonsense.client.data.DataController;
+import nl.sense_os.commonsense.client.auth.login.LoginController;
+import nl.sense_os.commonsense.client.auth.registration.RegisterController;
+import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
-import nl.sense_os.commonsense.client.login.LoginController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.registration.RegisterController;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
 import nl.sense_os.commonsense.client.services.BuildingService;
@@ -24,6 +23,7 @@ import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateController;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.data.DataController;
 import nl.sense_os.commonsense.client.visualization.tabs.VizController;
 import nl.sense_os.commonsense.shared.Constants;
 

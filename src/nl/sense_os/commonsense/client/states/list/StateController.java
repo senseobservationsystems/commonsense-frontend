@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.client.states.list;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.json.parsers.SensorParser;
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;

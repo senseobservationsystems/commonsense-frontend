@@ -1,13 +1,13 @@
 package nl.sense_os.commonsense.client.main;
 
 import nl.sense_os.commonsense.client.CommonSense;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.environments.EnvEvents;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
-import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;

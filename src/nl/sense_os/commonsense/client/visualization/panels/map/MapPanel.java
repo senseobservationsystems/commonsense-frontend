@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.visualization.panels.map;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.json.overlays.DataPoint;
-import nl.sense_os.commonsense.client.json.overlays.FloatDataPoint;
-import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.common.json.overlays.FloatDataPoint;
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.panels.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;

@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.main;
 
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;

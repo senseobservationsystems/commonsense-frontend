@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.sensors.personal;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;

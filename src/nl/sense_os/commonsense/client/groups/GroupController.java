@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.client.groups;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.json.parsers.GroupParser;
-import nl.sense_os.commonsense.client.json.parsers.UserParser;
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
+import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;

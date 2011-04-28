@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.data;
+package nl.sense_os.commonsense.client.visualization.data;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;

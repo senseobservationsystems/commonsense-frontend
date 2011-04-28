@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.json.overlays;
+package nl.sense_os.commonsense.client.common.json.overlays;
 
 public class StringDataPoint extends DataPoint {
 

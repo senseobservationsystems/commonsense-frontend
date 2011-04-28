@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.ajax;
+package nl.sense_os.commonsense.client.common.ajax;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -57,24 +57,24 @@ public class Ajax {
 
 		// NB: this is only called by Chrome, other browsers do not give the status code of failed requests
 		function handleAuthError() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onAuthError(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
+			handler.@nl.sense_os.commonsense.client.common.ajax.AjaxController::onAuthError(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
 		}
 
 		function handleFailure() {
 			if (isIE8) {
 				// IE8 does not give access to xhr.status
-				handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, -1, onFailure);
+				handler.@nl.sense_os.commonsense.client.common.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, -1, onFailure);
 			} else {
-				handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
+				handler.@nl.sense_os.commonsense.client.common.ajax.AjaxController::onFailure(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, xhr.status, onFailure);
 			}
 		}
 
 		function handleTimeOut() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onTimeOut(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, onFailure);
+			handler.@nl.sense_os.commonsense.client.common.ajax.AjaxController::onTimeOut(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(method, url, sessionId, body, onFailure);
 		}
 
 		function handleSuccess() {
-			handler.@nl.sense_os.commonsense.client.ajax.AjaxController::onSuccess(Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(xhr.responseText, onSuccess);
+			handler.@nl.sense_os.commonsense.client.common.ajax.AjaxController::onSuccess(Ljava/lang/String;Lcom/extjs/gxt/ui/client/mvc/AppEvent;)(xhr.responseText, onSuccess);
 		}
 
 		if (xhr) {

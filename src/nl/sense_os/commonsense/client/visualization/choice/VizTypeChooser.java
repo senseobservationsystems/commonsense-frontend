@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
-import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.data.DataEvents;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.SensorModel;
 

@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.states.create;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.utility.Log;

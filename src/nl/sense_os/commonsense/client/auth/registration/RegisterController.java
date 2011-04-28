@@ -1,7 +1,7 @@
-package nl.sense_os.commonsense.client.registration;
+package nl.sense_os.commonsense.client.auth.registration;
 
-import nl.sense_os.commonsense.client.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.Constants;

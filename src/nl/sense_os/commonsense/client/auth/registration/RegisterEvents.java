@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.registration;
+package nl.sense_os.commonsense.client.auth.registration;
 
 import com.extjs.gxt.ui.client.event.EventType;
 

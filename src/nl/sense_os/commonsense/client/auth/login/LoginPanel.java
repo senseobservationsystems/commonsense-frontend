@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.login;
+package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.Date;
 

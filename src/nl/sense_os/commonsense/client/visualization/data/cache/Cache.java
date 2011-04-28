@@ -1,8 +1,8 @@
-package nl.sense_os.commonsense.client.data.cache;
+package nl.sense_os.commonsense.client.visualization.data.cache;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
 

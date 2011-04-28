@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.data;
+package nl.sense_os.commonsense.client.visualization.data;
 
 import com.extjs.gxt.ui.client.event.EventType;
 

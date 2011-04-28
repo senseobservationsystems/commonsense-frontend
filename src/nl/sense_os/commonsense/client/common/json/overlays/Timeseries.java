@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.json.overlays;
+package nl.sense_os.commonsense.client.common.json.overlays;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;

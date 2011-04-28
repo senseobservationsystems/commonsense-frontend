@@ -1,6 +1,6 @@
-package nl.sense_os.commonsense.client.data.cache;
+package nl.sense_os.commonsense.client.visualization.data.cache;
 
-import nl.sense_os.commonsense.client.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
