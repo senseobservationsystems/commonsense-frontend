@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization;
+package nl.sense_os.commonsense.client.visualization.tabs;
 
 import com.extjs.gxt.ui.client.event.EventType;
 

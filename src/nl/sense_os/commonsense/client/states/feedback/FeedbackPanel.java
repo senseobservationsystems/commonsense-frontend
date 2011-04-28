@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states.feedback;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizPanel;
+import nl.sense_os.commonsense.client.visualization.panels.VizPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 

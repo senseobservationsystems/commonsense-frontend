@@ -24,7 +24,7 @@ import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateController;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizController;
+import nl.sense_os.commonsense.client.visualization.tabs.VizController;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.chap.links.client.Timeline;

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization;
+package nl.sense_os.commonsense.client.visualization.tabs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.visualization.map.MapPanel;
-import nl.sense_os.commonsense.client.visualization.table.SensorDataGrid;
-import nl.sense_os.commonsense.client.visualization.timeline.TimeLinePanel;
+import nl.sense_os.commonsense.client.visualization.panels.map.MapPanel;
+import nl.sense_os.commonsense.client.visualization.panels.table.SensorDataGrid;
+import nl.sense_os.commonsense.client.visualization.panels.timeline.TimeLinePanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 

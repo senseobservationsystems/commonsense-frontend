@@ -5,7 +5,7 @@
  *
  * http://extjs.com/license
  */
-package nl.sense_os.commonsense.client.visualization.table;
+package nl.sense_os.commonsense.client.visualization.panels.table;
 
 import java.util.ArrayList;
 import java.util.Date;

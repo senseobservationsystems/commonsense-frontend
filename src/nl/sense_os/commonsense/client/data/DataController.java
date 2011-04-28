@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.client.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizPanel;
+import nl.sense_os.commonsense.client.visualization.panels.VizPanel;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 

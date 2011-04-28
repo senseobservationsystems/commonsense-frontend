@@ -7,7 +7,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizEvents;
+import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization.map;
+package nl.sense_os.commonsense.client.visualization.panels.map;
 
 import java.util.Date;
 

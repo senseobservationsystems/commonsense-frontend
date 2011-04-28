@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizEvents;
+import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;

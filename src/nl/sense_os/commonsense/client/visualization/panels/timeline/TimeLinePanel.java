@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization.timeline;
+package nl.sense_os.commonsense.client.visualization.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizPanel;
+import nl.sense_os.commonsense.client.visualization.panels.VizPanel;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.chap.links.client.Graph;

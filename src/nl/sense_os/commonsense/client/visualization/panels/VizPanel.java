@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization;
+package nl.sense_os.commonsense.client.visualization.panels;
 
 import java.util.List;
 

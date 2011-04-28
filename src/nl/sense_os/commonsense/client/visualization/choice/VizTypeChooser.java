@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.visualization;
+package nl.sense_os.commonsense.client.visualization.choice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.data.DataEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;

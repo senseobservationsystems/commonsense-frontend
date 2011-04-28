@@ -1,9 +1,10 @@
-package nl.sense_os.commonsense.client.visualization;
+package nl.sense_os.commonsense.client.visualization.tabs;
 
 import nl.sense_os.commonsense.client.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.visualization.choice.VizTypeChooser;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.event.EventType;

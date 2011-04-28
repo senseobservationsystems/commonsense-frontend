@@ -12,7 +12,7 @@ import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
 import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.VizEvents;
+import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
