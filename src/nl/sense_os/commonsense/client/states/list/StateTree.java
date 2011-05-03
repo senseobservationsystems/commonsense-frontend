@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
 import com.extjs.gxt.ui.client.widget.menu.MenuBarItem;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
@@ -94,6 +95,22 @@ public class StateTree extends View {
                 });
     }
 
+    private SensorModel getSelectedState() {
+        TreeModel selection = this.tree.getSelectionModel().getSelectedItem();
+
+        TreeModel state = selection;
+        TreeModel parent = state.getParent();
+        while (parent != null) {
+            state = parent;
+            parent = state.getParent();
+        }
+        if (false == (state instanceof SensorModel)) {
+            Log.w(TAG, "Selected state is not a SensorModel?!");
+            return null;
+        }
+        return (SensorModel) state;
+    }
+
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
@@ -115,7 +132,7 @@ public class StateTree extends View {
             onLoggedOut(event);
 
         } else if (type.equals(StateEvents.Done)) {
-            // Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(StateEvents.Working)) {
@@ -204,15 +221,28 @@ public class StateTree extends View {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
                     editButton.enable();
-                    feedbackButton.enable();
                     connectButton.enable();
 
                     // only able to disconnect if sensor is selected
-                    if (selection.getParent() != null) {
+                    TreeModel parent = selection.getParent();
+                    if (parent != null) {
                         disconnectButton.enable();
                     } else {
                         disconnectButton.disable();
                     }
+
+                    // only able to give feedback if state has manualLearn method
+                    SensorModel state = getSelectedState();
+                    List<ModelData> methods = state.get("methods");
+                    boolean canHazFeedback = false;
+                    for (ModelData method : methods) {
+                        if (method.get("name").equals("GetManualInputMode")) {
+                            canHazFeedback = true;
+                            break;
+                        }
+                    }
+                    feedbackButton.setEnabled(canHazFeedback);
+
                 } else {
                     editButton.enable();
                     feedbackButton.enable();
@@ -255,11 +285,14 @@ public class StateTree extends View {
         this.defaultsButton = new MenuItem("Default States", l);
         serviceMenu.add(defaultsButton);
 
+        SeparatorMenuItem separator = new SeparatorMenuItem();
+        serviceMenu.add(separator);
+
         this.editButton = new MenuItem("Algorithm Parameters", l);
         this.editButton.disable();
         serviceMenu.add(editButton);
 
-        this.feedbackButton = new MenuItem("Give Feedback", l);
+        this.feedbackButton = new MenuItem("Give Algorithm Feedback", l);
         this.feedbackButton.disable();
         serviceMenu.add(feedbackButton);
 
@@ -315,7 +348,7 @@ public class StateTree extends View {
         this.tree.setId("stateGrid");
         this.tree.setDisplayProperty("text");
         this.tree.setStateful(true);
-        this.tree.setIconProvider(new SensorIconProvider());
+        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
 
         // toolbar with filter field
         ToolBar filterBar = new ToolBar();
@@ -352,10 +385,7 @@ public class StateTree extends View {
     }
 
     private void onConnectClick() {
-        TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
-        if (selectedService.getParent() != null) {
-            selectedService = selectedService.getParent();
-        }
+        SensorModel selectedService = getSelectedState();
         Dispatcher.forwardEvent(StateConnectEvents.ShowSensorConnecter, selectedService);
     }
 
@@ -390,10 +420,7 @@ public class StateTree extends View {
     }
 
     private void onEditClick() {
-        TreeModel selectedService = this.tree.getSelectionModel().getSelectedItem();
-        if (selectedService.getParent() != null) {
-            selectedService = selectedService.getParent();
-        }
+        SensorModel selectedService = getSelectedState();
         AppEvent event = new AppEvent(StateEditEvents.ShowEditor);
         event.setData(selectedService);
         Dispatcher.forwardEvent(event);
@@ -445,10 +472,7 @@ public class StateTree extends View {
     }
 
     protected void showFeedback() {
-        TreeModel state = this.tree.getSelectionModel().getSelectedItem();
-        while (state.getParent() != null) {
-            state = state.getParent();
-        }
+        SensorModel state = getSelectedState();
 
         List<SensorModel> sensors = new ArrayList<SensorModel>();
         for (ModelData model : state.getChildren()) {

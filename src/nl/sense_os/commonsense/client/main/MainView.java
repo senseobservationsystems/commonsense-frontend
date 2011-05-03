@@ -186,7 +186,7 @@ public class MainView extends View {
         west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         // add to viewport
-        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 275, 275, 2000);
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400, 275, 2000);
         westData.setMargins(new Margins(5, 0, 5, 5));
         westData.setSplit(true);
         this.viewport.add(west, westData);

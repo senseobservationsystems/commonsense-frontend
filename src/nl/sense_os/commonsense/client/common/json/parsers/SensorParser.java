@@ -54,9 +54,10 @@ public class SensorParser {
 
         // front end-only properties
         props.put("tagType", TagModel.TYPE_SENSOR);
+        String type = (String) props.get(SensorModel.TYPE);
         String name = (String) props.get(SensorModel.NAME);
         String deviceType = (String) props.get(SensorModel.DEVICE_TYPE);
-        if (name.equals(deviceType) || "".equals(deviceType)) {
+        if (!type.equals("1") || "".equals(deviceType) || deviceType.equals(name)) {
             props.put("text", name);
         } else {
             props.put("text", name + " (" + deviceType + ")");

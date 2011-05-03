@@ -2,6 +2,8 @@ package nl.sense_os.commonsense.client.utility;
 
 import java.util.Comparator;
 
+import nl.sense_os.commonsense.shared.DeviceModel;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -92,7 +94,8 @@ public class SensorComparator implements Comparator<Object> {
     }
 
     private int compareSensors(TreeModel model1, TreeModel model2) {
-        int type1 = Integer.parseInt(model1.<String> get("type"));
+
+        int type1 = Integer.parseInt(model1.<String> get(SensorModel.TYPE));
         switch (type1) {
             case 0 :
                 type1 = FEEDS;
@@ -110,7 +113,7 @@ public class SensorComparator implements Comparator<Object> {
                 type1 = APPLICATIONS;
                 break;
         }
-        int type2 = Integer.parseInt(model2.<String> get("type"));
+        int type2 = Integer.parseInt(model2.<String> get(SensorModel.TYPE));
         switch (type2) {
             case 0 :
                 type2 = FEEDS;
@@ -136,11 +139,20 @@ public class SensorComparator implements Comparator<Object> {
     }
 
     private int compareDevices(TreeModel model1, TreeModel model2) {
-        String name1 = model1.<String> get("text");
-        String name2 = model2.<String> get("text");
-        return name1.compareToIgnoreCase(name2);
-    }
 
+        int type1 = model1.<String> get(DeviceModel.KEY_TYPE).equals("myrianode") ? 1 : 0;
+        int type2 = model2.<String> get(DeviceModel.KEY_TYPE).equals("myrianode") ? 1 : 0;
+
+        if (type1 == 1 && type2 == 1) {
+            int uuid1 = Integer.parseInt(model1.<String> get(DeviceModel.KEY_UUID));
+            int uuid2 = Integer.parseInt(model2.<String> get(DeviceModel.KEY_UUID));
+            return uuid1 - uuid2;
+        } else {
+            String name1 = type1 + model1.<String> get("text");
+            String name2 = type2 + model2.<String> get("text");
+            return name1.compareToIgnoreCase(name2);
+        }
+    }
     private int compareGroups(TreeModel model1, TreeModel model2) {
         String name1 = model1.<String> get("text");
         String name2 = model2.<String> get("text");

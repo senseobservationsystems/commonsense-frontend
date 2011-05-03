@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.shared;
 
+import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
@@ -22,6 +23,23 @@ public class ServiceModel extends BaseTreeModel {
 
     public ServiceModel(TreeModel parent) {
         super(parent);
+    }
+
+    public String getName() {
+        return get(NAME);
+    }
+
+    public String getId() {
+        return get(ID);
+    }
+
+    public List<String> getDataFields() {
+        return get(DATA_FIELDS);
+    }
+
+    @Override
+    public String toString() {
+        return get("text", "Service #" + getId());
     }
 
 }

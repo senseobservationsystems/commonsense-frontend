@@ -107,7 +107,7 @@ public class GroupSensorsTree extends View {
             showPanel(parent);
 
         } else if (type.equals(GroupSensorsEvents.Done)) {
-            // Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(GroupSensorsEvents.Working)) {
@@ -115,7 +115,7 @@ public class GroupSensorsTree extends View {
             setBusy(true);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
-            // Log.d(TAG, "Group ListUpdated");
+            // Log.d(TAG, "Group TreeUpdated");
             refreshLoader(true);
 
         } else if (type.equals(GroupSensorsEvents.UnshareSuccess)) {
@@ -264,7 +264,7 @@ public class GroupSensorsTree extends View {
         this.tree.setStateful(true);
         this.tree.setId("groupSensorsTree");
         this.tree.setDisplayProperty("text");
-        this.tree.setIconProvider(new SensorIconProvider());
+        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
 
         // toolbar with filter field
         ToolBar filterBar = new ToolBar();

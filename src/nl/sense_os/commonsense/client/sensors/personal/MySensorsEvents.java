@@ -14,16 +14,24 @@ public class MySensorsEvents {
     // Get list of sensors
     public static final EventType ListRequested = new EventType();
     public static final EventType ListUpdated = new EventType();
-    public static final EventType AjaxSensorsFailure = new EventType();
-    public static final EventType AjaxSensorsSuccess = new EventType();
-    public static final EventType AjaxDevicesFailure = new EventType();
-    public static final EventType AjaxDevicesSuccess = new EventType();
+    protected static final EventType ListAjaxFailure = new EventType();
+    protected static final EventType ListAjaxSuccess = new EventType();
+    protected static final EventType ListPhysicalAjaxFailure = new EventType();
+    protected static final EventType ListPhysicalAjaxSuccess = new EventType();
+
+    // get tree of sensors
+    public static final EventType TreeRequested = new EventType();
+    public static final EventType TreeUpdated = new EventType();
+    protected static final EventType AjaxSensorsFailure = new EventType();
+    protected static final EventType AjaxSensorsSuccess = new EventType();
+    protected static final EventType AjaxDevicesFailure = new EventType();
+    protected static final EventType AjaxDevicesSuccess = new EventType();
 
     // Share sensors
     protected static final EventType ShowShareDialog = new EventType();
     protected static final EventType ShareRequest = new EventType();
-    public static final EventType AjaxShareFailure = new EventType();
-    public static final EventType AjaxShareSuccess = new EventType();
+    protected static final EventType AjaxShareFailure = new EventType();
+    protected static final EventType AjaxShareSuccess = new EventType();
     protected static final EventType ShareComplete = new EventType();
     protected static final EventType ShareFailed = new EventType();
     protected static final EventType ShareCancelled = new EventType();

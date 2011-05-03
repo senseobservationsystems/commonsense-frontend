@@ -30,8 +30,13 @@ public class FeedbackView extends View {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             initPanel(state, sensors);
 
-        } else if (type.equals(FeedbackEvents.LabelsSuccess)) {
-            Log.d(TAG, "LabelsSuccess");
+        } else
+
+        /**
+         * Request for labels
+         */
+        if (type.equals(FeedbackEvents.LabelsSuccess)) {
+            // Log.d(TAG, "LabelsSuccess");
             final List<String> labels = event.<List<String>> getData("labels");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
@@ -41,7 +46,24 @@ public class FeedbackView extends View {
             Log.w(TAG, "LabelsFailure");
             onLabelsFailure();
 
-        } else {
+        } else
+
+        /**
+         * Feedback results
+         */
+        if (type.equals(FeedbackEvents.FeedbackComplete)) {
+            Log.d(TAG, "FeedbackComplete");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            panel.onFeedbackComplete();
+
+        } else if (type.equals(FeedbackEvents.FeedbackFailed)) {
+            Log.w(TAG, "FeedbackFailed");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            panel.onFeedbackFailed();
+
+        } else
+
+        {
             Log.w(TAG, "Unexpected event type!");
         }
     }
@@ -60,7 +82,7 @@ public class FeedbackView extends View {
 
     private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels) {
         String title = state.<String> get("text");
-        FeedbackPanel panel = new FeedbackPanel(state, sensors, title);
+        FeedbackPanel panel = new FeedbackPanel(state, sensors, title, labels);
 
         AppEvent showEvent = new AppEvent(FeedbackEvents.ShowFeedback);
         showEvent.setData("panel", panel);

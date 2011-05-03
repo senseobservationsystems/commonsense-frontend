@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.states.create;
 
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
@@ -45,9 +48,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class StateCreator extends View {
 
@@ -280,7 +280,7 @@ public class StateCreator extends View {
         this.sensorsTree = new TreePanel<TreeModel>(sensorsStore);
         this.sensorsTree.setBorders(false);
         this.sensorsTree.setDisplayProperty("text");
-        this.sensorsTree.setIconProvider(new SensorIconProvider());
+        this.sensorsTree.setIconProvider(new SensorIconProvider<TreeModel>());
         this.sensorsTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 

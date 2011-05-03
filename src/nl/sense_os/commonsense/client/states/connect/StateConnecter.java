@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.states.connect;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
@@ -40,9 +43,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StateConnecter extends View {
 
@@ -226,7 +226,7 @@ public class StateConnecter extends View {
         this.tree.setBorders(false);
         this.tree.setDisplayProperty("text");
         this.tree.setAutoLoad(true);
-        this.tree.setIconProvider(new SensorIconProvider());
+        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
     }
 
     private void onConnectFailure() {

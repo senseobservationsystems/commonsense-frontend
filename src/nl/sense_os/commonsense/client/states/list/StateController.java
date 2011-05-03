@@ -282,7 +282,7 @@ public class StateController extends Controller {
          * Get list of state and connected sensors
          */
         if (type.equals(StateEvents.ListRequested)) {
-            // Log.d(TAG, "ListRequested");
+            // Log.d(TAG, "TreeRequested");
             AsyncCallback<List<TreeModel>> callback = event
                     .<AsyncCallback<List<TreeModel>>> getData();
             getMyServices(callback);

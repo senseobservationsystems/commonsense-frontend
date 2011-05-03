@@ -140,6 +140,13 @@ public abstract class VizPanel extends ContentPanel {
 
     @Override
     public void hide() {
+
+        if (null != this.refreshTimer) {
+            this.refreshTimer.cancel();
+            this.isAutoRefresh = false;
+            this.refreshTimer = null;
+        }
+
         Widget parent = this.getParent();
         if (parent instanceof TabItem) {
             // remove tab item from tab panel

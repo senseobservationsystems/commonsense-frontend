@@ -82,7 +82,7 @@ public class GroupGrid extends View {
             showPanel(parent);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
-            // Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(VizEvents.Show)) {
@@ -158,7 +158,7 @@ public class GroupGrid extends View {
         this.grid.setStateful(true);
         this.grid.setAutoExpandColumn("text");
         this.grid.setLoadMask(true);
-        this.grid.setIconProvider(new SensorIconProvider());
+        this.grid.setIconProvider(new SensorIconProvider<TreeModel>());
 
         TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);

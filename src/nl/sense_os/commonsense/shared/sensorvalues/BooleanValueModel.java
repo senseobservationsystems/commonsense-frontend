@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.json.overlays.BoolDataPoint;
+import nl.sense_os.commonsense.client.common.json.overlays.BoolDataPoint;
 
 /**
  * Model for sensor values of boolean data type.

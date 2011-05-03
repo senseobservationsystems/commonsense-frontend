@@ -75,4 +75,9 @@ public class SensorModel extends BaseTreeModel {
     public String getType() {
         return get(TYPE);
     }
+
+    @Override
+    public String toString() {
+        return get("text", "Sensor #" + getId());
+    }
 }

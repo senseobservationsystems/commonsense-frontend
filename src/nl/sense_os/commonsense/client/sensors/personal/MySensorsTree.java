@@ -62,6 +62,7 @@ public class MySensorsTree extends View {
     private TreePanel<TreeModel> tree;
     private BaseTreeLoader<TreeModel> loader;
     private boolean isRemoving;
+    private StoreFilterField<TreeModel> filter;
 
     public MySensorsTree(Controller controller) {
         super(controller);
@@ -107,8 +108,12 @@ public class MySensorsTree extends View {
             onRemoveFailure();
 
         } else if (type.equals(MySensorsEvents.Done)) {
-            // Log.d(TAG, "ListUpdated");
+            // Log.d(TAG, "TreeUpdated");
             setBusy(false);
+
+        } else if (type.equals(MySensorsEvents.TreeUpdated)) {
+            // Log.d(TAG, "TreeUpdated");
+            onListUpdate();
 
         } else if (type.equals(MySensorsEvents.Working)) {
             // Log.d(TAG, "Working");
@@ -238,7 +243,7 @@ public class MySensorsTree extends View {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
-                        fireEvent(new AppEvent(MySensorsEvents.ListRequested, callback));
+                        fireEvent(new AppEvent(MySensorsEvents.TreeRequested, callback));
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
                         List<TreeModel> children = new ArrayList<TreeModel>();
@@ -263,12 +268,12 @@ public class MySensorsTree extends View {
         this.tree.setStateful(true);
         this.tree.setId("mySensorsTree");
         this.tree.setDisplayProperty("text");
-        this.tree.setIconProvider(new SensorIconProvider());
+        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
 
         // toolbar with filter field
         ToolBar filterBar = new ToolBar();
         filterBar.add(new LabelToolItem("Filter: "));
-        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
+        this.filter = new StoreFilterField<TreeModel>() {
 
             @Override
             protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
@@ -284,10 +289,9 @@ public class MySensorsTree extends View {
                 }
                 return false;
             }
-
         };
-        filter.bind(store);
-        filterBar.add(filter);
+        this.filter.bind(this.store);
+        filterBar.add(this.filter);
 
         ContentPanel content = new ContentPanel(new FitLayout());
         content.setBodyBorder(false);
@@ -298,6 +302,10 @@ public class MySensorsTree extends View {
         this.panel.add(content);
 
         setupDragDrop();
+    }
+
+    private void onListUpdate() {
+        this.filter.clear();
     }
 
     private void onLoggedOut(AppEvent event) {

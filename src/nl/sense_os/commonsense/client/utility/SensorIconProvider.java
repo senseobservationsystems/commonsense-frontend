@@ -10,7 +10,7 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-public class SensorIconProvider implements ModelIconProvider<TreeModel> {
+public class SensorIconProvider<D extends TreeModel> implements ModelIconProvider<TreeModel> {
 
     private static final String TAG = "SensorIconProvider";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";

@@ -23,4 +23,21 @@ public class DeviceModel extends BaseTreeModel {
     public DeviceModel(TreeModel parent) {
         super(parent);
     }
+
+    public String getId() {
+        return get(KEY_ID);
+    }
+
+    public String getType() {
+        return get(KEY_TYPE);
+    }
+
+    public String getUuid() {
+        return get(KEY_UUID);
+    }
+
+    @Override
+    public String toString() {
+        return get("text", "Device #" + getId());
+    }
 }

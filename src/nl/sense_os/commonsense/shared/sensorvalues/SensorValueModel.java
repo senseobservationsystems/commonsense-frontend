@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.shared.sensorvalues;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.json.overlays.DataPoint;
+import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 

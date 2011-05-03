@@ -24,4 +24,25 @@ public class GroupModel extends BaseTreeModel {
     public GroupModel(TreeModel parent) {
         super(parent);
     }
+
+    public String getId() {
+        return get(ID);
+    }
+
+    public String getEmail() {
+        return get(EMAIL);
+    }
+
+    public String getUsername() {
+        return get(USERNAME);
+    }
+
+    public String getName() {
+        return get(NAME);
+    }
+
+    @Override
+    public String toString() {
+        return get("text", "Group #" + getId());
+    }
 }

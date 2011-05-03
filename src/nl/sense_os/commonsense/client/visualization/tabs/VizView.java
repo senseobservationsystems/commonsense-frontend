@@ -12,7 +12,6 @@ import nl.sense_os.commonsense.client.visualization.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.visualization.panels.table.SensorDataGrid;
 import nl.sense_os.commonsense.client.visualization.panels.timeline.TimeLinePanel;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -177,27 +176,33 @@ public class VizView extends View {
     private void onTagsDropped(List<TreeStoreModel> treeStoreModels) {
 
         // get the children of node tags
-        List<TreeModel> tags = new ArrayList<TreeModel>();
+        List<SensorModel> sensors = new ArrayList<SensorModel>();
         for (TreeStoreModel tsm : treeStoreModels) {
             final TreeModel tag = (TreeModel) tsm.getModel();
-            if (false == tags.contains(tag)) {
-                int tagType = tag.<Integer> get("tagType");
-                if (tagType == TagModel.TYPE_SENSOR) {
-                    tags.add(tag);
+            if (false == sensors.contains(tag)) {
+
+                if (tag instanceof SensorModel) {
+                    sensors.add((SensorModel) tag);
                 } else {
                     // add any children
                     for (ModelData model : tsm.getChildren()) {
                         TreeStoreModel tm = (TreeStoreModel) model;
                         TreeModel child = (TreeModel) tm.getModel();
-                        if (false == tags.contains(child)) {
-                            tags.add(child);
+                        if (false == sensors.contains(child)) {
+                            if (child instanceof SensorModel) {
+                                sensors.add((SensorModel) child);
+                            }
                         }
                     }
                 }
             }
         }
 
-        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, tags);
+        showTypeChoice(sensors);
+    }
+
+    private void showTypeChoice(List<SensorModel> sensors) {
+        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, sensors);
     }
 
     private void resetTabs() {
@@ -217,10 +222,26 @@ public class VizView extends View {
         final DropTarget dropTarget = new DropTarget(this.tabPanel);
         dropTarget.setOperation(Operation.COPY);
         dropTarget.addDNDListener(new DNDListener() {
+
             @Override
             public void dragDrop(DNDEvent e) {
-                final ArrayList<TreeStoreModel> data = e.<ArrayList<TreeStoreModel>> getData();
-                onTagsDropped(data);
+                Object data = e.getData();
+                if (data instanceof List) {
+                    Object listEntry = ((List<?>) data).get(0);
+                    if (listEntry instanceof TreeStoreModel) {
+                        @SuppressWarnings("unchecked")
+                        List<TreeStoreModel> list = (List<TreeStoreModel>) data;
+                        onTagsDropped(list);
+                    } else if (listEntry instanceof SensorModel) {
+                        @SuppressWarnings("unchecked")
+                        List<SensorModel> list = (List<SensorModel>) data;
+                        showTypeChoice(list);
+                    } else {
+                        Log.d(TAG, "Unknown list type: " + listEntry);
+                    }
+                } else {
+                    Log.w(TAG, "Cannot handle dropped data: " + data);
+                }
             }
         });
     }

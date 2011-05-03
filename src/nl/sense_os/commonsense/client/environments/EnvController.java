@@ -33,7 +33,7 @@ public class EnvController extends Controller {
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(EnvEvents.ListRequested)) {
-            Log.d(TAG, "ListRequested");
+            Log.d(TAG, "TreeRequested");
             requestList(event);
 
         } else if (type.equals(EnvEvents.ShowCreator)) {

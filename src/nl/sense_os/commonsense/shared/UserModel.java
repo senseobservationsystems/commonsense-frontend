@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.shared;
 
+import java.util.Map;
+
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
-
-import java.util.Map;
 
 public class UserModel extends BaseTreeModel {
 
@@ -105,6 +105,6 @@ public class UserModel extends BaseTreeModel {
 
     @Override
     public String toString() {
-        return get("text", super.toString());
+        return get("text", "User #" + getId());
     }
 }

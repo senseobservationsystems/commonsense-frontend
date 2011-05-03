@@ -10,12 +10,12 @@ import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -45,24 +45,26 @@ public class FeedbackController extends Controller {
          * Submit feedback data.
          */
         if (type.equals(FeedbackEvents.FeedbackSubmit)) {
-            Log.d(TAG, "FeedbackSubmit");
-            final TreeModel service = event.<TreeModel> getData("service");
-            final String label = event.<String> getData("label");
-            final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
-            markFeedback(service, label, feedback);
+            // Log.d(TAG, "FeedbackSubmit");
+            final SensorModel state = event.<SensorModel> getData("state");
+            final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            markFeedback(state, changes, 0, panel);
+
+        } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
+            // Log.d(TAG, "AjaxFeedbackSuccess");
+            // final String response = event.<String> getData("response");
+            final SensorModel state = event.<SensorModel> getData("state");
+            final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
+            final int index = event.getData("index");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            onFeedbackMarked(state, changes, index, panel);
 
         } else if (type.equals(FeedbackEvents.FeedbackAjaxFailure)) {
             Log.w(TAG, "AjaxFeedbackFailure");
-            final int code = event.getData("code");
-            onFeedbackFailed(code);
-
-        } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
-            Log.d(TAG, "AjaxFeedbackSuccess");
-            // final String response = event.<String> getData("response");
-            final TreeModel service = event.<TreeModel> getData("service");
-            final String label = event.<String> getData("label");
-            final List<ModelData> feedback = event.<List<ModelData>> getData("feedback");
-            onFeedbackMarked(service, label, feedback);
+            // final int code = event.getData("code");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            onFeedbackFailed(panel);
 
         } else
 
@@ -70,13 +72,13 @@ public class FeedbackController extends Controller {
          * Get state labels.
          */
         if (type.equals(FeedbackEvents.LabelsRequest)) {
-            Log.d(TAG, "LabelsRequest");
+            // Log.d(TAG, "LabelsRequest");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
             getLabels(state, sensors);
 
         } else if (type.equals(FeedbackEvents.LabelsAjaxSuccess)) {
-            Log.d(TAG, "LabelsAjaxSuccess");
+            // Log.d(TAG, "LabelsAjaxSuccess");
             final String response = event.getData("response");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
@@ -221,54 +223,77 @@ public class FeedbackController extends Controller {
         this.feedback = new FeedbackView(this);
     }
 
-    private void markFeedback(TreeModel service, String label, List<ModelData> feedback) {
+    private void markFeedback(SensorModel state, List<FeedbackData> changes, int index,
+            FeedbackPanel panel) {
 
-        ModelData sensor = service.getChild(0);
-        ModelData feedbackPeriod = feedback.get(0);
+        SensorModel sensor = (SensorModel) state.getChild(0);
 
-        // prepare request properties
-        final String method = "POST";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/"
-                + service.<String> get("id") + "/manualLearn.json";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
-        onSuccess.setData("service", service);
-        onSuccess.setData("label", label);
-        onSuccess.setData("feedback", feedback);
-        final AppEvent onFailure = new AppEvent(FeedbackEvents.FeedbackAjaxFailure);
+        if (index < changes.size()) {
+            FeedbackData change = changes.get(index);
 
-        // prepare request body
-        String body = "{\"start_date\":\"" + feedbackPeriod.get("start") + "\"";
-        body += ",\"end_date\":\"" + feedbackPeriod.get("end") + "\"";
-        body += ",\"class_label\":\"" + label + "\"}";
+            // TODO also process delete changes
+            while (change.getType() == FeedbackData.TYPE_REMOVE) {
+                Log.w(TAG, "Skipping feedback deletion!");
+                index++;
+                if (index < changes.size()) {
+                    change = changes.get(index);
+                } else {
+                    onFeedbackComplete(panel);
+                    return;
+                }
+            }
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("body", body);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
+            // prepare request properties
+            final String method = "POST";
+            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
+                    + "/services/" + state.getId() + "/manualLearn.json";
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
+            onSuccess.setData("state", state);
+            onSuccess.setData("changes", changes);
+            onSuccess.setData("index", index);
+            onSuccess.setData("panel", panel);
+            final AppEvent onFailure = new AppEvent(FeedbackEvents.FeedbackAjaxFailure);
+            onFailure.setData("panel", panel);
 
-    private void onFeedbackMarked(TreeModel service, String label, List<ModelData> feedback) {
+            // prepare request body
+            String body = "{\"start_date\":\""
+                    + NumberFormat.getFormat("#.000").format(change.getStart() / 1000d) + "\"";
+            body += ",\"end_date\":\""
+                    + NumberFormat.getFormat("#.000").format(change.getEnd() / 1000d) + "\"";
+            body += ",\"class_label\":\"" + change.getLabel() + "\"}";
 
-        if (feedback.size() > 1) {
-            // remove 0th feedback item, repeat
-            feedback.remove(0);
-            markFeedback(service, label, feedback);
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("body", body);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+            Dispatcher.forwardEvent(ajaxRequest);
+
         } else {
-            // TODO
-            Log.d(TAG, "Feedback success");
-            // forwardToView(this.form, new AppEvent(StateEvents.FeedbackComplete));
+            onFeedbackComplete(panel);
         }
     }
 
-    private void onFeedbackFailed(int code) {
-        // TODO
+    private void onFeedbackMarked(SensorModel state, List<FeedbackData> changes, int index,
+            FeedbackPanel panel) {
+        index++;
+        markFeedback(state, changes, index, panel);
+    }
+
+    private void onFeedbackFailed(FeedbackPanel panel) {
         Log.d(TAG, "Feedback failure");
-        // forwardToView(this.form, new AppEvent(StateEvents.FeedbackFailed));
+        AppEvent failure = new AppEvent(FeedbackEvents.FeedbackFailed);
+        failure.setData("panel", panel);
+        forwardToView(this.feedback, failure);
+    }
+
+    private void onFeedbackComplete(FeedbackPanel panel) {
+        AppEvent complete = new AppEvent(FeedbackEvents.FeedbackComplete);
+        complete.setData("panel", panel);
+        forwardToView(this.feedback, complete);
     }
 }

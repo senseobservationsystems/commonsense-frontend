@@ -43,7 +43,7 @@ public class StateCreateController extends Controller {
 
         // load all sensors to create service from
         registerEventTypes(StateCreateEvents.LoadSensors);
-        registerEventTypes(GroupSensorsEvents.ListUpdated, MySensorsEvents.ListUpdated);
+        registerEventTypes(GroupSensorsEvents.ListUpdated, MySensorsEvents.TreeUpdated);
 
         // create state from sensor
         registerEventTypes(StateCreateEvents.CreateServiceRequested,
@@ -104,7 +104,7 @@ public class StateCreateController extends Controller {
             // Log.d(TAG, "LoadSensors");
             loadSensors();
 
-        } else if (type.equals(MySensorsEvents.ListUpdated)
+        } else if (type.equals(MySensorsEvents.TreeUpdated)
                 || type.equals(GroupSensorsEvents.ListUpdated)) {
             if (isLoadingSensors) {
                 // Log.d(TAG, "Sensor lists updated: LoadSensors");
@@ -255,7 +255,7 @@ public class StateCreateController extends Controller {
     private void loadSensors() {
         this.isLoadingSensors = true;
 
-        List<TreeModel> mySensors = Registry.<List<TreeModel>> get(Constants.REG_MY_SENSORS);
+        List<TreeModel> mySensors = Registry.<List<TreeModel>> get(Constants.REG_MY_SENSORS_TREE);
         TreeModel mySensorsParent = new BaseTreeModel();
         mySensorsParent.set("tagType", TagModel.TYPE_CATEGORY);
         mySensorsParent.set("text", "My personal sensors");
@@ -265,7 +265,7 @@ public class StateCreateController extends Controller {
                 mySensorsParent.add(copy);
             }
         } else {
-            Dispatcher.forwardEvent(MySensorsEvents.ListRequested);
+            Dispatcher.forwardEvent(MySensorsEvents.TreeRequested);
             return;
         }
 
