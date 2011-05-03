@@ -250,6 +250,8 @@ public class FeedbackPanel extends VizPanel {
         options.setHeight("100%");
         options.setEditable(true);
         options.setStackEvents(true);
+        options.setGroupsOnRight(true);
+        options.setGroupsWidth(135);
 
         this.states = new Timeline(table, options);
 
@@ -286,7 +288,7 @@ public class FeedbackPanel extends VizPanel {
         };
         wrapper.add(this.states);
 
-        this.feedbackContainer.add(wrapper, new FitData(new Margins(5, 145, 5, 145)));
+        this.feedbackContainer.add(wrapper, new FitData(new Margins(5, 145, 5, 45)));
 
         addFeedbackHandlers();
     }
@@ -345,6 +347,8 @@ public class FeedbackPanel extends VizPanel {
         options.setSelectable(false);
         options.setEditable(false);
         options.setStackEvents(false);
+        options.setGroupsOnRight(true);
+        options.setGroupsWidth(135);
 
         DataTable table = createDataTable();
         this.timeline = new Timeline(table, options);
@@ -382,7 +386,7 @@ public class FeedbackPanel extends VizPanel {
         };
         wrapper.add(this.timeline);
 
-        this.vizContainer.insert(wrapper, 0, new FillData(new Margins(5, 145, 5, 5)));
+        this.vizContainer.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 45)));
         this.layout();
     }
 

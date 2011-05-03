@@ -57,6 +57,9 @@ public class TimeLinePanel extends VizPanel {
         this.tlineOpts.setSelectable(false);
         this.tlineOpts.setEditable(false);
         this.tlineOpts.setStackEvents(false);
+        this.tlineOpts.setGroupsOnRight(true);
+        this.tlineOpts.setGroupsWidth(135);
+
         this.dataTable = createDataTable();
 
         visualize(sensors, start, end);
@@ -126,6 +129,7 @@ public class TimeLinePanel extends VizPanel {
 
         // this LayoutContainer ensures that the graph is sized and resized correctly
         LayoutContainer graphWrapper = new LayoutContainer() {
+
             @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
@@ -170,7 +174,7 @@ public class TimeLinePanel extends VizPanel {
         };
         wrapper.add(this.timeline);
 
-        this.insert(wrapper, 0, new FillData(new Margins(5, 145, 5, 5)));
+        this.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 45)));
         this.layout();
     }
 

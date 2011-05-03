@@ -52,11 +52,11 @@ div.graph-canvas div.graph-legend {
 }
 
 div.timeline-groups-text {
-    width: 120px;
+    /* width: 120px; */
 }
 
 div.graph-axis-text-vertical {
-    width: 125px;
+    width: 25px;
 }
 
 /** #loading for the initial "Loading" div that is shown before the rootpanel is filled */
