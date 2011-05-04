@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.services;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
+import nl.sense_os.commonsense.client.sensors.library.SensorLibraryController;
 import nl.sense_os.commonsense.shared.ServiceModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -17,7 +17,7 @@ public interface SensorsProxyAsync {
             AsyncCallback<List<TreeModel>> callback);
 
     /**
-     * @deprecated use client-side code instead: {@link MySensorsController}
+     * @deprecated use client-side code instead: {@link SensorLibraryController}
      */
     @Deprecated
     void getMySensors(String sessionId, AsyncCallback<List<TreeModel>> callback);

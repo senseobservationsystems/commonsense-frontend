@@ -1,10 +1,12 @@
 package nl.sense_os.commonsense.client.states.list;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
@@ -67,6 +69,7 @@ public class StateTree extends View {
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
     private MenuItem createButton;
+    private MenuItem deleteButton;
     private MenuItem disconnectButton;
     private MenuItem connectButton;
     private MenuItem editButton;
@@ -81,18 +84,40 @@ public class StateTree extends View {
         fireEvent(new AppEvent(StateEvents.CheckDefaults));
     }
 
-    private void confirmRemove() {
-        MessageBox.confirm(null, "Are you sure you want to remove this state sensor?",
+    private void confirmDisconnect() {
+        MessageBox.confirm(null,
+                "Are you sure you want to disconnect this sensor from this state?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            removeService();
+                            disconnectSensor();
                         }
                     }
                 });
+    }
+
+    private void disconnectSensor() {
+        TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
+        TreeModel service = sensor.getParent();
+
+        AppEvent event = new AppEvent(StateEvents.RemoveRequested);
+        event.setData("sensor", sensor);
+        event.setData("service", service);
+        Dispatcher.forwardEvent(event);
+        setBusy(true);
+    }
+
+    /**
+     * Dispatches request to show "delete dialog" for the selected state.
+     */
+    private void deleteState() {
+        SensorModel state = getSelectedState();
+        AppEvent delete = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
+        delete.setData("sensors", Arrays.asList(state));
+        Dispatcher.forwardEvent(delete);
     }
 
     private SensorModel getSelectedState() {
@@ -163,6 +188,10 @@ public class StateTree extends View {
             Log.w(TAG, "CheckDefaultsFailure");
             onDefaultsFailed();
 
+        } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
+            // Log.d(TAG, "External trigger for update");
+            refreshLoader(true);
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
@@ -220,6 +249,7 @@ public class StateTree extends View {
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
+                    deleteButton.enable();
                     editButton.enable();
                     connectButton.enable();
 
@@ -246,6 +276,7 @@ public class StateTree extends View {
                 } else {
                     editButton.enable();
                     feedbackButton.enable();
+                    deleteButton.disable();
                     connectButton.disable();
                     disconnectButton.disable();
                 }
@@ -260,12 +291,14 @@ public class StateTree extends View {
                 MenuItem source = (MenuItem) me.getItem();
                 if (source.equals(createButton)) {
                     onCreateClick();
+                } else if (source.equals(deleteButton)) {
+                    deleteState();
                 } else if (source.equals(editButton)) {
                     onEditClick();
                 } else if (source.equals(connectButton)) {
                     onConnectClick();
                 } else if (source.equals(disconnectButton)) {
-                    confirmRemove();
+                    confirmDisconnect();
                 } else if (source.equals(feedbackButton)) {
                     showFeedback();
                 } else if (source.equals(defaultsButton)) {
@@ -287,6 +320,13 @@ public class StateTree extends View {
 
         SeparatorMenuItem separator = new SeparatorMenuItem();
         serviceMenu.add(separator);
+
+        this.deleteButton = new MenuItem("Delete State", l);
+        this.deleteButton.disable();
+        serviceMenu.add(deleteButton);
+
+        SeparatorMenuItem separator2 = new SeparatorMenuItem();
+        serviceMenu.add(separator2);
 
         this.editButton = new MenuItem("Algorithm Parameters", l);
         this.editButton.disable();
@@ -443,7 +483,7 @@ public class StateTree extends View {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            removeService();
+                            disconnectSensor();
                         }
                     }
                 });
@@ -453,17 +493,6 @@ public class StateTree extends View {
         if (force || this.store.getChildCount() == 0) {
             loader.load();
         }
-    }
-
-    protected void removeService() {
-        TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
-        TreeModel service = sensor.getParent();
-
-        AppEvent event = new AppEvent(StateEvents.RemoveRequested);
-        event.setData("sensor", sensor);
-        event.setData("service", service);
-        Dispatcher.forwardEvent(event);
-        setBusy(true);
     }
 
     private void setBusy(boolean busy) {

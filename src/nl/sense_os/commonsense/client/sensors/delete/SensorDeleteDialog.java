@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors.personal;
+package nl.sense_os.commonsense.client.sensors.delete;
 
 import java.util.List;
 
@@ -21,16 +21,16 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class DeleteDialog extends View {
+public class SensorDeleteDialog extends View {
 
-    private static final String TAG = "DeleteDialog";
+    private static final String TAG = "SensorDeleteDialog";
     private Window window;
     private Text text;
     private Button removeButton;
     private Button cancelButton;
     private List<SensorModel> sensors;
 
-    public DeleteDialog(Controller c) {
+    public SensorDeleteDialog(Controller c) {
         super(c);
     }
 
@@ -43,15 +43,15 @@ public class DeleteDialog extends View {
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(MySensorsEvents.ShowDeleteDialog)) {
+        if (type.equals(SensorDeleteEvents.ShowDeleteDialog)) {
             Log.d(TAG, "Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
-        } else if (type.equals(MySensorsEvents.DeleteSuccess)) {
+        } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(MySensorsEvents.DeleteFailure)) {
+        } else if (type.equals(SensorDeleteEvents.DeleteFailure)) {
             Log.w(TAG, "DeleteFailure");
             onRemoveFailure();
 
@@ -133,7 +133,7 @@ public class DeleteDialog extends View {
 
     private void remove() {
         setBusy(true);
-        AppEvent delete = new AppEvent(MySensorsEvents.DeleteRequest);
+        AppEvent delete = new AppEvent(SensorDeleteEvents.DeleteRequest);
         delete.setData("sensors", sensors);
         fireEvent(delete);
     }

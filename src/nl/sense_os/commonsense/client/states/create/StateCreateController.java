@@ -1,17 +1,16 @@
 package nl.sense_os.commonsense.client.states.create;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
-import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
+import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.Copier;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.ServiceModel;
-import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -23,9 +22,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StateCreateController extends Controller {
 
@@ -43,7 +39,7 @@ public class StateCreateController extends Controller {
 
         // load all sensors to create service from
         registerEventTypes(StateCreateEvents.LoadSensors);
-        registerEventTypes(GroupSensorsEvents.ListUpdated, MySensorsEvents.TreeUpdated);
+        registerEventTypes(SensorLibraryEvents.ListUpdated);
 
         // create state from sensor
         registerEventTypes(StateCreateEvents.CreateServiceRequested,
@@ -104,8 +100,7 @@ public class StateCreateController extends Controller {
             // Log.d(TAG, "LoadSensors");
             loadSensors();
 
-        } else if (type.equals(MySensorsEvents.TreeUpdated)
-                || type.equals(GroupSensorsEvents.ListUpdated)) {
+        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
             if (isLoadingSensors) {
                 // Log.d(TAG, "Sensor lists updated: LoadSensors");
                 loadSensors();
@@ -255,37 +250,11 @@ public class StateCreateController extends Controller {
     private void loadSensors() {
         this.isLoadingSensors = true;
 
-        List<TreeModel> mySensors = Registry.<List<TreeModel>> get(Constants.REG_MY_SENSORS_TREE);
-        TreeModel mySensorsParent = new BaseTreeModel();
-        mySensorsParent.set("tagType", TagModel.TYPE_CATEGORY);
-        mySensorsParent.set("text", "My personal sensors");
-        if (null != mySensors) {
-            for (TreeModel sensor : mySensors) {
-                TreeModel copy = Copier.copySensor(sensor);
-                mySensorsParent.add(copy);
-            }
-        } else {
-            Dispatcher.forwardEvent(MySensorsEvents.TreeRequested);
+        List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_MY_SENSORS_LIST);
+        if (null == sensors) {
+            Dispatcher.forwardEvent(SensorLibraryEvents.ListRequested);
             return;
         }
-
-        List<TreeModel> groupSensors = Registry.<List<TreeModel>> get(Constants.REG_GROUP_SENSORS);
-        TreeModel groupSensorsParent = new BaseTreeModel();
-        groupSensorsParent.set("tagType", TagModel.TYPE_CATEGORY);
-        groupSensorsParent.set("text", "My group sensors");
-        if (null != groupSensors) {
-            for (TreeModel sensor : groupSensors) {
-                TreeModel copy = Copier.copySensor(sensor);
-                groupSensorsParent.add(copy);
-            }
-        } else {
-            Dispatcher.forwardEvent(GroupSensorsEvents.ListRequest);
-            return;
-        }
-
-        List<TreeModel> sensors = new ArrayList<TreeModel>();
-        sensors.add(groupSensorsParent);
-        sensors.add(mySensorsParent);
 
         AppEvent success = new AppEvent(StateCreateEvents.LoadSensorsSuccess);
         success.setData("sensors", sensors);

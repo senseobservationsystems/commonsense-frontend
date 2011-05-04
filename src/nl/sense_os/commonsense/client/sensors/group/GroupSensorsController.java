@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+@Deprecated
 public class GroupSensorsController extends Controller {
 
     private static final String TAG = "GroupSensorsController";

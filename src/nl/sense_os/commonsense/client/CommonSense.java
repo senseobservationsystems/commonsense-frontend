@@ -9,8 +9,9 @@ import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.sensors.group.GroupSensorsController;
-import nl.sense_os.commonsense.client.sensors.personal.MySensorsController;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteController;
+import nl.sense_os.commonsense.client.sensors.library.SensorLibraryController;
+import nl.sense_os.commonsense.client.sensors.share.SensorShareController;
 import nl.sense_os.commonsense.client.services.BuildingService;
 import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
 import nl.sense_os.commonsense.client.services.GroupsProxy;
@@ -47,7 +48,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Tue May 3 17:44";
+    public static final String LAST_DEPLOYED = "Wed May 4 15:22";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -92,9 +93,12 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new VizController());
         dispatcher.addController(new DataController());
-        dispatcher.addController(new MySensorsController());
+        dispatcher.addController(new SensorLibraryController());
+        dispatcher.addController(new SensorDeleteController());
+        dispatcher.addController(new SensorShareController());
+        // dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
-        dispatcher.addController(new GroupSensorsController());
+        // dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new StateController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());

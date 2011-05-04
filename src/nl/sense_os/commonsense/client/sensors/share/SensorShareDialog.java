@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.sensors.personal;
+package nl.sense_os.commonsense.client.sensors.share;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +32,9 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
-public class ShareDialog extends View {
+public class SensorShareDialog extends View {
 
-    private static final String TAG = "ShareDialog";
+    private static final String TAG = "SensorShareDialog";
     private Window window;
     private FormPanel form;
     private TextField<String> user;
@@ -44,26 +44,26 @@ public class ShareDialog extends View {
 
     private ListStore<TreeModel> store;
 
-    public ShareDialog(Controller c) {
+    public SensorShareDialog(Controller c) {
         super(c);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(MySensorsEvents.ShowShareDialog)) {
+        if (type.equals(SensorShareEvents.ShowShareDialog)) {
             // Log.d(TAG, "Show");
             onShow(event);
 
-        } else if (type.equals(MySensorsEvents.ShareCancelled)) {
+        } else if (type.equals(SensorShareEvents.ShareCancelled)) {
             // Log.d(TAG, "Cancelled");
             hideWindow();
 
-        } else if (type.equals(MySensorsEvents.ShareComplete)) {
+        } else if (type.equals(SensorShareEvents.ShareComplete)) {
             // Log.d(TAG, "Complete");
             onComplete(event);
 
-        } else if (type.equals(MySensorsEvents.ShareFailed)) {
+        } else if (type.equals(SensorShareEvents.ShareFailed)) {
             Log.w(TAG, "Failed");
             onFailed(event);
 
@@ -90,7 +90,7 @@ public class ShareDialog extends View {
                         onSubmit();
                     }
                 } else if (b.equals(cancelButton)) {
-                    Dispatcher.forwardEvent(MySensorsEvents.ShareCancelled);
+                    Dispatcher.forwardEvent(SensorShareEvents.ShareCancelled);
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
                 }
@@ -190,7 +190,7 @@ public class ShareDialog extends View {
         final String user = this.user.getValue();
         final List<SensorModel> sensors = new ArrayList<SensorModel>(this.sensors);
 
-        AppEvent event = new AppEvent(MySensorsEvents.ShareRequest);
+        AppEvent event = new AppEvent(SensorShareEvents.ShareRequest);
         event.setData("user", user);
         event.setData("sensors", sensors);
 

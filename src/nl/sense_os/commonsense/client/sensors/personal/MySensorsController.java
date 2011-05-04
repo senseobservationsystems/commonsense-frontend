@@ -9,6 +9,8 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -17,10 +19,7 @@ import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -29,14 +28,12 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+@Deprecated
 public class MySensorsController extends Controller {
 
     private static final String TAG = "MySensorsController";
     private static final int PER_PAGE = 1000;
-    private View deleteDialog;
     private View tree;
-    private View grid;
-    private View shareDialog;
 
     public MySensorsController() {
         registerEventTypes(MainEvents.Init);
@@ -45,94 +42,13 @@ public class MySensorsController extends Controller {
         registerEventTypes(MySensorsEvents.ShowTree);
 
         // get list events
-        registerEventTypes(MySensorsEvents.ListRequested, MySensorsEvents.ListAjaxSuccess,
-                MySensorsEvents.ListAjaxFailure, MySensorsEvents.ListPhysicalAjaxSuccess,
-                MySensorsEvents.ListPhysicalAjaxFailure);
         registerEventTypes(MySensorsEvents.TreeRequested, MySensorsEvents.AjaxSensorsFailure,
                 MySensorsEvents.AjaxSensorsSuccess, MySensorsEvents.AjaxDevicesFailure,
                 MySensorsEvents.AjaxDevicesSuccess);
 
-        // share events
-        registerEventTypes(MySensorsEvents.ShowShareDialog, MySensorsEvents.ShareRequest,
-                MySensorsEvents.ShareComplete, MySensorsEvents.ShareCancelled,
-                MySensorsEvents.ShareFailed, MySensorsEvents.AjaxShareFailure,
-                MySensorsEvents.AjaxShareSuccess);
-
-        // delete events
-        registerEventTypes(MySensorsEvents.ShowDeleteDialog, MySensorsEvents.AjaxDeleteSuccess,
-                MySensorsEvents.AjaxDeleteFailure, MySensorsEvents.DeleteRequest);
-    }
-
-    /**
-     * Deletes a list of sensors, using Ajax requests to CommonSense.
-     * 
-     * @param sensors
-     *            The list of sensors that have to be deleted.
-     * @param retryCount
-     *            Counter for failed requests that were retried.
-     */
-    private void delete(List<SensorModel> sensors, int retryCount) {
-
-        if (null != sensors && sensors.size() > 0) {
-            ModelData sensor = sensors.get(0);
-
-            // prepare request properties
-            final String method = "DELETE";
-            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id");
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(MySensorsEvents.AjaxDeleteSuccess);
-            onSuccess.setData("sensors", sensors);
-            final AppEvent onFailure = new AppEvent(MySensorsEvents.AjaxDeleteFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("retry", retryCount);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
-        } else {
-            forwardToView(this.deleteDialog, new AppEvent(MySensorsEvents.DeleteSuccess));
-            forwardToView(this.tree, new AppEvent(MySensorsEvents.DeleteSuccess));
-            forwardToView(this.grid, new AppEvent(MySensorsEvents.DeleteSuccess));
-        }
-    }
-
-    /**
-     * Handles a successful delete request. Removes the deleted sensor from the list, and calls back
-     * to {@link #delete(List, int)}.
-     * 
-     * @param sensors
-     *            List of sensors that have to be deleted.
-     */
-    private void deleteCallback(List<SensorModel> sensors) {
-        // Goodbye sensor!
-        sensors.remove(0);
-
-        // continue with the rest of the list
-        delete(sensors, 0);
-    }
-
-    /**
-     * Handles a failed delete request. Retries the request up to three times, after this it gives
-     * up and dispatches {@link SensorsEvents#DeleteFailure}.
-     * 
-     * @param sensors
-     *            List of sensors that have to be deleted.
-     * @param retryCount
-     *            Number of times this request was attempted.
-     */
-    private void deleteFailure(List<SensorModel> sensors, int retryCount) {
-
-        if (retryCount < 3) {
-            retryCount++;
-            delete(sensors, retryCount);
-        } else {
-            forwardToView(this.deleteDialog, new AppEvent(MySensorsEvents.DeleteFailure));
-        }
+        registerEventTypes(SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
+        registerEventTypes(SensorShareEvents.ShareComplete, SensorShareEvents.ShareFailed,
+                SensorShareEvents.ShareCancelled);
     }
 
     /**
@@ -151,7 +67,7 @@ public class MySensorsController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=1000&physical=1&owned=1";
+        final String url = Constants.URL_SENSORS + "?per_page=" + PER_PAGE + "&physical=1&owned=1";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(MySensorsEvents.AjaxDevicesSuccess);
         onSuccess.setData("categories", categories);
@@ -265,117 +181,6 @@ public class MySensorsController extends Controller {
         }
     }
 
-    private void getList(List<SensorModel> sensors, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        forwardToView(this.grid, new AppEvent(MySensorsEvents.Working));
-
-        // prepare request properties
-        final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&owned=1";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(MySensorsEvents.ListAjaxSuccess);
-        onSuccess.setData("sensors", sensors);
-        onSuccess.setData("page", page);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(MySensorsEvents.ListAjaxFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void getListCallback(String response, List<SensorModel> sensors, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        int total = SensorParser.parseSensors(response, sensors);
-        if (total > sensors.size()) {
-            page++;
-            getList(sensors, page, callback);
-        } else {
-            List<SensorModel> physical = new ArrayList<SensorModel>();
-            getListPhysical(sensors, physical, 0, callback);
-        }
-    }
-
-    private void getListFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
-    private void getListPhysical(List<SensorModel> sensors, List<SensorModel> physical, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        forwardToView(this.grid, new AppEvent(MySensorsEvents.Working));
-
-        // prepare request properties
-        final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&physical=1&owned=1";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(MySensorsEvents.ListPhysicalAjaxSuccess);
-        onSuccess.setData("sensors", sensors);
-        onSuccess.setData("physical", physical);
-        onSuccess.setData("page", page);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(MySensorsEvents.ListPhysicalAjaxFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void getListPhysicalCallback(String response, List<SensorModel> sensors,
-            List<SensorModel> physical, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        // parse physical sensors
-        int total = SensorParser.parseSensors(response, physical);
-
-        if (total > physical.size()) {
-            page++;
-            getListPhysical(sensors, physical, page, callback);
-
-        } else {
-
-            List<SensorModel> complete = new ArrayList<SensorModel>(physical);
-            for (SensorModel sensor : sensors) {
-                if (!sensor.getType().equals("1")) {
-                    complete.add(sensor);
-                }
-            }
-
-            // callback
-            if (null != callback) {
-                callback.onSuccess(new BaseListLoadResult<SensorModel>(complete));
-            }
-            Registry.register(Constants.REG_MY_SENSORS_LIST, complete);
-            forwardToView(grid, new AppEvent(MySensorsEvents.Done));
-            Dispatcher.forwardEvent(MySensorsEvents.ListUpdated);
-        }
-    }
-
-    private void getListPhysicalFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
     /**
      * Gets list of sensors that are owned by the user, using Ajax request to CommonSense. The Ajax
      * request returns to {@link #getSensorsCallback(String, AsyncCallback)} or
@@ -459,44 +264,6 @@ public class MySensorsController extends Controller {
         /**
          * Request for sensors tree
          */
-        if (type.equals(MySensorsEvents.ListRequested)) {
-            // Log.d(TAG, "ListRequested");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
-            final List<SensorModel> sensors = new ArrayList<SensorModel>();
-            getList(sensors, 0, callback);
-
-        } else if (type.equals(MySensorsEvents.ListAjaxSuccess)) {
-            // Log.d(TAG, "ListAjaxSuccess");
-            final String response = event.getData("response");
-            final List<SensorModel> sensors = event.getData("sensors");
-            final int page = event.getData("page");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
-            getListCallback(response, sensors, page, callback);
-
-        } else if (type.equals(MySensorsEvents.ListAjaxFailure)) {
-            Log.w(TAG, "ListAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
-            getListFailure(callback);
-
-        } else if (type.equals(MySensorsEvents.ListPhysicalAjaxSuccess)) {
-            // Log.d(TAG, "ListPhysicalAjaxSuccess");
-            final String response = event.getData("response");
-            final List<SensorModel> sensors = event.getData("sensors");
-            final List<SensorModel> physical = event.getData("physical");
-            final int page = event.getData("page");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
-            getListPhysicalCallback(response, sensors, physical, page, callback);
-
-        } else if (type.equals(MySensorsEvents.ListPhysicalAjaxFailure)) {
-            Log.w(TAG, "ListPhysicalAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
-            getListPhysicalFailure(callback);
-
-        } else
-
-        /**
-         * Request for sensors tree
-         */
         if (type.equals(MySensorsEvents.TreeRequested)) {
             // Log.d(TAG, "TreeRequested");
             final AsyncCallback<List<TreeModel>> callback = event.getData();
@@ -530,135 +297,17 @@ public class MySensorsController extends Controller {
         } else
 
         /**
-         * Share request
-         */
-        if (type.equals(MySensorsEvents.ShowShareDialog)) {
-            // Log.d(TAG, "ShowShareDialog");
-            forwardToView(this.shareDialog, event);
-
-        } else if (type.equals(MySensorsEvents.ShareRequest)) {
-            // Log.d(TAG, "ShareRequest");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final String user = event.<String> getData("user");
-            shareSensors(sensors, user, 0);
-
-        } else if (type.equals(MySensorsEvents.AjaxShareSuccess)) {
-            // Log.d(TAG, "AjaxShareSuccess");
-            // final String response = event.<String> getData("response");
-            shareSensorCallback(event);
-
-        } else if (type.equals(MySensorsEvents.AjaxShareFailure)) {
-            Log.w(TAG, "AjaxShareFailure");
-            // final int code = event.getData("code");
-            shareSensorErrorCallback(event);
-
-        } else
-
-        /**
-         * Delete request
-         */
-        if (type.equals(MySensorsEvents.ShowDeleteDialog)) {
-            // Log.d(TAG, "ShowDeleteDialog");
-            forwardToView(this.deleteDialog, event);
-
-        } else if (type.equals(MySensorsEvents.DeleteRequest)) {
-            // Log.d(TAG, "DeleteRequest");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            delete(sensors, 0);
-
-        } else if (type.equals(MySensorsEvents.AjaxDeleteSuccess)) {
-            // Log.d(TAG, "AjaxDeleteSuccess");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            deleteCallback(sensors);
-
-        } else if (type.equals(MySensorsEvents.AjaxDeleteFailure)) {
-            Log.w(TAG, "AjaxDeleteFailure");
-            // final int code = event.getData("code");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int retryCount = event.<Integer> getData("retry");
-            deleteFailure(sensors, retryCount);
-
-        } else
-
-        /**
          * Pass the rest on to the main view
          */
         {
             forwardToView(this.tree, event);
-            forwardToView(this.grid, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.deleteDialog = new DeleteDialog(this);
         this.tree = new MySensorsTree(this);
-        this.grid = new MySensorsGrid(this);
-        this.shareDialog = new ShareDialog(this);
-    }
-
-    private void shareSensorCallback(AppEvent event) {
-        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-        final String username = event.<String> getData("user");
-        sensors.remove(0);
-        shareSensors(sensors, username, 0);
-    }
-
-    private void shareSensorErrorCallback(AppEvent event) {
-        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-        final String username = event.<String> getData("user");
-        int retryCount = event.<Integer> getData("retry");
-
-        if (retryCount < 3) {
-            retryCount++;
-            shareSensors(sensors, username, retryCount);
-        } else {
-            forwardToView(shareDialog, new AppEvent(MySensorsEvents.ShareFailed));
-        }
-    }
-
-    /**
-     * Does request to share a list of sensors with a user. If there are multiple sensors in the
-     * list, this method calls itself for each sensor in the list.
-     * 
-     * @param event
-     *            AppEvent with "sensors" and "user" properties
-     */
-    private void shareSensors(List<SensorModel> sensors, String username, int retryCount) {
-
-        if (null != sensors && sensors.size() > 0) {
-            // get first sensor from the list
-            SensorModel sensor = sensors.get(0);
-
-            // prepare request properties
-            final String method = "POST";
-            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
-                    + "/users.json";
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final String body = "{\"user\":{\"username\":\"" + username + "\"}}";
-            final AppEvent onSuccess = new AppEvent(MySensorsEvents.AjaxShareSuccess);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("user", username);
-            final AppEvent onFailure = new AppEvent(MySensorsEvents.AjaxShareFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("user", username);
-            onFailure.setData("retry", retryCount);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("body", body);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-
-        } else {
-            forwardToView(this.shareDialog, new AppEvent(MySensorsEvents.ShareComplete));
-        }
     }
 
     /**
@@ -682,23 +331,23 @@ public class MySensorsController extends Controller {
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get(SensorModel.TYPE));
             switch (type) {
-                case 0 :
-                    feeds.add(sensor);
-                    break;
-                case 1 :
-                    devices.add(sensor);
-                    break;
-                case 2 :
-                    states.add(sensor);
-                    break;
-                case 3 :
-                    environments.add(sensor);
-                    break;
-                case 4 :
-                    apps.add(sensor);
-                    break;
-                default :
-                    Log.w(TAG, "Unexpected sensor type: " + type);
+            case 0:
+                feeds.add(sensor);
+                break;
+            case 1:
+                devices.add(sensor);
+                break;
+            case 2:
+                states.add(sensor);
+                break;
+            case 3:
+                environments.add(sensor);
+                break;
+            case 4:
+                apps.add(sensor);
+                break;
+            default:
+                Log.w(TAG, "Unexpected sensor type: " + type);
             }
         }
 

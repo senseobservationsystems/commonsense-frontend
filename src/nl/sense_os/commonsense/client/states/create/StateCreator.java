@@ -5,18 +5,17 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.ServiceModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -28,9 +27,8 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -43,11 +41,15 @@ import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 
 public class StateCreator extends View {
 
@@ -58,8 +60,8 @@ public class StateCreator extends View {
     private ComboBox<ServiceModel> servicesField;
     private ListStore<ServiceModel> servicesStore;
     private AdapterField sensorsField;
-    private TreeStore<TreeModel> sensorsStore;
-    private TreePanel<TreeModel> sensorsTree;
+    private GroupingStore<SensorModel> sensorsStore;
+    private Grid<SensorModel> sensorsGrid;
     private ListStore<ModelData> dataFieldsStore;
     private Grid<ModelData> dataFieldsGrid;
     private AdapterField dataFieldsField;
@@ -69,6 +71,47 @@ public class StateCreator extends View {
 
     public StateCreator(Controller c) {
         super(c);
+    }
+
+    private ColumnModel createColumnModel() {
+        ColumnConfig id = new ColumnConfig(SensorModel.ID, "ID", 50);
+        id.setHidden(true);
+        ColumnConfig type = new ColumnConfig(SensorModel.TYPE, "Type", 50);
+        ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
+        ColumnConfig devType = new ColumnConfig(SensorModel.DEVICE_TYPE, "Physical sensor", 200);
+        devType.setRenderer(new GridCellRenderer<SensorModel>() {
+
+            @Override
+            public Object render(SensorModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
+                if (!model.getDeviceType().equals(model.getName())) {
+                    return model.getDeviceType();
+                } else {
+                    return "";
+                }
+            }
+        });
+        ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
+        devId.setHidden(true);
+        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_DEVTYPE, "Device", 200);
+        type.setRenderer(new GridCellRenderer<SensorModel>() {
+
+            @Override
+            public Object render(SensorModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
+                SensorIconProvider<SensorModel> provider = new SensorIconProvider<SensorModel>();
+                provider.getIcon(model).getHTML();
+                return provider.getIcon(model).getHTML();
+            }
+        });
+        ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
+        dataType.setHidden(true);
+        ColumnConfig owner = new ColumnConfig(SensorModel.OWNER, "Owner", 100);
+
+        ColumnModel cm = new ColumnModel(Arrays.asList(type, id, name, devType, devId, device,
+                dataType, owner));
+
+        return cm;
     }
 
     @Override
@@ -92,7 +135,7 @@ public class StateCreator extends View {
 
         } else if (type.equals(StateCreateEvents.LoadSensorsSuccess)) {
             // Log.d(TAG, "LoadSensorsSuccess");
-            final List<TreeModel> sensors = event.<List<TreeModel>> getData("sensors");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsFailure)) {
@@ -152,22 +195,22 @@ public class StateCreator extends View {
         ContentPanel sensorsPanel = new ContentPanel(new FitLayout());
         sensorsPanel.setHeaderVisible(false);
         sensorsPanel.setStyleAttribute("backgroundColor", "white");
-        sensorsPanel.add(this.sensorsTree);
+        sensorsPanel.add(this.sensorsGrid);
 
         this.sensorsField = new AdapterField(sensorsPanel);
         this.sensorsField.setHeight(300);
         this.sensorsField.setResizeWidget(true);
         this.sensorsField.setFieldLabel("Input sensor");
 
-        this.sensorsTree.getSelectionModel().addSelectionChangedListener(
-                new SelectionChangedListener<TreeModel>() {
+        this.sensorsGrid.getSelectionModel().addSelectionChangedListener(
+                new SelectionChangedListener<SensorModel>() {
 
                     @Override
-                    public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+                    public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
 
                         servicesField.clear();
                         TreeModel selected = se.getSelectedItem();
-                        if (selected instanceof SensorModel) {
+                        if (selected != null) {
                             AppEvent getServices = new AppEvent(
                                     StateCreateEvents.AvailableServicesRequested);
                             getServices.setData("sensor", selected);
@@ -197,10 +240,10 @@ public class StateCreator extends View {
                     @Override
                     public void selectionChanged(SelectionChangedEvent<ServiceModel> se) {
                         ServiceModel selected = se.getSelectedItem();
-                        TreeModel sensor = sensorsTree.getSelectionModel().getSelectedItem();
+                        SensorModel sensor = sensorsGrid.getSelectionModel().getSelectedItem();
                         dataFieldsStore.removeAll();
 
-                        if (null != selected && sensor instanceof SensorModel) {
+                        if (null != selected) {
                             String sensorName = sensor.<String> get(SensorModel.NAME);
                             sensorName = sensorName.replace(' ', '_');
 
@@ -262,7 +305,7 @@ public class StateCreator extends View {
 
         this.window = new CenteredWindow();
         this.window.setHeading("Create state sensor");
-        this.window.setSize(400, 550);
+        this.window.setSize(450, 550);
         this.window.setLayout(new FitLayout());
 
         initForm();
@@ -270,18 +313,65 @@ public class StateCreator extends View {
 
     private void initSensorsTree() {
 
-        // trees store
-        this.sensorsStore = new TreeStore<TreeModel>();
-        this.sensorsStore.setKeyProvider(new SensorKeyProvider());
+        this.sensorsStore = new GroupingStore<SensorModel>();
+        this.sensorsStore.setKeyProvider(new ModelKeyProvider<SensorModel>() {
 
-        // sort tree
-        this.sensorsStore.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+            @Override
+            public String getKey(SensorModel model) {
+                return model.getId() + model.getName() + model.getDeviceType() + model.getType();
+            }
 
-        this.sensorsTree = new TreePanel<TreeModel>(sensorsStore);
-        this.sensorsTree.setBorders(false);
-        this.sensorsTree.setDisplayProperty("text");
-        this.sensorsTree.setIconProvider(new SensorIconProvider<TreeModel>());
-        this.sensorsTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        });
+        // this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
+        this.sensorsStore.groupBy(SensorModel.TYPE);
+        this.sensorsStore.setDefaultSort(SensorModel.TYPE, SortDir.DESC);
+        this.sensorsStore.setSortField(SensorModel.TYPE);
+
+        // Column model
+        ColumnModel cm = createColumnModel();
+
+        GroupingView groupingView = new GroupingView();
+        groupingView.setShowGroupedColumn(true);
+        groupingView.setForceFit(true);
+        groupingView.setGroupRenderer(new GridGroupRenderer() {
+            public String render(GroupColumnData data) {
+                if (data.field.equals(SensorModel.TYPE)) {
+                    int group = Integer.parseInt(data.group);
+                    String f = data.group;
+                    switch (group) {
+                    case 0:
+                        f = "Feeds";
+                        break;
+                    case 1:
+                        f = "Physical";
+                        break;
+                    case 2:
+                        f = "States";
+                        break;
+                    case 3:
+                        f = "Environment sensors";
+                        break;
+                    case 4:
+                        f = "Public sensors";
+                        break;
+                    default:
+                        f = "Unsorted";
+                    }
+                    String l = data.models.size() == 1 ? "Sensor" : "Sensors";
+                    return f + " (" + data.models.size() + " " + l + ")";
+                } else {
+                    if (data.group.equals("")) {
+                        return "Ungrouped";
+                    } else {
+                        return data.group;
+                    }
+                }
+            }
+        });
+
+        this.sensorsGrid = new Grid<SensorModel>(this.sensorsStore, cm);
+        this.sensorsGrid.setView(groupingView);
+        this.sensorsGrid.setBorders(false);
     }
 
     private void onAvailableServicesComplete(List<ServiceModel> services) {
@@ -323,13 +413,13 @@ public class StateCreator extends View {
                 });
     }
 
-    private void onLoadSensorsComplete(List<TreeModel> sensors) {
+    private void onLoadSensorsComplete(List<SensorModel> sensors) {
         this.sensorsStore.removeAll();
         this.servicesStore.removeAll();
         this.dataFieldsStore.removeAll();
 
         if (sensors != null) {
-            this.sensorsStore.add(sensors, true);
+            this.sensorsStore.add(sensors);
         } else {
             this.window.hide();
             MessageBox.alert(null, "Error getting list of source sensors!", null);
@@ -360,7 +450,7 @@ public class StateCreator extends View {
         AppEvent event = new AppEvent(StateCreateEvents.CreateServiceRequested);
         event.setData("name", this.nameField.getValue());
         event.setData("service", this.servicesField.getValue());
-        event.setData("sensor", this.sensorsTree.getSelectionModel().getSelectedItem());
+        event.setData("sensor", this.sensorsGrid.getSelectionModel().getSelectedItem());
         event.setData("dataFields", this.dataFieldsGrid.getSelectionModel().getSelectedItems());
         fireEvent(event);
     }

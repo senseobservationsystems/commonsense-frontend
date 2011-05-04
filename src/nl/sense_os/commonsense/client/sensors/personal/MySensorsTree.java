@@ -5,6 +5,8 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
@@ -49,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+@Deprecated
 public class MySensorsTree extends View {
 
     private static final String TAG = "MySensorsTree";
@@ -61,7 +64,7 @@ public class MySensorsTree extends View {
     private Button vizButton;
     private TreePanel<TreeModel> tree;
     private BaseTreeLoader<TreeModel> loader;
-    private boolean isRemoving;
+    // private boolean isRemoving;
     private StoreFilterField<TreeModel> filter;
 
     public MySensorsTree(Controller controller) {
@@ -99,11 +102,11 @@ public class MySensorsTree extends View {
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(MySensorsEvents.DeleteSuccess)) {
+        } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
 
-        } else if (type.equals(MySensorsEvents.DeleteFailure)) {
+        } else if (type.equals(SensorDeleteEvents.DeleteFailure)) {
             // Log.d(TAG, "DeleteFailure");
             onRemoveFailure();
 
@@ -318,9 +321,8 @@ public class MySensorsTree extends View {
         final List<SensorModel> sensors = getSelectedSensors();
 
         if (sensors.size() > 0) {
-            this.isRemoving = true;
 
-            AppEvent event = new AppEvent(MySensorsEvents.ShowDeleteDialog);
+            AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 
@@ -330,24 +332,18 @@ public class MySensorsTree extends View {
     }
 
     private void onRemoveFailure() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
+        refreshLoader(true);
     }
 
     private void onRemoveSuccess() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
+        refreshLoader(true);
     }
 
     protected void onShareClick() {
         List<SensorModel> sensors = getSelectedSensors();
-        AppEvent shareEvent = new AppEvent(MySensorsEvents.ShowShareDialog);
+        AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
         shareEvent.setData("sensors", sensors);
-        fireEvent(shareEvent);
+        Dispatcher.forwardEvent(shareEvent);
     }
 
     private void onVizClick() {

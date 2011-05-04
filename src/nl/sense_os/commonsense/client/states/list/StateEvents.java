@@ -19,14 +19,14 @@ public class StateEvents {
 
     // disconnect sensor from service
     protected static final EventType RemoveRequested = new EventType();
-    protected static final EventType RemoveComplete = new EventType();
+    public static final EventType RemoveComplete = new EventType();
     protected static final EventType RemoveFailed = new EventType();
     protected static final EventType AjaxDisconnectSuccess = new EventType();
     protected static final EventType AjaxDisconnectFailure = new EventType();
 
     // check/create default states
     protected static final EventType CheckDefaults = new EventType();
-    protected static final EventType CheckDefaultsSuccess = new EventType();
+    public static final EventType CheckDefaultsSuccess = new EventType();
     protected static final EventType CheckDefaultsFailure = new EventType();
     protected static final EventType AjaxDefaultsSuccess = new EventType();
     protected static final EventType AjaxDefaultsFailure = new EventType();

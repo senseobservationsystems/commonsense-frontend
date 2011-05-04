@@ -7,6 +7,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
@@ -42,7 +43,7 @@ public class StateController extends Controller {
 
         // external triggers to initiate a list update
         registerEventTypes(StateCreateEvents.CreateServiceComplete,
-                StateConnectEvents.ConnectSuccess);
+                StateConnectEvents.ConnectSuccess, SensorDeleteEvents.DeleteSuccess);
 
         // events to update the list of groups
         registerEventTypes(StateEvents.ListRequested, StateEvents.AjaxSensorsSuccess,
@@ -51,11 +52,11 @@ public class StateController extends Controller {
                 StateEvents.GetMethodsAjaxFailure);
 
         registerEventTypes(StateEvents.RemoveRequested, StateEvents.AjaxDisconnectFailure,
-                StateEvents.AjaxDisconnectSuccess);
+                StateEvents.AjaxDisconnectSuccess, StateEvents.RemoveComplete);
 
         // check default states events
         registerEventTypes(StateEvents.CheckDefaults, StateEvents.AjaxDefaultsSuccess,
-                StateEvents.AjaxDefaultsFailure);
+                StateEvents.AjaxDefaultsFailure, StateEvents.CheckDefaultsSuccess);
     }
 
     private void checkDefaults() {
@@ -78,7 +79,7 @@ public class StateController extends Controller {
     }
 
     private void checkDefaultsCallback(String response) {
-        forwardToView(this.tree, new AppEvent(StateEvents.CheckDefaultsSuccess));
+        Dispatcher.forwardEvent(StateEvents.CheckDefaultsSuccess);
     }
 
     private void checkDefaultsFailure() {
@@ -106,7 +107,7 @@ public class StateController extends Controller {
     }
 
     private void disconnectServiceCallback(String response) {
-        forwardToView(this.tree, new AppEvent(StateEvents.RemoveComplete));
+        Dispatcher.forwardEvent(StateEvents.RemoveComplete);
     }
 
     private void disconnectServiceErrorCallback(int code) {

@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+@Deprecated
 public class GroupSensorsTree extends View {
 
     private static final String TAG = "GroupSensorsTree";

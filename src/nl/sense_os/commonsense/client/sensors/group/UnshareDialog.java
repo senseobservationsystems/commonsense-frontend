@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+@Deprecated
 public class UnshareDialog extends View {
 
     private static final String TAG = "UnshareDialog";

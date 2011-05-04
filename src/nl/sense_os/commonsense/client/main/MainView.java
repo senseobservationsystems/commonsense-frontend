@@ -8,8 +8,7 @@ import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.sensors.group.GroupSensorsEvents;
-import nl.sense_os.commonsense.client.sensors.personal.MySensorsEvents;
+import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
@@ -186,7 +185,7 @@ public class MainView extends View {
         west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         // add to viewport
-        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400, 275, 2000);
+        final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
         westData.setMargins(new Margins(5, 0, 5, 5));
         westData.setSplit(true);
         this.viewport.add(west, westData);
@@ -245,15 +244,10 @@ public class MainView extends View {
                 this.westContent.removeAll();
                 this.westContent.setLayout(new AccordionLayout());
 
-                // my sensors panel
-                AppEvent displayMySensors = new AppEvent(MySensorsEvents.ShowTree);
-                displayMySensors.setData("parent", this.westContent);
-                Dispatcher.forwardEvent(displayMySensors);
-
-                // group sensors panel
-                AppEvent displayGroupSensors = new AppEvent(GroupSensorsEvents.ShowTree);
-                displayGroupSensors.setData("parent", this.westContent);
-                Dispatcher.forwardEvent(displayGroupSensors);
+                // sensor library panel
+                AppEvent displaySensorGrid = new AppEvent(SensorLibraryEvents.ShowLibrary);
+                displaySensorGrid.setData("parent", this.westContent);
+                Dispatcher.forwardEvent(displaySensorGrid);
 
                 // groups panel
                 AppEvent displayGroups = new AppEvent(GroupEvents.ShowGrid);

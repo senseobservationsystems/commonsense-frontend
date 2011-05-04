@@ -1,10 +1,14 @@
-package nl.sense_os.commonsense.client.sensors.personal;
+package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
+import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
@@ -13,8 +17,8 @@ import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.ListLoadConfig;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -57,24 +61,23 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class MySensorsGrid extends View {
+public class SensorLibrary extends View {
 
     private static final String TAG = "MySensorsGrid";
-    private boolean isCollapsed = false;
     private ContentPanel panel;
+    private ListLoader<ListLoadResult<SensorModel>> loader;
     private GroupingStore<SensorModel> store;
+    private Grid<SensorModel> grid;
+    private ToolBar toolBar;
     private ToolButton refreshButton;
     private Button shareButton;
     private Button removeButton;
-    private ToolBar toolBar;
     private Button vizButton;
-    private Grid<SensorModel> grid;
-    private ListLoader<ListLoadResult<SensorModel>> loader;
-    private boolean isRemoving;
     private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
+    private boolean isLibraryDirty = false;
 
-    public MySensorsGrid(Controller controller) {
+    public SensorLibrary(Controller controller) {
         super(controller);
     }
 
@@ -111,9 +114,10 @@ public class MySensorsGrid extends View {
         });
         ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
         dataType.setHidden(true);
+        ColumnConfig owner = new ColumnConfig(SensorModel.OWNER, "Owner", 100);
 
         ColumnModel cm = new ColumnModel(Arrays.asList(type, id, name, devType, devId, device,
-                dataType));
+                dataType, owner));
 
         return cm;
     }
@@ -124,30 +128,30 @@ public class MySensorsGrid extends View {
         if (type.equals(MainEvents.Init)) {
             // do nothing, initialization is done in initialize()
 
-        } else if (type.equals(MySensorsEvents.ShowTree)) {
+        } else if (type.equals(SensorLibraryEvents.ShowLibrary)) {
             // Log.d(TAG, "ShowTree");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(MySensorsEvents.DeleteSuccess)) {
-            // Log.d(TAG, "DeleteSuccess");
-            onRemoveSuccess();
+        } else if (type.equals(StateCreateEvents.CreateServiceComplete)
+                || type.equals(StateEvents.RemoveComplete)
+                || type.equals(StateEvents.CheckDefaultsSuccess)
+                || type.equals(SensorDeleteEvents.DeleteSuccess)
+                || type.equals(SensorDeleteEvents.DeleteFailure)) {
+            // Log.d(TAG, "Library changed");
+            onLibChanged();
 
-        } else if (type.equals(MySensorsEvents.DeleteFailure)) {
-            // Log.d(TAG, "DeleteFailure");
-            onRemoveFailure();
-
-        } else if (type.equals(MySensorsEvents.Done)) {
+        } else if (type.equals(SensorLibraryEvents.Done)) {
             // Log.d(TAG, "TreeUpdated");
             setBusy(false);
 
-        } else if (type.equals(MySensorsEvents.ListUpdated)) {
-            // Log.d(TAG, "TreeUpdated");
-            onListUpdate();
-
-        } else if (type.equals(MySensorsEvents.Working)) {
+        } else if (type.equals(SensorLibraryEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusy(true);
+
+        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
+            // Log.d(TAG, "ListUpdated");
+            onListUpdate();
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
@@ -178,7 +182,7 @@ public class MySensorsGrid extends View {
         super.initialize();
 
         this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("My personal sensors (BETA)");
+        this.panel.setHeading("Sensor library");
 
         // track whether the panel is expanded
         Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
@@ -187,15 +191,11 @@ public class MySensorsGrid extends View {
             public void handleEvent(ComponentEvent be) {
                 EventType type = be.getType();
                 if (type.equals(Events.Expand)) {
-                    isCollapsed = false;
                     refreshLoader(false);
-                } else if (type.equals(Events.Collapse)) {
-                    isCollapsed = true;
                 }
             }
         };
-        panel.addListener(Events.Expand, collapseListener);
-        panel.addListener(Events.Collapse, collapseListener);
+        this.panel.addListener(Events.Expand, collapseListener);
 
         initGrid();
         initFilter();
@@ -308,12 +308,11 @@ public class MySensorsGrid extends View {
             @Override
             public void load(Object loadConfig, AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
-                if (false == isCollapsed) {
-                    if (loadConfig instanceof BaseListLoadConfig) {
-                        fireEvent(new AppEvent(MySensorsEvents.ListRequested, callback));
-                    } else {
-                        Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
-                    }
+                if (loadConfig instanceof ListLoadConfig) {
+                    fireEvent(new AppEvent(SensorLibraryEvents.ListRequested, callback));
+                } else {
+                    Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                    callback.onFailure(null);
                 }
             }
         };
@@ -344,23 +343,23 @@ public class MySensorsGrid extends View {
                     int group = Integer.parseInt(data.group);
                     String f = data.group;
                     switch (group) {
-                        case 0 :
-                            f = "Feeds";
-                            break;
-                        case 1 :
-                            f = "Physical";
-                            break;
-                        case 2 :
-                            f = "States";
-                            break;
-                        case 3 :
-                            f = "Environment sensors";
-                            break;
-                        case 4 :
-                            f = "Public sensors";
-                            break;
-                        default :
-                            f = "Unsorted";
+                    case 0:
+                        f = "Feeds";
+                        break;
+                    case 1:
+                        f = "Physical";
+                        break;
+                    case 2:
+                        f = "States";
+                        break;
+                    case 3:
+                        f = "Environment sensors";
+                        break;
+                    case 4:
+                        f = "Public sensors";
+                        break;
+                    default:
+                        f = "Unsorted";
                     }
                     String l = data.models.size() == 1 ? "Sensor" : "Sensors";
                     return f + " (" + data.models.size() + " " + l + ")";
@@ -384,6 +383,12 @@ public class MySensorsGrid extends View {
 
     private void onListUpdate() {
         this.filter.clear();
+        this.isLibraryDirty = false;
+    }
+
+    private void onLibChanged() {
+        this.isLibraryDirty = true;
+        refreshLoader(false);
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -396,9 +401,7 @@ public class MySensorsGrid extends View {
         final List<SensorModel> sensors = this.grid.getSelectionModel().getSelection();
 
         if (sensors.size() > 0) {
-            this.isRemoving = true;
-
-            AppEvent event = new AppEvent(MySensorsEvents.ShowDeleteDialog);
+            AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
             event.setData("sensors", sensors);
             Dispatcher.forwardEvent(event);
 
@@ -406,35 +409,21 @@ public class MySensorsGrid extends View {
             MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
         }
     }
-    private void onRemoveFailure() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
-    }
-
-    private void onRemoveSuccess() {
-        if (this.isRemoving) {
-            this.isRemoving = false;
-            refreshLoader(true);
-        }
-    }
 
     protected void onShareClick() {
         List<SensorModel> sensors = this.grid.getSelectionModel().getSelection();
-        AppEvent shareEvent = new AppEvent(MySensorsEvents.ShowShareDialog);
+        AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
         shareEvent.setData("sensors", sensors);
-        fireEvent(shareEvent);
+        Dispatcher.forwardEvent(shareEvent);
     }
 
     private void onVizClick() {
         List<SensorModel> selection = this.grid.getSelectionModel().getSelection();
-        // TODO get child sensors of selected users, groups and devices
         Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
     }
 
     private void refreshLoader(boolean force) {
-        if (force || this.store.getCount() == 0) {
+        if (force || (this.store.getCount() == 0 || this.isLibraryDirty) && this.panel.isExpanded()) {
             loader.load();
         }
     }
