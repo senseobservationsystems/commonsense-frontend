@@ -10,5 +10,4 @@ public class EnvEvents {
     protected static final EventType ListNotUpdated = new EventType();
     protected static final EventType Working = new EventType();
     protected static final EventType Done = new EventType();
-    protected static final EventType ShowCreator = new EventType();
 }

@@ -6,6 +6,8 @@ import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.environments.EnvController;
+import nl.sense_os.commonsense.client.environments.create.EnvCreateController;
+import nl.sense_os.commonsense.client.environments.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -37,6 +39,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -96,28 +99,27 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new SensorLibraryController());
         dispatcher.addController(new SensorDeleteController());
         dispatcher.addController(new SensorShareController());
-        // dispatcher.addController(new MySensorsController());
         dispatcher.addController(new GroupController());
-        // dispatcher.addController(new GroupSensorsController());
         dispatcher.addController(new StateController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());
         dispatcher.addController(new StateEditController());
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new EnvController());
+        dispatcher.addController(new EnvCreateController());
         dispatcher.addController(new AjaxController());
 
-        // test();
         initControllers();
+
+        testEnvCreator();
 
         GXT.hideLoadingPanel("loading");
     }
 
     @SuppressWarnings("unused")
-    private void test() {
+    private void testTimeline() {
 
-        // Create a callback to be called when the visualization API
-        // has been loaded.
+        // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
             public void run() {
                 // create a data table
@@ -167,5 +169,16 @@ public class CommonSense implements EntryPoint {
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
+    }
+
+    private void testEnvCreator() {
+        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
+
+            @Override
+            public void run() {
+                Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+
+            }
+        });
     }
 }

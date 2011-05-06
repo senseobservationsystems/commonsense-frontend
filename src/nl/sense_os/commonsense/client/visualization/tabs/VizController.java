@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.choice.VizTypeChooser;
+import nl.sense_os.commonsense.shared.Constants;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -55,7 +56,7 @@ public class VizController extends Controller {
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
 
-        loadMapsApi();
+        // loadMapsApi();
         loadVizApi();
     }
 
@@ -71,16 +72,14 @@ public class VizController extends Controller {
             return;
         }
 
-        Maps.loadMapsApi(
-                "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA",
-                "2", false, new Runnable() {
+        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
 
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
-                        // initControllers();
-                    }
-                });
+            @Override
+            public void run() {
+                Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
+                // initControllers();
+            }
+        });
 
         // double check that the API has been loaded within 10 seconds
         new Timer() {

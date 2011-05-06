@@ -1,6 +1,11 @@
 package nl.sense_os.commonsense.client.environments;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.environments.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
@@ -42,10 +47,6 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class EnvGrid extends View {
 
     protected static final String TAG = "EnvGrid";
@@ -63,7 +64,7 @@ public class EnvGrid extends View {
     }
 
     protected void create() {
-        fireEvent(EnvEvents.ShowCreator);
+        fireEvent(EnvCreateEvents.ShowCreator);
     }
 
     protected void delete() {
@@ -112,7 +113,7 @@ public class EnvGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         DataProxy proxy = new DataProxy() {
 
             @Override

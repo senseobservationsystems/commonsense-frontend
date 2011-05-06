@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.environments;
 import java.util.ArrayList;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.environments.create.EnvCreator;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
@@ -24,7 +25,6 @@ public class EnvController extends Controller {
         registerEventTypes(MainEvents.Init);
         registerEventTypes(EnvEvents.ListNotUpdated, EnvEvents.ListRequested,
                 EnvEvents.ListUpdated, EnvEvents.Working, EnvEvents.Done, EnvEvents.ShowGrid);
-        registerEventTypes(EnvEvents.ShowCreator);
         registerEventTypes(VizEvents.Show);
         registerEventTypes(LoginEvents.LoggedOut);
     }
@@ -36,10 +36,9 @@ public class EnvController extends Controller {
             Log.d(TAG, "TreeRequested");
             requestList(event);
 
-        } else if (type.equals(EnvEvents.ShowCreator)) {
-            forwardToView(this.creator, event);
+        } else
 
-        } else {
+        {
             forwardToView(this.treeGrid, event);
         }
     }

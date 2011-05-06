@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.environments.components;
+package nl.sense_os.commonsense.client.environments.create;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
