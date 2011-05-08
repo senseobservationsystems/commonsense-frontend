@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.environments.create;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -11,10 +12,12 @@ import com.extjs.gxt.ui.client.dnd.DND.Operation;
 import com.extjs.gxt.ui.client.dnd.DropTarget;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.event.MapClickHandler;
+import com.google.gwt.maps.client.event.PolygonEndLineHandler;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.Point;
 import com.google.gwt.maps.client.overlay.Marker;
@@ -26,7 +29,7 @@ public class EnvMap extends LayoutContainer {
 
     private static final String TAG = "EnvMap";
     private MapWidget map;
-    private HashMap<Marker, List<SensorModel>> markers;
+    private Map<Marker, List<SensorModel>> sensors;
     private Polygon outline;
 
     private MapClickHandler mapClickHandler;
@@ -46,10 +49,26 @@ public class EnvMap extends LayoutContainer {
         setupDragDrop();
     }
 
+    public Polygon getOutline() {
+        return this.outline;
+    }
+
+    public Map<Marker, List<SensorModel>> getSensors() {
+        return this.sensors;
+    }
+
     private void initOutline() {
 
-        this.outline = new Polygon(new LatLng[]{});
+        this.outline = new Polygon(new LatLng[] {});
         this.map.addOverlay(this.outline);
+        this.outline.addPolygonEndLineHandler(new PolygonEndLineHandler() {
+
+            @Override
+            public void onEnd(PolygonEndLineEvent event) {
+                // Log.d(TAG, "Outline complete");
+                Dispatcher.forwardEvent(EnvCreateEvents.OutlineComplete);
+            }
+        });
 
     }
 
@@ -59,19 +78,19 @@ public class EnvMap extends LayoutContainer {
         LatLng latLng = this.map.convertDivPixelToLatLng(Point.newInstance(x, y));
         Marker marker = new Marker(latLng);
         map.addOverlay(marker);
-        markers.put(marker, data); // TODO
+        sensors.put(marker, data); // TODO
     }
 
     public void resetOutline() {
-        this.map.removeOverlay(this.outline);
+        this.map.clearOverlays();
         initOutline();
     }
 
-    public void resetMarkers() {
-        for (Marker marker : markers.keySet()) {
+    public void resetSensors() {
+        for (Marker marker : sensors.keySet()) {
             this.map.removeOverlay(marker);
         }
-        this.markers.clear();
+        this.sensors.clear();
     }
 
     public void setDroppingEnabled(boolean enabled) {
@@ -80,6 +99,12 @@ public class EnvMap extends LayoutContainer {
         } else {
             this.map.removeMapClickHandler(mapClickHandler);
         }
+    }
+
+    public void setOutline(Polygon outline) {
+        this.outline = outline;
+        this.map.clearOverlays();
+        this.map.addOverlay(outline);
     }
 
     public void setOutlineEnabled(boolean enabled) {
@@ -99,6 +124,16 @@ public class EnvMap extends LayoutContainer {
         }
     }
 
+    public void setSensors(Map<Marker, List<SensorModel>> sensors) {
+
+        resetSensors();
+        this.sensors = sensors;
+
+        for (Marker marker : sensors.keySet()) {
+            this.map.addOverlay(marker);
+        }
+    }
+
     private void setupDragDrop() {
 
         this.mapClickHandler = new MapClickHandler() {
@@ -108,20 +143,20 @@ public class EnvMap extends LayoutContainer {
                 LatLng latLng = event.getLatLng();
                 if (null != latLng) {
                     Marker m = new Marker(latLng);
-                    markers.put(m, null);
+                    sensors.put(m, null);
                     map.addOverlay(m);
                 } else {
                     Overlay clicked = event.getOverlay();
                     if (false == clicked.equals(outline)) {
                         map.removeOverlay(clicked);
-                        markers.remove(clicked);
+                        sensors.remove(clicked);
                     }
                 }
 
             }
         };
 
-        this.markers = new HashMap<Marker, List<SensorModel>>();
+        this.sensors = new HashMap<Marker, List<SensorModel>>();
 
         final DropTarget dropTarget = new DropTarget(this);
         dropTarget.setOperation(Operation.COPY);

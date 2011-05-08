@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.main;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
-import nl.sense_os.commonsense.client.environments.EnvEvents;
+import nl.sense_os.commonsense.client.environments.list.EnvEvents;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;

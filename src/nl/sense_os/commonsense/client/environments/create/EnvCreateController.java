@@ -1,8 +1,11 @@
 package nl.sense_os.commonsense.client.environments.create;
 
+import nl.sense_os.commonsense.client.utility.Log;
+
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 
 public class EnvCreateController extends Controller {
@@ -12,7 +15,10 @@ public class EnvCreateController extends Controller {
 
     public EnvCreateController() {
         registerEventTypes(EnvCreateEvents.ShowCreator);
-        registerEventTypes(EnvCreateEvents.FormValid, EnvCreateEvents.FormInvalid);
+        registerEventTypes(EnvCreateEvents.Forward, EnvCreateEvents.Back, EnvCreateEvents.Cancel);
+        registerEventTypes(EnvCreateEvents.OutlineComplete);
+        registerEventTypes(EnvCreateEvents.CreateRequest, EnvCreateEvents.CreateSuccess,
+                EnvCreateEvents.CreateFailure);
     }
 
     @Override
@@ -20,6 +26,7 @@ public class EnvCreateController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(EnvCreateEvents.CreateRequest)) {
+            Log.d(TAG, "CreateRequest");
             create();
 
         } else
@@ -30,8 +37,7 @@ public class EnvCreateController extends Controller {
     }
 
     private void create() {
-        // TODO Auto-generated method stub
-
+        Dispatcher.forwardEvent(EnvCreateEvents.CreateSuccess);
     }
 
     @Override

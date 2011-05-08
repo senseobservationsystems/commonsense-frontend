@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.environments;
+package nl.sense_os.commonsense.client.environments.list;
 
 import com.extjs.gxt.ui.client.event.EventType;
 

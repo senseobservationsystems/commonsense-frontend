@@ -1,9 +1,8 @@
-package nl.sense_os.commonsense.client.environments;
+package nl.sense_os.commonsense.client.environments.list;
 
 import java.util.ArrayList;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.environments.create.EnvCreator;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
@@ -18,7 +17,6 @@ public class EnvController extends Controller {
 
     private static final String TAG = "EnvController";
     private View treeGrid;
-    private View creator;
 
     public EnvController() {
         // events to update the list of groups
@@ -47,7 +45,6 @@ public class EnvController extends Controller {
     protected void initialize() {
         super.initialize();
         this.treeGrid = new EnvGrid(this);
-        this.creator = new EnvCreator(this);
     }
 
     private void requestList(AppEvent event) {

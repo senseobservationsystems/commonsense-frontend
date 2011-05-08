@@ -3,43 +3,23 @@ package nl.sense_os.commonsense.client.environments.create;
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 
 public class EnvCreator extends View {
 
     private static final String TAG = "EnvCreator";
     private Window window;
-    private ButtonBar buttons;
-    private EnvForm form;
-    private EnvMap map;
-    private LayoutContainer mapPanel;
-    private LayoutContainer mapControls;
-    private Button fwdButton;
-    private Button backButton;
-    private Button cancelButton;
-    private ContentPanel outlineControls;
-    private ContentPanel dropperControls;
+    private EnvCreatorForm form;
+    private EnvCreatorMapPanel mapPanel;
 
     public EnvCreator(Controller c) {
         super(c);
@@ -50,27 +30,17 @@ public class EnvCreator extends View {
         CardLayout layout = (CardLayout) window.getLayout();
         Component active = layout.getActiveItem();
 
-        if (active.equals(mapPanel)) {
-            CardLayout controlLayout = (CardLayout) mapControls.getLayout();
-            Component activeControls = controlLayout.getActiveItem();
+        if (active.equals(this.mapPanel)) {
+            if (this.mapPanel.isOutlineActive()) {
+                layout.setActiveItem(this.form);
 
-            if (activeControls.equals(outlineControls)) {
-                map.resetOutline();
-                map.setOutlineEnabled(false);
-                map.setDroppingEnabled(false);
-                layout.setActiveItem(form);
-                fwdButton.setText("Next");
-                backButton.setEnabled(false);
-            } else if (activeControls.equals(dropperControls)) {
-                controlLayout.setActiveItem(outlineControls);
-                map.resetMarkers();
-                map.setOutlineEnabled(true);
-                map.setDroppingEnabled(false);
-                fwdButton.setText("Next");
-                backButton.setEnabled(true);
+            } else if (this.mapPanel.isDropperActive()) {
+                this.mapPanel.showOutline();
+
             } else {
-                Log.w(TAG, "Unexpected active component in map CardLayout: " + activeControls);
+                Log.w(TAG, "Unexpected active component in MapPanel");
             }
+
         } else {
             Log.w(TAG, "Unexpected active component in window CardLayout: " + active);
         }
@@ -81,30 +51,21 @@ public class EnvCreator extends View {
         CardLayout layout = (CardLayout) window.getLayout();
         Component active = layout.getActiveItem();
 
-        CardLayout controlLayout = (CardLayout) mapControls.getLayout();
+        if (active.equals(this.form)) {
+            this.mapPanel.reset();
+            layout.setActiveItem(this.mapPanel);
 
-        if (active.equals(form)) {
-            layout.setActiveItem(mapPanel);
-            controlLayout.setActiveItem(outlineControls);
-            map.setOutlineEnabled(true);
-            map.setDroppingEnabled(false);
-            fwdButton.setText("Next");
-            backButton.setEnabled(true);
         } else if (active.equals(mapPanel)) {
+            if (this.mapPanel.isOutlineActive()) {
+                this.mapPanel.showDropper();
 
-            Component activeControls = controlLayout.getActiveItem();
+            } else if (this.mapPanel.isDropperActive()) {
+                submit();
 
-            if (activeControls.equals(outlineControls)) {
-                controlLayout.setActiveItem(dropperControls);
-                map.setOutlineEnabled(false);
-                map.setDroppingEnabled(true);
-                fwdButton.setText("Finish");
-                backButton.setEnabled(true);
-            } else if (activeControls.equals(dropperControls)) {
-                hidePanel();
             } else {
-                Log.w(TAG, "Unexpected active component in map CardLayout: " + activeControls);
+                Log.w(TAG, "Unexpected active component in MapPanel");
             }
+
         } else {
             Log.w(TAG, "Unexpected active component in CardLayout: " + active);
         }
@@ -117,11 +78,23 @@ public class EnvCreator extends View {
         if (type.equals(EnvCreateEvents.ShowCreator)) {
             showPanel();
 
-        } else if (type.equals(EnvCreateEvents.FormValid)) {
-            onFormValid();
+        } else if (type.equals(EnvCreateEvents.Forward)) {
+            goForward();
 
-        } else if (type.equals(EnvCreateEvents.FormInvalid)) {
-            onFormInvalid();
+        } else if (type.equals(EnvCreateEvents.Back)) {
+            goBack();
+
+        } else if (type.equals(EnvCreateEvents.Cancel)) {
+            hidePanel();
+
+        } else if (type.equals(EnvCreateEvents.OutlineComplete)) {
+            this.mapPanel.setFwdEnabled(true);
+
+        } else if (type.equals(EnvCreateEvents.CreateSuccess)) {
+            onCreateSuccess();
+
+        } else if (type.equals(EnvCreateEvents.CreateFailure)) {
+            onCreateFailure();
 
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
@@ -129,64 +102,16 @@ public class EnvCreator extends View {
         }
     }
 
-    private void onFormInvalid() {
-        fwdButton.setEnabled(false);
-    }
-
-    private void onFormValid() {
-        fwdButton.setEnabled(true);
-    }
-
     private void hidePanel() {
         this.window.hide();
     }
 
-    private void initButtons() {
-
-        this.fwdButton = new Button("Next", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                goForward();
-            }
-        });
-        this.fwdButton.setMinWidth(75);
-
-        this.backButton = new Button("Back", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                goBack();
-            }
-        });
-        this.backButton.setMinWidth(75);
-
-        this.cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                hidePanel();
-            }
-        });
-        this.cancelButton.setMinWidth(75);
-
-        this.buttons = new ButtonBar();
-        this.buttons.setAlignment(HorizontalAlignment.RIGHT);
-        this.buttons.add(this.backButton);
-        this.buttons.add(this.fwdButton);
-        this.buttons.add(this.cancelButton);
-    }
-
     private void initForm() {
-        this.form = new EnvForm();
-        this.form.addListener(Events.Valid, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Log.d(TAG, "valid");
-            }
-
-        });
+        if (null == this.form) {
+            this.form = new EnvCreatorForm();
+        } else {
+            this.form.reset();
+        }
     }
 
     @Override
@@ -198,45 +123,42 @@ public class EnvCreator extends View {
         this.window.setLayout(new CardLayout());
         this.window.setMinWidth(720);
         this.window.setMinHeight(444);
-
-        initButtons();
-        this.window.setBottomComponent(this.buttons);
     }
 
     private void initMapPanel() {
-        this.mapPanel = new LayoutContainer(new BorderLayout());
 
-        // map widget
-        this.map = new EnvMap();
-        this.mapPanel.add(this.map, new BorderLayoutData(LayoutRegion.CENTER));
+        if (null == this.mapPanel) {
+            this.mapPanel = new EnvCreatorMapPanel();
+        } else {
+            this.mapPanel.reset();
+        }
+    }
 
-        // controls
-        this.mapControls = new LayoutContainer(new CardLayout());
-        BorderLayoutData westLayout = new BorderLayoutData(LayoutRegion.WEST);
-        this.mapPanel.add(this.mapControls, westLayout);
+    private void onCreateFailure() {
+        MessageBox.confirm(null, "Failed to store the enviroment in CommonSense! Retry?",
+                new Listener<MessageBoxEvent>() {
 
-        // controls for outline stage
-        this.outlineControls = new ContentPanel(new ColumnLayout());
-        this.outlineControls.setHeaderVisible(false);
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                            submit();
+                        } else {
+                            hidePanel();
+                        }
+                    }
+                });
+    }
 
-        Button resetOutline = new Button("Reset", new SelectionListener<ButtonEvent>() {
+    private void onCreateSuccess() {
+        MessageBox.info(null, "The environment was successfully stored in CommonSense.",
+                new Listener<MessageBoxEvent>() {
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                map.resetOutline();
-                map.setOutlineEnabled(true);
-            }
-        });
-        resetOutline.setMinWidth(75);
-        this.outlineControls.add(new Text("Draw the outline of the environment"));
-        this.outlineControls.add(resetOutline);
-        this.mapControls.add(this.outlineControls);
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        hidePanel();
+                    }
+                });
 
-        // controls for dropper stage
-        this.dropperControls = new ContentPanel(new ColumnLayout());
-        this.dropperControls.setHeaderVisible(false);
-        this.dropperControls.add(new Text("Drop sensors on the map"));
-        this.mapControls.add(this.dropperControls);
     }
 
     private void resetPanel() {
@@ -250,10 +172,7 @@ public class EnvCreator extends View {
         this.window.add(this.form);
         this.window.add(this.mapPanel);
 
-        ((CardLayout) this.window.getLayout()).setActiveItem(form);
-        this.backButton.setEnabled(false);
-        this.fwdButton.setEnabled(false);
-        this.fwdButton.setText("Next");
+        ((CardLayout) this.window.getLayout()).setActiveItem(this.form);
     }
 
     private void showPanel() {
@@ -261,5 +180,9 @@ public class EnvCreator extends View {
 
         this.window.show();
         this.window.center();
+    }
+
+    private void submit() {
+        fireEvent(EnvCreateEvents.CreateRequest);
     }
 }

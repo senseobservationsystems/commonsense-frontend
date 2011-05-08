@@ -56,7 +56,7 @@ public class VizController extends Controller {
         this.vizView = new VizView(this);
         this.typeChooser = new VizTypeChooser(this);
 
-        // loadMapsApi();
+        loadMapsApi();
         loadVizApi();
     }
 

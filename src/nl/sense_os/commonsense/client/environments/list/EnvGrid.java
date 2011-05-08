@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.environments;
+package nl.sense_os.commonsense.client.environments.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class EnvGrid extends View {
     }
 
     protected void create() {
-        fireEvent(EnvCreateEvents.ShowCreator);
+        Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
     }
 
     protected void delete() {
@@ -113,7 +113,7 @@ public class EnvGrid extends View {
 
     private void initGrid() {
         // tree store
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataProxy proxy = new DataProxy() {
 
             @Override

@@ -6,6 +6,11 @@ public class EnvCreateEvents {
 
     public static final EventType ShowCreator = new EventType();
     protected static final EventType CreateRequest = new EventType();
-    protected static final EventType FormValid = new EventType();
-    protected static final EventType FormInvalid = new EventType();
+    public static final EventType CreateSuccess = new EventType();
+    protected static final EventType CreateFailure = new EventType();
+
+    protected static final EventType Forward = new EventType();
+    protected static final EventType Back = new EventType();
+    protected static final EventType Cancel = new EventType();
+    protected static final EventType OutlineComplete = new EventType();
 }

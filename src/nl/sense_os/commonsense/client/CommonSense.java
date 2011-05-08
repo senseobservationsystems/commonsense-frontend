@@ -5,9 +5,9 @@ import java.util.Date;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
-import nl.sense_os.commonsense.client.environments.EnvController;
 import nl.sense_os.commonsense.client.environments.create.EnvCreateController;
 import nl.sense_os.commonsense.client.environments.create.EnvCreateEvents;
+import nl.sense_os.commonsense.client.environments.list.EnvController;
 import nl.sense_os.commonsense.client.groups.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -110,8 +110,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new AjaxController());
 
         initControllers();
-
-        testEnvCreator();
+        // testEnvCreator();
 
         GXT.hideLoadingPanel("loading");
     }
@@ -171,13 +170,13 @@ public class CommonSense implements EntryPoint {
         VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
     }
 
+    @SuppressWarnings("unused")
     private void testEnvCreator() {
         Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {
                 Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
-
             }
         });
     }
