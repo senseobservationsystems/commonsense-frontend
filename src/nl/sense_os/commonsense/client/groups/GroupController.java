@@ -10,7 +10,7 @@ import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
-import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
+import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.GroupModel;
 import nl.sense_os.commonsense.shared.UserModel;

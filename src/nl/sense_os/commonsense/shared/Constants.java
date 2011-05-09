@@ -37,7 +37,10 @@ public class Constants {
 
     /**
      * Registry key for the tree of sensors for the current user
+     * 
+     * @deprecated Use {@link #REG_MY_SENSORS_LIST} instead.
      */
+    @Deprecated
     public static final String REG_MY_SENSORS_TREE = "MySensors";
 
     /**
@@ -53,7 +56,10 @@ public class Constants {
 
     /**
      * Registry key for the list of group sensors for the current user
+     * 
+     * @deprecated Use {@link #REG_MY_SENSORS_LIST} instead.
      */
+    @Deprecated
     public static final String REG_GROUP_SENSORS = "GroupSensors";
 
     /**

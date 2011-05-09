@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.main;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
-import nl.sense_os.commonsense.client.environments.list.EnvEvents;
+import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.groups.GroupEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
@@ -11,7 +11,7 @@ import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.visualization.tabs.VizEvents;
+import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;

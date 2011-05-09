@@ -1,23 +1,21 @@
-package nl.sense_os.commonsense.client.groups;
+package nl.sense_os.commonsense.client.env.list;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.GroupModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -31,9 +29,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -41,33 +38,37 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class GroupGrid extends View {
+public class EnvGrid extends View {
 
-    protected static final String TAG = "GroupGrid";
+    protected static final String TAG = "EnvGrid";
     private Button createButton;
+    private Button deleteButton;
     private TreeGrid<TreeModel> grid;
-    private Button inviteButton;
-    private Button joinButton;
-    private Button leaveButton;
+    private Button importButton;
     private ContentPanel panel;
-    private boolean isCollapsed = false;
+    private boolean isCollapsed;
     private TreeStore<TreeModel> store;
     private BaseTreeLoader<TreeModel> loader;
 
-    public GroupGrid(Controller controller) {
+    public EnvGrid(Controller controller) {
         super(controller);
+    }
+
+    protected void create() {
+        Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+    }
+
+    protected void delete() {
+        Log.w(TAG, "Delete button logic not implemented");
     }
 
     @Override
@@ -76,65 +77,54 @@ public class GroupGrid extends View {
         if (type.equals(MainEvents.Init)) {
             // do nothing, initialization is done in initialize()
 
-        } else if (type.equals(GroupEvents.ShowGrid)) {
+        } else if (type.equals(EnvEvents.ShowGrid)) {
             // Log.d(TAG, "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(GroupEvents.ListUpdated)) {
-            // Log.d(TAG, "TreeUpdated");
-            setBusy(false);
+        } else if (type.equals(EnvEvents.ListNotUpdated)) {
+            Log.w(TAG, "ListNotUpdated");
+            onGroupsNotUpdated(event);
+
+        } else if (type.equals(EnvEvents.ListUpdated)) {
+            Log.d(TAG, "TreeUpdated");
+            onListUpdated(event);
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
-            refreshLoader(false);
+            refreshLoader();
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
             onLoggedOut(event);
 
-        } else if (type.equals(GroupEvents.Working)) {
+        } else if (type.equals(EnvEvents.Working)) {
             // Log.d(TAG, "Working");
-            setBusy(true);
-
-        } else if (type.equals(GroupEvents.CreateComplete)) {
-            Log.d(TAG, "CreateComplete");
-            onListDirty();
-
-        } else if (type.equals(GroupEvents.LeaveComplete)) {
-            // Log.d(TAG, "LeaveComplete");
-            onListDirty();
-
-        } else if (type.equals(GroupEvents.InviteComplete)) {
-            Log.d(TAG, "InviteComplete");
-            onListDirty();
-
-        } else if (type.equals(GroupEvents.LeaveFailed)) {
-            Log.w(TAG, "LeaveFailed");
-            onLeaveFailed(event);
+            setBusyIcon(true);
 
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
-    private void initGrid() {
+    private void importEnvironment() {
+        Log.w(TAG, "Import button logic not implemented");
+    }
 
-        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
+    private void initGrid() {
+        // tree store
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        DataProxy proxy = new DataProxy() {
 
             @Override
-            protected void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
+            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
                 // only load when the panel is not collapsed
                 if (false == isCollapsed) {
                     if (null == loadConfig) {
-                        fireEvent(new AppEvent(GroupEvents.ListRequest, callback));
+                        Dispatcher.forwardEvent(EnvEvents.ListRequested, callback);
                     } else if (loadConfig instanceof TreeModel) {
                         List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        List<TreeModel> children = new ArrayList<TreeModel>();
-                        for (ModelData model : childrenModels) {
-                            children.add((TreeModel) model);
-                        }
-                        callback.onSuccess(children);
+                        callback.onSuccess(childrenModels);
                     } else {
                         callback.onSuccess(new ArrayList<TreeModel>());
                     }
@@ -142,23 +132,17 @@ public class GroupGrid extends View {
             }
         };
         this.loader = new BaseTreeLoader<TreeModel>(proxy);
-        this.store = new TreeStore<TreeModel>(this.loader);
-        this.store.setKeyProvider(new SensorKeyProvider());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+        this.store = new TreeStore<TreeModel>(loader);
 
         ColumnConfig email = new ColumnConfig("email", "Email", 100);
-        ColumnConfig name = new ColumnConfig("text", "Name", 100);
+        ColumnConfig name = new ColumnConfig("name", "Name", 100);
 
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
         ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
 
         this.grid = new TreeGrid<TreeModel>(this.store, cm);
-        this.grid.setAutoLoad(true);
-        this.grid.setId("groupGrid");
+        this.grid.setId("buildingGrid");
         this.grid.setStateful(true);
-        this.grid.setAutoExpandColumn("text");
-        this.grid.setLoadMask(true);
-        this.grid.setIconProvider(new SensorIconProvider<TreeModel>());
 
         TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
@@ -168,47 +152,18 @@ public class GroupGrid extends View {
             public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    leaveButton.enable();
-                    inviteButton.enable();
+                    deleteButton.enable();
+                    importButton.enable();
                 } else {
-                    leaveButton.disable();
-                    inviteButton.disable();
+                    deleteButton.disable();
+                    importButton.disable();
                 }
             }
         });
         this.grid.setSelectionModel(selectionModel);
 
-        // toolbar with filter field
-        ToolBar filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
-
-            @Override
-            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
-                    String property, String filter) {
-                // only match leaf nodes
-                if (record.getChildCount() > 0) {
-                    return false;
-                }
-                String name = record.get("text");
-                name = name.toLowerCase();
-                if (name.startsWith(filter.toLowerCase())) {
-                    return true;
-                }
-                return false;
-            }
-
-        };
-        filter.bind(store);
-        filterBar.add(filter);
-
-        ContentPanel content = new ContentPanel(new FitLayout());
-        content.setBodyBorder(false);
-        content.setHeaderVisible(false);
-        content.setTopComponent(filterBar);
-        content.add(this.grid);
-
-        this.panel.add(content);
+        // add grid to panel
+        this.panel.add(this.grid);
     }
 
     private void initHeaderTool() {
@@ -217,7 +172,7 @@ public class GroupGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                refreshLoader(true);
+                loader.load();
             }
         });
 
@@ -230,7 +185,7 @@ public class GroupGrid extends View {
         super.initialize();
 
         this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("Manage group memberships");
+        this.panel.setHeading("Manage environments");
 
         // track whether the panel is expanded
         Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
@@ -240,7 +195,7 @@ public class GroupGrid extends View {
                 EventType type = be.getType();
                 if (type.equals(Events.Expand)) {
                     isCollapsed = false;
-                    refreshLoader(false);
+                    refreshLoader();
                 } else if (type.equals(Events.Collapse)) {
                     isCollapsed = true;
                 }
@@ -249,9 +204,9 @@ public class GroupGrid extends View {
         panel.addListener(Events.Expand, collapseListener);
         panel.addListener(Events.Collapse, collapseListener);
 
-        initGrid();
         initHeaderTool();
         initToolBar();
+        initGrid();
     }
 
     private void initToolBar() {
@@ -262,113 +217,73 @@ public class GroupGrid extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
-                    fireEvent(GroupEvents.ShowCreator);
-                } else if (source.equals(leaveButton)) {
-                    onLeaveClick();
-                } else if (source.equals(joinButton)) {
-                    Log.d(TAG, "Join group");
-                } else if (source.equals(inviteButton)) {
-                    onInviteClick();
+                    create();
+                } else if (source.equals(deleteButton)) {
+                    onDeleteClick();
+                } else if (source.equals(importButton)) {
+                    importEnvironment();
                 }
             }
         };
 
         this.createButton = new Button("Create", l);
 
-        this.joinButton = new Button("Join", l);
-        this.joinButton.disable();
+        this.importButton = new Button("Import", l);
+        this.importButton.disable();
 
-        this.leaveButton = new Button("Leave", l);
-        this.leaveButton.disable();
-
-        this.inviteButton = new Button("Invite", l);
-        this.inviteButton.disable();
+        this.deleteButton = new Button("Remove", l);
+        this.deleteButton.disable();
 
         // create tool bar
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(this.joinButton);
+        toolBar.add(this.importButton);
         toolBar.add(this.createButton);
-        toolBar.add(this.inviteButton);
-        toolBar.add(this.leaveButton);
+        toolBar.add(this.deleteButton);
 
         // add to panel
         this.panel.setTopComponent(toolBar);
     }
 
-    protected void leaveGroup() {
-        TreeModel group = grid.getSelectionModel().getSelectedItem();
-        while (null != group.getParent()) {
-            group = group.getParent();
-        }
-        String groupId = group.get("id");
-        fireEvent(new AppEvent(GroupEvents.LeaveRequested, groupId));
-    }
-
-    protected void onInviteClick() {
-        TreeModel selected = grid.getSelectionModel().getSelectedItem();
-        GroupModel group = null;
-        if (selected instanceof GroupModel) {
-            group = (GroupModel) selected;
-        } else if (selected.getParent() instanceof GroupModel) {
-            group = (GroupModel) selected.getParent();
-        } else {
-            MessageBox.alert(null, "Cannot invite user to group: no group selected.", null);
-            return;
-        }
-
-        AppEvent invite = new AppEvent(GroupEvents.ShowInviter);
-        invite.setData("group", group);
-        fireEvent(invite);
-    }
-
-    private void onLeaveClick() {
-        MessageBox.confirm(null, "Are you sure you want to leave this group?",
+    private void onDeleteClick() {
+        MessageBox.confirm(null, "Are you sure you want to remove this environment?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            leaveGroup();
+                            delete();
                         }
                     }
                 });
     }
 
-    private void onLeaveFailed(AppEvent event) {
-        MessageBox.confirm(null, "Failed to leave group, retry?", new Listener<MessageBoxEvent>() {
-
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                Button clicked = be.getButtonClicked();
-                if ("yes".equalsIgnoreCase(clicked.getText())) {
-                    leaveGroup();
-                }
-            }
-        });
+    private void onGroupsNotUpdated(AppEvent event) {
+        // Throwable caught = event.<Throwable> getData();
+        setBusyIcon(false);
+        this.store.removeAll();
     }
 
-    private void onListDirty() {
-        new Timer() {
-
-            @Override
-            public void run() {
-                refreshLoader(true);
-            }
-        }.schedule(100);
+    private void onListUpdated(AppEvent event) {
+        List<TreeModel> groups = event.<List<TreeModel>> getData();
+        setBusyIcon(false);
+        this.store.removeAll();
+        if (null != groups) {
+            this.store.add(groups, true);
+        }
     }
 
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
     }
 
-    private void refreshLoader(boolean force) {
-        if (force || this.store.getChildCount() == 0) {
+    protected void refreshLoader() {
+        if (this.store.getChildCount() == 0) {
             loader.load();
         }
     }
 
-    private void setBusy(boolean busy) {
+    private void setBusyIcon(boolean busy) {
         String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
     }
@@ -378,7 +293,7 @@ public class GroupGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show groups panel: parent=null");
+            Log.e(TAG, "Failed to show buildings panel: parent=null");
         }
     }
 }
