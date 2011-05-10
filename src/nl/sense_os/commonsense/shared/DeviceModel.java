@@ -8,9 +8,9 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 public class DeviceModel extends BaseTreeModel {
 
     private static final long serialVersionUID = 1L;
-    public static final String KEY_ID = "id";
-    public static final String KEY_TYPE = "type";
-    public static final String KEY_UUID = "uuid";
+    public static final String ID = "id";
+    public static final String TYPE = "type";
+    public static final String UUID = "uuid";
 
     public DeviceModel() {
         super();
@@ -25,15 +25,15 @@ public class DeviceModel extends BaseTreeModel {
     }
 
     public String getId() {
-        return get(KEY_ID);
+        return get(ID);
     }
 
     public String getType() {
-        return get(KEY_TYPE);
+        return get(TYPE);
     }
 
     public String getUuid() {
-        return get(KEY_UUID);
+        return get(UUID);
     }
 
     @Override

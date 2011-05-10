@@ -140,12 +140,12 @@ public class SensorComparator implements Comparator<Object> {
 
     private int compareDevices(TreeModel model1, TreeModel model2) {
 
-        int type1 = model1.<String> get(DeviceModel.KEY_TYPE).equals("myrianode") ? 1 : 0;
-        int type2 = model2.<String> get(DeviceModel.KEY_TYPE).equals("myrianode") ? 1 : 0;
+        int type1 = model1.<String> get(DeviceModel.TYPE).equals("myrianode") ? 1 : 0;
+        int type2 = model2.<String> get(DeviceModel.TYPE).equals("myrianode") ? 1 : 0;
 
         if (type1 == 1 && type2 == 1) {
-            int uuid1 = Integer.parseInt(model1.<String> get(DeviceModel.KEY_UUID));
-            int uuid2 = Integer.parseInt(model2.<String> get(DeviceModel.KEY_UUID));
+            int uuid1 = Integer.parseInt(model1.<String> get(DeviceModel.UUID));
+            int uuid2 = Integer.parseInt(model2.<String> get(DeviceModel.UUID));
             return uuid1 - uuid2;
         } else {
             String name1 = type1 + model1.<String> get("text");

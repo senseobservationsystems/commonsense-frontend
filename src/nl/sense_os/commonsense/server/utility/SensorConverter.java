@@ -31,8 +31,10 @@ public class SensorConverter {
         if (null != owner) {
             properties.put(SensorModel.OWNER, UserConverter.parseUser(owner));
         }
-        properties.put(SensorModel.DEVICE_DEVTYPE, json.optString(SensorModel.DEVICE_DEVTYPE));
-        properties.put(SensorModel.DEVICE_ID, json.optString(SensorModel.DEVICE_ID));
+        JSONObject device = json.optJSONObject(SensorModel.DEVICE);
+        if (null != owner) {
+            properties.put(SensorModel.DEVICE, DeviceConverter.parseDevice(device));
+        }
 
         // front end-only properties
         properties.put("tagType", TagModel.TYPE_SENSOR);

@@ -12,8 +12,8 @@ public class SensorLibraryEvents {
 
     public static final EventType ListRequested = new EventType();
     public static final EventType ListUpdated = new EventType();
-    protected static final EventType ListAjaxFailure = new EventType();
-    protected static final EventType ListAjaxSuccess = new EventType();
+    protected static final EventType FullDetailsAjaxFailure = new EventType();
+    protected static final EventType FullDetailsAjaxSuccess = new EventType();
     protected static final EventType ListPhysicalAjaxFailure = new EventType();
     protected static final EventType ListPhysicalAjaxSuccess = new EventType();
 

@@ -81,6 +81,7 @@ public class EnvCreateController extends Controller {
     private void markPosition(Map<Marker, List<SensorModel>> sensors, int index) {
         // TODO
     }
+
     private void onCreateFailure() {
         forwardToView(this.creator, new AppEvent(EnvCreateEvents.CreateFailure));
     }

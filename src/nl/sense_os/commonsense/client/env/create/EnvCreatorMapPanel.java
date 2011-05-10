@@ -1,10 +1,9 @@
 package nl.sense_os.commonsense.client.env.create;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -18,18 +17,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.GroupingStore;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
@@ -75,47 +70,6 @@ public class EnvCreatorMapPanel extends ContentPanel {
         this.setBottomComponent(this.buttons);
 
         setupDragDrop();
-    }
-
-    private ColumnModel createColumnModel() {
-        ColumnConfig id = new ColumnConfig(SensorModel.ID, "ID", 50);
-        id.setHidden(true);
-        ColumnConfig type = new ColumnConfig(SensorModel.TYPE, "Type", 50);
-        ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
-        ColumnConfig devType = new ColumnConfig(SensorModel.DEVICE_TYPE, "Physical sensor", 200);
-        devType.setRenderer(new GridCellRenderer<SensorModel>() {
-
-            @Override
-            public Object render(SensorModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                if (!model.getDeviceType().equals(model.getName())) {
-                    return model.getDeviceType();
-                } else {
-                    return "";
-                }
-            }
-        });
-        ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
-        devId.setHidden(true);
-        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_DEVTYPE, "Device", 200);
-        type.setRenderer(new GridCellRenderer<SensorModel>() {
-
-            @Override
-            public Object render(SensorModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                SensorIconProvider<SensorModel> provider = new SensorIconProvider<SensorModel>();
-                provider.getIcon(model).getHTML();
-                return provider.getIcon(model).getHTML();
-            }
-        });
-        ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
-        dataType.setHidden(true);
-        ColumnConfig owner = new ColumnConfig(SensorModel.OWNER, "Owner", 100);
-
-        ColumnModel cm = new ColumnModel(Arrays.asList(type, id, name, devType, devId, device,
-                dataType, owner));
-
-        return cm;
     }
 
     /**
@@ -215,7 +169,7 @@ public class EnvCreatorMapPanel extends ContentPanel {
         this.store.setSortField(SensorModel.TYPE);
 
         // Column model
-        ColumnModel cm = createColumnModel();
+        ColumnModel cm = LibraryColumnsFactory.create();
 
         GroupingView groupingView = new GroupingView();
         groupingView.setShowGroupedColumn(true);
@@ -226,23 +180,23 @@ public class EnvCreatorMapPanel extends ContentPanel {
                     int group = Integer.parseInt(data.group);
                     String f = data.group;
                     switch (group) {
-                        case 0 :
-                            f = "Feeds";
-                            break;
-                        case 1 :
-                            f = "Physical";
-                            break;
-                        case 2 :
-                            f = "States";
-                            break;
-                        case 3 :
-                            f = "Environment sensors";
-                            break;
-                        case 4 :
-                            f = "Public sensors";
-                            break;
-                        default :
-                            f = "Unsorted";
+                    case 0:
+                        f = "Feeds";
+                        break;
+                    case 1:
+                        f = "Physical";
+                        break;
+                    case 2:
+                        f = "States";
+                        break;
+                    case 3:
+                        f = "Environment sensors";
+                        break;
+                    case 4:
+                        f = "Public sensors";
+                        break;
+                    default:
+                        f = "Unsorted";
                     }
                     String l = data.models.size() == 1 ? "Sensor" : "Sensors";
                     return f + " (" + data.models.size() + " " + l + ")";
@@ -261,7 +215,7 @@ public class EnvCreatorMapPanel extends ContentPanel {
         this.grid.setBorders(false);
         this.grid.setStateful(true);
         this.grid.setLoadMask(true);
-        this.grid.setId("mySensorsGrid");
+        this.grid.setId("envSensorsGrid");
     }
 
     private void initMap() {

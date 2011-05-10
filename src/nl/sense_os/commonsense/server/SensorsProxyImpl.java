@@ -174,27 +174,8 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         for (SensorModel sensor : sensors) {
 
             // get the device TreeModel, or create a new one
-            String deviceKey = sensor.<String> get(SensorModel.DEVICE_ID)
-                    + sensor.<String> get(SensorModel.DEVICE_DEVTYPE);
-
-            DeviceModel device = devices.get(deviceKey);
-            if (device == null) {
-                device = new DeviceModel();
-                device.set(DeviceModel.KEY_ID, deviceKey);
-                device.set(DeviceModel.KEY_UUID, sensor.<String> get(SensorModel.DEVICE_ID));
-                device.set(DeviceModel.KEY_TYPE, sensor.<String> get(SensorModel.DEVICE_DEVTYPE));
-
-                // front end-only properties
-                device.set("tagType", TagModel.TYPE_DEVICE);
-                if (device.get(DeviceModel.KEY_TYPE).equals("myrianode")) {
-                    device.set(
-                            "text",
-                            device.get(DeviceModel.KEY_TYPE) + " "
-                                    + device.get(DeviceModel.KEY_UUID));
-                } else {
-                    device.set("text", device.get(DeviceModel.KEY_TYPE));
-                }
-            }
+            DeviceModel device = sensor.getDevice();
+            String deviceKey = device.getId() + device.getUuid();
 
             // add the sensor to the device
             device.add(new SensorModel(sensor.getProperties()));
@@ -494,23 +475,23 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             SensorModel sensor = new SensorModel(sensorModel.getProperties());
             int type = Integer.parseInt(sensor.<String> get("type"));
             switch (type) {
-                case 0 :
-                    feeds.add(sensor);
-                    break;
-                case 1 :
-                    devices.add(sensor);
-                    break;
-                case 2 :
-                    states.add(sensor);
-                    break;
-                case 3 :
-                    environments.add(sensor);
-                    break;
-                case 4 :
-                    apps.add(sensor);
-                    break;
-                default :
-                    log.warning("Unexpected sensor type: " + type);
+            case 0:
+                feeds.add(sensor);
+                break;
+            case 1:
+                devices.add(sensor);
+                break;
+            case 2:
+                states.add(sensor);
+                break;
+            case 3:
+                environments.add(sensor);
+                break;
+            case 4:
+                apps.add(sensor);
+                break;
+            default:
+                log.warning("Unexpected sensor type: " + type);
             }
         }
 

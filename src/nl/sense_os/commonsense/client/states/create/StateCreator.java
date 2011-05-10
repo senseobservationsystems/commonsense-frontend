@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.ServiceModel;
@@ -41,10 +41,8 @@ import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
@@ -71,47 +69,6 @@ public class StateCreator extends View {
 
     public StateCreator(Controller c) {
         super(c);
-    }
-
-    private ColumnModel createColumnModel() {
-        ColumnConfig id = new ColumnConfig(SensorModel.ID, "ID", 50);
-        id.setHidden(true);
-        ColumnConfig type = new ColumnConfig(SensorModel.TYPE, "Type", 50);
-        ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
-        ColumnConfig devType = new ColumnConfig(SensorModel.DEVICE_TYPE, "Physical sensor", 200);
-        devType.setRenderer(new GridCellRenderer<SensorModel>() {
-
-            @Override
-            public Object render(SensorModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                if (!model.getDeviceType().equals(model.getName())) {
-                    return model.getDeviceType();
-                } else {
-                    return "";
-                }
-            }
-        });
-        ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
-        devId.setHidden(true);
-        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_DEVTYPE, "Device", 200);
-        type.setRenderer(new GridCellRenderer<SensorModel>() {
-
-            @Override
-            public Object render(SensorModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                SensorIconProvider<SensorModel> provider = new SensorIconProvider<SensorModel>();
-                provider.getIcon(model).getHTML();
-                return provider.getIcon(model).getHTML();
-            }
-        });
-        ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
-        dataType.setHidden(true);
-        ColumnConfig owner = new ColumnConfig(SensorModel.OWNER, "Owner", 100);
-
-        ColumnModel cm = new ColumnModel(Arrays.asList(type, id, name, devType, devId, device,
-                dataType, owner));
-
-        return cm;
     }
 
     @Override
@@ -328,7 +285,7 @@ public class StateCreator extends View {
         this.sensorsStore.setSortField(SensorModel.TYPE);
 
         // Column model
-        ColumnModel cm = createColumnModel();
+        ColumnModel cm = LibraryColumnsFactory.create();
 
         GroupingView groupingView = new GroupingView();
         groupingView.setShowGroupedColumn(true);

@@ -49,7 +49,7 @@ public class VizView extends View {
     private String createChartTitle(List<SensorModel> sensors) {
         String title = null;
         for (SensorModel sensor : sensors) {
-            title = sensor.<String> get("text") + ", ";
+            title = sensor.getDisplayName() + ", ";
         }
 
         // remove trailing ", "

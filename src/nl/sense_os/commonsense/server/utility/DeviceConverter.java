@@ -19,18 +19,18 @@ public class DeviceConverter {
 
     public static DeviceModel parseDevice(JSONObject device) throws JSONException {
         HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put(DeviceModel.KEY_ID, device.getString(DeviceModel.KEY_ID));
-        properties.put(DeviceModel.KEY_TYPE, device.getString(DeviceModel.KEY_TYPE));
-        properties.put(DeviceModel.KEY_UUID, device.getString(DeviceModel.KEY_UUID));
+        properties.put(DeviceModel.ID, device.getString(DeviceModel.ID));
+        properties.put(DeviceModel.TYPE, device.getString(DeviceModel.TYPE));
+        properties.put(DeviceModel.UUID, device.getString(DeviceModel.UUID));
 
         // front end-only properties
         properties.put("tagType", TagModel.TYPE_DEVICE);
-        if (properties.get(DeviceModel.KEY_TYPE).equals("myrianode")) {
-            String text = properties.get(DeviceModel.KEY_TYPE) + " "
-                    + properties.get(DeviceModel.KEY_UUID);
+        if (properties.get(DeviceModel.TYPE).equals("myrianode")) {
+            String text = properties.get(DeviceModel.TYPE) + " "
+                    + properties.get(DeviceModel.UUID);
             properties.put("text", text);
         } else {
-            properties.put("text", properties.get(DeviceModel.KEY_TYPE));
+            properties.put("text", properties.get(DeviceModel.TYPE));
         }
 
         return new DeviceModel(properties);

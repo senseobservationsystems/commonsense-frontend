@@ -10,15 +10,16 @@ public class SensorModel extends BaseTreeModel {
     public static final String DATA_STRUCTURE = "data_structure";
     public static final String DATA_TYPE = "data_type";
     public static final String DATA_TYPE_ID = "data_type_id";
-    public static final String DEVICE_DEVTYPE = "device_device_type";
-    public static final String DEVICE_ID = "device_device_uuid";
     public static final String DEVICE_TYPE = "device_type";
     public static final String ID = "id";
     public static final String NAME = "name";
-    public static final String OWNER = "owner";
-    public static final String PAGER_TYPE = "pager_type";
-    private static final long serialVersionUID = 1L;
+    public static final String DISPLAY_NAME = "display_name";
     public static final String TYPE = "type";
+    public static final String PAGER_TYPE = "pager_type";
+    public static final String OWNER = "owner";
+    public static final String DEVICE = "device";
+    public static final String ENVIRONMENT = "environment";
+    private static final long serialVersionUID = 1L;
 
     public SensorModel() {
         super();
@@ -44,16 +45,20 @@ public class SensorModel extends BaseTreeModel {
         return get(DATA_TYPE_ID);
     }
 
+    public DeviceModel getDevice() {
+        return get(DEVICE);
+    }
+
     public String getDeviceType() {
         return get(DEVICE_TYPE);
     }
 
-    public String getDevDeviceType() {
-        return get(DEVICE_DEVTYPE);
+    public String getDisplayName() {
+        return get(DISPLAY_NAME);
     }
 
-    public String getDeviceId() {
-        return get(DEVICE_ID);
+    public EnvironmentModel getEnvironment() {
+        return get(ENVIRONMENT);
     }
 
     public String getId() {
@@ -78,6 +83,6 @@ public class SensorModel extends BaseTreeModel {
 
     @Override
     public String toString() {
-        return get("text", "Sensor #" + getId());
+        return get(DISPLAY_NAME, "Sensor #" + getId());
     }
 }

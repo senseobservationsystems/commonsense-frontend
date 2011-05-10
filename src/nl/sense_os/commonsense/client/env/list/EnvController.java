@@ -73,14 +73,14 @@ public class EnvController extends Controller {
             requestList(callback);
 
         } else if (type.equals(EnvEvents.ListAjaxSuccess)) {
-            // Log.d(TAG, "ListAjaxSuccess");
+            // Log.d(TAG, "FullDetailsAjaxSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListSuccess(response, callback);
 
         } else if (type.equals(EnvEvents.ListAjaxFailure)) {
-            Log.w(TAG, "ListAjaxFailure");
+            Log.w(TAG, "FullDetailsAjaxFailure");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListFailure(callback);

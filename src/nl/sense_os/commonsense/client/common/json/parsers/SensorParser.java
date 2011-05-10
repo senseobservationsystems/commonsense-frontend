@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -19,12 +21,27 @@ public class SensorParser {
     public static SensorModel parseSensor(JSONObject json) {
 
         HashMap<String, Object> props = new HashMap<String, Object>();
+        props.put(SensorModel.DISPLAY_NAME, json.get(SensorModel.DISPLAY_NAME).isString()
+                .stringValue());
         props.put(SensorModel.ID, json.get(SensorModel.ID).isString().stringValue());
-        props.put(SensorModel.PAGER_TYPE, json.get(SensorModel.PAGER_TYPE).isString().stringValue());
+        props.put(SensorModel.NAME, json.get(SensorModel.NAME).isString().stringValue());
         props.put(SensorModel.DEVICE_TYPE, json.get(SensorModel.DEVICE_TYPE).isString()
                 .stringValue());
-        props.put(SensorModel.NAME, json.get(SensorModel.NAME).isString().stringValue());
         props.put(SensorModel.TYPE, json.get(SensorModel.TYPE).isString().stringValue());
+        props.put(SensorModel.PAGER_TYPE, json.get(SensorModel.PAGER_TYPE).isString().stringValue());
+
+        // make sure there is a display name
+        String displayName = (String) props.get(SensorModel.DISPLAY_NAME);
+        if (displayName.length() == 0) {
+            String type = (String) props.get(SensorModel.TYPE);
+            String name = (String) props.get(SensorModel.NAME);
+            String deviceType = (String) props.get(SensorModel.DEVICE_TYPE);
+            if (!type.equals("1") || "".equals(deviceType) || deviceType.equals(name)) {
+                props.put(SensorModel.DISPLAY_NAME, name);
+            } else {
+                props.put(SensorModel.DISPLAY_NAME, name + " (" + deviceType + ")");
+            }
+        }
 
         // optional properties
         if (null != json.get(SensorModel.DATA_TYPE_ID)) {
@@ -39,29 +56,33 @@ public class SensorParser {
             props.put(SensorModel.DATA_STRUCTURE, json.get(SensorModel.DATA_STRUCTURE).isString()
                     .stringValue());
         }
-        if (null != json.get(SensorModel.OWNER)) {
-            JSONObject owner = json.get(SensorModel.OWNER).isObject();
+
+        // special owner object
+        JSONValue rawOwner = json.get(SensorModel.OWNER);
+        if (null != rawOwner && null == rawOwner.isNull()) {
+            JSONObject owner = rawOwner.isObject();
             props.put(SensorModel.OWNER, UserParser.parseUser(owner));
+        } else {
+            props.put(SensorModel.OWNER, Registry.get(Constants.REG_USER));
         }
-        if (null != json.get(SensorModel.DEVICE_DEVTYPE)) {
-            props.put(SensorModel.DEVICE_DEVTYPE, json.get(SensorModel.DEVICE_DEVTYPE).isString()
-                    .stringValue());
+
+        // special device object
+        JSONValue rawDevice = json.get(SensorModel.DEVICE);
+        if (null != rawDevice && null == rawDevice.isNull()) {
+            JSONObject device = rawDevice.isObject();
+            props.put(SensorModel.DEVICE, DeviceParser.parse(device));
         }
-        if (null != json.get(SensorModel.DEVICE_ID)) {
-            props.put(SensorModel.DEVICE_ID, json.get(SensorModel.DEVICE_ID).isString()
-                    .stringValue());
+
+        // special environment object
+        JSONValue rawEnvironment = json.get(SensorModel.ENVIRONMENT);
+        if (null != rawEnvironment && null == rawEnvironment.isNull()) {
+            JSONObject environment = rawEnvironment.isObject();
+            props.put(SensorModel.ENVIRONMENT, EnvironmentParser.parse(environment));
         }
 
         // front end-only properties
         props.put("tagType", TagModel.TYPE_SENSOR);
-        String type = (String) props.get(SensorModel.TYPE);
-        String name = (String) props.get(SensorModel.NAME);
-        String deviceType = (String) props.get(SensorModel.DEVICE_TYPE);
-        if (!type.equals("1") || "".equals(deviceType) || deviceType.equals(name)) {
-            props.put("text", name);
-        } else {
-            props.put("text", name + " (" + deviceType + ")");
-        }
+        props.put("text", props.get(SensorModel.DISPLAY_NAME));
 
         return new SensorModel(props);
     }
