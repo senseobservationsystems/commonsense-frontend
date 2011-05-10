@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.auth.login.LoginController;
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
@@ -33,6 +34,7 @@ import nl.sense_os.commonsense.shared.Constants;
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.google.gwt.core.client.EntryPoint;
@@ -110,9 +112,20 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new AjaxController());
 
         initControllers();
+        quickLogin();
         // testEnvCreator();
 
         GXT.hideLoadingPanel("loading");
+    }
+
+    /**
+     * Logs in automatically as steven@sense-os.nl.
+     */
+    private void quickLogin() {
+        AppEvent login = new AppEvent(LoginEvents.LoginRequest);
+        login.setData("username", "steven@sense-os.nl");
+        login.setData("password", "1234");
+        Dispatcher.forwardEvent(login);
     }
 
     @SuppressWarnings("unused")
@@ -120,6 +133,8 @@ public class CommonSense implements EntryPoint {
 
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
+
+            @Override
             public void run() {
                 // create a data table
                 DataTable data = DataTable.create();
