@@ -76,6 +76,7 @@ public class Constants {
     public static final String URL_LOGIN = URL__BASE + "/login";
     public static final String URL_LOGOUT = URL__BASE + "/logout";
     public static final String URL_SENSORS = URL__BASE + "/sensors";
+    public static final String URL_ENVIRONMENTS = URL__BASE + "/environments";
     public static final String URL_STATES = URL__BASE + "/states";
     public static final String URL_USERS = URL__BASE + "/users";
 

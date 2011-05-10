@@ -21,6 +21,7 @@ import com.google.gwt.maps.client.event.PolygonEndLineHandler;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.Point;
 import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Overlay;
 import com.google.gwt.maps.client.overlay.PolyEditingOptions;
 import com.google.gwt.maps.client.overlay.Polygon;
@@ -59,7 +60,7 @@ public class EnvMap extends LayoutContainer {
 
     private void initOutline() {
 
-        this.outline = new Polygon(new LatLng[] {});
+        this.outline = new Polygon(new LatLng[]{});
         this.map.addOverlay(this.outline);
         this.outline.addPolygonEndLineHandler(new PolygonEndLineHandler() {
 
@@ -75,8 +76,13 @@ public class EnvMap extends LayoutContainer {
     private void onSensorsDropped(List<SensorModel> data, int x, int y) {
         Log.d(TAG, "onSensorsDropped");
 
-        LatLng latLng = this.map.convertDivPixelToLatLng(Point.newInstance(x, y));
-        Marker marker = new Marker(latLng);
+        LatLng latLng = this.map.convertContainerPixelToLatLng(Point.newInstance(x, y));
+        MarkerOptions options = MarkerOptions.newInstance();
+        options.setDraggable(true);
+        if (data.size() > 0) {
+            options.setTitle(data.get(0).getName());
+        }
+        Marker marker = new Marker(latLng, options);
         map.addOverlay(marker);
         sensors.put(marker, data); // TODO
     }
@@ -105,6 +111,7 @@ public class EnvMap extends LayoutContainer {
         this.outline = outline;
         this.map.clearOverlays();
         this.map.addOverlay(outline);
+        layout();
     }
 
     public void setOutlineEnabled(boolean enabled) {
@@ -168,6 +175,8 @@ public class EnvMap extends LayoutContainer {
                 int x = e.getClientX() - map.getAbsoluteLeft();
                 int y = e.getClientY() - map.getAbsoluteTop();
                 onSensorsDropped(data, x, y);
+                Log.d(TAG, "Event: " + e.getClientX() + ", " + e.getClientY());
+                Log.d(TAG, "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
             }
         });
         dropTarget.setGroup("env-creator");

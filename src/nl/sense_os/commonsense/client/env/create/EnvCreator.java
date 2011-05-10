@@ -32,6 +32,7 @@ public class EnvCreator extends View {
 
         if (active.equals(this.mapPanel)) {
             if (this.mapPanel.isOutlineActive()) {
+                this.mapPanel.reset();
                 layout.setActiveItem(this.form);
 
             } else if (this.mapPanel.isDropperActive()) {
@@ -52,8 +53,8 @@ public class EnvCreator extends View {
         Component active = layout.getActiveItem();
 
         if (active.equals(this.form)) {
-            this.mapPanel.reset();
             layout.setActiveItem(this.mapPanel);
+            this.mapPanel.reset();
 
         } else if (active.equals(mapPanel)) {
             if (this.mapPanel.isOutlineActive()) {
@@ -107,11 +108,7 @@ public class EnvCreator extends View {
     }
 
     private void initForm() {
-        if (null == this.form) {
-            this.form = new EnvCreatorForm();
-        } else {
-            this.form.reset();
-        }
+        this.form = new EnvCreatorForm();
     }
 
     @Override
@@ -122,16 +119,18 @@ public class EnvCreator extends View {
         this.window.setHeading("Create new environment");
         this.window.setLayout(new CardLayout());
         this.window.setMinWidth(720);
-        this.window.setMinHeight(444);
+        this.window.setSize("85%", "750px");
+
+        initForm();
+        initMapPanel();
+
+        // do layout
+        this.window.add(this.form);
+        this.window.add(this.mapPanel);
     }
 
     private void initMapPanel() {
-
-        if (null == this.mapPanel) {
-            this.mapPanel = new EnvCreatorMapPanel();
-        } else {
-            this.mapPanel.reset();
-        }
+        this.mapPanel = new EnvCreatorMapPanel();
     }
 
     private void onCreateFailure() {
@@ -162,16 +161,8 @@ public class EnvCreator extends View {
     }
 
     private void resetPanel() {
-
-        this.window.removeAll();
-
-        initForm();
-        initMapPanel();
-
-        // do layout
-        this.window.add(this.form);
-        this.window.add(this.mapPanel);
-
+        this.form.reset();
+        this.mapPanel.reset();
         ((CardLayout) this.window.getLayout()).setActiveItem(this.form);
     }
 
@@ -183,6 +174,11 @@ public class EnvCreator extends View {
     }
 
     private void submit() {
-        fireEvent(EnvCreateEvents.CreateRequest);
+        AppEvent create = new AppEvent(EnvCreateEvents.CreateRequest);
+        create.setData("name", this.form.getName());
+        create.setData("floors", this.form.getFloors());
+        create.setData("sensors", this.mapPanel.getSensors());
+        create.setData("outline", this.mapPanel.getOutline());
+        fireEvent(create);
     }
 }

@@ -8,6 +8,8 @@ public class EnvCreateEvents {
     protected static final EventType CreateRequest = new EventType();
     public static final EventType CreateSuccess = new EventType();
     protected static final EventType CreateFailure = new EventType();
+    protected static final EventType CreateAjaxSuccess = new EventType();
+    protected static final EventType CreateAjaxFailure = new EventType();
 
     protected static final EventType Forward = new EventType();
     protected static final EventType Back = new EventType();

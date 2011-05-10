@@ -185,17 +185,13 @@ public class SensorLibrary extends View {
         this.panel.setHeading("Sensor library");
 
         // track whether the panel is expanded
-        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+        this.panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
-                EventType type = be.getType();
-                if (type.equals(Events.Expand)) {
-                    refreshLoader(false);
-                }
+                refreshLoader(false);
             }
-        };
-        this.panel.addListener(Events.Expand, collapseListener);
+        });
 
         initGrid();
         initFilter();
@@ -343,23 +339,23 @@ public class SensorLibrary extends View {
                     int group = Integer.parseInt(data.group);
                     String f = data.group;
                     switch (group) {
-                    case 0:
-                        f = "Feeds";
-                        break;
-                    case 1:
-                        f = "Physical";
-                        break;
-                    case 2:
-                        f = "States";
-                        break;
-                    case 3:
-                        f = "Environment sensors";
-                        break;
-                    case 4:
-                        f = "Public sensors";
-                        break;
-                    default:
-                        f = "Unsorted";
+                        case 0 :
+                            f = "Feeds";
+                            break;
+                        case 1 :
+                            f = "Physical";
+                            break;
+                        case 2 :
+                            f = "States";
+                            break;
+                        case 3 :
+                            f = "Environment sensors";
+                            break;
+                        case 4 :
+                            f = "Public sensors";
+                            break;
+                        default :
+                            f = "Unsorted";
                     }
                     String l = data.models.size() == 1 ? "Sensor" : "Sensors";
                     return f + " (" + data.models.size() + " " + l + ")";

@@ -1,8 +1,6 @@
 package nl.sense_os.commonsense.client.env.list;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
@@ -10,13 +8,15 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.EnvironmentModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.data.ListLoadConfig;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -31,7 +31,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -40,11 +40,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvGrid extends View {
@@ -52,28 +51,30 @@ public class EnvGrid extends View {
     protected static final String TAG = "EnvGrid";
     private Button createButton;
     private Button deleteButton;
-    private TreeGrid<TreeModel> grid;
-    private Button importButton;
+    private Grid<EnvironmentModel> grid;
     private ContentPanel panel;
-    private boolean isCollapsed;
-    private TreeStore<TreeModel> store;
-    private BaseTreeLoader<TreeModel> loader;
+    private ListStore<EnvironmentModel> store;
+    private ListLoader<ListLoadResult<EnvironmentModel>> loader;
+    private boolean isListDirty;
 
     public EnvGrid(Controller controller) {
         super(controller);
     }
 
-    protected void create() {
+    private void create() {
         Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
     }
 
-    protected void delete() {
-        Log.w(TAG, "Delete button logic not implemented");
+    private void delete() {
+        AppEvent delete = new AppEvent(EnvEvents.DeleteRequest);
+        delete.setData("environment", this.grid.getSelectionModel().getSelectedItem());
+        fireEvent(delete);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
+
         if (type.equals(MainEvents.Init)) {
             // do nothing, initialization is done in initialize()
 
@@ -82,17 +83,13 @@ public class EnvGrid extends View {
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(EnvEvents.ListNotUpdated)) {
-            Log.w(TAG, "ListNotUpdated");
-            onGroupsNotUpdated(event);
-
         } else if (type.equals(EnvEvents.ListUpdated)) {
-            Log.d(TAG, "TreeUpdated");
+            // Log.d(TAG, "ListUpdated");
             onListUpdated(event);
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
-            refreshLoader();
+            refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
             // Log.d(TAG, "LoggedOut");
@@ -102,64 +99,67 @@ public class EnvGrid extends View {
             // Log.d(TAG, "Working");
             setBusyIcon(true);
 
+        } else if (type.equals(EnvEvents.Done)) {
+            // Log.d(TAG, "Working");
+            setBusyIcon(false);
+
+        } else if (type.equals(EnvCreateEvents.CreateSuccess)
+                || type.equals(EnvEvents.DeleteSuccess)) {
+            // Log.d(TAG, "Done");
+            this.isListDirty = true;
+            refreshLoader(false);
+
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
     }
 
-    private void importEnvironment() {
-        Log.w(TAG, "Import button logic not implemented");
-    }
-
     private void initGrid() {
         // tree store
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        DataProxy proxy = new DataProxy() {
+        DataProxy<ListLoadResult<EnvironmentModel>> proxy = new DataProxy<ListLoadResult<EnvironmentModel>>() {
 
             @Override
-            public void load(DataReader reader, Object loadConfig, AsyncCallback callback) {
+            public void load(DataReader<ListLoadResult<EnvironmentModel>> reader,
+                    Object loadConfig, AsyncCallback<ListLoadResult<EnvironmentModel>> callback) {
                 // only load when the panel is not collapsed
-                if (false == isCollapsed) {
-                    if (null == loadConfig) {
-                        Dispatcher.forwardEvent(EnvEvents.ListRequested, callback);
-                    } else if (loadConfig instanceof TreeModel) {
-                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        callback.onSuccess(childrenModels);
+                if (EnvGrid.this.panel.isExpanded()) {
+                    if (loadConfig instanceof ListLoadConfig) {
+                        fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
                     } else {
-                        callback.onSuccess(new ArrayList<TreeModel>());
+                        Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                        callback.onFailure(null);
                     }
                 }
             }
         };
-        this.loader = new BaseTreeLoader<TreeModel>(proxy);
-        this.store = new TreeStore<TreeModel>(loader);
+        this.loader = new BaseListLoader<ListLoadResult<EnvironmentModel>>(proxy);
+        this.store = new ListStore<EnvironmentModel>(this.loader);
 
-        ColumnConfig email = new ColumnConfig("email", "Email", 100);
-        ColumnConfig name = new ColumnConfig("name", "Name", 100);
+        ColumnConfig name = new ColumnConfig(EnvironmentModel.NAME, "Name", 100);
+        ColumnConfig floors = new ColumnConfig(EnvironmentModel.FLOORS, "Floors", 100);
 
-        name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
+        ColumnModel cm = new ColumnModel(Arrays.asList(name, floors));
 
-        this.grid = new TreeGrid<TreeModel>(this.store, cm);
+        this.grid = new Grid<EnvironmentModel>(this.store, cm);
         this.grid.setId("buildingGrid");
         this.grid.setStateful(true);
+        this.grid.setLoadMask(true);
 
-        TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
+        GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+        selectionModel
+                .addSelectionChangedListener(new SelectionChangedListener<EnvironmentModel>() {
 
-            @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                TreeModel selection = se.getSelectedItem();
-                if (null != selection) {
-                    deleteButton.enable();
-                    importButton.enable();
-                } else {
-                    deleteButton.disable();
-                    importButton.disable();
-                }
-            }
-        });
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
+                        EnvironmentModel selection = se.getSelectedItem();
+                        if (null != selection) {
+                            EnvGrid.this.deleteButton.enable();
+                        } else {
+                            EnvGrid.this.deleteButton.disable();
+                        }
+                    }
+                });
         this.grid.setSelectionModel(selectionModel);
 
         // add grid to panel
@@ -172,7 +172,7 @@ public class EnvGrid extends View {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
-                loader.load();
+                refreshLoader(true);
             }
         });
 
@@ -188,21 +188,13 @@ public class EnvGrid extends View {
         this.panel.setHeading("Manage environments");
 
         // track whether the panel is expanded
-        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+        this.panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
-                EventType type = be.getType();
-                if (type.equals(Events.Expand)) {
-                    isCollapsed = false;
-                    refreshLoader();
-                } else if (type.equals(Events.Collapse)) {
-                    isCollapsed = true;
-                }
+                refreshLoader(false);
             }
-        };
-        panel.addListener(Events.Expand, collapseListener);
-        panel.addListener(Events.Collapse, collapseListener);
+        });
 
         initHeaderTool();
         initToolBar();
@@ -216,27 +208,23 @@ public class EnvGrid extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
-                if (source.equals(createButton)) {
+                if (source.equals(EnvGrid.this.createButton)) {
                     create();
-                } else if (source.equals(deleteButton)) {
+                } else if (source.equals(EnvGrid.this.deleteButton)) {
                     onDeleteClick();
-                } else if (source.equals(importButton)) {
-                    importEnvironment();
+                } else {
+                    Log.w(TAG, "Unexpected buttons pressed");
                 }
             }
         };
 
         this.createButton = new Button("Create", l);
 
-        this.importButton = new Button("Import", l);
-        this.importButton.disable();
-
         this.deleteButton = new Button("Remove", l);
         this.deleteButton.disable();
 
         // create tool bar
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(this.importButton);
         toolBar.add(this.createButton);
         toolBar.add(this.deleteButton);
 
@@ -258,28 +246,17 @@ public class EnvGrid extends View {
                 });
     }
 
-    private void onGroupsNotUpdated(AppEvent event) {
-        // Throwable caught = event.<Throwable> getData();
-        setBusyIcon(false);
-        this.store.removeAll();
-    }
-
     private void onListUpdated(AppEvent event) {
-        List<TreeModel> groups = event.<List<TreeModel>> getData();
-        setBusyIcon(false);
-        this.store.removeAll();
-        if (null != groups) {
-            this.store.add(groups, true);
-        }
+        this.isListDirty = false;
     }
 
     private void onLoggedOut(AppEvent event) {
         this.store.removeAll();
     }
 
-    protected void refreshLoader() {
-        if (this.store.getChildCount() == 0) {
-            loader.load();
+    private void refreshLoader(boolean force) {
+        if (force || (this.store.getCount() == 0 || this.isListDirty) && this.panel.isExpanded()) {
+            this.loader.load();
         }
     }
 
