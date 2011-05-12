@@ -21,7 +21,7 @@ public class SensorConverter {
         HashMap<String, Object> properties = new HashMap<String, Object>();
         properties.put(SensorModel.ID, json.getString(SensorModel.ID));
         properties.put(SensorModel.PAGER_TYPE, json.getString(SensorModel.PAGER_TYPE));
-        properties.put(SensorModel.DEVICE_TYPE, json.getString(SensorModel.DEVICE_TYPE));
+        properties.put(SensorModel.PHYSICAL_SENSOR, json.getString(SensorModel.PHYSICAL_SENSOR));
         properties.put(SensorModel.NAME, json.getString(SensorModel.NAME));
         properties.put(SensorModel.TYPE, json.getString(SensorModel.TYPE));
         properties.put(SensorModel.DATA_TYPE, json.optString(SensorModel.DATA_TYPE));
@@ -39,7 +39,7 @@ public class SensorConverter {
         // front end-only properties
         properties.put("tagType", TagModel.TYPE_SENSOR);
         String name = (String) properties.get(SensorModel.NAME);
-        String deviceType = (String) properties.get(SensorModel.DEVICE_TYPE);
+        String deviceType = (String) properties.get(SensorModel.PHYSICAL_SENSOR);
         if (name.equals(deviceType) || "".equals(deviceType)) {
             properties.put("text", name);
         } else {

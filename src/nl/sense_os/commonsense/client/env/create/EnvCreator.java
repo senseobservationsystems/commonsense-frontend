@@ -119,7 +119,7 @@ public class EnvCreator extends View {
         this.window.setHeading("Create new environment");
         this.window.setLayout(new CardLayout());
         this.window.setMinWidth(720);
-        this.window.setSize("85%", "750px");
+        this.window.setSize("85%", "600px");
 
         initForm();
         initMapPanel();

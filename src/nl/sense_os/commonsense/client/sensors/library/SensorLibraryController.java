@@ -7,17 +7,21 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
 import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
+import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
+import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.DeviceModel;
+import nl.sense_os.commonsense.shared.EnvironmentModel;
 import nl.sense_os.commonsense.shared.GroupModel;
 import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -42,46 +46,19 @@ public class SensorLibraryController extends Controller {
 
         registerEventTypes(SensorLibraryEvents.ShowLibrary, SensorLibraryEvents.ListRequested,
                 SensorLibraryEvents.ListUpdated, SensorLibraryEvents.FullDetailsAjaxSuccess,
-                SensorLibraryEvents.FullDetailsAjaxFailure, SensorLibraryEvents.ListPhysicalAjaxSuccess,
-                SensorLibraryEvents.ListPhysicalAjaxFailure);
+                SensorLibraryEvents.FullDetailsAjaxFailure);
         registerEventTypes(SensorLibraryEvents.AjaxGroupsSuccess,
                 SensorLibraryEvents.AjaxGroupsFailure);
-        registerEventTypes(SensorLibraryEvents.AjaxUnownedSuccess,
-                SensorLibraryEvents.AjaxUnownedFailure);
-        registerEventTypes(SensorLibraryEvents.AjaxOwnedSuccess,
-                SensorLibraryEvents.AjaxOwnedFailure);
-        registerEventTypes(SensorLibraryEvents.AjaxDirectSharesSuccess,
-                SensorLibraryEvents.AjaxDirectSharesFailure);
+        registerEventTypes(SensorLibraryEvents.GroupSensorsAjaxSuccess,
+                SensorLibraryEvents.GroupSensorsAjaxFailure);
 
         // external events
         registerEventTypes(SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
         registerEventTypes(SensorShareEvents.ShareComplete, SensorShareEvents.ShareFailed,
                 SensorShareEvents.ShareCancelled);
         registerEventTypes(StateCreateEvents.CreateServiceComplete, StateEvents.RemoveComplete,
-                StateEvents.CheckDefaultsSuccess);
-    }
-
-    private void getDirectShares(List<SensorModel> sensors,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        // prepare request properties
-        final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=1000&owned=0";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(SensorLibraryEvents.AjaxDirectSharesSuccess);
-        onSuccess.setData("sensors", sensors);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(SensorLibraryEvents.AjaxDirectSharesFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
+                StateDefaultsEvents.CheckDefaultsSuccess);
+        registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
     }
 
     private void getFullDetails(List<SensorModel> sensors, int page,
@@ -142,7 +119,43 @@ public class SensorLibraryController extends Controller {
             for (GroupModel group : groups) {
                 copy.add(new GroupModel(group.getProperties()));
             }
-            getUnowned(copy, 0, sensors, callback);
+            getGroupSensors(copy, 0, sensors, callback);
+        }
+    }
+
+    private void getGroupSensors(List<GroupModel> groups, int index, List<SensorModel> sensors,
+            AsyncCallback<ListLoadResult<SensorModel>> callback) {
+
+        if (index < groups.size()) {
+
+            String groupId = groups.get(index).getId();
+
+            // prepare request properties
+            final String method = "GET";
+            final String url = Constants.URL_SENSORS + "?per_page=1000&details=full&alias="
+                    + groupId;
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(SensorLibraryEvents.GroupSensorsAjaxSuccess);
+            onSuccess.setData("groups", groups);
+            onSuccess.setData("index", index);
+            onSuccess.setData("sensors", sensors);
+            onSuccess.setData("callback", callback);
+            final AppEvent onFailure = new AppEvent(SensorLibraryEvents.GroupSensorsAjaxFailure);
+            onFailure.setData("callback", callback);
+
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+
+            Dispatcher.forwardEvent(ajaxRequest);
+
+        } else {
+            // hooray we're done!
+            onListComplete(sensors, callback);
         }
     }
 
@@ -152,100 +165,6 @@ public class SensorLibraryController extends Controller {
         forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Working));
 
         getFullDetails(sensors, 0, callback);
-    }
-
-    private void getOwned(List<GroupModel> groups, int index, List<SensorModel> sensors,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        if (index < groups.size()) {
-
-            String groupId = groups.get(index).get(GroupModel.ID);
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Constants.URL_SENSORS + "?per_page=1000&owned=1&alias=" + groupId;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(SensorLibraryEvents.AjaxOwnedSuccess);
-            onSuccess.setData("groups", groups);
-            onSuccess.setData("index", index);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("callback", callback);
-            final AppEvent onFailure = new AppEvent(SensorLibraryEvents.AjaxOwnedFailure);
-            onFailure.setData("callback", callback);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-        } else {
-            getDirectShares(sensors, callback);
-        }
-    }
-
-    private void getPhysical(List<SensorModel> sensors, List<SensorModel> physical, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Working));
-
-        // prepare request properties
-        final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&physical=1&owned=1";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(SensorLibraryEvents.ListPhysicalAjaxSuccess);
-        onSuccess.setData("sensors", sensors);
-        onSuccess.setData("physical", physical);
-        onSuccess.setData("page", page);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(SensorLibraryEvents.ListPhysicalAjaxFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void getUnowned(List<GroupModel> groups, int index, List<SensorModel> sensors,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        if (index < groups.size()) {
-
-            String groupId = groups.get(index).get(GroupModel.ID);
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Constants.URL_SENSORS + "?per_page=1000&owned=0&alias=" + groupId;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(SensorLibraryEvents.AjaxUnownedSuccess);
-            onSuccess.setData("groups", groups);
-            onSuccess.setData("index", index);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("callback", callback);
-            final AppEvent onFailure = new AppEvent(SensorLibraryEvents.AjaxUnownedFailure);
-            onFailure.setData("callback", callback);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-        } else {
-            // continue the list by getting the sensors that are shared directly with me
-            getOwned(groups, 0, sensors, callback);
-        }
     }
 
     @Override
@@ -271,20 +190,6 @@ public class SensorLibraryController extends Controller {
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
             onFullDetailsFailure(callback);
 
-        } else if (type.equals(SensorLibraryEvents.ListPhysicalAjaxSuccess)) {
-            // Log.d(TAG, "ListPhysicalAjaxSuccess");
-            final String response = event.getData("response");
-            final List<SensorModel> sensors = event.getData("sensors");
-            final List<SensorModel> physical = event.getData("physical");
-            final int page = event.getData("page");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
-            onPhysicalSuccess(response, sensors, physical, page, callback);
-
-        } else if (type.equals(SensorLibraryEvents.ListPhysicalAjaxFailure)) {
-            Log.w(TAG, "ListPhysicalAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
-            onPhysicalFailure(callback);
-
         } else
 
         /*
@@ -304,51 +209,21 @@ public class SensorLibraryController extends Controller {
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
             onGroupsFailure(callback);
 
-        } else if (type.equals(SensorLibraryEvents.AjaxUnownedSuccess)) {
-            // Log.d(TAG, "AjaxUnownedSuccess");
+        } else if (type.equals(SensorLibraryEvents.GroupSensorsAjaxSuccess)) {
+            // Log.d(TAG, "GroupSensorsAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
             final int index = event.getData("index");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onUnownedSuccess(response, groups, index, sensors, callback);
+            onGroupSensorsSuccess(response, groups, index, sensors, callback);
 
-        } else if (type.equals(SensorLibraryEvents.AjaxUnownedFailure)) {
-            Log.w(TAG, "AjaxUnownedFailure");
+        } else if (type.equals(SensorLibraryEvents.GroupSensorsAjaxFailure)) {
+            Log.w(TAG, "GroupSensorsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onUnownedFailure(callback);
-
-        } else if (type.equals(SensorLibraryEvents.AjaxOwnedSuccess)) {
-            // Log.d(TAG, "AjaxOwnedSuccess");
-            final String response = event.<String> getData("response");
-            final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
-            final int index = event.getData("index");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onOwnedSuccess(response, groups, index, sensors, callback);
-
-        } else if (type.equals(SensorLibraryEvents.AjaxOwnedFailure)) {
-            Log.w(TAG, "AjaxOwnedFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onOwnedFailure(callback);
-
-        } else if (type.equals(SensorLibraryEvents.AjaxDirectSharesSuccess)) {
-            // Log.d(TAG, "AjaxDirectSharesSuccess");
-            final String response = event.<String> getData("response");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onDirectSharesSuccess(response, sensors, callback);
-
-        } else if (type.equals(SensorLibraryEvents.AjaxDirectSharesFailure)) {
-            Log.w(TAG, "AjaxDirectSharesFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onDirectSharesFailure(callback);
+            onGroupSensorsFailure(callback);
 
         } else
 
@@ -367,39 +242,8 @@ public class SensorLibraryController extends Controller {
         this.grid = new SensorLibrary(this);
     }
 
-    private void onDirectSharesFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
-        forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Done));
-
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
-    private void onDirectSharesSuccess(String response, List<SensorModel> sensors,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        // parse the sensors
-        SensorParser.parseSensors(response, sensors);
-
-        /*
-         * Map<String, UserModel> owners = new HashMap<String, UserModel>(); for (SensorModel sensor
-         * : sensors) { // get the user that owns the sensors UserModel owner = sensor.getOwner();
-         * if (null != owners.get(owner.getId())) { owner = owners.get(owner.getId()); }
-         * owner.add(sensor); owners.put(owner.getId(), owner); }
-         * 
-         * // add the owners to the list of group sensors ArrayList<TreeModel> list = new
-         * ArrayList<TreeModel>(groups); list.addAll(owners.values());
-         */
-
-        // aaaand we're done
-        onListComplete(sensors, callback);
-    }
-
     private void onFullDetailsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        forwardToView(grid, new AppEvent(SensorLibraryEvents.Done));
-        if (null != callback) {
-            callback.onFailure(null);
-        }
+        onListFailure(callback);
     }
 
     private void onFullDetailsSuccess(String response, List<SensorModel> sensors, int page,
@@ -407,107 +251,72 @@ public class SensorLibraryController extends Controller {
 
         int total = SensorParser.parseSensors(response, sensors);
         if (total > sensors.size()) {
+            // get the next page with sensors
             page++;
             getFullDetails(sensors, page, callback);
+
         } else {
-            onListComplete(sensors, callback);
-            // UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-            // for (SensorModel sensor : sensors) {
-            // sensor.set(SensorModel.OWNER, user);
-            // }
-            // List<SensorModel> physical = new ArrayList<SensorModel>();
-            // getListPhysical(sensors, physical, 0, callback);
+            // get the group IDs to get the group sensors
+            getGroups(sensors, callback);
         }
     }
 
-    private void onGroupsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
-        forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Done));
+    private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        onListFailure(callback);
+    }
 
-        if (null != callback) {
-            callback.onFailure(null);
+    private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
+            List<SensorModel> sensors, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+
+        // parse group sensors
+        List<SensorModel> groupSensors = new ArrayList<SensorModel>();
+        SensorParser.parseSensors(response, groupSensors);
+
+        GroupModel group = groups.get(index);
+        for (SensorModel groupSensor : groupSensors) {
+            if (!sensors.contains(groupSensor)) {
+                // set "alias" property
+                groupSensor.set("alias", group.getId());
+                sensors.add(groupSensor);
+            } else {
+                Log.d(TAG, "Skipping duplicate group sensor: " + groupSensor);
+            }
         }
+
+        // next group
+        index++;
+        getGroupSensors(groups, index, sensors, callback);
+    }
+
+    private void onGroupsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        onListFailure(callback);
     }
 
     private void onGroupsSuccess(String response, List<SensorModel> sensors,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
         List<GroupModel> groups = GroupParser.parseGroups(response);
-        getUnowned(groups, 0, sensors, callback);
+        getGroupSensors(groups, 0, sensors, callback);
     }
 
     private void onListComplete(List<SensorModel> sensors,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        Registry.register(Constants.REG_SENSOR_LIST, sensors);
+        Registry.register(Constants.REG_DEVICE_LIST, getDevices(sensors));
+        Registry.register(Constants.REG_ENVIRONMENT_LIST, getEnvironments(sensors));
+
+        forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Done));
+        Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
+
         if (null != callback) {
             callback.onSuccess(new BaseListLoadResult<SensorModel>(sensors));
         }
-        Registry.register(Constants.REG_MY_SENSORS_LIST, sensors);
-        forwardToView(grid, new AppEvent(SensorLibraryEvents.Done));
-        Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
     }
 
-    private void onOwnedFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
-        forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Done));
+    private void onListFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        Registry.unregister(Constants.REG_SENSOR_LIST);
+        Registry.unregister(Constants.REG_DEVICE_LIST);
+        Registry.unregister(Constants.REG_ENVIRONMENT_LIST);
 
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
-    private void onOwnedSuccess(String response, List<GroupModel> groups, int index,
-            List<SensorModel> sensors, AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        SensorParser.parseSensors(response, sensors);
-
-        /*
-         * // add the sensors to the group for (SensorModel sensor : sensors) { String alias =
-         * groups.get(index).get(GroupModel.ID); sensor.set("alias", alias);
-         * groups.get(index).add(sensor); }
-         */
-
-        index++;
-        getOwned(groups, index, sensors, callback);
-    }
-
-    private void onPhysicalFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        forwardToView(grid, new AppEvent(SensorLibraryEvents.Done));
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
-
-    private void onPhysicalSuccess(String response, List<SensorModel> sensors,
-            List<SensorModel> physical, int page,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        // parse physical sensors
-        int total = SensorParser.parseSensors(response, physical);
-
-        if (total > physical.size()) {
-            page++;
-            getPhysical(sensors, physical, page, callback);
-
-        } else {
-
-            // set owner of physical sensors
-            UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-            for (SensorModel sensor : physical) {
-                sensor.set(SensorModel.OWNER, user);
-            }
-
-            List<SensorModel> complete = new ArrayList<SensorModel>(physical);
-            for (SensorModel sensor : sensors) {
-                if (!sensor.getType().equals("1")) {
-                    complete.add(sensor);
-                }
-            }
-
-            // continue with group sensors
-            getGroups(complete, callback);
-        }
-    }
-
-    private void onUnownedFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
         Dispatcher.forwardEvent(SensorLibraryEvents.ListUpdated);
         forwardToView(this.grid, new AppEvent(SensorLibraryEvents.Done));
 
@@ -516,30 +325,33 @@ public class SensorLibraryController extends Controller {
         }
     }
 
-    private void onUnownedSuccess(String response, List<GroupModel> groups, int index,
-            List<SensorModel> sensors, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+    private List<DeviceModel> getDevices(List<SensorModel> sensors) {
+        List<DeviceModel> devices = new ArrayList<DeviceModel>();
 
-        SensorParser.parseSensors(response, sensors);
+        // gather the devices of all sensors in the library
+        DeviceModel device;
+        for (SensorModel sensor : sensors) {
+            device = sensor.getDevice();
+            if (device != null && !devices.contains(device)) {
+                devices.add(device);
+            }
+        }
 
-        /*
-         * // sort the sensors according to the group members that own them Map<String, UserModel>
-         * memberMap = new HashMap<String, UserModel>(); for (SensorModel sensor : sensors) { // set
-         * the sensor's alias (for fetching data String alias =
-         * groups.get(index).get(GroupModel.ID); sensor.set("alias", alias);
-         * 
-         * // get the sensor's owner UserModel owner = sensor.<UserModel> get(SensorModel.OWNER);
-         * 
-         * // get owner from list of group members UserModel member =
-         * memberMap.get(owner.get(UserModel.ID)); if (null == member) { member = owner; }
-         * 
-         * // update list of group members member.add(sensor); memberMap.put(member.<String>
-         * get(UserModel.ID), member); }
-         * 
-         * // add the members with their sensors to the group for (UserModel member :
-         * memberMap.values()) { groups.get(index).add(member); }
-         */
+        return devices;
+    }
 
-        index++;
-        getUnowned(groups, index, sensors, callback);
+    private List<EnvironmentModel> getEnvironments(List<SensorModel> sensors) {
+        List<EnvironmentModel> environments = new ArrayList<EnvironmentModel>();
+
+        // gather the devices of all sensors in the library
+        EnvironmentModel environment;
+        for (SensorModel sensor : sensors) {
+            environment = sensor.getEnvironment();
+            if (environment != null && !environments.contains(environment)) {
+                environments.add(environment);
+            }
+        }
+
+        return environments;
     }
 }

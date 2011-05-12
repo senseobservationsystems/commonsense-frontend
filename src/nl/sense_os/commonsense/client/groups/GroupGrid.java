@@ -143,7 +143,7 @@ public class GroupGrid extends View {
         };
         this.loader = new BaseTreeLoader<TreeModel>(proxy);
         this.store = new TreeStore<TreeModel>(this.loader);
-        this.store.setKeyProvider(new SensorKeyProvider());
+        this.store.setKeyProvider(new SensorKeyProvider<TreeModel>());
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         ColumnConfig email = new ColumnConfig("email", "Email", 100);

@@ -14,6 +14,8 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.GroupingStore;
@@ -180,23 +182,23 @@ public class EnvCreatorMapPanel extends ContentPanel {
                     int group = Integer.parseInt(data.group);
                     String f = data.group;
                     switch (group) {
-                    case 0:
-                        f = "Feeds";
-                        break;
-                    case 1:
-                        f = "Physical";
-                        break;
-                    case 2:
-                        f = "States";
-                        break;
-                    case 3:
-                        f = "Environment sensors";
-                        break;
-                    case 4:
-                        f = "Public sensors";
-                        break;
-                    default:
-                        f = "Unsorted";
+                        case 0 :
+                            f = "Feeds";
+                            break;
+                        case 1 :
+                            f = "Physical";
+                            break;
+                        case 2 :
+                            f = "States";
+                            break;
+                        case 3 :
+                            f = "Environment sensors";
+                            break;
+                        case 4 :
+                            f = "Public sensors";
+                            break;
+                        default :
+                            f = "Unsorted";
                     }
                     String l = data.models.size() == 1 ? "Sensor" : "Sensors";
                     return f + " (" + data.models.size() + " " + l + ")";
@@ -216,6 +218,31 @@ public class EnvCreatorMapPanel extends ContentPanel {
         this.grid.setStateful(true);
         this.grid.setLoadMask(true);
         this.grid.setId("envSensorsGrid");
+
+        this.grid.getSelectionModel().addSelectionChangedListener(
+                new SelectionChangedListener<SensorModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
+                        SensorModel selected = se.getSelectedItem();
+                        if (selected != null && selected.getDevice() != null) {
+
+                            // select all other sensors from this device
+                            grid.getSelectionModel().setFiresEvents(false);
+                            grid.getSelectionModel().deselectAll();
+                            List<SensorModel> sensors = store.getModels();
+                            for (SensorModel sensor : sensors) {
+                                if (sensor.getDevice() != null) {
+                                    if (sensor.getDevice().getId()
+                                            .equals(selected.getDevice().getId())) {
+                                        grid.getSelectionModel().select(true, sensor);
+                                    }
+                                }
+                            }
+                            grid.getSelectionModel().setFiresEvents(true);
+                        }
+                    }
+                });
     }
 
     private void initMap() {
@@ -235,7 +262,7 @@ public class EnvCreatorMapPanel extends ContentPanel {
 
     public void reset() {
 
-        List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_MY_SENSORS_LIST);
+        List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
         this.store.removeAll();
         this.store.add(sensors);
 

@@ -107,4 +107,13 @@ public class UserModel extends BaseTreeModel {
     public String toString() {
         return get("text", "User #" + getId());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UserModel) {
+            return this.getId().equals(((UserModel) obj).getId());
+        } else {
+            return super.equals(obj);
+        }
+    }
 }

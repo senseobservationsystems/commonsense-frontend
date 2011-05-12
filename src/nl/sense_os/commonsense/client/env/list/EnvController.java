@@ -88,12 +88,12 @@ public class EnvController extends Controller {
         } else
 
         if (type.equals(EnvEvents.DeleteRequest)) {
-            Log.d(TAG, "DeleteRequest");
+            // Log.d(TAG, "DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            Log.d(TAG, "DeleteAjaxSuccess");
+            // Log.d(TAG, "DeleteAjaxSuccess");
             // final String response = event.getData("response");
             onDeleteSuccess();
 

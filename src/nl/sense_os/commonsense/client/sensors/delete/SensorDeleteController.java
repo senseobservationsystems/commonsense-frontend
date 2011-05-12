@@ -69,40 +69,6 @@ public class SensorDeleteController extends Controller {
         }
     }
 
-    /**
-     * Handles a successful delete request. Removes the deleted sensor from the list, and calls back
-     * to {@link #delete(List, int)}.
-     * 
-     * @param sensors
-     *            List of sensors that have to be deleted.
-     */
-    private void deleteCallback(List<SensorModel> sensors, int index) {
-        // continue with the rest of the list
-        index++;
-        delete(sensors, index, 0);
-    }
-
-    /**
-     * Handles a failed delete request. Retries the request up to three times, after this it gives
-     * up and dispatches {@link SensorsEvents#DeleteFailure}.
-     * 
-     * @param sensors
-     *            List of sensors that have to be deleted.
-     * @param retryCount
-     *            Number of times this request was attempted.
-     */
-    private void deleteFailure(List<SensorModel> sensors, int index, int retryCount) {
-
-        if (retryCount < 3) {
-            // retry
-            retryCount++;
-            delete(sensors, index, retryCount);
-        } else {
-            // give up
-            Dispatcher.forwardEvent(SensorDeleteEvents.DeleteFailure);
-        }
-    }
-
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -116,7 +82,7 @@ public class SensorDeleteController extends Controller {
             // Log.d(TAG, "AjaxDeleteSuccess");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.<Integer> getData("index");
-            deleteCallback(sensors, index);
+            onDeleteSuccess(sensors, index);
 
         } else if (type.equals(SensorDeleteEvents.DeleteAjaxFailure)) {
             Log.w(TAG, "AjaxDeleteFailure");
@@ -124,7 +90,7 @@ public class SensorDeleteController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.<Integer> getData("index");
             final int retryCount = event.<Integer> getData("retry");
-            deleteFailure(sensors, index, retryCount);
+            onDeleteFailure(sensors, index, retryCount);
 
         } else
 
@@ -140,6 +106,40 @@ public class SensorDeleteController extends Controller {
     protected void initialize() {
         super.initialize();
         this.deleteDialog = new SensorDeleteDialog(this);
+    }
+
+    /**
+     * Handles a failed delete request. Retries the request up to three times, after this it gives
+     * up and dispatches {@link SensorsEvents#DeleteFailure}.
+     * 
+     * @param sensors
+     *            List of sensors that have to be deleted.
+     * @param retryCount
+     *            Number of times this request was attempted.
+     */
+    private void onDeleteFailure(List<SensorModel> sensors, int index, int retryCount) {
+
+        if (retryCount < 3) {
+            // retry
+            retryCount++;
+            delete(sensors, index, retryCount);
+        } else {
+            // give up
+            Dispatcher.forwardEvent(SensorDeleteEvents.DeleteFailure);
+        }
+    }
+
+    /**
+     * Handles a successful delete request. Removes the deleted sensor from the list, and calls back
+     * to {@link #delete(List, int)}.
+     * 
+     * @param sensors
+     *            List of sensors that have to be deleted.
+     */
+    private void onDeleteSuccess(List<SensorModel> sensors, int index) {
+        // continue with the rest of the list
+        index++;
+        delete(sensors, index, 0);
     }
 
 }

@@ -40,4 +40,13 @@ public class DeviceModel extends BaseTreeModel {
     public String toString() {
         return get("text", "Device #" + getId());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof DeviceModel) {
+            return this.getId().equals(((DeviceModel) obj).getId());
+        } else {
+            return super.equals(obj);
+        }
+    }
 }

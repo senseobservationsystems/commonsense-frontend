@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.dnd.DND.Operation;
@@ -28,6 +27,7 @@ import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvMap extends LayoutContainer {
 
+    @SuppressWarnings("unused")
     private static final String TAG = "EnvMap";
     private MapWidget map;
     private Map<Marker, List<SensorModel>> sensors;
@@ -74,17 +74,21 @@ public class EnvMap extends LayoutContainer {
     }
 
     private void onSensorsDropped(List<SensorModel> data, int x, int y) {
-        Log.d(TAG, "onSensorsDropped");
+        // Log.d(TAG, "onSensorsDropped");
 
         LatLng latLng = this.map.convertContainerPixelToLatLng(Point.newInstance(x, y));
         MarkerOptions options = MarkerOptions.newInstance();
         options.setDraggable(true);
-        if (data.size() > 0) {
-            options.setTitle(data.get(0).getName());
+
+        String title = "";
+        for (SensorModel sensor : data) {
+            title += sensor.getName() + "; ";
         }
+        options.setTitle(title);
+
         Marker marker = new Marker(latLng, options);
         map.addOverlay(marker);
-        sensors.put(marker, data); // TODO
+        sensors.put(marker, data); // TODO catch overlapping drops
     }
 
     public void resetOutline() {
@@ -166,7 +170,7 @@ public class EnvMap extends LayoutContainer {
         this.sensors = new HashMap<Marker, List<SensorModel>>();
 
         final DropTarget dropTarget = new DropTarget(this);
-        dropTarget.setOperation(Operation.COPY);
+        dropTarget.setOperation(Operation.MOVE);
         dropTarget.addDNDListener(new DNDListener() {
 
             @Override
@@ -175,8 +179,8 @@ public class EnvMap extends LayoutContainer {
                 int x = e.getClientX() - map.getAbsoluteLeft();
                 int y = e.getClientY() - map.getAbsoluteTop();
                 onSensorsDropped(data, x, y);
-                Log.d(TAG, "Event: " + e.getClientX() + ", " + e.getClientY());
-                Log.d(TAG, "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
+                // Log.d(TAG, "Event: " + e.getClientX() + ", " + e.getClientY());
+                // Log.d(TAG, "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
             }
         });
         dropTarget.setGroup("env-creator");

@@ -23,6 +23,7 @@ import nl.sense_os.commonsense.client.services.SensorsProxy;
 import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.states.connect.StateConnectController;
 import nl.sense_os.commonsense.client.states.create.StateCreateController;
+import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
 import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateController;
@@ -53,7 +54,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Wed May 4 15:22";
+    public static final String LAST_DEPLOYED = "Thu May 12 15:09";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -105,6 +106,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new StateController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());
+        dispatcher.addController(new StateDefaultsController());
         dispatcher.addController(new StateEditController());
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new EnvController());
@@ -117,10 +119,10 @@ public class CommonSense implements EntryPoint {
 
         GXT.hideLoadingPanel("loading");
     }
-
     /**
      * Logs in automatically as steven@sense-os.nl.
      */
+    @SuppressWarnings("unused")
     private void quickLogin() {
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
         login.setData("username", "steven@sense-os.nl");

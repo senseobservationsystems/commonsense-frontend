@@ -14,15 +14,8 @@ public class SensorLibraryEvents {
     public static final EventType ListUpdated = new EventType();
     protected static final EventType FullDetailsAjaxFailure = new EventType();
     protected static final EventType FullDetailsAjaxSuccess = new EventType();
-    protected static final EventType ListPhysicalAjaxFailure = new EventType();
-    protected static final EventType ListPhysicalAjaxSuccess = new EventType();
-
     protected static final EventType AjaxGroupsSuccess = new EventType();
     protected static final EventType AjaxGroupsFailure = new EventType();
-    protected static final EventType AjaxUnownedSuccess = new EventType();
-    protected static final EventType AjaxUnownedFailure = new EventType();
-    protected static final EventType AjaxOwnedSuccess = new EventType();
-    protected static final EventType AjaxOwnedFailure = new EventType();
-    protected static final EventType AjaxDirectSharesSuccess = new EventType();
-    protected static final EventType AjaxDirectSharesFailure = new EventType();
+    protected static final EventType GroupSensorsAjaxSuccess = new EventType();
+    protected static final EventType GroupSensorsAjaxFailure = new EventType();
 }

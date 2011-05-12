@@ -10,6 +10,7 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -43,7 +44,8 @@ public class StateController extends Controller {
 
         // external triggers to initiate a list update
         registerEventTypes(StateCreateEvents.CreateServiceComplete,
-                StateConnectEvents.ConnectSuccess, SensorDeleteEvents.DeleteSuccess);
+                StateConnectEvents.ConnectSuccess, SensorDeleteEvents.DeleteSuccess,
+                StateDefaultsEvents.CheckDefaultsSuccess);
 
         // events to update the list of groups
         registerEventTypes(StateEvents.ListRequested, StateEvents.AjaxSensorsSuccess,
@@ -53,37 +55,6 @@ public class StateController extends Controller {
 
         registerEventTypes(StateEvents.RemoveRequested, StateEvents.AjaxDisconnectFailure,
                 StateEvents.AjaxDisconnectSuccess, StateEvents.RemoveComplete);
-
-        // check default states events
-        registerEventTypes(StateEvents.CheckDefaults, StateEvents.AjaxDefaultsSuccess,
-                StateEvents.AjaxDefaultsFailure, StateEvents.CheckDefaultsSuccess);
-    }
-
-    private void checkDefaults() {
-        // prepare request properties
-        final String method = "GET";
-        final String url = Constants.URL_STATES + "/default/check";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateEvents.AjaxDefaultsSuccess);
-        final AppEvent onFailure = new AppEvent(StateEvents.AjaxDefaultsFailure);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void checkDefaultsCallback(String response) {
-        Dispatcher.forwardEvent(StateEvents.CheckDefaultsSuccess);
-    }
-
-    private void checkDefaultsFailure() {
-        forwardToView(this.tree, new AppEvent(StateEvents.CheckDefaultsFailure));
     }
 
     private void disconnectService(TreeModel sensor, TreeModel service) {
@@ -115,7 +86,7 @@ public class StateController extends Controller {
     }
 
     private void getConnected(List<SensorModel> states, int index,
-            AsyncCallback<List<TreeModel>> callback) {
+            AsyncCallback<List<SensorModel>> callback) {
 
         if (index < states.size()) {
             String stateId = states.get(index).getId();
@@ -146,8 +117,8 @@ public class StateController extends Controller {
         }
     }
 
-    private void getConnectedCallback(String response, List<SensorModel> states, int index,
-            AsyncCallback<List<TreeModel>> callback) {
+    private void onConnectedSuccess(String response, List<SensorModel> states, int index,
+            AsyncCallback<List<SensorModel>> callback) {
         List<SensorModel> sensors = new ArrayList<SensorModel>();
         SensorParser.parseSensors(response, sensors);
 
@@ -158,14 +129,14 @@ public class StateController extends Controller {
         getConnected(states, index, callback);
     }
 
-    private void getConnectedFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void onConnectedFailure(AsyncCallback<List<SensorModel>> callback) {
         forwardToView(this.tree, new AppEvent(StateEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
     }
 
-    private void getMyServices(final AsyncCallback<List<TreeModel>> callback) {
+    private void getMyServices(final AsyncCallback<List<SensorModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(StateEvents.Working));
 
@@ -189,7 +160,7 @@ public class StateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void getMyServicesCallback(String response, AsyncCallback<List<TreeModel>> callback) {
+    private void onMyServicesSuccess(String response, AsyncCallback<List<SensorModel>> callback) {
         List<SensorModel> sensors = new ArrayList<SensorModel>();
         SensorParser.parseSensors(response, sensors);
 
@@ -203,7 +174,7 @@ public class StateController extends Controller {
         getConnected(states, 0, callback);
     }
 
-    private void getMyServicesFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void onMyServicesFailure(AsyncCallback<List<SensorModel>> callback) {
         forwardToView(this.tree, new AppEvent(StateEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
@@ -211,7 +182,7 @@ public class StateController extends Controller {
     }
 
     private void getServiceMethods(List<SensorModel> states, int index,
-            AsyncCallback<List<TreeModel>> callback) {
+            AsyncCallback<List<SensorModel>> callback) {
 
         if (index < states.size()) {
             SensorModel service = states.get(index);
@@ -241,7 +212,7 @@ public class StateController extends Controller {
                 Dispatcher.forwardEvent(ajaxRequest);
             } else {
                 Log.w(TAG, "State child is not a SensorModel: " + child);
-                getServiceMethodsFailure(callback);
+                onServiceMethodsFailure(callback);
             }
 
         } else {
@@ -250,13 +221,13 @@ public class StateController extends Controller {
 
             forwardToView(this.tree, new AppEvent(StateEvents.Done));
             if (null != callback) {
-                callback.onSuccess(new ArrayList<TreeModel>(states));
+                callback.onSuccess(states);
             }
         }
     }
 
-    private void getServiceMethodsCallback(String response, List<SensorModel> states, int index,
-            AsyncCallback<List<TreeModel>> callback) {
+    private void onServiceMethodsSuccess(String response, List<SensorModel> states, int index,
+            AsyncCallback<List<SensorModel>> callback) {
         List<ModelData> methods = parseServiceMethods(response);
         if (null != methods) {
             SensorModel state = states.get(index);
@@ -264,11 +235,11 @@ public class StateController extends Controller {
             index++;
             getServiceMethods(states, index, callback);
         } else {
-            getServiceMethodsFailure(callback);
+            onServiceMethodsFailure(callback);
         }
     }
 
-    private void getServiceMethodsFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void onServiceMethodsFailure(AsyncCallback<List<SensorModel>> callback) {
         forwardToView(this.tree, new AppEvent(StateEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
@@ -283,38 +254,38 @@ public class StateController extends Controller {
          * Get list of state and connected sensors
          */
         if (type.equals(StateEvents.ListRequested)) {
-            // Log.d(TAG, "TreeRequested");
-            AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData();
+            Log.d(TAG, "TreeRequested");
+            AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData();
             getMyServices(callback);
 
         } else if (type.equals(StateEvents.AjaxSensorsSuccess)) {
             // Log.d(TAG, "AjaxSensorsSuccess");
             final String response = event.<String> getData("response");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getMyServicesCallback(response, callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onMyServicesSuccess(response, callback);
 
         } else if (type.equals(StateEvents.AjaxSensorsFailure)) {
             Log.w(TAG, "AjaxSensorsFailure");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getMyServicesFailure(callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onMyServicesFailure(callback);
 
         } else if (type.equals(StateEvents.AjaxConnectedSuccess)) {
             // Log.d(TAG, "AjaxConnectedSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> states = event.<List<SensorModel>> getData("states");
             final int index = event.getData("index");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getConnectedCallback(response, states, index, callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onConnectedSuccess(response, states, index, callback);
 
         } else if (type.equals(StateEvents.AjaxConnectedFailure)) {
             Log.w(TAG, "AjaxConnectedFailure");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getConnectedFailure(callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onConnectedFailure(callback);
 
         } else
 
@@ -326,16 +297,16 @@ public class StateController extends Controller {
             final String response = event.<String> getData("response");
             final List<SensorModel> states = event.<List<SensorModel>> getData("states");
             final int index = event.getData("index");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getServiceMethodsCallback(response, states, index, callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onServiceMethodsSuccess(response, states, index, callback);
 
         } else if (type.equals(StateEvents.GetMethodsAjaxFailure)) {
             Log.w(TAG, "AjaxGetMethodsFailure");
             // final int code = event.getData("code");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
-            getServiceMethodsFailure(callback);
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
+            onServiceMethodsFailure(callback);
 
         } else
 
@@ -358,24 +329,6 @@ public class StateController extends Controller {
             final String response = event.<String> getData("response");
             disconnectServiceCallback(response);
 
-        } else
-
-        /*
-         * Create default states, if available
-         */
-        if (type.equals(StateEvents.CheckDefaults)) {
-            Log.d(TAG, "CheckDefaults");
-            checkDefaults();
-
-        } else if (type.equals(StateEvents.AjaxDefaultsSuccess)) {
-            Log.d(TAG, "AjaxDefaultsSuccess");
-            final String response = event.<String> getData("response");
-            checkDefaultsCallback(response);
-
-        } else if (type.equals(StateEvents.AjaxDefaultsFailure)) {
-            Log.w(TAG, "AjaxDefaultsFailure");
-            // final int code = event.getData("code");
-            checkDefaultsFailure();
         } else
 
         /*

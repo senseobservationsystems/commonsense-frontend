@@ -10,6 +10,8 @@ public class Constants {
         // Private constructor to make sure this class is not instantiated.
     }
 
+    private static final boolean TEST_MODE = true;
+
     /**
      * Registry key for the building service, stored as @link {@link BuildingServiceAsync}.
      */
@@ -38,16 +40,25 @@ public class Constants {
     /**
      * Registry key for the tree of sensors for the current user
      * 
-     * @deprecated Use {@link #REG_MY_SENSORS_LIST} instead.
+     * @deprecated Use {@link #REG_SENSOR_LIST} instead.
      */
     @Deprecated
     public static final String REG_MY_SENSORS_TREE = "MySensors";
 
     /**
-     * Registry key for the list of sensors for the current user
+     * Registry key for the list of all sensors for the current user
      */
+    public static final String REG_SENSOR_LIST = "SensorsList";
 
-    public static final String REG_MY_SENSORS_LIST = "MySensorsList";
+    /**
+     * Registry key for the list of all devices for the current user
+     */
+    public static final String REG_DEVICE_LIST = "DevicesList";
+
+    /**
+     * Registry key for the list of all environments for the current user
+     */
+    public static final String REG_ENVIRONMENT_LIST = "EnvironmentList";
 
     /**
      * Registry key for the list of groups for the current user
@@ -57,18 +68,19 @@ public class Constants {
     /**
      * Registry key for the list of group sensors for the current user
      * 
-     * @deprecated Use {@link #REG_MY_SENSORS_LIST} instead.
+     * @deprecated Use {@link #REG_SENSOR_LIST} instead.
      */
     @Deprecated
     public static final String REG_GROUP_SENSORS = "GroupSensors";
 
     /**
-     * Registry key for the list of services for the current user, stored as @link {@link List
-     * <ServiceModel>}
+     * Registry key for the list of services for the current user
      */
     public static final String REG_SERVICES = "Services";
 
-    public static final String URL__BASE = "http://api.sense-os.nl";
+    private static final String BASE_URL_STABLE = "http://api.sense-os.nl";
+    private static final String BASE_URL_TEST = "http://217.77.159.221/restful/api";
+    public static final String URL__BASE = TEST_MODE && false ? BASE_URL_TEST : BASE_URL_STABLE;
     public static final String URL_DATA = URL__BASE + "/sensors/<id>/data";
     public static final String URL_DEVICE_SENSORS = URL__BASE + "/devices/<id>/sensors";
     public static final String URL_DEVICES = URL__BASE + "/devices";
@@ -87,7 +99,7 @@ public class Constants {
     private static final String MAPS_TEST_KEY = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA";
     /** Google Maps API key, generated for http://common-sense.appspot.com */
     private static final String MAPS_STABLE_KEY = "ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw";
-    public static final String MAPS_API_KEY = MAPS_TEST_KEY;
+    public static final String MAPS_API_KEY = TEST_MODE ? MAPS_TEST_KEY : MAPS_STABLE_KEY;
 
     public static final String testDataJson = "{\"data\":["
             + "{\"id\":\"20243680\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":-0.14982382953166962,\\\"y-axis\\\":0.46309182047843933,\\\"z-axis\\\":9.847511291503906}\",\"date\":\"1302858147.5\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"

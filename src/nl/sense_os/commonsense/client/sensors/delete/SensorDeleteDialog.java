@@ -47,6 +47,7 @@ public class SensorDeleteDialog extends View {
             Log.d(TAG, "Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
+
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
             // Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
@@ -120,7 +121,7 @@ public class SensorDeleteDialog extends View {
 
         String message = "Are you sure you want to remove the selected sensor from your list?";
         if (sensors.size() > 1) {
-            message = "Are you sure you want to remove the " + sensors.size()
+            message = "Are you sure you want to remove all " + sensors.size()
                     + " selected sensors from your list?";
         }
         message += "<br><br>";
@@ -132,6 +133,7 @@ public class SensorDeleteDialog extends View {
     }
 
     private void remove() {
+        Log.d(TAG, "Clicked 'Remove'...");
         setBusy(true);
         AppEvent delete = new AppEvent(SensorDeleteEvents.DeleteRequest);
         delete.setData("sensors", sensors);

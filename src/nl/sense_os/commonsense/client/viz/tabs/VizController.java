@@ -76,8 +76,7 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
-                // initControllers();
+                // Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
             }
         });
 
@@ -111,7 +110,7 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                Log.d(TAG, "Google Visualization API loaded...");
+                // Log.d(TAG, "Google Visualization API loaded...");
                 isVizApiLoaded = true;
             }
         };

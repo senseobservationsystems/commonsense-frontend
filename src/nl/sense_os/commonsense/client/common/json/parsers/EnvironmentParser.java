@@ -20,16 +20,24 @@ public class EnvironmentParser {
         HashMap<String, Object> props = new HashMap<String, Object>();
         props.put(EnvironmentModel.ID, json.get(EnvironmentModel.ID).isString().stringValue());
         props.put(EnvironmentModel.NAME, json.get(EnvironmentModel.NAME).isString().stringValue());
-        props.put(EnvironmentModel.FLOORS, json.get(EnvironmentModel.FLOORS).isString()
-                .stringValue());
-        props.put(EnvironmentModel.OUTLINE, json.get(EnvironmentModel.OUTLINE).isString()
-                .stringValue());
-        props.put(EnvironmentModel.POSITION, json.get(EnvironmentModel.POSITION).isString()
-                .stringValue());
-        props.put(EnvironmentModel.DATE,
-                Math.round(json.get(EnvironmentModel.DATE).isNumber().doubleValue()));
 
         // optional properties
+        if (null != json.get(EnvironmentModel.FLOORS)) {
+            props.put(EnvironmentModel.FLOORS, json.get(EnvironmentModel.FLOORS).isString()
+                    .stringValue());
+        }
+        if (null != json.get(EnvironmentModel.OUTLINE)) {
+            props.put(EnvironmentModel.OUTLINE, json.get(EnvironmentModel.OUTLINE).isString()
+                    .stringValue());
+        }
+        if (null != json.get(EnvironmentModel.POSITION)) {
+            props.put(EnvironmentModel.POSITION, json.get(EnvironmentModel.POSITION).isString()
+                    .stringValue());
+        }
+        if (null != json.get(EnvironmentModel.DATE)) {
+            props.put(EnvironmentModel.DATE,
+                    Math.round(json.get(EnvironmentModel.DATE).isNumber().doubleValue()));
+        }
 
         // front end-only properties
         props.put("tagType", TagModel.TYPE_CATEGORY);

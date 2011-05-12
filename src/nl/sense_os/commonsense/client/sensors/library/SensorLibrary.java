@@ -3,10 +3,13 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
+import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
@@ -16,11 +19,12 @@ import nl.sense_os.commonsense.shared.SensorModel;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ListLoadConfig;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
-import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -57,7 +61,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class SensorLibrary extends View {
 
-    private static final String TAG = "MySensorsGrid";
+    private static final String TAG = "SensorLibrary";
     private ContentPanel panel;
     private ListLoader<ListLoadResult<SensorModel>> loader;
     private GroupingStore<SensorModel> store;
@@ -88,9 +92,11 @@ public class SensorLibrary extends View {
 
         } else if (type.equals(StateCreateEvents.CreateServiceComplete)
                 || type.equals(StateEvents.RemoveComplete)
-                || type.equals(StateEvents.CheckDefaultsSuccess)
+                || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
                 || type.equals(SensorDeleteEvents.DeleteSuccess)
-                || type.equals(SensorDeleteEvents.DeleteFailure)) {
+                || type.equals(SensorDeleteEvents.DeleteFailure)
+                || type.equals(EnvCreateEvents.CreateSuccess)
+                || type.equals(EnvEvents.DeleteSuccess)) {
             // Log.d(TAG, "Library changed");
             onLibChanged();
 
@@ -248,15 +254,15 @@ public class SensorLibrary extends View {
         this.toolBar.add(this.vizButton);
         this.toolBar.add(this.shareButton);
         this.toolBar.add(this.removeButton);
-
     }
 
     private void initGrid() {
         // tree store
-        RpcProxy<ListLoadResult<SensorModel>> proxy = new RpcProxy<ListLoadResult<SensorModel>>() {
+        DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
 
             @Override
-            public void load(Object loadConfig, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+            public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
+                    AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
                     fireEvent(new AppEvent(SensorLibraryEvents.ListRequested, callback));
@@ -288,31 +294,33 @@ public class SensorLibrary extends View {
         groupingView.setShowGroupedColumn(true);
         groupingView.setForceFit(true);
         groupingView.setGroupRenderer(new GridGroupRenderer() {
+
             public String render(GroupColumnData data) {
+
+                String field = data.group;
                 if (data.field.equals(SensorModel.TYPE)) {
                     int group = Integer.parseInt(data.group);
-                    String f = data.group;
                     switch (group) {
-                    case 0:
-                        f = "Feeds";
-                        break;
-                    case 1:
-                        f = "Physical";
-                        break;
-                    case 2:
-                        f = "States";
-                        break;
-                    case 3:
-                        f = "Environment sensors";
-                        break;
-                    case 4:
-                        f = "Public sensors";
-                        break;
-                    default:
-                        f = "Unsorted";
+                        case 0 :
+                            field = "Feeds";
+                            break;
+                        case 1 :
+                            field = "Physical";
+                            break;
+                        case 2 :
+                            field = "States";
+                            break;
+                        case 3 :
+                            field = "Environment sensors";
+                            break;
+                        case 4 :
+                            field = "Public sensors";
+                            break;
+                        default :
+                            field = "Unsorted";
                     }
-                    String l = data.models.size() == 1 ? "Sensor" : "Sensors";
-                    return f + " (" + data.models.size() + " " + l + ")";
+                } else if (data.field.equals("dev_uuid")) {
+
                 } else {
                     if (data.group.equals("")) {
                         return "Ungrouped";
@@ -320,6 +328,9 @@ public class SensorLibrary extends View {
                         return data.group;
                     }
                 }
+
+                String count = data.models.size() == 1 ? "Sensor" : "Sensors";
+                return field + " (" + data.models.size() + " " + count + ")";
             }
         });
 
@@ -346,6 +357,7 @@ public class SensorLibrary extends View {
     }
 
     private void onRemoveClick() {
+        Log.d(TAG, "OnRemoveClick");
 
         // get sensor models from the selection
         final List<SensorModel> sensors = this.grid.getSelectionModel().getSelection();

@@ -217,7 +217,7 @@ public class StateConnecter extends View {
         };
         this.loader = new BaseTreeLoader<TreeModel>(proxy);
         this.store = new TreeStore<TreeModel>(loader);
-        this.store.setKeyProvider(new SensorKeyProvider());
+        this.store.setKeyProvider(new SensorKeyProvider<TreeModel>());
 
         // sort tree
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));

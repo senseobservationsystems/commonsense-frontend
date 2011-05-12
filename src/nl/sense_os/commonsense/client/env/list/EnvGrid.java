@@ -56,16 +56,18 @@ public class EnvGrid extends View {
     private ListStore<EnvironmentModel> store;
     private ListLoader<ListLoadResult<EnvironmentModel>> loader;
     private boolean isListDirty;
+    private ToolButton refreshTool;
+    private ToolBar toolBar;
 
     public EnvGrid(Controller controller) {
         super(controller);
     }
 
-    private void create() {
+    private void createEnvironment() {
         Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
     }
 
-    private void delete() {
+    private void deleteEnvironment() {
         AppEvent delete = new AppEvent(EnvEvents.DeleteRequest);
         delete.setData("environment", this.grid.getSelectionModel().getSelectedItem());
         fireEvent(delete);
@@ -121,14 +123,13 @@ public class EnvGrid extends View {
             @Override
             public void load(DataReader<ListLoadResult<EnvironmentModel>> reader,
                     Object loadConfig, AsyncCallback<ListLoadResult<EnvironmentModel>> callback) {
+
                 // only load when the panel is not collapsed
-                if (EnvGrid.this.panel.isExpanded()) {
-                    if (loadConfig instanceof ListLoadConfig) {
-                        fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
-                    } else {
-                        Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
-                        callback.onFailure(null);
-                    }
+                if (loadConfig instanceof ListLoadConfig) {
+                    fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
+                } else {
+                    Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                    callback.onFailure(null);
                 }
             }
         };
@@ -137,47 +138,31 @@ public class EnvGrid extends View {
 
         ColumnConfig name = new ColumnConfig(EnvironmentModel.NAME, "Name", 100);
         ColumnConfig floors = new ColumnConfig(EnvironmentModel.FLOORS, "Floors", 100);
+        ColumnConfig id = new ColumnConfig(EnvironmentModel.ID, "ID", 50);
+        id.setHidden(true);
+        ColumnConfig outline = new ColumnConfig(EnvironmentModel.OUTLINE, "Outline", 200);
+        outline.setHidden(true);
+        ColumnConfig position = new ColumnConfig(EnvironmentModel.POSITION, "Position", 100);
+        position.setHidden(true);
 
-        ColumnModel cm = new ColumnModel(Arrays.asList(name, floors));
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
 
         this.grid = new Grid<EnvironmentModel>(this.store, cm);
         this.grid.setId("buildingGrid");
         this.grid.setStateful(true);
         this.grid.setLoadMask(true);
-
-        GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel
-                .addSelectionChangedListener(new SelectionChangedListener<EnvironmentModel>() {
-
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
-                        EnvironmentModel selection = se.getSelectedItem();
-                        if (null != selection) {
-                            EnvGrid.this.deleteButton.enable();
-                        } else {
-                            EnvGrid.this.deleteButton.disable();
-                        }
-                    }
-                });
-        this.grid.setSelectionModel(selectionModel);
-
-        // add grid to panel
-        this.panel.add(this.grid);
+        this.grid.setAutoExpandColumn(EnvironmentModel.NAME);
     }
 
     private void initHeaderTool() {
-        ToolButton refresh = new ToolButton("x-tool-refresh");
-        refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+        refreshTool = new ToolButton("x-tool-refresh");
+        refreshTool.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
                 refreshLoader(true);
             }
         });
-
-        // add to panel
-        this.panel.getHeader().addTool(refresh);
     }
 
     @Override
@@ -196,9 +181,14 @@ public class EnvGrid extends View {
             }
         });
 
+        initGrid();
         initHeaderTool();
         initToolBar();
-        initGrid();
+
+        // add grid to panel
+        this.panel.setTopComponent(toolBar);
+        this.panel.add(this.grid);
+        this.panel.getHeader().addTool(this.refreshTool);
     }
 
     private void initToolBar() {
@@ -209,7 +199,7 @@ public class EnvGrid extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(EnvGrid.this.createButton)) {
-                    create();
+                    createEnvironment();
                 } else if (source.equals(EnvGrid.this.deleteButton)) {
                     onDeleteClick();
                 } else {
@@ -224,12 +214,27 @@ public class EnvGrid extends View {
         this.deleteButton.disable();
 
         // create tool bar
-        final ToolBar toolBar = new ToolBar();
+        toolBar = new ToolBar();
         toolBar.add(this.createButton);
         toolBar.add(this.deleteButton);
 
-        // add to panel
-        this.panel.setTopComponent(toolBar);
+        // enable/disable buttons according to grid selection
+        GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
+        selectionModel.setSelectionMode(SelectionMode.SINGLE);
+        selectionModel
+                .addSelectionChangedListener(new SelectionChangedListener<EnvironmentModel>() {
+
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
+                        EnvironmentModel selection = se.getSelectedItem();
+                        if (null != selection) {
+                            EnvGrid.this.deleteButton.enable();
+                        } else {
+                            EnvGrid.this.deleteButton.disable();
+                        }
+                    }
+                });
+        this.grid.setSelectionModel(selectionModel);
     }
 
     private void onDeleteClick() {
@@ -240,7 +245,7 @@ public class EnvGrid extends View {
                     public void handleEvent(MessageBoxEvent be) {
                         Button clicked = be.getButtonClicked();
                         if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            delete();
+                            deleteEnvironment();
                         }
                     }
                 });

@@ -50,4 +50,18 @@ public class EnvironmentModel extends BaseTreeModel {
     public long getDate() {
         return get(DATE);
     }
+
+    @Override
+    public String toString() {
+        return this.get(NAME, "Environment #" + this.get(ID));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof EnvironmentModel) {
+            return this.getId().equals(((EnvironmentModel) obj).getId());
+        } else {
+            return super.equals(obj);
+        }
+    }
 }

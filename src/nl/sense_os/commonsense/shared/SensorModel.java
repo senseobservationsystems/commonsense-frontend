@@ -10,15 +10,33 @@ public class SensorModel extends BaseTreeModel {
     public static final String DATA_STRUCTURE = "data_structure";
     public static final String DATA_TYPE = "data_type";
     public static final String DATA_TYPE_ID = "data_type_id";
-    public static final String DEVICE_TYPE = "device_type";
+    public static final String PHYSICAL_SENSOR = "device_type";
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String DISPLAY_NAME = "display_name";
     public static final String TYPE = "type";
     public static final String PAGER_TYPE = "pager_type";
+
     public static final String OWNER = "owner";
+    public static final String OWNER_ID = "owner_id";
+    public static final String OWNER_MOBILE = "owner_mobile";
+    public static final String OWNER_NAME = "owner_name";
+    public static final String OWNER_SURNAME = "owner_surname";
+    public static final String OWNER_USERNAME = "owner_username";
+    public static final String OWNER_EMAIL = "owner_email";
+
     public static final String DEVICE = "device";
+    public static final String DEVICE_ID = "device_id";
+    public static final String DEVICE_TYPE = "nested_device_type";
+    public static final String DEVICE_UUID = "device_uuid";
+
     public static final String ENVIRONMENT = "environment";
+    public static final String ENVIRONMENT_ID = "environment_id";
+    public static final String ENVIRONMENT_NAME = "environment_name";
+    public static final String ENVIRONMENT_FLOORS = "environment_floors";
+    public static final String ENVIRONMENT_OUTLINE = "environment_outline";
+    public static final String ENVIRONMENT_POSITION = "environment_position";
+
     private static final long serialVersionUID = 1L;
 
     public SensorModel() {
@@ -50,7 +68,7 @@ public class SensorModel extends BaseTreeModel {
     }
 
     public String getDeviceType() {
-        return get(DEVICE_TYPE);
+        return get(PHYSICAL_SENSOR);
     }
 
     public String getDisplayName() {
@@ -84,5 +102,14 @@ public class SensorModel extends BaseTreeModel {
     @Override
     public String toString() {
         return get(DISPLAY_NAME, "Sensor #" + getId());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SensorModel) {
+            return this.getId().equals(((SensorModel) obj).getId());
+        } else {
+            return super.equals(obj);
+        }
     }
 }

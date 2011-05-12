@@ -7,12 +7,13 @@ import java.util.List;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
+import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
@@ -21,8 +22,10 @@ import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.data.TreeLoader;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -38,8 +41,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -48,6 +51,10 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
@@ -56,18 +63,19 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateTree extends View {
 
     protected static final String TAG = "StateTree";
     private ContentPanel panel;
-    private boolean isCollapsed;
-    private TreePanel<TreeModel> tree;
-    private TreeStore<TreeModel> store;
-    private BaseTreeLoader<TreeModel> loader;
+    private TreeGrid<SensorModel> tree;
+    private TreeStore<SensorModel> store;
+    private TreeLoader<SensorModel> loader;
+    private boolean isListDirty = false;
     private MenuItem createButton;
     private MenuItem deleteButton;
     private MenuItem disconnectButton;
@@ -80,8 +88,8 @@ public class StateTree extends View {
         super(controller);
     }
 
-    protected void checkDefaultStates() {
-        fireEvent(new AppEvent(StateEvents.CheckDefaults));
+    private void checkDefaultStates() {
+        Dispatcher.forwardEvent(StateDefaultsEvents.CheckDefaults);
     }
 
     private void confirmDisconnect() {
@@ -180,13 +188,9 @@ public class StateTree extends View {
             // Log.d(TAG, "CreateServiceComplete");
             refreshLoader(true);
 
-        } else if (type.equals(StateEvents.CheckDefaultsSuccess)) {
+        } else if (type.equals(StateDefaultsEvents.CheckDefaultsSuccess)) {
             // Log.d(TAG, "CheckDefaultsSuccess");
             refreshLoader(true);
-
-        } else if (type.equals(StateEvents.CheckDefaultsFailure)) {
-            Log.w(TAG, "CheckDefaultsFailure");
-            onDefaultsFailed();
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
             // Log.d(TAG, "External trigger for update");
@@ -219,35 +223,27 @@ public class StateTree extends View {
         this.panel.setHeading("Manage states");
 
         // track whether the panel is expanded
-        Listener<ComponentEvent> collapseListener = new Listener<ComponentEvent>() {
+        panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
-                EventType type = be.getType();
-                if (type.equals(Events.Expand)) {
-                    isCollapsed = false;
-                    refreshLoader(false);
-                } else if (type.equals(Events.Collapse)) {
-                    isCollapsed = true;
-                }
+                refreshLoader(false);
             }
-        };
-        panel.addListener(Events.Expand, collapseListener);
-        panel.addListener(Events.Collapse, collapseListener);
+        });
 
-        initTree();
+        initGrid();
         initHeaderTool();
         initToolBar();
     }
 
     private void initToolBar() {
-        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
+        TreeGridSelectionModel<SensorModel> selectionModel = new TreeGridSelectionModel<SensorModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                TreeModel selection = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
+                SensorModel selection = se.getSelectedItem();
                 if (null != selection) {
                     deleteButton.enable();
                     editButton.enable();
@@ -302,7 +298,7 @@ public class StateTree extends View {
                 } else if (source.equals(feedbackButton)) {
                     showFeedback();
                 } else if (source.equals(defaultsButton)) {
-                    onDefaultClick();
+                    checkDefaultStates();
                 } else {
                     Log.w(TAG, "Unexpected button clicked");
                 }
@@ -356,48 +352,62 @@ public class StateTree extends View {
         this.panel.setTopComponent(toolBar);
     }
 
-    private void initTree() {
+    private void initGrid() {
         // tree store
-        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
+        DataProxy<List<SensorModel>> proxy = new DataProxy<List<SensorModel>>() {
 
             @Override
-            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
+            public void load(DataReader<List<SensorModel>> reader, Object loadConfig,
+                    AsyncCallback<List<SensorModel>> callback) {
                 // only load when the panel is not collapsed
-                if (false == isCollapsed) {
-                    if (null == loadConfig) {
-                        Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
-                    } else if (loadConfig instanceof TreeModel) {
-                        List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                        List<TreeModel> children = new ArrayList<TreeModel>();
-                        for (ModelData model : childrenModels) {
-                            children.add((TreeModel) model);
-                        }
-                        callback.onSuccess(children);
-                    } else {
-                        callback.onSuccess(new ArrayList<TreeModel>());
+                Log.d(TAG, "load: " + loadConfig);
+                if (null == loadConfig) {
+                    Dispatcher.forwardEvent(StateEvents.ListRequested, callback);
+                } else if (loadConfig instanceof SensorModel) {
+                    List<ModelData> childrenModels = ((SensorModel) loadConfig).getChildren();
+                    List<SensorModel> children = new ArrayList<SensorModel>();
+                    for (ModelData model : childrenModels) {
+                        children.add((SensorModel) model);
                     }
+                    callback.onSuccess(children);
+                } else {
+                    callback.onSuccess(new ArrayList<SensorModel>());
                 }
             }
         };
-        this.loader = new BaseTreeLoader<TreeModel>(proxy);
-        this.store = new TreeStore<TreeModel>(loader);
-        this.store.setKeyProvider(new SensorKeyProvider());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+        this.loader = new BaseTreeLoader<SensorModel>(proxy);
+        this.store = new TreeStore<SensorModel>(this.loader);
+        this.store.setKeyProvider(new SensorKeyProvider<SensorModel>());
+        // this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
 
-        this.tree = new TreePanel<TreeModel>(this.store);
+        List<ColumnConfig> columns = LibraryColumnsFactory.create().getColumns();
+        // ColumnConfig foo = new ColumnConfig("text", 10);
+        // foo.setRenderer(new TreeGridCellRenderer<ModelData>());
+        // columns.add(0, foo);
+        ColumnModel cm = new ColumnModel(columns);
+        cm.getColumnById(SensorModel.TYPE).setRenderer(new TreeGridCellRenderer<SensorModel>() {
+
+            @Override
+            public Object render(SensorModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
+                SensorIconProvider<SensorModel> provider = new SensorIconProvider<SensorModel>();
+                provider.getIcon(model).getHTML();
+                return provider.getIcon(model).getHTML();
+            }
+        });
+
+        this.tree = new TreeGrid<SensorModel>(this.store, cm);
         this.tree.setId("stateGrid");
-        this.tree.setDisplayProperty("text");
         this.tree.setStateful(true);
-        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
 
         // toolbar with filter field
         ToolBar filterBar = new ToolBar();
         filterBar.add(new LabelToolItem("Filter: "));
-        StoreFilterField<TreeModel> filter = new StoreFilterField<TreeModel>() {
+        StoreFilterField<SensorModel> filter = new StoreFilterField<SensorModel>() {
 
             @Override
-            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
-                    String property, String filter) {
+            protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
+                    SensorModel record, String property, String filter) {
                 // only match leaf nodes
                 if (record.getChildCount() > 0) {
                     return false;
@@ -433,32 +443,6 @@ public class StateTree extends View {
         Dispatcher.forwardEvent(StateCreateEvents.ShowCreator);
     }
 
-    private void onDefaultClick() {
-        MessageBox.confirm(null, "Are you sure you want to create default state sensors?",
-                new Listener<MessageBoxEvent>() {
-
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            checkDefaultStates();
-                        }
-                    }
-                });
-    }
-
-    private void onDefaultsFailed() {
-        MessageBox.confirm(null, "Failed to create default state sensors! Retry?",
-                new Listener<MessageBoxEvent>() {
-
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            checkDefaultStates();
-                        }
-                    }
-                });
-    }
-
     private void onEditClick() {
         SensorModel selectedService = getSelectedState();
         AppEvent event = new AppEvent(StateEditEvents.ShowEditor);
@@ -490,7 +474,8 @@ public class StateTree extends View {
     }
 
     private void refreshLoader(boolean force) {
-        if (force || this.store.getChildCount() == 0) {
+        if (force || (this.store.getChildCount() == 0 || this.isListDirty)
+                && this.panel.isExpanded()) {
             loader.load();
         }
     }

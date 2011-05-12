@@ -8,7 +8,7 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 /**
  * Key provider to help grids and trees distinguish between different sensors.
  */
-public class SensorKeyProvider implements ModelKeyProvider<TreeModel> {
+public class SensorKeyProvider<D extends TreeModel> implements ModelKeyProvider<D> {
 
     private static final String TAG = "SensorKeyProvider";
 

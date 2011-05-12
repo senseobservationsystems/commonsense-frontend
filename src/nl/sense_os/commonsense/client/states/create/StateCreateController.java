@@ -47,75 +47,6 @@ public class StateCreateController extends Controller {
                 StateCreateEvents.AjaxCreateSuccess, StateCreateEvents.AjaxCreateFailure);
     }
 
-    @Override
-    public void handleEvent(AppEvent event) {
-        final EventType type = event.getType();
-
-        /*
-         * Request available services for a sensor
-         */
-        if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
-            // Log.d(TAG, "AvailableServicesRequested");
-            final SensorModel sensor = event.getData("sensor");
-            getAvailableServices(sensor);
-
-        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceSuccess)) {
-            // Log.d(TAG, "AjaxAvailableServiceSuccess");
-            final String response = event.getData("response");
-            getAvailableServicesCallback(response);
-
-        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceFailure)) {
-            Log.w(TAG, "AjaxAvailableServiceFailure");
-            getAvailableServicesError();
-
-        } else
-
-        /*
-         * Create service from a sensor
-         */
-        if (type.equals(StateCreateEvents.CreateServiceRequested)) {
-            // Log.d(TAG, "CreateRequested");
-            final String name = event.<String> getData("name");
-            final TreeModel service = event.<TreeModel> getData("service");
-            final ModelData sensor = event.<ModelData> getData("sensor");
-            final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
-            createService(name, service, sensor, dataFields);
-
-        } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
-            Log.w(TAG, "AjaxCreateFailure");
-            final int code = event.getData("code");
-            createServiceErrorCallback(code);
-
-        } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
-            // Log.d(TAG, "AjaxCreateSuccess");
-            final String response = event.<String> getData("response");
-            createServiceCallback(response);
-
-        } else
-
-        /*
-         * Load all sensors to create service from
-         */
-        if (type.equals(StateCreateEvents.LoadSensors)) {
-            // Log.d(TAG, "LoadSensors");
-            loadSensors();
-
-        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
-            if (isLoadingSensors) {
-                // Log.d(TAG, "Sensor lists updated: LoadSensors");
-                loadSensors();
-            }
-
-        } else
-
-        /*
-         * Pass rest through to creator view
-         */
-        {
-            forwardToView(this.creator, event);
-        }
-    }
-
     private void createService(String name, TreeModel service, ModelData sensor,
             List<ModelData> dataFields) {
 
@@ -153,20 +84,17 @@ public class StateCreateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void createServiceCallback(String response) {
-        Dispatcher.forwardEvent(StateCreateEvents.CreateServiceComplete);
-    }
-
-    private void createServiceErrorCallback(int code) {
-        forwardToView(this.creator, new AppEvent(StateCreateEvents.CreateServiceFailed));
-    }
-
     private void getAvailableServices(SensorModel sensor) {
+
+        String aliasParam = "";
+        if (sensor.get("alias") != null && sensor.<String> get("alias").length() > 0) {
+            aliasParam = "?alias=" + sensor.<String> get("alias");
+        }
 
         // prepare request properties
         final String method = "GET";
         final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
-                + "/services/available";
+                + "/services/available" + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxAvailableServiceFailure);
@@ -181,7 +109,105 @@ public class StateCreateController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void getAvailableServicesCallback(String response) {
+    @Override
+    public void handleEvent(AppEvent event) {
+        final EventType type = event.getType();
+
+        /*
+         * Request available services for a sensor
+         */
+        if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
+            // Log.d(TAG, "AvailableServicesRequested");
+            final SensorModel sensor = event.getData("sensor");
+            getAvailableServices(sensor);
+
+        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceSuccess)) {
+            // Log.d(TAG, "AjaxAvailableServiceSuccess");
+            final String response = event.getData("response");
+            onAvailableServicesSuccess(response);
+
+        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceFailure)) {
+            Log.w(TAG, "AjaxAvailableServiceFailure");
+            onAvailableServicesFailure();
+
+        } else
+
+        /*
+         * Create service from a sensor
+         */
+        if (type.equals(StateCreateEvents.CreateServiceRequested)) {
+            // Log.d(TAG, "CreateRequested");
+            final String name = event.<String> getData("name");
+            final TreeModel service = event.<TreeModel> getData("service");
+            final ModelData sensor = event.<ModelData> getData("sensor");
+            final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
+            createService(name, service, sensor, dataFields);
+
+        } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
+            Log.w(TAG, "AjaxCreateFailure");
+            final int code = event.getData("code");
+            onCreateServiceFailure(code);
+
+        } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
+            // Log.d(TAG, "AjaxCreateSuccess");
+            final String response = event.<String> getData("response");
+            onCreateServiceSuccess(response);
+
+        } else
+
+        /*
+         * Load all sensors to create service from
+         */
+        if (type.equals(StateCreateEvents.LoadSensors)) {
+            // Log.d(TAG, "LoadSensors");
+            loadSensors();
+
+        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
+            if (isLoadingSensors) {
+                // Log.d(TAG, "Sensor lists updated: LoadSensors");
+                loadSensors();
+            }
+
+        } else
+
+        /*
+         * Pass rest through to creator view
+         */
+        {
+            forwardToView(this.creator, event);
+        }
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        this.creator = new StateCreator(this);
+    }
+
+    /**
+     * Loads all sensors that can be used to create a new state with.
+     */
+    // TODO does not signal LoadFailure
+    private void loadSensors() {
+        this.isLoadingSensors = true;
+
+        List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
+        if (null == sensors) {
+            Dispatcher.forwardEvent(SensorLibraryEvents.ListRequested);
+            return;
+        }
+
+        AppEvent success = new AppEvent(StateCreateEvents.LoadSensorsSuccess);
+        success.setData("sensors", sensors);
+        forwardToView(creator, success);
+        this.isLoadingSensors = false;
+    }
+
+    private void onAvailableServicesFailure() {
+        forwardToView(this.creator, new AppEvent(StateCreateEvents.AvailableServicesNotUpdated));
+    }
+
+    private void onAvailableServicesSuccess(String response) {
 
         if (response != null) {
             // try to get "methods" array
@@ -219,46 +245,25 @@ public class StateCreateController extends Controller {
                 } else {
                     Log.e(TAG,
                             "Error parsing service methods response: \"available_services\" is not a JSON Array");
-                    getAvailableServicesError();
+                    onAvailableServicesFailure();
                 }
             } else {
                 Log.e(TAG,
                         "Error parsing service methods response: \"available_services\" is is not found");
-                getAvailableServicesError();
+                onAvailableServicesFailure();
             }
         } else {
             Log.e(TAG, "Error parsing service methods response: response=null");
-            getAvailableServicesError();
-            getAvailableServicesError();
+            onAvailableServicesFailure();
+            onAvailableServicesFailure();
         }
     }
 
-    private void getAvailableServicesError() {
-        forwardToView(this.creator, new AppEvent(StateCreateEvents.AvailableServicesNotUpdated));
+    private void onCreateServiceFailure(int code) {
+        forwardToView(this.creator, new AppEvent(StateCreateEvents.CreateServiceFailed));
     }
 
-    @Override
-    protected void initialize() {
-        super.initialize();
-        this.creator = new StateCreator(this);
-    }
-
-    /**
-     * Loads all sensors that can be used to create a new state with.
-     */
-    // TODO does not signal LoadFailure
-    private void loadSensors() {
-        this.isLoadingSensors = true;
-
-        List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_MY_SENSORS_LIST);
-        if (null == sensors) {
-            Dispatcher.forwardEvent(SensorLibraryEvents.ListRequested);
-            return;
-        }
-
-        AppEvent success = new AppEvent(StateCreateEvents.LoadSensorsSuccess);
-        success.setData("sensors", sensors);
-        forwardToView(creator, success);
-        this.isLoadingSensors = false;
+    private void onCreateServiceSuccess(String response) {
+        Dispatcher.forwardEvent(StateCreateEvents.CreateServiceComplete);
     }
 }

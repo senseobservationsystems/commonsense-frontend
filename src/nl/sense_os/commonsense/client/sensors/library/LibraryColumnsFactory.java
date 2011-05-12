@@ -4,10 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -45,8 +43,9 @@ public class LibraryColumnsFactory {
 
             ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
 
-            ColumnConfig devType = new ColumnConfig(SensorModel.DEVICE_TYPE, "Physical sensor", 200);
-            devType.setRenderer(new GridCellRenderer<SensorModel>() {
+            ColumnConfig physical = new ColumnConfig(SensorModel.PHYSICAL_SENSOR, "Physical sensor",
+                    200);
+            physical.setRenderer(new GridCellRenderer<SensorModel>() {
 
                 @Override
                 public Object render(SensorModel model, String property, ColumnData config,
@@ -60,74 +59,26 @@ public class LibraryColumnsFactory {
                     }
                 }
             });
-            devType.setHidden(true);
+            physical.setHidden(true);
 
-            ColumnConfig devId = new ColumnConfig("dev_uuid", "Device ID", 50);
-            devId.setRenderer(new GridCellRenderer<SensorModel>() {
-
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    if (model.getDevice() != null) {
-                        return model.getDevice().getId();
-                    } else {
-                        return "";
-                    }
-                }
-            });
+            ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
             devId.setHidden(true);
 
-            ColumnConfig device = new ColumnConfig(SensorModel.DEVICE, "Device", 150);
-            device.setRenderer(new GridCellRenderer<SensorModel>() {
+            ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_TYPE, "Device", 150);
 
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    if (model.getDevice() != null) {
-                        return model.getDevice().toString();
-                    } else {
-                        return "";
-                    }
-                }
-            });
+            ColumnConfig devUuid = new ColumnConfig(SensorModel.DEVICE_UUID, "Device UUID", 50);
+            devUuid.setHidden(true);
 
             ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
             dataType.setHidden(true);
 
-            ColumnConfig owner = new ColumnConfig(SensorModel.OWNER, "Owner", 100);
-            owner.setRenderer(new GridCellRenderer<SensorModel>() {
+            ColumnConfig owner = new ColumnConfig(SensorModel.OWNER_USERNAME, "Owner", 100);
 
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    if (model.getOwner() != null) {
-                        return model.getOwner().toString();
-                    } else {
-                        return Registry.get(Constants.REG_USER);
-                    }
-                }
-            });
+            ColumnConfig environment = new ColumnConfig(SensorModel.ENVIRONMENT_NAME,
+                    "Environment", 150);
 
-            ColumnConfig environment = new ColumnConfig(SensorModel.ENVIRONMENT, "Environment", 150);
-            environment.setRenderer(new GridCellRenderer<SensorModel>() {
-
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    if (model.getEnvironment() != null) {
-                        return model.getEnvironment().toString();
-                    } else {
-                        return "";
-                    }
-                }
-            });
-
-            columns = Arrays.asList(type, id, name, devType, devId, device, dataType, environment,
-                    owner);
+            columns = Arrays.asList(type, id, name, physical, devId, device, devUuid, dataType,
+                    environment, owner);
         }
 
         return new ColumnModel(columns);
