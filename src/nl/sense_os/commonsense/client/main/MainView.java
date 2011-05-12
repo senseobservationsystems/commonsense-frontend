@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
-import nl.sense_os.commonsense.client.states.list.StateEvents;
+import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.UserModel;
@@ -255,7 +255,7 @@ public class MainView extends View {
                 Dispatcher.forwardEvent(displayGroups);
 
                 // states panel
-                AppEvent displayStates = new AppEvent(StateEvents.ShowGrid);
+                AppEvent displayStates = new AppEvent(StateListEvents.ShowGrid);
                 displayStates.setData("parent", this.westContent);
                 Dispatcher.forwardEvent(displayStates);
 

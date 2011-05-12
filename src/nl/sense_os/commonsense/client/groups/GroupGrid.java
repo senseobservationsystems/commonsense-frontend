@@ -8,7 +8,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -158,7 +158,7 @@ public class GroupGrid extends View {
         this.grid.setStateful(true);
         this.grid.setAutoExpandColumn("text");
         this.grid.setLoadMask(true);
-        this.grid.setIconProvider(new SensorIconProvider<TreeModel>());
+        this.grid.setIconProvider(new SenseIconProvider<TreeModel>());
 
         TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);

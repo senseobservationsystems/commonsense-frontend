@@ -67,7 +67,7 @@ public class EnvController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(EnvEvents.ListRequested)) {
-            // Log.d(TAG, "ListRequested");
+            // Log.d(TAG, "LoadRequest");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);

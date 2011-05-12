@@ -6,7 +6,7 @@ import java.util.List;
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.TagModel;
@@ -226,7 +226,7 @@ public class StateConnecter extends View {
         this.tree.setBorders(false);
         this.tree.setDisplayProperty("text");
         this.tree.setAutoLoad(true);
-        this.tree.setIconProvider(new SensorIconProvider<TreeModel>());
+        this.tree.setIconProvider(new SenseIconProvider<TreeModel>());
     }
 
     private void onConnectFailure() {

@@ -7,7 +7,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.panels.table.SensorDataGrid;
 import nl.sense_os.commonsense.client.viz.panels.timeline.TimeLinePanel;
@@ -133,7 +133,7 @@ public class VizView extends View {
         final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
         welcomeFrame.setStylePrimaryName("senseFrame");
         final TabItem welcomeItem = new TabItem("Welcome");
-        welcomeItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "help.png"));
+        welcomeItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "help.png"));
         welcomeItem.setLayout(new FitLayout());
         LayoutData data = new FitData(new Margins(0));
         welcomeItem.add(welcomeFrame, data);
@@ -144,7 +144,7 @@ public class VizView extends View {
                 + "http://demo.almende.com/tracker/ictdelta");
         trackTrace.setStylePrimaryName("senseFrame");
         final TabItem trackTraceItem = new TabItem("Demo: Track & Trace");
-        trackTraceItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH
+        trackTraceItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
                 + "sense_orange.gif"));
         trackTraceItem.setLayout(new FitLayout());
         trackTraceItem.add(trackTrace);
@@ -155,7 +155,7 @@ public class VizView extends View {
                 "http://demo.almende.com/links/storm/day_40_humid_animation.html");
         humid3d.setStylePrimaryName("senseFrame");
         final TabItem humid3dItem = new TabItem("Preview: 3D Chart");
-        humid3dItem.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH
+        humid3dItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
                 + "sense_orange.gif"));
         humid3dItem.setLayout(new FitLayout());
         humid3dItem.add(humid3d);
@@ -250,7 +250,7 @@ public class VizView extends View {
 
         // add feedback tab item
         final TabItem item = new TabItem(title);
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "setting_tools.png"));
+        item.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "setting_tools.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
@@ -265,7 +265,7 @@ public class VizView extends View {
         // add map tab item
         String title = createChartTitle(sensors);
         final TabItem item = new TabItem(title);
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "map.png"));
+        item.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "map.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
@@ -289,7 +289,7 @@ public class VizView extends View {
 
         // add table tab item
         final TabItem item = new TabItem(createChartTitle(sensors));
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "table.png"));
+        item.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "table.png"));
         item.setClosable(true);
         item.setScrollMode(Scroll.AUTO);
         item.setLayout(new FitLayout());
@@ -306,7 +306,7 @@ public class VizView extends View {
         // add line chart tab item
         String title = createChartTitle(sensors);
         final TabItem item = new TabItem(title);
-        item.setIcon(IconHelper.create(SensorIconProvider.SENSE_ICONS_PATH + "chart.png"));
+        item.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "chart.png"));
         item.setLayout(new FitLayout());
         item.setClosable(true);
 

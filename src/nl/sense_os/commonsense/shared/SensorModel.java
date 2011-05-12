@@ -107,7 +107,13 @@ public class SensorModel extends BaseTreeModel {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SensorModel) {
-            return this.getId().equals(((SensorModel) obj).getId());
+            final SensorModel sensor = (SensorModel) obj;
+            if (null == this.getParent()) {
+                return this.getId().equals(sensor.getId());
+            } else {
+                return this.getId().equals(sensor.getId())
+                        && this.getParent().equals(sensor.getParent());
+            }
         } else {
             return super.equals(obj);
         }

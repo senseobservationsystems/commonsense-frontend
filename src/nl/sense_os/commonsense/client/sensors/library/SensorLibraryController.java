@@ -14,7 +14,7 @@ import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.client.states.list.StateEvents;
+import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -56,7 +56,7 @@ public class SensorLibraryController extends Controller {
         registerEventTypes(SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
         registerEventTypes(SensorShareEvents.ShareComplete, SensorShareEvents.ShareFailed,
                 SensorShareEvents.ShareCancelled);
-        registerEventTypes(StateCreateEvents.CreateServiceComplete, StateEvents.RemoveComplete,
+        registerEventTypes(StateCreateEvents.CreateServiceComplete, StateListEvents.RemoveComplete,
                 StateDefaultsEvents.CheckDefaultsSuccess);
         registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
     }
@@ -172,7 +172,7 @@ public class SensorLibraryController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorLibraryEvents.ListRequested)) {
-            // Log.d(TAG, "ListRequested");
+            // Log.d(TAG, "LoadRequest");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
             final List<SensorModel> sensors = new ArrayList<SensorModel>();
             getList(sensors, callback);

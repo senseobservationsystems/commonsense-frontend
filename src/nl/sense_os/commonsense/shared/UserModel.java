@@ -105,7 +105,7 @@ public class UserModel extends BaseTreeModel {
 
     @Override
     public String toString() {
-        return get("text", "User #" + getId());
+        return get(USERNAME, "User #" + getId());
     }
 
     @Override

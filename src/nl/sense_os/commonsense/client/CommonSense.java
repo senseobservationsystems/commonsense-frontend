@@ -26,7 +26,7 @@ import nl.sense_os.commonsense.client.states.create.StateCreateController;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
 import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
-import nl.sense_os.commonsense.client.states.list.StateController;
+import nl.sense_os.commonsense.client.states.list.StateListController;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
@@ -54,7 +54,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Thu May 12 15:09";
+    public static final String LAST_DEPLOYED = "Fri May 13 01:02";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -103,7 +103,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new SensorDeleteController());
         dispatcher.addController(new SensorShareController());
         dispatcher.addController(new GroupController());
-        dispatcher.addController(new StateController());
+        dispatcher.addController(new StateListController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());
         dispatcher.addController(new StateDefaultsController());
@@ -114,11 +114,12 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new AjaxController());
 
         initControllers();
-        quickLogin();
+        // quickLogin();
         // testEnvCreator();
 
         GXT.hideLoadingPanel("loading");
     }
+
     /**
      * Logs in automatically as steven@sense-os.nl.
      */

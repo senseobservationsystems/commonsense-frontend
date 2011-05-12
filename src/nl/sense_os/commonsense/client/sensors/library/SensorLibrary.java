@@ -10,7 +10,7 @@ import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.client.states.list.StateEvents;
+import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
@@ -73,7 +73,7 @@ public class SensorLibrary extends View {
     private Button vizButton;
     private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
-    private boolean isLibraryDirty = false;
+    private boolean isOutdated = false;
 
     public SensorLibrary(Controller controller) {
         super(controller);
@@ -91,7 +91,7 @@ public class SensorLibrary extends View {
             showPanel(parent);
 
         } else if (type.equals(StateCreateEvents.CreateServiceComplete)
-                || type.equals(StateEvents.RemoveComplete)
+                || type.equals(StateListEvents.RemoveComplete)
                 || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
                 || type.equals(SensorDeleteEvents.DeleteSuccess)
                 || type.equals(SensorDeleteEvents.DeleteFailure)
@@ -264,11 +264,13 @@ public class SensorLibrary extends View {
             public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
                     AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
-                if (loadConfig instanceof ListLoadConfig) {
-                    fireEvent(new AppEvent(SensorLibraryEvents.ListRequested, callback));
-                } else {
-                    Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
-                    callback.onFailure(null);
+                if (panel.isExpanded()) {
+                    if (loadConfig instanceof ListLoadConfig) {
+                        fireEvent(new AppEvent(SensorLibraryEvents.ListRequested, callback));
+                    } else {
+                        Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                        callback.onFailure(null);
+                    }
                 }
             }
         };
@@ -301,23 +303,23 @@ public class SensorLibrary extends View {
                 if (data.field.equals(SensorModel.TYPE)) {
                     int group = Integer.parseInt(data.group);
                     switch (group) {
-                        case 0 :
-                            field = "Feeds";
-                            break;
-                        case 1 :
-                            field = "Physical";
-                            break;
-                        case 2 :
-                            field = "States";
-                            break;
-                        case 3 :
-                            field = "Environment sensors";
-                            break;
-                        case 4 :
-                            field = "Public sensors";
-                            break;
-                        default :
-                            field = "Unsorted";
+                    case 0:
+                        field = "Feeds";
+                        break;
+                    case 1:
+                        field = "Physical";
+                        break;
+                    case 2:
+                        field = "States";
+                        break;
+                    case 3:
+                        field = "Environment sensors";
+                        break;
+                    case 4:
+                        field = "Public sensors";
+                        break;
+                    default:
+                        field = "Unsorted";
                     }
                 } else if (data.field.equals("dev_uuid")) {
 
@@ -337,18 +339,18 @@ public class SensorLibrary extends View {
         this.grid = new Grid<SensorModel>(this.store, cm);
         this.grid.setView(groupingView);
         this.grid.setBorders(false);
+        this.grid.setId("libraryGrid");
         this.grid.setStateful(true);
         this.grid.setLoadMask(true);
-        this.grid.setId("mySensorsGrid");
     }
 
     private void onListUpdate() {
         this.filter.clear();
-        this.isLibraryDirty = false;
+        this.isOutdated = false;
     }
 
     private void onLibChanged() {
-        this.isLibraryDirty = true;
+        this.isOutdated = true;
         refreshLoader(false);
     }
 
@@ -385,7 +387,7 @@ public class SensorLibrary extends View {
     }
 
     private void refreshLoader(boolean force) {
-        if (force || (this.store.getCount() == 0 || this.isLibraryDirty) && this.panel.isExpanded()) {
+        if (force || (this.store.getCount() == 0 || this.isOutdated) && this.panel.isExpanded()) {
             loader.load();
         }
     }

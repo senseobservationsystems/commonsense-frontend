@@ -27,31 +27,26 @@ public class SensorKeyProvider<D extends TreeModel> implements ModelKeyProvider<
             }
             tagType = model.get("tagType");
             switch (tagType) {
-                case TagModel.TYPE_DEVICE :
-                    key += "D_" + model.<String> get("id") + ": " + model.<String> get("uuid")
-                            + "; ";
-                    break;
-                case TagModel.TYPE_GROUP :
-                    key += "G_" + model.<String> get("id") + ": " + model.<String> get("text")
-                            + "; ";
-                    break;
-                case TagModel.TYPE_SENSOR :
-                    key += "S_" + model.<String> get("id") + ": " + model.<String> get("text")
-                            + "; ";
-                    break;
-                case TagModel.TYPE_SERVICE :
-                    key += "X_" + model.<String> get("id") + ": " + model.<String> get("text")
-                            + "; ";
-                    break;
-                case TagModel.TYPE_USER :
-                    key += "U_" + model.<String> get("id") + ": " + model.<String> get("text")
-                            + "; ";
-                    break;
-                case TagModel.TYPE_CATEGORY :
-                    key += "C_" + model.<String> get("text") + "; ";
-                    break;
-                default :
-                    Log.d(TAG, "Unexpected tagType");
+            case TagModel.TYPE_DEVICE:
+                key += "D_" + model.<String> get("id") + ": " + model.<String> get("uuid") + "; ";
+                break;
+            case TagModel.TYPE_GROUP:
+                key += "G_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
+                break;
+            case TagModel.TYPE_SENSOR:
+                key += "S_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
+                break;
+            case TagModel.TYPE_SERVICE:
+                key += "X_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
+                break;
+            case TagModel.TYPE_USER:
+                key += "U_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
+                break;
+            case TagModel.TYPE_CATEGORY:
+                key += "C_" + model.<String> get("text") + "; ";
+                break;
+            default:
+                Log.d(TAG, "Unexpected tagType");
             }
             model = model.getParent();
         }

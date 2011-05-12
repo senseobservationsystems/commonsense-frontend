@@ -15,71 +15,61 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 public class LibraryColumnsFactory {
 
-    private static List<ColumnConfig> columns;
-
     private LibraryColumnsFactory() {
         // private constructor to prevent instatiation
     }
 
     public static ColumnModel create() {
 
-        if (null == columns) {
+        ColumnConfig id = new ColumnConfig(SensorModel.ID, "ID", 50);
+        id.setHidden(true);
 
-            ColumnConfig id = new ColumnConfig(SensorModel.ID, "ID", 50);
-            id.setHidden(true);
+        ColumnConfig type = new ColumnConfig(SensorModel.TYPE, "Type", 50);
+        type.setRenderer(new GridCellRenderer<SensorModel>() {
 
-            ColumnConfig type = new ColumnConfig(SensorModel.TYPE, "Type", 50);
-            type.setRenderer(new GridCellRenderer<SensorModel>() {
+            @Override
+            public Object render(SensorModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
+                return new SensorIconProvider().getIcon(model).getHTML();
+            }
+        });
 
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    SensorIconProvider<SensorModel> provider = new SensorIconProvider<SensorModel>();
-                    provider.getIcon(model).getHTML();
-                    return provider.getIcon(model).getHTML();
+        ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
+
+        ColumnConfig physical = new ColumnConfig(SensorModel.PHYSICAL_SENSOR, "Physical sensor",
+                200);
+        physical.setRenderer(new GridCellRenderer<SensorModel>() {
+
+            @Override
+            public Object render(SensorModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
+                if (model.getType().equals("1") && !model.getDeviceType().equals(model.getName())) {
+                    return model.getDeviceType();
+                } else {
+                    return "";
                 }
-            });
+            }
+        });
+        physical.setHidden(true);
 
-            ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
+        ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
+        devId.setHidden(true);
 
-            ColumnConfig physical = new ColumnConfig(SensorModel.PHYSICAL_SENSOR, "Physical sensor",
-                    200);
-            physical.setRenderer(new GridCellRenderer<SensorModel>() {
+        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_TYPE, "Device", 100);
 
-                @Override
-                public Object render(SensorModel model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<SensorModel> store,
-                        Grid<SensorModel> grid) {
-                    if (model.getType().equals("1")
-                            && !model.getDeviceType().equals(model.getName())) {
-                        return model.getDeviceType();
-                    } else {
-                        return "";
-                    }
-                }
-            });
-            physical.setHidden(true);
+        ColumnConfig devUuid = new ColumnConfig(SensorModel.DEVICE_UUID, "Device UUID", 50);
+        devUuid.setHidden(true);
 
-            ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
-            devId.setHidden(true);
+        ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
+        dataType.setHidden(true);
 
-            ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_TYPE, "Device", 150);
+        ColumnConfig owner = new ColumnConfig(SensorModel.OWNER_USERNAME, "Owner", 100);
 
-            ColumnConfig devUuid = new ColumnConfig(SensorModel.DEVICE_UUID, "Device UUID", 50);
-            devUuid.setHidden(true);
+        ColumnConfig environment = new ColumnConfig(SensorModel.ENVIRONMENT_NAME, "Environment",
+                100);
 
-            ColumnConfig dataType = new ColumnConfig(SensorModel.DATA_TYPE, "Data type", 100);
-            dataType.setHidden(true);
-
-            ColumnConfig owner = new ColumnConfig(SensorModel.OWNER_USERNAME, "Owner", 100);
-
-            ColumnConfig environment = new ColumnConfig(SensorModel.ENVIRONMENT_NAME,
-                    "Environment", 150);
-
-            columns = Arrays.asList(type, id, name, physical, devId, device, devUuid, dataType,
-                    environment, owner);
-        }
+        List<ColumnConfig> columns = Arrays.asList(type, id, name, physical, devId, device,
+                devUuid, dataType, environment, owner);
 
         return new ColumnModel(columns);
     }
