@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.utility;
 
 import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.UserModel;
 
@@ -11,13 +10,12 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
-public class SenseIconProvider<D extends TreeModel> implements ModelIconProvider<TreeModel> {
+public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider<M> {
 
     private static final String TAG = "SenseIconProvider";
 
     public static final String GXT_ICONS_PATH = "gxt/images/gxt/icons/";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";
-    private static final SensorIconProvider SENSORPROVIDER = new SensorIconProvider();
 
     protected static final AbstractImagePrototype ICON_DEVICE = IconHelper.create(SENSE_ICONS_PATH
             + "phone_Android.png");
@@ -45,7 +43,7 @@ public class SenseIconProvider<D extends TreeModel> implements ModelIconProvider
             + "user_zorro.png");
 
     @Override
-    public AbstractImagePrototype getIcon(TreeModel model) {
+    public AbstractImagePrototype getIcon(M model) {
 
         final int tagType = model.<Integer> get("tagType");
         if (tagType == TagModel.TYPE_GROUP) {
@@ -55,7 +53,21 @@ public class SenseIconProvider<D extends TreeModel> implements ModelIconProvider
             return ICON_DEVICE;
 
         } else if (tagType == TagModel.TYPE_SENSOR) {
-            return SENSORPROVIDER.getIcon((SensorModel) model);
+            final int type = Integer.parseInt(model.<String> get("type"));
+            switch (type) {
+                case 0 :
+                    return ICON_SENSOR_FEED;
+                case 1 :
+                    return ICON_SENSOR_DEVICE;
+                case 2 :
+                    return ICON_SENSOR_STATE;
+                case 3 :
+                    return ICON_SENSOR_PUBLIC;
+                case 4 :
+                    return ICON_SENSOR_ENVIRONMENT;
+                default :
+                    return ICON_GXT_LEAF;
+            }
 
         } else if (tagType == TagModel.TYPE_SERVICE) {
             return ICON_GXT_LEAF;
