@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
+import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.GroupModel;
@@ -143,7 +143,7 @@ public class GroupGrid extends View {
         };
         this.loader = new BaseTreeLoader<TreeModel>(proxy);
         this.store = new TreeStore<TreeModel>(this.loader);
-        this.store.setKeyProvider(new SensorKeyProvider<TreeModel>());
+        this.store.setKeyProvider(new SenseKeyProvider<TreeModel>());
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         ColumnConfig email = new ColumnConfig("email", "Email", 100);

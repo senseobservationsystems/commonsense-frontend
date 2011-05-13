@@ -80,7 +80,7 @@ public class CommonSense implements EntryPoint {
     @Override
     public void onModuleLoad() {
 
-        Log.d(TAG, "===== Module Load (" + now() + ") =====");
+        Log.d(TAG, "========== Module Load (" + now() + ") ==========");
 
         GXT.setDefaultTheme(Theme.GRAY, true);
 

@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -30,7 +30,7 @@ public class LibraryColumnsFactory {
             @Override
             public Object render(SensorModel model, String property, ColumnData config,
                     int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                return new SensorIconProvider().getIcon(model).getHTML();
+                return new SenseIconProvider<SensorModel>().getIcon(model).getHTML();
             }
         });
 

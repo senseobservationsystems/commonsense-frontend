@@ -338,6 +338,7 @@ public class StateListController extends Controller {
 
     private void onLoadComplete(List<SensorModel> result, AsyncCallback<List<SensorModel>> callback) {
         forwardToView(this.tree, new AppEvent(StateListEvents.Done));
+        forwardToView(this.tree, new AppEvent(StateListEvents.LoadComplete));
         if (null != callback) {
             callback.onSuccess(result);
         }

@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.states.list;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,9 +14,8 @@ import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.client.utility.SensorIconProvider;
-import nl.sense_os.commonsense.client.utility.SensorKeyProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.TreeLoader;
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -81,6 +82,10 @@ public class StateList extends View {
     private MenuItem editButton;
     private MenuItem feedbackButton;
     private MenuItem defaultsButton;
+    private ToolBar filterBar;
+    private ToolButton refreshButton;
+    private MenuBar toolBar;
+    private StoreFilterField<SensorModel> filter;
 
     public StateList(Controller controller) {
         super(controller);
@@ -162,6 +167,10 @@ public class StateList extends View {
             // Log.d(TAG, "Working");
             setBusy(true);
 
+        } else if (type.equals(StateListEvents.LoadComplete)) {
+            // Log.d(TAG, "TreeUpdated");
+            onLoadComplete();
+
         } else if (type.equals(StateListEvents.RemoveComplete)) {
             // Log.d(TAG, "RemoveComplete");
             onRemoveComplete(event);
@@ -170,25 +179,46 @@ public class StateList extends View {
             Log.w(TAG, "RemoveFailed");
             onRemoveFailed(event);
 
-        } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
-            // Log.d(TAG, "ConnectSuccess");
-            refreshLoader(true);
-
-        } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
-            // Log.d(TAG, "CreateServiceComplete");
-            refreshLoader(true);
-
-        } else if (type.equals(StateDefaultsEvents.CheckDefaultsSuccess)) {
-            // Log.d(TAG, "CheckDefaultsSuccess");
-            refreshLoader(true);
-
-        } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
+        } else if (type.equals(StateConnectEvents.ConnectSuccess)
+                || type.equals(StateCreateEvents.CreateServiceComplete)
+                || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
+                || type.equals(SensorDeleteEvents.DeleteSuccess)) {
             // Log.d(TAG, "External trigger for update");
             refreshLoader(true);
 
         } else {
             Log.e(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void initFilter() {
+        filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        this.filter = new StoreFilterField<SensorModel>() {
+
+            @Override
+            protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
+                    SensorModel record, String property, String filter) {
+                filter = filter.toLowerCase();
+                if (record.getName().toLowerCase().contains(filter)) {
+                    return true;
+                } else if (record.getDeviceType().toLowerCase().contains(filter)) {
+                    return true;
+                } else if (record.getDevice() != null
+                        && record.getDevice().getType().toLowerCase().contains(filter)) {
+                    return true;
+                } else if (record.getDataType().toLowerCase().contains(filter)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        };
+        filter.bind(this.store);
+        filterBar.add(filter);
+
+        // TODO fix filtering
+        filter.setEnabled(false);
     }
 
     private void initGrid() {
@@ -198,11 +228,14 @@ public class StateList extends View {
             @Override
             public void load(DataReader<List<SensorModel>> reader, Object loadConfig,
                     AsyncCallback<List<SensorModel>> callback) {
+
                 if (panel.isExpanded()) {
                     AppEvent request = new AppEvent(StateListEvents.LoadRequest);
                     request.setData("loadConfig", loadConfig);
                     request.setData("callback", callback);
                     Dispatcher.forwardEvent(request);
+                } else {
+                    callback.onSuccess(new ArrayList<SensorModel>());
                 }
             }
         };
@@ -216,7 +249,6 @@ public class StateList extends View {
         };
 
         this.store = new TreeStore<SensorModel>(this.loader);
-        this.store.setKeyProvider(new SensorKeyProvider<SensorModel>());
         this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
 
         // column model, make sure you add a TreeGridCellRenderer
@@ -232,61 +264,25 @@ public class StateList extends View {
                 return "";
             }
         });
-        type.setWidth(80);
+        type.setWidth(85);
 
         this.grid = new TreeGrid<SensorModel>(this.store, cm);
         this.grid.setId("stateGrid");
         this.grid.setStateful(true);
         this.grid.setAutoLoad(true);
         this.grid.setAutoExpandColumn(SensorModel.NAME);
-        this.grid.setIconProvider(new SensorIconProvider());
-
-        // toolbar with filter field
-        ToolBar filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        StoreFilterField<SensorModel> filter = new StoreFilterField<SensorModel>() {
-
-            @Override
-            protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
-                    SensorModel record, String property, String filter) {
-                // only match leaf nodes
-                if (record.getChildCount() > 0) {
-                    return false;
-                }
-                String name = record.get("text");
-                name = name.toLowerCase();
-                if (name.startsWith(filter.toLowerCase())) {
-                    return true;
-                }
-                return false;
-            }
-
-        };
-        filter.bind(this.store);
-        filterBar.add(filter);
-
-        // add grid to panel
-        ContentPanel content = new ContentPanel(new FitLayout());
-        content.setBodyBorder(false);
-        content.setHeaderVisible(false);
-        content.setTopComponent(filterBar);
-        content.add(this.grid);
-
-        this.panel.add(content);
+        this.grid.setIconProvider(new SenseIconProvider<SensorModel>());
     }
 
     private void initHeaderTool() {
-        ToolButton refresh = new ToolButton("x-tool-refresh");
-        refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+        refreshButton = new ToolButton("x-tool-refresh");
+        refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
                 refreshLoader(true);
             }
         });
-
-        // add to panel
-        this.panel.getHeader().addTool(refresh);
     }
 
     @Override
@@ -306,8 +302,21 @@ public class StateList extends View {
         });
 
         initGrid();
+        initFilter();
         initHeaderTool();
         initToolBar();
+
+        // do layout
+        this.panel.getHeader().addTool(this.refreshButton);
+        this.panel.setTopComponent(this.toolBar);
+        ContentPanel content = new ContentPanel(new FitLayout());
+        content.setBodyBorder(false);
+        content.setHeaderVisible(false);
+        content.setTopComponent(this.filterBar);
+        content.add(this.grid);
+        this.panel.add(content);
+
+        setupDragDrop();
     }
 
     private void initToolBar() {
@@ -418,7 +427,7 @@ public class StateList extends View {
         sensorsMenu.add(this.disconnectButton);
 
         // create tool bar
-        final MenuBar toolBar = new MenuBar();
+        this.toolBar = new MenuBar();
         toolBar.add(new MenuBarItem("State", serviceMenu));
         toolBar.add(new MenuBarItem("Sensors", sensorsMenu));
 
@@ -440,6 +449,11 @@ public class StateList extends View {
         AppEvent event = new AppEvent(StateEditEvents.ShowEditor);
         event.setData(selectedService);
         Dispatcher.forwardEvent(event);
+    }
+
+    private void onLoadComplete() {
+        this.isListDirty = false;
+        // this.filter.clear(); // TODO: does not work well with the tree loader
     }
 
     private void onLoggedOut(AppEvent event) {
@@ -476,6 +490,13 @@ public class StateList extends View {
     private void setBusy(boolean busy) {
         String icon = busy ? Constants.ICON_LOADING : "";
         this.panel.getHeader().setIcon(IconHelper.create(icon));
+    }
+
+    /**
+     * Sets up the sensor list for drag and drop.
+     */
+    private void setupDragDrop() {
+        new TreeGridDragSource(this.grid);
     }
 
     private void showFeedback() {

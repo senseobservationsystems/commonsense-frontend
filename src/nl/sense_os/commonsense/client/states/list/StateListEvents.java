@@ -10,6 +10,7 @@ public class StateListEvents {
 
     // get list of states
     protected static final EventType LoadRequest = new EventType();
+    protected static final EventType LoadComplete = new EventType();
     protected static final EventType AjaxStateSensorsSuccess = new EventType();
     protected static final EventType AjaxStateSensorsFailure = new EventType();
     protected static final EventType ConnectedAjaxSuccess = new EventType();
@@ -23,4 +24,5 @@ public class StateListEvents {
     protected static final EventType RemoveFailed = new EventType();
     protected static final EventType AjaxDisconnectSuccess = new EventType();
     protected static final EventType AjaxDisconnectFailure = new EventType();
+
 }
