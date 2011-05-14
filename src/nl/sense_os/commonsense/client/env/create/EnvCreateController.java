@@ -139,6 +139,7 @@ public class EnvCreateController extends Controller {
         sensor += "\"" + SensorModel.PHYSICAL_SENSOR + "\":\"position\",";
         sensor += "\"" + SensorModel.DATA_TYPE + "\":\"json\",";
         sensor += "\"" + SensorModel.DATA_STRUCTURE + "\":\"" + dataStructure + "\"";
+        sensor += "}";
         String body = "{\"sensor\":" + sensor + "}";
 
         // prepare request properties
