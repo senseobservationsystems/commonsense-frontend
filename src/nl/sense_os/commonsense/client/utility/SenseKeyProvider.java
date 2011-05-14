@@ -1,6 +1,9 @@
 package nl.sense_os.commonsense.client.utility;
 
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.DeviceModel;
+import nl.sense_os.commonsense.shared.GroupModel;
+import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -12,19 +15,11 @@ public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M
 
     private static final String TAG = "SenseKeyProvider";
 
+    @SuppressWarnings("unchecked")
     @Override
     public String getKey(M model) {
         String key = "";
-
         while (model != null) {
-            if (false == model.getProperties().containsKey("tagType")) {
-                Log.e(TAG, "No tagType?!?!");
-                for (String property : model.getPropertyNames()) {
-                    Log.e(TAG, "  " + model.get(property));
-                }
-                model = (M) model.getParent();
-                continue;
-            }
             key += getPartialKey(model);
             model = (M) model.getParent();
         }
@@ -32,23 +27,22 @@ public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M
     }
 
     private String getPartialKey(M model) {
-        int tagType = model.get("tagType");
-        switch (tagType) {
-            case TagModel.TYPE_DEVICE :
-                return "D_" + model.<String> get("id") + ": " + model.<String> get("uuid") + "; ";
-            case TagModel.TYPE_GROUP :
-                return "G_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
-            case TagModel.TYPE_SENSOR :
-                return "S_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
-            case TagModel.TYPE_SERVICE :
-                return "X_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
-            case TagModel.TYPE_USER :
-                return "U_" + model.<String> get("id") + ": " + model.<String> get("text") + "; ";
-            case TagModel.TYPE_CATEGORY :
-                return "C_" + model.<String> get("text") + "; ";
-            default :
-                Log.d(TAG, "Unexpected tagType");
-                return "error";
+
+        if (model instanceof DeviceModel) {
+            DeviceModel device = (DeviceModel) model;
+            return "D_" + device.getId() + ": " + device.getUuid() + "; ";
+        } else if (model instanceof GroupModel) {
+            GroupModel group = (GroupModel) model;
+            return "G_" + group.getId() + ": " + group.getName() + "; ";
+        } else if (model instanceof SensorModel) {
+            SensorModel sensor = (SensorModel) model;
+            return "S_" + sensor.getId() + ": " + sensor.getDisplayName() + "; ";
+        } else if (model instanceof UserModel) {
+            UserModel user = (UserModel) model;
+            return "U_" + user.getId() + ": " + user.getName() + "; ";
+        } else {
+            Log.e(TAG, "Unexpected class: " + model);
+            return model + "; ";
         }
     }
 }
