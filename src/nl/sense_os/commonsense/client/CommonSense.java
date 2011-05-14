@@ -190,7 +190,7 @@ public class CommonSense implements EntryPoint {
 
     @SuppressWarnings("unused")
     private void testEnvCreator() {
-        Maps.loadMapsApi(Constants.MAPS_API_KEY, "2", false, new Runnable() {
+        Maps.loadMapsApi(Constants.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {
