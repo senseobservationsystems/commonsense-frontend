@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.common.forms;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -9,7 +9,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
@@ -126,7 +125,7 @@ public class RegisterForm extends FormPanel {
         };
 
         // submit button
-        this.submit = new Button("Register", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submit = new Button("Register", SenseIconProvider.ICON_BUTTON_GO, l);
         this.submit.setType("submit");
 
         this.setButtonAlign(HorizontalAlignment.CENTER);
@@ -195,9 +194,9 @@ public class RegisterForm extends FormPanel {
 
     public void setBusy(boolean busy) {
         if (busy) {
-            this.submit.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.submit.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.submit.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 
