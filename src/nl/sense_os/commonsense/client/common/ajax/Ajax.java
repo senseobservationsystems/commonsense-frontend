@@ -34,7 +34,7 @@ public class Ajax {
      */
     // @formatter:off
     public static native void request(String method, String url, String sessionId, String body,
-            AppEvent onSuccess, AppEvent onFailure, AjaxController handler) /*-{
+            AppEvent onSuccess, AppEvent onFailure, AjaxController handler, boolean tedMode) /*-{
 
 		var isIE8 = window.XDomainRequest ? true : false;
 		var xhr = createCrossDomainRequest();
@@ -78,6 +78,18 @@ public class Ajax {
 		}
 
 		if (xhr) {
+
+			// Ted does not support DELETE or PUT requests: use custom URL parameter
+			if (tedMode && ("DELETE" === method || "PUT" === method)) {
+				if (url.indexOf("?") != -1) {
+					url = url + "&_METHOD=" + method;
+					method = "GET";
+				} else {
+					url = url + "?_METHOD=" + method;
+					method = "GET";
+				}
+			}
+
 			if (isIE8) {
 				// IE does not support custom headers: add session ID to URL parameters 
 				if (undefined != sessionId) {
@@ -88,10 +100,15 @@ public class Ajax {
 					}
 				}
 
-				// IE does not support DELETE or PUT requests: use custom URL parameter
+				// IE does not support XHR DELETE or PUT: use custom URL parameter
 				if ("DELETE" === method || "PUT" === method) {
-					url = url + "&_METHOD=" + method;
-					method = "GET";
+					if (url.indexOf("?") != -1) {
+						url = url + "&_METHOD=" + method;
+						method = "GET";
+					} else {
+						url = url + "?_METHOD=" + method;
+						method = "GET";
+					}
 				}
 
 				xhr.open(method, url);
