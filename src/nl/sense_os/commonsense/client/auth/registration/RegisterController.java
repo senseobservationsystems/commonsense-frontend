@@ -4,7 +4,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -67,7 +67,7 @@ public class RegisterController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_USERS + ".json";
+        final String url = Urls.USERS + ".json";
         final AppEvent onSuccess = new AppEvent(RegisterEvents.AjaxRegisterSuccess);
         onSuccess.setData("username", username);
         onSuccess.setData("password", password);

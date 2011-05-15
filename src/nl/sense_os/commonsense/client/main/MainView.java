@@ -12,7 +12,7 @@ import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;

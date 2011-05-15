@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.main.components;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;

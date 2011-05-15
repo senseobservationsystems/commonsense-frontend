@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.client.main;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

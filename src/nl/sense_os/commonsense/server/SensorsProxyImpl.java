@@ -8,15 +8,15 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.rpc.SensorsProxy;
 import nl.sense_os.commonsense.server.utility.SensorConverter;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.DeviceModel;
-import nl.sense_os.commonsense.shared.GroupModel;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.ServiceModel;
-import nl.sense_os.commonsense.shared.TagModel;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
@@ -48,7 +48,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         long total = fetched + 1;
         int page = 0;
         while (total > fetched) {
-            String url = Constants.URL_SENSORS + "?per_page=" + perPage + "&page=" + page + params;
+            String url = Urls.SENSORS + "?per_page=" + perPage + "&page=" + page + params;
             String response = Requester.request(url, sessionId, "GET", null);
 
             total = SensorConverter.parseSensors(response, sensors);
@@ -131,8 +131,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         for (SensorModel sensor : sensors) {
 
             // request all available services for this sensor
-            String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
-                    + "/services/available";
+            String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/available";
             String response = Requester.request(url, sessionId, "GET", null);
             List<ServiceModel> sensorServices = parseAvailableServices(response);
 
@@ -164,7 +163,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
 
         // get list of physical sensors
         params = "?per_page=1000&physical=1&" + params;
-        String url = Constants.URL_SENSORS + params;
+        String url = Urls.SENSORS + params;
         String response = Requester.request(url, sessionId, "GET", null);
         List<SensorModel> sensors = new ArrayList<SensorModel>();
         SensorConverter.parseSensors(response, sensors);
@@ -280,7 +279,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             throws WrongResponseException, DbConnectionException {
 
         String path = "/" + id + "/users";
-        String url = Constants.URL_SENSORS + path + "?" + params;
+        String url = Urls.SENSORS + path + "?" + params;
         String response = Requester.request(url, sessionId, "GET", null);
         return parseUsers(response);
     }
@@ -348,7 +347,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
 
         // request the sensor name that is associated with each service
         for (TreeModel service : services) {
-            String url = Constants.URL_SENSORS + "/" + service.<String> get("id") + "/sensors";
+            String url = Urls.SENSORS + "/" + service.<String> get("id") + "/sensors";
             String response = Requester.request(url, sessionId, "GET", null);
 
             List<SensorModel> serviceSources = new ArrayList<SensorModel>();
@@ -366,7 +365,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
             throws WrongResponseException, DbConnectionException {
 
         // request all available services for this sensor
-        String url = Constants.URL_SENSORS + "/" + sensorId + "/services/available";
+        String url = Urls.SENSORS + "/" + sensorId + "/services/available";
         String response = Requester.request(url, sessionId, "GET", null);
         List<ServiceModel> availableServices = parseAvailableServices(response);
 

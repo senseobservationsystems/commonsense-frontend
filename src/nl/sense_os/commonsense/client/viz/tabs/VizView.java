@@ -11,7 +11,7 @@ import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.panels.table.SensorDataGrid;
 import nl.sense_os.commonsense.client.viz.panels.timeline.TimeLinePanel;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;

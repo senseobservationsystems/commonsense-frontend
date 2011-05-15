@@ -1,4 +1,10 @@
-package nl.sense_os.commonsense.shared;
+package nl.sense_os.commonsense.client.utility;
+
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -7,9 +13,9 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 /**
  * Utility class to copy Sense tree-based objects.
  */
-public class Copier {
+public class TreeCopier {
 
-    private Copier() {
+    private TreeCopier() {
         // Private constructor to make sure this class is not instantiated.
     }
 

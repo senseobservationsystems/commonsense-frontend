@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.dnd.DND.Operation;
 import com.extjs.gxt.ui.client.dnd.DropTarget;

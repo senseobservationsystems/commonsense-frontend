@@ -10,9 +10,10 @@ import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.EnvironmentModel;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.EnvironmentModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -47,7 +48,7 @@ public class EnvController extends Controller {
 
         // prepare request properties
         final String method = "DELETE";
-        final String url = Constants.URL_ENVIRONMENTS + "/" + environment.getId();
+        final String url = Urls.ENVIRONMENTS + "/" + environment.getId();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvEvents.DeleteAjaxSuccess);
         onSuccess.setData("environment", environment);
@@ -166,7 +167,7 @@ public class EnvController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_ENVIRONMENTS;
+        final String url = Urls.ENVIRONMENTS;
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvEvents.ListAjaxSuccess);
         onSuccess.setData("callback", callback);

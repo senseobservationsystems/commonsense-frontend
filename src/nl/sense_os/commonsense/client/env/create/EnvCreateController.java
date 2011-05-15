@@ -9,10 +9,11 @@ import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
 import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.DeviceModel;
-import nl.sense_os.commonsense.shared.EnvironmentModel;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.EnvironmentModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -61,8 +62,7 @@ public class EnvCreateController extends Controller {
 
             // prepare request properties
             final String method = "POST";
-            final String url = Constants.URL_ENVIRONMENTS + "/" + environment.getId()
-                    + "/sensors.json";
+            final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + "/sensors.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(EnvCreateEvents.AddSensorsAjaxSuccess);
             onSuccess.setData("environment", environment);
@@ -100,7 +100,7 @@ public class EnvCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_SENSORS + "/" + sensor.getId() + "/device.json";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/device.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvCreateEvents.SensorToDeviceAjaxSuccess);
         onSuccess.setData("sensor", sensor);
@@ -140,7 +140,7 @@ public class EnvCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_ENVIRONMENTS + ".json";
+        final String url = Urls.ENVIRONMENTS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvCreateEvents.CreateAjaxSuccess);
         onSuccess.setData("sensors", sensors);
@@ -181,7 +181,7 @@ public class EnvCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_SENSORS + ".json";
+        final String url = Urls.SENSORS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvCreateEvents.CreateSensorAjaxSuccess);
         onSuccess.setData("devices", devices);
@@ -211,7 +211,7 @@ public class EnvCreateController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_DEVICES + "/" + device.getId() + "/sensors";
+        final String url = Urls.DEVICES + "/" + device.getId() + "/sensors";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvCreateEvents.PositionSensorAjaxSuccess);
         onSuccess.setData("devices", devices);
@@ -516,7 +516,7 @@ public class EnvCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_SENSORS + "/" + positionSensor.getId() + "/data.json";
+        final String url = Urls.SENSORS + "/" + positionSensor.getId() + "/data.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvCreateEvents.SetPositionAjaxSuccess);
         onSuccess.setData("devices", devices);

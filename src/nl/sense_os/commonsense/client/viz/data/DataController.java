@@ -10,8 +10,9 @@ import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -186,7 +187,7 @@ public class DataController extends Controller {
             }
 
             final String method = "GET";
-            String url = Constants.URL_DATA.replace("<id>", sensor.getId());
+            String url = Urls.DATA.replace("<id>", sensor.getId());
             url += "?page=" + pageIndex;
             url += "&per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);

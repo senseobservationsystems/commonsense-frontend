@@ -5,7 +5,7 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.choice.VizTypeChooser;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.constants.Keys;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -72,7 +72,7 @@ public class VizController extends Controller {
             return;
         }
 
-        Maps.loadMapsApi(Constants.MAPS_KEY, "2", false, new Runnable() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {

@@ -5,8 +5,9 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -195,7 +196,7 @@ public class FeedbackController extends Controller {
 
             // prepare request properties
             final String method = "GET";
-            final String url = Constants.URL_SENSORS + "/" + sensor.getId() + "/services/"
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/"
                     + state.getId() + "/GetClassLabels.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(FeedbackEvents.LabelsAjaxSuccess);
@@ -245,8 +246,8 @@ public class FeedbackController extends Controller {
 
             // prepare request properties
             final String method = "POST";
-            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
-                    + "/services/" + state.getId() + "/manualLearn.json";
+            final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/"
+                    + state.getId() + "/manualLearn.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
             onSuccess.setData("state", state);

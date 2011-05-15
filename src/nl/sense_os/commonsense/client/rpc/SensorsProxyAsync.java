@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.rpc;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.sensors.library.LibraryController;
-import nl.sense_os.commonsense.shared.ServiceModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;

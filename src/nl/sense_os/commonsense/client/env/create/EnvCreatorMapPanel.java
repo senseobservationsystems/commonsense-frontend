@@ -7,8 +7,8 @@ import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;

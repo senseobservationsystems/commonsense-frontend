@@ -5,8 +5,9 @@ import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -49,7 +50,7 @@ public class LoginController extends Controller {
      * successful.
      */
     private void getCurrentUser() {
-        final String url = Constants.URL_USERS + "/current";
+        final String url = Urls.USERS + "/current";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // send request to AjaxController
@@ -124,7 +125,7 @@ public class LoginController extends Controller {
     private void login(String username, String password) {
 
         // prepare request properties
-        String url = Constants.URL_LOGIN + ".json";
+        String url = Urls.LOGIN + ".json";
         String hashPass = Md5Hasher.hash(password);
         String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
 
@@ -141,7 +142,7 @@ public class LoginController extends Controller {
     private void logout(AppEvent event) {
 
         // prepare request properties
-        String url = Constants.URL_LOGOUT;
+        String url = Urls.LOGOUT;
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // send request to AjaxController

@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.common.json.parsers;
 
 import java.util.HashMap;
 
-import nl.sense_os.commonsense.shared.DeviceModel;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.google.gwt.json.client.JSONObject;
 

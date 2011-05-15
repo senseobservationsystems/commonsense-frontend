@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;

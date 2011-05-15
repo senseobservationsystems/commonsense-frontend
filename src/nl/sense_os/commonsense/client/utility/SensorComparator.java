@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.utility;
 
 import java.util.Comparator;
 
-import nl.sense_os.commonsense.shared.DeviceModel;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 

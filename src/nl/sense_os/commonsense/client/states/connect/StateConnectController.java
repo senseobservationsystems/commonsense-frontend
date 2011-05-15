@@ -1,11 +1,14 @@
 package nl.sense_os.commonsense.client.states.connect;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.ServiceModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -19,8 +22,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.List;
 
 public class StateConnectController extends Controller {
     private static final String TAG = "StateConnectController";
@@ -45,7 +46,7 @@ public class StateConnectController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
+        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID)
                 + "/services.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ConnectAjaxSuccess);
@@ -107,7 +108,7 @@ public class StateConnectController extends Controller {
         SensorModel sensor = (SensorModel) service.getChild(0);
 
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get(SensorModel.ID)
+        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID)
                 + "/services";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ServiceNameAjaxSuccess);

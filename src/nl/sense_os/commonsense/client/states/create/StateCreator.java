@@ -10,8 +10,8 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.ServiceModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;

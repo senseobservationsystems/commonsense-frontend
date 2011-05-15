@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.server.ivo.utility;
 
 import nl.sense_os.commonsense.server.ivo.data.User;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 public class UserConverter {
 

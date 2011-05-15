@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;

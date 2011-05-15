@@ -4,8 +4,9 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -43,7 +44,7 @@ public class SensorDeleteController extends Controller {
 
             // prepare request properties
             final String method = "DELETE";
-            final String url = Constants.URL_SENSORS + "/" + sensor.getId();
+            final String url = Urls.SENSORS + "/" + sensor.getId();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(SensorDeleteEvents.DeleteAjaxSuccess);
             onSuccess.setData("sensors", sensors);

@@ -7,11 +7,11 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.rpc.GroupsProxy;
 import nl.sense_os.commonsense.server.utility.GroupConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.GroupModel;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.exceptions.DbConnectionException;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -27,7 +27,7 @@ public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy
             WrongResponseException {
 
         // get list of groups
-        String url = Constants.URL_GROUPS;
+        String url = Urls.GROUPS;
         String response = Requester.request(url, sessionId, "GET", null);
         List<ModelData> groupsIds = GroupConverter.parseGroupIds(response);
 
@@ -35,11 +35,11 @@ public class GroupsProxyImpl extends RemoteServiceServlet implements GroupsProxy
         for (ModelData model : groupsIds) {
             String groupId = model.get("group_id");
 
-            url = Constants.URL_GROUPS + "/" + groupId;
+            url = Urls.GROUPS + "/" + groupId;
             response = Requester.request(url, sessionId, "GET", null);
             GroupModel details = GroupConverter.parseGroup(response);
 
-            url = Constants.URL_GROUPS + "/" + groupId + "/users";
+            url = Urls.GROUPS + "/" + groupId + "/users";
             response = Requester.request(url, sessionId, "GET", null);
             List<UserModel> users = UserConverter.parseGroupUsers(response);
 

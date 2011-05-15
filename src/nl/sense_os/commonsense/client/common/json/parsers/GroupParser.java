@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.GroupModel;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;

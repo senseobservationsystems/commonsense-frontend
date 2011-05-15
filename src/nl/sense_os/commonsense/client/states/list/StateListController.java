@@ -12,11 +12,12 @@ import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.TreeCopier;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.Copier;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -63,7 +64,7 @@ public class StateListController extends Controller {
 
         // prepare request data
         final String method = "DELETE";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id") + "/services/"
+        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/"
                 + service.<String> get("id");
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxDisconnectSuccess);
@@ -91,7 +92,7 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "/" + state.getId() + "/sensors";
+        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.ConnectedAjaxSuccess);
         onSuccess.setData("state", state);
@@ -116,7 +117,7 @@ public class StateListController extends Controller {
         if (sensors.size() > 0) {
             // prepare request properties
             final String method = "GET";
-            final String url = Constants.URL_SENSORS + "/" + sensors.get(0).getId() + "/services/"
+            final String url = Urls.SENSORS + "/" + sensors.get(0).getId() + "/services/"
                     + state.getId() + "/methods";
             final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(StateListEvents.GetMethodsAjaxSuccess);
@@ -145,7 +146,7 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "?per_page=1000&details=full";
+        final String url = Urls.SENSORS + "?per_page=1000&details=full";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxStateSensorsSuccess);
         onSuccess.setData("callback", callback);
@@ -275,7 +276,7 @@ public class StateListController extends Controller {
         for (SensorModel sensor : sensors) {
             int index = library.indexOf(sensor);
             if (index != -1) {
-                SensorModel detailed = (SensorModel) Copier.copySensor(library.get(index));
+                SensorModel detailed = (SensorModel) TreeCopier.copySensor(library.get(index));
                 state.add(detailed);
                 result.add(detailed);
             } else {

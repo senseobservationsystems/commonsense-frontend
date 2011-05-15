@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;

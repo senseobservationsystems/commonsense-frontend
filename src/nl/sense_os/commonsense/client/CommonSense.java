@@ -32,7 +32,8 @@ import nl.sense_os.commonsense.client.states.list.StateListController;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Keys;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
@@ -207,7 +208,7 @@ public class CommonSense implements EntryPoint {
 
     @SuppressWarnings("unused")
     private void testEnvCreator() {
-        Maps.loadMapsApi(Constants.MAPS_KEY, "2", false, new Runnable() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {

@@ -3,7 +3,8 @@ package nl.sense_os.commonsense.client.groups.create;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -27,7 +28,7 @@ public class GroupCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_GROUPS + ".json";
+        final String url = Urls.GROUPS + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupCreateEvents.CreateAjaxSuccess);
         final AppEvent onFailure = new AppEvent(GroupCreateEvents.CreateAjaxFailure);

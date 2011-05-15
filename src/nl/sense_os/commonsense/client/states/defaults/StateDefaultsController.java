@@ -4,9 +4,10 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.DeviceModel;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.DeviceModel;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -30,7 +31,7 @@ public class StateDefaultsController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_STATES + "/default/check.json";
+        final String url = Urls.STATES + "/default/check.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateDefaultsEvents.AjaxDefaultsSuccess);
         final AppEvent onFailure = new AppEvent(StateDefaultsEvents.AjaxDefaultsFailure);
@@ -101,6 +102,7 @@ public class StateDefaultsController extends Controller {
         }
 
     }
+
     @Override
     protected void initialize() {
         super.initialize();

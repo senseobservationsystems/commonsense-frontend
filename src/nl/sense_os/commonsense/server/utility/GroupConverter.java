@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.GroupModel;
-import nl.sense_os.commonsense.shared.TagModel;
 import nl.sense_os.commonsense.shared.exceptions.WrongResponseException;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;

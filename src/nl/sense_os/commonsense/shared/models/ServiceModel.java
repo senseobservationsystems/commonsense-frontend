@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.shared;
+package nl.sense_os.commonsense.shared.models;
 
 import java.util.List;
 import java.util.Map;

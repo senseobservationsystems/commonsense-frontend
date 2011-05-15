@@ -11,9 +11,10 @@ import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.GroupModel;
-import nl.sense_os.commonsense.shared.UserModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -70,7 +71,7 @@ public class GroupController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_GROUPS + "/" + group.getId() + "/users";
+        final String url = Urls.GROUPS + "/" + group.getId() + "/users";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.GroupMembersAjaxSuccess);
         onSuccess.setData("callback", callback);
@@ -106,7 +107,7 @@ public class GroupController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_GROUPS;
+        final String url = Urls.GROUPS;
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.GroupsAjaxSuccess);
         onSuccess.setData("callback", callback);
@@ -218,7 +219,7 @@ public class GroupController extends Controller {
 
         // prepare request property
         final String method = "DELETE";
-        final String url = Constants.URL_GROUPS + "/" + groupId;
+        final String url = Urls.GROUPS + "/" + groupId;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxLeaveSuccess);
         final AppEvent onFailure = new AppEvent(GroupEvents.AjaxLeaveFailure);

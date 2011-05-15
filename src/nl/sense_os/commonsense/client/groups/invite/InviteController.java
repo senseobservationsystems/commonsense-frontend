@@ -2,7 +2,8 @@ package nl.sense_os.commonsense.client.groups.invite;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -69,7 +70,7 @@ public class InviteController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_GROUPS + "/" + groupId + "/users.json";
+        final String url = Urls.GROUPS + "/" + groupId + "/users.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(InviteEvents.InviteAjaxSuccess);
         final AppEvent onFailure = new AppEvent(InviteEvents.InviteAjaxFailure);

@@ -8,7 +8,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;

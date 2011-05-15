@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -155,7 +156,7 @@ public class SensorDataGrid extends LayoutContainer {
 
         String id = sensors.get(0).<String> get("id");
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        String result = Constants.URL_DATA.replaceAll("<id>", id);
+        String result = Urls.DATA.replaceAll("<id>", id);
         result += "?session_id=" + sessionId;
 
         final String alias = sensors.get(0).get("alias");

@@ -6,9 +6,10 @@ import java.util.List;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.SensorModel;
-import nl.sense_os.commonsense.shared.ServiceModel;
+import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.ServiceModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -52,8 +53,7 @@ public class StateCreateController extends Controller {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
-                + "/services.json";
+        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxCreateSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxCreateFailure);
@@ -93,7 +93,7 @@ public class StateCreateController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id")
+        final String url = Urls.SENSORS + "/" + sensor.<String> get("id")
                 + "/services/available" + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
