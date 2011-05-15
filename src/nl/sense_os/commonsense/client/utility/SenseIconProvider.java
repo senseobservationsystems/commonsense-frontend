@@ -1,7 +1,9 @@
 package nl.sense_os.commonsense.client.utility;
 
 import nl.sense_os.commonsense.shared.Constants;
-import nl.sense_os.commonsense.shared.TagModel;
+import nl.sense_os.commonsense.shared.DeviceModel;
+import nl.sense_os.commonsense.shared.GroupModel;
+import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -42,37 +44,38 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     protected static final AbstractImagePrototype ICON_USER_ME = IconHelper.create(SENSE_ICONS_PATH
             + "user_zorro.png");
 
+    public static final AbstractImagePrototype ICON_LOADING = IconHelper
+            .create("gxt/images/gxt/icons/loading.gif");
+    public static final AbstractImagePrototype ICON_BUTTON_GO = IconHelper
+            .create("gxt/images/gxt/icons/page-next.gif");
+
     @Override
     public AbstractImagePrototype getIcon(M model) {
 
-        final int tagType = model.<Integer> get("tagType");
-        if (tagType == TagModel.TYPE_GROUP) {
+        if (model instanceof GroupModel) {
             return ICON_GROUP;
 
-        } else if (tagType == TagModel.TYPE_DEVICE) {
+        } else if (model instanceof DeviceModel) {
             return ICON_DEVICE;
 
-        } else if (tagType == TagModel.TYPE_SENSOR) {
+        } else if (model instanceof SensorModel) {
             final int type = Integer.parseInt(model.<String> get("type"));
             switch (type) {
-                case 0 :
-                    return ICON_SENSOR_FEED;
-                case 1 :
-                    return ICON_SENSOR_DEVICE;
-                case 2 :
-                    return ICON_SENSOR_STATE;
-                case 3 :
-                    return ICON_SENSOR_PUBLIC;
-                case 4 :
-                    return ICON_SENSOR_ENVIRONMENT;
-                default :
-                    return ICON_GXT_LEAF;
+            case 0:
+                return ICON_SENSOR_FEED;
+            case 1:
+                return ICON_SENSOR_DEVICE;
+            case 2:
+                return ICON_SENSOR_STATE;
+            case 3:
+                return ICON_SENSOR_PUBLIC;
+            case 4:
+                return ICON_SENSOR_ENVIRONMENT;
+            default:
+                return ICON_GXT_LEAF;
             }
 
-        } else if (tagType == TagModel.TYPE_SERVICE) {
-            return ICON_GXT_LEAF;
-
-        } else if (tagType == TagModel.TYPE_USER) {
+        } else if (model instanceof UserModel) {
             final UserModel me = Registry.<UserModel> get(Constants.REG_USER);
             if (model.equals(me)) {
                 return ICON_USER_ME;
@@ -80,11 +83,8 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
                 return ICON_USER;
             }
 
-        } else if (tagType == TagModel.TYPE_CATEGORY) {
-            return ICON_GXT_FOLDER;
-
         } else {
-            Log.e(TAG, "Unexpected tag type in ModelIconProvider: " + tagType);
+            Log.e(TAG, "Unexpected model class: " + model);
             return ICON_GXT_DONE;
         }
     }
