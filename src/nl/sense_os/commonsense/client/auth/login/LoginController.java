@@ -172,9 +172,7 @@ public class LoginController extends Controller {
     private void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
-        Registry.unregister(Constants.REG_SENSOR_LIST);
-        Registry.unregister(Constants.REG_DEVICE_LIST);
-        Registry.unregister(Constants.REG_ENVIRONMENT_LIST);
+
         Registry.unregister(Constants.REG_GROUPS);
         Registry.unregister(Constants.REG_SERVICES);
         Registry.unregister(Constants.REG_MY_SENSORS_TREE);
