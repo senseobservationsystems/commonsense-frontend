@@ -66,21 +66,9 @@ public class SensorParser {
             JSONObject ownerJson = rawOwner.isObject();
             UserModel owner = UserParser.parseUser(ownerJson);
             props.put(SensorModel.OWNER, owner);
-            props.put(SensorModel.OWNER_ID, owner.getId());
-            props.put(SensorModel.OWNER_EMAIL, owner.getEmail());
-            props.put(SensorModel.OWNER_MOBILE, owner.getMobile());
-            props.put(SensorModel.OWNER_NAME, owner.getName());
-            props.put(SensorModel.OWNER_SURNAME, owner.getSurname());
-            props.put(SensorModel.OWNER_USERNAME, owner.getUsername());
         } else {
             UserModel owner = Registry.get(Constants.REG_USER);
             props.put(SensorModel.OWNER, owner);
-            props.put(SensorModel.OWNER_ID, owner.getId());
-            props.put(SensorModel.OWNER_EMAIL, owner.getEmail());
-            props.put(SensorModel.OWNER_MOBILE, owner.getMobile());
-            props.put(SensorModel.OWNER_NAME, owner.getName());
-            props.put(SensorModel.OWNER_SURNAME, owner.getSurname());
-            props.put(SensorModel.OWNER_USERNAME, owner.getUsername());
         }
 
         // special device object
@@ -89,9 +77,6 @@ public class SensorParser {
             JSONObject deviceJson = rawDevice.isObject();
             DeviceModel device = DeviceParser.parse(deviceJson);
             props.put(SensorModel.DEVICE, device);
-            props.put(SensorModel.DEVICE_ID, device.getId());
-            props.put(SensorModel.DEVICE_TYPE, device.getType());
-            props.put(SensorModel.DEVICE_UUID, device.getUuid());
         }
 
         // special environment object
@@ -100,11 +85,6 @@ public class SensorParser {
             JSONObject environmentJson = rawEnvironment.isObject();
             EnvironmentModel environment = EnvironmentParser.parse(environmentJson);
             props.put(SensorModel.ENVIRONMENT, environment);
-            props.put(SensorModel.ENVIRONMENT_ID, environment.getId());
-            props.put(SensorModel.ENVIRONMENT_NAME, environment.getName());
-            props.put(SensorModel.ENVIRONMENT_FLOORS, environment.getFloors());
-            props.put(SensorModel.ENVIRONMENT_OUTLINE, environment.getOutline());
-            props.put(SensorModel.ENVIRONMENT_POSITION, environment.getPosition());
         }
 
         // front end-only properties
@@ -113,6 +93,7 @@ public class SensorParser {
 
         return new SensorModel(props);
     }
+
     public static int parseSensors(String jsonString, List<SensorModel> list) {
 
         int total = 0;
