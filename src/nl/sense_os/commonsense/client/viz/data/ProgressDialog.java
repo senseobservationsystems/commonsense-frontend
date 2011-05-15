@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.viz.data;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.Style.Scroll;

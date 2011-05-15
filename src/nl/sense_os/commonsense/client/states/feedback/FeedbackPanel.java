@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;

@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states.defaults;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.constants.Constants;

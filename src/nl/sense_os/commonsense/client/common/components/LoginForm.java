@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common.forms;
+package nl.sense_os.commonsense.client.common.components;
 
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 

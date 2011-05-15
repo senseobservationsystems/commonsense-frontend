@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.sensors.delete;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.models.SensorModel;

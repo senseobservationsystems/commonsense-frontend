@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.auth.registration;
 
-import nl.sense_os.commonsense.client.common.forms.RegisterForm;
+import nl.sense_os.commonsense.client.common.components.RegisterForm;
 import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.event.EventType;

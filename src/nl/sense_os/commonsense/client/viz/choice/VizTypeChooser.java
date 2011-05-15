@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.viz.choice;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;

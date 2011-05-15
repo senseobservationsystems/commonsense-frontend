@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.states.create;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.client.utility.Log;

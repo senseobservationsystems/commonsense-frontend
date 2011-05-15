@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common;
+package nl.sense_os.commonsense.client.common.components;
 
 import com.extjs.gxt.ui.client.widget.Window;
 

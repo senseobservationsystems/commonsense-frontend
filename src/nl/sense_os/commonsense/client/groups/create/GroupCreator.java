@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.groups.create;
 
-import nl.sense_os.commonsense.client.common.CenteredWindow;
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 

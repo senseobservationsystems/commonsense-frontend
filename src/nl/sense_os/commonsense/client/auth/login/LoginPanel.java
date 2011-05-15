@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.common.forms.LoginForm;
+import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 
