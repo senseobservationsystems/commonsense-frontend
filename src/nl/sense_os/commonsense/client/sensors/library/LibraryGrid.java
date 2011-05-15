@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -12,19 +11,18 @@ import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ListLoadConfig;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoader;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -50,43 +48,41 @@ import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class SensorLibrary extends View {
+public class LibraryGrid extends View {
 
-    private static final String TAG = "SensorLibrary";
+    private static final String TAG = "LibraryGrid";
     private ContentPanel panel;
-    private ListLoader<ListLoadResult<SensorModel>> loader;
+    private BaseListLoader<ListLoadResult<SensorModel>> loader;
     private GroupingStore<SensorModel> store;
     private Grid<SensorModel> grid;
     private ToolBar toolBar;
-    private ToolButton refreshButton;
     private Button shareButton;
     private Button removeButton;
     private Button vizButton;
     private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
-    private boolean isOutdated = false;
+    private boolean force = true;
 
-    public SensorLibrary(Controller controller) {
+    public LibraryGrid(Controller controller) {
         super(controller);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
+
         if (type.equals(MainEvents.Init)) {
             // do nothing, initialization is done in initialize()
 
-        } else if (type.equals(SensorLibraryEvents.ShowLibrary)) {
-            // Log.d(TAG, "ShowTree");
+        } else if (type.equals(LibraryEvents.ShowLibrary)) {
+            // Log.d(TAG, "ShowLibrary");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
@@ -100,40 +96,37 @@ public class SensorLibrary extends View {
             // Log.d(TAG, "Library changed");
             onLibChanged();
 
-        } else if (type.equals(SensorLibraryEvents.Done)) {
-            // Log.d(TAG, "TreeUpdated");
+        } else if (type.equals(LibraryEvents.Done)) {
+            // Log.d(TAG, "Done");
             setBusy(false);
 
-        } else if (type.equals(SensorLibraryEvents.Working)) {
+        } else if (type.equals(LibraryEvents.Working)) {
             // Log.d(TAG, "Working");
             setBusy(true);
 
-        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
+        } else if (type.equals(LibraryEvents.ListUpdated)) {
             // Log.d(TAG, "ListUpdated");
             onListUpdate();
 
         } else if (type.equals(VizEvents.Show)) {
             // Log.d(TAG, "Show Visualization");
-            refreshLoader(false);
-
-        } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
-            onLoggedOut(event);
+            refreshLoader(true);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            Log.e(TAG, "Ignoring event... " + event + ", source: " + event.getSource() + ".");
         }
     }
 
     private void initHeaderTool() {
-        this.refreshButton = new ToolButton("x-tool-refresh");
-        this.refreshButton.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+        ToolButton refresh = new ToolButton("x-tool-refresh");
+        refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
             @Override
             public void componentSelected(IconButtonEvent ce) {
                 refreshLoader(true);
             }
         });
+        this.panel.getHeader().addTool(refresh);
     }
 
     @Override
@@ -152,13 +145,14 @@ public class SensorLibrary extends View {
             }
         });
 
+        force = true;
+
         initGrid();
         initFilter();
         initToolBar();
         initHeaderTool();
 
         // do layout
-        this.panel.getHeader().addTool(this.refreshButton);
         this.panel.setTopComponent(this.toolBar);
         ContentPanel content = new ContentPanel(new FitLayout());
         content.setBodyBorder(false);
@@ -182,7 +176,7 @@ public class SensorLibrary extends View {
 
                 if (record.getName().contains(filter.toLowerCase())) {
                     return true;
-                } else if (record.getDeviceType().contains(filter.toLowerCase())) {
+                } else if (record.getPhysicalSensor().contains(filter.toLowerCase())) {
                     return true;
                 } else if (record.getDevice() != null
                         && record.getDevice().getType().contains(filter.toLowerCase())) {
@@ -257,7 +251,8 @@ public class SensorLibrary extends View {
     }
 
     private void initGrid() {
-        // tree store
+
+        // proxy
         DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
 
             @Override
@@ -266,101 +261,54 @@ public class SensorLibrary extends View {
                 // only load when the panel is not collapsed
                 if (panel.isExpanded()) {
                     if (loadConfig instanceof ListLoadConfig) {
-                        fireEvent(new AppEvent(SensorLibraryEvents.ListRequested, callback));
+                        // Log.d(TAG, "Load library... Renew cache: " + force);
+                        AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
+                        loadRequest.setData("callback", callback);
+                        loadRequest.setData("renewCache", force);
+                        fireEvent(loadRequest);
+                        force = false;
                     } else {
-                        Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                        Log.w(TAG, "Unexpected load config: " + loadConfig);
                         callback.onFailure(null);
                     }
                 }
             }
         };
+
+        // list loader
         this.loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
+
+        // list store
         this.store = new GroupingStore<SensorModel>(loader);
-        this.store.setKeyProvider(new ModelKeyProvider<SensorModel>() {
-
-            @Override
-            public String getKey(SensorModel model) {
-                return model.getId() + model.getName() + model.getDeviceType() + model.getType();
-            }
-
-        });
-        // this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
-        this.store.groupBy(SensorModel.TYPE);
-        this.store.setDefaultSort(SensorModel.TYPE, SortDir.DESC);
-        this.store.setSortField(SensorModel.TYPE);
+        this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
 
-        GroupingView groupingView = new GroupingView();
-        groupingView.setShowGroupedColumn(true);
-        groupingView.setForceFit(true);
-        groupingView.setGroupRenderer(new GridGroupRenderer() {
-
-            public String render(GroupColumnData data) {
-
-                String field = data.group;
-                if (data.field.equals(SensorModel.TYPE)) {
-                    int group = Integer.parseInt(data.group);
-                    switch (group) {
-                    case 0:
-                        field = "Feeds";
-                        break;
-                    case 1:
-                        field = "Physical";
-                        break;
-                    case 2:
-                        field = "States";
-                        break;
-                    case 3:
-                        field = "Environment sensors";
-                        break;
-                    case 4:
-                        field = "Public sensors";
-                        break;
-                    default:
-                        field = "Unsorted";
-                    }
-                } else if (data.field.equals("dev_uuid")) {
-
-                } else {
-                    if (data.group.equals("")) {
-                        return "Ungrouped";
-                    } else {
-                        return data.group;
-                    }
-                }
-
-                String count = data.models.size() == 1 ? "Sensor" : "Sensors";
-                return field + " (" + data.models.size() + " " + count + ")";
-            }
-        });
+        // grouping view for the grid
+        GroupingView view = new GroupingView();
+        view.setShowGroupedColumn(true);
+        view.setForceFit(true);
+        view.setGroupRenderer(new SensorGroupRenderer(cm));
 
         this.grid = new Grid<SensorModel>(this.store, cm);
-        this.grid.setView(groupingView);
+        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
+        this.grid.setView(view);
         this.grid.setBorders(false);
-        this.grid.setId("libraryGrid");
+        this.grid.setId("library-grid");
         this.grid.setStateful(true);
         this.grid.setLoadMask(true);
     }
 
     private void onListUpdate() {
         this.filter.clear();
-        this.isOutdated = false;
     }
 
     private void onLibChanged() {
-        this.isOutdated = true;
         refreshLoader(false);
     }
 
-    private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
-    }
-
     private void onRemoveClick() {
-        Log.d(TAG, "OnRemoveClick");
-
         // get sensor models from the selection
         final List<SensorModel> sensors = this.grid.getSelectionModel().getSelection();
 
@@ -374,7 +322,7 @@ public class SensorLibrary extends View {
         }
     }
 
-    protected void onShareClick() {
+    private void onShareClick() {
         List<SensorModel> sensors = this.grid.getSelectionModel().getSelection();
         AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
         shareEvent.setData("sensors", sensors);
@@ -387,14 +335,16 @@ public class SensorLibrary extends View {
     }
 
     private void refreshLoader(boolean force) {
-        if (force || (this.store.getCount() == 0 || this.isOutdated) && this.panel.isExpanded()) {
-            loader.load();
-        }
+        this.force = force;
+        this.loader.load();
     }
 
     private void setBusy(boolean busy) {
-        String icon = busy ? Constants.ICON_LOADING : "";
-        this.panel.getHeader().setIcon(IconHelper.create(icon));
+        if (busy) {
+            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+        } else {
+            this.panel.getHeader().setIcon(IconHelper.create(""));
+        }
     }
 
     /**

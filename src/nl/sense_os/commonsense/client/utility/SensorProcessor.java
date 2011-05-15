@@ -17,34 +17,49 @@ public class SensorProcessor<M extends SensorModel> extends ModelProcessor<M> {
     @Override
     public M prepareData(M model) {
 
-        @SuppressWarnings("unchecked")
-        final M result = (M) new SensorModel(model.getProperties());
-
         final UserModel owner = model.getOwner();
         if (null != owner) {
-            result.set(SensorModel.OWNER_EMAIL, owner.getEmail());
-            result.set(SensorModel.OWNER_ID, owner.getId());
-            result.set(SensorModel.OWNER_MOBILE, owner.getMobile());
-            result.set(SensorModel.OWNER_NAME, owner.getName());
-            result.set(SensorModel.OWNER_SURNAME, owner.getSurname());
-            result.set(SensorModel.OWNER_USERNAME, owner.getUsername());
+            model.set(SensorModel.OWNER_EMAIL, owner.getEmail());
+            model.set(SensorModel.OWNER_ID, owner.getId());
+            model.set(SensorModel.OWNER_MOBILE, owner.getMobile());
+            model.set(SensorModel.OWNER_NAME, owner.getName());
+            model.set(SensorModel.OWNER_SURNAME, owner.getSurname());
+            model.set(SensorModel.OWNER_USERNAME, owner.getUsername());
+        } else {
+            model.remove(SensorModel.OWNER_EMAIL);
+            model.remove(SensorModel.OWNER_ID);
+            model.remove(SensorModel.OWNER_MOBILE);
+            model.remove(SensorModel.OWNER_NAME);
+            model.remove(SensorModel.OWNER_SURNAME);
+            model.remove(SensorModel.OWNER_USERNAME);
         }
 
         final DeviceModel device = model.getDevice();
         if (null != device) {
-            result.set(SensorModel.DEVICE_ID, device.getId());
-            result.set(SensorModel.DEVICE_TYPE, device.getType());
-            result.set(SensorModel.DEVICE_UUID, device.getUuid());
+            model.set(SensorModel.DEVICE_ID, device.getId());
+            model.set(SensorModel.DEVICE_TYPE, device.getType());
+            model.set(SensorModel.DEVICE_UUID, device.getUuid());
+        } else {
+            model.remove(SensorModel.DEVICE_ID);
+            model.remove(SensorModel.DEVICE_TYPE);
+            model.remove(SensorModel.DEVICE_UUID);
         }
 
         final EnvironmentModel environment = model.getEnvironment();
         if (null != environment) {
-            result.set(SensorModel.ENVIRONMENT_ID, environment.getId());
-            result.set(SensorModel.ENVIRONMENT_NAME, environment.getName());
-            result.set(SensorModel.ENVIRONMENT_FLOORS, environment.getFloors());
-            result.set(SensorModel.ENVIRONMENT_OUTLINE, environment.getOutline());
-            result.set(SensorModel.ENVIRONMENT_POSITION, environment.getPosition());
+            model.set(SensorModel.ENVIRONMENT_ID, environment.getId());
+            model.set(SensorModel.ENVIRONMENT_NAME, environment.getName());
+            model.set(SensorModel.ENVIRONMENT_FLOORS, environment.getFloors());
+            model.set(SensorModel.ENVIRONMENT_OUTLINE, environment.getOutline());
+            model.set(SensorModel.ENVIRONMENT_POSITION, environment.getPosition());
+        } else {
+            model.remove(SensorModel.ENVIRONMENT_ID);
+            model.remove(SensorModel.ENVIRONMENT_NAME);
+            model.remove(SensorModel.ENVIRONMENT_FLOORS);
+            model.remove(SensorModel.ENVIRONMENT_OUTLINE);
+            model.remove(SensorModel.ENVIRONMENT_POSITION);
         }
-        return result;
+
+        return model;
     }
 }

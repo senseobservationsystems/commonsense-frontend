@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.SensorsProxy;
+import nl.sense_os.commonsense.client.rpc.SensorsProxy;
 import nl.sense_os.commonsense.server.utility.SensorConverter;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;

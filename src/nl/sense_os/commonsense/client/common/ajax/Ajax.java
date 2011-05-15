@@ -97,8 +97,10 @@ public class Ajax {
 				xhr.open(method, url);
 				xhr.onload = handleSuccess;
 				xhr.onerror = handleFailure;
+				xhr.timeout = 10000;
 				xhr.ontimeout = handleTimeOut;
 				xhr.send(body);
+
 			} else {
 				xhr.open(method, url, true);
 				xhr.onreadystatechange = readyStateHandler;
@@ -107,6 +109,7 @@ public class Ajax {
 				}
 				xhr.send(body);
 			}
+
 		} else {
 			handleFailure();
 		}

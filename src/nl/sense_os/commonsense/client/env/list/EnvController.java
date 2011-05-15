@@ -12,6 +12,7 @@ import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.EnvironmentModel;
+import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -49,6 +50,7 @@ public class EnvController extends Controller {
         final String url = Constants.URL_ENVIRONMENTS + "/" + environment.getId();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvEvents.DeleteAjaxSuccess);
+        onSuccess.setData("environment", environment);
         final AppEvent onFailure = new AppEvent(EnvEvents.DeleteAjaxSuccess);
 
         // send request to AjaxController
@@ -67,7 +69,7 @@ public class EnvController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(EnvEvents.ListRequested)) {
-            // Log.d(TAG, "LoadRequest");
+            Log.d(TAG, "LoadRequest");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);
@@ -88,14 +90,15 @@ public class EnvController extends Controller {
         } else
 
         if (type.equals(EnvEvents.DeleteRequest)) {
-            // Log.d(TAG, "DeleteRequest");
+            Log.d(TAG, "DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            // Log.d(TAG, "DeleteAjaxSuccess");
+            Log.d(TAG, "DeleteAjaxSuccess");
             // final String response = event.getData("response");
-            onDeleteSuccess();
+            final EnvironmentModel environment = event.getData("environment");
+            onDeleteSuccess(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxFailure)) {
             Log.w(TAG, "DeleteAjaxFailure");
@@ -113,13 +116,26 @@ public class EnvController extends Controller {
     protected void initialize() {
         super.initialize();
         this.grid = new EnvGrid(this);
+        Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<EnvironmentModel>());
     }
 
     private void onDeleteFailure() {
         forwardToView(this.grid, new AppEvent(EnvEvents.DeleteFailure));
     }
 
-    private void onDeleteSuccess() {
+    private void onDeleteSuccess(EnvironmentModel environment) {
+
+        // update sensor library
+        List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
+        for (SensorModel sensor : library) {
+            if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
+                sensor.remove(SensorModel.ENVIRONMENT);
+            }
+        }
+
+        // update global environment list
+        Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).remove(environment);
+
         Dispatcher.forwardEvent(EnvEvents.DeleteSuccess);
     }
 
@@ -133,6 +149,9 @@ public class EnvController extends Controller {
     private void onListSuccess(String response, AsyncCallback<List<EnvironmentModel>> callback) {
         List<EnvironmentModel> environments = new ArrayList<EnvironmentModel>();
         EnvironmentParser.parseList(response, environments);
+
+        Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).addAll(environments);
+
         forwardToView(this.grid, new AppEvent(EnvEvents.Done));
         Dispatcher.forwardEvent(EnvEvents.ListUpdated);
         if (null != callback) {
@@ -143,6 +162,7 @@ public class EnvController extends Controller {
     private void requestList(AsyncCallback<List<EnvironmentModel>> callback) {
 
         forwardToView(this.grid, new AppEvent(EnvEvents.Working));
+        Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
         // prepare request properties
         final String method = "GET";

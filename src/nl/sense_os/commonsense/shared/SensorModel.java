@@ -67,7 +67,7 @@ public class SensorModel extends BaseTreeModel {
         return get(DEVICE);
     }
 
-    public String getDeviceType() {
+    public String getPhysicalSensor() {
         return get(PHYSICAL_SENSOR);
     }
 

@@ -254,7 +254,7 @@ public class StateListController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.tree = new StateList(this);
+        this.tree = new StateGrid(this);
     }
 
     private void onConnectedFailure(AsyncCallback<List<SensorModel>> callback) {
@@ -276,7 +276,7 @@ public class StateListController extends Controller {
             int index = library.indexOf(sensor);
             if (index != -1) {
                 SensorModel detailed = (SensorModel) Copier.copySensor(library.get(index));
-                detailed.setParent(state);
+                state.add(detailed);
                 result.add(detailed);
             } else {
                 sensor.setParent(state);

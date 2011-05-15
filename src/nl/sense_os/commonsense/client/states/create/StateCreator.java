@@ -5,17 +5,18 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
+import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.shared.SensorModel;
 import nl.sense_os.commonsense.shared.ServiceModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -29,7 +30,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -43,8 +43,6 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -130,7 +128,7 @@ public class StateCreator extends View {
                 }
             }
         };
-        this.createButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.createButton = new Button("Create", SenseIconProvider.ICON_BUTTON_GO, l);
 
         this.cancelButton = new Button("Cancel", l);
 
@@ -204,9 +202,6 @@ public class StateCreator extends View {
                             String sensorName = sensor.<String> get(SensorModel.NAME);
                             sensorName = sensorName.replace(' ', '_');
 
-                            Log.d(TAG, "Selected \'" + selected.get(ServiceModel.NAME) + "\', \'"
-                                    + sensorName + "\'");
-
                             List<String> dataFields = selected
                                     .<List<String>> get(ServiceModel.DATA_FIELDS);
                             for (String fieldName : dataFields) {
@@ -271,63 +266,20 @@ public class StateCreator extends View {
     private void initSensorsTree() {
 
         this.sensorsStore = new GroupingStore<SensorModel>();
-        this.sensorsStore.setKeyProvider(new ModelKeyProvider<SensorModel>() {
-
-            @Override
-            public String getKey(SensorModel model) {
-                return model.getId() + model.getName() + model.getDeviceType() + model.getType();
-            }
-
-        });
-        // this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
-        this.sensorsStore.groupBy(SensorModel.TYPE);
-        this.sensorsStore.setDefaultSort(SensorModel.TYPE, SortDir.DESC);
-        this.sensorsStore.setSortField(SensorModel.TYPE);
+        this.sensorsStore.setKeyProvider(new SenseKeyProvider<SensorModel>());
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
 
-        GroupingView groupingView = new GroupingView();
-        groupingView.setShowGroupedColumn(true);
-        groupingView.setForceFit(true);
-        groupingView.setGroupRenderer(new GridGroupRenderer() {
-            public String render(GroupColumnData data) {
-                if (data.field.equals(SensorModel.TYPE)) {
-                    int group = Integer.parseInt(data.group);
-                    String f = data.group;
-                    switch (group) {
-                    case 0:
-                        f = "Feeds";
-                        break;
-                    case 1:
-                        f = "Physical";
-                        break;
-                    case 2:
-                        f = "States";
-                        break;
-                    case 3:
-                        f = "Environment sensors";
-                        break;
-                    case 4:
-                        f = "Public sensors";
-                        break;
-                    default:
-                        f = "Unsorted";
-                    }
-                    String l = data.models.size() == 1 ? "Sensor" : "Sensors";
-                    return f + " (" + data.models.size() + " " + l + ")";
-                } else {
-                    if (data.group.equals("")) {
-                        return "Ungrouped";
-                    } else {
-                        return data.group;
-                    }
-                }
-            }
-        });
+        // grouping view
+        GroupingView view = new GroupingView();
+        view.setShowGroupedColumn(true);
+        view.setForceFit(true);
+        view.setGroupRenderer(new SensorGroupRenderer(cm));
 
         this.sensorsGrid = new Grid<SensorModel>(this.sensorsStore, cm);
-        this.sensorsGrid.setView(groupingView);
+        this.sensorsGrid.setModelProcessor(new SensorProcessor<SensorModel>());
+        this.sensorsGrid.setView(view);
         this.sensorsGrid.setBorders(false);
     }
 
@@ -341,7 +293,6 @@ public class StateCreator extends View {
             this.window.hide();
             MessageBox.alert(null, "Error getting list of available services!", null);
         }
-
     }
 
     private void onCancelled(AppEvent event) {
@@ -385,10 +336,10 @@ public class StateCreator extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.createButton.setIcon(SenseIconProvider.ICON_LOADING);
             this.cancelButton.disable();
         } else {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.createButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
             this.cancelButton.enable();
         }
     }

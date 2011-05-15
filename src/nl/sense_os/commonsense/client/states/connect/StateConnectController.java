@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.states.connect;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
+import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;

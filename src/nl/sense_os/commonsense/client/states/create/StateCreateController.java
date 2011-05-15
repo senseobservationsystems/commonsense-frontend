@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
+import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
@@ -39,7 +39,7 @@ public class StateCreateController extends Controller {
 
         // load all sensors to create service from
         registerEventTypes(StateCreateEvents.LoadSensors);
-        registerEventTypes(SensorLibraryEvents.ListUpdated);
+        registerEventTypes(LibraryEvents.ListUpdated);
 
         // create state from sensor
         registerEventTypes(StateCreateEvents.CreateServiceRequested,
@@ -144,12 +144,12 @@ public class StateCreateController extends Controller {
             createService(name, service, sensor, dataFields);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
-            Log.w(TAG, "AjaxCreateFailure");
+            Log.w(TAG, "CreateAjaxFailure");
             final int code = event.getData("code");
             onCreateServiceFailure(code);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
-            // Log.d(TAG, "AjaxCreateSuccess");
+            // Log.d(TAG, "CreateAjaxSuccess");
             final String response = event.<String> getData("response");
             onCreateServiceSuccess(response);
 
@@ -162,7 +162,7 @@ public class StateCreateController extends Controller {
             // Log.d(TAG, "LoadSensors");
             loadSensors();
 
-        } else if (type.equals(SensorLibraryEvents.ListUpdated)) {
+        } else if (type.equals(LibraryEvents.ListUpdated)) {
             if (isLoadingSensors) {
                 // Log.d(TAG, "Sensor lists updated: LoadSensors");
                 loadSensors();
@@ -193,7 +193,7 @@ public class StateCreateController extends Controller {
 
         List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
         if (null == sensors) {
-            Dispatcher.forwardEvent(SensorLibraryEvents.ListRequested);
+            Dispatcher.forwardEvent(LibraryEvents.LoadRequest);
             return;
         }
 
@@ -264,6 +264,7 @@ public class StateCreateController extends Controller {
     }
 
     private void onCreateServiceSuccess(String response) {
+        // update global sensor list
         Dispatcher.forwardEvent(StateCreateEvents.CreateServiceComplete);
     }
 }

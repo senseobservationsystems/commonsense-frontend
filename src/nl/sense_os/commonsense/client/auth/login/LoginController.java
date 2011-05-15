@@ -173,7 +173,6 @@ public class LoginController extends Controller {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
 
-        Registry.unregister(Constants.REG_GROUPS);
         Registry.unregister(Constants.REG_SERVICES);
         Registry.unregister(Constants.REG_MY_SENSORS_TREE);
         Registry.unregister(Constants.REG_GROUP_SENSORS);

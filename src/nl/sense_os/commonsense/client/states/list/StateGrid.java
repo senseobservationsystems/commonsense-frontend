@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.states.list;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,8 +15,8 @@ import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
+import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -67,9 +66,9 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class StateList extends View {
+public class StateGrid extends View {
 
-    protected static final String TAG = "StateList";
+    protected static final String TAG = "StateGrid";
     private ContentPanel panel;
     private TreeGrid<SensorModel> grid;
     private TreeStore<SensorModel> store;
@@ -87,7 +86,7 @@ public class StateList extends View {
     private MenuBar toolBar;
     private StoreFilterField<SensorModel> filter;
 
-    public StateList(Controller controller) {
+    public StateGrid(Controller controller) {
         super(controller);
     }
 
@@ -202,7 +201,7 @@ public class StateList extends View {
                 filter = filter.toLowerCase();
                 if (record.getName().toLowerCase().contains(filter)) {
                     return true;
-                } else if (record.getDeviceType().toLowerCase().contains(filter)) {
+                } else if (record.getPhysicalSensor().toLowerCase().contains(filter)) {
                     return true;
                 } else if (record.getDevice() != null
                         && record.getDevice().getType().toLowerCase().contains(filter)) {
@@ -222,7 +221,8 @@ public class StateList extends View {
     }
 
     private void initGrid() {
-        // grid store
+
+        // proxy
         DataProxy<List<SensorModel>> proxy = new DataProxy<List<SensorModel>>() {
 
             @Override
@@ -235,10 +235,12 @@ public class StateList extends View {
                     request.setData("callback", callback);
                     Dispatcher.forwardEvent(request);
                 } else {
-                    callback.onSuccess(new ArrayList<SensorModel>());
+                    callback.onFailure(null);
                 }
             }
         };
+
+        // tree loader
         this.loader = new BaseTreeLoader<SensorModel>(proxy) {
 
             @Override
@@ -248,6 +250,7 @@ public class StateList extends View {
             };
         };
 
+        // tree store
         this.store = new TreeStore<SensorModel>(this.loader);
         this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
 
@@ -267,10 +270,11 @@ public class StateList extends View {
         type.setWidth(85);
 
         this.grid = new TreeGrid<SensorModel>(this.store, cm);
+        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
         this.grid.setId("stateGrid");
         this.grid.setStateful(true);
         this.grid.setAutoLoad(true);
-        this.grid.setAutoExpandColumn(SensorModel.NAME);
+        this.grid.setAutoExpandColumn(SensorModel.DISPLAY_NAME);
         this.grid.setIconProvider(new SenseIconProvider<SensorModel>());
     }
 
@@ -328,16 +332,16 @@ public class StateList extends View {
             public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
                 SensorModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    StateList.this.deleteButton.enable();
-                    StateList.this.editButton.enable();
-                    StateList.this.connectButton.enable();
+                    StateGrid.this.deleteButton.enable();
+                    StateGrid.this.editButton.enable();
+                    StateGrid.this.connectButton.enable();
 
                     // only able to disconnect if sensor is selected
                     TreeModel parent = selection.getParent();
                     if (parent != null) {
-                        StateList.this.disconnectButton.enable();
+                        StateGrid.this.disconnectButton.enable();
                     } else {
-                        StateList.this.disconnectButton.disable();
+                        StateGrid.this.disconnectButton.disable();
                     }
 
                     // only able to give feedback if state has manualLearn method
@@ -350,14 +354,14 @@ public class StateList extends View {
                             break;
                         }
                     }
-                    StateList.this.feedbackButton.setEnabled(canHazFeedback);
+                    StateGrid.this.feedbackButton.setEnabled(canHazFeedback);
 
                 } else {
-                    StateList.this.editButton.enable();
-                    StateList.this.feedbackButton.enable();
-                    StateList.this.deleteButton.disable();
-                    StateList.this.connectButton.disable();
-                    StateList.this.disconnectButton.disable();
+                    StateGrid.this.editButton.enable();
+                    StateGrid.this.feedbackButton.enable();
+                    StateGrid.this.deleteButton.disable();
+                    StateGrid.this.connectButton.disable();
+                    StateGrid.this.disconnectButton.disable();
                 }
             }
         });
@@ -368,19 +372,19 @@ public class StateList extends View {
             @Override
             public void componentSelected(MenuEvent me) {
                 MenuItem source = (MenuItem) me.getItem();
-                if (source.equals(StateList.this.createButton)) {
+                if (source.equals(StateGrid.this.createButton)) {
                     onCreateClick();
-                } else if (source.equals(StateList.this.deleteButton)) {
+                } else if (source.equals(StateGrid.this.deleteButton)) {
                     deleteState();
-                } else if (source.equals(StateList.this.editButton)) {
+                } else if (source.equals(StateGrid.this.editButton)) {
                     onEditClick();
-                } else if (source.equals(StateList.this.connectButton)) {
+                } else if (source.equals(StateGrid.this.connectButton)) {
                     onConnectClick();
-                } else if (source.equals(StateList.this.disconnectButton)) {
+                } else if (source.equals(StateGrid.this.disconnectButton)) {
                     confirmDisconnect();
-                } else if (source.equals(StateList.this.feedbackButton)) {
+                } else if (source.equals(StateGrid.this.feedbackButton)) {
                     showFeedback();
-                } else if (source.equals(StateList.this.defaultsButton)) {
+                } else if (source.equals(StateGrid.this.defaultsButton)) {
                     checkDefaultStates();
                 } else {
                     Log.w(TAG, "Unexpected button clicked");
@@ -488,8 +492,11 @@ public class StateList extends View {
     }
 
     private void setBusy(boolean busy) {
-        String icon = busy ? Constants.ICON_LOADING : "";
-        this.panel.getHeader().setIcon(IconHelper.create(icon));
+        if (busy) {
+            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+        } else {
+            this.panel.getHeader().setIcon(IconHelper.create(""));
+        }
     }
 
     /**

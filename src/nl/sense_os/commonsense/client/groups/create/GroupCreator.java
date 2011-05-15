@@ -1,8 +1,8 @@
-package nl.sense_os.commonsense.client.groups;
+package nl.sense_os.commonsense.client.groups.create;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -14,9 +14,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -48,23 +46,25 @@ public class GroupCreator extends View {
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(GroupEvents.ShowCreator)) {
+        if (type.equals(GroupCreateEvents.ShowCreator)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.CreateCancelled)) {
-            // Log.d(TAG, "CreateGroupCancelled");
-            onCancelled(event);
 
-        } else if (type.equals(GroupEvents.CreateComplete)) {
+        } else if (type.equals(GroupCreateEvents.CreateComplete)) {
             // Log.d(TAG, "CreateGroupComplete");
             onComplete(event);
 
-        } else if (type.equals(GroupEvents.CreateFailed)) {
+        } else if (type.equals(GroupCreateEvents.CreateFailed)) {
             // Log.w(TAG, "CreateGroupFailed");
             onFailed(event);
 
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void hideDialog() {
+        this.window.hide();
+        setBusy(false);
     }
 
     private void initForm() {
@@ -90,13 +90,13 @@ public class GroupCreator extends View {
                         onSubmit();
                     }
                 } else if (pressed.equals(cancelButton)) {
-                    GroupCreator.this.fireEvent(GroupEvents.CreateCancelled);
+                    hideDialog();
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
                 }
             }
         };
-        this.submitButton = new Button("Create", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submitButton = new Button("Create", SenseIconProvider.ICON_BUTTON_GO, l);
 
         this.cancelButton = new Button("Cancel", l);
 
@@ -168,23 +168,14 @@ public class GroupCreator extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
-            this.cancelButton.disable();
+            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
-            this.cancelButton.enable();
+            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 
-    private void onCancelled(AppEvent event) {
-        this.window.hide();
-        setBusy(false);
-    }
-
     private void onComplete(AppEvent event) {
-        this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.ListRequest);
-        setBusy(false);
+        hideDialog();
     }
 
     private void onFailed(AppEvent event) {
@@ -196,7 +187,7 @@ public class GroupCreator extends View {
                 if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
                     onSubmit();
                 } else {
-                    window.hide();
+                    hideDialog();
                 }
 
             }
@@ -212,7 +203,7 @@ public class GroupCreator extends View {
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupEvents.CreateRequested);
+        AppEvent event = new AppEvent(GroupCreateEvents.CreateRequested);
         event.setData("name", this.name.getValue());
         // event.setData("email", this.email.getValue());
         if (this.username.getValue() != null && this.username.getValue().length() > 0) {

@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -40,11 +39,11 @@ public class SensorDeleteController extends Controller {
     private void delete(List<SensorModel> sensors, int index, int retryCount) {
 
         if (index < sensors.size()) {
-            ModelData sensor = sensors.get(index);
+            SensorModel sensor = sensors.get(index);
 
             // prepare request properties
             final String method = "DELETE";
-            final String url = Constants.URL_SENSORS + "/" + sensor.<String> get("id");
+            final String url = Constants.URL_SENSORS + "/" + sensor.getId();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(SensorDeleteEvents.DeleteAjaxSuccess);
             onSuccess.setData("sensors", sensors);
@@ -65,7 +64,7 @@ public class SensorDeleteController extends Controller {
 
         } else {
             // done!
-            Dispatcher.forwardEvent(SensorDeleteEvents.DeleteSuccess);
+            onDeleteComplete();
         }
     }
 
@@ -74,22 +73,22 @@ public class SensorDeleteController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorDeleteEvents.DeleteRequest)) {
-            // Log.d(TAG, "DeleteRequest");
+            Log.d(TAG, "DeleteRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             delete(sensors, 0, 0);
 
         } else if (type.equals(SensorDeleteEvents.DeleteAjaxSuccess)) {
-            // Log.d(TAG, "AjaxDeleteSuccess");
+            Log.d(TAG, "AjaxDeleteSuccess");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.<Integer> getData("index");
+            final int index = event.getData("index");
             onDeleteSuccess(sensors, index);
 
         } else if (type.equals(SensorDeleteEvents.DeleteAjaxFailure)) {
             Log.w(TAG, "AjaxDeleteFailure");
             // final int code = event.getData("code");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.<Integer> getData("index");
-            final int retryCount = event.<Integer> getData("retry");
+            final int index = event.getData("index");
+            final int retryCount = event.getData("retry");
             onDeleteFailure(sensors, index, retryCount);
 
         } else
@@ -137,9 +136,16 @@ public class SensorDeleteController extends Controller {
      *            List of sensors that have to be deleted.
      */
     private void onDeleteSuccess(List<SensorModel> sensors, int index) {
+
+        // remove the sensor from the cached library
+        Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(sensors.get(index));
+
         // continue with the rest of the list
         index++;
         delete(sensors, index, 0);
     }
 
+    private void onDeleteComplete() {
+        Dispatcher.forwardEvent(SensorDeleteEvents.DeleteSuccess);
+    }
 }

@@ -5,17 +5,17 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.shared.TagModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.DataProxy;
+import com.extjs.gxt.ui.client.data.DataReader;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -112,7 +111,7 @@ public class StateConnecter extends View {
                 }
             }
         };
-        this.submitButton = new Button("Connect", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submitButton = new Button("Connect", SenseIconProvider.ICON_BUTTON_GO, l);
         this.cancelButton = new Button("Cancel", l);
 
         this.form.setButtonAlign(HorizontalAlignment.CENTER);
@@ -187,11 +186,12 @@ public class StateConnecter extends View {
 
     private void initTree() {
 
-        // trees store
-        RpcProxy<List<TreeModel>> proxy = new RpcProxy<List<TreeModel>>() {
+        // proxy
+        DataProxy<List<TreeModel>> proxy = new DataProxy<List<TreeModel>>() {
 
             @Override
-            public void load(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
+            public void load(DataReader<List<TreeModel>> reader, Object loadConfig,
+                    AsyncCallback<List<TreeModel>> callback) {
                 if (null == loadConfig) {
 
                     tree.disable();
@@ -215,11 +215,13 @@ public class StateConnecter extends View {
                 }
             }
         };
+
+        // tree loader
         this.loader = new BaseTreeLoader<TreeModel>(proxy);
+
+        // tree store
         this.store = new TreeStore<TreeModel>(loader);
         this.store.setKeyProvider(new SenseKeyProvider<TreeModel>());
-
-        // sort tree
         this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
 
         this.tree = new TreePanel<TreeModel>(store);
@@ -296,10 +298,10 @@ public class StateConnecter extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
             this.cancelButton.disable();
         } else {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
             this.cancelButton.enable();
         }
     }

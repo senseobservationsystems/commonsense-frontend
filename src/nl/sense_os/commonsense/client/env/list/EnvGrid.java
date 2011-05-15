@@ -6,8 +6,8 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.EnvironmentModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -266,8 +266,11 @@ public class EnvGrid extends View {
     }
 
     private void setBusyIcon(boolean busy) {
-        String icon = busy ? Constants.ICON_LOADING : "";
-        this.panel.getHeader().setIcon(IconHelper.create(icon));
+        if (busy) {
+            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+        } else {
+            this.panel.getHeader().setIcon(IconHelper.create(""));
+        }
     }
 
     private void showPanel(LayoutContainer parent) {

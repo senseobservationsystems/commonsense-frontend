@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.DeviceModel;
 
@@ -23,7 +24,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
@@ -91,7 +91,7 @@ public class StateDefaultsDialog extends View {
                     }
                 });
 
-        submitButton = new Button("Submit", IconHelper.create(Constants.ICON_BUTTON_GO),
+        submitButton = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO,
                 new SelectionListener<ButtonEvent>() {
 
                     @Override
@@ -192,6 +192,7 @@ public class StateDefaultsDialog extends View {
                 });
 
     }
+
     private void onCheckDefaultsSucess() {
         setBusy(false);
         hideDialog();
@@ -209,9 +210,9 @@ public class StateDefaultsDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 

@@ -1,8 +1,8 @@
-package nl.sense_os.commonsense.client.groups;
+package nl.sense_os.commonsense.client.groups.invite;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.GroupModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -11,9 +11,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -40,20 +38,25 @@ public class GroupInviter extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(GroupEvents.ShowInviter)) {
+        if (type.equals(InviteEvents.ShowInviter)) {
             onShow(event);
-        } else if (type.equals(GroupEvents.InviteCancelled)) {
-            Log.d(TAG, "CreateGroupCancelled");
-            onCancelled(event);
-        } else if (type.equals(GroupEvents.InviteComplete)) {
-            Log.d(TAG, "CreateGroupComplete");
-            onComplete(event);
-        } else if (type.equals(GroupEvents.InviteFailed)) {
-            Log.w(TAG, "CreateGroupFailed");
+
+        } else if (type.equals(InviteEvents.InviteComplete)) {
+            // Log.d(TAG, "InviteComplete");
+            hideWindow();
+
+        } else if (type.equals(InviteEvents.InviteFailed)) {
+            Log.w(TAG, "InviteFailed");
             onFailed(event);
+
         } else {
             Log.w(TAG, "Unexpected event type: " + type);
         }
+    }
+
+    private void hideWindow() {
+        this.window.hide();
+        setBusy(false);
     }
 
     private void initButtons() {
@@ -67,14 +70,14 @@ public class GroupInviter extends View {
                         onSubmit();
                     }
                 } else if (b.equals(cancelButton)) {
-                    GroupInviter.this.fireEvent(GroupEvents.InviteCancelled);
+                    hideWindow();
                 } else {
                     Log.w(TAG, "Unexpected button pressed");
                 }
             }
         };
 
-        this.inviteButton = new Button("Invite", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.inviteButton = new Button("Invite", SenseIconProvider.ICON_BUTTON_GO, l);
 
         this.cancelButton = new Button("Cancel", l);
         setBusy(false);
@@ -116,17 +119,6 @@ public class GroupInviter extends View {
         initForm();
     }
 
-    private void onCancelled(AppEvent event) {
-        this.window.hide();
-        setBusy(false);
-    }
-
-    private void onComplete(AppEvent event) {
-        this.window.hide();
-        Dispatcher.forwardEvent(GroupEvents.ListRequest);
-        setBusy(false);
-    }
-
     private void onFailed(AppEvent event) {
         MessageBox.alert("CommonSense", "Failed to invite user. Please check the username.", null);
         setBusy(false);
@@ -144,7 +136,7 @@ public class GroupInviter extends View {
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupEvents.InviteRequested);
+        AppEvent event = new AppEvent(InviteEvents.InviteRequested);
         event.setData("groupId", this.group.<String> get(GroupModel.ID));
         event.setData("username", this.username.getValue());
         fireEvent(event);
@@ -152,11 +144,9 @@ public class GroupInviter extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.inviteButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
-            this.cancelButton.disable();
+            this.inviteButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.inviteButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
-            this.cancelButton.enable();
+            this.inviteButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 }

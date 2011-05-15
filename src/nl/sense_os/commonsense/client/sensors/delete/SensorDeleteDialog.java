@@ -4,7 +4,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
-import nl.sense_os.commonsense.shared.Constants;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -14,7 +14,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -49,7 +48,7 @@ public class SensorDeleteDialog extends View {
             onShow(sensors);
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
-            // Log.d(TAG, "DeleteSuccess");
+            Log.d(TAG, "DeleteSuccess");
             onRemoveSuccess();
 
         } else if (type.equals(SensorDeleteEvents.DeleteFailure)) {
@@ -77,7 +76,7 @@ public class SensorDeleteDialog extends View {
             }
         };
 
-        this.removeButton = new Button("Yes", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.removeButton = new Button("Yes", SenseIconProvider.ICON_BUTTON_GO, l);
         this.cancelButton = new Button("No", l);
         this.window.setButtonAlign(HorizontalAlignment.CENTER);
         this.window.addButton(this.removeButton);
@@ -133,7 +132,6 @@ public class SensorDeleteDialog extends View {
     }
 
     private void remove() {
-        Log.d(TAG, "Clicked 'Remove'...");
         setBusy(true);
         AppEvent delete = new AppEvent(SensorDeleteEvents.DeleteRequest);
         delete.setData("sensors", sensors);
@@ -142,10 +140,9 @@ public class SensorDeleteDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.removeButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.removeButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.removeButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.removeButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
-
 }

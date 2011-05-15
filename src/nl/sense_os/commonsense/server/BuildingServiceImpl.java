@@ -7,7 +7,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.BuildingService;
+import nl.sense_os.commonsense.client.rpc.BuildingService;
 import nl.sense_os.commonsense.server.dao.BuildingDao;
 import nl.sense_os.commonsense.server.dao.FloorDao;
 import nl.sense_os.commonsense.shared.building.BuildingModel;

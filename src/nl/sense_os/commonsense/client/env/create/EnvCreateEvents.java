@@ -12,12 +12,15 @@ public class EnvCreateEvents {
     protected static final EventType CreateAjaxFailure = new EventType();
     protected static final EventType AddSensorsAjaxSuccess = new EventType();
     protected static final EventType AddSensorsAjaxFailure = new EventType();
-    protected static final EventType CreateSensorAjaxSuccess = new EventType();
-    protected static final EventType CreateSensorAjaxFailure = new EventType();
     protected static final EventType PositionSensorAjaxSuccess = new EventType();
     protected static final EventType PositionSensorAjaxFailure = new EventType();
     protected static final EventType SetPositionAjaxSuccess = new EventType();
     protected static final EventType SetPositionAjaxFailure = new EventType();
+
+    protected static final EventType CreateSensorAjaxSuccess = new EventType();
+    protected static final EventType CreateSensorAjaxFailure = new EventType();
+    protected static final EventType SensorToDeviceAjaxSuccess = new EventType();
+    protected static final EventType SensorToDeviceAjaxFailure = new EventType();
 
     protected static final EventType Forward = new EventType();
     protected static final EventType Back = new EventType();

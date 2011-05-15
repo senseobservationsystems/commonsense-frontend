@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.services;
+package nl.sense_os.commonsense.client.rpc;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;

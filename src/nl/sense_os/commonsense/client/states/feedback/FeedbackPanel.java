@@ -8,8 +8,8 @@ import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
-import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.chap.links.client.AddHandler;
@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -202,8 +201,7 @@ public class FeedbackPanel extends VizPanel {
             }
         };
 
-        this.submitButton = new Button("Submit states",
-                IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.submitButton = new Button("Submit states", SenseIconProvider.ICON_BUTTON_GO, l);
         this.submitButton.setMinWidth(75);
         this.cancelButton = new Button("Cancel", l);
         this.cancelButton.setMinWidth(75);
@@ -431,9 +429,9 @@ public class FeedbackPanel extends VizPanel {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.submitButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 

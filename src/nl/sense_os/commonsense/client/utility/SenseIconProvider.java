@@ -19,29 +19,29 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     public static final String GXT_ICONS_PATH = "gxt/images/gxt/icons/";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";
 
-    protected static final AbstractImagePrototype ICON_DEVICE = IconHelper.create(SENSE_ICONS_PATH
+    public static final AbstractImagePrototype ICON_DEVICE = IconHelper.create(SENSE_ICONS_PATH
             + "phone_Android.png");
-    protected static final AbstractImagePrototype ICON_GROUP = IconHelper.create(SENSE_ICONS_PATH
+    public static final AbstractImagePrototype ICON_GROUP = IconHelper.create(SENSE_ICONS_PATH
             + "group.png");
-    protected static final AbstractImagePrototype ICON_GXT_DONE = IconHelper.create(GXT_ICONS_PATH
+    public static final AbstractImagePrototype ICON_GXT_DONE = IconHelper.create(GXT_ICONS_PATH
             + "done.gif");
-    protected static final AbstractImagePrototype ICON_GXT_FOLDER = IconHelper
-            .create(GXT_ICONS_PATH + "folder.gif");
-    protected static final AbstractImagePrototype ICON_GXT_LEAF = IconHelper.create(GXT_ICONS_PATH
+    public static final AbstractImagePrototype ICON_GXT_FOLDER = IconHelper.create(GXT_ICONS_PATH
+            + "folder.gif");
+    public static final AbstractImagePrototype ICON_GXT_LEAF = IconHelper.create(GXT_ICONS_PATH
             + "tabs.gif");
-    protected static final AbstractImagePrototype ICON_SENSOR_DEVICE = IconHelper
+    public static final AbstractImagePrototype ICON_SENSOR_DEVICE = IconHelper
             .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_red.gif");
-    protected static final AbstractImagePrototype ICON_SENSOR_ENVIRONMENT = IconHelper
+    public static final AbstractImagePrototype ICON_SENSOR_ENVIRONMENT = IconHelper
             .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange.gif");
-    protected static final AbstractImagePrototype ICON_SENSOR_FEED = IconHelper
+    public static final AbstractImagePrototype ICON_SENSOR_FEED = IconHelper
             .create(SenseIconProvider.SENSE_ICONS_PATH + "rss.gif");
-    protected static final AbstractImagePrototype ICON_SENSOR_PUBLIC = IconHelper
+    public static final AbstractImagePrototype ICON_SENSOR_PUBLIC = IconHelper
             .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_black.gif");
-    protected static final AbstractImagePrototype ICON_SENSOR_STATE = IconHelper
+    public static final AbstractImagePrototype ICON_SENSOR_STATE = IconHelper
             .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_magenta.gif");
-    protected static final AbstractImagePrototype ICON_USER = IconHelper.create(SENSE_ICONS_PATH
+    public static final AbstractImagePrototype ICON_USER = IconHelper.create(SENSE_ICONS_PATH
             + "user.png");
-    protected static final AbstractImagePrototype ICON_USER_ME = IconHelper.create(SENSE_ICONS_PATH
+    public static final AbstractImagePrototype ICON_USER_ME = IconHelper.create(SENSE_ICONS_PATH
             + "user_zorro.png");
 
     public static final AbstractImagePrototype ICON_LOADING = IconHelper

@@ -34,7 +34,7 @@ public class LibraryColumnsFactory {
             }
         });
 
-        ColumnConfig name = new ColumnConfig(SensorModel.NAME, "Name", 200);
+        ColumnConfig name = new ColumnConfig(SensorModel.DISPLAY_NAME, "Name", 200);
 
         ColumnConfig physical = new ColumnConfig(SensorModel.PHYSICAL_SENSOR, "Physical sensor",
                 200);
@@ -43,8 +43,8 @@ public class LibraryColumnsFactory {
             @Override
             public Object render(SensorModel model, String property, ColumnData config,
                     int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                if (model.getType().equals("1") && !model.getDeviceType().equals(model.getName())) {
-                    return model.getDeviceType();
+                if (model.getType().equals("1") && !model.getPhysicalSensor().equals(model.getName())) {
+                    return model.getPhysicalSensor();
                 } else {
                     return "";
                 }

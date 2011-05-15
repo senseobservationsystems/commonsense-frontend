@@ -36,14 +36,14 @@ public class SensorParser {
         // make sure there is a display name
         String displayName = (String) props.get(SensorModel.DISPLAY_NAME);
         if (displayName.length() == 0) {
-            String type = (String) props.get(SensorModel.TYPE);
             String name = (String) props.get(SensorModel.NAME);
-            String deviceType = (String) props.get(SensorModel.PHYSICAL_SENSOR);
-            if (!type.equals("1") || "".equals(deviceType) || deviceType.equals(name)) {
-                props.put(SensorModel.DISPLAY_NAME, name);
-            } else {
-                props.put(SensorModel.DISPLAY_NAME, name + " (" + deviceType + ")");
-            }
+            // String type = (String) props.get(SensorModel.TYPE);
+            // String deviceType = (String) props.get(SensorModel.PHYSICAL_SENSOR);
+            // if (!type.equals("1") || "".equals(deviceType) || deviceType.equals(name)) {
+            props.put(SensorModel.DISPLAY_NAME, name);
+            // } else {
+            // props.put(SensorModel.DISPLAY_NAME, name + " (" + deviceType + ")");
+            // }
         }
 
         // optional properties

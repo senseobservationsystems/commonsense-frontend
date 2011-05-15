@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.services.GroupsProxy;
+import nl.sense_os.commonsense.client.rpc.GroupsProxy;
 import nl.sense_os.commonsense.server.utility.GroupConverter;
 import nl.sense_os.commonsense.server.utility.UserConverter;
 import nl.sense_os.commonsense.shared.Constants;

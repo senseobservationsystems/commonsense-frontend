@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.shared;
 
-import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
-import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
+import nl.sense_os.commonsense.client.rpc.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.rpc.GroupsProxyAsync;
+import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 
 public class Constants {
 
@@ -10,8 +10,8 @@ public class Constants {
         // Private constructor to make sure this class is not instantiated.
     }
 
-    private static final boolean TEST_MODE = true;
-    private static final boolean TED_MODE = TEST_MODE && false;
+    public static final boolean TEST_MODE = true;
+    public static final boolean TED_MODE = TEST_MODE && false;
 
     /**
      * Registry key for the building service, stored as @link {@link BuildingServiceAsync}.
@@ -93,36 +93,9 @@ public class Constants {
     public static final String URL_STATES = URL__BASE + "/states";
     public static final String URL_USERS = URL__BASE + "/users";
 
-    public static final String ICON_LOADING = "gxt/images/gxt/icons/loading.gif";
-    public static final String ICON_BUTTON_GO = "gxt/images/gxt/icons/page-next.gif";
-
     /** Google Maps API key, generated for http://common-sense-test.appspot.com */
     private static final String MAPS_KEY_TEST = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA";
     /** Google Maps API key, generated for http://common-sense.appspot.com */
     private static final String MAPS_KEY_STABLE = "ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw";
     public static final String MAPS_KEY = TEST_MODE ? MAPS_KEY_TEST : MAPS_KEY_STABLE;
-
-    public static final String testDataJson = "{\"data\":["
-            + "{\"id\":\"20243680\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":-0.14982382953166962,\\\"y-axis\\\":0.46309182047843933,\\\"z-axis\\\":9.847511291503906}\",\"date\":\"1302858147.5\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20245598\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":-0.108962781727314,\\\"y-axis\\\":0.5039528608322144,\\\"z-axis\\\":9.806650161743164}\",\"date\":\"1302859047.68\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20246442\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":-0.19068486988544464,\\\"y-axis\\\":0.46309182047843933,\\\"z-axis\\\":9.765789031982422}\",\"date\":\"1302859498.59\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20247605\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":0,\\\"y-axis\\\":0.46309182047843933,\\\"z-axis\\\":9.806650161743164}\",\"date\":\"1302860007.35\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20249252\",\"sensor_id\":\"89\",\"value\":\"{\\\"x-axis\\\":0,\\\"y-axis\\\":0.5039528608322144,\\\"z-axis\\\":9.806650161743164}\",\"date\":\"1302860907.38\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"}"
-            + "],\"total\":5}";
-
-    public static final String testDataString = "{\"data\":["
-            + "{\"id\":\"20243680\",\"sensor_id\":\"89\",\"value\":\"hoi1\",\"date\":\"1302858147.5\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20245598\",\"sensor_id\":\"89\",\"value\":\"hoi2\",\"date\":\"1302859047.68\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20246442\",\"sensor_id\":\"89\",\"value\":\"hoi3\",\"date\":\"1302859498.59\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20247605\",\"sensor_id\":\"89\",\"value\":\"hoi4\",\"date\":\"1302860007.35\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20249252\",\"sensor_id\":\"89\",\"value\":\"hoi5\",\"date\":\"1302860907.38\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"}"
-            + "],\"total\":5}";
-
-    public static final String testDataFloat = "{\"data\":["
-            + "{\"id\":\"20243680\",\"sensor_id\":\"89\",\"value\":\"1\",\"date\":\"1302858147.5\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20245598\",\"sensor_id\":\"89\",\"value\":\"2\",\"date\":\"1302859047.68\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20246442\",\"sensor_id\":\"89\",\"value\":\"3\",\"date\":\"1302859498.59\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20247605\",\"sensor_id\":\"89\",\"value\":\"4\",\"date\":\"1302860007.35\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
-            + "{\"id\":\"20249252\",\"sensor_id\":\"89\",\"value\":\"5\",\"date\":\"1302860907.38\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"}"
-            + "],\"total\":5}";
 }

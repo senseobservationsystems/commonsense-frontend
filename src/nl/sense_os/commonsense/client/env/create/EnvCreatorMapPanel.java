@@ -4,16 +4,19 @@ import java.util.List;
 import java.util.Map;
 
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
+import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
+import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.DNDEvent;
+import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -27,8 +30,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -157,18 +158,8 @@ public class EnvCreatorMapPanel extends ContentPanel {
     private void initGrid() {
         // tree store
         this.store = new GroupingStore<SensorModel>();
-        this.store.setKeyProvider(new ModelKeyProvider<SensorModel>() {
-
-            @Override
-            public String getKey(SensorModel model) {
-                return model.getId() + model.getName() + model.getDeviceType() + model.getType();
-            }
-
-        });
-        // this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
-        this.store.groupBy(SensorModel.TYPE);
-        this.store.setDefaultSort(SensorModel.TYPE, SortDir.DESC);
-        this.store.setSortField(SensorModel.TYPE);
+        this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        this.store.groupBy(SensorModel.DEVICE_UUID);
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
@@ -176,43 +167,10 @@ public class EnvCreatorMapPanel extends ContentPanel {
         GroupingView groupingView = new GroupingView();
         groupingView.setShowGroupedColumn(true);
         groupingView.setForceFit(true);
-        groupingView.setGroupRenderer(new GridGroupRenderer() {
-            public String render(GroupColumnData data) {
-                if (data.field.equals(SensorModel.TYPE)) {
-                    int group = Integer.parseInt(data.group);
-                    String f = data.group;
-                    switch (group) {
-                        case 0 :
-                            f = "Feeds";
-                            break;
-                        case 1 :
-                            f = "Physical";
-                            break;
-                        case 2 :
-                            f = "States";
-                            break;
-                        case 3 :
-                            f = "Environment sensors";
-                            break;
-                        case 4 :
-                            f = "Public sensors";
-                            break;
-                        default :
-                            f = "Unsorted";
-                    }
-                    String l = data.models.size() == 1 ? "Sensor" : "Sensors";
-                    return f + " (" + data.models.size() + " " + l + ")";
-                } else {
-                    if (data.group.equals("")) {
-                        return "Ungrouped";
-                    } else {
-                        return data.group;
-                    }
-                }
-            }
-        });
+        groupingView.setGroupRenderer(new SensorGroupRenderer(cm));
 
         this.grid = new Grid<SensorModel>(this.store, cm);
+        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
         this.grid.setView(groupingView);
         this.grid.setBorders(false);
         this.grid.setStateful(true);
@@ -282,6 +240,13 @@ public class EnvCreatorMapPanel extends ContentPanel {
 
         GridDragSource source = new GridDragSource(this.grid);
         source.setGroup("env-creator");
+        source.addDNDListener(new DNDListener() {
+            @Override
+            public void dragDrop(DNDEvent e) {
+                grid.getSelectionModel().deselectAll();
+                super.dragDrop(e);
+            }
+        });
     }
 
     public void showDropper() {

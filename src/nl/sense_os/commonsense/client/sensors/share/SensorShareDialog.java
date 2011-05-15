@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.sense_os.commonsense.client.common.CenteredWindow;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.Constants;
 import nl.sense_os.commonsense.shared.SensorModel;
 
@@ -22,7 +23,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -97,7 +97,7 @@ public class SensorShareDialog extends View {
             }
         };
 
-        this.createButton = new Button("Share", IconHelper.create(Constants.ICON_BUTTON_GO), l);
+        this.createButton = new Button("Share", SenseIconProvider.ICON_BUTTON_GO, l);
         this.cancelButton = new Button("Cancel", l);
 
         final FormButtonBinding binding = new FormButtonBinding(this.form);
@@ -201,10 +201,10 @@ public class SensorShareDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_LOADING));
+            this.createButton.setIcon(SenseIconProvider.ICON_LOADING);
             this.cancelButton.disable();
         } else {
-            this.createButton.setIcon(IconHelper.create(Constants.ICON_BUTTON_GO));
+            this.createButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
             this.cancelButton.enable();
         }
     }

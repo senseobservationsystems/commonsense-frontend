@@ -4,11 +4,11 @@ import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
-import nl.sense_os.commonsense.client.groups.GroupEvents;
+import nl.sense_os.commonsense.client.groups.list.GroupEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.sensors.library.SensorLibraryEvents;
+import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
@@ -245,7 +245,7 @@ public class MainView extends View {
                 this.westContent.setLayout(new AccordionLayout());
 
                 // sensor library panel
-                AppEvent displaySensorGrid = new AppEvent(SensorLibraryEvents.ShowLibrary);
+                AppEvent displaySensorGrid = new AppEvent(LibraryEvents.ShowLibrary);
                 displaySensorGrid.setData("parent", this.westContent);
                 Dispatcher.forwardEvent(displaySensorGrid);
 

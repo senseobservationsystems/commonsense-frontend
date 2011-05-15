@@ -9,18 +9,20 @@ import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvController;
-import nl.sense_os.commonsense.client.groups.GroupController;
+import nl.sense_os.commonsense.client.groups.create.GroupCreateController;
+import nl.sense_os.commonsense.client.groups.invite.InviteController;
+import nl.sense_os.commonsense.client.groups.list.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.rpc.BuildingService;
+import nl.sense_os.commonsense.client.rpc.BuildingServiceAsync;
+import nl.sense_os.commonsense.client.rpc.GroupsProxy;
+import nl.sense_os.commonsense.client.rpc.GroupsProxyAsync;
+import nl.sense_os.commonsense.client.rpc.SensorsProxy;
+import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteController;
-import nl.sense_os.commonsense.client.sensors.library.SensorLibraryController;
+import nl.sense_os.commonsense.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareController;
-import nl.sense_os.commonsense.client.services.BuildingService;
-import nl.sense_os.commonsense.client.services.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.services.GroupsProxy;
-import nl.sense_os.commonsense.client.services.GroupsProxyAsync;
-import nl.sense_os.commonsense.client.services.SensorsProxy;
-import nl.sense_os.commonsense.client.services.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.states.connect.StateConnectController;
 import nl.sense_os.commonsense.client.states.create.StateCreateController;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
@@ -54,7 +56,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final String TAG = "CommonSense";
-    public static final String LAST_DEPLOYED = "Fri May 13 01:02";
+    public static final String LAST_DEPLOYED = "Sun May 15 23:05";
 
     /**
      * Dispatches initialization event to the Controllers, and shows the UI after initialization.
@@ -73,14 +75,24 @@ public class CommonSense implements EntryPoint {
     /**
      * @return a pretty String to show the current time
      */
-    private String now() {
-        return DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
+    private void welcome() {
+        String now = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
+        Log.d(TAG, "========== Module Load (" + now + ") ==========");
+        if (Constants.TEST_MODE) {
+            if (Constants.TED_MODE) {
+                Log.d(TAG, "Running in Ted mode! TAAIDIIII");
+            } else {
+                Log.d(TAG, "Running in test mode...");
+            }
+        } else {
+            Log.d(TAG, "Running in stable mode...");
+        }
     }
 
     @Override
     public void onModuleLoad() {
 
-        Log.d(TAG, "========== Module Load (" + now() + ") ==========");
+        welcome();
 
         GXT.setDefaultTheme(Theme.GRAY, true);
 
@@ -95,14 +107,20 @@ public class CommonSense implements EntryPoint {
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new MainController());
+        dispatcher.addController(new AjaxController());
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new VizController());
         dispatcher.addController(new DataController());
-        dispatcher.addController(new SensorLibraryController());
+
+        dispatcher.addController(new LibraryController());
         dispatcher.addController(new SensorDeleteController());
         dispatcher.addController(new SensorShareController());
+
         dispatcher.addController(new GroupController());
+        dispatcher.addController(new GroupCreateController());
+        dispatcher.addController(new InviteController());
+
         dispatcher.addController(new StateListController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());
@@ -111,7 +129,6 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new FeedbackController());
         dispatcher.addController(new EnvController());
         dispatcher.addController(new EnvCreateController());
-        dispatcher.addController(new AjaxController());
 
         initControllers();
         // quickLogin();
@@ -121,13 +138,13 @@ public class CommonSense implements EntryPoint {
     }
 
     /**
-     * Logs in automatically as steven@sense-os.nl.
+     * Logs in automatically for quicker testing.
      */
     @SuppressWarnings("unused")
     private void quickLogin() {
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
-        login.setData("username", "steven@sense-os.nl");
-        login.setData("password", "1234");
+        login.setData("username", "alwen");
+        login.setData("password", "pirsensor");
         Dispatcher.forwardEvent(login);
     }
 
