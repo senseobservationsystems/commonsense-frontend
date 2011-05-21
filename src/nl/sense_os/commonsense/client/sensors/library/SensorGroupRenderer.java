@@ -11,6 +11,8 @@ import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
  */
 public class SensorGroupRenderer implements GridGroupRenderer {
 
+    @SuppressWarnings("unused")
+    private static final String TAG = "SensorGroupRenderer";
     private final ColumnModel cm;
 
     public SensorGroupRenderer(ColumnModel cm) {
@@ -47,7 +49,7 @@ public class SensorGroupRenderer implements GridGroupRenderer {
             }
 
         } else if (group == null || group.equals("")) {
-            group = "<NONE>";
+            return "No " + field + " (" + count + ")";
 
         }
 
