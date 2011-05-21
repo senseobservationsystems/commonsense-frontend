@@ -68,28 +68,34 @@ public abstract class VizPanel extends ContentPanel {
                         refreshData();
                     }
                 });
-        final ToolButton autoRefresh = new ToolButton("x-tool-gear",
-                new SelectionListener<IconButtonEvent>() {
+        refresh.setToolTip("refresh");
+        final ToolButton autoRefresh = new ToolButton("x-tool-pin");
+        autoRefresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
+            @Override
+            public void componentSelected(IconButtonEvent ce) {
 
-                        if (null == refreshTimer) {
-                            registerHideListener();
-                            refreshTimer = new RefreshTimer();
-                            isAutoRefresh = false;
-                        }
+                if (null == refreshTimer) {
+                    registerHideListener();
+                    refreshTimer = new RefreshTimer();
+                    isAutoRefresh = false;
+                }
 
-                        if (!isAutoRefresh) {
-                            refreshData();
-                            refreshTimer.scheduleRepeating(REFRESH_PERIOD);
-                            isAutoRefresh = true;
-                        } else {
-                            refreshTimer.cancel();
-                            isAutoRefresh = false;
-                        }
-                    }
-                });
+                if (!isAutoRefresh) {
+                    refreshData();
+                    refreshTimer.scheduleRepeating(REFRESH_PERIOD);
+                    isAutoRefresh = true;
+                    autoRefresh.setToolTip("stop autorefresh");
+                    autoRefresh.setStylePrimaryName("x-tool-unpin");
+                } else {
+                    refreshTimer.cancel();
+                    isAutoRefresh = false;
+                    autoRefresh.setToolTip("start autorefresh");
+                    autoRefresh.setStylePrimaryName("x-tool-pin");
+                }
+            }
+        });
+        autoRefresh.setToolTip("start auto-refresh");
 
         Header header = this.getHeader();
         header.addTool(autoRefresh);
