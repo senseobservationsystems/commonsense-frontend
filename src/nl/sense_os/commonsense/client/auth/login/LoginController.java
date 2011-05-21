@@ -170,14 +170,11 @@ public class LoginController extends Controller {
         getCurrentUser();
     }
 
-    @SuppressWarnings("deprecation")
     private void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
 
         Registry.unregister(Constants.REG_SERVICES);
-        Registry.unregister(Constants.REG_MY_SENSORS_TREE);
-        Registry.unregister(Constants.REG_GROUP_SENSORS);
 
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }

@@ -18,4 +18,8 @@ public class LibraryEvents {
     protected static final EventType GroupsAjaxFailure = new EventType();
     protected static final EventType GroupSensorsAjaxSuccess = new EventType();
     protected static final EventType GroupSensorsAjaxFailure = new EventType();
+    protected static final EventType UsersAjaxSuccess = new EventType();
+    protected static final EventType UsersAjaxFailure = new EventType();
+    protected static final EventType AvailServicesAjaxSuccess = new EventType();
+    protected static final EventType AvailServicesAjaxFailure = new EventType();
 }

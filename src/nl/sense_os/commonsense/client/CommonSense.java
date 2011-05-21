@@ -16,15 +16,10 @@ import nl.sense_os.commonsense.client.groups.invite.InviteController;
 import nl.sense_os.commonsense.client.groups.list.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.rpc.BuildingService;
-import nl.sense_os.commonsense.client.rpc.BuildingServiceAsync;
-import nl.sense_os.commonsense.client.rpc.GroupsProxy;
-import nl.sense_os.commonsense.client.rpc.GroupsProxyAsync;
-import nl.sense_os.commonsense.client.rpc.SensorsProxy;
-import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareController;
+import nl.sense_os.commonsense.client.sensors.unshare.UnshareController;
 import nl.sense_os.commonsense.client.states.connect.StateConnectController;
 import nl.sense_os.commonsense.client.states.create.StateCreateController;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
@@ -35,13 +30,11 @@ import nl.sense_os.commonsense.client.utility.TestData;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
-import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Keys;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
@@ -85,13 +78,13 @@ public class CommonSense implements EntryPoint {
 
         GXT.setDefaultTheme(Theme.GRAY, true);
 
-        // load services and put them in Registry
-        final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
-        Registry.register(Constants.REG_BUILDING_SVC, buildingService);
-        final GroupsProxyAsync groupsProxy = GWT.create(GroupsProxy.class);
-        Registry.register(Constants.REG_GROUPS_PROXY, groupsProxy);
-        final SensorsProxyAsync sensorsProxy = GWT.create(SensorsProxy.class);
-        Registry.register(Constants.REG_SENSORS_PROXY, sensorsProxy);
+        // // load services and put them in Registry
+        // final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
+        // Registry.register(Constants.REG_BUILDING_SVC, buildingService);
+        // final GroupsProxyAsync groupsProxy = GWT.create(GroupsProxy.class);
+        // Registry.register(Constants.REG_GROUPS_PROXY, groupsProxy);
+        // final SensorsProxyAsync sensorsProxy = GWT.create(SensorsProxy.class);
+        // Registry.register(Constants.REG_SENSORS_PROXY, sensorsProxy);
 
         // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
@@ -105,6 +98,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new LibraryController());
         dispatcher.addController(new SensorDeleteController());
         dispatcher.addController(new SensorShareController());
+        dispatcher.addController(new UnshareController());
 
         dispatcher.addController(new GroupController());
         dispatcher.addController(new GroupCreateController());
@@ -120,7 +114,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new EnvCreateController());
 
         initControllers();
-        // quickLogin();
+        quickLogin();
         // testEnvCreator();
         // testMapViz();
         // testTimeline();
@@ -131,16 +125,14 @@ public class CommonSense implements EntryPoint {
     /**
      * Logs in automatically for quicker testing.
      */
-    @SuppressWarnings("unused")
-    private void quickLogin() {
+    protected void quickLogin() {
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
-        login.setData("username", "SenseOffice");
-        login.setData("password", "jpiseenbaas");
+        login.setData("username", "steven@sense-os.nl");
+        login.setData("password", "1234");
         Dispatcher.forwardEvent(login);
     }
 
-    @SuppressWarnings("unused")
-    private void testTimeline() {
+    protected void testTimeline() {
 
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
@@ -196,8 +188,7 @@ public class CommonSense implements EntryPoint {
         VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
     }
 
-    @SuppressWarnings("unused")
-    private void testEnvCreator() {
+    protected void testEnvCreator() {
         final String url = GWT.getModuleBaseURL();
         String key = Keys.MAPS_KEY_STABLE;
         if (url.contains("common-sense-test")) {
@@ -212,7 +203,7 @@ public class CommonSense implements EntryPoint {
         });
     }
 
-    private void testMapViz() {
+    protected void testMapViz() {
         final String url = GWT.getModuleBaseURL();
         String key = Keys.MAPS_KEY_STABLE;
         if (url.contains("common-sense-test")) {

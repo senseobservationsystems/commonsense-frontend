@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -64,9 +66,16 @@ public class SensorShareController extends Controller {
     }
 
     private void shareSensorCallback(AppEvent event) {
+        // parse the new list of users
+        List<UserModel> users = UserParser.parseGroupUsers(event.<String> getData("response"));
+
         final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
         final String username = event.<String> getData("user");
-        sensors.remove(0);
+
+        // update the sensor model
+        SensorModel sensor = sensors.remove(0);
+        sensor.set(SensorModel.USERS, users);
+
         shareSensors(sensors, username, 0);
     }
 

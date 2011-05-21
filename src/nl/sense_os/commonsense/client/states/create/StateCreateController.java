@@ -87,8 +87,8 @@ public class StateCreateController extends Controller {
     private void getAvailableServices(SensorModel sensor) {
 
         String aliasParam = "";
-        if (sensor.get("alias") != null && sensor.<String> get("alias").length() > 0) {
-            aliasParam = "?alias=" + sensor.<String> get("alias");
+        if (sensor.get(SensorModel.ALIAS) != null && sensor.<String> get(SensorModel.ALIAS).length() > 0) {
+            aliasParam = "?alias=" + sensor.<String> get(SensorModel.ALIAS);
         }
 
         // prepare request properties

@@ -1,21 +1,24 @@
 package nl.sense_os.commonsense.client.states.connect;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
+import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
+import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
+import nl.sense_os.commonsense.client.utility.SensorProcessor;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 import nl.sense_os.commonsense.shared.models.TagModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
-import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ListLoadConfig;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -28,8 +31,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -37,10 +39,12 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnecter extends View {
@@ -50,12 +54,12 @@ public class StateConnecter extends View {
     private FormPanel form;
     private Button submitButton;
     private Button cancelButton;
-    private TreeStore<TreeModel> store;
-    private TreePanel<TreeModel> tree;
-    private BaseTreeLoader<TreeModel> loader;
+    private GroupingStore<SensorModel> store;
+    private ListLoader<ListLoadResult<SensorModel>> loader;
     private TreeModel service;
     private String serviceName;
     private MessageBox waitDialog;
+    private Grid<SensorModel> grid;
 
     public StateConnecter(Controller c) {
         super(c);
@@ -119,12 +123,12 @@ public class StateConnecter extends View {
         this.form.addButton(this.cancelButton);
 
         // handle selections
-        TreePanelSelectionModel<TreeModel> selectionModel = new TreePanelSelectionModel<TreeModel>();
+        GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
+            public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
                 TreeModel selection = se.getSelectedItem();
                 if (null != selection) {
                     int tagType = selection.<Integer> get("tagType");
@@ -138,17 +142,17 @@ public class StateConnecter extends View {
                 }
             }
         });
-        this.tree.setSelectionModel(selectionModel);
+        this.grid.setSelectionModel(selectionModel);
     }
 
     private void initFields() {
 
-        initTree();
+        initGrid();
 
         ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeaderVisible(false);
         panel.setStyleAttribute("backgroundColor", "white");
-        panel.add(this.tree);
+        panel.add(this.grid);
 
         AdapterField field = new AdapterField(panel);
         field.setHeight(150);
@@ -184,51 +188,53 @@ public class StateConnecter extends View {
         initForm();
     }
 
-    private void initTree() {
+    private void initGrid() {
 
         // proxy
-        DataProxy<List<TreeModel>> proxy = new DataProxy<List<TreeModel>>() {
+        DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
 
             @Override
-            public void load(DataReader<List<TreeModel>> reader, Object loadConfig,
-                    AsyncCallback<List<TreeModel>> callback) {
-                if (null == loadConfig) {
-
-                    tree.disable();
-
-                    AppEvent event = new AppEvent(StateConnectEvents.AvailableSensorsRequested);
-                    event.setData("name", serviceName);
-                    event.setData("callback", callback);
-                    Dispatcher.forwardEvent(event);
-                } else if (loadConfig instanceof TreeModel) {
-
-                    tree.enable();
-
-                    List<ModelData> childrenModels = ((TreeModel) loadConfig).getChildren();
-                    List<TreeModel> children = new ArrayList<TreeModel>();
-                    for (ModelData model : childrenModels) {
-                        children.add((TreeModel) model);
-                    }
-                    callback.onSuccess(children);
+            public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
+                    AsyncCallback<ListLoadResult<SensorModel>> callback) {
+                // only load when the panel is not collapsed
+                if (loadConfig instanceof ListLoadConfig) {
+                    // logger.fine( "Load library... Renew cache: " + force);
+                    AppEvent loadRequest = new AppEvent(
+                            StateConnectEvents.AvailableSensorsRequested);
+                    loadRequest.setData("name", serviceName);
+                    loadRequest.setData("callback", callback);
+                    fireEvent(loadRequest);
                 } else {
-                    callback.onSuccess(new ArrayList<TreeModel>());
+                    logger.warning("Unexpected load config: " + loadConfig);
+                    callback.onFailure(null);
                 }
             }
         };
 
-        // tree loader
-        this.loader = new BaseTreeLoader<TreeModel>(proxy);
+        // list loader
+        this.loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
 
-        // tree store
-        this.store = new TreeStore<TreeModel>(loader);
-        this.store.setKeyProvider(new SenseKeyProvider<TreeModel>());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+        // list store
+        this.store = new GroupingStore<SensorModel>(loader);
+        this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        this.store.setMonitorChanges(true);
 
-        this.tree = new TreePanel<TreeModel>(store);
-        this.tree.setBorders(false);
-        this.tree.setDisplayProperty("text");
-        this.tree.setAutoLoad(true);
-        this.tree.setIconProvider(new SenseIconProvider<TreeModel>());
+        // Column model
+        ColumnModel cm = LibraryColumnsFactory.create();
+
+        // grouping view for the grid
+        GroupingView view = new GroupingView();
+        view.setShowGroupedColumn(true);
+        view.setForceFit(true);
+        view.setGroupRenderer(new SensorGroupRenderer(cm));
+
+        this.grid = new Grid<SensorModel>(this.store, cm);
+        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
+        this.grid.setView(view);
+        this.grid.setBorders(false);
+        this.grid.setId("state-connecter-grid");
+        this.grid.setStateful(true);
+        this.grid.setLoadMask(true);
     }
 
     private void onConnectFailure() {
@@ -307,7 +313,7 @@ public class StateConnecter extends View {
     }
 
     private void submitForm() {
-        TreeModel sensor = this.tree.getSelectionModel().getSelectedItem();
+        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
         AppEvent event = new AppEvent(StateConnectEvents.ConnectRequested);
         event.setData("service", service);
         event.setData("serviceName", serviceName);

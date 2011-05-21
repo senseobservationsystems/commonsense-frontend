@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.shared.models;
 
+import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
@@ -16,6 +17,10 @@ public class SensorModel extends BaseTreeModel {
     public static final String DISPLAY_NAME = "display_name";
     public static final String TYPE = "type";
     public static final String PAGER_TYPE = "pager_type";
+
+    public static final String ALIAS = "alias";
+    public static final String USERS = "users";
+    public static final String AVAIL_SERVICES = "available_services";
 
     public static final String OWNER = "owner";
     public static final String OWNER_ID = "owner_id";
@@ -51,6 +56,29 @@ public class SensorModel extends BaseTreeModel {
         super(parent);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SensorModel) {
+            final SensorModel sensor = (SensorModel) obj;
+            if (null == this.getParent()) {
+                return this.getId().equals(sensor.getId());
+            } else {
+                return this.getId().equals(sensor.getId())
+                        && this.getParent().equals(sensor.getParent());
+            }
+        } else {
+            return super.equals(obj);
+        }
+    }
+
+    public String getAlias() {
+        return get(ALIAS);
+    }
+
+    public List<ServiceModel> getAvailServices() {
+        return get(AVAIL_SERVICES);
+    }
+
     public String getDataStructure() {
         return get(DATA_STRUCTURE);
     }
@@ -65,10 +93,6 @@ public class SensorModel extends BaseTreeModel {
 
     public DeviceModel getDevice() {
         return get(DEVICE);
-    }
-
-    public String getPhysicalSensor() {
-        return get(PHYSICAL_SENSOR);
     }
 
     public String getDisplayName() {
@@ -95,27 +119,20 @@ public class SensorModel extends BaseTreeModel {
         return get(PAGER_TYPE);
     }
 
+    public String getPhysicalSensor() {
+        return get(PHYSICAL_SENSOR);
+    }
+
     public String getType() {
         return get(TYPE);
+    }
+
+    public List<UserModel> getUsers() {
+        return get(USERS);
     }
 
     @Override
     public String toString() {
         return get(DISPLAY_NAME, "Sensor #" + getId());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof SensorModel) {
-            final SensorModel sensor = (SensorModel) obj;
-            if (null == this.getParent()) {
-                return this.getId().equals(sensor.getId());
-            } else {
-                return this.getId().equals(sensor.getId())
-                        && this.getParent().equals(sensor.getParent());
-            }
-        } else {
-            return super.equals(obj);
-        }
     }
 }

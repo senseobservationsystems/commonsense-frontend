@@ -1,10 +1,10 @@
 package nl.sense_os.commonsense.client.states.connect;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -78,24 +78,24 @@ public class StateConnectController extends Controller {
     }
 
     private void getAvailableSensors(String serviceName,
-            final AsyncCallback<List<TreeModel>> proxyCallback) {
+            final AsyncCallback<List<SensorModel>> proxyCallback) {
 
-        SensorsProxyAsync service = Registry.<SensorsProxyAsync> get(Constants.REG_SENSORS_PROXY);
-        String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        AsyncCallback<List<TreeModel>> callback = new AsyncCallback<List<TreeModel>>() {
+        List<SensorModel> result = new ArrayList<SensorModel>();
 
-            @Override
-            public void onFailure(Throwable caught) {
-                proxyCallback.onFailure(caught);
+        List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+        for (SensorModel sensor : library) {
+            List<ServiceModel> availableServices = sensor.getAvailServices();
+            if (null != availableServices) {
+                for (ServiceModel availableService : availableServices) {
+                    if (availableService.getName().equalsIgnoreCase(serviceName)) {
+                        result.add(sensor);
+                        break;
+                    }
+                }
             }
+        }
 
-            @Override
-            public void onSuccess(List<TreeModel> result) {
-                Registry.register(Constants.REG_SERVICES, result);
-                proxyCallback.onSuccess(result);
-            }
-        };
-        service.getAvailableSensors(sessionId, serviceName, callback);
+        proxyCallback.onSuccess(result);
     }
 
     private void getServiceName(TreeModel service) {
@@ -183,8 +183,8 @@ public class StateConnectController extends Controller {
         if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
             // logger.fine( "AvailableSensorsRequested");
             final String serviceName = event.<String> getData("name");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            final AsyncCallback<List<SensorModel>> callback = event
+                    .<AsyncCallback<List<SensorModel>>> getData("callback");
             getAvailableSensors(serviceName, callback);
 
         } else

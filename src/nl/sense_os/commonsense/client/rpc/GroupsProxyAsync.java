@@ -6,6 +6,10 @@ import nl.sense_os.commonsense.shared.models.GroupModel;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+/**
+ * @deprecated Use client-side code to get the groups through XHR.
+ */
+@Deprecated
 public interface GroupsProxyAsync {
 
     void getGroups(String sessionId, AsyncCallback<List<GroupModel>> callback);

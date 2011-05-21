@@ -192,8 +192,8 @@ public class DataController extends Controller {
             url += "&per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
             url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
-            if (null != sensor.get("alias")) {
-                url += "&alias=" + sensor.get("alias");
+            if (null != sensor.get(SensorModel.ALIAS)) {
+                url += "&alias=" + sensor.get(SensorModel.ALIAS);
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);

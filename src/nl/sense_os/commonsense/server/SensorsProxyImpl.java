@@ -205,7 +205,7 @@ public class SensorsProxyImpl extends RemoteServiceServlet implements SensorsPro
         for (SensorModel sensor : allSensors) {
 
             // save the alias that has to be used to get the data
-            sensor.set("alias", groupId);
+            sensor.set(SensorModel.ALIAS, groupId);
 
             // set the sensor as a child of the correct user(s)
             String sensorId = sensor.<String> get("id");

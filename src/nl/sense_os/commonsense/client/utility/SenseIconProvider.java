@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.utility;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.shared.constants.Constants;
@@ -32,15 +33,25 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     public static final AbstractImagePrototype ICON_GXT_LEAF = IconHelper.create(GXT_ICONS_PATH
             + "tabs.gif");
     public static final AbstractImagePrototype ICON_SENSOR_DEVICE = IconHelper
-            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_red.gif");
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_red-unshared.gif");
+    public static final AbstractImagePrototype ICON_SENSOR_DEVICE_SHARED = IconHelper
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_red-shared.gif");
     public static final AbstractImagePrototype ICON_SENSOR_ENVIRONMENT = IconHelper
-            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange.gif");
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange-unshared.gif");
     public static final AbstractImagePrototype ICON_SENSOR_FEED = IconHelper
-            .create(SenseIconProvider.SENSE_ICONS_PATH + "rss.gif");
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange-unshared.gif");
     public static final AbstractImagePrototype ICON_SENSOR_PUBLIC = IconHelper
-            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_black.gif");
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_black-unshared.gif");
     public static final AbstractImagePrototype ICON_SENSOR_STATE = IconHelper
-            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_magenta.gif");
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_magenta-unshared.gif");
+    public static final AbstractImagePrototype ICON_SENSOR_ENVIRONMENT_SHARED = IconHelper
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange-shared.gif");
+    public static final AbstractImagePrototype ICON_SENSOR_FEED_SHARED = IconHelper
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_orange-shared.gif");
+    public static final AbstractImagePrototype ICON_SENSOR_PUBLIC_SHARED = IconHelper
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_black-shared.gif");
+    public static final AbstractImagePrototype ICON_SENSOR_STATE_SHARED = IconHelper
+            .create(SenseIconProvider.SENSE_ICONS_PATH + "sense_magenta-shared.gif");
     public static final AbstractImagePrototype ICON_USER = IconHelper.create(SENSE_ICONS_PATH
             + "user.png");
     public static final AbstractImagePrototype ICON_USER_ME = IconHelper.create(SENSE_ICONS_PATH
@@ -61,20 +72,39 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             return ICON_DEVICE;
 
         } else if (model instanceof SensorModel) {
-            final int type = Integer.parseInt(model.<String> get("type"));
-            switch (type) {
-            case 0:
-                return ICON_SENSOR_FEED;
-            case 1:
-                return ICON_SENSOR_DEVICE;
-            case 2:
-                return ICON_SENSOR_STATE;
-            case 3:
-                return ICON_SENSOR_PUBLIC;
-            case 4:
-                return ICON_SENSOR_ENVIRONMENT;
-            default:
-                return ICON_GXT_LEAF;
+            List<UserModel> users = ((SensorModel) model).getUsers();
+            if (users != null && users.size() > 0) {
+                final int type = Integer.parseInt(model.<String> get("type"));
+                switch (type) {
+                case 0:
+                    return ICON_SENSOR_FEED_SHARED;
+                case 1:
+                    return ICON_SENSOR_DEVICE_SHARED;
+                case 2:
+                    return ICON_SENSOR_STATE_SHARED;
+                case 3:
+                    return ICON_SENSOR_PUBLIC_SHARED;
+                case 4:
+                    return ICON_SENSOR_ENVIRONMENT_SHARED;
+                default:
+                    return ICON_GXT_LEAF;
+                }
+            } else {
+                final int type = Integer.parseInt(model.<String> get("type"));
+                switch (type) {
+                case 0:
+                    return ICON_SENSOR_FEED;
+                case 1:
+                    return ICON_SENSOR_DEVICE;
+                case 2:
+                    return ICON_SENSOR_STATE;
+                case 3:
+                    return ICON_SENSOR_PUBLIC;
+                case 4:
+                    return ICON_SENSOR_ENVIRONMENT;
+                default:
+                    return ICON_GXT_LEAF;
+                }
             }
 
         } else if (model instanceof UserModel) {

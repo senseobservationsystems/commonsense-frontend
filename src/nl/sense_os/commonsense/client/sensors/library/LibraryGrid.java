@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
+import nl.sense_os.commonsense.client.sensors.unshare.UnshareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
@@ -69,6 +69,7 @@ public class LibraryGrid extends View {
     private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
     private boolean force = true;
+    private Button unshareButton;
 
     public LibraryGrid(Controller controller) {
         super(controller);
@@ -92,7 +93,8 @@ public class LibraryGrid extends View {
                 || type.equals(SensorDeleteEvents.DeleteSuccess)
                 || type.equals(SensorDeleteEvents.DeleteFailure)
                 || type.equals(EnvCreateEvents.CreateSuccess)
-                || type.equals(EnvEvents.DeleteSuccess)) {
+                || type.equals(UnshareEvents.UnshareComplete)
+                || type.equals(SensorShareEvents.ShareComplete)) {
             // logger.fine( "Library changed");
             onLibChanged();
 
@@ -204,6 +206,8 @@ public class LibraryGrid extends View {
                     onVizClick();
                 } else if (source.equals(shareButton)) {
                     onShareClick();
+                } else if (source.equals(unshareButton)) {
+                    onUnshareClick();
                 } else if (source.equals(removeButton)) {
                     onRemoveClick();
                 } else {
@@ -219,6 +223,9 @@ public class LibraryGrid extends View {
         this.shareButton = new Button("Share", l);
         this.shareButton.disable();
 
+        this.unshareButton = new Button("Unshare", l);
+        this.unshareButton.disable();
+
         this.removeButton = new Button("Remove", l);
         this.removeButton.disable();
 
@@ -230,13 +237,20 @@ public class LibraryGrid extends View {
             @Override
             public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
                 List<SensorModel> selection = se.getSelection();
-                if (selection.size() > 0) {
+                if (selection != null && selection.size() > 0) {
                     vizButton.enable();
                     shareButton.enable();
+                    if (selection.size() == 1 && selection.get(0).getUsers() != null
+                            && selection.get(0).getUsers().size() > 0) {
+                        unshareButton.enable();
+                    } else {
+                        unshareButton.disable();
+                    }
                     removeButton.enable();
                 } else {
                     vizButton.disable();
                     shareButton.disable();
+                    unshareButton.disable();
                     removeButton.disable();
                 }
             }
@@ -247,7 +261,14 @@ public class LibraryGrid extends View {
         this.toolBar = new ToolBar();
         this.toolBar.add(this.vizButton);
         this.toolBar.add(this.shareButton);
+        this.toolBar.add(this.unshareButton);
         this.toolBar.add(this.removeButton);
+    }
+
+    private void onUnshareClick() {
+        AppEvent shareEvent = new AppEvent(UnshareEvents.ShowUnshareDialog);
+        shareEvent.setData("sensor", this.grid.getSelectionModel().getSelectedItem());
+        Dispatcher.forwardEvent(shareEvent);
     }
 
     private void initGrid() {
@@ -272,6 +293,7 @@ public class LibraryGrid extends View {
                         callback.onFailure(null);
                     }
                 } else {
+                    logger.warning("failed to load data: panel is not expanded...");
                     callback.onFailure(null);
                 }
             }
@@ -283,6 +305,7 @@ public class LibraryGrid extends View {
         // list store
         this.store = new GroupingStore<SensorModel>(loader);
         this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        this.store.setMonitorChanges(true);
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
@@ -307,7 +330,7 @@ public class LibraryGrid extends View {
     }
 
     private void onLibChanged() {
-        refreshLoader(false);
+        // refreshLoader(false);
     }
 
     private void onRemoveClick() {

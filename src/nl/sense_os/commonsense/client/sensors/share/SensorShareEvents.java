@@ -8,6 +8,6 @@ public class SensorShareEvents {
     protected static final EventType ShareAjaxFailure = new EventType();
     protected static final EventType ShareAjaxSuccess = new EventType();
     public static final EventType ShareComplete = new EventType();
-    public static final EventType ShareFailed = new EventType();
-    public static final EventType ShareCancelled = new EventType();
+    protected static final EventType ShareFailed = new EventType();
+    protected static final EventType ShareCancelled = new EventType();
 }
