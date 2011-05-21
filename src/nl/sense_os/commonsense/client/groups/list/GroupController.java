@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.groups.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -9,7 +10,6 @@ import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
 import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupController extends Controller {
 
-    private static final String TAG = "GroupController";
+    private static final Logger logger = Logger.getLogger("GroupController");
     private View tree;
 
     public GroupController() {
@@ -133,32 +133,32 @@ public class GroupController extends Controller {
          * Load list of groups
          */
         if (type.equals(GroupEvents.LoadRequest)) {
-            // Log.d(TAG, "LoadRequest");
+            // logger.fine( "LoadRequest");
             final Object loadConfig = event.getData("loadConfig");
             final AsyncCallback<List<TreeModel>> callback = event
                     .<AsyncCallback<List<TreeModel>>> getData("callback");
             onLoadRequest(loadConfig, callback);
 
         } else if (type.equals(GroupEvents.GroupsAjaxFailure)) {
-            Log.w(TAG, "GroupsAjaxFailure");
+            logger.warning("GroupsAjaxFailure");
             // final int code = event.getData("code");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
             onGroupsFailure(callback);
 
         } else if (type.equals(GroupEvents.GroupsAjaxSuccess)) {
-            // Log.d(TAG, "GroupsAjaxSuccess");
+            // logger.fine( "GroupsAjaxSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
             onGroupsSuccess(response, callback);
 
         } else if (type.equals(GroupEvents.GroupMembersAjaxFailure)) {
-            Log.w(TAG, "GroupMembersAjaxFailure");
+            logger.warning("GroupMembersAjaxFailure");
             // final int code = event.getData("code");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
             onGroupMembersFailure(callback);
 
         } else if (type.equals(GroupEvents.GroupMembersAjaxSuccess)) {
-            // Log.d(TAG, "GroupMembersAjaxSuccess");
+            // logger.fine( "GroupMembersAjaxSuccess");
             final String response = event.getData("response");
             final GroupModel group = event.getData("group");
             final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
@@ -170,16 +170,16 @@ public class GroupController extends Controller {
          * Leave a group
          */
         if (type.equals(GroupEvents.LeaveRequested)) {
-            // Log.d(TAG, "LeaveRequested");
+            // logger.fine( "LeaveRequested");
             final String groupId = event.<String> getData();
             leaveGroup(groupId);
 
         } else if (type.equals(GroupEvents.AjaxLeaveFailure)) {
-            Log.w(TAG, "AjaxLeaveFailure");
+            logger.warning("AjaxLeaveFailure");
             forwardToView(this.tree, new AppEvent(GroupEvents.LeaveFailed));
 
         } else if (type.equals(GroupEvents.AjaxLeaveSuccess)) {
-            // Log.d(TAG, "AjaxLeaveSuccess");
+            // logger.fine( "AjaxLeaveSuccess");
             forwardToView(this.tree, new AppEvent(GroupEvents.LeaveComplete));
 
         } else
@@ -188,7 +188,7 @@ public class GroupController extends Controller {
          * Clear data after logout
          */
         if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLogout();
 
         } else

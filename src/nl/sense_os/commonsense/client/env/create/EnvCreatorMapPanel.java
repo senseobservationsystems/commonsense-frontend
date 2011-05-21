@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.env.create;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
@@ -42,7 +43,7 @@ import com.google.gwt.maps.client.overlay.Polygon;
 public class EnvCreatorMapPanel extends ContentPanel {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "EnvCreatorMapPanel";
+    private static final Logger logger = Logger.getLogger("EnvCreatorMapPanel");
     private ButtonBar buttons;
     private Button fwdButton;
     private Button backButton;

@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.viz.data.cache;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.google.gwt.core.client.JsArray;
@@ -12,13 +12,13 @@ import com.google.gwt.core.client.JsonUtils;
 public class Cache {
 
     private static CacheJso cache;
-    private static final String TAG = "Cache";
+    private static final Logger logger = Logger.getLogger("Cache");
 
     public static void remove(SensorModel sensor) {
         if (cache != null) {
             cache.remove(sensor.getId());
         } else {
-            Log.w(TAG, "Cannot remove cached data: cache=null");
+            logger.warning("Cannot remove cached data: cache=null");
         }
     }
 
@@ -45,7 +45,7 @@ public class Cache {
             ids += "]";
             return cache.request(JsonUtils.<JsArray<?>> safeEval(ids));
         } else {
-            // Log.d(TAG, "No cache object, returning empty array...");
+            // logger.fine( "No cache object, returning empty array...");
             return JsArray.createArray().cast();
         }
     }
@@ -62,7 +62,7 @@ public class Cache {
     public static void store(SensorModel sensor, long start, long end, JsArray<?> data) {
         if (null == cache) {
             // create cache object
-            // Log.d(TAG, "Create cache...");
+            // logger.fine( "Create cache...");
             cache = CacheJso.create();
         }
         cache.store(sensor.getId(), sensor.<String> get("text"), start, end, data);

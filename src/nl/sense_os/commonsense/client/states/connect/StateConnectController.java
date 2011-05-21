@@ -1,10 +1,10 @@
 package nl.sense_os.commonsense.client.states.connect;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.rpc.SensorsProxyAsync;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -24,7 +24,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnectController extends Controller {
-    private static final String TAG = "StateConnectController";
+    private static final Logger logger = Logger.getLogger("StateConnectController");
     private View connecter;
 
     public StateConnectController() {
@@ -108,8 +108,7 @@ public class StateConnectController extends Controller {
         SensorModel sensor = (SensorModel) service.getChild(0);
 
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID)
-                + "/services";
+        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID) + "/services";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ServiceNameAjaxSuccess);
         onSuccess.setData("service", service);
@@ -156,16 +155,15 @@ public class StateConnectController extends Controller {
                     getServiceNameError();
 
                 } else {
-                    Log.e(TAG,
-                            "Error parsing running services response: \"services\" is not a JSON Array");
+                    logger.severe("Error parsing running services response: \"services\" is not a JSON Array");
                     getServiceNameError();
                 }
             } else {
-                Log.e(TAG, "Error parsing running services response: \"services\" is is not found");
+                logger.severe("Error parsing running services response: \"services\" is is not found");
                 getServiceNameError();
             }
         } else {
-            Log.e(TAG, "Error parsing running services response: response=null");
+            logger.severe("Error parsing running services response: response=null");
             getServiceNameError();
         }
 
@@ -183,7 +181,7 @@ public class StateConnectController extends Controller {
          * Get available sensors for this service
          */
         if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
-            // Log.d(TAG, "AvailableSensorsRequested");
+            // logger.fine( "AvailableSensorsRequested");
             final String serviceName = event.<String> getData("name");
             final AsyncCallback<List<TreeModel>> callback = event
                     .<AsyncCallback<List<TreeModel>>> getData("callback");
@@ -195,19 +193,19 @@ public class StateConnectController extends Controller {
          * Connect sensor to the service
          */
         if (type.equals(StateConnectEvents.ConnectRequested)) {
-            // Log.d(TAG, "ConnectRequested");
+            // logger.fine( "ConnectRequested");
             final TreeModel sensor = event.<TreeModel> getData("sensor");
             final TreeModel service = event.<TreeModel> getData("service");
             final String serviceName = event.<String> getData("serviceName");
             connectService(sensor, service, serviceName);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxFailure)) {
-            Log.w(TAG, "ConnectAjaxFailure");
+            logger.warning("ConnectAjaxFailure");
             final int code = event.getData("code");
             connectServiceErrorCallback(code);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxSuccess)) {
-            // Log.d(TAG, "ConnectAjaxSuccess");
+            // logger.fine( "ConnectAjaxSuccess");
             final String response = event.<String> getData("response");
             connectServiceCallback(response);
 
@@ -217,18 +215,18 @@ public class StateConnectController extends Controller {
          * Get service name (before getting available sensors)
          */
         if (type.equals(StateConnectEvents.ServiceNameRequest)) {
-            // Log.d(TAG, "ServiceNameRequest");
+            // logger.fine( "ServiceNameRequest");
             final TreeModel service = event.<TreeModel> getData("service");
             getServiceName(service);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxSuccess)) {
-            // Log.d(TAG, "ServiceNameAjaxSuccess");
+            // logger.fine( "ServiceNameAjaxSuccess");
             final TreeModel service = event.<TreeModel> getData("service");
             final String response = event.<String> getData("response");
             getServiceNameCallback(service, response);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxFailure)) {
-            Log.w(TAG, "ServiceNameAjaxFailure");
+            logger.warning("ServiceNameAjaxFailure");
             getServiceNameError();
 
         } else

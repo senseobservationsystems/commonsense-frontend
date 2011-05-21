@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.groups.create;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -15,7 +16,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class GroupCreateController extends Controller {
 
-    private static final String TAG = "GroupCreateController";
+    private static final Logger logger = Logger.getLogger("GroupCreateController");
     private View creator;
 
     public GroupCreateController() {
@@ -58,18 +59,18 @@ public class GroupCreateController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(GroupCreateEvents.CreateRequested)) {
-            // Log.d(TAG, "CreateRequested");
+            // logger.fine( "CreateRequested");
             final String name = event.getData("name");
             final String username = event.getData("username");
             final String password = event.getData("password");
             createGroup(name, username, password);
 
         } else if (type.equals(GroupCreateEvents.CreateAjaxFailure)) {
-            Log.w(TAG, "CreateAjaxFailure");
+            logger.warning("CreateAjaxFailure");
             onCreateFailure();
 
         } else if (type.equals(GroupCreateEvents.CreateAjaxSuccess)) {
-            // Log.d(TAG, "CreateAjaxSuccess");
+            // logger.fine( "CreateAjaxSuccess");
             onCreateSuccess();
 
         } else

@@ -1,8 +1,9 @@
 package nl.sense_os.commonsense.client.auth.registration;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.constants.Urls;
 
@@ -14,7 +15,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class RegisterController extends Controller {
 
-    private static final String TAG = "RegisterController";
+    private static final Logger logger = Logger.getLogger("RegisterController");
     private View form;
 
     public RegisterController() {
@@ -28,7 +29,7 @@ public class RegisterController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(RegisterEvents.RegisterRequest)) {
-            // Log.d(TAG, "RegisterRequest");
+            // logger.fine("RegisterRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             final String name = event.<String> getData("name");
@@ -38,14 +39,14 @@ public class RegisterController extends Controller {
             register(username, password, name, surname, email, mobile);
 
         } else if (type.equals(RegisterEvents.AjaxRegisterSuccess)) {
-            // Log.d(TAG, "AjaxRegisterSuccess");
+            // logger.fine("AjaxRegisterSuccess");
             final String response = event.<String> getData("response");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             registerCallback(response, username, password);
 
         } else if (type.equals(RegisterEvents.AjaxRegisterFailure)) {
-            Log.w(TAG, "AjaxRegisterFailure");
+            logger.warning("AjaxRegisterFailure");
             registerFailure();
 
         } else {

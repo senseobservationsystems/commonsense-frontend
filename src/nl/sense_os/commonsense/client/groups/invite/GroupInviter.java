@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.groups.invite;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.models.GroupModel;
 
@@ -23,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class GroupInviter extends View {
 
-    private static final String TAG = "GroupInviter";
+    private static final Logger logger = Logger.getLogger("GroupInviter");
     private Window window;
     private FormPanel form;
     private TextField<String> username;
@@ -42,15 +43,15 @@ public class GroupInviter extends View {
             onShow(event);
 
         } else if (type.equals(InviteEvents.InviteComplete)) {
-            // Log.d(TAG, "InviteComplete");
+            // logger.fine( "InviteComplete");
             hideWindow();
 
         } else if (type.equals(InviteEvents.InviteFailed)) {
-            Log.w(TAG, "InviteFailed");
+            logger.warning("InviteFailed");
             onFailed(event);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -72,7 +73,7 @@ public class GroupInviter extends View {
                 } else if (b.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };
@@ -126,7 +127,7 @@ public class GroupInviter extends View {
 
     private void onShow(AppEvent event) {
         this.group = event.<GroupModel> getData("group");
-        Log.d(TAG, "Invite users for group " + group.get(GroupModel.ID));
+        logger.fine("Invite users for group " + group.get(GroupModel.ID));
         this.form.reset();
 
         this.window.show();

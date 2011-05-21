@@ -2,10 +2,10 @@ package nl.sense_os.commonsense.client.states.create;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -26,7 +26,7 @@ import com.google.gwt.json.client.JSONValue;
 
 public class StateCreateController extends Controller {
 
-    private static final String TAG = "StateCreateController";
+    private static final Logger logger = Logger.getLogger("StateCreateController");
     private View creator;
     private boolean isLoadingSensors;
 
@@ -93,8 +93,8 @@ public class StateCreateController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get("id")
-                + "/services/available" + aliasParam;
+        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/available"
+                + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxAvailableServiceFailure);
@@ -117,17 +117,17 @@ public class StateCreateController extends Controller {
          * Request available services for a sensor
          */
         if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
-            // Log.d(TAG, "AvailableServicesRequested");
+            // logger.fine( "AvailableServicesRequested");
             final SensorModel sensor = event.getData("sensor");
             getAvailableServices(sensor);
 
         } else if (type.equals(StateCreateEvents.AjaxAvailableServiceSuccess)) {
-            // Log.d(TAG, "AjaxAvailableServiceSuccess");
+            // logger.fine( "AjaxAvailableServiceSuccess");
             final String response = event.getData("response");
             onAvailableServicesSuccess(response);
 
         } else if (type.equals(StateCreateEvents.AjaxAvailableServiceFailure)) {
-            Log.w(TAG, "AjaxAvailableServiceFailure");
+            logger.warning("AjaxAvailableServiceFailure");
             onAvailableServicesFailure();
 
         } else
@@ -136,7 +136,7 @@ public class StateCreateController extends Controller {
          * Create service from a sensor
          */
         if (type.equals(StateCreateEvents.CreateServiceRequested)) {
-            // Log.d(TAG, "CreateRequested");
+            // logger.fine( "CreateRequested");
             final String name = event.<String> getData("name");
             final TreeModel service = event.<TreeModel> getData("service");
             final ModelData sensor = event.<ModelData> getData("sensor");
@@ -144,12 +144,12 @@ public class StateCreateController extends Controller {
             createService(name, service, sensor, dataFields);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
-            Log.w(TAG, "CreateAjaxFailure");
+            logger.warning("CreateAjaxFailure");
             final int code = event.getData("code");
             onCreateServiceFailure(code);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
-            // Log.d(TAG, "CreateAjaxSuccess");
+            // logger.fine( "CreateAjaxSuccess");
             final String response = event.<String> getData("response");
             onCreateServiceSuccess(response);
 
@@ -159,12 +159,12 @@ public class StateCreateController extends Controller {
          * Load all sensors to create service from
          */
         if (type.equals(StateCreateEvents.LoadSensors)) {
-            // Log.d(TAG, "LoadSensors");
+            // logger.fine( "LoadSensors");
             loadSensors();
 
         } else if (type.equals(LibraryEvents.ListUpdated)) {
             if (isLoadingSensors) {
-                // Log.d(TAG, "Sensor lists updated: LoadSensors");
+                // logger.fine( "Sensor lists updated: LoadSensors");
                 loadSensors();
             }
 
@@ -243,17 +243,15 @@ public class StateCreateController extends Controller {
                     forwardToView(this.creator, success);
 
                 } else {
-                    Log.e(TAG,
-                            "Error parsing service methods response: \"available_services\" is not a JSON Array");
+                    logger.severe("Error parsing service methods response: \"available_services\" is not a JSON Array");
                     onAvailableServicesFailure();
                 }
             } else {
-                Log.e(TAG,
-                        "Error parsing service methods response: \"available_services\" is is not found");
+                logger.severe("Error parsing service methods response: \"available_services\" is is not found");
                 onAvailableServicesFailure();
             }
         } else {
-            Log.e(TAG, "Error parsing service methods response: response=null");
+            logger.severe("Error parsing service methods response: response=null");
             onAvailableServicesFailure();
             onAvailableServicesFailure();
         }

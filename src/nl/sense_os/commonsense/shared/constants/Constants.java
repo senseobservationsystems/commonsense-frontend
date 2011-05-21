@@ -8,7 +8,7 @@ public class Constants {
 
     public static final boolean TEST_MODE = true;
 
-    public static final boolean TED_MODE = TEST_MODE && true;
+    public static final boolean TED_MODE = TEST_MODE && false;
 
     /**
      * Registry key for the building service, stored as @link {@link BuildingServiceAsync}.

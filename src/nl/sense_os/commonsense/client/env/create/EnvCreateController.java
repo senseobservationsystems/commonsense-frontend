@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
 import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.DeviceModel;
@@ -31,7 +31,7 @@ import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvCreateController extends Controller {
 
-    private static final String TAG = "EnvCreateController";
+    private static final Logger logger = Logger.getLogger("EnvCreateController");
     private View creator;
 
     public EnvCreateController() {
@@ -238,7 +238,7 @@ public class EnvCreateController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(EnvCreateEvents.CreateRequest)) {
-            Log.d(TAG, "CreateRequest");
+            logger.fine("CreateRequest");
             final String name = event.<String> getData("name");
             final int floors = event.getData("floors");
             final Polygon outline = event.<Polygon> getData("outline");
@@ -249,27 +249,27 @@ public class EnvCreateController extends Controller {
         } else
 
         if (type.equals(EnvCreateEvents.CreateAjaxSuccess)) {
-            Log.d(TAG, "CreateAjaxSuccess");
+            logger.fine("CreateAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onCreateEnvironmentSuccess(response, sensors);
 
         } else if (type.equals(EnvCreateEvents.CreateAjaxFailure)) {
-            Log.w(TAG, "CreateAjaxFailure");
+            logger.warning("CreateAjaxFailure");
             // final int code = event.getData("code");
             onCreateEnvironmentFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.AddSensorsAjaxSuccess)) {
-            Log.d(TAG, "AddSensorsAjaxSuccess");
+            logger.fine("AddSensorsAjaxSuccess");
             // final String response = event.<String> getData("response");
             final EnvironmentModel environment = event.getData("environment");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onAddSensorSuccess(environment, sensors);
 
         } else if (type.equals(EnvCreateEvents.AddSensorsAjaxFailure)) {
-            Log.w(TAG, "AddSensorsAjaxFailure");
+            logger.warning("AddSensorsAjaxFailure");
             // final int code = event.getData("code");
             final EnvironmentModel environment = event.getData("environment");
             onAddSensorsFailure(environment);
@@ -277,7 +277,7 @@ public class EnvCreateController extends Controller {
         } else
 
         if (type.equals(EnvCreateEvents.PositionSensorAjaxSuccess)) {
-            Log.d(TAG, "PositionSensorAjaxSuccess");
+            logger.fine("PositionSensorAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<DeviceModel> devices = event.getData("devices");
             final int index = event.getData("index");
@@ -288,14 +288,14 @@ public class EnvCreateController extends Controller {
             onPositionSensorSuccess(response, devices, index, name, floors, outline, sensors);
 
         } else if (type.equals(EnvCreateEvents.PositionSensorAjaxFailure)) {
-            Log.w(TAG, "PositionSensorAjaxFailure");
+            logger.warning("PositionSensorAjaxFailure");
             // final int code = event.getData("code");
             onPositionSensorFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.CreateSensorAjaxSuccess)) {
-            Log.d(TAG, "CreateSensorAjaxSuccess");
+            logger.fine("CreateSensorAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<DeviceModel> devices = event.getData("devices");
             final int index = event.getData("index");
@@ -306,14 +306,14 @@ public class EnvCreateController extends Controller {
             onCreateSensorSuccess(response, devices, index, name, floors, outline, sensors);
 
         } else if (type.equals(EnvCreateEvents.CreateSensorAjaxFailure)) {
-            Log.w(TAG, "CreateSensorAjaxFailure");
+            logger.warning("CreateSensorAjaxFailure");
             // final int code = event.getData("code");
             onCreateSensorFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.SensorToDeviceAjaxSuccess)) {
-            Log.d(TAG, "SensorToDeviceAjaxSuccess");
+            logger.fine("SensorToDeviceAjaxSuccess");
             final String response = event.getData("response");
             final SensorModel sensor = event.getData("sensor");
             final List<DeviceModel> devices = event.getData("devices");
@@ -326,14 +326,14 @@ public class EnvCreateController extends Controller {
                     sensors);
 
         } else if (type.equals(EnvCreateEvents.SensorToDeviceAjaxFailure)) {
-            Log.w(TAG, "SensorToDeviceAjaxFailure");
+            logger.warning("SensorToDeviceAjaxFailure");
             // final int code = event.getData("code");
             onSensorToDeviceFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.SetPositionAjaxSuccess)) {
-            Log.d(TAG, "SetPositionAjaxSuccess");
+            logger.fine("SetPositionAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<DeviceModel> devices = event.getData("devices");
             final int index = event.getData("index");
@@ -344,7 +344,7 @@ public class EnvCreateController extends Controller {
             onSetPositionSuccess(response, devices, index, name, floors, outline, sensors);
 
         } else if (type.equals(EnvCreateEvents.SetPositionAjaxFailure)) {
-            Log.w(TAG, "SetPositionAjaxFailure");
+            logger.warning("SetPositionAjaxFailure");
             // final int code = event.getData("code");
             onSetPositionFailure();
 

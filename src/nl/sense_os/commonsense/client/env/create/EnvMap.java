@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
@@ -28,7 +29,7 @@ import com.google.gwt.maps.client.overlay.Polygon;
 public class EnvMap extends LayoutContainer {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "EnvMap";
+    private static final Logger logger = Logger.getLogger("EnvMap");
     private MapWidget map;
     private Map<Marker, List<SensorModel>> sensors;
     private Polygon outline;
@@ -60,13 +61,13 @@ public class EnvMap extends LayoutContainer {
 
     private void initOutline() {
 
-        this.outline = new Polygon(new LatLng[]{});
+        this.outline = new Polygon(new LatLng[] {});
         this.map.addOverlay(this.outline);
         this.outline.addPolygonEndLineHandler(new PolygonEndLineHandler() {
 
             @Override
             public void onEnd(PolygonEndLineEvent event) {
-                // Log.d(TAG, "Outline complete");
+                // logger.fine( "Outline complete");
                 Dispatcher.forwardEvent(EnvCreateEvents.OutlineComplete);
             }
         });
@@ -74,7 +75,7 @@ public class EnvMap extends LayoutContainer {
     }
 
     private void onSensorsDropped(List<SensorModel> data, int x, int y) {
-        // Log.d(TAG, "onSensorsDropped");
+        // logger.fine( "onSensorsDropped");
 
         LatLng latLng = this.map.convertContainerPixelToLatLng(Point.newInstance(x, y));
         MarkerOptions options = MarkerOptions.newInstance();
@@ -179,8 +180,8 @@ public class EnvMap extends LayoutContainer {
                 int x = e.getClientX() - map.getAbsoluteLeft();
                 int y = e.getClientY() - map.getAbsoluteTop();
                 onSensorsDropped(data, x, y);
-                // Log.d(TAG, "Event: " + e.getClientX() + ", " + e.getClientY());
-                // Log.d(TAG, "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
+                // logger.fine( "Event: " + e.getClientX() + ", " + e.getClientY());
+                // logger.fine( "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
             }
         });
         dropTarget.setGroup("env-creator");

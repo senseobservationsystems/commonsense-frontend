@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.sensors.share;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -17,7 +17,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class SensorShareController extends Controller {
 
-    private final static String TAG = "SensorShareController";
+    private final static Logger logger = Logger.getLogger("SensorShareController");
     private View shareDialog;
 
     public SensorShareController() {
@@ -32,18 +32,18 @@ public class SensorShareController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorShareEvents.ShareRequest)) {
-            // Log.d(TAG, "ShareRequest");
+            // logger.fine( "ShareRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final String user = event.<String> getData("user");
             shareSensors(sensors, user, 0);
 
         } else if (type.equals(SensorShareEvents.ShareAjaxSuccess)) {
-            // Log.d(TAG, "ShareAjaxSuccess");
+            // logger.fine( "ShareAjaxSuccess");
             // final String response = event.<String> getData("response");
             shareSensorCallback(event);
 
         } else if (type.equals(SensorShareEvents.ShareAjaxFailure)) {
-            Log.w(TAG, "ShareAjaxFailure");
+            logger.warning("ShareAjaxFailure");
             // final int code = event.getData("code");
             shareSensorErrorCallback(event);
 

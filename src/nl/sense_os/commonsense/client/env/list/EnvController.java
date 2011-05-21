@@ -2,13 +2,13 @@ package nl.sense_os.commonsense.client.env.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvController extends Controller {
 
-    private static final String TAG = "EnvController";
+    private static final Logger logger = Logger.getLogger("EnvController");
     private View grid;
 
     public EnvController() {
@@ -70,20 +70,20 @@ public class EnvController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(EnvEvents.ListRequested)) {
-            Log.d(TAG, "LoadRequest");
+            logger.fine("LoadRequest");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);
 
         } else if (type.equals(EnvEvents.ListAjaxSuccess)) {
-            // Log.d(TAG, "FullDetailsAjaxSuccess");
+            // logger.fine( "FullDetailsAjaxSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListSuccess(response, callback);
 
         } else if (type.equals(EnvEvents.ListAjaxFailure)) {
-            Log.w(TAG, "FullDetailsAjaxFailure");
+            logger.warning("FullDetailsAjaxFailure");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListFailure(callback);
@@ -91,18 +91,18 @@ public class EnvController extends Controller {
         } else
 
         if (type.equals(EnvEvents.DeleteRequest)) {
-            Log.d(TAG, "DeleteRequest");
+            logger.fine("DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            Log.d(TAG, "DeleteAjaxSuccess");
+            logger.fine("DeleteAjaxSuccess");
             // final String response = event.getData("response");
             final EnvironmentModel environment = event.getData("environment");
             onDeleteSuccess(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxFailure)) {
-            Log.w(TAG, "DeleteAjaxFailure");
+            logger.warning("DeleteAjaxFailure");
             // final int code = event.getData("code");
             onDeleteFailure();
 

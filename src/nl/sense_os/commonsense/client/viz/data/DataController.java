@@ -2,12 +2,12 @@ package nl.sense_os.commonsense.client.viz.data;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 import nl.sense_os.commonsense.shared.constants.Constants;
@@ -26,7 +26,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataController extends Controller {
 
-    private static final String TAG = "DataController";
+    private static final Logger logger = Logger.getLogger("DataController");
     private View progressDialog;
     private static final int PER_PAGE = 1000; // max: 1000
 
@@ -41,7 +41,7 @@ public class DataController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(DataEvents.DataRequest)) {
-            // Log.d(TAG, "DataRequest");
+            // logger.fine( "DataRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long start = event.getData("startTime");
             final long end = event.getData("endTime");
@@ -50,7 +50,7 @@ public class DataController extends Controller {
             onDataRequest(start, end, sensors, vizPanel);
 
         } else if (type.equals(DataEvents.RefreshRequest)) {
-            // Log.d(TAG, "DataRequest");
+            // logger.fine( "DataRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long start = event.getData("start");
             final VizPanel vizPanel = event.getData("vizPanel");
@@ -58,13 +58,13 @@ public class DataController extends Controller {
             onRefreshRequest(sensors, start, vizPanel);
 
         } else if (type.equals(DataEvents.AjaxDataFailure)) {
-            Log.w(TAG, "AjaxDataFailure");
+            logger.warning("AjaxDataFailure");
             final int code = event.getData("code");
 
             onDataFailed(code);
 
         } else if (type.equals(DataEvents.AjaxDataSuccess)) {
-            // Log.d(TAG, "AjaxDataSuccess");
+            // logger.fine( "AjaxDataSuccess");
             final String response = event.<String> getData("response");
             final long start = event.getData("start");
             final long end = event.getData("end");
@@ -77,7 +77,7 @@ public class DataController extends Controller {
         } else if (type.equals(LoginEvents.LoggedOut)) {
             Cache.clear();
         } else {
-            Log.w(TAG, "Unexpected event received!");
+            logger.warning("Unexpected event received!");
         }
     }
 
@@ -95,7 +95,7 @@ public class DataController extends Controller {
     }
 
     private void onDataComplete(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
-        // Log.d(TAG, "onDataComplete...");
+        // logger.fine( "onDataComplete...");
 
         hideProgress();
 
@@ -110,7 +110,7 @@ public class DataController extends Controller {
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
             int sensorIndex, int pageIndex, VizPanel vizPanel) {
-        // Log.d(TAG, "onDataReceived...");
+        // logger.fine( "onDataReceived...");
 
         updateSubProgress(-1, -1, "Parsing received data chunk...");
 
@@ -165,7 +165,7 @@ public class DataController extends Controller {
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
             int pageIndex, VizPanel vizPanel) {
-        // Log.d(TAG, "requestData...");
+        // logger.fine( "requestData...");
 
         if (sensorIndex < sensors.size()) {
 
@@ -179,7 +179,7 @@ public class DataController extends Controller {
                     Timeseries timeseries = cacheContent.get(i);
                     if (timeseries.getStart() <= realStart) {
                         realStart = timeseries.getEnd();
-                        // Log.d(TAG, "Changed realStart to " + realStart);
+                        // logger.fine( "Changed realStart to " + realStart);
                     } else {
                         Cache.remove(sensor);
                     }
@@ -227,7 +227,7 @@ public class DataController extends Controller {
     }
 
     private void updateMainProgress(int progress, int total) {
-        // Log.d(TAG, "updateMainProgress...");
+        // logger.fine( "updateMainProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
         update.setData("progress", progress);
         update.setData("total", total);
@@ -235,7 +235,7 @@ public class DataController extends Controller {
     }
 
     private void updateSubProgress(double progress, double total, String text) {
-        // Log.d(TAG, "updateSubProgress...");
+        // logger.fine( "updateSubProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateDataProgress);
         update.setData("progress", progress);
         update.setData("total", total);

@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.client.states.feedback;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -14,7 +14,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class FeedbackView extends View {
 
-    private static final String TAG = "FeedbackView";
+    private static final Logger logger = Logger.getLogger("FeedbackView");
 
     public FeedbackView(Controller c) {
         super(c);
@@ -25,7 +25,7 @@ public class FeedbackView extends View {
         final EventType type = event.getType();
 
         if (type.equals(FeedbackEvents.FeedbackInit)) {
-            Log.d(TAG, "FeedbackInit");
+            logger.fine("FeedbackInit");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             initPanel(state, sensors);
@@ -36,14 +36,14 @@ public class FeedbackView extends View {
          * Request for labels
          */
         if (type.equals(FeedbackEvents.LabelsSuccess)) {
-            // Log.d(TAG, "LabelsSuccess");
+            // logger.fine( "LabelsSuccess");
             final List<String> labels = event.<List<String>> getData("labels");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             showPanel(state, sensors, labels);
 
         } else if (type.equals(FeedbackEvents.LabelsFailure)) {
-            Log.w(TAG, "LabelsFailure");
+            logger.warning("LabelsFailure");
             onLabelsFailure();
 
         } else
@@ -52,19 +52,19 @@ public class FeedbackView extends View {
          * Feedback results
          */
         if (type.equals(FeedbackEvents.FeedbackComplete)) {
-            Log.d(TAG, "FeedbackComplete");
+            logger.fine("FeedbackComplete");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackComplete();
 
         } else if (type.equals(FeedbackEvents.FeedbackFailed)) {
-            Log.w(TAG, "FeedbackFailed");
+            logger.warning("FeedbackFailed");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackFailed();
 
         } else
 
         {
-            Log.w(TAG, "Unexpected event type!");
+            logger.warning("Unexpected event type!");
         }
     }
 

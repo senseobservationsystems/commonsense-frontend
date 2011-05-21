@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.client.common.json.parsers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.models.TagModel;
 import nl.sense_os.commonsense.shared.models.UserModel;
 
@@ -14,7 +14,7 @@ import com.google.gwt.json.client.JSONParser;
 
 public class UserParser {
 
-    private static final String TAG = "UserParser";
+    private static final Logger logger = Logger.getLogger("UserParser");
 
     public static UserModel parseUser(JSONObject user) {
         HashMap<String, Object> properties = new HashMap<String, Object>();
@@ -70,8 +70,8 @@ public class UserParser {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "GET GROUP DETAILS JSONException: " + e.getMessage());
-            Log.e(TAG, "Raw JSON: " + jsonString);
+            logger.severe("GET GROUP DETAILS JSONException: " + e.getMessage());
+            logger.severe("Raw JSON: " + jsonString);
         }
 
         // return list of tags

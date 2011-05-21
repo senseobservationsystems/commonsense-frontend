@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.common.json.parsers;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.models.EnvironmentModel;
 import nl.sense_os.commonsense.shared.models.TagModel;
 
@@ -13,7 +13,7 @@ import com.google.gwt.json.client.JSONParser;
 
 public class EnvironmentParser {
 
-    private static final String TAG = "EnvironmentParser";
+    private static final Logger logger = Logger.getLogger("EnvironmentParser");
 
     public static EnvironmentModel parse(JSONObject json) {
 
@@ -61,8 +61,8 @@ public class EnvironmentParser {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Exception parsing sensors list: " + e.getMessage());
-            Log.e(TAG, "Raw response: " + jsonString);
+            logger.severe("Exception parsing sensors list: " + e.getMessage());
+            logger.severe("Raw response: " + jsonString);
         }
     }
 }

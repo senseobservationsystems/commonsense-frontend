@@ -1,9 +1,10 @@
 package nl.sense_os.commonsense.client.auth.login;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -22,7 +23,7 @@ import com.google.gwt.json.client.JSONValue;
 
 public class LoginController extends Controller {
 
-    private static final String TAG = "LoginController";
+    private static final Logger logger = Logger.getLogger("LoginController");
     private View loginView;
 
     public LoginController() {
@@ -68,22 +69,22 @@ public class LoginController extends Controller {
         EventType eventType = event.getType();
 
         if (eventType.equals(LoginEvents.LoginRequest)) {
-            // Log.d(TAG, "LoginRequest");
+            // logger.fine( "LoginRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             login(username, password);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            // Log.d(TAG, "RequestLogout");
+            // logger.fine( "RequestLogout");
             logout(event);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
-            // Log.d(TAG, "AjaxLoginSuccess");
+            // logger.fine( "AjaxLoginSuccess");
             final String response = event.<String> getData("response");
             parseLoginReponse(response);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
-            Log.w(TAG, "AjaxLoginFailure");
+            logger.warning("AjaxLoginFailure");
             final int code = event.getData("code");
             if (code == 403) {
                 onAuthenticationFailure();
@@ -92,22 +93,22 @@ public class LoginController extends Controller {
             }
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
-            // Log.d(TAG, "AjaxLogoutSuccess");
+            // logger.fine( "AjaxLogoutSuccess");
             final String response = event.<String> getData("response");
             onLoggedOut(response);
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
-            Log.w(TAG, "AjaxLogoutFailure");
+            logger.warning("AjaxLogoutFailure");
             final int code = event.getData("code");
             onLogoutFailure(code);
 
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
-            // Log.d(TAG, "AjaxUserSuccess");
+            // logger.fine( "AjaxUserSuccess");
             final String response = event.<String> getData("response");
             parseUserReponse(response);
 
         } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
-            Log.w(TAG, "AjaxUserFailure");
+            logger.warning("AjaxUserFailure");
             final int code = event.getData("code");
             onLoginFailure(code);
 
@@ -205,15 +206,15 @@ public class LoginController extends Controller {
 
                     onLoggedIn(sessionId);
                 } else {
-                    Log.e(TAG, "Error parsing login response: \"session_id\" is not a JSON String");
+                    logger.severe("Error parsing login response: \"session_id\" is not a JSON String");
                     onLoginFailure(0);
                 }
             } else {
-                Log.e(TAG, "Error parsing login response: \"session_id\" is is not found");
+                logger.severe("Error parsing login response: \"session_id\" is is not found");
                 onLoginFailure(0);
             }
         } else {
-            Log.e(TAG, "Error parsing login response: response=null");
+            logger.severe("Error parsing login response: response=null");
             onLoginFailure(0);
         }
     }
@@ -231,16 +232,16 @@ public class LoginController extends Controller {
                     UserModel user = UserParser.parseUser(jsonUser);
                     onCurrentUser(user);
                 } else {
-                    Log.e(TAG, "Error parsing current user response: "
+                    logger.severe("Error parsing current user response: "
                             + "\"user\" is not a valid JSONObject");
                     onLoginFailure(0);
                 }
             } else {
-                Log.e(TAG, "Error parsing current user response: \"user\" JSONValue not found");
+                logger.severe("Error parsing current user response: \"user\" JSONValue not found");
                 onLoginFailure(0);
             }
         } else {
-            Log.e(TAG, "Error parsing current user response: response=null");
+            logger.severe("Error parsing current user response: response=null");
             onLoginFailure(0);
         }
     }

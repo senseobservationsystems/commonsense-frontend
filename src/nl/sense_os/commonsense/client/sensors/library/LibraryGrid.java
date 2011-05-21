@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
@@ -10,7 +11,6 @@ import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
@@ -57,7 +57,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryGrid extends View {
 
-    private static final String TAG = "LibraryGrid";
+    private static final Logger logger = Logger.getLogger("LibraryGrid");
     private ContentPanel panel;
     private BaseListLoader<ListLoadResult<SensorModel>> loader;
     private GroupingStore<SensorModel> store;
@@ -82,7 +82,7 @@ public class LibraryGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(LibraryEvents.ShowLibrary)) {
-            // Log.d(TAG, "ShowLibrary");
+            // logger.fine( "ShowLibrary");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
@@ -93,27 +93,27 @@ public class LibraryGrid extends View {
                 || type.equals(SensorDeleteEvents.DeleteFailure)
                 || type.equals(EnvCreateEvents.CreateSuccess)
                 || type.equals(EnvEvents.DeleteSuccess)) {
-            // Log.d(TAG, "Library changed");
+            // logger.fine( "Library changed");
             onLibChanged();
 
         } else if (type.equals(LibraryEvents.Done)) {
-            // Log.d(TAG, "Done");
+            // logger.fine( "Done");
             setBusy(false);
 
         } else if (type.equals(LibraryEvents.Working)) {
-            // Log.d(TAG, "Working");
+            // logger.fine( "Working");
             setBusy(true);
 
         } else if (type.equals(LibraryEvents.ListUpdated)) {
-            // Log.d(TAG, "ListUpdated");
+            // logger.fine( "ListUpdated");
             onListUpdate();
 
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "Show Visualization");
+            // logger.fine( "Show Visualization");
             refreshLoader(true);
 
         } else {
-            Log.e(TAG, "Ignoring event... " + event + ", source: " + event.getSource() + ".");
+            logger.severe("Ignoring event... " + event + ", source: " + event.getSource() + ".");
         }
     }
 
@@ -207,7 +207,7 @@ public class LibraryGrid extends View {
                 } else if (source.equals(removeButton)) {
                     onRemoveClick();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };
@@ -261,16 +261,18 @@ public class LibraryGrid extends View {
                 // only load when the panel is not collapsed
                 if (panel.isExpanded()) {
                     if (loadConfig instanceof ListLoadConfig) {
-                        // Log.d(TAG, "Load library... Renew cache: " + force);
+                        // logger.fine( "Load library... Renew cache: " + force);
                         AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
                         loadRequest.setData("callback", callback);
                         loadRequest.setData("renewCache", force);
                         fireEvent(loadRequest);
                         force = false;
                     } else {
-                        Log.w(TAG, "Unexpected load config: " + loadConfig);
+                        logger.warning("Unexpected load config: " + loadConfig);
                         callback.onFailure(null);
                     }
+                } else {
+                    callback.onFailure(null);
                 }
             }
         };
@@ -359,7 +361,7 @@ public class LibraryGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show my sensors panel: parent=null");
+            logger.severe("Failed to show my sensors panel: parent=null");
         }
     }
 }

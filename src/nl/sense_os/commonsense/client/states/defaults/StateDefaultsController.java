@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.states.defaults;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.DeviceModel;
@@ -18,7 +18,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class StateDefaultsController extends Controller {
 
-    private static final String TAG = "StateDefaultsController";
+    private static final Logger logger = Logger.getLogger("StateDefaultsController");
     private View dialog;
 
     public StateDefaultsController() {
@@ -77,18 +77,18 @@ public class StateDefaultsController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
-            Log.d(TAG, "CheckDefaultsRequest");
+            logger.fine("CheckDefaultsRequest");
             List<DeviceModel> devices = event.getData("devices");
             boolean overwrite = event.getData("overwrite");
             checkDefaults(devices, overwrite);
 
         } else if (type.equals(StateDefaultsEvents.AjaxDefaultsSuccess)) {
-            Log.d(TAG, "AjaxDefaultsSuccess");
+            logger.fine("AjaxDefaultsSuccess");
             final String response = event.<String> getData("response");
             onCheckDefaultsSuccess(response);
 
         } else if (type.equals(StateDefaultsEvents.AjaxDefaultsFailure)) {
-            Log.w(TAG, "AjaxDefaultsFailure");
+            logger.warning("AjaxDefaultsFailure");
             // final int code = event.getData("code");
             onCheckDefaultsFailure();
 

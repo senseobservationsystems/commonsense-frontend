@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.groups.create;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -28,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupCreator extends View {
 
-    private static final String TAG = "GroupCreator";
+    private static final Logger logger = Logger.getLogger("GroupCreator");
     private Window window;
     private FormPanel form;
     private TextField<String> name;
@@ -50,15 +51,15 @@ public class GroupCreator extends View {
             onShow(event);
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)) {
-            // Log.d(TAG, "CreateGroupComplete");
+            // logger.fine( "CreateGroupComplete");
             onComplete(event);
 
         } else if (type.equals(GroupCreateEvents.CreateFailed)) {
-            // Log.w(TAG, "CreateGroupFailed");
+            // logger.warning( "CreateGroupFailed");
             onFailed(event);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -92,7 +93,7 @@ public class GroupCreator extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideDialog();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };
@@ -131,7 +132,7 @@ public class GroupCreator extends View {
 
             @Override
             public void handleEvent(FieldSetEvent be) {
-                // Log.d(TAG, "Expand");
+                // logger.fine( "Expand");
                 boolean isVisible = loginFields.isExpanded();
                 username.setAllowBlank(!isVisible);
                 password.setAllowBlank(!isVisible);

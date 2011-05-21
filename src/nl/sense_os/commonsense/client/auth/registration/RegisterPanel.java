@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.auth.registration;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.components.RegisterForm;
-import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -19,7 +20,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class RegisterPanel extends View {
 
-    private static final String TAG = "RegisterPanel";
+    private static final Logger logger = Logger.getLogger("RegisterPanel");
     private ContentPanel panel;
     private RegisterForm form;
 
@@ -32,20 +33,20 @@ public class RegisterPanel extends View {
         final EventType type = event.getType();
 
         if (type.equals(RegisterEvents.Show)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(RegisterEvents.RegisterSuccess)) {
-            // Log.d(TAG, "RegisterSuccess");
+            // logger.fine( "RegisterSuccess");
             onSuccess();
 
         } else if (type.equals(RegisterEvents.RegisterFailure)) {
-            Log.w(TAG, "RegisterFailure");
+            logger.warning( "RegisterFailure");
             onFailure();
 
         } else {
-            Log.e(TAG, "Unexpected event type!");
+            logger.severe("Unexpected event type!");
         }
     }
 

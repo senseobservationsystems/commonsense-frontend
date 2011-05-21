@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.common.components;
 
-import nl.sense_os.commonsense.client.utility.Log;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -38,7 +39,7 @@ public class RegisterForm extends FormPanel {
         }
     }
 
-    private static final String TAG = "RegisterForm";
+    private static final Logger logger = Logger.getLogger("RegisterForm");
     private static final String EMAIL_REGEX = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[a-zA-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)";
 
     private static native final String validatePhoneNumber(String phoneNumber, String regionCode) /*-{
@@ -119,7 +120,7 @@ public class RegisterForm extends FormPanel {
                 if (b.equals(submit)) {
                     submit();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed!");
+                    logger.warning("Unexpected button pressed!");
                 }
             }
         };

@@ -1,8 +1,10 @@
 package nl.sense_os.commonsense.client.env.create;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
+import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
+
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -12,11 +14,13 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 
 public class EnvCreator extends View {
 
-    private static final String TAG = "EnvCreator";
+    private static final Logger logger = Logger.getLogger("EnvCreator");
     private Window window;
     private EnvCreatorForm form;
     private EnvCreatorMapPanel mapPanel;
@@ -39,11 +43,11 @@ public class EnvCreator extends View {
                 this.mapPanel.showOutline();
 
             } else {
-                Log.w(TAG, "Unexpected active component in MapPanel");
+                logger.warning("Unexpected active component in MapPanel");
             }
 
         } else {
-            Log.w(TAG, "Unexpected active component in window CardLayout: " + active);
+            logger.warning("Unexpected active component in window CardLayout: " + active);
         }
     }
 
@@ -64,11 +68,11 @@ public class EnvCreator extends View {
                 submit();
 
             } else {
-                Log.w(TAG, "Unexpected active component in MapPanel");
+                logger.warning("Unexpected active component in MapPanel");
             }
 
         } else {
-            Log.w(TAG, "Unexpected active component in CardLayout: " + active);
+            logger.warning("Unexpected active component in CardLayout: " + active);
         }
     }
 
@@ -98,7 +102,7 @@ public class EnvCreator extends View {
             onCreateFailure();
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
 
         }
     }
@@ -117,7 +121,7 @@ public class EnvCreator extends View {
 
         this.window = new CenteredWindow();
         this.window.setHeading("Create new environment");
-        this.window.setLayout(new CardLayout());
+        this.window.setLayout(new BorderLayout());
         this.window.setMinWidth(720);
         this.window.setSize("85%", "600px");
 
@@ -125,8 +129,8 @@ public class EnvCreator extends View {
         initMapPanel();
 
         // do layout
-        this.window.add(this.form);
-        this.window.add(this.mapPanel);
+        this.window.add(this.form, new BorderLayoutData(LayoutRegion.NORTH));
+        this.window.add(this.mapPanel, new BorderLayoutData(LayoutRegion.CENTER));
     }
 
     private void initMapPanel() {

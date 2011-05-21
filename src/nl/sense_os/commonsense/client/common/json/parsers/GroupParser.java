@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.client.common.json.parsers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.models.GroupModel;
 import nl.sense_os.commonsense.shared.models.TagModel;
 
@@ -16,7 +16,7 @@ import com.google.gwt.json.client.JSONParser;
 
 public class GroupParser {
 
-    private static final String TAG = "GroupParser";
+    private static final Logger logger = Logger.getLogger("GroupParser");
 
     public static GroupModel parseGroup(String jsonString) {
 
@@ -38,8 +38,8 @@ public class GroupParser {
             return new GroupModel(properties);
 
         } catch (Exception e) {
-            Log.e(TAG, "Exception parsing group details: " + e.getMessage());
-            Log.e(TAG, "Raw JSON: " + jsonString);
+            logger.severe("Exception parsing group details: " + e.getMessage());
+            logger.severe("Raw JSON: " + jsonString);
             return null;
         }
     }
@@ -67,8 +67,8 @@ public class GroupParser {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "GET GROUPS Exception: " + e.getMessage());
-            Log.e(TAG, "Raw response: " + jsonString);
+            logger.severe("GET GROUPS Exception: " + e.getMessage());
+            logger.severe("Raw response: " + jsonString);
         }
 
         return list;
@@ -106,8 +106,8 @@ public class GroupParser {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "GET GROUPS Exception: " + e.getMessage());
-            Log.e(TAG, "Raw response: " + jsonString);
+            logger.severe("GET GROUPS Exception: " + e.getMessage());
+            logger.severe("Raw response: " + jsonString);
         }
 
         return list;

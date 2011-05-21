@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.sensors.share;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -34,7 +34,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class SensorShareDialog extends View {
 
-    private static final String TAG = "SensorShareDialog";
+    private static final Logger logger = Logger.getLogger("SensorShareDialog");
     private Window window;
     private FormPanel form;
     private TextField<String> user;
@@ -52,23 +52,23 @@ public class SensorShareDialog extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(SensorShareEvents.ShowShareDialog)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             onShow(event);
 
         } else if (type.equals(SensorShareEvents.ShareCancelled)) {
-            // Log.d(TAG, "Cancelled");
+            // logger.fine( "Cancelled");
             hideWindow();
 
         } else if (type.equals(SensorShareEvents.ShareComplete)) {
-            // Log.d(TAG, "Complete");
+            // logger.fine( "Complete");
             onComplete(event);
 
         } else if (type.equals(SensorShareEvents.ShareFailed)) {
-            Log.w(TAG, "Failed");
+            logger.warning("Failed");
             onFailed(event);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -92,7 +92,7 @@ public class SensorShareDialog extends View {
                 } else if (b.equals(cancelButton)) {
                     Dispatcher.forwardEvent(SensorShareEvents.ShareCancelled);
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };

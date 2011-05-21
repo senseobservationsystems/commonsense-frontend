@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.viz.choice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -37,7 +37,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class VizTypeChooser extends View {
 
-    private static final String TAG = "VizTypeChooser";
+    private static final Logger logger = Logger.getLogger("VizTypeChooser");
 
     private Window window;
     private CardLayout layout;
@@ -95,7 +95,7 @@ public class VizTypeChooser extends View {
             hideWindow();
 
         } else {
-            Log.d(TAG, "Unexpected event type: " + type);
+            logger.fine("Unexpected event type: " + type);
         }
     }
 
@@ -207,7 +207,7 @@ public class VizTypeChooser extends View {
                     buttonToTimeRange.setText("Go!");
 
                 } else {
-                    Log.w(TAG, "Unexpected selection: " + label);
+                    logger.warning("Unexpected selection: " + label);
                 }
             }
         });
@@ -373,7 +373,7 @@ public class VizTypeChooser extends View {
         } else if (label.equals("4 weeks")) {
             startTime = endTime - (4 * week);
         } else {
-            Log.w(TAG, "Unexpected radio button label: " + label);
+            logger.warning("Unexpected radio button label: " + label);
         }
 
         // save the start and end time in the event
@@ -413,7 +413,7 @@ public class VizTypeChooser extends View {
             this.buttonToTimeRange.setText("Next");
 
         } else {
-            Log.w(TAG, "Unexpected selection: " + label);
+            logger.warning("Unexpected selection: " + label);
         }
     }
 

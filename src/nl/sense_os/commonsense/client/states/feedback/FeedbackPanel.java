@@ -3,11 +3,11 @@ package nl.sense_os.commonsense.client.states.feedback;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -52,7 +52,7 @@ import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
 public class FeedbackPanel extends VizPanel {
 
-    private static final String TAG = "FeedbackPanel";
+    private static final Logger logger = Logger.getLogger("FeedbackPanel");
 
     private final SensorModel stateSensor;
     private final LayoutContainer feedbackContainer;
@@ -93,7 +93,7 @@ public class FeedbackPanel extends VizPanel {
 
     @Override
     public void addData(JsArray<Timeseries> data) {
-        // Log.d(TAG, "addData...");
+        // logger.fine( "addData...");
 
         JsArray<Timeseries> numberData = JsArray.createArray().cast();
         JsArray<Timeseries> stringData = JsArray.createArray().cast();
@@ -101,13 +101,13 @@ public class FeedbackPanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getId().equals(this.stateSensor.getId())) {
-                // Log.d(TAG, ts.getLabel() + " (stateSensor data)");
+                // logger.fine( ts.getLabel() + " (stateSensor data)");
                 stateData.push(ts);
             } else if (ts.getType().equalsIgnoreCase("number")) {
-                // Log.d(TAG, ts.getLabel() + " (number data)");
+                // logger.fine( ts.getLabel() + " (number data)");
                 numberData.push(ts);
             } else {
-                // Log.d(TAG, ts.getLabel() + " (" + ts.getType() + " data)");
+                // logger.fine( ts.getLabel() + " (" + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
@@ -137,7 +137,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // Log.d(TAG, "AddHandler onEvent... " + properties);
+                // logger.fine( "AddHandler onEvent... " + properties);
                 onAdd(null);
             }
         });
@@ -151,7 +151,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // Log.d(TAG, "EditHandler onEvent... " + properties);
+                // logger.fine( "EditHandler onEvent... " + properties);
                 onEdit(null);
             }
         });
@@ -165,7 +165,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // Log.d(TAG, "ChangeHandler onEvent... " + properties);
+                // logger.fine( "ChangeHandler onEvent... " + properties);
                 onChange(null);
             }
         });
@@ -179,7 +179,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // Log.d(TAG, "DeleteHandler onEvent... " + properties);
+                // logger.fine( "DeleteHandler onEvent... " + properties);
                 onDelete(null);
             }
         });
@@ -196,7 +196,7 @@ public class FeedbackPanel extends VizPanel {
                 } else if (source.equals(cancelButton)) {
                     FeedbackPanel.this.hide();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };
@@ -389,20 +389,20 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void onFbAdd() {
-        // Log.d(TAG, "onAdd...");
+        // logger.fine( "onAdd...");
         showLabelChoice();
     }
 
     private void onFbChange() {
-        // Log.d(TAG, "onChange...");
+        // logger.fine( "onChange...");
     }
 
     private void onFbDelete() {
-        // Log.d(TAG, "onDelete...");
+        // logger.fine( "onDelete...");
     }
 
     private void onFbEdit() {
-        // Log.d(TAG, "onEdit...");
+        // logger.fine( "onEdit...");
         showLabelChoice();
     }
 
@@ -667,7 +667,7 @@ public class FeedbackPanel extends VizPanel {
                 redrawTimeline();
             }
         } else {
-            Log.w(TAG, "No data for time line visualization!");
+            logger.warning("No data for time line visualization!");
         }
     }
 

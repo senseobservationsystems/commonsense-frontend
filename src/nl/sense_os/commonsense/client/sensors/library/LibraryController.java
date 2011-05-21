@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -15,7 +16,6 @@ import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -36,7 +36,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryController extends Controller {
 
-    private final static String TAG = "LibraryController";
+    private final static Logger logger = Logger.getLogger("LibraryController");
     private static final int PER_PAGE = 1000;
     private View grid;
 
@@ -165,7 +165,7 @@ public class LibraryController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(LibraryEvents.LoadRequest)) {
-            // Log.d(TAG, "LoadRequest");
+            // logger.fine( "LoadRequest");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
             final boolean renewCache = event.getData("renewCache");
             onLoadRequest(renewCache, callback);
@@ -176,7 +176,7 @@ public class LibraryController extends Controller {
          * Personal sensors
          */
         if (type.equals(LibraryEvents.FullDetailsAjaxSuccess)) {
-            // Log.d(TAG, "FullDetailsAjaxSuccess");
+            // logger.fine( "FullDetailsAjaxSuccess");
             final String response = event.getData("response");
             final List<SensorModel> library = event.getData("library");
             final int page = event.getData("page");
@@ -184,7 +184,7 @@ public class LibraryController extends Controller {
             onFullDetailsSuccess(response, library, page, callback);
 
         } else if (type.equals(LibraryEvents.FullDetailsAjaxFailure)) {
-            Log.w(TAG, "FullDetailsAjaxFailure");
+            logger.warning("FullDetailsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
             onFullDetailsFailure(callback);
 
@@ -194,7 +194,7 @@ public class LibraryController extends Controller {
          * Group sensors
          */
         if (type.equals(LibraryEvents.GroupsAjaxSuccess)) {
-            // Log.d(TAG, "GroupsAjaxSuccess");
+            // logger.fine( "GroupsAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
@@ -202,13 +202,13 @@ public class LibraryController extends Controller {
             onGroupsSuccess(response, library, callback);
 
         } else if (type.equals(LibraryEvents.GroupsAjaxFailure)) {
-            Log.w(TAG, "GroupsAjaxFailure");
+            logger.warning("GroupsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
             onGroupsFailure(callback);
 
         } else if (type.equals(LibraryEvents.GroupSensorsAjaxSuccess)) {
-            // Log.d(TAG, "GroupSensorsAjaxSuccess");
+            // logger.fine( "GroupSensorsAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
             final int index = event.getData("index");
@@ -218,7 +218,7 @@ public class LibraryController extends Controller {
             onGroupSensorsSuccess(response, groups, index, library, callback);
 
         } else if (type.equals(LibraryEvents.GroupSensorsAjaxFailure)) {
-            Log.w(TAG, "GroupSensorsAjaxFailure");
+            logger.warning("GroupSensorsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
             onGroupSensorsFailure(callback);
@@ -229,7 +229,7 @@ public class LibraryController extends Controller {
          * Clear data after logout
          */
         if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLogout();
 
         } else
@@ -238,7 +238,7 @@ public class LibraryController extends Controller {
          * Pass through to view
          */
         {
-            // Log.d(TAG, "Pass through to grid");
+            // logger.fine( "Pass through to grid");
             forwardToView(this.grid, event);
         }
 
@@ -291,7 +291,7 @@ public class LibraryController extends Controller {
                 groupSensor.set("alias", group.getId());
                 library.add(groupSensor);
             } else {
-                Log.d(TAG, "Skipping duplicate group sensor: " + groupSensor);
+                logger.fine("Skipping duplicate group sensor: " + groupSensor);
             }
         }
 

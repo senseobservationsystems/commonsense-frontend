@@ -1,9 +1,10 @@
 package nl.sense_os.commonsense.client.viz.tabs;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.choice.VizTypeChooser;
 import nl.sense_os.commonsense.shared.constants.Keys;
 
@@ -16,13 +17,14 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
 public class VizController extends Controller {
 
-    private static final String TAG = "VizController";
+    private static final Logger logger = Logger.getLogger("VizController");
 
     private View vizView;
     private View typeChooser;
@@ -68,15 +70,21 @@ public class VizController extends Controller {
 
         // Asynchronously load the Maps API.
         if (Maps.isLoaded()) {
-            Log.d(TAG, "Google Maps API already loaded");
+            logger.fine("Google Maps API already loaded");
             return;
         }
 
-        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+        final String url = GWT.getModuleBaseURL();
+        String key = Keys.MAPS_KEY_STABLE;
+        if (url.contains("common-sense-test")) {
+            logger.info("Using Google Maps API key for \'common-sense-test\'...");
+            key = Keys.MAPS_KEY_TEST;
+        }
+        Maps.loadMapsApi(key, "2", false, new Runnable() {
 
             @Override
             public void run() {
-                // Log.d(TAG, "Google Maps API (version " + Maps.getVersion() + ") loaded...");
+                // logger.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");
             }
         });
 
@@ -110,7 +118,7 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                // Log.d(TAG, "Google Visualization API loaded...");
+                // logger.fine( "Google Visualization API loaded...");
                 isVizApiLoaded = true;
             }
         };

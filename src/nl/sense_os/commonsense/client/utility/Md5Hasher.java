@@ -4,8 +4,11 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
 
 public class Md5Hasher {
+
+    private static final Logger logger = Logger.getLogger("Md5Hasher");
 
     private Md5Hasher() {
         // Private constructor to make sure this class is not instantiated.
@@ -32,9 +35,9 @@ public class Md5Hasher {
                 hashed = "0" + hashed;
             }
         } catch (UnsupportedEncodingException e) {
-            Log.e("Md5Hasher", "UnsupportedEncodingException hashing password: " + e.getMessage());
+            logger.severe("UnsupportedEncodingException hashing password: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-            Log.e("Md5Hasher", "NoSuchAlgorithmException hashing password: " + e.getMessage());
+            logger.severe("NoSuchAlgorithmException hashing password: " + e.getMessage());
         }
         return hashed;
     }

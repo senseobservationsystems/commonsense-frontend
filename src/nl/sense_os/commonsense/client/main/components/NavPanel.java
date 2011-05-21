@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.main.components;
 
-import nl.sense_os.commonsense.client.utility.Log;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -18,7 +19,7 @@ import com.google.gwt.user.client.ui.Hyperlink;
  */
 public class NavPanel extends LayoutContainer {
 
-    private static final String TAG = "NavPanel";
+    private static final Logger logger = Logger.getLogger("NavPanel");
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SETTINGS = "settings";
@@ -120,7 +121,7 @@ public class NavPanel extends LayoutContainer {
         } else if (highlight.equals(SIGN_OUT)) {
             this.current = this.logout;
         } else {
-            Log.w(TAG, "Unexpected highlight: " + highlight);
+            logger.warning("Unexpected highlight: " + highlight);
         }
         this.current.setStylePrimaryName("x-sense-nav-selected");
         this.current.setWidth("auto");
@@ -144,7 +145,7 @@ public class NavPanel extends LayoutContainer {
             this.userName.setText(user.toString());
         } else {
             // should never be visible
-            Log.e(TAG, "Something is wrong: user=null");
+            logger.severe("Something is wrong: user=null");
             this.userName.setText("NULL");
         }
     }

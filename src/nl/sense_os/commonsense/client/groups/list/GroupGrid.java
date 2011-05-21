@@ -2,11 +2,11 @@ package nl.sense_os.commonsense.client.groups.list;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
@@ -55,7 +55,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupGrid extends View {
 
-    protected static final String TAG = "GroupGrid";
+    protected static final Logger logger = Logger.getLogger("GroupGrid");
     private Button createButton;
     private TreeGrid<TreeModel> grid;
     private Button inviteButton;
@@ -79,34 +79,34 @@ public class GroupGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(GroupEvents.ShowGrid)) {
-            // Log.d(TAG, "ShowGrid");
+            // logger.fine( "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
         } else if (type.equals(GroupEvents.ListUpdated)) {
-            // Log.d(TAG, "TreeUpdated");
+            // logger.fine( "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "Show Visualization");
+            // logger.fine( "Show Visualization");
             refreshLoader(false);
 
         } else if (type.equals(GroupEvents.Working)) {
-            // Log.d(TAG, "Working");
+            // logger.fine( "Working");
             setBusy(true);
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)
                 || type.equals(GroupEvents.LeaveComplete)
                 || type.equals(InviteEvents.InviteComplete)) {
-            // Log.d(TAG, "InviteComplete");
+            // logger.fine( "InviteComplete");
             onListDirty();
 
         } else if (type.equals(GroupEvents.LeaveFailed)) {
-            Log.w(TAG, "LeaveFailed");
+            logger.warning("LeaveFailed");
             onLeaveFailed(event);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 
@@ -242,7 +242,7 @@ public class GroupGrid extends View {
                 } else if (source.equals(leaveButton)) {
                     onLeaveClick();
                 } else if (source.equals(joinButton)) {
-                    Log.d(TAG, "Join group");
+                    logger.fine("Join group");
                 } else if (source.equals(inviteButton)) {
                     onInviteClick();
                 }
@@ -369,7 +369,7 @@ public class GroupGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show groups panel: parent=null");
+            logger.severe("Failed to show groups panel: parent=null");
         }
     }
 }

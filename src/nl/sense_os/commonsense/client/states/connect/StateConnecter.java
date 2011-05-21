@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.states.connect;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
@@ -45,7 +45,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnecter extends View {
 
-    private static final String TAG = "StateConnecter";
+    private static final Logger logger = Logger.getLogger("StateConnecter");
     private Window window;
     private FormPanel form;
     private Button submitButton;
@@ -65,28 +65,28 @@ public class StateConnecter extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateConnectEvents.ShowSensorConnecter)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             onShow(event);
 
         } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
-            // Log.d(TAG, "ConnectSuccess");
+            // logger.fine( "ConnectSuccess");
             hideWindow();
 
         } else if (type.equals(StateConnectEvents.ConnectFailure)) {
-            Log.w(TAG, "ConnectFailure");
+            logger.warning("ConnectFailure");
             onConnectFailure();
 
         } else if (type.equals(StateConnectEvents.ServiceNameSuccess)) {
-            // Log.d(TAG, "ServiceNameSuccess");
+            // logger.fine( "ServiceNameSuccess");
             final String serviceName = event.getData("name");
             onServiceNameSuccess(serviceName);
 
         } else if (type.equals(StateConnectEvents.ServiceNameFailure)) {
-            Log.w(TAG, "ServiceNameFailure");
+            logger.warning("ServiceNameFailure");
             onServiceNameFailure();
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -107,7 +107,7 @@ public class StateConnecter extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };

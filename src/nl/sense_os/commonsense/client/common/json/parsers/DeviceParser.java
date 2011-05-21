@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.common.json.parsers;
 
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.shared.models.DeviceModel;
 import nl.sense_os.commonsense.shared.models.TagModel;
@@ -10,7 +11,7 @@ import com.google.gwt.json.client.JSONObject;
 public class DeviceParser {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "DeviceParser";
+    private static final Logger logger = Logger.getLogger("DeviceParser");
 
     public static DeviceModel parse(JSONObject json) {
 

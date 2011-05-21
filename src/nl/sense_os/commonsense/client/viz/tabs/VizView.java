@@ -2,11 +2,11 @@ package nl.sense_os.commonsense.client.viz.tabs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.panels.table.SensorDataGrid;
@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.Frame;
 
 public class VizView extends View {
 
-    private static final String TAG = "VizView";
+    private static final Logger logger = Logger.getLogger("VizView");
     private TabPanel tabPanel;
 
     public VizView(Controller controller) {
@@ -70,44 +70,44 @@ public class VizView extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             final LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(FeedbackEvents.ShowFeedback)) {
-            Log.d(TAG, "ShowFeedback");
+            logger.fine("ShowFeedback");
             final ContentPanel panel = event.<ContentPanel> getData("panel");
             final String title = event.<String> getData("title");
             showFeedback(panel, title);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
-            // Log.d(TAG, "ShowTimeLine");
+            // logger.fine( "ShowTimeLine");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showTimeLine(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTable)) {
-            // Log.d(TAG, "ShowTable");
+            // logger.fine( "ShowTable");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             showTable(sensors);
 
         } else if (type.equals(VizEvents.ShowMap)) {
-            // Log.d(TAG, "ShowMap");
+            // logger.fine( "ShowMap");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showMap(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
-            Log.w(TAG, "ShowNetwork not implemented");
+            logger.warning("ShowNetwork not implemented");
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 
@@ -237,10 +237,10 @@ public class VizView extends View {
                         List<SensorModel> list = (List<SensorModel>) data;
                         showTypeChoice(list);
                     } else {
-                        Log.d(TAG, "Unknown list type: " + listEntry);
+                        logger.fine("Unknown list type: " + listEntry);
                     }
                 } else {
-                    Log.w(TAG, "Cannot handle dropped data: " + data);
+                    logger.warning("Cannot handle dropped data: " + data);
                 }
             }
         });
@@ -281,7 +281,7 @@ public class VizView extends View {
             parent.add(this.tabPanel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show visualization panel: parent=null");
+            logger.severe("Failed to show visualization panel: parent=null");
         }
     }
 

@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.states.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -11,7 +12,6 @@ import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.TreeCopier;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.constants.Constants;
@@ -36,7 +36,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateListController extends Controller {
 
-    private static final String TAG = "StateListController";
+    private static final Logger logger = Logger.getLogger("StateListController");
     private View tree;
 
     public StateListController() {
@@ -137,7 +137,7 @@ public class StateListController extends Controller {
 
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
-            Log.w(TAG, "State \'" + state + "\' has no connected sensors!");
+            logger.warning("State \'" + state + "\' has no connected sensors!");
             onLoadComplete(sensors, callback);
         }
     }
@@ -172,27 +172,27 @@ public class StateListController extends Controller {
          * Get list of states
          */
         if (type.equals(StateListEvents.LoadRequest)) {
-            // Log.d(TAG, "LoadRequest");
+            // logger.fine( "LoadRequest");
             final Object loadConfig = event.getData("loadConfig");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
             load(loadConfig, callback);
 
         } else if (type.equals(StateListEvents.AjaxStateSensorsSuccess)) {
-            // Log.d(TAG, "AjaxStateSensorsSuccess");
+            // logger.fine( "AjaxStateSensorsSuccess");
             final String response = event.<String> getData("response");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
             onStateSensorsSuccess(response, callback);
 
         } else if (type.equals(StateListEvents.AjaxStateSensorsFailure)) {
-            Log.w(TAG, "AjaxStateSensorsFailure");
+            logger.warning("AjaxStateSensorsFailure");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
             onStateSensorsFailure(callback);
 
         } else if (type.equals(StateListEvents.ConnectedAjaxSuccess)) {
-            // Log.d(TAG, "ConnectedAjaxSuccess");
+            // logger.fine( "ConnectedAjaxSuccess");
             final String response = event.<String> getData("response");
             final SensorModel state = event.<SensorModel> getData("state");
             final AsyncCallback<List<SensorModel>> callback = event
@@ -200,13 +200,13 @@ public class StateListController extends Controller {
             onConnectedSuccess(response, state, callback);
 
         } else if (type.equals(StateListEvents.ConnectedAjaxFailure)) {
-            Log.w(TAG, "ConnectedAjaxFailure");
+            logger.warning("ConnectedAjaxFailure");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
             onConnectedFailure(callback);
 
         } else if (type.equals(StateListEvents.GetMethodsAjaxSuccess)) {
-            // Log.d(TAG, "AjaxGetMethodsSuccess");
+            // logger.fine( "AjaxGetMethodsSuccess");
             final String response = event.<String> getData("response");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
@@ -215,7 +215,7 @@ public class StateListController extends Controller {
             onMethodsSuccess(response, state, sensors, callback);
 
         } else if (type.equals(StateListEvents.GetMethodsAjaxFailure)) {
-            Log.w(TAG, "AjaxGetMethodsFailure");
+            logger.warning("AjaxGetMethodsFailure");
             // final int code = event.getData("code");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
@@ -227,18 +227,18 @@ public class StateListController extends Controller {
          * Disconnect a sensor from a state
          */
         if (type.equals(StateListEvents.RemoveRequested)) {
-            // Log.d(TAG, "RemoveRequested");
+            // logger.fine( "RemoveRequested");
             TreeModel sensor = event.<TreeModel> getData("sensor");
             TreeModel service = event.<TreeModel> getData("service");
             disconnectService(sensor, service);
 
         } else if (type.equals(StateListEvents.AjaxDisconnectFailure)) {
-            Log.w(TAG, "AjaxDisconnectFailure");
+            logger.warning("AjaxDisconnectFailure");
             final int code = event.getData("code");
             disconnectServiceErrorCallback(code);
 
         } else if (type.equals(StateListEvents.AjaxDisconnectSuccess)) {
-            // Log.d(TAG, "AjaxDisconnectSuccess");
+            // logger.fine( "AjaxDisconnectSuccess");
             final String response = event.<String> getData("response");
             disconnectServiceCallback(response);
 
@@ -377,14 +377,13 @@ public class StateListController extends Controller {
                     }
                     return methods;
                 } else {
-                    Log.e(TAG,
-                            "Error parsing service methods response: \"methods\" is not a JSON Array");
+                    logger.severe("Error parsing service methods response: \"methods\" is not a JSON Array");
                 }
             } else {
-                Log.e(TAG, "Error parsing service methods response: \"methods\" is is not found");
+                logger.severe("Error parsing service methods response: \"methods\" is is not found");
             }
         } else {
-            Log.e(TAG, "Error parsing service methods response: response=null");
+            logger.severe("Error parsing service methods response: response=null");
         }
         return null;
     }

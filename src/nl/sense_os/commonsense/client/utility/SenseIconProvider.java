@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.utility;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.models.DeviceModel;
 import nl.sense_os.commonsense.shared.models.GroupModel;
@@ -14,7 +16,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider<M> {
 
-    private static final String TAG = "SenseIconProvider";
+    private static final Logger logger = Logger.getLogger("SenseIconProvider");
 
     public static final String GXT_ICONS_PATH = "gxt/images/gxt/icons/";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";
@@ -84,7 +86,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             }
 
         } else {
-            Log.e(TAG, "Unexpected model class: " + model);
+            logger.severe("Unexpected model class: " + model);
             return ICON_GXT_DONE;
         }
     }

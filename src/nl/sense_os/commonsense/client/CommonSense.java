@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -31,7 +31,6 @@ import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
 import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateListController;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.TestData;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
@@ -52,7 +51,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
@@ -64,7 +62,8 @@ import com.google.gwt.visualization.client.VisualizationUtils;
  */
 public class CommonSense implements EntryPoint {
 
-    private static final String TAG = "CommonSense";
+    @SuppressWarnings("unused")
+    private static final Logger logger = Logger.getLogger("CommonSense");
     public static final String LAST_DEPLOYED = "Sun May 15 23:43";
 
     /**
@@ -81,27 +80,8 @@ public class CommonSense implements EntryPoint {
         dispatcher.dispatch(MainEvents.UiReady);
     }
 
-    /**
-     * @return a pretty String to show the current time
-     */
-    private void welcome() {
-        String now = DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(new Date());
-        Log.d(TAG, "========== Module Load (" + now + ") ==========");
-        if (Constants.TEST_MODE) {
-            if (Constants.TED_MODE) {
-                Log.d(TAG, "Running in Ted mode! TAAIDIIII");
-            } else {
-                Log.d(TAG, "Running in test mode...");
-            }
-        } else {
-            Log.d(TAG, "Running in stable mode...");
-        }
-    }
-
     @Override
     public void onModuleLoad() {
-
-        welcome();
 
         GXT.setDefaultTheme(Theme.GRAY, true);
 
@@ -141,7 +121,9 @@ public class CommonSense implements EntryPoint {
 
         initControllers();
         // quickLogin();
+        // testEnvCreator();
         // testMapViz();
+        // testTimeline();
 
         GXT.hideLoadingPanel("loading");
     }
@@ -152,8 +134,8 @@ public class CommonSense implements EntryPoint {
     @SuppressWarnings("unused")
     private void quickLogin() {
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
-        login.setData("username", "alwen");
-        login.setData("password", "pirsensor");
+        login.setData("username", "SenseOffice");
+        login.setData("password", "jpiseenbaas");
         Dispatcher.forwardEvent(login);
     }
 
@@ -216,7 +198,12 @@ public class CommonSense implements EntryPoint {
 
     @SuppressWarnings("unused")
     private void testEnvCreator() {
-        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+        final String url = GWT.getModuleBaseURL();
+        String key = Keys.MAPS_KEY_STABLE;
+        if (url.contains("common-sense-test")) {
+            key = Keys.MAPS_KEY_TEST;
+        }
+        Maps.loadMapsApi(key, "2", false, new Runnable() {
 
             @Override
             public void run() {
@@ -226,7 +213,12 @@ public class CommonSense implements EntryPoint {
     }
 
     private void testMapViz() {
-        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+        final String url = GWT.getModuleBaseURL();
+        String key = Keys.MAPS_KEY_STABLE;
+        if (url.contains("common-sense-test")) {
+            key = Keys.MAPS_KEY_TEST;
+        }
+        Maps.loadMapsApi(key, "2", false, new Runnable() {
 
             @Override
             public void run() {

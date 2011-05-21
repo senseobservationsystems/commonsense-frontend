@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.env.create;
 
+import java.util.logging.Logger;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -16,7 +18,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 public class EnvCreatorForm extends FormPanel {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "EnvCreatorForm";
+    private static final Logger logger = Logger.getLogger("EnvCreatorForm");
     private TextField<String> name;
     private SpinnerField floors;
     private ButtonBar buttons;

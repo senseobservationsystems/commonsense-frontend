@@ -1,11 +1,13 @@
 package nl.sense_os.commonsense.client.common.ajax;
 
+import java.util.logging.Logger;
+
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
 public class Ajax {
 
-    private static final String TAG = "Ajax";
+    private static final Logger logger = Logger.getLogger("Ajax");
 
     /**
      * Does cross-domain request using the JSNI to make this work for IE. Calls back to

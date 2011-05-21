@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.groups.invite;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 
@@ -14,7 +15,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class InviteController extends Controller {
 
-    private static final String TAG = "InviteController";
+    private static final Logger logger = Logger.getLogger("InviteController");
     private View inviter;
 
     public InviteController() {
@@ -28,16 +29,16 @@ public class InviteController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(InviteEvents.InviteAjaxFailure)) {
-            Log.w(TAG, "InviteAjaxFailure");
+            logger.warning("InviteAjaxFailure");
             onInviteFailure();
             forwardToView(this.inviter, new AppEvent(InviteEvents.InviteFailed));
 
         } else if (type.equals(InviteEvents.InviteAjaxSuccess)) {
-            // Log.d(TAG, "InviteAjaxSuccess");
+            // logger.fine( "InviteAjaxSuccess");
             onInviteSuccess();
 
         } else if (type.equals(InviteEvents.InviteRequested)) {
-            // Log.d(TAG, "InviteRequested");
+            // logger.fine( "InviteRequested");
             final String groupId = event.getData("groupId");
             final String email = event.getData("username");
             inviteUser(groupId, email);

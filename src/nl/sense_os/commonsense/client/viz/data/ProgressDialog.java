@@ -1,7 +1,8 @@
 package nl.sense_os.commonsense.client.viz.data;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -19,7 +20,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class ProgressDialog extends View {
 
-    private static final String TAG = "ProgressDialog";
+    private static final Logger logger = Logger.getLogger("ProgressDialog");
     private CenteredWindow window;
     private ProgressBar mainProgress;
     private ProgressBar subProgress;
@@ -33,7 +34,7 @@ public class ProgressDialog extends View {
         final EventType type = event.getType();
 
         if (type.equals(DataEvents.ShowProgress)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             final int tasks = event.getData("tasks");
             showWindow(tasks);
 
@@ -49,11 +50,11 @@ public class ProgressDialog extends View {
             updateMainProgress(progress, total);
 
         } else if (type.equals(DataEvents.HideProgress)) {
-            // Log.d(TAG, "Hide");
+            // logger.fine( "Hide");
             hideWindow();
 
         } else {
-            Log.w(TAG, "Unexpected event type!");
+            logger.warning("Unexpected event type!");
         }
     }
 
@@ -119,7 +120,7 @@ public class ProgressDialog extends View {
         if (progress > 0 && total > 0) {
             double value = progress / total;
             String valueString = NumberFormat.getPercentFormat().format(value);
-            // Log.d(TAG, "Update sub: " + value + " ( " + progress + " / " + total + ")");
+            // logger.fine( "Update sub: " + value + " ( " + progress + " / " + total + ")");
             subProgress.updateProgress(value, valueString);
         }
 
@@ -138,7 +139,7 @@ public class ProgressDialog extends View {
      *            Total number of items.
      */
     private void updateMainProgress(int progress, int total) {
-        // Log.d(TAG, "Update main: [ " + progress + " / " + total + " ]");
+        // logger.fine( "Update main: [ " + progress + " / " + total + " ]");
 
         double value = ((double) progress) / ((double) total);
         mainProgress.updateProgress(value, "[ " + progress + " / " + total + " ]");

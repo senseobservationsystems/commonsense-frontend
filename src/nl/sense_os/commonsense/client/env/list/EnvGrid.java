@@ -1,11 +1,11 @@
 package nl.sense_os.commonsense.client.env.list;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.models.EnvironmentModel;
@@ -48,7 +48,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvGrid extends View {
 
-    protected static final String TAG = "EnvGrid";
+    protected static final Logger logger = Logger.getLogger("EnvGrid");
     private Button createButton;
     private Button deleteButton;
     private Grid<EnvironmentModel> grid;
@@ -81,38 +81,38 @@ public class EnvGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(EnvEvents.ShowGrid)) {
-            // Log.d(TAG, "ShowGrid");
+            // logger.fine( "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
         } else if (type.equals(EnvEvents.ListUpdated)) {
-            // Log.d(TAG, "ListUpdated");
+            // logger.fine( "ListUpdated");
             onListUpdated(event);
 
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "Show Visualization");
+            // logger.fine( "Show Visualization");
             refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(EnvEvents.Working)) {
-            // Log.d(TAG, "Working");
+            // logger.fine( "Working");
             setBusyIcon(true);
 
         } else if (type.equals(EnvEvents.Done)) {
-            // Log.d(TAG, "Working");
+            // logger.fine( "Working");
             setBusyIcon(false);
 
         } else if (type.equals(EnvCreateEvents.CreateSuccess)
                 || type.equals(EnvEvents.DeleteSuccess)) {
-            // Log.d(TAG, "Done");
+            // logger.fine( "Done");
             this.isListDirty = true;
             refreshLoader(false);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 
@@ -128,7 +128,7 @@ public class EnvGrid extends View {
                 if (loadConfig instanceof ListLoadConfig) {
                     fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
                 } else {
-                    Log.w(TAG, "Unexpected loadconfig: " + loadConfig);
+                    logger.warning("Unexpected loadconfig: " + loadConfig);
                     callback.onFailure(null);
                 }
             }
@@ -203,7 +203,7 @@ public class EnvGrid extends View {
                 } else if (source.equals(EnvGrid.this.deleteButton)) {
                     onDeleteClick();
                 } else {
-                    Log.w(TAG, "Unexpected buttons pressed");
+                    logger.warning("Unexpected buttons pressed");
                 }
             }
         };
@@ -278,7 +278,7 @@ public class EnvGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show buildings panel: parent=null");
+            logger.severe("Failed to show buildings panel: parent=null");
         }
     }
 }

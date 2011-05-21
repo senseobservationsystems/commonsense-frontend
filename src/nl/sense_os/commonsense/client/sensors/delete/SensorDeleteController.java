@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.sensors.delete;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 import nl.sense_os.commonsense.shared.models.SensorModel;
@@ -17,7 +17,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class SensorDeleteController extends Controller {
 
-    private final static String TAG = "DeleteController";
+    private final static Logger logger = Logger.getLogger("DeleteController");
     private View deleteDialog;
 
     public SensorDeleteController() {
@@ -74,18 +74,18 @@ public class SensorDeleteController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorDeleteEvents.DeleteRequest)) {
-            Log.d(TAG, "DeleteRequest");
+            logger.fine("DeleteRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             delete(sensors, 0, 0);
 
         } else if (type.equals(SensorDeleteEvents.DeleteAjaxSuccess)) {
-            Log.d(TAG, "AjaxDeleteSuccess");
+            logger.fine("AjaxDeleteSuccess");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.getData("index");
             onDeleteSuccess(sensors, index);
 
         } else if (type.equals(SensorDeleteEvents.DeleteAjaxFailure)) {
-            Log.w(TAG, "AjaxDeleteFailure");
+            logger.warning("AjaxDeleteFailure");
             // final int code = event.getData("code");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.getData("index");

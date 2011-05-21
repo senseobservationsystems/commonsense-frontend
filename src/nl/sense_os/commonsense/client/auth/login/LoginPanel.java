@@ -1,10 +1,10 @@
 package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.Date;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -23,7 +23,7 @@ import com.google.gwt.user.client.Cookies;
 
 public class LoginPanel extends View {
 
-    private static final String TAG = "LoginPanel";
+    private static final Logger logger = Logger.getLogger("LoginPanel");
     private ContentPanel panel;
     private LoginForm form;
 
@@ -38,28 +38,28 @@ public class LoginPanel extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(LoginEvents.Show)) {
-            // Log.d(TAG, "Show");
+            // logger.fine("Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(LoginEvents.AuthenticationFailure)) {
-            Log.w(TAG, "AuthenticationFailure");
+            logger.warning("AuthenticationFailure");
             onAuthenticationFailure(event);
 
         } else if (type.equals(LoginEvents.LoginSuccess)) {
-            // Log.d(TAG, "LoginSuccess");
+            // logger.fine("LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine("LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(LoginEvents.LoginFailure)) {
-            Log.w(TAG, "LoginFailure");
+            logger.warning("LoginFailure");
             onError(event);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 

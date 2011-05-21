@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.states.edit;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
 
@@ -21,7 +21,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 public class StateEditController extends Controller {
-    private static final String TAG = "StateEditController";
+    private static final Logger logger = Logger.getLogger("StateEditController");
     private View editor;
 
     public StateEditController() {
@@ -40,16 +40,16 @@ public class StateEditController extends Controller {
          * Invoke a service method
          */
         if (type.equals(StateEditEvents.InvokeMethodRequested)) {
-            // Log.d(TAG, "InvokeMethodRequested");
+            // logger.fine( "InvokeMethodRequested");
             invokeMethod(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodAjaxFailure)) {
-            Log.w(TAG, "AjaxMethodFailure");
+            logger.warning("AjaxMethodFailure");
             final int code = event.getData("code");
             invokeMethodErrorCallback(code);
 
         } else if (type.equals(StateEditEvents.InvokeMethodAjaxSuccess)) {
-            // Log.d(TAG, "AjaxMethodSuccess");
+            // logger.fine( "AjaxMethodSuccess");
             final String response = event.<String> getData("response");
             invokeMethodCallback(response);
 
@@ -120,16 +120,15 @@ public class StateEditController extends Controller {
                     forwardToView(this.editor, new AppEvent(StateEditEvents.InvokeMethodComplete,
                             result));
                 } else {
-                    Log.e(TAG,
-                            "Error parsing service methods response: \"result\" is not a JSON String");
+                    logger.severe("Error parsing service methods response: \"result\" is not a JSON String");
                     invokeMethodErrorCallback(0);
                 }
             } else {
-                Log.e(TAG, "Error parsing service methods response: \"result\" is is not found");
+                logger.severe("Error parsing service methods response: \"result\" is is not found");
                 invokeMethodErrorCallback(0);
             }
         } else {
-            Log.e(TAG, "Error parsing service methods response: response=null");
+            logger.severe("Error parsing service methods response: response=null");
             invokeMethodErrorCallback(0);
         }
     }

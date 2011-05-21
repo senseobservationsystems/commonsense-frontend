@@ -2,10 +2,10 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
@@ -25,7 +25,7 @@ import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
 public class TimeLinePanel extends VizPanel {
 
-    private static final String TAG = "TimeLinePanel";
+    private static final Logger logger = Logger.getLogger("TimeLinePanel");
     protected Graph graph;
     protected final Graph.Options graphOpts;
     protected Timeline timeline;
@@ -67,7 +67,7 @@ public class TimeLinePanel extends VizPanel {
 
     @Override
     public void addData(JsArray<Timeseries> data) {
-        // Log.d(TAG, "addData...");
+        // logger.fine( "addData...");
 
         if (data.length() == 0) {
             onNoData();
@@ -79,10 +79,10 @@ public class TimeLinePanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getType().equalsIgnoreCase("number")) {
-                // Log.d(TAG, ts.getLabel() + " (number data)");
+                // logger.fine( ts.getLabel() + " (number data)");
                 numberData.push(ts);
             } else {
-                // Log.d(TAG, ts.getLabel() + " (" + ts.getType() + " data)");
+                // logger.fine( ts.getLabel() + " (" + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
@@ -276,7 +276,7 @@ public class TimeLinePanel extends VizPanel {
                 redrawTimeline();
             }
         } else {
-            Log.w(TAG, "No data for time line visualization!");
+            logger.warning("No data for time line visualization!");
         }
     }
 }

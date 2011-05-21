@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -12,7 +14,7 @@ import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 public class SensorGroupRenderer implements GridGroupRenderer {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "SensorGroupRenderer";
+    private static final Logger logger = Logger.getLogger("SensorGroupRenderer");
     private final ColumnModel cm;
 
     public SensorGroupRenderer(ColumnModel cm) {

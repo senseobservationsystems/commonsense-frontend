@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.client.common.ajax;
 
 import java.util.HashMap;
+import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -12,7 +12,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 public class AjaxController extends Controller {
 
-    private static final String TAG = "AjaxController";
+    private static final Logger logger = Logger.getLogger("AjaxController");
 
     public AjaxController() {
         registerEventTypes(AjaxEvents.Request);
@@ -23,10 +23,10 @@ public class AjaxController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(AjaxEvents.Request)) {
-            // Log.d(TAG, "Request");
+            // logger.fine( "Request");
             doRequest(event);
         } else {
-            Log.w(TAG, "Unexpected event received");
+            logger.warning("Unexpected event received");
         }
     }
 
@@ -63,7 +63,7 @@ public class AjaxController extends Controller {
      */
     public void onFailure(String method, String url, String sessionId, String body, int statusCode,
             AppEvent onFailure) {
-        Log.w(TAG, "onFailure: " + statusCode);
+        logger.warning("onFailure: " + statusCode);
         onFailure.setData("method", method);
         onFailure.setData("url", url);
         onFailure.setData("session_id", sessionId);
@@ -85,7 +85,7 @@ public class AjaxController extends Controller {
      */
     public void onAuthError(String method, String url, String sessionId, String body,
             int statusCode, AppEvent onFailure) {
-        Log.w(TAG, "onAuthError");
+        logger.warning("onAuthError");
         onFailure(method, url, sessionId, body, statusCode, onFailure);
     }
 
@@ -99,14 +99,14 @@ public class AjaxController extends Controller {
      *            AppEvent to dispatch
      */
     public void onSuccess(String response, AppEvent onSuccess) {
-        // Log.d(TAG, "onSuccess");
+        // logger.fine( "onSuccess");
         onSuccess.setData("response", response);
         Dispatcher.forwardEvent(onSuccess);
     }
 
     public void onTimeOut(String method, String url, String sessionId, String body,
             AppEvent onFailure) {
-        Log.w(TAG, "onTimeOut");
+        logger.warning("onTimeOut");
         onFailure(method, url, sessionId, body, -1, onFailure);
     }
 }

@@ -10,6 +10,7 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Urls;
@@ -36,7 +37,7 @@ import com.google.gwt.json.client.JSONValue;
 public class SensorDataGrid extends LayoutContainer {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "SensorDataGrid";
+    private static final Logger logger = Logger.getLogger("SensorDataGrid");
 
     public SensorDataGrid(final List<SensorModel> sensors) {
 

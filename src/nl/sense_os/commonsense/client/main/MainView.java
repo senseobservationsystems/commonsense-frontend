@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.main;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
@@ -10,7 +12,6 @@ import nl.sense_os.commonsense.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import nl.sense_os.commonsense.shared.models.UserModel;
 
@@ -43,7 +44,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
 
-    private static final String TAG = "MainView";
+    private static final Logger logger = Logger.getLogger("MainView");
     private LayoutContainer centerContent;
     private Component helpComponent;
     private Component homeComponent;
@@ -60,31 +61,31 @@ public class MainView extends View {
         EventType type = event.getType();
 
         if (type.equals(MainEvents.Error)) {
-            Log.e(TAG, "Error");
+            logger.severe("Error");
             onError(event);
 
         } else if (type.equals(MainEvents.Init)) {
-            // Log.d(TAG, "Init");
+            // logger.fine( "Init");
             // do nothing: actual initialization is done in initialize()
 
         } else if (type.equals(MainEvents.UiReady)) {
-            // Log.d(TAG, "UiReady");
+            // logger.fine( "UiReady");
             onUiReady(event);
 
         } else if (type.equals(MainEvents.Navigate)) {
-            // Log.d(TAG, "Navigate: \'" + event.<String> getData() + "\'");
+            // logger.fine( "Navigate: \'" + event.<String> getData() + "\'");
             onNavigate(event);
 
         } else if (type.equals(LoginEvents.LoginSuccess)) {
-            // Log.d(TAG, "LoginSuccess");
+            // logger.fine( "LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 
@@ -168,8 +169,8 @@ public class MainView extends View {
         logo.addMouseDownHandler(new MouseDownHandler() {
             @Override
             public void onMouseDown(MouseDownEvent event) {
-                Log.d(TAG, "relative x: " + event.getRelativeX(logo.getElement()));
-                Log.d(TAG, "relative y: " + event.getRelativeY(logo.getElement()));
+                logger.fine("relative x: " + event.getRelativeX(logo.getElement()));
+                logger.fine("relative y: " + event.getRelativeY(logo.getElement()));
             }
         });
         final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
@@ -192,7 +193,7 @@ public class MainView extends View {
     }
 
     private void onError(AppEvent event) {
-        Log.e(TAG, "Error: " + event.<String> getData());
+        logger.severe("Error: " + event.<String> getData());
     }
 
     private void onLoggedIn(AppEvent event) {

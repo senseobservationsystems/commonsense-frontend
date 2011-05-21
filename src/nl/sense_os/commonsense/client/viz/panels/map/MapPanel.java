@@ -1,11 +1,11 @@
 package nl.sense_os.commonsense.client.viz.panels.map;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.FloatDataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
@@ -30,12 +30,12 @@ import com.google.gwt.maps.client.overlay.PolylineOptions;
 
 public class MapPanel extends VizPanel {
 
-    private static final String TAG = "MapPanel";
+    private static final Logger logger = Logger.getLogger("MapPanel");
     private MapWidget map;
     private DateSlider startSlider;
     private DateSlider endSlider;
     private Timeseries latTimeseries;
-    private Timeseries lonTimeseries;
+    private Timeseries lngTimeseries;
     private Marker startMarker;
     private Marker endMarker;
     private Polyline trace;
@@ -47,7 +47,7 @@ public class MapPanel extends VizPanel {
 
         this.setHeading("Map: " + title);
         this.setLayout(new BorderLayout());
-        this.setId("viz-map");
+        this.setId("viz-map-" + title);
 
         initSliders();
         initMapWidget();
@@ -58,18 +58,18 @@ public class MapPanel extends VizPanel {
     @Override
     public void addData(JsArray<Timeseries> data) {
 
-        // sort lat/lon data
+        // sort lat/lng data
         Timeseries ts;
         for (int i = 0; i < data.length(); i++) {
             ts = data.get(i);
             if (ts.getLabel().endsWith("latitude")) {
                 this.latTimeseries = ts;
             } else if (ts.getLabel().endsWith("longitude")) {
-                this.lonTimeseries = ts;
+                this.lngTimeseries = ts;
             }
         }
 
-        if (this.latTimeseries != null && this.lonTimeseries != null) {
+        if (this.latTimeseries != null && this.lngTimeseries != null) {
             calcSliderRange();
             drawTrace();
             centerMap();
@@ -86,18 +86,12 @@ public class MapPanel extends VizPanel {
 
         JsArray<DataPoint> values = this.latTimeseries.getData();
         DataPoint v = values.get(0);
-        int min = (int) (v.getTimestamp().getTime() / 1000l);
+        int min = (int) Math.floor(v.getTimestamp().getTime() / 1000l);
         v = values.get(values.length() - 1);
-        int max = (int) (v.getTimestamp().getTime() / 1000l);
+        int max = (int) Math.ceil(v.getTimestamp().getTime() / 1000l);
 
-        int interval = 1;
-        if (max - min < 60 * 60) {
-            interval = 60 * 5; // 5 minutes
-        } else if (max - min < 60 * 60 * 24) {
-            interval = 60 * 60; // 1 hour
-        } else {
-            interval = 60 * 60 * 4; // 4 hours
-        }
+        int interval = (max - min) / 25;
+        max = min + 25 * interval;
 
         startSlider.setMinValue(min);
         startSlider.setMaxValue(max);
@@ -135,10 +129,10 @@ public class MapPanel extends VizPanel {
         int maxTime = endSlider.getValue();
 
         // get the sensor values
-        JsArray<DataPoint> latValues = this.latTimeseries.getData().cast();
-        JsArray<DataPoint> lonValues = this.lonTimeseries.getData().cast();
+        JsArray<DataPoint> latValues = this.latTimeseries.getData();
+        JsArray<DataPoint> lngValues = this.lngTimeseries.getData();
 
-        // Log.d(TAG, "Number of points: " + latValues.length());
+        // logger.fine( "Number of points: " + latValues.length());
 
         // Draw the filtered points.
         if (latValues.length() > 0 && maxTime > minTime) {
@@ -147,14 +141,14 @@ public class MapPanel extends VizPanel {
             this.traceStartIndex = -1;
             this.traceEndIndex = -1;
             int lastPoint = -1;
-            FloatDataPoint latitude;
-            FloatDataPoint longitude;
+            FloatDataPoint lat;
+            FloatDataPoint lng;
             for (int i = 0, j = 0; i < latValues.length(); i++) {
-                latitude = latValues.get(i).cast();
-                longitude = lonValues.get(i).cast();
+                lat = latValues.get(i).cast();
+                lng = lngValues.get(i).cast();
 
                 // timestamp in secs
-                long timestamp = latitude.getTimestamp().getTime() / 1000;
+                long timestamp = lat.getTimestamp().getTime() / 1000;
 
                 if (timestamp > minTime && timestamp < maxTime) {
                     // update indices
@@ -164,9 +158,9 @@ public class MapPanel extends VizPanel {
                         traceStartIndex = i;
                     }
                     // store coordinate
-                    LatLng coordinate = LatLng.newInstance(latitude.getValue(),
-                            longitude.getValue());
-                    points[j++] = coordinate;
+                    LatLng coordinate = LatLng.newInstance(lat.getValue(), lng.getValue());
+                    points[j] = coordinate;
+                    j++;
                 }
             }
 
@@ -183,8 +177,9 @@ public class MapPanel extends VizPanel {
             PolylineOptions lineOptions = PolylineOptions.newInstance(false, true);
             this.trace = new Polyline(points, "#FF7F00", 5, 1, lineOptions);
             this.map.addOverlay(this.trace);
+
         } else {
-            Log.w(TAG, "No position values in selected time range");
+            logger.warning("No position values in selected time range");
         }
     }
 
@@ -253,107 +248,98 @@ public class MapPanel extends VizPanel {
 
     private void updateTrace() {
 
-        // Log.d(TAG, "updateTrace ");
+        // logger.fine( "updateTrace ");
 
         if (null == trace || false == trace.isVisible()) {
-            Log.d(TAG, "updateTrace skipped");
+            logger.fine("updateTrace skipped: trace is not shown yet");
             return;
         }
 
         // get the sensor values
-        JsArray<FloatDataPoint> latValues = this.latTimeseries.getData().cast();
-        JsArray<FloatDataPoint> lonValues = this.lonTimeseries.getData().cast();
+        JsArray<DataPoint> latValues = this.latTimeseries.getData();
+        JsArray<DataPoint> lonValues = this.lngTimeseries.getData();
 
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
 
         // find the start end end indices of the trace in the sensor data array
-        int newTraceStartIndex = -1, newTraceEndIndex = -1;
+        int newTraceStartIndex = 0, newTraceEndIndex = latValues.length() - 1;
         long timestamp;
         for (int i = 0; i < latValues.length(); i++) {
             // get timestamp
-            DataPoint value = latValues.get(i);
-            timestamp = value.getTimestamp().getTime() / 1000;
+            timestamp = latValues.get(i).getTimestamp().getTime() / 1000;
 
-            if (timestamp > minTime && newTraceStartIndex == -1) {
+            if (timestamp > minTime && newTraceStartIndex == 0) {
                 // this is the first index with start of visible range
                 newTraceStartIndex = i;
             }
-            if (timestamp > maxTime && newTraceEndIndex == -1) {
+            if (timestamp > maxTime) {
                 // this is the first index after the end of visible range
                 newTraceEndIndex = i - 1;
                 break;
             }
         }
 
-        // Log.d(TAG, "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
-        // Log.d(TAG, "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
+        // logger.fine( "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
+        // logger.fine( "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
 
-        // change start of trace
-        if (newTraceStartIndex != -1 && newTraceEndIndex > newTraceStartIndex) {
-            // add vertices at START of trace if newTraceStart < traceStartIndex
-            if (newTraceStartIndex < traceStartIndex) {
-                Log.d(TAG, "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
-                FloatDataPoint lat;
-                FloatDataPoint lon;
-                for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
-                    lat = latValues.get(i).cast();
-                    lon = lonValues.get(i).cast();
-                    this.trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
-                }
-            }
-
-            // delete vertices at START of trace if newTraceStart > traceStartIndex
-            if (newTraceStartIndex > traceStartIndex) {
-                Log.d(TAG, "Delete " + (newTraceStartIndex - traceStartIndex)
-                        + " vertices at start");
-                for (int i = this.traceStartIndex; i < newTraceStartIndex; i++) {
-                    this.trace.deleteVertex(0);
-                }
-            }
-
-            // update end marker
-            FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
-            FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
-            LatLng coordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
-            this.startMarker.setLatLng(coordinate);
-
-        } else {
-            newTraceStartIndex = this.traceStartIndex;
+        if (newTraceStartIndex > newTraceEndIndex) {
+            logger.warning("Start index of trace is larger than end index?!");
         }
 
-        // change end of trace
-        if (newTraceEndIndex != -1 && newTraceEndIndex > newTraceStartIndex) {
-            // add vertices at END of trace if newTraceEnd > traceEndIndex
-            if (newTraceEndIndex > traceEndIndex) {
-                Log.d(TAG, "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
-                FloatDataPoint lat;
-                FloatDataPoint lon;
-                for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
-                    lat = latValues.get(i).cast();
-                    lon = lonValues.get(i).cast();
-                    this.trace.insertVertex(this.trace.getVertexCount(),
-                            LatLng.newInstance(lat.getValue(), lon.getValue()));
-                }
+        // add vertices at START of trace if newTraceStart < traceStartIndex
+        if (newTraceStartIndex < traceStartIndex) {
+            // logger.fine( "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
+            FloatDataPoint lat;
+            FloatDataPoint lon;
+            for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
+                lat = latValues.get(i).cast();
+                lon = lonValues.get(i).cast();
+                this.trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
             }
-
-            // delete vertices at END of trace if newTraceEnd < traceEndIndex
-            if (newTraceEndIndex < traceEndIndex) {
-                Log.d(TAG, "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
-                for (int i = this.traceEndIndex; i > newTraceEndIndex; i--) {
-                    this.trace.deleteVertex(this.trace.getVertexCount() - 1);
-                }
-            }
-
-            // update end marker
-            FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
-            FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
-            LatLng coordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
-            this.endMarker.setLatLng(coordinate);
-
-        } else {
-            newTraceEndIndex = this.traceEndIndex;
         }
+
+        // delete vertices at START of trace if newTraceStart > traceStartIndex
+        if (newTraceStartIndex > traceStartIndex) {
+            // logger.fine( "Delete " + (newTraceStartIndex - traceStartIndex) +
+            // " vertices at start");
+            for (int i = this.traceStartIndex; i < newTraceStartIndex; i++) {
+                this.trace.deleteVertex(0);
+            }
+        }
+
+        // update start marker
+        FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
+        FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
+        LatLng startCoordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
+        this.startMarker.setLatLng(startCoordinate);
+
+        // add vertices at END of trace if newTraceEnd > traceEndIndex
+        if (newTraceEndIndex > traceEndIndex) {
+            // logger.fine( "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
+            FloatDataPoint lat;
+            FloatDataPoint lon;
+            for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
+                lat = latValues.get(i).cast();
+                lon = lonValues.get(i).cast();
+                this.trace.insertVertex(this.trace.getVertexCount(),
+                        LatLng.newInstance(lat.getValue(), lon.getValue()));
+            }
+        }
+
+        // delete vertices at END of trace if newTraceEnd < traceEndIndex
+        if (newTraceEndIndex < traceEndIndex) {
+            // logger.fine( "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
+            for (int i = this.traceEndIndex; i > newTraceEndIndex; i--) {
+                this.trace.deleteVertex(this.trace.getVertexCount() - 1);
+            }
+        }
+
+        // update end marker
+        FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
+        FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
+        LatLng endCoordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
+        this.endMarker.setLatLng(endCoordinate);
 
         // update trace indexes
         this.traceStartIndex = newTraceStartIndex;

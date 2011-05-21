@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.states.edit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -42,7 +42,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class StateEditor extends View {
 
-    private static final String TAG = "StateEditor";
+    private static final Logger logger = Logger.getLogger("StateEditor");
     private TreeModel service;
     private ComboBox<ModelData> methodField;
     private FieldSet paramFields;
@@ -61,19 +61,19 @@ public class StateEditor extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateEditEvents.ShowEditor)) {
-            // Log.d(TAG, "Show");
+            // logger.fine( "Show");
             onShow(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodComplete)) {
-            // Log.d(TAG, "InvokeMethodComplete");
+            // logger.fine( "InvokeMethodComplete");
             onInvokeComplete(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
-            Log.w(TAG, "InvokeMethodFailed");
+            logger.warning("InvokeMethodFailed");
             onInvokeFailed(event);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -94,7 +94,7 @@ public class StateEditor extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };

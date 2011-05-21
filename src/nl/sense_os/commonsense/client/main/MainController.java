@@ -1,8 +1,9 @@
 package nl.sense_os.commonsense.client.main;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.models.UserModel;
 
@@ -17,7 +18,7 @@ import com.google.gwt.user.client.History;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
-    private static final String TAG = "MainController";
+    private static final Logger logger = Logger.getLogger("MainController");
     private View mainView;
     private String currentToken;
 
@@ -55,10 +56,22 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
     @Override
     protected void initialize() {
-        super.initialize();
         this.mainView = new MainView(this);
 
         History.addValueChangeHandler(this);
+
+        // remind about test mode
+        if (Constants.TEST_MODE) {
+            if (Constants.TED_MODE) {
+                logger.config("Running in Ted mode! TAAIDIIII");
+            } else {
+                logger.config("Running in test mode...");
+            }
+        } else {
+            logger.config("Running in stable mode...");
+        }
+
+        super.initialize();
     }
 
     private void goToFirstScreen() {
@@ -81,7 +94,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (isLoginRequired(token)) {
             UserModel user = Registry.<UserModel> get(Constants.REG_USER);
             if (null == user) {
-                Log.w(TAG, "Not signed in: refusing new history token " + token);
+                logger.warning("Not signed in: refusing new history token " + token);
                 History.newItem(NavPanel.HOME);
                 History.fireCurrentHistoryState();
                 return;

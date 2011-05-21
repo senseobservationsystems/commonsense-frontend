@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.viz.panels.table;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -32,7 +33,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 public class PaginationGridPanel extends ContentPanel {
 
     @SuppressWarnings("unused")
-    private static final String TAG = "PaginatonGridPanel";
+    private static final Logger logger = Logger.getLogger("PaginatonGridPanel");
 
     private Grid<ModelData> grid;
     private PagingToolBar toolBar;

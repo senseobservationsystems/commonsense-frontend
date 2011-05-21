@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.states.list;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -12,7 +13,6 @@ import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
@@ -68,7 +68,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateGrid extends View {
 
-    protected static final String TAG = "StateGrid";
+    protected static final Logger logger = Logger.getLogger("StateGrid");
     private ContentPanel panel;
     private TreeGrid<SensorModel> grid;
     private TreeStore<SensorModel> store;
@@ -146,47 +146,47 @@ public class StateGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(StateListEvents.ShowGrid)) {
-            // Log.d(TAG, "ShowGrid");
+            // logger.fine( "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
         } else if (type.equals(VizEvents.Show)) {
-            // Log.d(TAG, "Show Visualization");
+            // logger.fine( "Show Visualization");
             refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // Log.d(TAG, "LoggedOut");
+            // logger.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(StateListEvents.Done)) {
-            // Log.d(TAG, "TreeUpdated");
+            // logger.fine( "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(StateListEvents.Working)) {
-            // Log.d(TAG, "Working");
+            // logger.fine( "Working");
             setBusy(true);
 
         } else if (type.equals(StateListEvents.LoadComplete)) {
-            // Log.d(TAG, "TreeUpdated");
+            // logger.fine( "TreeUpdated");
             onLoadComplete();
 
         } else if (type.equals(StateListEvents.RemoveComplete)) {
-            // Log.d(TAG, "RemoveComplete");
+            // logger.fine( "RemoveComplete");
             onRemoveComplete(event);
 
         } else if (type.equals(StateListEvents.RemoveFailed)) {
-            Log.w(TAG, "RemoveFailed");
+            logger.warning("RemoveFailed");
             onRemoveFailed(event);
 
         } else if (type.equals(StateConnectEvents.ConnectSuccess)
                 || type.equals(StateCreateEvents.CreateServiceComplete)
                 || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
                 || type.equals(SensorDeleteEvents.DeleteSuccess)) {
-            // Log.d(TAG, "External trigger for update");
+            // logger.fine( "External trigger for update");
             refreshLoader(true);
 
         } else {
-            Log.e(TAG, "Unexpected event type: " + type);
+            logger.severe("Unexpected event type: " + type);
         }
     }
 
@@ -387,7 +387,7 @@ public class StateGrid extends View {
                 } else if (source.equals(StateGrid.this.defaultsButton)) {
                     checkDefaultStates();
                 } else {
-                    Log.w(TAG, "Unexpected button clicked");
+                    logger.warning("Unexpected button clicked");
                 }
             }
         };
@@ -486,7 +486,7 @@ public class StateGrid extends View {
     private void refreshLoader(boolean force) {
         if (force || (this.store.getChildCount() == 0 || this.isListDirty)
                 && this.panel.isExpanded()) {
-            // Log.d(TAG, "Refresh loader...");
+            // logger.fine( "Refresh loader...");
             this.loader.load();
         }
     }
@@ -521,7 +521,7 @@ public class StateGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            Log.e(TAG, "Failed to show states panel: parent=null");
+            logger.severe("Failed to show states panel: parent=null");
         }
     }
 }

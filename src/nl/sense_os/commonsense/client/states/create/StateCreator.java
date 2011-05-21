@@ -2,11 +2,11 @@ package nl.sense_os.commonsense.client.states.create;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
@@ -49,7 +49,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class StateCreator extends View {
 
-    private static final String TAG = "StateCreator";
+    private static final Logger logger = Logger.getLogger("StateCreator");
     private Window window;
     private FormPanel form;
     private TextField<String> nameField;
@@ -73,41 +73,41 @@ public class StateCreator extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateCreateEvents.ShowCreator)) {
-            Log.d(TAG, "ShowCreator");
+            logger.fine("ShowCreator");
             showWindow();
 
         } else if (type.equals(StateCreateEvents.CreateServiceCancelled)) {
-            // Log.d(TAG, "CreateCancelled");
+            // logger.fine( "CreateCancelled");
             onCancelled(event);
 
         } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
-            // Log.d(TAG, "CreateComplete");
+            // logger.fine( "CreateComplete");
             onComplete(event);
 
         } else if (type.equals(StateCreateEvents.CreateServiceFailed)) {
-            Log.w(TAG, "CreateFailed");
+            logger.warning("CreateFailed");
             onFailed(event);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsSuccess)) {
-            // Log.d(TAG, "LoadSensorsSuccess");
+            // logger.fine( "LoadSensorsSuccess");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsFailure)) {
-            Log.w(TAG, "LoadSensorsFailure");
+            logger.warning("LoadSensorsFailure");
             onLoadSensorsComplete(null);
 
         } else if (type.equals(StateCreateEvents.AvailableServicesUpdated)) {
-            // Log.d(TAG, "AvailableServicesUpdated");
+            // logger.fine( "AvailableServicesUpdated");
             final List<ServiceModel> services = event.<List<ServiceModel>> getData("services");
             onAvailableServicesComplete(services);
 
         } else if (type.equals(StateCreateEvents.AvailableServicesNotUpdated)) {
-            Log.w(TAG, "AvailableServicesNotUpdated");
+            logger.warning("AvailableServicesNotUpdated");
             onAvailableServicesComplete(null);
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 
@@ -124,7 +124,7 @@ public class StateCreator extends View {
                 } else if (pressed.equals(cancelButton)) {
                     StateCreator.this.fireEvent(StateCreateEvents.CreateServiceCancelled);
                 } else {
-                    Log.w(TAG, "Unexpected button pressed");
+                    logger.warning("Unexpected button pressed");
                 }
             }
         };

@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.states.defaults;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.models.DeviceModel;
@@ -40,7 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class StateDefaultsDialog extends View {
 
-    private static final String TAG = "StateDefaultsDialog";
+    private static final Logger logger = Logger.getLogger("StateDefaultsDialog");
     private CenteredWindow window;
     private ListStore<DeviceModel> store;
     private Grid<DeviceModel> grid;
@@ -59,19 +59,19 @@ public class StateDefaultsDialog extends View {
         final EventType type = event.getType();
 
         if (type.equals(StateDefaultsEvents.CheckDefaults)) {
-            // Log.d(TAG, "CheckDefaults");
+            // logger.fine( "CheckDefaults");
             showDialog();
 
         } else if (type.equals(StateDefaultsEvents.CheckDefaultsSuccess)) {
-            // Log.d(TAG, "CheckDefaultsSuccess");
+            // logger.fine( "CheckDefaultsSuccess");
             onCheckDefaultsSucess();
 
         } else if (type.equals(StateDefaultsEvents.CheckDefaultsFailure)) {
-            Log.w(TAG, "CheckDefaultsFailure");
+            logger.warning("CheckDefaultsFailure");
             onCheckDefaultsFailure();
 
         } else {
-            Log.w(TAG, "Unexpected event type: " + type);
+            logger.warning("Unexpected event type: " + type);
         }
     }
 

@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.viz.panels;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
@@ -32,7 +32,7 @@ public abstract class VizPanel extends ContentPanel {
         }
     }
 
-    private static final String TAG = "VizPanel";
+    private static final Logger logger = Logger.getLogger("VizPanel");
     private static final int REFRESH_PERIOD = 1000 * 10;
     private List<SensorModel> sensors;
     private long start;
@@ -109,7 +109,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // Log.d(TAG, "hide");
+                    // logger.fine( "hide");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -120,7 +120,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // Log.d(TAG, "close");
+                    // logger.fine( "close");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -131,7 +131,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // Log.d(TAG, "show");
+                    // logger.fine( "show");
                     if (isAutoRefresh) {
                         refreshData();
                         refreshTimer.scheduleRepeating(REFRESH_PERIOD);
@@ -140,7 +140,7 @@ public abstract class VizPanel extends ContentPanel {
 
             });
         } else {
-            Log.w(TAG, "Cannot register show/hide listeners: Parent is not a tabitem!");
+            logger.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
         }
     }
 
@@ -195,7 +195,7 @@ public abstract class VizPanel extends ContentPanel {
             refreshRequest.setData("vizPanel", this);
             Dispatcher.forwardEvent(refreshRequest);
         } else {
-            Log.w(TAG, "Cannot refresh data: list of sensors is null");
+            logger.warning("Cannot refresh data: list of sensors is null");
         }
     }
 

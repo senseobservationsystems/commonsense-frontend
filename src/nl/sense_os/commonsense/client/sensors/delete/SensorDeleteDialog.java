@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.sensors.delete;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.Log;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.shared.models.SensorModel;
 
@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class SensorDeleteDialog extends View {
 
-    private static final String TAG = "SensorDeleteDialog";
+    private static final Logger logger = Logger.getLogger("SensorDeleteDialog");
     private Window window;
     private Text text;
     private Button removeButton;
@@ -43,20 +43,20 @@ public class SensorDeleteDialog extends View {
         final EventType type = event.getType();
 
         if (type.equals(SensorDeleteEvents.ShowDeleteDialog)) {
-            Log.d(TAG, "Show");
+            logger.fine("Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
-            Log.d(TAG, "DeleteSuccess");
+            logger.fine("DeleteSuccess");
             onRemoveSuccess();
 
         } else if (type.equals(SensorDeleteEvents.DeleteFailure)) {
-            Log.w(TAG, "DeleteFailure");
+            logger.warning("DeleteFailure");
             onRemoveFailure();
 
         } else {
-            Log.w(TAG, "Unexpected event type");
+            logger.warning("Unexpected event type");
         }
 
     }
