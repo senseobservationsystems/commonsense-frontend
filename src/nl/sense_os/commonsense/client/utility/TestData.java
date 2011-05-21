@@ -1,5 +1,9 @@
 package nl.sense_os.commonsense.client.utility;
 
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
+
+import com.google.gwt.core.client.JsArray;
+
 public class TestData {
 
     private TestData() {
@@ -29,4 +33,42 @@ public class TestData {
             + "{\"id\":\"20247605\",\"sensor_id\":\"89\",\"value\":\"4\",\"date\":\"1302860007.35\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"},"
             + "{\"id\":\"20249252\",\"sensor_id\":\"89\",\"value\":\"5\",\"date\":\"1302860907.38\",\"week\":\"15\",\"month\":\"4\",\"year\":\"2011\"}"
             + "],\"total\":5}";
+
+    public static final native JsArray<Timeseries> getTimeseriesPosition(int maxPoints) /*-{
+		var start = 1304208000000; // 01/05/2011
+		var lat = {
+			'id' : '1',
+			'label' : 'latitude',
+			'end' : 0,
+			'start' : start,
+			'type' : 'number',
+			'data' : []
+		};
+		var lng = {
+			'id' : '1',
+			'label' : 'longitude',
+			'end' : 0,
+			'start' : start,
+			'type' : 'number',
+			'data' : []
+		};
+		for ( var i = 0; i < maxPoints; i++) {
+			var date = start + (i * 3600000);
+			var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints);
+			var lngValue = 180 * i / maxPoints;
+
+			lat.data.push({
+				'date' : date,
+				'value' : latValue
+			});
+			lat.end = date;
+
+			lng.data.push({
+				'date' : date,
+				'value' : lngValue
+			});
+			lng.end = date;
+		}
+		return [ lat, lng ];
+    }-*/;
 }

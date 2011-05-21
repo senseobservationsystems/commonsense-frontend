@@ -1,11 +1,13 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
+import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvController;
@@ -30,10 +32,13 @@ import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateListController;
 import nl.sense_os.commonsense.client.utility.Log;
+import nl.sense_os.commonsense.client.utility.TestData;
 import nl.sense_os.commonsense.client.viz.data.DataController;
+import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
 import nl.sense_os.commonsense.shared.constants.Constants;
 import nl.sense_os.commonsense.shared.constants.Keys;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
@@ -41,8 +46,11 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.maps.client.Maps;
@@ -133,7 +141,7 @@ public class CommonSense implements EntryPoint {
 
         initControllers();
         // quickLogin();
-        // testEnvCreator();
+        // testMapViz();
 
         GXT.hideLoadingPanel("loading");
     }
@@ -213,6 +221,27 @@ public class CommonSense implements EntryPoint {
             @Override
             public void run() {
                 Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+            }
+        });
+    }
+
+    private void testMapViz() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+
+            @Override
+            public void run() {
+                Window window = new Window();
+                window.setLayout(new FitLayout());
+                window.setHeading("Maps test");
+                window.setSize("90%", "800px");
+
+                MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, "title");
+                window.add(map);
+                window.show();
+                window.center();
+
+                JsArray<Timeseries> data = TestData.getTimeseriesPosition(100);
+                map.addData(data);
             }
         });
     }
