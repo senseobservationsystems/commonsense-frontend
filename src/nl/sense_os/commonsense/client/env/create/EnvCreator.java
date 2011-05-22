@@ -1,79 +1,57 @@
 package nl.sense_os.commonsense.client.env.create;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
+import nl.sense_os.commonsense.shared.models.SensorModel;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SpinnerField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.i18n.client.NumberFormat;
 
 public class EnvCreator extends View {
 
-    private static final Logger logger = Logger.getLogger("EnvCreator");
+    private static final Logger LOGGER = Logger.getLogger(EnvCreator.class.getName());
     private Window window;
-    private EnvCreatorForm form;
-    private EnvCreatorMapPanel mapPanel;
+
+    private FormPanel form;
+    private TextField<String> name;
+    private SpinnerField floors;
+
+    private EnvMap map;
+
+    private GroupingStore<SensorModel> store;
+    private Grid<SensorModel> grid;
+
+    private ButtonBar buttons;
+    private Button fwdButton;
+    private Button cancelButton;
 
     public EnvCreator(Controller c) {
         super(c);
-    }
-
-    private void goBack() {
-
-        CardLayout layout = (CardLayout) window.getLayout();
-        Component active = layout.getActiveItem();
-
-        if (active.equals(this.mapPanel)) {
-            if (this.mapPanel.isOutlineActive()) {
-                this.mapPanel.reset();
-                layout.setActiveItem(this.form);
-
-            } else if (this.mapPanel.isDropperActive()) {
-                this.mapPanel.showOutline();
-
-            } else {
-                logger.warning("Unexpected active component in MapPanel");
-            }
-
-        } else {
-            logger.warning("Unexpected active component in window CardLayout: " + active);
-        }
-    }
-
-    private void goForward() {
-
-        CardLayout layout = (CardLayout) window.getLayout();
-        Component active = layout.getActiveItem();
-
-        if (active.equals(this.form)) {
-            layout.setActiveItem(this.mapPanel);
-            this.mapPanel.reset();
-
-        } else if (active.equals(mapPanel)) {
-            if (this.mapPanel.isOutlineActive()) {
-                this.mapPanel.showDropper();
-
-            } else if (this.mapPanel.isDropperActive()) {
-                submit();
-
-            } else {
-                logger.warning("Unexpected active component in MapPanel");
-            }
-
-        } else {
-            logger.warning("Unexpected active component in CardLayout: " + active);
-        }
+        LOGGER.setLevel(Level.ALL);
     }
 
     @Override
@@ -81,43 +59,117 @@ public class EnvCreator extends View {
         final EventType type = event.getType();
 
         if (type.equals(EnvCreateEvents.ShowCreator)) {
+            LOGGER.finest("ShowCreator");
             showPanel();
 
-        } else if (type.equals(EnvCreateEvents.Forward)) {
-            goForward();
-
-        } else if (type.equals(EnvCreateEvents.Back)) {
-            goBack();
-
-        } else if (type.equals(EnvCreateEvents.Cancel)) {
-            hidePanel();
-
-        } else if (type.equals(EnvCreateEvents.OutlineComplete)) {
-            this.mapPanel.setFwdEnabled(true);
-
         } else if (type.equals(EnvCreateEvents.CreateSuccess)) {
+            LOGGER.finest("CreateSuccess");
             onCreateSuccess();
 
         } else if (type.equals(EnvCreateEvents.CreateFailure)) {
+            LOGGER.warning("CreateFailure");
             onCreateFailure();
 
+        } else if (type.equals(EnvCreateEvents.OutlineComplete)) {
+            LOGGER.warning("OutlineComplete");
+            onOutlineComplete();
+
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOGGER.warning("Unexpected event type: " + type);
 
         }
     }
 
+    private void onOutlineComplete() {
+        this.map.setOutlineEnabled(false);
+        this.map.setDroppingEnabled(true);
+    }
+
     private void hidePanel() {
+        LOGGER.finest("Hide panel...");
+
         this.window.hide();
     }
 
+    /**
+     * Initializes the Back/Forward/Cancel buttons for the creator wizard. The buttons trigger
+     * events that are handled by {@link EnvCreator}.
+     */
+    private void initButtons() {
+
+        Button resetButton = new Button("Reset", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                resetPanel();
+            }
+        });
+        resetButton.setMinWidth(75);
+
+        // forward button
+        this.fwdButton = new Button("Submit", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                submit();
+            }
+        });
+        this.fwdButton.setMinWidth(75);
+
+        // only enable when form is valid
+        FormButtonBinding binding = new FormButtonBinding(this.form);
+        binding.addButton(fwdButton);
+
+        // cancel button
+        this.cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                hidePanel();
+            }
+        });
+        this.cancelButton.setMinWidth(75);
+
+        this.buttons = new ButtonBar();
+        this.buttons.setAlignment(HorizontalAlignment.RIGHT);
+        this.buttons.add(resetButton);
+        this.buttons.add(this.fwdButton);
+        this.buttons.add(this.cancelButton);
+    }
+
     private void initForm() {
-        this.form = new EnvCreatorForm();
+
+        this.form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
+
+        initFormFields();
+
+        this.form.add(this.name, new FormData("-10"));
+        this.form.add(this.floors, new FormData("-10"));
+    }
+
+    /**
+     * Initializes the form fields.
+     */
+    private void initFormFields() {
+        this.name = new TextField<String>();
+        this.name.setFieldLabel("Name");
+        this.name.setAllowBlank(false);
+
+        this.floors = new SpinnerField();
+        this.floors.setFieldLabel("Number of floors");
+        this.floors.setPropertyEditorType(Integer.class);
+        this.floors.setFormat(NumberFormat.getFormat("#"));
+        this.floors.setAllowDecimals(false);
+        this.floors.setAllowBlank(false);
+        this.floors.setMinValue(1);
+        this.floors.setOriginalValue(1);
     }
 
     @Override
     protected void initialize() {
-        super.initialize();
+        LOGGER.finest("Initialize...");
 
         this.window = new CenteredWindow();
         this.window.setHeading("Create new environment");
@@ -127,14 +179,18 @@ public class EnvCreator extends View {
 
         initForm();
         initMapPanel();
+        initButtons();
 
         // do layout
-        this.window.add(this.form, new BorderLayoutData(LayoutRegion.NORTH));
-        this.window.add(this.mapPanel, new BorderLayoutData(LayoutRegion.CENTER));
+        this.form.setBottomComponent(buttons);
+        this.window.add(this.form, new BorderLayoutData(LayoutRegion.WEST, .33f, 275, 2000));
+        this.window.add(this.map, new BorderLayoutData(LayoutRegion.CENTER));
+
+        super.initialize();
     }
 
     private void initMapPanel() {
-        this.mapPanel = new EnvCreatorMapPanel();
+        this.map = new EnvMap();
     }
 
     private void onCreateFailure() {
@@ -165,9 +221,12 @@ public class EnvCreator extends View {
     }
 
     private void resetPanel() {
+        LOGGER.finest("Reset panel...");
+
         this.form.reset();
-        this.mapPanel.reset();
-        ((CardLayout) this.window.getLayout()).setActiveItem(this.form);
+        this.map.resetOutline();
+        this.map.resetSensors();
+        this.map.setOutlineEnabled(true);
     }
 
     private void showPanel() {
@@ -178,11 +237,13 @@ public class EnvCreator extends View {
     }
 
     private void submit() {
+        LOGGER.finest("Submit...");
+
         AppEvent create = new AppEvent(EnvCreateEvents.CreateRequest);
-        create.setData("name", this.form.getName());
-        create.setData("floors", this.form.getFloors());
-        create.setData("sensors", this.mapPanel.getSensors());
-        create.setData("outline", this.mapPanel.getOutline());
+        create.setData("name", this.name.getValue());
+        create.setData("floors", this.floors.getValue().intValue());
+        create.setData("sensors", this.map.getSensors());
+        create.setData("outline", this.map.getOutline());
         fireEvent(create);
     }
 }

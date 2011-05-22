@@ -127,7 +127,7 @@ public class CommonSense implements EntryPoint {
         /* show content */
         initControllers();
         // quickLogin();
-        // testEnvCreator();
+        testEnvCreator();
         // testNavBar();
         // testMapViz();
         // testTimeline();

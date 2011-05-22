@@ -36,7 +36,6 @@ public class EnvCreateController extends Controller {
 
     public EnvCreateController() {
         registerEventTypes(EnvCreateEvents.ShowCreator);
-        registerEventTypes(EnvCreateEvents.Forward, EnvCreateEvents.Back, EnvCreateEvents.Cancel);
         registerEventTypes(EnvCreateEvents.OutlineComplete);
         registerEventTypes(EnvCreateEvents.CreateRequest, EnvCreateEvents.CreateSuccess,
                 EnvCreateEvents.CreateAjaxSuccess, EnvCreateEvents.CreateAjaxFailure,
