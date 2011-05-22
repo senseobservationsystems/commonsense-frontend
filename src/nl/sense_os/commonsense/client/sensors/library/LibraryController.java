@@ -44,6 +44,9 @@ public class LibraryController extends Controller {
     private final static Logger LOGGER = Logger.getLogger(LibraryController.class.getName());
     private static final int PER_PAGE = 1000;
     private View grid;
+    private boolean isLoadingList;
+    private boolean isLoadingUsers;
+    private boolean isLoadingServices;
 
     public LibraryController() {
         registerEventTypes(MainEvents.Init);
@@ -81,6 +84,47 @@ public class LibraryController extends Controller {
         }
 
         return devices;
+    }
+
+    private void getAvailableServices(List<SensorModel> library, int index) {
+
+        if (index < library.size()) {
+
+            isLoadingServices = true;
+            notifyState();
+
+            SensorModel sensor = library.get(index);
+            String params = "";
+            if (sensor.getAlias() != null) {
+                params = "?alias=" + sensor.getAlias();
+            }
+
+            // prepare request properties
+            final String method = "GET";
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + params;
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+            final AppEvent onSuccess = new AppEvent(LibraryEvents.AvailServicesAjaxSuccess);
+            onSuccess.setData("index", index);
+            onSuccess.setData("library", library);
+            final AppEvent onFailure = new AppEvent(LibraryEvents.AvailServicesAjaxFailure);
+            onFailure.setData("index", index);
+            onFailure.setData("library", library);
+
+            // send request to AjaxController
+            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+            ajaxRequest.setData("method", method);
+            ajaxRequest.setData("url", url);
+            ajaxRequest.setData("session_id", sessionId);
+            ajaxRequest.setData("onSuccess", onSuccess);
+            ajaxRequest.setData("onFailure", onFailure);
+
+            Dispatcher.forwardEvent(ajaxRequest);
+
+        } else {
+            // hooray we're done!
+            isLoadingServices = false;
+            notifyState();
+        }
     }
 
     private void getFullDetails(List<SensorModel> library, int page,
@@ -163,48 +207,12 @@ public class LibraryController extends Controller {
             Dispatcher.forwardEvent(ajaxRequest);
 
         } else {
-            // hooray we're done!
-            onLoadComplete(library, callback);
-
             // continue loading the users in the background
             getUsers(library, 0);
             getAvailableServices(library, 0);
-        }
-    }
 
-    private void getAvailableServices(List<SensorModel> library, int index) {
-
-        if (index < library.size()) {
-
-            SensorModel sensor = library.get(index);
-            String params = "";
-            if (sensor.getAlias() != null) {
-                params = "?alias=" + sensor.getAlias();
-            }
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + params;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(LibraryEvents.AvailServicesAjaxSuccess);
-            onSuccess.setData("index", index);
-            onSuccess.setData("library", library);
-            final AppEvent onFailure = new AppEvent(LibraryEvents.AvailServicesAjaxFailure);
-            onFailure.setData("index", index);
-            onFailure.setData("library", library);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-
-        } else {
-            // hooray we're done!
+            // notify the view that the list is complete
+            onLoadComplete(library, callback);
         }
     }
 
@@ -222,6 +230,10 @@ public class LibraryController extends Controller {
         }
 
         if (sensor != null) {
+
+            isLoadingUsers = true;
+            notifyState();
+
             // prepare request properties
             final String method = "GET";
             final String url = Urls.SENSORS + "/" + sensor.getId() + "/users";
@@ -245,6 +257,8 @@ public class LibraryController extends Controller {
 
         } else {
             // hoorray we are done!
+            isLoadingUsers = false;
+            notifyState();
         }
     }
 
@@ -368,6 +382,25 @@ public class LibraryController extends Controller {
 
     }
 
+    @Override
+    protected void initialize() {
+        super.initialize();
+        this.grid = new LibraryGrid(this);
+
+        // initialize library and lists of devices and environments
+        Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<SensorModel>());
+        Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<DeviceModel>());
+    }
+
+    private void notifyState() {
+        if (isLoadingList || isLoadingUsers || isLoadingServices) {
+            forwardToView(this.grid, new AppEvent(LibraryEvents.Working));
+        } else {
+            forwardToView(this.grid, new AppEvent(LibraryEvents.Done));
+        }
+
+    }
+
     private void onAvailServicesFailure(List<SensorModel> library, int index) {
         index++;
         getAvailableServices(library, index);
@@ -380,37 +413,6 @@ public class LibraryController extends Controller {
 
         index++;
         getAvailableServices(library, index);
-    }
-
-    private void onUsersFailure(List<SensorModel> library, int index) {
-        index++;
-        getUsers(library, index);
-    }
-
-    private void onUsersSuccess(String response, List<SensorModel> library, int index) {
-        // parse the list of users
-        List<UserModel> users = UserParser.parseGroupUsers(response);
-
-        // remove the owner from the list
-        users.remove(Registry.get(Constants.REG_USER));
-
-        // update sensor model
-        SensorModel sensor = library.get(index);
-        sensor.set(SensorModel.USERS, users);
-
-        // get the next sensor's users
-        index++;
-        getUsers(library, index);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-        this.grid = new LibraryGrid(this);
-
-        // initialize library and lists of devices and environments
-        Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<SensorModel>());
-        Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<DeviceModel>());
     }
 
     private void onFullDetailsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
@@ -474,7 +476,8 @@ public class LibraryController extends Controller {
         Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).addAll(
                 devicesFromLibrary(library));
 
-        forwardToView(this.grid, new AppEvent(LibraryEvents.Done));
+        isLoadingList = false;
+        notifyState();
 
         if (null != callback) {
             callback.onSuccess(new BaseListLoadResult<SensorModel>(library));
@@ -503,7 +506,9 @@ public class LibraryController extends Controller {
             library.clear();
             Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).clear();
 
-            forwardToView(this.grid, new AppEvent(LibraryEvents.Working));
+            isLoadingList = true;
+            notifyState();
+
             getFullDetails(library, 0, callback);
         } else {
             onLoadComplete(library, callback);
@@ -519,5 +524,26 @@ public class LibraryController extends Controller {
 
         List<DeviceModel> devices = Registry.get(Constants.REG_DEVICE_LIST);
         devices.clear();
+    }
+
+    private void onUsersFailure(List<SensorModel> library, int index) {
+        index++;
+        getUsers(library, index);
+    }
+
+    private void onUsersSuccess(String response, List<SensorModel> library, int index) {
+        // parse the list of users
+        List<UserModel> users = UserParser.parseGroupUsers(response);
+
+        // remove the owner from the list
+        users.remove(Registry.get(Constants.REG_USER));
+
+        // update sensor model
+        SensorModel sensor = library.get(index);
+        sensor.set(SensorModel.USERS, users);
+
+        // get the next sensor's users
+        index++;
+        getUsers(library, index);
     }
 }

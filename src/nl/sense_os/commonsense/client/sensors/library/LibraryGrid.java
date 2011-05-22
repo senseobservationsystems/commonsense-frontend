@@ -57,19 +57,19 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryGrid extends View {
 
-    private static final Logger logger = Logger.getLogger("LibraryGrid");
+    private static final Logger LOGGER = Logger.getLogger(LibraryGrid.class.getName());
     private ContentPanel panel;
     private BaseListLoader<ListLoadResult<SensorModel>> loader;
     private GroupingStore<SensorModel> store;
     private Grid<SensorModel> grid;
     private ToolBar toolBar;
     private Button shareButton;
+    private Button unshareButton;
     private Button removeButton;
     private Button vizButton;
     private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
     private boolean force = true;
-    private Button unshareButton;
 
     public LibraryGrid(Controller controller) {
         super(controller);
@@ -83,7 +83,7 @@ public class LibraryGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(LibraryEvents.ShowLibrary)) {
-            // logger.fine( "ShowLibrary");
+            LOGGER.finest("ShowLibrary");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
@@ -95,27 +95,27 @@ public class LibraryGrid extends View {
                 || type.equals(EnvCreateEvents.CreateSuccess)
                 || type.equals(UnshareEvents.UnshareComplete)
                 || type.equals(SensorShareEvents.ShareComplete)) {
-            // logger.fine( "Library changed");
+            LOGGER.finest("Library changed");
             onLibChanged();
 
         } else if (type.equals(LibraryEvents.Done)) {
-            // logger.fine( "Done");
+            LOGGER.finest("Done");
             setBusy(false);
 
         } else if (type.equals(LibraryEvents.Working)) {
-            // logger.fine( "Working");
+            LOGGER.finest("Working");
             setBusy(true);
 
         } else if (type.equals(LibraryEvents.ListUpdated)) {
-            // logger.fine( "ListUpdated");
+            LOGGER.finest("ListUpdated");
             onListUpdate();
 
         } else if (type.equals(VizEvents.Show)) {
-            // logger.fine( "Show Visualization");
+            LOGGER.finest("Show Visualization");
             refreshLoader(true);
 
         } else {
-            logger.severe("Ignoring event... " + event + ", source: " + event.getSource() + ".");
+            LOGGER.severe("Unexpected event: " + event);
         }
     }
 
@@ -133,7 +133,7 @@ public class LibraryGrid extends View {
 
     @Override
     protected void initialize() {
-        super.initialize();
+        LOGGER.finest("Initialize...");
 
         this.panel = new ContentPanel(new FitLayout());
         this.panel.setHeading("Sensor library");
@@ -164,6 +164,8 @@ public class LibraryGrid extends View {
         this.panel.add(content);
 
         setupDragDrop();
+
+        super.initialize();
     }
 
     private void initFilter() {
@@ -211,7 +213,7 @@ public class LibraryGrid extends View {
                 } else if (source.equals(removeButton)) {
                     onRemoveClick();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOGGER.warning("Unexpected button pressed");
                 }
             }
         };
@@ -282,18 +284,18 @@ public class LibraryGrid extends View {
                 // only load when the panel is not collapsed
                 if (panel.isExpanded()) {
                     if (loadConfig instanceof ListLoadConfig) {
-                        // logger.fine( "Load library... Renew cache: " + force);
+                        // LOGGER.fine( "Load library... Renew cache: " + force);
                         AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
                         loadRequest.setData("callback", callback);
                         loadRequest.setData("renewCache", force);
                         fireEvent(loadRequest);
                         force = false;
                     } else {
-                        logger.warning("Unexpected load config: " + loadConfig);
+                        LOGGER.warning("Unexpected load config: " + loadConfig);
                         callback.onFailure(null);
                     }
                 } else {
-                    logger.warning("failed to load data: panel is not expanded...");
+                    LOGGER.warning("failed to load data: panel is not expanded...");
                     callback.onFailure(null);
                 }
             }
@@ -366,14 +368,16 @@ public class LibraryGrid extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            if (!SenseIconProvider.ICON_LOADING.equals(this.panel.getHeader().getIcon())) {
+                this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            }
         } else {
             this.panel.getHeader().setIcon(IconHelper.create(""));
         }
     }
 
     /**
-     * Sets up the tag tree panel for drag and drop of the tags.
+     * Sets up the grid for drag and drop of the sensors.
      */
     private void setupDragDrop() {
         new GridDragSource(this.grid);
@@ -384,7 +388,7 @@ public class LibraryGrid extends View {
             parent.add(this.panel);
             parent.layout();
         } else {
-            logger.severe("Failed to show my sensors panel: parent=null");
+            LOGGER.severe("Failed to show my sensors panel: parent=null");
         }
     }
 }
