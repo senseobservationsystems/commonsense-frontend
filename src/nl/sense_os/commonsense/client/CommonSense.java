@@ -55,12 +55,11 @@ import com.google.gwt.visualization.client.VisualizationUtils;
  */
 public class CommonSense implements EntryPoint {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("CommonSense");
+    private static final Logger LOGGER = Logger.getLogger("CommonSense");
     public static final String LAST_DEPLOYED = "Sun May 15 23:43";
 
     /**
-     * Dispatches initialization event to the Controllers, and shows the UI after initialization.
+     * Dispatches initialization event to the controllers, and shows the UI after initialization.
      */
     private void initControllers() {
 
@@ -73,21 +72,13 @@ public class CommonSense implements EntryPoint {
         dispatcher.dispatch(MainEvents.UiReady);
     }
 
-    @Override
-    public void onModuleLoad() {
+    /**
+     * Initializes the event dispatcher by adding the application's controllers to it.
+     */
+    private void initDispatcher() {
 
-        GXT.setDefaultTheme(Theme.GRAY, true);
-
-        // // load services and put them in Registry
-        // final BuildingServiceAsync buildingService = GWT.create(BuildingService.class);
-        // Registry.register(Constants.REG_BUILDING_SVC, buildingService);
-        // final GroupsProxyAsync groupsProxy = GWT.create(GroupsProxy.class);
-        // Registry.register(Constants.REG_GROUPS_PROXY, groupsProxy);
-        // final SensorsProxyAsync sensorsProxy = GWT.create(SensorsProxy.class);
-        // Registry.register(Constants.REG_SENSORS_PROXY, sensorsProxy);
-
-        // set up MVC stuff
         Dispatcher dispatcher = Dispatcher.get();
+
         dispatcher.addController(new MainController());
         dispatcher.addController(new AjaxController());
         dispatcher.addController(new LoginController());
@@ -95,24 +86,39 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new VizController());
         dispatcher.addController(new DataController());
 
+        // sensor library controllers
         dispatcher.addController(new LibraryController());
         dispatcher.addController(new SensorDeleteController());
         dispatcher.addController(new SensorShareController());
         dispatcher.addController(new UnshareController());
 
+        // group controllers
         dispatcher.addController(new GroupController());
         dispatcher.addController(new GroupCreateController());
         dispatcher.addController(new InviteController());
 
+        // state controllers
         dispatcher.addController(new StateListController());
         dispatcher.addController(new StateConnectController());
         dispatcher.addController(new StateCreateController());
         dispatcher.addController(new StateDefaultsController());
         dispatcher.addController(new StateEditController());
         dispatcher.addController(new FeedbackController());
+
+        // environment controllers
         dispatcher.addController(new EnvController());
         dispatcher.addController(new EnvCreateController());
+    }
 
+    @Override
+    public void onModuleLoad() {
+
+        GXT.setDefaultTheme(Theme.GRAY, true);
+
+        // initialize
+        initDispatcher();
+
+        // show content
         initControllers();
         quickLogin();
         // testEnvCreator();
@@ -126,13 +132,60 @@ public class CommonSense implements EntryPoint {
      * Logs in automatically for quicker testing.
      */
     protected void quickLogin() {
+        LOGGER.config("Quick login...");
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
         login.setData("username", "steven@sense-os.nl");
         login.setData("password", "1234");
         Dispatcher.forwardEvent(login);
     }
 
+    protected void testEnvCreator() {
+        LOGGER.config("Test environment creator...");
+
+        final String url = GWT.getModuleBaseURL();
+        String key = Keys.MAPS_KEY_STABLE;
+        if (url.contains("common-sense-test")) {
+            key = Keys.MAPS_KEY_TEST;
+        }
+        Maps.loadMapsApi(key, "2", false, new Runnable() {
+
+            @Override
+            public void run() {
+                Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+            }
+        });
+    }
+
+    protected void testMapViz() {
+        LOGGER.config("Test map visualization...");
+
+        final String url = GWT.getModuleBaseURL();
+        String key = Keys.MAPS_KEY_STABLE;
+        if (url.contains("common-sense-test")) {
+            key = Keys.MAPS_KEY_TEST;
+        }
+        Maps.loadMapsApi(key, "2", false, new Runnable() {
+
+            @Override
+            public void run() {
+                Window window = new Window();
+                window.setLayout(new FitLayout());
+                window.setHeading("Maps test");
+                window.setSize("90%", "800px");
+
+                MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, "title");
+                window.add(map);
+                window.show();
+                window.center();
+
+                JsArray<Timeseries> data = TestData.getTimeseriesPosition(100);
+                map.addData(data);
+            }
+        });
+    }
+
     protected void testTimeline() {
+        LOGGER.config("Test timeline...");
 
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
@@ -186,46 +239,5 @@ public class CommonSense implements EntryPoint {
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
         VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
-    }
-
-    protected void testEnvCreator() {
-        final String url = GWT.getModuleBaseURL();
-        String key = Keys.MAPS_KEY_STABLE;
-        if (url.contains("common-sense-test")) {
-            key = Keys.MAPS_KEY_TEST;
-        }
-        Maps.loadMapsApi(key, "2", false, new Runnable() {
-
-            @Override
-            public void run() {
-                Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
-            }
-        });
-    }
-
-    protected void testMapViz() {
-        final String url = GWT.getModuleBaseURL();
-        String key = Keys.MAPS_KEY_STABLE;
-        if (url.contains("common-sense-test")) {
-            key = Keys.MAPS_KEY_TEST;
-        }
-        Maps.loadMapsApi(key, "2", false, new Runnable() {
-
-            @Override
-            public void run() {
-                Window window = new Window();
-                window.setLayout(new FitLayout());
-                window.setHeading("Maps test");
-                window.setSize("90%", "800px");
-
-                MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, "title");
-                window.add(map);
-                window.show();
-                window.center();
-
-                JsArray<Timeseries> data = TestData.getTimeseriesPosition(100);
-                map.addData(data);
-            }
-        });
     }
 }
