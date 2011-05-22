@@ -35,11 +35,8 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.event.dom.client.MouseDownEvent;
-import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
@@ -90,33 +87,70 @@ public class MainView extends View {
     }
 
     private void initCenter() {
-        LayoutContainer center = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
-        center.setScrollMode(Scroll.AUTOY);
-        center.setBorders(false);
-
-        // banner
-        final Text bannerText = new Text("CommonSense");
-        bannerText.setId("banner-text");
-        final LayoutContainer bannerContainer = new LayoutContainer(new CenterLayout());
-        bannerContainer.setId("banner-container");
-        bannerContainer.setSize(728, 90);
-        bannerContainer.add(bannerText);
-        final LayoutContainer banner = new LayoutContainer(new CenterLayout());
-        banner.setId("banner");
-        banner.add(bannerContainer);
-        banner.setHeight(90);
-        center.add(banner, new RowData(1, -1, new Margins(0)));
+        // LayoutContainer center = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
+        // center.setScrollMode(Scroll.AUTOY);
+        // center.setBorders(false);
+        //
+        // // banner
+        // final Text bannerText = new Text("CommonSense");
+        // bannerText.setId("banner-text");
+        // final LayoutContainer bannerContainer = new LayoutContainer(new CenterLayout());
+        // bannerContainer.setId("banner-container");
+        // bannerContainer.setSize(728, 90);
+        // bannerContainer.add(bannerText);
+        // final LayoutContainer banner = new LayoutContainer(new CenterLayout());
+        // banner.setId("banner");
+        // banner.add(bannerContainer);
+        // banner.setHeight(90);
+        // center.add(banner, new RowData(1, -1, new Margins(0)));
 
         this.centerContent = new LayoutContainer(new FitLayout());
         this.centerContent.setId("center-content");
-        center.add(this.centerContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+        // center.add(this.centerContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-        centerData.setMargins(new Margins(5));
-        this.viewport.add(center, centerData);
+        centerData.setMargins(new Margins(10));
+        // this.viewport.add(center, centerData);
+        this.viewport.add(this.centerContent, centerData);
     }
 
-    private void initFooter() {
+    @Override
+    protected void initialize() {
+        super.initialize();
+
+        // ViewPort fills browser screen and automatically resizes content
+        this.viewport = new Viewport();
+        this.viewport.setId("sense-viewport");
+        this.viewport.setLayout(new BorderLayout());
+        this.viewport.setStyleAttribute("background", "transparent;");
+
+        initNorth();
+        initWest();
+        initCenter();
+        initSouth();
+    }
+
+    private void initNorth() {
+
+        LayoutContainer north = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
+        north.setId("sense-header");
+
+        // spacer with same width as west panel
+        LayoutContainer spacer = new LayoutContainer();
+        spacer.setStyleName("sense-header-spacer");
+        north.add(spacer, new RowData(.33, 1));
+
+        this.navPanel = new NavPanel();
+        // north.add(this.navPanel, new RowData(.67, 1));
+
+        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, NavPanel.HEIGHT);
+        northData.setMargins(new Margins(0));
+        northData.setSplit(false);
+        // this.viewport.add(this.navPanel, northData);
+        this.viewport.add(navPanel, northData);
+    }
+
+    private void initSouth() {
         LayoutContainer footer = new LayoutContainer(new CenterLayout());
         String copyright = "&copy;2011 Sense";
         String bullet = "&nbsp;&nbsp;&#8226;&nbsp;&nbsp;";
@@ -132,64 +166,39 @@ public class MainView extends View {
         this.viewport.add(footer, southData);
     }
 
-    @Override
-    protected void initialize() {
-        super.initialize();
-
-        // ViewPort fills browser screen and automatically resizes content
-        this.viewport = new Viewport();
-        this.viewport.setId("viewport");
-        this.viewport.setLayout(new BorderLayout());
-        this.viewport.setStyleAttribute("background", "transparent;");
-
-        initNavigation();
-        initWest();
-        initCenter();
-        initFooter();
-    }
-
-    private void initNavigation() {
-        this.navPanel = new NavPanel();
-        this.navPanel.setId("navigation-bar");
-
-        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 23);
-        northData.setMargins(new Margins(0));
-        northData.setSplit(false);
-        this.viewport.add(this.navPanel, northData);
-    }
-
     private void initWest() {
 
-        final LayoutContainer west = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
-        west.setBorders(false);
-
-        // Sense logo
-        final Image logo = new Image("/img/logo_sense-162x90.png");
-        logo.setPixelSize(162, 90);
-        logo.addMouseDownHandler(new MouseDownHandler() {
-            @Override
-            public void onMouseDown(MouseDownEvent event) {
-                logger.fine("relative x: " + event.getRelativeX(logo.getElement()));
-                logger.fine("relative y: " + event.getRelativeY(logo.getElement()));
-            }
-        });
-        final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
-        logoContainer.setId("logo-container");
-        logoContainer.setHeight(90);
-        logoContainer.add(logo);
-        west.add(logoContainer, new RowData(1, -1, new Margins(0)));
+        // final LayoutContainer west = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
+        // west.setBorders(false);
+        //
+        // // Sense logo
+        // final Image logo = new Image("/img/logo_sense-162x90.png");
+        // logo.setPixelSize(162, 90);
+        // logo.addMouseDownHandler(new MouseDownHandler() {
+        // @Override
+        // public void onMouseDown(MouseDownEvent event) {
+        // logger.fine("relative x: " + event.getRelativeX(logo.getElement()));
+        // logger.fine("relative y: " + event.getRelativeY(logo.getElement()));
+        // }
+        // });
+        // final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
+        // logoContainer.setId("logo-container");
+        // logoContainer.setHeight(90);
+        // logoContainer.add(logo);
+        // west.add(logoContainer, new RowData(1, -1, new Margins(0)));
 
         // real content
         this.westContent = new LayoutContainer(new FitLayout());
         this.westContent.setId("west-content");
         this.westContent.setScrollMode(Scroll.AUTOY);
-        west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
+        // west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
         // add to viewport
         final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
-        westData.setMargins(new Margins(5, 0, 5, 5));
+        westData.setMargins(new Margins(10, 0, 10, 10));
         westData.setSplit(true);
-        this.viewport.add(west, westData);
+        // this.viewport.add(west, westData);
+        this.viewport.add(this.westContent, westData);
     }
 
     private void onError(AppEvent event) {

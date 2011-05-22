@@ -16,6 +16,7 @@ import nl.sense_os.commonsense.client.groups.invite.InviteController;
 import nl.sense_os.commonsense.client.groups.list.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareController;
@@ -32,14 +33,19 @@ import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
 import nl.sense_os.commonsense.shared.constants.Keys;
 import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -55,7 +61,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
  */
 public class CommonSense implements EntryPoint {
 
-    private static final Logger LOGGER = Logger.getLogger("CommonSense");
+    private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
     public static final String LAST_DEPLOYED = "Sun May 15 23:43";
 
     /**
@@ -115,13 +121,14 @@ public class CommonSense implements EntryPoint {
 
         GXT.setDefaultTheme(Theme.GRAY, true);
 
-        // initialize
+        /* initialize */
         initDispatcher();
 
-        // show content
+        /* show content */
         initControllers();
-        quickLogin();
+        // quickLogin();
         // testEnvCreator();
+        // testNavBar();
         // testMapViz();
         // testTimeline();
 
@@ -133,6 +140,7 @@ public class CommonSense implements EntryPoint {
      */
     protected void quickLogin() {
         LOGGER.config("Quick login...");
+
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
         login.setData("username", "steven@sense-os.nl");
         login.setData("password", "1234");
@@ -182,6 +190,29 @@ public class CommonSense implements EntryPoint {
                 map.addData(data);
             }
         });
+    }
+
+    protected void testNavBar() {
+
+        Viewport viewport = new Viewport();
+        viewport.setLayout(new FitLayout());
+        viewport.setId("sense-viewport");
+        viewport.setStyleAttribute("background", "transparent;");
+
+        LayoutContainer north = new LayoutContainer(new FitLayout());
+        north.setId("sense-header");
+        north.setSize("100%", NavPanel.HEIGHT + "px");
+        viewport.add(north, new FitData(0, 0, 2000, 0));
+
+        NavPanel navPanel = new NavPanel();
+        north.add(navPanel, new RowData(.67, 1));
+
+        navPanel.setUser(new UserModel("id", "steven@sense-os.nl", "steven@sense-os.nl", "Steven",
+                "Mulder", "", ""));
+        navPanel.setLoggedIn(true);
+        navPanel.setHighlight(NavPanel.VISUALIZATION);
+
+        RootPanel.get("gwt").add(viewport);
     }
 
     protected void testTimeline() {

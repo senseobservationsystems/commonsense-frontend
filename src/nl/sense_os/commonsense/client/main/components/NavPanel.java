@@ -12,6 +12,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Component with the top navigation bar. Highlights the current location and shows the current user
@@ -19,51 +21,61 @@ import com.google.gwt.user.client.ui.Hyperlink;
  */
 public class NavPanel extends LayoutContainer {
 
-    private static final Logger logger = Logger.getLogger("NavPanel");
+    private static final Logger LOGGER = Logger.getLogger(NavPanel.class.getName());
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SETTINGS = "settings";
     public static final String SIGN_OUT = "signout";
     public static final String VISUALIZATION = "viz";
+    public static final int HEIGHT = 30;
     private boolean isLoggedIn = false;
-    private final Text stretch = new Text();
     private final Text userName = new Text();
-    private Hyperlink current;
+    private Widget current;
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("home", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
     private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
     private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
+    private final LayoutContainer spacer = new LayoutContainer();
+    private Image logo;
 
     public NavPanel() {
 
         this.setLayout(new RowLayout(Orientation.HORIZONTAL));
-        this.setLayoutOnChange(true);
+        this.setId("sense-nav-bar");
 
+        initLogo();
         initLinks();
         initUsername();
     }
 
+    private void initLogo() {
+        logo = new Image("/img/logo_sense-header.png");
+        logo.setPixelSize(100, 30);
+        logo.setStyleName("sense-header-logo");
+    }
+
     private void initLinks() {
-        this.help.setStylePrimaryName("x-sense-nav-deselected");
-        this.help.setWidth("auto");
-        this.home.setStylePrimaryName("x-sense-nav-deselected");
-        this.home.setWidth("auto");
-        this.logout.setStylePrimaryName("x-sense-nav-deselected");
-        this.logout.setWidth("auto");
-        this.settings.setStylePrimaryName("x-sense-nav-deselected");
-        this.settings.setWidth("auto");
-        this.viz.setStylePrimaryName("x-sense-nav-deselected");
-        this.viz.setWidth("auto");
+        this.home.setStyleName("sense-nav-item");
+        this.home.setSize("40px", "25px");
+
+        this.viz.setStyleName("sense-nav-item");
+        this.viz.setSize("90px", "25px");
+
+        this.settings.setStyleName("sense-nav-item");
+        this.settings.setSize("50px", "25px");
+
+        this.help.setStyleName("sense-nav-item");
+        this.help.setSize("40px", "25px");
+
+        this.logout.setStyleName("sense-nav-item");
+        this.logout.setSize("50px", "25px");
+
+        this.spacer.setStyleName("sense-header-spacer");
     }
 
     private void initUsername() {
-        this.userName.setStyleAttribute("font-weight", "bold");
-        this.userName.setStyleAttribute("font-size", "13px");
-        this.userName.setStyleAttribute("color", "black");
-        this.userName.setStyleAttribute("text-align", "right");
-
-        this.userName.setAutoWidth(true);
+        this.userName.setStyleName("sense-header-username");
     }
 
     /**
@@ -71,27 +83,32 @@ public class NavPanel extends LayoutContainer {
      */
     private void relayout() {
 
-        final int vMargin = 2;
-        final int hMargin = 5;
-        RowData startData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, 2 * hMargin));
-        RowData endData = new RowData(-1, 1, new Margins(vMargin, 2 * hMargin, vMargin, hMargin));
-        RowData itemData = new RowData(-1, 1, new Margins(vMargin, hMargin, vMargin, hMargin));
-        RowData stretchData = new RowData(1, 1, new Margins(0));
+        LayoutContainer endItem = new LayoutContainer();
+        endItem.setStyleName("sense-header-spacer");
+
+        RowData endItemData = new RowData(16, 1, new Margins(0, 0, 0, 4));
+        RowData logoData = new RowData(-1, -1, new Margins(0, -2, 0, 0));
+        RowData itemData = new RowData(-1, 1, new Margins(0, 2, 0, 4));
+        RowData usernameData = new RowData(1, 1, new Margins(0, -2, 0, 2));
+        RowData spacerData = new RowData(1, 1, new Margins(0, 0, 0, 4));
 
         removeAll();
         if (this.isLoggedIn) {
-            this.add(this.home, startData);
+            this.add(logo, logoData);
             this.add(this.viz, itemData);
-            this.add(this.stretch, stretchData);
-            this.add(this.userName, itemData);
             this.add(this.settings, itemData);
             this.add(this.help, itemData);
-            this.add(this.logout, endData);
+            this.add(userName, usernameData);
+            this.add(this.logout, itemData);
+            this.add(endItem, endItemData);
         } else {
-            this.add(this.home, startData);
-            this.add(this.stretch, stretchData);
-            this.add(this.help, endData);
+            this.add(logo, logoData);
+            this.add(this.home, itemData);
+            this.add(this.help, itemData);
+            this.add(this.spacer, spacerData);
         }
+
+        this.layout();
     }
 
     /**
@@ -105,8 +122,7 @@ public class NavPanel extends LayoutContainer {
 
         // reset style of previously selected navigation label
         if (null != this.current) {
-            this.current.setStylePrimaryName("x-sense-nav-deselected");
-            this.current.setWidth("auto");
+            this.current.removeStyleName("sense-nav-item-selected");
         }
 
         // set new navigation label selected
@@ -121,10 +137,9 @@ public class NavPanel extends LayoutContainer {
         } else if (highlight.equals(SIGN_OUT)) {
             this.current = this.logout;
         } else {
-            logger.warning("Unexpected highlight: " + highlight);
+            LOGGER.warning("Unexpected highlight: " + highlight);
         }
-        this.current.setStylePrimaryName("x-sense-nav-selected");
-        this.current.setWidth("auto");
+        this.current.addStyleName("sense-nav-item-selected");
 
         relayout();
     }
@@ -145,7 +160,7 @@ public class NavPanel extends LayoutContainer {
             this.userName.setText(user.toString());
         } else {
             // should never be visible
-            logger.severe("Something is wrong: user=null");
+            LOGGER.severe("Something is wrong: user=null");
             this.userName.setText("NULL");
         }
     }
