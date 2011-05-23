@@ -49,7 +49,7 @@ public class EnvCreator extends View {
     private SpinnerField floors;
 
     private ContentPanel outlinePanel;
-    private ContentPanel sensorsPanel;
+    private ContentPanel devicesPanel;
 
     private EnvMap map;
 
@@ -230,14 +230,14 @@ public class EnvCreator extends View {
 
         initForm();
         initOutlinePanel();
-        initSensorsPanel();
+        initDevicesPanel();
         initMapPanel();
         initButtons();
 
         // do layout
         this.west.add(this.form);
         this.west.add(this.outlinePanel);
-        this.west.add(this.sensorsPanel);
+        this.west.add(this.devicesPanel);
         this.west.setBottomComponent(buttons);
         this.window.add(this.west, new BorderLayoutData(LayoutRegion.WEST, .33f, 275, 2000));
         this.window.add(this.map, new BorderLayoutData(LayoutRegion.CENTER));
@@ -280,12 +280,12 @@ public class EnvCreator extends View {
         this.outlinePanel.add(resetButton, new FlowData(0, 10, 10, 10));
     }
 
-    private void initSensorsPanel() {
-        this.sensorsPanel = new ContentPanel();
+    private void initDevicesPanel() {
+        this.devicesPanel = new ContentPanel();
         // this.sensorsPanel.setStyleAttribute("background-color", "white");
-        this.sensorsPanel.setHeading("Step 3: Sensors");
+        this.devicesPanel.setHeading("Step 3: Sensors");
 
-        this.sensorsPanel.addListener(Events.Expand, new Listener<ComponentEvent>() {
+        this.devicesPanel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
@@ -294,8 +294,8 @@ public class EnvCreator extends View {
             }
         });
 
-        Text explanation = new Text("Click the map to add sensors to your environment");
-        this.sensorsPanel.add(explanation, new FlowData(10));
+        Text explanation = new Text("Click the map to add devices to your environment");
+        this.devicesPanel.add(explanation, new FlowData(10));
 
         Button resetButton = new Button("Reset", new SelectionListener<ButtonEvent>() {
 
@@ -308,7 +308,7 @@ public class EnvCreator extends View {
             }
         });
         resetButton.setMinWidth(75);
-        this.sensorsPanel.add(resetButton, new FlowData(0, 10, 10, 10));
+        this.devicesPanel.add(resetButton, new FlowData(0, 10, 10, 10));
     }
 
     private void onCreateFailure() {
