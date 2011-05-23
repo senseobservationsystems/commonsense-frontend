@@ -69,7 +69,7 @@ public abstract class VizPanel extends ContentPanel {
                     }
                 });
         refresh.setToolTip("refresh");
-        final ToolButton autoRefresh = new ToolButton("x-tool-pin");
+        final ToolButton autoRefresh = new ToolButton("x-tool-right");
         autoRefresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
             @Override
@@ -86,12 +86,12 @@ public abstract class VizPanel extends ContentPanel {
                     refreshTimer.scheduleRepeating(REFRESH_PERIOD);
                     isAutoRefresh = true;
                     autoRefresh.setToolTip("stop autorefresh");
-                    autoRefresh.setStylePrimaryName("x-tool-unpin");
+                    autoRefresh.setStylePrimaryName("x-tool-pin");
                 } else {
                     refreshTimer.cancel();
                     isAutoRefresh = false;
                     autoRefresh.setToolTip("start autorefresh");
-                    autoRefresh.setStylePrimaryName("x-tool-pin");
+                    autoRefresh.setStylePrimaryName("x-tool-right");
                 }
             }
         });
