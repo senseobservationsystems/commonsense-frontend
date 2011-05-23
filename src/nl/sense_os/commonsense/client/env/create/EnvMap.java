@@ -1,25 +1,34 @@
 package nl.sense_os.commonsense.client.env.create;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 
-import com.extjs.gxt.ui.client.dnd.DND.Operation;
-import com.extjs.gxt.ui.client.dnd.DropTarget;
-import com.extjs.gxt.ui.client.event.DNDEvent;
-import com.extjs.gxt.ui.client.event.DNDListener;
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.event.MapClickHandler;
+import com.google.gwt.maps.client.event.PolygonClickHandler;
 import com.google.gwt.maps.client.event.PolygonEndLineHandler;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.geom.Point;
+import com.google.gwt.maps.client.overlay.Icon;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Overlay;
@@ -28,13 +37,13 @@ import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvMap extends LayoutContainer {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("EnvMap");
+    private static final Logger LOGGER = Logger.getLogger(EnvMap.class.getName());
     private MapWidget map;
-    private Map<Marker, List<SensorModel>> sensors;
+    private final Map<Marker, List<SensorModel>> sensors = new HashMap<Marker, List<SensorModel>>();
     private Polygon outline;
 
     private MapClickHandler mapClickHandler;
+    private PolygonClickHandler polygonClickHandler;
 
     public EnvMap() {
         // Create the map.
@@ -48,7 +57,27 @@ public class EnvMap extends LayoutContainer {
         this.add(this.map);
 
         initOutline();
-        setupDragDrop();
+        initClickHandler();
+    }
+
+    private void addDeviceMarker(LatLng latLng, List<DeviceModel> selectedItems) {
+
+        // create marker
+        Icon icon = Icon.newInstance("/img/icons/16/sense_black.gif");
+        icon.setIconAnchor(Point.newInstance(8, 8));
+        MarkerOptions options = MarkerOptions.newInstance(icon);
+        options.setDraggable(true);
+        Marker m = new Marker(latLng, options);
+        map.addOverlay(m);
+
+        sensors.put(m, null);
+    }
+
+    public void clearSensors() {
+        for (Marker marker : sensors.keySet()) {
+            this.map.removeOverlay(marker);
+        }
+        this.sensors.clear();
     }
 
     public Polygon getOutline() {
@@ -57,6 +86,57 @@ public class EnvMap extends LayoutContainer {
 
     public Map<Marker, List<SensorModel>> getSensors() {
         return this.sensors;
+    }
+
+    private void initClickHandler() {
+
+        this.mapClickHandler = new MapClickHandler() {
+
+            @Override
+            public void onClick(MapClickEvent event) {
+                LatLng latLng = event.getLatLng();
+                if (null != latLng) {
+                    showDevices(latLng);
+                } else {
+                    Overlay clicked = event.getOverlay();
+                    if (false == clicked.equals(outline)) {
+                        map.removeOverlay(clicked);
+                        sensors.remove(clicked);
+                    }
+                }
+
+            }
+        };
+
+        this.polygonClickHandler = new PolygonClickHandler() {
+
+            @Override
+            public void onClick(PolygonClickEvent event) {
+                LatLng latLng = event.getLatLng();
+                if (null != latLng) {
+                    showDevices(latLng);
+                } else {
+                    LOGGER.warning("Clicked polygon, but LatLng=null");
+                }
+
+            }
+        };
+
+        // final DropTarget dropTarget = new DropTarget(this);
+        // dropTarget.setOperation(Operation.MOVE);
+        // dropTarget.addDNDListener(new DNDListener() {
+        //
+        // @Override
+        // public void dragDrop(DNDEvent e) {
+        // final List<SensorModel> data = e.<ArrayList<SensorModel>> getData();
+        // int x = e.getClientX() - map.getAbsoluteLeft();
+        // int y = e.getClientY() - map.getAbsoluteTop();
+        // onSensorsDropped(data, x, y);
+        // // logger.fine( "Event: " + e.getClientX() + ", " + e.getClientY());
+        // // logger.fine( "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
+        // }
+        // });
+        // dropTarget.setGroup("env-creator");
     }
 
     private void initOutline() {
@@ -74,41 +154,18 @@ public class EnvMap extends LayoutContainer {
 
     }
 
-    private void onSensorsDropped(List<SensorModel> data, int x, int y) {
-        // logger.fine( "onSensorsDropped");
-
-        LatLng latLng = this.map.convertContainerPixelToLatLng(Point.newInstance(x, y));
-        MarkerOptions options = MarkerOptions.newInstance();
-        options.setDraggable(true);
-
-        String title = "";
-        for (SensorModel sensor : data) {
-            title += sensor.getName() + "; ";
-        }
-        options.setTitle(title);
-
-        Marker marker = new Marker(latLng, options);
-        map.addOverlay(marker);
-        sensors.put(marker, data); // TODO catch overlapping drops
-    }
-
     public void resetOutline() {
-        this.map.clearOverlays();
+        this.map.removeOverlay(this.outline);
         initOutline();
     }
 
-    public void resetSensors() {
-        for (Marker marker : sensors.keySet()) {
-            this.map.removeOverlay(marker);
-        }
-        this.sensors.clear();
-    }
-
-    public void setDroppingEnabled(boolean enabled) {
+    public void setDevicesEnabled(boolean enabled) {
         if (enabled) {
             this.map.addMapClickHandler(mapClickHandler);
+            this.outline.addPolygonClickHandler(this.polygonClickHandler);
         } else {
             this.map.removeMapClickHandler(mapClickHandler);
+            this.outline.removePolygonClickHandler(this.polygonClickHandler);
         }
     }
 
@@ -138,52 +195,50 @@ public class EnvMap extends LayoutContainer {
 
     public void setSensors(Map<Marker, List<SensorModel>> sensors) {
 
-        resetSensors();
-        this.sensors = sensors;
+        clearSensors();
+        this.sensors.putAll(sensors);
 
         for (Marker marker : sensors.keySet()) {
             this.map.addOverlay(marker);
         }
     }
 
-    private void setupDragDrop() {
+    private void showDevices(final LatLng latLng) {
+        final Window window = new Window();
+        window.setLayout(new FitLayout());
+        window.setSize(300, 300);
+        window.setHeading("Select deviceson this position");
 
-        this.mapClickHandler = new MapClickHandler() {
+        ListStore<DeviceModel> store = new ListStore<DeviceModel>();
+        store.add(Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST));
 
-            @Override
-            public void onClick(MapClickEvent event) {
-                LatLng latLng = event.getLatLng();
-                if (null != latLng) {
-                    Marker m = new Marker(latLng);
-                    sensors.put(m, null);
-                    map.addOverlay(m);
-                } else {
-                    Overlay clicked = event.getOverlay();
-                    if (false == clicked.equals(outline)) {
-                        map.removeOverlay(clicked);
-                        sensors.remove(clicked);
-                    }
-                }
+        ColumnConfig id = new ColumnConfig(DeviceModel.ID, "ID", 50);
+        ColumnConfig type = new ColumnConfig(DeviceModel.TYPE, "Type", 100);
+        ColumnConfig uuid = new ColumnConfig(DeviceModel.UUID, "UUID", 50);
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, type, uuid));
 
-            }
-        };
+        final Grid<DeviceModel> grid = new Grid<DeviceModel>(store, cm);
 
-        this.sensors = new HashMap<Marker, List<SensorModel>>();
+        window.add(grid);
 
-        final DropTarget dropTarget = new DropTarget(this);
-        dropTarget.setOperation(Operation.MOVE);
-        dropTarget.addDNDListener(new DNDListener() {
+        Button ok = new Button("Ok", new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void dragDrop(DNDEvent e) {
-                final List<SensorModel> data = e.<ArrayList<SensorModel>> getData();
-                int x = e.getClientX() - map.getAbsoluteLeft();
-                int y = e.getClientY() - map.getAbsoluteTop();
-                onSensorsDropped(data, x, y);
-                // logger.fine( "Event: " + e.getClientX() + ", " + e.getClientY());
-                // logger.fine( "Map: " + map.getAbsoluteLeft() + ", " + map.getAbsoluteTop());
+            public void componentSelected(ButtonEvent ce) {
+                window.hide();
+                addDeviceMarker(latLng, grid.getSelectionModel().getSelectedItems());
             }
         });
-        dropTarget.setGroup("env-creator");
+
+        Button cancel = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                window.hide();
+            }
+        });
+        window.addButton(ok);
+        window.addButton(cancel);
+        window.show();
     }
 }
