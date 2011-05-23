@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.sensors.unshare;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;

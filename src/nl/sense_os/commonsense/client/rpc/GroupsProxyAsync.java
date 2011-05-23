@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.rpc;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.shared.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

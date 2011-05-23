@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.client.common.json.parsers;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.models.DeviceModel;
-import nl.sense_os.commonsense.shared.models.TagModel;
+import nl.sense_os.commonsense.client.common.models.DeviceModel;
+import nl.sense_os.commonsense.client.common.models.TagModel;
 
 import com.google.gwt.json.client.JSONObject;
 

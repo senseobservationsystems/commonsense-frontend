@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
-import nl.sense_os.commonsense.shared.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;

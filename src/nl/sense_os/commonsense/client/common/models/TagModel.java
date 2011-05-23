@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.shared.models;
+package nl.sense_os.commonsense.client.common.models;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 

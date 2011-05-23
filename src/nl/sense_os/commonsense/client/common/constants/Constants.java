@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.shared.constants;
+package nl.sense_os.commonsense.client.common.constants;
 
 
 public class Constants {

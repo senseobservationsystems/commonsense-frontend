@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.models.ServiceModel;
+import nl.sense_os.commonsense.client.common.models.ServiceModel;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;

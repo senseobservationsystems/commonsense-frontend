@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.demo.DemoEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.groups.list.GroupEvents;
@@ -14,7 +15,6 @@ import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.models.UserModel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;

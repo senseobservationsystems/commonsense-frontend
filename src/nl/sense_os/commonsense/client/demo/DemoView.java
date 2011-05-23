@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.demo;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.shared.constants.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

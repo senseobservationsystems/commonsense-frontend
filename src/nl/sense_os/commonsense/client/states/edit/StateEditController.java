@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
-import nl.sense_os.commonsense.shared.constants.Constants;
-import nl.sense_os.commonsense.shared.constants.Urls;
+import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.client.common.constants.Urls;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;

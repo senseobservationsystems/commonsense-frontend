@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.utility;
 
-import nl.sense_os.commonsense.shared.models.DeviceModel;
-import nl.sense_os.commonsense.shared.models.EnvironmentModel;
-import nl.sense_os.commonsense.shared.models.SensorModel;
-import nl.sense_os.commonsense.shared.models.UserModel;
+import nl.sense_os.commonsense.client.common.models.DeviceModel;
+import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.extjs.gxt.ui.client.data.ModelProcessor;
 

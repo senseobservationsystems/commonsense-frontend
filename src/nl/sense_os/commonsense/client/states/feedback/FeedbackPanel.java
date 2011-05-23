@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
-import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.chap.links.client.AddHandler;
 import com.chap.links.client.ChangeHandler;

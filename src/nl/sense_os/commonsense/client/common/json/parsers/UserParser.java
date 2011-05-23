@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.models.TagModel;
-import nl.sense_os.commonsense.shared.models.UserModel;
+import nl.sense_os.commonsense.client.common.models.TagModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;

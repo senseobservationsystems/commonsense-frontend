@@ -6,14 +6,14 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
+import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
+import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
-import nl.sense_os.commonsense.shared.constants.Constants;
-import nl.sense_os.commonsense.shared.constants.Urls;
-import nl.sense_os.commonsense.shared.models.EnvironmentModel;
-import nl.sense_os.commonsense.shared.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

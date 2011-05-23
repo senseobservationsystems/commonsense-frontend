@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.common.ajax;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.constants.Constants;
+import nl.sense_os.commonsense.client.common.constants.Constants;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
