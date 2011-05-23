@@ -69,6 +69,8 @@ public class LibraryController extends Controller {
         registerEventTypes(StateCreateEvents.CreateServiceComplete, StateListEvents.RemoveComplete,
                 StateDefaultsEvents.CheckDefaultsSuccess);
         registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
+
+        // LOGGER.setLevel(Level.ALL);
     }
 
     private List<DeviceModel> devicesFromLibrary(List<SensorModel> library) {
@@ -423,10 +425,13 @@ public class LibraryController extends Controller {
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         int total = SensorParser.parseSensors(response, library);
+
+        LOGGER.fine("total: " + total + ", library size: " + library.size());
+
         if (total > library.size()) {
             // get the next page with sensors
             page++;
-            getFullDetails(library, page, callback);
+            // getFullDetails(library, page, callback);
 
         } else {
             // get the group IDs to get the group sensors

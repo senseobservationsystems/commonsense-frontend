@@ -8,6 +8,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.demo.DemoController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvController;
@@ -62,7 +63,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Sun May 15 23:43";
+    public static final String LAST_DEPLOYED = "Mon May 23 10:23";
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -90,6 +91,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new VizController());
+        dispatcher.addController(new DemoController());
         dispatcher.addController(new DataController());
 
         // sensor library controllers
@@ -126,8 +128,8 @@ public class CommonSense implements EntryPoint {
 
         /* show content */
         initControllers();
-        // quickLogin();
-        testEnvCreator();
+        quickLogin();
+        // testEnvCreator();
         // testNavBar();
         // testMapViz();
         // testTimeline();

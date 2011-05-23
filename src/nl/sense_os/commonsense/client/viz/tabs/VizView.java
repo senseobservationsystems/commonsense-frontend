@@ -139,27 +139,27 @@ public class VizView extends View {
         welcomeItem.add(welcomeFrame, data);
         this.tabPanel.add(welcomeItem);
 
-        // Track trace
-        final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
-                + "http://demo.almende.com/tracker/ictdelta");
-        trackTrace.setStylePrimaryName("senseFrame");
-        final TabItem trackTraceItem = new TabItem("Demo: Track & Trace");
-        trackTraceItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
-                + "sense_orange.gif"));
-        trackTraceItem.setLayout(new FitLayout());
-        trackTraceItem.add(trackTrace);
-        this.tabPanel.add(trackTraceItem);
-
-        // Humidity
-        final Frame humid3d = new Frame(
-                "http://demo.almende.com/links/storm/day_40_humid_animation.html");
-        humid3d.setStylePrimaryName("senseFrame");
-        final TabItem humid3dItem = new TabItem("Preview: 3D Chart");
-        humid3dItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
-                + "sense_orange.gif"));
-        humid3dItem.setLayout(new FitLayout());
-        humid3dItem.add(humid3d);
-        this.tabPanel.add(humid3dItem);
+        // // Track trace
+        // final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
+        // + "http://demo.almende.com/tracker/ictdelta");
+        // trackTrace.setStylePrimaryName("senseFrame");
+        // final TabItem trackTraceItem = new TabItem("Demo: Track & Trace");
+        // trackTraceItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
+        // + "sense_orange.gif"));
+        // trackTraceItem.setLayout(new FitLayout());
+        // trackTraceItem.add(trackTrace);
+        // this.tabPanel.add(trackTraceItem);
+        //
+        // // Humidity
+        // final Frame humid3d = new Frame(
+        // "http://demo.almende.com/links/storm/day_40_humid_animation.html");
+        // humid3d.setStylePrimaryName("senseFrame");
+        // final TabItem humid3dItem = new TabItem("Preview: 3D Chart");
+        // humid3dItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
+        // + "sense_orange.gif"));
+        // humid3dItem.setLayout(new FitLayout());
+        // humid3dItem.add(humid3d);
+        // this.tabPanel.add(humid3dItem);
     }
 
     private void onLoggedOut(AppEvent event) {

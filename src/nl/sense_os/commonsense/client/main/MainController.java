@@ -117,6 +117,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
     private boolean isValidLocation(String token) {
         boolean valid = token.equals(NavPanel.SIGN_OUT);
+        valid = valid || token.equals(NavPanel.DEMO);
         valid = valid || token.equals(NavPanel.HOME);
         valid = valid || token.equals(NavPanel.HELP);
         valid = valid || token.equals(NavPanel.SETTINGS);

@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -310,7 +311,7 @@ public class GroupGrid extends View {
 
         AppEvent invite = new AppEvent(InviteEvents.ShowInviter);
         invite.setData("group", group);
-        fireEvent(invite);
+        Dispatcher.forwardEvent(invite);
     }
 
     private void onLeaveClick() {

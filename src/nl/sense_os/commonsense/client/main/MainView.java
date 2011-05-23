@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
+import nl.sense_os.commonsense.client.demo.DemoEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.groups.list.GroupEvents;
 import nl.sense_os.commonsense.client.main.components.HelpScreen;
@@ -41,7 +42,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
 
-    private static final Logger logger = Logger.getLogger("MainView");
+    private static final Logger LOGGER = Logger.getLogger(MainView.class.getName());
     private LayoutContainer centerContent;
     private Component helpComponent;
     private Component homeComponent;
@@ -58,31 +59,31 @@ public class MainView extends View {
         EventType type = event.getType();
 
         if (type.equals(MainEvents.Error)) {
-            logger.severe("Error");
+            LOGGER.severe("Error");
             onError(event);
 
         } else if (type.equals(MainEvents.Init)) {
-            // logger.fine( "Init");
+            LOGGER.finest("Init");
             // do nothing: actual initialization is done in initialize()
 
         } else if (type.equals(MainEvents.UiReady)) {
-            // logger.fine( "UiReady");
+            LOGGER.finest("UiReady");
             onUiReady(event);
 
         } else if (type.equals(MainEvents.Navigate)) {
-            // logger.fine( "Navigate: \'" + event.<String> getData() + "\'");
+            LOGGER.finest("Navigate: \'" + event.<String> getData() + "\'");
             onNavigate(event);
 
         } else if (type.equals(LoginEvents.LoginSuccess)) {
-            // logger.fine( "LoginSuccess");
+            LOGGER.finest("LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine( "LoggedOut");
+            LOGGER.finest("LoggedOut");
             onLoggedOut(event);
 
         } else {
-            logger.severe("Unexpected event type: " + type);
+            LOGGER.severe("Unexpected event: " + event);
         }
     }
 
@@ -116,7 +117,7 @@ public class MainView extends View {
 
     @Override
     protected void initialize() {
-        super.initialize();
+        LOGGER.finest("Initialize...");
 
         // ViewPort fills browser screen and automatically resizes content
         this.viewport = new Viewport();
@@ -128,6 +129,8 @@ public class MainView extends View {
         initWest();
         initCenter();
         initSouth();
+
+        super.initialize();
     }
 
     private void initNorth() {
@@ -177,8 +180,8 @@ public class MainView extends View {
         // logo.addMouseDownHandler(new MouseDownHandler() {
         // @Override
         // public void onMouseDown(MouseDownEvent event) {
-        // logger.fine("relative x: " + event.getRelativeX(logo.getElement()));
-        // logger.fine("relative y: " + event.getRelativeY(logo.getElement()));
+        // LOGGER.fine("relative x: " + event.getRelativeX(logo.getElement()));
+        // LOGGER.fine("relative y: " + event.getRelativeY(logo.getElement()));
         // }
         // });
         // final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
@@ -202,7 +205,7 @@ public class MainView extends View {
     }
 
     private void onError(AppEvent event) {
-        logger.severe("Error: " + event.<String> getData());
+        LOGGER.severe("Error: " + event.<String> getData());
     }
 
     private void onLoggedIn(AppEvent event) {
@@ -231,12 +234,12 @@ public class MainView extends View {
                 }
                 newContent = this.homeComponent;
 
+                // set up west panel layout
                 westContent.removeAll();
-                westContent.layout();
-
                 AccordionLayout layout = new AccordionLayout();
                 layout.setFill(false);
                 westContent.setLayout(layout);
+                this.westContent.show();
 
                 // login panel
                 AppEvent displayLogin = new AppEvent(LoginEvents.Show);
@@ -251,8 +254,11 @@ public class MainView extends View {
             } else if (location.equals(NavPanel.VISUALIZATION)) {
 
                 this.centerContent.removeAll();
+
+                // set up west panel layout
                 this.westContent.removeAll();
                 this.westContent.setLayout(new AccordionLayout());
+                this.westContent.show();
 
                 // sensor library panel
                 AppEvent displaySensorGrid = new AppEvent(LibraryEvents.ShowLibrary);
@@ -279,19 +285,39 @@ public class MainView extends View {
                 displayVisualization.setData("parent", this.centerContent);
                 Dispatcher.forwardEvent(displayVisualization);
 
+            } else if (location.equals(NavPanel.DEMO)) {
+
+                this.centerContent.removeAll();
+
+                // set up west panel layout
+                this.westContent.removeAll();
+                this.westContent.hide();
+
+                // demo panel
+                AppEvent displayDemos = new AppEvent(DemoEvents.Show);
+                displayDemos.setData("parent", this.centerContent);
+                Dispatcher.forwardEvent(displayDemos);
+
             } else if (location.equals(NavPanel.HELP)) {
                 if (null == this.helpComponent) {
                     this.helpComponent = new HelpScreen();
                 }
                 newContent = this.helpComponent;
 
-                westContent.removeAll();
+                // set up west panel layout
+                this.westContent.removeAll();
+                this.westContent.hide();
 
             } else if (location.equals(NavPanel.SIGN_OUT)) {
                 newContent = null;
                 Dispatcher.forwardEvent(LoginEvents.RequestLogout);
 
             } else {
+
+                // set up west panel layout
+                this.westContent.removeAll();
+                this.westContent.hide();
+
                 LayoutContainer lc = new LayoutContainer(new CenterLayout());
                 lc.add(new Text("Under construction..."));
                 newContent = lc;
@@ -308,7 +334,6 @@ public class MainView extends View {
         // update navigation panel
         this.navPanel.setHighlight(location);
     }
-
     private void onUiReady(AppEvent event) {
         RootPanel.get("gwt").add(this.viewport);
     }

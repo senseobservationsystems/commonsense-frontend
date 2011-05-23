@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.shared.constants;
 
 public class Constants {
 
-    public static final boolean TEST_MODE = true;
+    public static final boolean TEST_MODE = false;
 
     public static final boolean TED_MODE = TEST_MODE && false;
 

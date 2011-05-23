@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class NavPanel extends LayoutContainer {
 
     private static final Logger LOGGER = Logger.getLogger(NavPanel.class.getName());
+    public static final String DEMO = "demo";
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SETTINGS = "settings";
@@ -31,6 +32,7 @@ public class NavPanel extends LayoutContainer {
     private boolean isLoggedIn = false;
     private final Text userName = new Text();
     private Widget current;
+    private final Hyperlink demo = new Hyperlink("demos", DEMO);
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("home", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
@@ -56,11 +58,15 @@ public class NavPanel extends LayoutContainer {
     }
 
     private void initLinks() {
+
         this.home.setStyleName("sense-nav-item");
         this.home.setSize("40px", "25px");
 
         this.viz.setStyleName("sense-nav-item");
         this.viz.setSize("90px", "25px");
+
+        this.demo.setStyleName("sense-nav-item");
+        this.demo.setSize("40px", "25px");
 
         this.settings.setStyleName("sense-nav-item");
         this.settings.setSize("50px", "25px");
@@ -96,6 +102,7 @@ public class NavPanel extends LayoutContainer {
         if (this.isLoggedIn) {
             this.add(logo, logoData);
             this.add(this.viz, itemData);
+            this.add(this.demo, itemData);
             this.add(this.settings, itemData);
             this.add(this.help, itemData);
             this.add(userName, usernameData);
@@ -104,6 +111,7 @@ public class NavPanel extends LayoutContainer {
         } else {
             this.add(logo, logoData);
             this.add(this.home, itemData);
+            this.add(this.demo, itemData);
             this.add(this.help, itemData);
             this.add(this.spacer, spacerData);
         }
@@ -130,6 +138,8 @@ public class NavPanel extends LayoutContainer {
             this.current = this.home;
         } else if (highlight.equals(VISUALIZATION)) {
             this.current = this.viz;
+        } else if (highlight.equals(DEMO)) {
+            this.current = this.demo;
         } else if (highlight.equals(SETTINGS)) {
             this.current = this.settings;
         } else if (highlight.equals(HELP)) {

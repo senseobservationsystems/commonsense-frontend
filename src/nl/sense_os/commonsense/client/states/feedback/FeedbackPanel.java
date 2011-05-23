@@ -93,7 +93,6 @@ public class FeedbackPanel extends VizPanel {
 
     @Override
     public void addData(JsArray<Timeseries> data) {
-        // logger.fine( "addData...");
 
         JsArray<Timeseries> numberData = JsArray.createArray().cast();
         JsArray<Timeseries> stringData = JsArray.createArray().cast();
@@ -125,7 +124,6 @@ public class FeedbackPanel extends VizPanel {
             showNumberData(numberData);
         }
     }
-
     private void addFeedbackHandlers() {
 
         this.states.addAddHandler(new AddHandler() {
@@ -607,8 +605,11 @@ public class FeedbackPanel extends VizPanel {
     private void showStringData(JsArray<Timeseries> data) {
 
         // clear the data table
-        DataTable table = this.timeline.getData();
-        table.removeRows(0, table.getNumberOfRows());
+        DataTable table = createDataTable();
+        if (null != this.timeline) {
+            table = this.timeline.getData();
+            table.removeRows(0, table.getNumberOfRows());
+        }
 
         // put the time series values to the data table
         Timeseries ts;
