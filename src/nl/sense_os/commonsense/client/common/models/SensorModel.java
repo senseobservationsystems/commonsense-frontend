@@ -60,12 +60,18 @@ public class SensorModel extends BaseTreeModel {
     public boolean equals(Object obj) {
         if (obj instanceof SensorModel) {
             final SensorModel sensor = (SensorModel) obj;
-            if (null == this.getParent()) {
-                return this.getId().equals(sensor.getId());
-            } else {
-                return this.getId().equals(sensor.getId())
-                        && this.getParent().equals(sensor.getParent());
-            }
+
+            boolean idEqual = this.getId().equals(sensor.getId());
+            boolean ownerEqual = this.getOwner() == null
+                    || (this.getOwner().equals(sensor.getOwner()));
+            boolean environmentEqual = this.getEnvironment() == null
+                    || (this.getEnvironment().equals(sensor.getEnvironment()));
+            boolean deviceEqual = this.getDevice() == null
+                    || (this.getDevice().equals(sensor.getDevice()));
+            boolean parentEqual = this.getParent() == null
+                    || (this.getParent().equals(sensor.getParent()));
+
+            return idEqual && ownerEqual && environmentEqual && deviceEqual && parentEqual;
         } else {
             return super.equals(obj);
         }
