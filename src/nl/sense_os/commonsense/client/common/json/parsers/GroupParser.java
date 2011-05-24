@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.TagModel;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -32,7 +29,6 @@ public class GroupParser {
                     .stringValue());
 
             // front end-only properties
-            properties.put("tagType", TagModel.TYPE_GROUP);
             properties.put("text", properties.get(GroupModel.NAME));
 
             return new GroupModel(properties);
@@ -42,36 +38,6 @@ public class GroupParser {
             logger.severe("Raw JSON: " + jsonString);
             return null;
         }
-    }
-
-    public static List<ModelData> parseGroupIds(String jsonString) {
-
-        List<ModelData> list = new ArrayList<ModelData>();
-
-        try {
-            JSONObject json = JSONParser.parseStrict(jsonString).isObject();
-
-            // get array of raw sensors
-            JSONArray groups = json.get("groups").isArray();
-
-            for (int i = 0; i < groups.size(); i++) {
-                JSONObject group = groups.get(i).isObject();
-
-                HashMap<String, Object> properties = new HashMap<String, Object>();
-                properties.put("user_id", group.get("user_id").isString().stringValue());
-                properties.put("group_id", group.get("group_id").isString().stringValue());
-
-                ModelData model = new BaseModelData(properties);
-
-                list.add(model);
-            }
-
-        } catch (Exception e) {
-            logger.severe("GET GROUPS Exception: " + e.getMessage());
-            logger.severe("Raw response: " + jsonString);
-        }
-
-        return list;
     }
 
     public static List<GroupModel> parseGroups(String jsonString) {
@@ -97,7 +63,6 @@ public class GroupParser {
                         .stringValue());
 
                 // front end-only properties
-                properties.put("tagType", TagModel.TYPE_GROUP);
                 properties.put("text", properties.get(GroupModel.NAME));
 
                 GroupModel model = new GroupModel(properties);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -171,7 +172,7 @@ public class GroupGrid extends View {
         // tree store
         this.store = new TreeStore<TreeModel>(this.loader);
         this.store.setKeyProvider(new SenseKeyProvider<TreeModel>());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator()));
+        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator<SensorModel>()));
 
         ColumnConfig email = new ColumnConfig("email", "Email", 100);
         ColumnConfig name = new ColumnConfig("text", "Name", 100);

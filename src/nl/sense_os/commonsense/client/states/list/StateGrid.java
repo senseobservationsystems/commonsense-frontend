@@ -252,7 +252,8 @@ public class StateGrid extends View {
 
         // tree store
         this.store = new TreeStore<SensorModel>(this.loader);
-        this.store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator()));
+        this.store
+                .setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator<SensorModel>()));
 
         // column model, make sure you add a TreeGridCellRenderer
         List<ColumnConfig> columns = LibraryColumnsFactory.create().getColumns();

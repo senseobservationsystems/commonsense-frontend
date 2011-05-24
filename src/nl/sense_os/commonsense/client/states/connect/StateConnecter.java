@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.TagModel;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
@@ -129,14 +128,9 @@ public class StateConnecter extends View {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
-                TreeModel selection = se.getSelectedItem();
+                SensorModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    int tagType = selection.<Integer> get("tagType");
-                    if (tagType == TagModel.TYPE_SENSOR) {
-                        submitButton.enable();
-                    } else {
-                        submitButton.disable();
-                    }
+                    submitButton.enable();
                 } else {
                     submitButton.disable();
                 }

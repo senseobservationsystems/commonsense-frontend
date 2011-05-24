@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.models.TagModel;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -48,7 +47,6 @@ public class EnvironmentParser {
         }
 
         // front end-only properties
-        props.put("tagType", TagModel.TYPE_CATEGORY);
         props.put("text", props.get(EnvironmentModel.NAME));
 
         return new EnvironmentModel(props);

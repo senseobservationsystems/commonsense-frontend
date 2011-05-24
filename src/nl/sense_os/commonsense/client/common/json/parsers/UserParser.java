@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.TagModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.google.gwt.json.client.JSONArray;
@@ -37,7 +36,6 @@ public class UserParser {
         }
 
         // front end-only properties
-        properties.put("tagType", TagModel.TYPE_USER);
         String text = (String) properties.get(UserModel.NAME);
         if (text != null && text.length() > 0) {
             String surname = (String) properties.get(UserModel.SURNAME);

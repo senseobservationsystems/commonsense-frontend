@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.TagModel;
 
 import com.google.gwt.json.client.JSONObject;
 
@@ -23,7 +22,6 @@ public class DeviceParser {
         // optional properties
 
         // front end-only properties
-        props.put("tagType", TagModel.TYPE_DEVICE);
         props.put("text", props.get(DeviceModel.TYPE));
 
         return new DeviceModel(props);

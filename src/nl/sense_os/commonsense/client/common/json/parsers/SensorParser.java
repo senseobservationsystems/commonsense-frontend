@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.TagModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -88,7 +87,6 @@ public class SensorParser {
         }
 
         // front end-only properties
-        props.put("tagType", TagModel.TYPE_SENSOR);
         props.put("text", props.get(SensorModel.DISPLAY_NAME));
 
         return new SensorModel(props);
