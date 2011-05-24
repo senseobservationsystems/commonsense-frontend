@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -61,8 +60,6 @@ public class EnvMap extends LayoutContainer {
 
         initOutline();
         initClickHandler();
-
-        LOGGER.setLevel(Level.ALL);
     }
 
     private void addDeviceMarker(LatLng latLng, List<DeviceModel> devices) {

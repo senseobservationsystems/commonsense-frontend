@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.env.create;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
@@ -72,7 +71,6 @@ public class EnvCreator extends View {
 
     public EnvCreator(Controller c) {
         super(c);
-        LOGGER.setLevel(Level.ALL);
     }
 
     private void checkValidity() {

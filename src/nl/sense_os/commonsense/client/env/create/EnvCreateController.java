@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.env.create;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -42,8 +41,6 @@ public class EnvCreateController extends Controller {
                 EnvCreateEvents.CreateSensorAjaxSuccess, EnvCreateEvents.CreateSensorAjaxFailure,
                 EnvCreateEvents.SensorToDeviceAjaxSuccess,
                 EnvCreateEvents.SensorToDeviceAjaxFailure);
-
-        LOGGER.setLevel(Level.ALL);
     }
 
     private void addSensors(EnvironmentModel environment, List<SensorModel> sensors) {
