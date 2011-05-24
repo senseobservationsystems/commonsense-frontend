@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
+import nl.sense_os.commonsense.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
@@ -39,11 +40,14 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.maps.client.overlay.Polygon;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvGrid extends View {
@@ -143,8 +147,31 @@ public class EnvGrid extends View {
         ColumnConfig id = new ColumnConfig(EnvironmentModel.ID, "ID", 50);
         id.setHidden(true);
         ColumnConfig outline = new ColumnConfig(EnvironmentModel.OUTLINE, "Outline", 200);
+        outline.setRenderer(new GridCellRenderer<EnvironmentModel>() {
+
+            @Override
+            public Object render(EnvironmentModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
+                    Grid<EnvironmentModel> grid) {
+                Polygon outline = model.getOutline();
+                String outString = "";
+                for (int i = 0; i < outline.getVertexCount(); i++) {
+                    outString += outline.getVertex(i).toUrlValue() + "; ";
+                }
+                return outString;
+            }
+        });
         outline.setHidden(true);
         ColumnConfig position = new ColumnConfig(EnvironmentModel.POSITION, "Position", 100);
+        position.setRenderer(new GridCellRenderer<EnvironmentModel>() {
+
+            @Override
+            public Object render(EnvironmentModel model, String property, ColumnData config,
+                    int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
+                    Grid<EnvironmentModel> grid) {
+                return model.getPosition().toUrlValue();
+            }
+        });
         position.setHidden(true);
 
         ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
@@ -243,8 +270,10 @@ public class EnvGrid extends View {
                         EnvironmentModel selection = se.getSelectedItem();
                         if (null != selection) {
                             EnvGrid.this.deleteButton.enable();
+                            viewButton.enable();
                         } else {
                             EnvGrid.this.deleteButton.disable();
+                            viewButton.disable();
                         }
                     }
                 });
@@ -257,8 +286,9 @@ public class EnvGrid extends View {
     }
 
     protected void onViewClick() {
-        // TODO Auto-generated method stub
-
+        AppEvent viewEvent = new AppEvent(EnvViewEvents.Show);
+        viewEvent.setData("environment", this.grid.getSelectionModel().getSelectedItem());
+        Dispatcher.forwardEvent(viewEvent);
     }
 
     private void onDeleteClick() {

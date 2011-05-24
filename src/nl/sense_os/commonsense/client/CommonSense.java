@@ -15,6 +15,7 @@ import nl.sense_os.commonsense.client.demo.DemoController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvController;
+import nl.sense_os.commonsense.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.client.groups.invite.InviteController;
 import nl.sense_os.commonsense.client.groups.list.GroupController;
@@ -116,6 +117,7 @@ public class CommonSense implements EntryPoint {
         // environment controllers
         dispatcher.addController(new EnvController());
         dispatcher.addController(new EnvCreateController());
+        dispatcher.addController(new EnvViewController());
     }
 
     @Override

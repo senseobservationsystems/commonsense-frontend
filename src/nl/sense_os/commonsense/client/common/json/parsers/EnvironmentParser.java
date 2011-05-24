@@ -10,6 +10,8 @@ import nl.sense_os.commonsense.client.common.models.TagModel;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.maps.client.geom.LatLng;
+import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvironmentParser {
 
@@ -27,12 +29,18 @@ public class EnvironmentParser {
                     .stringValue());
         }
         if (null != json.get(EnvironmentModel.OUTLINE)) {
-            props.put(EnvironmentModel.OUTLINE, json.get(EnvironmentModel.OUTLINE).isString()
-                    .stringValue());
+            String outlineValue = json.get(EnvironmentModel.OUTLINE).isString().stringValue();
+            String[] values = outlineValue.split(";");
+            LatLng[] points = new LatLng[values.length];
+            for (int i = 0; i < values.length; i++) {
+                points[i] = LatLng.fromUrlValue(values[i]);
+            }
+            props.put(EnvironmentModel.OUTLINE, new Polygon(points));
         }
         if (null != json.get(EnvironmentModel.POSITION)) {
-            props.put(EnvironmentModel.POSITION, json.get(EnvironmentModel.POSITION).isString()
-                    .stringValue());
+            String positionValue = json.get(EnvironmentModel.POSITION).isString().stringValue();
+            LatLng position = LatLng.fromUrlValue(positionValue);
+            props.put(EnvironmentModel.POSITION, position);
         }
         if (null != json.get(EnvironmentModel.DATE)) {
             props.put(EnvironmentModel.DATE,

@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
+import com.google.gwt.maps.client.geom.LatLng;
+import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvironmentModel extends BaseTreeModel {
 
@@ -39,11 +41,11 @@ public class EnvironmentModel extends BaseTreeModel {
         return get(FLOORS);
     }
 
-    public String getOutline() {
+    public Polygon getOutline() {
         return get(OUTLINE);
     }
 
-    public String getPosition() {
+    public LatLng getPosition() {
         return get(POSITION);
     }
 
