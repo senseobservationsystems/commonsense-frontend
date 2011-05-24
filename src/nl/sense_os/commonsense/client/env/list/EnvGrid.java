@@ -51,6 +51,8 @@ public class EnvGrid extends View {
     protected static final Logger logger = Logger.getLogger("EnvGrid");
     private Button createButton;
     private Button deleteButton;
+    private Button editButton;
+    private Button viewButton;
     private Grid<EnvironmentModel> grid;
     private ContentPanel panel;
     private ListStore<EnvironmentModel> store;
@@ -202,20 +204,32 @@ public class EnvGrid extends View {
                     createEnvironment();
                 } else if (source.equals(EnvGrid.this.deleteButton)) {
                     onDeleteClick();
+                } else if (source.equals(EnvGrid.this.viewButton)) {
+                    onViewClick();
+                } else if (source.equals(EnvGrid.this.editButton)) {
+                    onEditClick();
                 } else {
                     logger.warning("Unexpected buttons pressed");
                 }
             }
         };
 
+        this.viewButton = new Button("View", l);
+        this.viewButton.disable();
+
         this.createButton = new Button("Create", l);
+
+        this.editButton = new Button("Edit", l);
+        this.editButton.disable();
 
         this.deleteButton = new Button("Remove", l);
         this.deleteButton.disable();
 
         // create tool bar
         toolBar = new ToolBar();
+        toolBar.add(this.viewButton);
         toolBar.add(this.createButton);
+        toolBar.add(this.editButton);
         toolBar.add(this.deleteButton);
 
         // enable/disable buttons according to grid selection
@@ -235,6 +249,16 @@ public class EnvGrid extends View {
                     }
                 });
         this.grid.setSelectionModel(selectionModel);
+    }
+
+    protected void onEditClick() {
+        // TODO Auto-generated method stub
+
+    }
+
+    protected void onViewClick() {
+        // TODO Auto-generated method stub
+
     }
 
     private void onDeleteClick() {

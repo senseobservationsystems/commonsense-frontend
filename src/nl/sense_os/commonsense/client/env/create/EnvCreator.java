@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.env.create;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +34,9 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -66,6 +68,7 @@ public class EnvCreator extends View {
     protected boolean isFormValid;
     private boolean isOutlineValid;
     private ContentPanel sensorsPanel;
+    private Grid<SensorModel> grid;
 
     public EnvCreator(Controller c) {
         super(c);
@@ -342,7 +345,7 @@ public class EnvCreator extends View {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                map.clearSensors();
+                map.clearDevices();
                 map.setOutlineEnabled(false);
                 map.setDevicesEnabled(true);
                 checkValidity();
@@ -368,23 +371,27 @@ public class EnvCreator extends View {
         this.sensorsPanel.addListener(Events.Expand, enabler);
         this.sensorsPanel.addListener(Events.Collapse, enabler);
 
-        Text explanation = new Text("Click the map to add devices to your environment");
+        Text explanation = new Text(
+                "Select any additional sensors that are related to your environment");
         LayoutContainer explWrapper = new LayoutContainer();
         explWrapper.add(explanation, new FlowData(10));
         this.sensorsPanel.setTopComponent(explWrapper);
 
-        List<SensorModel> sensors = new ArrayList<SensorModel>();
-        List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-        for (SensorModel sensor : library) {
-            if (sensor.getDevice() == null) {
-                sensors.add(sensor);
-            }
-        }
-
         ListStore<SensorModel> store = new ListStore<SensorModel>();
-        store.add(sensors);
 
-        final Grid<SensorModel> grid = new Grid<SensorModel>(store, LibraryColumnsFactory.create());
+        List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
+        store.add(library);
+
+        CheckBoxSelectionModel<SensorModel> sm = new CheckBoxSelectionModel<SensorModel>();
+
+        // column model
+        List<ColumnConfig> cols = LibraryColumnsFactory.create().getColumns();
+        cols.add(0, sm.getColumn());
+        ColumnModel cm = new ColumnModel(cols);
+
+        grid = new Grid<SensorModel>(store, cm);
+        grid.setSelectionModel(sm);
+        grid.addPlugin(sm);
 
         this.sensorsPanel.add(grid);
     }
@@ -426,7 +433,7 @@ public class EnvCreator extends View {
 
         this.form.reset();
         this.map.resetOutline();
-        this.map.clearSensors();
+        this.map.clearDevices();
         this.map.setOutlineEnabled(false);
         this.map.setDevicesEnabled(false);
         this.submitButton.disable();
@@ -447,7 +454,8 @@ public class EnvCreator extends View {
         AppEvent create = new AppEvent(EnvCreateEvents.CreateRequest);
         create.setData("name", this.name.getValue());
         create.setData("floors", this.floors.getValue().intValue());
-        create.setData("sensors", this.map.getSensors());
+        create.setData("devices", this.map.getDevices());
+        create.setData("sensors", this.grid.getSelectionModel().getSelectedItems());
         create.setData("outline", this.map.getOutline());
         fireEvent(create);
     }

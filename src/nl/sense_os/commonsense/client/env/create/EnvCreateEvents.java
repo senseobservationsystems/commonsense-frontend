@@ -12,8 +12,6 @@ public class EnvCreateEvents {
     protected static final EventType CreateAjaxFailure = new EventType();
     protected static final EventType AddSensorsAjaxSuccess = new EventType();
     protected static final EventType AddSensorsAjaxFailure = new EventType();
-    protected static final EventType PositionSensorAjaxSuccess = new EventType();
-    protected static final EventType PositionSensorAjaxFailure = new EventType();
     protected static final EventType SetPositionAjaxSuccess = new EventType();
     protected static final EventType SetPositionAjaxFailure = new EventType();
 

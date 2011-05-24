@@ -1,9 +1,7 @@
 package nl.sense_os.commonsense.client.env.create;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -14,6 +12,7 @@ import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -26,12 +25,11 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.maps.client.geom.LatLng;
-import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.Polygon;
 
 public class EnvCreateController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("EnvCreateController");
+    private static final Logger LOGGER = Logger.getLogger(EnvCreateController.class.getName());
     private View creator;
 
     public EnvCreateController() {
@@ -40,11 +38,12 @@ public class EnvCreateController extends Controller {
         registerEventTypes(EnvCreateEvents.CreateRequest, EnvCreateEvents.CreateSuccess,
                 EnvCreateEvents.CreateAjaxSuccess, EnvCreateEvents.CreateAjaxFailure,
                 EnvCreateEvents.AddSensorsAjaxSuccess, EnvCreateEvents.AddSensorsAjaxFailure,
-                EnvCreateEvents.PositionSensorAjaxSuccess,
-                EnvCreateEvents.PositionSensorAjaxFailure, EnvCreateEvents.SetPositionAjaxSuccess,
-                EnvCreateEvents.SetPositionAjaxFailure, EnvCreateEvents.CreateSensorAjaxSuccess,
-                EnvCreateEvents.CreateSensorAjaxFailure, EnvCreateEvents.SensorToDeviceAjaxSuccess,
+                EnvCreateEvents.SetPositionAjaxSuccess, EnvCreateEvents.SetPositionAjaxFailure,
+                EnvCreateEvents.CreateSensorAjaxSuccess, EnvCreateEvents.CreateSensorAjaxFailure,
+                EnvCreateEvents.SensorToDeviceAjaxSuccess,
                 EnvCreateEvents.SensorToDeviceAjaxFailure);
+
+        LOGGER.setLevel(Level.ALL);
     }
 
     private void addSensors(EnvironmentModel environment, List<SensorModel> sensors) {
@@ -54,7 +53,9 @@ public class EnvCreateController extends Controller {
             // prepare body
             String sensorsArray = "[";
             for (SensorModel sensor : sensors) {
-                sensorsArray += "{\"id\":" + sensor.getId() + "},";
+                if (sensor.getAlias() == null) {
+                    sensorsArray += "{\"id\":" + sensor.getId() + "},";
+                }
             }
             sensorsArray = sensorsArray.substring(0, sensorsArray.length() - 1) + "]";
             String body = "{\"sensors\":" + sensorsArray + "}";
@@ -206,95 +207,81 @@ public class EnvCreateController extends Controller {
     private void getPositionSensor(List<DeviceModel> devices, int index, String name, int floors,
             Polygon outline, List<SensorModel> sensors) {
 
+        // get the device
         DeviceModel device = devices.get(index);
 
-        // prepare request properties
-        final String method = "GET";
-        final String url = Urls.DEVICES + "/" + device.getId() + "/sensors";
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(EnvCreateEvents.PositionSensorAjaxSuccess);
-        onSuccess.setData("devices", devices);
-        onSuccess.setData("index", index);
-        onSuccess.setData("name", name);
-        onSuccess.setData("floors", floors);
-        onSuccess.setData("outline", outline);
-        onSuccess.setData("sensors", sensors);
-        final AppEvent onFailure = new AppEvent(EnvCreateEvents.PositionSensorAjaxFailure);
+        // try to find the position sensor of the device
+        SensorModel positionSensor = null;
+        for (SensorModel sensor : sensors) {
+            // only check position sensors
+            if (sensor.getName().equals("position")) {
+                // check if it is the right device
+                if (sensor.getDevice() != null && sensor.getDevice().equals(device)) {
+                    // make sure we are the owner of the sensor
+                    UserModel user = Registry.get(Constants.REG_USER);
+                    if (sensor.getOwner() == null || sensor.getOwner().equals(user)) {
+                        positionSensor = sensor;
+                        break;
+                    }
+                }
+            }
+        }
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
+        if (null != positionSensor) {
+            // position sensor present: set its position
+            LOGGER.finest("Found position sensor for \'" + device + "\'");
+            setPosition(positionSensor, devices, index, name, floors, outline, sensors);
+        } else {
+            // device has no position sensor yet: create it
+            LOGGER.finest("Did not find position sensor for \'" + device + "\'");
+            createSensor(devices, index, name, floors, outline, sensors);
+        }
     }
-
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
         if (type.equals(EnvCreateEvents.CreateRequest)) {
-            logger.fine("CreateRequest");
+            LOGGER.finest("CreateRequest");
             final String name = event.<String> getData("name");
             final int floors = event.getData("floors");
             final Polygon outline = event.<Polygon> getData("outline");
-            final Map<Marker, List<SensorModel>> sensors = event
-                    .<Map<Marker, List<SensorModel>>> getData("sensors");
-            onCreateRequest(name, floors, outline, sensors);
+            final List<DeviceModel> devices = event.<List<DeviceModel>> getData("devices");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            onCreateRequest(name, floors, outline, devices, sensors);
 
         } else
 
         if (type.equals(EnvCreateEvents.CreateAjaxSuccess)) {
-            logger.fine("CreateAjaxSuccess");
+            LOGGER.finest("CreateAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onCreateEnvironmentSuccess(response, sensors);
 
         } else if (type.equals(EnvCreateEvents.CreateAjaxFailure)) {
-            logger.warning("CreateAjaxFailure");
+            LOGGER.warning("CreateAjaxFailure");
             // final int code = event.getData("code");
             onCreateEnvironmentFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.AddSensorsAjaxSuccess)) {
-            logger.fine("AddSensorsAjaxSuccess");
+            LOGGER.finest("AddSensorsAjaxSuccess");
             // final String response = event.<String> getData("response");
             final EnvironmentModel environment = event.getData("environment");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onAddSensorSuccess(environment, sensors);
 
         } else if (type.equals(EnvCreateEvents.AddSensorsAjaxFailure)) {
-            logger.warning("AddSensorsAjaxFailure");
+            LOGGER.warning("AddSensorsAjaxFailure");
             // final int code = event.getData("code");
             final EnvironmentModel environment = event.getData("environment");
             onAddSensorsFailure(environment);
 
         } else
 
-        if (type.equals(EnvCreateEvents.PositionSensorAjaxSuccess)) {
-            logger.fine("PositionSensorAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final List<DeviceModel> devices = event.getData("devices");
-            final int index = event.getData("index");
-            final String name = event.<String> getData("name");
-            final int floors = event.getData("floors");
-            final Polygon outline = event.<Polygon> getData("outline");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            onPositionSensorSuccess(response, devices, index, name, floors, outline, sensors);
-
-        } else if (type.equals(EnvCreateEvents.PositionSensorAjaxFailure)) {
-            logger.warning("PositionSensorAjaxFailure");
-            // final int code = event.getData("code");
-            onPositionSensorFailure();
-
-        } else
-
         if (type.equals(EnvCreateEvents.CreateSensorAjaxSuccess)) {
-            logger.fine("CreateSensorAjaxSuccess");
+            LOGGER.finest("CreateSensorAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<DeviceModel> devices = event.getData("devices");
             final int index = event.getData("index");
@@ -305,14 +292,14 @@ public class EnvCreateController extends Controller {
             onCreateSensorSuccess(response, devices, index, name, floors, outline, sensors);
 
         } else if (type.equals(EnvCreateEvents.CreateSensorAjaxFailure)) {
-            logger.warning("CreateSensorAjaxFailure");
+            LOGGER.warning("CreateSensorAjaxFailure");
             // final int code = event.getData("code");
             onCreateSensorFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.SensorToDeviceAjaxSuccess)) {
-            logger.fine("SensorToDeviceAjaxSuccess");
+            LOGGER.finest("SensorToDeviceAjaxSuccess");
             final String response = event.getData("response");
             final SensorModel sensor = event.getData("sensor");
             final List<DeviceModel> devices = event.getData("devices");
@@ -325,14 +312,14 @@ public class EnvCreateController extends Controller {
                     sensors);
 
         } else if (type.equals(EnvCreateEvents.SensorToDeviceAjaxFailure)) {
-            logger.warning("SensorToDeviceAjaxFailure");
+            LOGGER.warning("SensorToDeviceAjaxFailure");
             // final int code = event.getData("code");
             onSensorToDeviceFailure();
 
         } else
 
         if (type.equals(EnvCreateEvents.SetPositionAjaxSuccess)) {
-            logger.fine("SetPositionAjaxSuccess");
+            LOGGER.finest("SetPositionAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<DeviceModel> devices = event.getData("devices");
             final int index = event.getData("index");
@@ -343,7 +330,7 @@ public class EnvCreateController extends Controller {
             onSetPositionSuccess(response, devices, index, name, floors, outline, sensors);
 
         } else if (type.equals(EnvCreateEvents.SetPositionAjaxFailure)) {
-            logger.warning("SetPositionAjaxFailure");
+            LOGGER.warning("SetPositionAjaxFailure");
             // final int code = event.getData("code");
             onSetPositionFailure();
 
@@ -405,20 +392,14 @@ public class EnvCreateController extends Controller {
     }
 
     private void onCreateRequest(String name, int floors, Polygon outline,
-            Map<Marker, List<SensorModel>> sensorPositions) {
+            List<DeviceModel> devices, List<SensorModel> sensors) {
 
-        // create list of devices with their desired positions
-        List<DeviceModel> devices = new ArrayList<DeviceModel>();
-        List<SensorModel> sensors = new ArrayList<SensorModel>();
-        for (Entry<Marker, List<SensorModel>> entry : sensorPositions.entrySet()) {
-            LatLng latlng = entry.getKey().getLatLng();
-            for (SensorModel sensor : entry.getValue()) {
+        // add the devices's sensors
+        List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+        for (SensorModel sensor : library) {
+            if (sensor.getDevice() != null && devices.contains(sensor.getDevice())) {
+                LOGGER.finest("Add device sensor \'" + sensor + "\' to list of environment sensors");
                 sensors.add(sensor);
-                DeviceModel device = sensor.getDevice();
-                if (device != null && !devices.contains(device)) {
-                    device.set("latlng", latlng);
-                    devices.add(device);
-                }
             }
         }
 
@@ -449,36 +430,7 @@ public class EnvCreateController extends Controller {
             addSensorToDevice(positionSensor, devices, index, name, floors, outline, sensors);
 
         } else {
-            onCreateEnvironmentFailure();
-        }
-    }
-
-    private void onPositionSensorFailure() {
-        onCreateFailure();
-    }
-
-    private void onPositionSensorSuccess(String response, List<DeviceModel> devices, int index,
-            String name, int floors, Polygon outline, List<SensorModel> sensors) {
-
-        // parse the device's sensors
-        List<SensorModel> deviceSensors = new ArrayList<SensorModel>();
-        SensorParser.parseSensors(response, deviceSensors);
-
-        // try to find the position sensor of the device
-        SensorModel positionSensor = null;
-        for (SensorModel sensor : deviceSensors) {
-            if (sensor.getName().equals("position")) {
-                positionSensor = sensor;
-                break;
-            }
-        }
-
-        if (null != positionSensor) {
-            // position sensor found: set its position
-            setPosition(positionSensor, devices, index, name, floors, outline, sensors);
-        } else {
-            // device has no position sensor yet: create it
-            createSensor(devices, index, name, floors, outline, sensors);
+            onCreateSensorFailure();
         }
     }
 
