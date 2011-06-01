@@ -30,9 +30,9 @@ public class DataController extends Controller {
     private static final Logger LOGGER = Logger.getLogger(DataController.class.getName());
     private View progressDialog;
     private static final int PER_PAGE = 1000; // max: 1000
-    private int totalData[];
 
     public DataController() {
+        // LOGGER.setLevel(Level.ALL);
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -109,10 +109,13 @@ public class DataController extends Controller {
             final long end = event.getData("end");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int sensorIndex = event.getData("sensorIndex");
-            final int pageIndex = event.getData("pageIndex");
+            final long sensorChunkStart = event.getData("sensorChunkStart");
+            final int sensorProgress = event.getData("sensorProgress");
+            final int sensorTotal = event.getData("sensorTotal");
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
 
-            onDataReceived(response, start, end, sensors, sensorIndex, pageIndex, vizPanel);
+            onDataReceived(response, start, end, sensors, sensorIndex, sensorChunkStart,
+                    sensorProgress, sensorTotal, vizPanel);
         } else
 
         /*
@@ -182,65 +185,68 @@ public class DataController extends Controller {
     }
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
-            int sensorIndex, int pageIndex, VizPanel vizPanel) {
-        // logger.fine( "onDataReceived...");
+            int sensorIndex, long sensorChunkStart, int sensorProgress, int sensorTotal,
+            VizPanel vizPanel) {
 
+        // update UI before parsing data
         updateSubProgress(-1, -1, "Parsing received data chunk...");
 
         // parse the incoming data
         BackEndSensorData jsoResponse = BackEndSensorData.create(response);
-        int total = jsoResponse.getTotal();
 
-        if (pageIndex > 0)
-            total = totalData[sensorIndex];
-        else
-            totalData[sensorIndex] = total; // store the total count
+        if (sensorProgress == 0) {
+            sensorTotal = jsoResponse.getTotal(); // store the total count
+        }
 
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
         // get the date of the last datapoint
         JsArray<BackEndDataPoint> data = jsoResponse.getData();
+
+        // update progress
+        sensorProgress = sensorProgress + data.length();
+
+        // update start of next chunk
         if (data.length() > 0) {
             BackEndDataPoint last = data.get(data.length() - 1);
             double lastDate = Double.parseDouble(last.getDate());
-            start = Math.round(lastDate * 1000) + 1;
+            sensorChunkStart = Math.round(lastDate * 1000) + 1;
         }
+
         // update UI after parsing data
-        final int offset = pageIndex * PER_PAGE;
-        final int increment = PER_PAGE;
-        final int progress = Math.min(offset + increment, total);
-        updateSubProgress(progress, total, "Requesting data chunk...from:" + start + " total:"
-                + total + " got:" + (PER_PAGE * (pageIndex + 1)));
+        updateSubProgress(sensorProgress, sensorTotal, "Requesting data chunk...from:" + start
+                + " total:" + sensorTotal + " got:" + sensorProgress);
 
         // check if there are more pages to request for this sensor
-        if (PER_PAGE * (pageIndex + 1) >= total) {
+        if (sensorProgress >= sensorTotal) {
             // completed all pages for this sensor
             sensorIndex++;
-            pageIndex = 0;
+            sensorTotal = 0;
+            sensorChunkStart = 0;
+            sensorProgress = 0;
             updateMainProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
         } else {
-            // request next page
-            pageIndex++;
+            // continue with next chunk
         }
 
         // check if there are still sensors left to do
         if (sensorIndex < sensors.size()) {
-            LOGGER.fine("getting the rest pageIndex:" + pageIndex);
-            requestData(start, end, sensors, sensorIndex, pageIndex, vizPanel);
+            requestData(start, end, sensors, sensorIndex, sensorChunkStart, sensorProgress,
+                    sensorTotal, vizPanel);
         } else {
             // completed all pages for all sensors
-            LOGGER.fine("datacomplete");
             onDataComplete(start, end, sensors, vizPanel);
         }
     }
 
     private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
-        final int page = 0;
-        final int index = 0;
-        totalData = new int[sensors.size()];
+        final int sensorIndex = 0;
+        final int sensorProgress = 0, sensorTotal = 0;
+        final long sensorChunkStart = start;
         showProgress(sensors.size());
-        requestData(start, end, sensors, index, page, vizPanel);
+        requestData(start, end, sensors, sensorIndex, sensorChunkStart, sensorProgress,
+                sensorTotal, vizPanel);
     }
 
     private void onLatestValueFailure(List<SensorModel> sensors, int index, VizPanel vizPanel) {
@@ -282,7 +288,7 @@ public class DataController extends Controller {
     }
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            int pageIndex, VizPanel vizPanel) {
+            long sensorChunkStart, int sensorProgress, int sensorTotal, VizPanel vizPanel) {
         // logger.fine( "requestData...");
 
         if (sensorIndex < sensors.size()) {
@@ -291,13 +297,13 @@ public class DataController extends Controller {
 
             // check if the sensor has cached data
             long realStart = start;
-            if (pageIndex == 0) {
+            if (sensorTotal == 0) {
                 JsArray<Timeseries> cacheContent = Cache.request(Arrays.asList(sensor), start, end);
                 for (int i = 0; i < cacheContent.length(); i++) {
                     Timeseries timeseries = cacheContent.get(i);
                     if (timeseries.getStart() <= realStart) {
                         realStart = timeseries.getEnd();
-                        // logger.fine( "Changed realStart to " + realStart);
+                        LOGGER.fine("Using data from cache to limit request period");
                     } else {
                         Cache.remove(sensor);
                     }
@@ -309,7 +315,7 @@ public class DataController extends Controller {
 
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
-            if (pageIndex == 0) {
+            if (sensorTotal == 0) {
                 url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
                 url += "&total=1";
             }
@@ -318,8 +324,8 @@ public class DataController extends Controller {
             } else if ((end - start) / 1000 >= 604800) {
                 url += "&interval=420";
             }
-            if (null != sensor.get(SensorModel.ALIAS)) {
-                url += "&alias=" + sensor.get(SensorModel.ALIAS);
+            if (null != sensor.getAlias()) {
+                url += "&alias=" + sensor.getAlias();
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);
@@ -327,7 +333,9 @@ public class DataController extends Controller {
             onSuccess.setData("end", end);
             onSuccess.setData("sensors", sensors);
             onSuccess.setData("sensorIndex", sensorIndex);
-            onSuccess.setData("pageIndex", pageIndex);
+            onSuccess.setData("sensorChunkStart", sensorChunkStart);
+            onSuccess.setData("sensorProgress", sensorProgress);
+            onSuccess.setData("sensorTotal", sensorTotal);
             onSuccess.setData("vizPanel", vizPanel);
             final AppEvent onFailure = new AppEvent(DataEvents.AjaxDataFailure);
 

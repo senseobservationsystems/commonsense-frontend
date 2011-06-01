@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -29,7 +28,7 @@ import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
 public class TimeLinePanel extends VizPanel {
 
-    private static final Logger logger = Logger.getLogger("TimeLinePanel");
+    private static final Logger LOGGER = Logger.getLogger(TimeLinePanel.class.getName());
     protected Graph graph;
     protected final Graph.Options graphOpts;
     protected Timeline timeline;
@@ -37,12 +36,12 @@ public class TimeLinePanel extends VizPanel {
     protected final DataTable dataTable;
 
     private boolean isPimCheckComplete = false;
-
     private boolean showTimeLine = true;
+
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
-        logger.setLevel(Level.ALL);
+        // LOGGER.setLevel(Level.ALL);
 
         // set up layout
         setHeading("Time line: " + title);
@@ -76,7 +75,7 @@ public class TimeLinePanel extends VizPanel {
 
     @Override
     public void addData(final JsArray<Timeseries> data) {
-        // logger.fine( "addData...");
+        // LOGGER.fine( "addData...");
 
         // special pim message
         if (!isPimCheckComplete
@@ -108,11 +107,11 @@ public class TimeLinePanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getType().equalsIgnoreCase("number")) {
-                logger.fine(ts.getLabel() + ": " + ts.getData().length()
+                LOGGER.fine(ts.getLabel() + ": " + ts.getData().length()
                         + " data points (number data)");
                 numberData.push(ts);
             } else {
-                // logger.fine( ts.getLabel() + " (" + ts.getType() + " data)");
+                // LOGGER.fine( ts.getLabel() + " (" + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
@@ -127,6 +126,7 @@ public class TimeLinePanel extends VizPanel {
             showNumberData(numberData);
         }
     }
+
     /**
      * @return An empty DataTable with the correct columns for Timeline visualization.
      */
@@ -305,7 +305,7 @@ public class TimeLinePanel extends VizPanel {
                 redrawTimeline();
             }
         } else {
-            logger.warning("No data for time line visualization!");
+            LOGGER.warning("No data for time line visualization!");
         }
     }
 }

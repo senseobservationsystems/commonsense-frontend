@@ -63,7 +63,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Wed Jun 1 15:42";
+    public static final String LAST_DEPLOYED = "Wed Jun 1 23:18";
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.

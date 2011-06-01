@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.viz.data.cache;
 
+import nl.sense_os.commonsense.client.common.json.overlays.BackEndDataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -16,6 +17,11 @@ final class CacheJso extends JavaScriptObject {
         // empty protected constructor
     }
 
+    /**
+     * Creates a JSNI cache object.
+     * 
+     * @return The newly created cache.
+     */
     protected static CacheJso create() {
         String source = "{ \"mapping\" : {}, \"content\" : [] }";
         return JsonUtils.<CacheJso> safeEval(source);
@@ -29,12 +35,12 @@ final class CacheJso extends JavaScriptObject {
      *            ID of the sensor to remove the data for.
      */
     protected native void remove(String id) /*-{
-        for ( var i = 0; i < this.content.length; i++) {
-            var entry = this.content[i];
-            if (entry.id == id) {
-                entry.data = [];
-            }
-        }
+		for ( var i = 0; i < this.content.length; i++) {
+			var timeseries = this.content[i];
+			if (timeseries.id == id) {
+				timeseries.data = [];
+			}
+		}
     }-*/;
 
     /**
@@ -42,44 +48,72 @@ final class CacheJso extends JavaScriptObject {
      * 
      * @param ids
      *            IDs of the sensors to get the data for.
+     * @param start
+     *            Start time of period to get data from, in milliseconds. Passed as a double because
+     *            JavaScript does not have long type.
+     * @param end
+     *            End time of period to get data from, in milliseconds. Passed as a double because
+     *            JavaScript does not have long type.
      */
     protected native JsArray<Timeseries> request(JsArray<?> ids, double start, double end) /*-{
-        var result = [];
+		var result = [];
 
-        // for each sensor in the request
-        for ( var i = 0; i < ids.length; i++) {
-            var id = ids[i]
+		// for each sensor in the request
+		for ( var i = 0; i < ids.length; i++) {
+			var id = ids[i]
 
-            // for each sensor in the cache
-            for ( var j = 0; j < this.content.length; j++) {
-                var timeseries = this.content[j];
-                if (timeseries.id == id) {
+			// for each sensor in the cache
+			for ( var j = 0; j < this.content.length; j++) {
 
-                    // select the right data points from the time series
-                    var selection = {
-                        'id' : id,
-                        'label' : timeseries.label,
-                        'start' : timeseries.data[0].date,
-                        'end' : timeseries.data[0].date,
-                        'type' : timeseries.type,
-                        'data' : []
-                    };
-                    for ( var k = 0; k < timeseries.data.length; k++) {
-                        var dataPoint = timeseries.data[k];
-                        if (dataPoint.date >= start && dataPoint.date <= end) {
-                            selection.data.push(dataPoint);
-                            if (dataPoint.date < selection.start) {
-                                selection.start = dataPoint.date;
-                            } else if (dataPoint.date > selection.end) {
-                                selection.end = dataPoint.date;
-                            }
-                        }
-                    }
-                    result.push(selection);
-                }
-            }
-        }
-        return result;
+				// check if this sensor has a requested ID
+				var timeseries = this.content[j];
+				if (timeseries.id == id) {
+
+					// prepare object to put selected data points in
+					var selection = {
+						'id' : id,
+						'label' : timeseries.label,
+						'start' : Infinity,
+						'end' : -Infinity,
+						'type' : timeseries.type,
+						'data' : []
+					};
+
+					// select the right data points from the time series
+					for ( var k = 0; k < timeseries.data.length; k++) {
+						var dataPoint = timeseries.data[k];
+						if (dataPoint.date >= start && dataPoint.date <= end) {
+							selection.data.push(dataPoint);
+
+							// update start / end time of the selection time series
+							if (dataPoint.date < selection.start) {
+								// console.log('new selection start time! '
+								// + dataPoint.date);
+								selection.start = dataPoint.date;
+							} else if (dataPoint.date > selection.end) {
+								// console.log('new selection end time! '
+								// + dataPoint.date);
+								selection.end = dataPoint.date;
+							} else {
+								// console.log('data point: ' + dataPoint.date
+								// + ', selection start: '
+								// + selection.start + ', selection end: '
+								// + selection.end);
+							}
+						} else {
+							// console.log('data point: ' + dataPoint.date
+							// + ', request start: ' + start
+							// + ', request end: ' + end);
+						}
+					}
+
+					if (selection.data.length > 0) {
+						result.push(selection);
+					}
+				}
+			}
+		}
+		return result;
     }-*/;
 
     /**
@@ -90,80 +124,88 @@ final class CacheJso extends JavaScriptObject {
      * @param label
      *            Label of the sensor.
      * @param start
+     *            Start time of requested data period, in milliseconds. Passed as a double because
+     *            JavaScript does not have long type.
      * @param end
+     *            End time of requested data period, in milliseconds. Passed as a double because
+     *            JavaScript does not have long type.
      * @param values
      *            JsArray with sensor value objects.
      */
-    protected native void store(String id, String label, double start, double end, JsArray<?> values) /*-{
+    protected native void store(String id, String label, double start, double end,
+            JsArray<BackEndDataPoint> values) /*-{
 
-        // function to add a value to the cache
-        function appendValue(cache, id, label, start, end, datapoint) {
+		// check all values in the array 
+		for ( var i = 0, len = values.length; i < len; i++) {
+			var backEndDataPoint = values[i];
+			var date = Math.round(parseFloat(backEndDataPoint.date) * 1000);
+			var value = backEndDataPoint.value;
 
-            var key = id + '. ' + label;
+			if (!isNaN(value)) {
+				// The value contains a number
+				var datapoint = {
+					'date' : date,
+					'value' : parseFloat(value)
+				};
+				appendValue(this, id, label, start, end, datapoint);
 
-            // find earlier data (add if needed)
-            var index = cache.mapping[key];
-            if (index == undefined) {
-                // create new entry
-                var newTimeseries = {
-                    'id' : id,
-                    'label' : label,
-                    'start' : start,
-                    'end' : datapoint.date,
-                    'type' : typeof (datapoint.value),
-                    'data' : [ datapoint ]
-                };
+			} else if (typeof (value) == 'string') {
+				// The value contains a string
+				var datapoint = {
+					'date' : date,
+					'value' : value
+				};
+				appendValue(this, id, label, start, end, datapoint);
 
-                // add new index
-                index = cache.content.push(newTimeseries) - 1;
-                cache.mapping[key] = index;
+			} else {
+				// the value can contain multiple properties
+				for (prop in value) {
+					// prepare new value for the 'values' array
+					var propValue = value[prop];
+					if (!isNaN(propValue)) {
+						propValue = parseFloat(propValue);
+					}
+					var datapoint = {
+						'date' : date,
+						'value' : propValue
+					};
+					appendValue(this, id, label + ' ' + prop, start, end,
+							datapoint);
+				}
+			}
+		}
 
-            } else {
-                // push onto earlier timeseries
-                cache.content[index].data.push(datapoint);
-                if (cache.content[index].end < datapoint.date) {
-                    cache.content[index].end = datapoint.date;
-                }
-            }
-        }
+		// function to add a value to the cache
+		function appendValue(cache, id, label, start, end, datapoint) {
 
-        // check all values in the array 
-        for ( var i = 0, len = values.length; i < len; i++) {
-            var obj = values[i];
-            var date = obj.date;
-            var value = obj.value;
+			var key = id + '. ' + label;
 
-            if (!isNaN(value)) {
-                // The value contains a number
-                var datapoint = {
-                    'date' : Math.round(parseFloat(date) * 1000),
-                    'value' : parseFloat(value)
-                };
-                appendValue(this, id, label, start, end, datapoint);
+			// find earlier data (add if needed)
+			var index = cache.mapping[key];
+			if (index == undefined) {
+				// create new entry
+				var newTimeseries = {
+					'id' : id,
+					'label' : label,
+					'start' : start,
+					'end' : datapoint.date,
+					'type' : typeof (datapoint.value),
+					'data' : [ datapoint ]
+				};
 
-            } else if (typeof (value) == 'string') {
-                // The value contains a string
-                var datapoint = {
-                    'date' : Math.round(parseFloat(date) * 1000),
-                    'value' : value
-                };
-                appendValue(this, id, label, start, end, datapoint);
+				// push timeseries in array and add new index to the mapping
+				index = cache.content.push(newTimeseries) - 1;
+				cache.mapping[key] = index;
 
-            } else {
-                // the value can contain multiple properties
-                for (prop in value) {
-                    // prepare new value for the 'values' array
-                    var propValue = value[prop];
-                    if (!isNaN(propValue)) {
-                        propValue = parseFloat(propValue);
-                    }
-                    var datapoint = {
-                        'date' : Math.round(parseFloat(date) * 1000),
-                        'value' : propValue
-                    };
-                    appendValue(this, id, label + ' ' + prop, start, end, datapoint);
-                }
-            }
-        }
+			} else {
+				// push onto earlier timeseries
+				cache.content[index].data.push(datapoint);
+
+				// update end time
+				if (cache.content[index].end < datapoint.date) {
+					cache.content[index].end = datapoint.date;
+				}
+			}
+		}
     }-*/;
 }
