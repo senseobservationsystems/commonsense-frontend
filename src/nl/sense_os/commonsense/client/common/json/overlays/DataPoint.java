@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.client.common.json.overlays;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
 import java.util.Date;
+
+import com.google.gwt.core.client.JavaScriptObject;
 
 public class DataPoint extends JavaScriptObject {
 
@@ -11,14 +11,14 @@ public class DataPoint extends JavaScriptObject {
     }
 
     protected final native double getRawDate() /*-{
-		return this.date;
+        return this.date;
     }-*/;
 
     public final native String getRawValue() /*-{
-		return '' + this.value;
+        return '' + this.value;
     }-*/;
 
     public final Date getTimestamp() {
-        return new Date(Math.round(this.getRawDate()*1000));
+        return new Date(Math.round(this.getRawDate()));
     }
 }

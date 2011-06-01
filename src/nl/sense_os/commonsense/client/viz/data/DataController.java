@@ -8,8 +8,8 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.SensorDataResponse;
+import nl.sense_os.commonsense.client.common.json.overlays.BackEndDataPoint;
+import nl.sense_os.commonsense.client.common.json.overlays.BackEndSensorData;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
@@ -188,7 +188,7 @@ public class DataController extends Controller {
         updateSubProgress(-1, -1, "Parsing received data chunk...");
 
         // parse the incoming data
-        SensorDataResponse jsoResponse = SensorDataResponse.create(response);
+        BackEndSensorData jsoResponse = BackEndSensorData.create(response);
         int total = jsoResponse.getTotal();
 
         if (pageIndex > 0)
@@ -200,10 +200,11 @@ public class DataController extends Controller {
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
         // get the date of the last datapoint
-        JsArray<DataPoint> data = jsoResponse.getData();
+        JsArray<BackEndDataPoint> data = jsoResponse.getData();
         if (data.length() > 0) {
-            DataPoint last = data.get(data.length() - 1);
-            start = last.getTimestamp().getTime() + 1;
+            BackEndDataPoint last = data.get(data.length() - 1);
+            double lastDate = Double.parseDouble(last.getDate());
+            start = Math.round(lastDate * 1000) + 1;
         }
         // update UI after parsing data
         final int offset = pageIndex * PER_PAGE;
@@ -225,11 +226,11 @@ public class DataController extends Controller {
 
         // check if there are still sensors left to do
         if (sensorIndex < sensors.size()) {
-            System.out.println("getting the rest pageIndex:" + pageIndex);
+            LOGGER.fine("getting the rest pageIndex:" + pageIndex);
             requestData(start, end, sensors, sensorIndex, pageIndex, vizPanel);
         } else {
             // completed all pages for all sensors
-            System.out.println("datacomplete");
+            LOGGER.fine("datacomplete");
             onDataComplete(start, end, sensors, vizPanel);
         }
     }
@@ -264,7 +265,7 @@ public class DataController extends Controller {
     private void onLatestValueSuccess(String response, List<SensorModel> sensors, int index,
             VizPanel panel) {
 
-        SensorDataResponse jso = SensorDataResponse.create(response);
+        BackEndSensorData jso = BackEndSensorData.create(response);
         if (jso.getTotal() == 1) {
             Cache.store(sensors.get(index), 0, 0, jso.getData());
         } else if (jso.getTotal() != 0) {

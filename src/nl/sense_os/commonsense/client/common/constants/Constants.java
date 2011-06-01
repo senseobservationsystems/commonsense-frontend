@@ -7,18 +7,25 @@ public class Constants {
     /**
      * true if the app is deployed to common-sense-test.appspot.com.
      */
-    public static final boolean TEST_MODE = GWT.getModuleBaseURL().contains("common-sense-test");
+    public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains(
+            "common-sense.appspot.com");
+
+    /**
+     * true if the app is deployed to common-sense-test.appspot.com.
+     */
+    public static final boolean TEST_MODE = GWT.getModuleBaseURL().contains(
+            "common-sense-test.appspot.com");
 
     /**
      * true if the app is deployed to commonsense-test.appspot.com.
      */
-    public static final boolean TED_MODE = GWT.getModuleBaseURL().contains("commonsense-test");
+    public static final boolean TED_MODE = GWT.getModuleBaseURL().contains(
+            "commonsense-test.appspot.com");
 
     /**
-     * true if the app is deployed to common-sense-dev.appspot.com.
+     * true if the app is deployed to anything but the stable, test or ted appspot.
      */
-    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
-            .contains("common.dev.sense-os.nl");
+    public static final boolean DEV_MODE = !STABLE_MODE && !TEST_MODE && !TED_MODE;
 
     /**
      * Registry key for the list of all devices for the current user
