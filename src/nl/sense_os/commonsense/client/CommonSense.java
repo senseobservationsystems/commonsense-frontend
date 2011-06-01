@@ -43,14 +43,12 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.maps.client.Maps;
@@ -138,13 +136,6 @@ public class CommonSense implements EntryPoint {
         // testTimeline();
 
         GXT.hideLoadingPanel("loading");
-
-        // change the url for the dev deployment
-        if (GWT.getModuleBaseURL().contains("common-sense-dev")) {
-            MessageBox.info("Dev mode!", "hoera, common-sense-dev!", null);
-        } else {
-            MessageBox.info("Stable mode!", "stable mode! " + GWT.getModuleBaseURL(), null);
-        }
     }
 
     /**
