@@ -164,6 +164,7 @@ public class SensorDataGrid extends LayoutContainer {
         if (alias != null) {
             result += "&alias=" + alias;
         }
+        result += "&total=1";
         return result;
     }
 

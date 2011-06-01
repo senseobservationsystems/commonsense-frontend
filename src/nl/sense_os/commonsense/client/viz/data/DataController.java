@@ -1,13 +1,16 @@
 package nl.sense_os.commonsense.client.viz.data;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
+import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.SensorDataResponse;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -29,6 +32,7 @@ public class DataController extends Controller {
     private static final Logger logger = Logger.getLogger("DataController");
     private View progressDialog;
     private static final int PER_PAGE = 1000; // max: 1000
+    private int totalData[];
 
     public DataController() {
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
@@ -115,18 +119,29 @@ public class DataController extends Controller {
         updateSubProgress(-1, -1, "Parsing received data chunk...");
 
         // parse the incoming data
-        SensorDataResponse jsoResponse = SensorDataResponse.create(response);
+        SensorDataResponse jsoResponse = SensorDataResponse.create(response);        
         int total = jsoResponse.getTotal();
-
+        
+        if(pageIndex > 0)
+        	total = totalData[sensorIndex];
+        else
+        	totalData[sensorIndex] = total; // store the total count
+        
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
-
+        // get the date of the last datapoint
+        JsArray<DataPoint> data= jsoResponse.getData();        
+        if(data.length() > 0)
+        {
+        	DataPoint last = data.get(data.length()-1);        
+        	start = last.getTimestamp().getTime()+1;
+        }
         // update UI after parsing data
         final int offset = pageIndex * PER_PAGE;
         final int increment = PER_PAGE;
         final int progress = Math.min(offset + increment, total);
-        updateSubProgress(progress, total, "Requesting data chunk...");
+        updateSubProgress(progress, total, "Requesting data chunk...from:"+start+" total:"+total+ " got:"+(PER_PAGE * (pageIndex + 1)));
 
         // check if there are more pages to request for this sensor
         if (PER_PAGE * (pageIndex + 1) >= total) {
@@ -141,9 +156,11 @@ public class DataController extends Controller {
 
         // check if there are still sensors left to do
         if (sensorIndex < sensors.size()) {
+        	 System.out.println("getting the rest pageIndex:"+pageIndex);
             requestData(start, end, sensors, sensorIndex, pageIndex, vizPanel);
         } else {
             // completed all pages for all sensors
+        	 System.out.println("datacomplete");
             onDataComplete(start, end, sensors, vizPanel);
         }
     }
@@ -151,7 +168,7 @@ public class DataController extends Controller {
     private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
         final int page = 0;
         final int index = 0;
-
+        totalData = new int[sensors.size()];
         showProgress(sensors.size());
         requestData(start, end, sensors, index, page, vizPanel);
     }
@@ -188,10 +205,22 @@ public class DataController extends Controller {
 
             final String method = "GET";
             String url = Urls.DATA.replace("<id>", sensor.getId());
-            url += "?page=" + pageIndex;
-            url += "&per_page=" + PER_PAGE;
+            
+            url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
-            url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
+            if(pageIndex == 0)
+            {
+            	url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);            
+            	url += "&total=1";
+            }
+            if((end-start)/1000 >= 2419200)
+            {
+            	url +="&interval=3600";
+            }
+            else if((end-start)/1000 >= 604800)
+            {
+            	url +="&interval=420";
+            }
             if (null != sensor.get(SensorModel.ALIAS)) {
                 url += "&alias=" + sensor.get(SensorModel.ALIAS);
             }
