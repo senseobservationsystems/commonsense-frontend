@@ -23,5 +23,5 @@ public class EnvCreateEvents {
     protected static final EventType Forward = new EventType();
     protected static final EventType Back = new EventType();
     protected static final EventType Cancel = new EventType();
-    protected static final EventType OutlineComplete = new EventType();
+    public static final EventType OutlineComplete = new EventType();
 }

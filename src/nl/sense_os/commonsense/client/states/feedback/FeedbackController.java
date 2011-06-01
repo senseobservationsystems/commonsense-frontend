@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.states.feedback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -25,11 +26,14 @@ import com.google.gwt.json.client.JSONValue;
 
 public class FeedbackController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("FeedbackController");
+    private static final Logger LOGGER = Logger.getLogger(FeedbackController.class.getName());
     private View feedback;
+    private View chooser;
 
     public FeedbackController() {
+        LOGGER.setLevel(Level.ALL);
         registerEventTypes(FeedbackEvents.FeedbackInit);
+        registerEventTypes(FeedbackEvents.ShowChooser, FeedbackEvents.FeedbackChosen);
 
         registerEventTypes(FeedbackEvents.FeedbackSubmit, FeedbackEvents.FeedbackAjaxFailure,
                 FeedbackEvents.FeedbackAjaxSuccess);
@@ -46,14 +50,14 @@ public class FeedbackController extends Controller {
          * Submit feedback data.
          */
         if (type.equals(FeedbackEvents.FeedbackSubmit)) {
-            // logger.fine( "FeedbackSubmit");
+            // LOGGER.fine( "FeedbackSubmit");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             markFeedback(state, changes, 0, panel);
 
         } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
-            // logger.fine( "AjaxFeedbackSuccess");
+            // LOGGER.fine( "AjaxFeedbackSuccess");
             // final String response = event.<String> getData("response");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
@@ -62,7 +66,7 @@ public class FeedbackController extends Controller {
             onFeedbackMarked(state, changes, index, panel);
 
         } else if (type.equals(FeedbackEvents.FeedbackAjaxFailure)) {
-            logger.warning("AjaxFeedbackFailure");
+            LOGGER.warning("AjaxFeedbackFailure");
             // final int code = event.getData("code");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             onFeedbackFailed(panel);
@@ -73,22 +77,30 @@ public class FeedbackController extends Controller {
          * Get state labels.
          */
         if (type.equals(FeedbackEvents.LabelsRequest)) {
-            // logger.fine( "LabelsRequest");
+            // LOGGER.fine( "LabelsRequest");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
             getLabels(state, sensors);
 
         } else if (type.equals(FeedbackEvents.LabelsAjaxSuccess)) {
-            // logger.fine( "LabelsAjaxSuccess");
+            // LOGGER.fine( "LabelsAjaxSuccess");
             final String response = event.getData("response");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
-            getLabelsCallback(response, state, sensors);
+            onLabelsSuccess(response, state, sensors);
 
         } else if (type.equals(FeedbackEvents.LabelsAjaxFailure)) {
-            logger.warning("LabelsAjaxFailure");
+            LOGGER.warning("LabelsAjaxFailure");
             final int code = event.getData("code");
-            getLabelsFailure(code);
+            onLabelsFailure(code);
+
+        } else
+
+        /*
+         * Feedback settings chooser
+         */
+        if (type.equals(FeedbackEvents.ShowChooser)) {
+            forwardToView(this.chooser, event);
 
         } else
 
@@ -100,11 +112,11 @@ public class FeedbackController extends Controller {
         }
     }
 
-    private void getLabelsFailure(int code) {
+    private void onLabelsFailure(int code) {
         forwardToView(this.feedback, new AppEvent(FeedbackEvents.LabelsFailure));
     }
 
-    private void getLabelsCallback(String response, SensorModel state, List<SensorModel> sensors) {
+    private void onLabelsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
 
         if (response != null) {
             JSONValue rawJson = JSONParser.parseStrict(response);
@@ -131,49 +143,54 @@ public class FeedbackController extends Controller {
                                             if (null != rawString) {
                                                 list.add(rawString.stringValue());
                                             } else {
-                                                logger.warning("label is not a JSON string");
-                                                getLabelsFailure(0);
+                                                LOGGER.warning("label is not a JSON string");
+                                                onLabelsFailure(0);
                                             }
                                         }
 
-                                        AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
-                                        event.setData("state", state);
-                                        event.setData("sensors", sensors);
-                                        event.setData("labels", list);
-                                        forwardToView(this.feedback, event);
+                                        onLabelsComplete(state, sensors, list);
+
                                     } else {
-                                        logger.warning("\"classLabels\" is not a JSON array");
-                                        getLabelsFailure(0);
+                                        LOGGER.warning("\"classLabels\" is not a JSON array");
+                                        onLabelsFailure(0);
                                     }
                                 } else {
-                                    logger.warning("\"classLabels\" is not valid JSON");
-                                    getLabelsFailure(0);
+                                    LOGGER.warning("\"classLabels\" is not valid JSON");
+                                    onLabelsFailure(0);
                                 }
                             } else {
-                                logger.warning("result is not valid JSON");
-                                getLabelsFailure(0);
+                                LOGGER.warning("result is not valid JSON");
+                                onLabelsFailure(0);
                             }
                         } else {
-                            logger.warning("\"result\" is not a JSON string");
-                            getLabelsFailure(0);
+                            LOGGER.warning("\"result\" is not a JSON string");
+                            onLabelsFailure(0);
                         }
                     } else {
-                        logger.warning("\"result\" is not valid JSON");
-                        getLabelsFailure(0);
+                        LOGGER.warning("\"result\" is not valid JSON");
+                        onLabelsFailure(0);
                     }
                 } else {
-                    logger.warning("response is not a JSON object");
-                    getLabelsFailure(0);
+                    LOGGER.warning("response is not a JSON object");
+                    onLabelsFailure(0);
                 }
             } else {
-                logger.warning("response is not valid JSON");
-                getLabelsFailure(0);
+                LOGGER.warning("response is not valid JSON");
+                onLabelsFailure(0);
             }
         } else {
-            logger.warning("response=null");
-            getLabelsFailure(0);
+            LOGGER.warning("response=null");
+            onLabelsFailure(0);
         }
 
+    }
+
+    private void onLabelsComplete(SensorModel state, List<SensorModel> sensors, List<String> labels) {
+        AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
+        event.setData("state", state);
+        event.setData("sensors", sensors);
+        event.setData("labels", labels);
+        forwardToView(this.feedback, event);
     }
 
     private void getLabels(SensorModel state, List<SensorModel> sensors) {
@@ -187,8 +204,7 @@ public class FeedbackController extends Controller {
             }
         }
         if (false == canHazClassLabels) {
-            logger.warning("Cannot give feedback on this state: unable to get class labels!");
-            getLabelsFailure(0);
+            onLabelsComplete(state, sensors, new ArrayList<String>());
         }
 
         if (sensors.size() > 0) {
@@ -213,8 +229,8 @@ public class FeedbackController extends Controller {
             ajaxRequest.setData("onFailure", onFailure);
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
-            logger.warning("No sensors!");
-            getLabelsFailure(0);
+            LOGGER.warning("No sensors!");
+            onLabelsFailure(0);
         }
     }
 
@@ -222,6 +238,7 @@ public class FeedbackController extends Controller {
     protected void initialize() {
         super.initialize();
         this.feedback = new FeedbackView(this);
+        this.chooser = new FeedbackChooser(this);
     }
 
     private void markFeedback(SensorModel state, List<FeedbackData> changes, int index,
@@ -234,7 +251,7 @@ public class FeedbackController extends Controller {
 
             // TODO also process delete changes
             while (change.getType() == FeedbackData.TYPE_REMOVE) {
-                logger.warning("Skipping feedback deletion!");
+                LOGGER.warning("Skipping feedback deletion!");
                 index++;
                 if (index < changes.size()) {
                     change = changes.get(index);
@@ -286,7 +303,7 @@ public class FeedbackController extends Controller {
     }
 
     private void onFeedbackFailed(FeedbackPanel panel) {
-        logger.fine("Feedback failure");
+        LOGGER.fine("Feedback failure");
         AppEvent failure = new AppEvent(FeedbackEvents.FeedbackFailed);
         failure.setData("panel", panel);
         forwardToView(this.feedback, failure);

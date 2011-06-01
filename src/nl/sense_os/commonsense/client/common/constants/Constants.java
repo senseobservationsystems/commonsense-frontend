@@ -1,11 +1,24 @@
 package nl.sense_os.commonsense.client.common.constants;
 
+import com.google.gwt.core.client.GWT;
 
 public class Constants {
 
-    public static final boolean TEST_MODE = false;
+    /**
+     * true if the app is deployed to common-sense-test.appspot.com.
+     */
+    public static final boolean TEST_MODE = GWT.getModuleBaseURL().contains("common-sense-test");
 
-    public static final boolean TED_MODE = TEST_MODE && false;
+    /**
+     * true if the app is deployed to commonsense-test.appspot.com.
+     */
+    public static final boolean TED_MODE = GWT.getModuleBaseURL().contains("commonsense-test");
+
+    /**
+     * true if the app is deployed to common-sense-dev.appspot.com.
+     */
+    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
+            .contains("common.dev.sense-os.nl");
 
     /**
      * Registry key for the list of all devices for the current user

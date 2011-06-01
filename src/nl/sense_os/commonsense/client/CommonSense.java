@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
@@ -64,7 +65,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Tue May 24 14:07";
+    public static final String LAST_DEPLOYED = "Wed Jun 1 15:42";
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -137,6 +138,13 @@ public class CommonSense implements EntryPoint {
         // testTimeline();
 
         GXT.hideLoadingPanel("loading");
+
+        // change the url for the dev deployment
+        if (GWT.getModuleBaseURL().contains("common-sense-dev")) {
+            MessageBox.info("Dev mode!", "hoera, common-sense-dev!", null);
+        } else {
+            MessageBox.info("Stable mode!", "stable mode! " + GWT.getModuleBaseURL(), null);
+        }
     }
 
     /**
@@ -154,12 +162,7 @@ public class CommonSense implements EntryPoint {
     protected void testEnvCreator() {
         LOGGER.config("Test environment creator...");
 
-        final String url = GWT.getModuleBaseURL();
-        String key = Keys.MAPS_KEY_STABLE;
-        if (url.contains("common-sense-test")) {
-            key = Keys.MAPS_KEY_TEST;
-        }
-        Maps.loadMapsApi(key, "2", false, new Runnable() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {
@@ -171,12 +174,7 @@ public class CommonSense implements EntryPoint {
     protected void testMapViz() {
         LOGGER.config("Test map visualization...");
 
-        final String url = GWT.getModuleBaseURL();
-        String key = Keys.MAPS_KEY_STABLE;
-        if (url.contains("common-sense-test")) {
-            key = Keys.MAPS_KEY_TEST;
-        }
-        Maps.loadMapsApi(key, "2", false, new Runnable() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {

@@ -19,4 +19,7 @@ public class FeedbackEvents {
     protected static final EventType LabelsFailure = new EventType();
     protected static final EventType LabelsAjaxSuccess = new EventType();
     protected static final EventType LabelsAjaxFailure = new EventType();
+
+    protected static final EventType ShowChooser = new EventType();
+    protected static final EventType FeedbackChosen = new EventType();
 }

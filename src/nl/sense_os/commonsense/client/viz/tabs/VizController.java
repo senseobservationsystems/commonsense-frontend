@@ -17,14 +17,13 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
 public class VizController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("VizController");
+    private static final Logger LOGGER = Logger.getLogger(VizController.class.getName());
 
     private View vizView;
     private View typeChooser;
@@ -70,21 +69,15 @@ public class VizController extends Controller {
 
         // Asynchronously load the Maps API.
         if (Maps.isLoaded()) {
-            logger.fine("Google Maps API already loaded");
+            LOGGER.fine("Google Maps API already loaded");
             return;
         }
 
-        final String url = GWT.getModuleBaseURL();
-        String key = Keys.MAPS_KEY_STABLE;
-        if (url.contains("common-sense-test")) {
-            logger.info("Using Google Maps API key for \'common-sense-test\'...");
-            key = Keys.MAPS_KEY_TEST;
-        }
-        Maps.loadMapsApi(key, "2", false, new Runnable() {
+        Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
             @Override
             public void run() {
-                // logger.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");
+                // LOGGER.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");
             }
         });
 
@@ -118,7 +111,7 @@ public class VizController extends Controller {
 
             @Override
             public void run() {
-                // logger.fine( "Google Visualization API loaded...");
+                // LOGGER.fine( "Google Visualization API loaded...");
                 isVizApiLoaded = true;
             }
         };

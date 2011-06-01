@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.env.components.EnvMap;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -285,7 +286,7 @@ public class EnvCreator extends View {
 
             @Override
             public void handleEvent(ComponentEvent be) {
-                map.setOutlineEnabled(be.getType().equals(Events.Expand));
+                map.editOutline(be.getType().equals(Events.Expand));
 
                 if (be.getType().equals(Events.Expand)) {
                     hasBeenExpanded = true;
@@ -310,9 +311,9 @@ public class EnvCreator extends View {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                map.resetOutline();
-                map.setOutlineEnabled(true);
-                map.setDevicesEnabled(false);
+                map.clearOutline();
+                map.editOutline(true);
+                map.editDevices(false);
                 isOutlineValid = false;
                 checkValidity();
             }
@@ -330,7 +331,7 @@ public class EnvCreator extends View {
 
             @Override
             public void handleEvent(ComponentEvent be) {
-                map.setDevicesEnabled(be.getType().equals(Events.Expand));
+                map.editDevices(be.getType().equals(Events.Expand));
             }
         };
         this.devicesPanel.addListener(Events.Expand, enabler);
@@ -344,8 +345,8 @@ public class EnvCreator extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 map.clearDevices();
-                map.setOutlineEnabled(false);
-                map.setDevicesEnabled(true);
+                map.editOutline(false);
+                map.editDevices(true);
                 checkValidity();
             }
         });
@@ -430,10 +431,10 @@ public class EnvCreator extends View {
         LOGGER.finest("Reset panel...");
 
         this.form.reset();
-        this.map.resetOutline();
+        this.map.clearOutline();
         this.map.clearDevices();
-        this.map.setOutlineEnabled(false);
-        this.map.setDevicesEnabled(false);
+        this.map.editOutline(false);
+        this.map.editDevices(false);
         this.submitButton.disable();
 
         ((AccordionLayout) this.west.getLayout()).setActiveItem(this.form);

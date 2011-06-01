@@ -49,6 +49,11 @@ public class AjaxController extends Controller {
         AppEvent onSuccess = event.<AppEvent> getData("onSuccess");
         AppEvent onFailure = event.<AppEvent> getData("onFailure");
 
+        // change the url for the dev deployment
+        // if (GWT.getModuleBaseURL().contains("common-sense-dev")) {
+        // url.replaceFirst("api", "api.dev");
+        // }
+
         Ajax.request(method, url, sessionId, body, onSuccess, onFailure, this, Constants.TED_MODE);
     }
 

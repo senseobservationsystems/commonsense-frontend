@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.states.feedback;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -14,21 +15,21 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class FeedbackView extends View {
 
-    private static final Logger logger = Logger.getLogger("FeedbackView");
+    private static final Logger LOGGER = Logger.getLogger("FeedbackView");
 
     public FeedbackView(Controller c) {
         super(c);
+        LOGGER.setLevel(Level.ALL);
     }
-
     @Override
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
         if (type.equals(FeedbackEvents.FeedbackInit)) {
-            logger.fine("FeedbackInit");
+            LOGGER.finest("FeedbackInit");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            initPanel(state, sensors);
+            onInitEvent(state, sensors);
 
         } else
 
@@ -36,15 +37,29 @@ public class FeedbackView extends View {
          * Request for labels
          */
         if (type.equals(FeedbackEvents.LabelsSuccess)) {
-            // logger.fine( "LabelsSuccess");
+            LOGGER.finest("LabelsSuccess");
             final List<String> labels = event.<List<String>> getData("labels");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            showPanel(state, sensors, labels);
+            onLabelsSuccess(state, sensors, labels);
 
         } else if (type.equals(FeedbackEvents.LabelsFailure)) {
-            logger.warning("LabelsFailure");
+            LOGGER.warning("LabelsFailure");
             onLabelsFailure();
+
+        } else
+
+        /*
+         * Feedback chooser panel has finished
+         */
+        if (type.equals(FeedbackEvents.FeedbackChosen)) {
+            LOGGER.finest("FeedbackChosen");
+            final List<String> labels = event.<List<String>> getData("labels");
+            final SensorModel state = event.<SensorModel> getData("state");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final long start = event.getData("start");
+            final long end = event.getData("end");
+            showPanel(state, sensors, labels, start, end);
 
         } else
 
@@ -52,47 +67,55 @@ public class FeedbackView extends View {
          * Feedback results
          */
         if (type.equals(FeedbackEvents.FeedbackComplete)) {
-            logger.fine("FeedbackComplete");
+            LOGGER.fine("FeedbackComplete");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackComplete();
 
         } else if (type.equals(FeedbackEvents.FeedbackFailed)) {
-            logger.warning("FeedbackFailed");
+            LOGGER.warning("FeedbackFailed");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackFailed();
 
         } else
 
         {
-            logger.warning("Unexpected event type!");
+            LOGGER.warning("Unexpected event type!");
         }
     }
 
-    private void onLabelsFailure() {
-        // TODO
-        MessageBox.alert(null, "Failed to initialize feedback panel!", null);
+    @Override
+    protected void initialize() {
+        super.initialize();
     }
 
-    private void initPanel(SensorModel state, List<SensorModel> sensors) {
+    private void onInitEvent(SensorModel state, List<SensorModel> sensors) {
         AppEvent labelRequest = new AppEvent(FeedbackEvents.LabelsRequest);
         labelRequest.setData("state", state);
         labelRequest.setData("sensors", sensors);
         fireEvent(labelRequest);
     }
 
-    private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels) {
+    private void onLabelsFailure() {
+        MessageBox.alert(null, "Failed to initialize feedback panel!", null);
+    }
+
+    private void onLabelsSuccess(SensorModel state, List<SensorModel> sensors, List<String> labels) {
+        AppEvent showChooser = new AppEvent(FeedbackEvents.ShowChooser);
+        showChooser.setData("state", state);
+        showChooser.setData("sensors", sensors);
+        showChooser.setData("labels", labels);
+        fireEvent(showChooser);
+    }
+
+    private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels,
+            long start, long end) {
         String title = state.<String> get("text");
-        FeedbackPanel panel = new FeedbackPanel(state, sensors, title, labels);
+        FeedbackPanel panel = new FeedbackPanel(state, sensors, start, end, title, labels);
 
         AppEvent showEvent = new AppEvent(FeedbackEvents.ShowFeedback);
         showEvent.setData("panel", panel);
         showEvent.setData("title", title);
         Dispatcher.forwardEvent(showEvent);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
     }
 
 }

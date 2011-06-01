@@ -11,14 +11,14 @@ import com.google.gwt.core.client.JsonUtils;
 
 public class Cache {
 
+    private static final Logger LOGGER = Logger.getLogger(Cache.class.getName());
     private static CacheJso cache;
-    private static final Logger logger = Logger.getLogger("Cache");
 
     public static void remove(SensorModel sensor) {
         if (cache != null) {
             cache.remove(sensor.getId());
         } else {
-            logger.warning("Cannot remove cached data: cache=null");
+            LOGGER.warning("Cannot remove cached data: cache=null");
         }
     }
 
@@ -33,7 +33,7 @@ public class Cache {
      *            List of sensors to get the data for.
      * @return Cached data, as JavaScriptObject that can be used directly by Jos' timeline graph.
      */
-    public static JsArray<Timeseries> request(List<SensorModel> sensors) {
+    public static JsArray<Timeseries> request(List<SensorModel> sensors, long start, long end) {
         if (null != cache) {
             String ids = "[";
             for (SensorModel sensor : sensors) {
@@ -43,9 +43,9 @@ public class Cache {
                 ids = ids.substring(0, ids.length() - 2);
             }
             ids += "]";
-            return cache.request(JsonUtils.<JsArray<?>> safeEval(ids));
+            return cache.request(JsonUtils.<JsArray<?>> unsafeEval(ids), start, end);
         } else {
-            // logger.fine( "No cache object, returning empty array...");
+            // LOGGER.fine( "No cache object, returning empty array...");
             return JsArray.createArray().cast();
         }
     }
@@ -62,7 +62,7 @@ public class Cache {
     public static void store(SensorModel sensor, long start, long end, JsArray<?> data) {
         if (null == cache) {
             // create cache object
-            // logger.fine( "Create cache...");
+            // LOGGER.fine( "Create cache...");
             cache = CacheJso.create();
         }
         cache.store(sensor.getId(), sensor.<String> get("text"), start, end, data);

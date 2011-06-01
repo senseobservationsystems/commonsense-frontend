@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.states.feedback;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
@@ -52,7 +53,7 @@ import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
 public class FeedbackPanel extends VizPanel {
 
-    private static final Logger logger = Logger.getLogger("FeedbackPanel");
+    private static final Logger LOGGER = Logger.getLogger(FeedbackPanel.class.getName());
 
     private final SensorModel stateSensor;
     private final LayoutContainer feedbackContainer;
@@ -67,9 +68,10 @@ public class FeedbackPanel extends VizPanel {
     private Button submitButton;
     private Button cancelButton;
 
-    public FeedbackPanel(SensorModel statesSensor, List<SensorModel> sensors, String title,
-            List<String> labels) {
+    public FeedbackPanel(SensorModel statesSensor, List<SensorModel> sensors, long start, long end,
+            String title, List<String> labels) {
         super();
+        LOGGER.setLevel(Level.ALL);
 
         this.stateSensor = statesSensor;
         this.labels = labels;
@@ -79,9 +81,8 @@ public class FeedbackPanel extends VizPanel {
         setBodyBorder(false);
         setLayout(new RowLayout(Orientation.VERTICAL));
 
-        long start = System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 7);
-        long end = System.currentTimeMillis();
         sensors.add(statesSensor);
+        LOGGER.finest("Start time: " + start + ", end time: " + end);
         visualize(sensors, start, end);
 
         this.feedbackContainer = new LayoutContainer(new FitLayout());
@@ -90,9 +91,9 @@ public class FeedbackPanel extends VizPanel {
         this.add(this.vizContainer, new RowData(1, 1));
         createButtons();
     }
-
     @Override
     public void addData(JsArray<Timeseries> data) {
+        LOGGER.fine("Add data...");
 
         JsArray<Timeseries> numberData = JsArray.createArray().cast();
         JsArray<Timeseries> stringData = JsArray.createArray().cast();
@@ -100,13 +101,13 @@ public class FeedbackPanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getId().equals(this.stateSensor.getId())) {
-                // logger.fine( ts.getLabel() + " (stateSensor data)");
+                LOGGER.fine(ts.getLabel() + " (stateSensor data)");
                 stateData.push(ts);
             } else if (ts.getType().equalsIgnoreCase("number")) {
-                // logger.fine( ts.getLabel() + " (number data)");
+                LOGGER.fine(ts.getLabel() + " (number data)");
                 numberData.push(ts);
             } else {
-                // logger.fine( ts.getLabel() + " (" + ts.getType() + " data)");
+                LOGGER.fine(ts.getLabel() + " (" + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
@@ -124,6 +125,7 @@ public class FeedbackPanel extends VizPanel {
             showNumberData(numberData);
         }
     }
+
     private void addFeedbackHandlers() {
 
         this.states.addAddHandler(new AddHandler() {
@@ -135,7 +137,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // logger.fine( "AddHandler onEvent... " + properties);
+                // LOGGER.fine( "AddHandler onEvent... " + properties);
                 onAdd(null);
             }
         });
@@ -149,7 +151,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // logger.fine( "EditHandler onEvent... " + properties);
+                // LOGGER.fine( "EditHandler onEvent... " + properties);
                 onEdit(null);
             }
         });
@@ -163,7 +165,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // logger.fine( "ChangeHandler onEvent... " + properties);
+                // LOGGER.fine( "ChangeHandler onEvent... " + properties);
                 onChange(null);
             }
         });
@@ -177,7 +179,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onEvent(Properties properties) throws TypeException {
-                // logger.fine( "DeleteHandler onEvent... " + properties);
+                // LOGGER.fine( "DeleteHandler onEvent... " + properties);
                 onDelete(null);
             }
         });
@@ -194,7 +196,7 @@ public class FeedbackPanel extends VizPanel {
                 } else if (source.equals(cancelButton)) {
                     FeedbackPanel.this.hide();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOGGER.warning("Unexpected button pressed");
                 }
             }
         };
@@ -387,20 +389,20 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void onFbAdd() {
-        // logger.fine( "onAdd...");
+        // LOGGER.fine( "onAdd...");
         showLabelChoice();
     }
 
     private void onFbChange() {
-        // logger.fine( "onChange...");
+        // LOGGER.fine( "onChange...");
     }
 
     private void onFbDelete() {
-        // logger.fine( "onDelete...");
+        // LOGGER.fine( "onDelete...");
     }
 
     private void onFbEdit() {
-        // logger.fine( "onEdit...");
+        // LOGGER.fine( "onEdit...");
         showLabelChoice();
     }
 
@@ -668,7 +670,7 @@ public class FeedbackPanel extends VizPanel {
                 redrawTimeline();
             }
         } else {
-            logger.warning("No data for time line visualization!");
+            LOGGER.warning("No data for time line visualization!");
         }
     }
 

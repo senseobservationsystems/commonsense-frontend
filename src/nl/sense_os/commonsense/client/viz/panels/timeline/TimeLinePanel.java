@@ -4,14 +4,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
 import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;
 import com.chap.links.client.Timeline.Options;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -32,6 +35,9 @@ public class TimeLinePanel extends VizPanel {
     protected final Timeline.Options tlineOpts;
     protected final DataTable dataTable;
 
+    private boolean isPimCheckComplete = false;
+
+    private boolean showTimeLine = true;
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
@@ -66,8 +72,28 @@ public class TimeLinePanel extends VizPanel {
     }
 
     @Override
-    public void addData(JsArray<Timeseries> data) {
+    public void addData(final JsArray<Timeseries> data) {
         // logger.fine( "addData...");
+
+        // special pim message
+        if (!isPimCheckComplete
+                && Registry.<UserModel> get(Constants.REG_USER).getId().equals("1547")) {
+            MessageBox.confirm(null, "Hoi Pim! Wil je eventueel de tijdslijnvisualisatie zien?",
+                    new Listener<MessageBoxEvent>() {
+
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                                showTimeLine = true;
+                            } else {
+                                showTimeLine = false;
+                            }
+                            isPimCheckComplete = true;
+                            addData(data);
+                        }
+                    });
+            return;
+        }
 
         if (data.length() == 0) {
             onNoData();
@@ -88,7 +114,7 @@ public class TimeLinePanel extends VizPanel {
         }
 
         // show the string data in a time line
-        if (stringData.length() > 0) {
+        if (showTimeLine && stringData.length() > 0) {
             showStringData(stringData);
         }
 
@@ -160,16 +186,16 @@ public class TimeLinePanel extends VizPanel {
         // this LayoutContainer ensures that the graph is sized and resized correctly
         LayoutContainer wrapper = new LayoutContainer() {
             @Override
+            protected void onAfterLayout() {
+                super.onAfterLayout();
+                redrawTimeline();
+            }
+
+            @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
                 // redrawTimeline();
                 layout(true);
-            }
-
-            @Override
-            protected void onAfterLayout() {
-                super.onAfterLayout();
-                redrawTimeline();
             }
         };
         wrapper.add(this.timeline);

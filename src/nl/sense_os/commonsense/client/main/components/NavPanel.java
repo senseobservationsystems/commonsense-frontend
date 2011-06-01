@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.main.components;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -52,7 +53,11 @@ public class NavPanel extends LayoutContainer {
     }
 
     private void initLogo() {
-        logo = new Image("/img/logo_sense-header.png");
+        if (!Constants.DEV_MODE) {
+            logo = new Image("/img/logo_sense-header.png");
+        } else {
+            logo = new Image("/img/logo_dev-header.png");
+        }
         logo.setPixelSize(100, 30);
         logo.setStyleName("sense-header-logo");
     }

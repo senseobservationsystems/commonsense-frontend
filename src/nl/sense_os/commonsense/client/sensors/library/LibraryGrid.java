@@ -1,10 +1,8 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
+import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
@@ -55,6 +53,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 public class LibraryGrid extends View {
 
     private static final Logger LOGGER = Logger.getLogger(LibraryGrid.class.getName());
@@ -93,6 +94,7 @@ public class LibraryGrid extends View {
                 || type.equals(SensorDeleteEvents.DeleteSuccess)
                 || type.equals(SensorDeleteEvents.DeleteFailure)
                 || type.equals(EnvCreateEvents.CreateSuccess)
+                || type.equals(EnvEvents.DeleteSuccess)
                 || type.equals(UnshareEvents.UnshareComplete)
                 || type.equals(SensorShareEvents.ShareComplete)) {
             LOGGER.finest("Library changed");

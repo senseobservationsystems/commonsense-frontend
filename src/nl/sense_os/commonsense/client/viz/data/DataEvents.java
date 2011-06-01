@@ -14,4 +14,7 @@ public class DataEvents {
     protected static final EventType AjaxDataSuccess = new EventType();
     protected static final EventType AjaxDataFailure = new EventType();
 
+    public static final EventType LatestValuesRequest = new EventType();
+    protected static final EventType LatestValueAjaxSuccess = new EventType();
+    protected static final EventType LatestValueAjaxFailure = new EventType();
 }
