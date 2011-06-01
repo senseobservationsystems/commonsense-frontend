@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -40,6 +41,8 @@ public class TimeLinePanel extends VizPanel {
     private boolean showTimeLine = true;
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
+
+        logger.setLevel(Level.ALL);
 
         // set up layout
         setHeading("Time line: " + title);
@@ -105,7 +108,8 @@ public class TimeLinePanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getType().equalsIgnoreCase("number")) {
-                // logger.fine( ts.getLabel() + " (number data)");
+                logger.fine(ts.getLabel() + ": " + ts.getData().length()
+                        + " data points (number data)");
                 numberData.push(ts);
             } else {
                 // logger.fine( ts.getLabel() + " (" + ts.getType() + " data)");
@@ -123,7 +127,6 @@ public class TimeLinePanel extends VizPanel {
             showNumberData(numberData);
         }
     }
-
     /**
      * @return An empty DataTable with the correct columns for Timeline visualization.
      */
