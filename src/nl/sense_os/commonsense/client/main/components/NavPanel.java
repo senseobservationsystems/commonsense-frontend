@@ -53,10 +53,12 @@ public class NavPanel extends LayoutContainer {
     }
 
     private void initLogo() {
-        if (!Constants.DEV_MODE) {
-            logo = new Image("/img/logo_sense-header.png");
-        } else {
+        if (Constants.DEV_MODE) {
             logo = new Image("/img/logo_dev-header.png");
+        } else if (Constants.TEST_MODE) {
+            logo = new Image("/img/logo_test-header.png");
+        } else {
+            logo = new Image("/img/logo_sense-header.png");
         }
         logo.setPixelSize(100, 30);
         logo.setStyleName("sense-header-logo");
