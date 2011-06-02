@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.common.json.overlays;
+package nl.sense_os.commonsense.client.viz.data.timeseries;
 
 public class StringDataPoint extends DataPoint {
 

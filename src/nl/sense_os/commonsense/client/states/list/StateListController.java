@@ -8,11 +8,11 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.client.sensors.library.GetSensorsResponseJso;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
@@ -22,12 +22,12 @@ import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -60,12 +60,11 @@ public class StateListController extends Controller {
                 StateListEvents.AjaxDisconnectSuccess, StateListEvents.RemoveComplete);
     }
 
-    private void disconnectService(TreeModel sensor, TreeModel service) {
+    private void disconnectService(SensorModel sensor, SensorModel stateSensor) {
 
         // prepare request data
         final String method = "DELETE";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/"
-                + service.<String> get("id");
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxDisconnectSuccess);
         final AppEvent onFailure = new AppEvent(StateListEvents.AjaxDisconnectFailure);
@@ -228,9 +227,9 @@ public class StateListController extends Controller {
          */
         if (type.equals(StateListEvents.RemoveRequested)) {
             // logger.fine( "RemoveRequested");
-            TreeModel sensor = event.<TreeModel> getData("sensor");
-            TreeModel service = event.<TreeModel> getData("service");
-            disconnectService(sensor, service);
+            SensorModel sensor = event.<SensorModel> getData("sensor");
+            SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+            disconnectService(sensor, stateSensor);
 
         } else if (type.equals(StateListEvents.AjaxDisconnectFailure)) {
             logger.warning("AjaxDisconnectFailure");
@@ -267,8 +266,11 @@ public class StateListController extends Controller {
 
     private void onConnectedSuccess(String response, SensorModel state,
             AsyncCallback<List<SensorModel>> callback) {
+
+        // parse list of sensors from response
         List<SensorModel> sensors = new ArrayList<SensorModel>();
-        SensorParser.parseSensors(response, sensors);
+        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+        sensors.addAll(responseJso.getSensors());
 
         // get details from library
         List<SensorModel> result = new ArrayList<SensorModel>();
@@ -311,13 +313,16 @@ public class StateListController extends Controller {
     }
 
     private void onStateSensorsSuccess(String response, AsyncCallback<List<SensorModel>> callback) {
+
+        // parse list of sensors from response
         List<SensorModel> sensors = new ArrayList<SensorModel>();
-        SensorParser.parseSensors(response, sensors);
+        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+        sensors.addAll(responseJso.getSensors());
 
         UserModel user = Registry.<UserModel> get(Constants.REG_USER);
         List<SensorModel> states = new ArrayList<SensorModel>();
         for (SensorModel sensor : sensors) {
-            if (sensor.get(SensorModel.TYPE).equals("2") && user.equals(sensor.getOwner())) {
+            if (sensor.getType() == 2 && user.equals(sensor.getOwner())) {
                 states.add(sensor);
             }
         }
@@ -329,8 +334,7 @@ public class StateListController extends Controller {
         forwardToView(this.tree, new AppEvent(StateListEvents.Working));
         if (null == loadConfig) {
             getStateSensors(callback);
-        } else if (loadConfig instanceof SensorModel
-                && ((SensorModel) loadConfig).getType().equals("2")) {
+        } else if (loadConfig instanceof SensorModel && ((SensorModel) loadConfig).getType() == 2) {
             getConnected((SensorModel) loadConfig, callback);
         } else {
             onLoadComplete(new ArrayList<SensorModel>(), callback);

@@ -7,10 +7,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.chap.links.client.AddHandler;
@@ -91,6 +91,7 @@ public class FeedbackPanel extends VizPanel {
         this.add(this.vizContainer, new RowData(1, 1));
         createButtons();
     }
+
     @Override
     public void addData(JsArray<Timeseries> data) {
         LOGGER.fine("Add data...");
@@ -100,7 +101,7 @@ public class FeedbackPanel extends VizPanel {
         JsArray<Timeseries> stateData = JsArray.createArray().cast();
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
-            if (ts.getId().equals(this.stateSensor.getId())) {
+            if (ts.getId() == this.stateSensor.getId()) {
                 LOGGER.fine(ts.getLabel() + " (stateSensor data)");
                 stateData.push(ts);
             } else if (ts.getType().equalsIgnoreCase("number")) {

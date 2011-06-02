@@ -1,15 +1,24 @@
 package nl.sense_os.commonsense.client.env.components;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.FloatDataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
+import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.FloatDataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -40,15 +49,6 @@ import com.google.gwt.maps.client.overlay.PolyEditingOptions;
 import com.google.gwt.maps.client.overlay.Polygon;
 import com.google.gwt.user.client.Element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class EnvMap extends VizPanel {
 
     private static final Logger LOGGER = Logger.getLogger(EnvMap.class.getName());
@@ -63,7 +63,7 @@ public class EnvMap extends VizPanel {
     private MapClickHandler mapClickHandler;
     private PolygonClickHandler polygonClickHandler;
     private ListStore<DeviceModel> store;
-    private HashMap<String, List<Timeseries>> sensorValues;
+    private HashMap<Integer, List<Timeseries>> sensorValues;
 
     public EnvMap() {
         this(null);
@@ -95,10 +95,10 @@ public class EnvMap extends VizPanel {
         LOGGER.finest("Got latest values...");
 
         // order the data by sensor ID
-        this.sensorValues = new HashMap<String, List<Timeseries>>();
+        this.sensorValues = new HashMap<Integer, List<Timeseries>>();
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
-            String id = ts.getId();
+            int id = ts.getId();
 
             List<Timeseries> timeseries = this.sensorValues.get(id);
             if (null == timeseries) {
@@ -359,7 +359,12 @@ public class EnvMap extends VizPanel {
         this.environment = environment;
 
         if (null != environment) {
-            setOutline(environment.getOutline());
+            if (null != environment.getOutline()) {
+                LOGGER.fine("outline: " + environment.getOutline());
+                setOutline(environment.getOutline());
+            } else {
+                LOGGER.warning("Environment has no outline!");
+            }
 
             // request the environment sensors
             AppEvent getSensors = new AppEvent(EnvViewEvents.RequestSensors);

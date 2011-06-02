@@ -3,11 +3,12 @@ package nl.sense_os.commonsense.client.viz.data.cache;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.json.overlays.BackEndDataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsonUtils;
 
 public class Cache {
@@ -57,7 +58,7 @@ public class Cache {
             ids += "]";
 
             // get data from cache
-            JsArray<Timeseries> result = cache.request(JsonUtils.<JsArray<?>> unsafeEval(ids),
+            JsArray<Timeseries> result = cache.request(JsonUtils.<JsArrayInteger> unsafeEval(ids),
                     start, end);
             LOGGER.fine("Retrieved " + result.length() + " timeseries from the cache.");
             for (int i = 0; i < result.length(); i++) {

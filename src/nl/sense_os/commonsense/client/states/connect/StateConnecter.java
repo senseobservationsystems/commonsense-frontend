@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.states.connect;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
@@ -48,48 +49,49 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnecter extends View {
 
-    private static final Logger logger = Logger.getLogger("StateConnecter");
+    private static final Logger LOGGER = Logger.getLogger(StateConnecter.class.getName());
     private Window window;
     private FormPanel form;
     private Button submitButton;
     private Button cancelButton;
     private GroupingStore<SensorModel> store;
     private ListLoader<ListLoadResult<SensorModel>> loader;
-    private TreeModel service;
+    private SensorModel stateSensor;
     private String serviceName;
     private MessageBox waitDialog;
     private Grid<SensorModel> grid;
 
     public StateConnecter(Controller c) {
         super(c);
+        LOGGER.setLevel(Level.ALL);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateConnectEvents.ShowSensorConnecter)) {
-            // logger.fine( "Show");
+            LOGGER.fine("Show");
             onShow(event);
 
         } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
-            // logger.fine( "ConnectSuccess");
+            LOGGER.fine("ConnectSuccess");
             hideWindow();
 
         } else if (type.equals(StateConnectEvents.ConnectFailure)) {
-            logger.warning("ConnectFailure");
+            LOGGER.warning("ConnectFailure");
             onConnectFailure();
 
         } else if (type.equals(StateConnectEvents.ServiceNameSuccess)) {
-            // logger.fine( "ServiceNameSuccess");
+            LOGGER.fine("ServiceNameSuccess");
             final String serviceName = event.getData("name");
             onServiceNameSuccess(serviceName);
 
         } else if (type.equals(StateConnectEvents.ServiceNameFailure)) {
-            logger.warning("ServiceNameFailure");
+            LOGGER.warning("ServiceNameFailure");
             onServiceNameFailure();
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOGGER.warning("Unexpected event type: " + type);
         }
     }
 
@@ -110,7 +112,7 @@ public class StateConnecter extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOGGER.warning("Unexpected button pressed");
                 }
             }
         };
@@ -151,7 +153,7 @@ public class StateConnecter extends View {
         AdapterField field = new AdapterField(panel);
         field.setHeight(150);
         field.setResizeWidget(true);
-        field.setFieldLabel("Select the sensor to connect to the service");
+        field.setFieldLabel("Select a sensor to use as input for the state sensor");
 
         final FormData formData = new FormData("-10");
         this.form.add(field, formData);
@@ -192,14 +194,14 @@ public class StateConnecter extends View {
                     AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
-                    // logger.fine( "Load library... Renew cache: " + force);
+                    // LOGGER.fine( "Load library... Renew cache: " + force);
                     AppEvent loadRequest = new AppEvent(
                             StateConnectEvents.AvailableSensorsRequested);
                     loadRequest.setData("name", serviceName);
                     loadRequest.setData("callback", callback);
                     fireEvent(loadRequest);
                 } else {
-                    logger.warning("Unexpected load config: " + loadConfig);
+                    LOGGER.warning("Unexpected load config: " + loadConfig);
                     callback.onFailure(null);
                 }
             }
@@ -250,7 +252,7 @@ public class StateConnecter extends View {
 
         this.waitDialog.close();
 
-        MessageBox.confirm(null, "Failed to get service name, retry?",
+        MessageBox.confirm(null, "Failed to get state service name, retry?",
                 new Listener<MessageBoxEvent>() {
 
                     @Override
@@ -279,7 +281,7 @@ public class StateConnecter extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.service = event.getData();
+        this.stateSensor = event.getData();
 
         requestServiceName();
     }
@@ -289,10 +291,10 @@ public class StateConnecter extends View {
     }
 
     private void requestServiceName() {
-        this.waitDialog = MessageBox.wait(null, "Please wait.", "Getting service details...");
+        this.waitDialog = MessageBox.wait(null, "Please wait.", "Getting state sensor details...");
 
         AppEvent request = new AppEvent(StateConnectEvents.ServiceNameRequest);
-        request.setData("service", this.service);
+        request.setData("stateSensor", this.stateSensor);
         fireEvent(request);
     }
 
@@ -309,7 +311,7 @@ public class StateConnecter extends View {
     private void submitForm() {
         TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
         AppEvent event = new AppEvent(StateConnectEvents.ConnectRequested);
-        event.setData("service", service);
+        event.setData("stateSensor", stateSensor);
         event.setData("serviceName", serviceName);
         event.setData("sensor", sensor);
         Dispatcher.forwardEvent(event);

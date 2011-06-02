@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.common.constants.Keys;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.demo.DemoController;
@@ -34,6 +33,7 @@ import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateListController;
 import nl.sense_os.commonsense.client.utility.TestData;
 import nl.sense_os.commonsense.client.viz.data.DataController;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
 
@@ -64,6 +64,12 @@ public class CommonSense implements EntryPoint {
 
     private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
     public static final String LAST_DEPLOYED = "Wed Jun 1 23:18";
+    public static final boolean HACK_QUICK_LOGIN = true;
+    public static final boolean HACK_SKIP_LIB_DETAILS = true;
+    public static final boolean HACK_TEST_NAVBAR = false;
+    public static final boolean HACK_TEST_ENVCREATOR = false;
+    public static final boolean HACK_TEST_MAPVIZ = false;
+    public static final boolean HACK_TEST_TIMELINE = false;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -127,13 +133,19 @@ public class CommonSense implements EntryPoint {
         /* initialize */
         initDispatcher();
 
-        /* show content */
-        initControllers();
-        // quickLogin();
-        // testEnvCreator();
-        // testNavBar();
-        // testMapViz();
-        // testTimeline();
+        if (HACK_QUICK_LOGIN) {
+            quickLogin();
+        } else if (HACK_TEST_ENVCREATOR) {
+            testEnvCreator();
+        } else if (HACK_TEST_MAPVIZ) {
+            testMapViz();
+        } else if (HACK_TEST_NAVBAR) {
+            testNavBar();
+        } else if (HACK_TEST_TIMELINE) {
+            testTimeline();
+        } else {
+            initControllers();
+        }
 
         GXT.hideLoadingPanel("loading");
     }
@@ -141,8 +153,10 @@ public class CommonSense implements EntryPoint {
     /**
      * Logs in automatically for quicker testing.
      */
-    protected void quickLogin() {
+    private void quickLogin() {
         LOGGER.config("Quick login...");
+
+        initControllers();
 
         AppEvent login = new AppEvent(LoginEvents.LoginRequest);
         login.setData("username", "steven@sense-os.nl");
@@ -150,8 +164,10 @@ public class CommonSense implements EntryPoint {
         Dispatcher.forwardEvent(login);
     }
 
-    protected void testEnvCreator() {
+    private void testEnvCreator() {
         LOGGER.config("Test environment creator...");
+
+        initControllers();
 
         Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
@@ -162,7 +178,7 @@ public class CommonSense implements EntryPoint {
         });
     }
 
-    protected void testMapViz() {
+    private void testMapViz() {
         LOGGER.config("Test map visualization...");
 
         Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
@@ -185,7 +201,7 @@ public class CommonSense implements EntryPoint {
         });
     }
 
-    protected void testNavBar() {
+    private void testNavBar() {
 
         Viewport viewport = new Viewport();
         viewport.setLayout(new FitLayout());
@@ -200,15 +216,14 @@ public class CommonSense implements EntryPoint {
         NavPanel navPanel = new NavPanel();
         north.add(navPanel, new RowData(.67, 1));
 
-        navPanel.setUser(new UserModel("id", "steven@sense-os.nl", "steven@sense-os.nl", "Steven",
-                "Mulder", "", ""));
+        navPanel.setUser(new UserModel());
         navPanel.setLoggedIn(true);
         navPanel.setHighlight(NavPanel.VISUALIZATION);
 
         RootPanel.get("gwt").add(viewport);
     }
 
-    protected void testTimeline() {
+    private void testTimeline() {
         LOGGER.config("Test timeline...");
 
         // Create a callback to be called when the visualization API has been loaded.

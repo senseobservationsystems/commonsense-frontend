@@ -38,12 +38,12 @@ public class EnvViewer extends View {
         super.initialize();
     }
 
-    private void showPanel(EnvironmentModel e) {
+    private void showPanel(EnvironmentModel environment) {
 
         Window w = new Window();
         w.setLayout(new FitLayout());
         w.setSize("75%", "600px");
-        w.add(new EnvMap(e));
+        w.add(new EnvMap(environment));
 
         w.show();
     }

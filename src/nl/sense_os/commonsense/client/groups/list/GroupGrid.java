@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -57,17 +57,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupGrid extends View {
 
-    protected static final Logger logger = Logger.getLogger("GroupGrid");
+    private static final Logger logger = Logger.getLogger("GroupGrid");
     private Button createButton;
-    private TreeGrid<TreeModel> grid;
+    private TreeGrid<UserModel> grid;
     private Button inviteButton;
     private Button joinButton;
     private Button leaveButton;
     private ContentPanel panel;
-    private TreeStore<TreeModel> store;
-    private TreeLoader<TreeModel> loader;
+    private TreeStore<UserModel> store;
+    private TreeLoader<UserModel> loader;
     private ToolBar filterBar;
-    private StoreFilterField<TreeModel> filter;
+    private StoreFilterField<UserModel> filter;
     private ToolBar toolBar;
 
     public GroupGrid(Controller controller) {
@@ -115,18 +115,19 @@ public class GroupGrid extends View {
     private void initFilter() {
         filterBar = new ToolBar();
         filterBar.add(new LabelToolItem("Filter: "));
-        filter = new StoreFilterField<TreeModel>() {
+        filter = new StoreFilterField<UserModel>() {
 
             @Override
-            protected boolean doSelect(Store<TreeModel> store, TreeModel parent, TreeModel record,
+            protected boolean doSelect(Store<UserModel> store, UserModel parent, UserModel record,
                     String property, String filter) {
                 // only match leaf nodes
                 if (record.getChildCount() > 0) {
                     return false;
                 }
-                String name = record.get("text");
+                String name = record.getName() + " " + record.getSurname() + " "
+                        + record.getUsername();
                 name = name.toLowerCase();
-                if (name.startsWith(filter.toLowerCase())) {
+                if (name.contains(filter.toLowerCase())) {
                     return true;
                 }
                 return false;
@@ -143,11 +144,11 @@ public class GroupGrid extends View {
     private void initGrid() {
 
         // proxy
-        DataProxy<List<TreeModel>> proxy = new DataProxy<List<TreeModel>>() {
+        DataProxy<List<UserModel>> proxy = new DataProxy<List<UserModel>>() {
 
             @Override
-            public void load(DataReader<List<TreeModel>> reader, Object loadConfig,
-                    AsyncCallback<List<TreeModel>> callback) {
+            public void load(DataReader<List<UserModel>> reader, Object loadConfig,
+                    AsyncCallback<List<UserModel>> callback) {
 
                 if (panel.isExpanded()) {
                     AppEvent loadRequest = new AppEvent(GroupEvents.LoadRequest);
@@ -161,31 +162,34 @@ public class GroupGrid extends View {
         };
 
         // tree loader
-        this.loader = new BaseTreeLoader<TreeModel>(proxy) {
+        this.loader = new BaseTreeLoader<UserModel>(proxy) {
 
             @Override
-            public boolean hasChildren(TreeModel parent) {
+            public boolean hasChildren(UserModel parent) {
                 return (parent instanceof GroupModel);
             };
         };
 
         // tree store
-        this.store = new TreeStore<TreeModel>(this.loader);
-        this.store.setKeyProvider(new SenseKeyProvider<TreeModel>());
-        this.store.setStoreSorter(new StoreSorter<TreeModel>(new SensorComparator<SensorModel>()));
+        this.store = new TreeStore<UserModel>(this.loader);
+        this.store.setKeyProvider(new SenseKeyProvider<UserModel>());
+        this.store.setStoreSorter(new StoreSorter<UserModel>(new SensorComparator<UserModel>()));
 
-        ColumnConfig email = new ColumnConfig("email", "Email", 100);
-        ColumnConfig name = new ColumnConfig("text", "Name", 100);
+        ColumnConfig id = new ColumnConfig(UserModel.ID, "ID", 50);
+        id.setHidden(true);
+        ColumnConfig name = new ColumnConfig(UserModel.NAME, "Name", 125);
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnModel cm = new ColumnModel(Arrays.asList(name, email));
+        ColumnConfig surname = new ColumnConfig(UserModel.SURNAME, "Surname", 125);
+        ColumnConfig username = new ColumnConfig(UserModel.USERNAME, "Username", 100);
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, username));
 
-        this.grid = new TreeGrid<TreeModel>(this.store, cm);
+        this.grid = new TreeGrid<UserModel>(this.store, cm);
         this.grid.setAutoLoad(true);
         this.grid.setLoadMask(true);
         this.grid.setId("groupGrid");
         this.grid.setStateful(true);
-        this.grid.setAutoExpandColumn("text");
-        this.grid.setIconProvider(new SenseIconProvider<TreeModel>());
+        this.grid.setAutoExpandColumn(UserModel.USERNAME);
+        this.grid.setIconProvider(new SenseIconProvider<UserModel>());
     }
 
     private void initHeaderTool() {
@@ -240,7 +244,7 @@ public class GroupGrid extends View {
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
                 if (source.equals(createButton)) {
-                    fireEvent(GroupCreateEvents.ShowCreator);
+                    Dispatcher.forwardEvent(GroupCreateEvents.ShowCreator);
                 } else if (source.equals(leaveButton)) {
                     onLeaveClick();
                 } else if (source.equals(joinButton)) {
@@ -263,13 +267,13 @@ public class GroupGrid extends View {
         this.inviteButton.disable();
 
         // handle selections
-        TreeGridSelectionModel<TreeModel> selectionModel = new TreeGridSelectionModel<TreeModel>();
+        TreeGridSelectionModel<UserModel> selectionModel = new TreeGridSelectionModel<UserModel>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<TreeModel>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<UserModel>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<TreeModel> se) {
-                TreeModel selection = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<UserModel> se) {
+                UserModel selection = se.getSelectedItem();
                 if (null != selection) {
                     leaveButton.enable();
                     inviteButton.enable();
@@ -290,16 +294,16 @@ public class GroupGrid extends View {
     }
 
     private void leaveGroup() {
-        TreeModel group = grid.getSelectionModel().getSelectedItem();
-        while (null != group.getParent()) {
-            group = group.getParent();
+        UserModel group = grid.getSelectionModel().getSelectedItem();
+        while (!(group instanceof GroupModel)) {
+            group = (UserModel) group.getParent();
         }
-        String groupId = group.get("id");
+        int groupId = group.getId();
         fireEvent(new AppEvent(GroupEvents.LeaveRequested, groupId));
     }
 
     private void onInviteClick() {
-        TreeModel selected = grid.getSelectionModel().getSelectedItem();
+        UserModel selected = grid.getSelectionModel().getSelectedItem();
         GroupModel group = null;
         if (selected instanceof GroupModel) {
             group = (GroupModel) selected;

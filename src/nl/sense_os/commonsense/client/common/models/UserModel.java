@@ -1,10 +1,14 @@
 package nl.sense_os.commonsense.client.common.models;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
+/**
+ * Model for a user. GXT-style bean, used in various GXT components.
+ */
 public class UserModel extends BaseTreeModel {
 
     public static final String ID = "id";
@@ -13,8 +17,8 @@ public class UserModel extends BaseTreeModel {
     public static final String NAME = "name";
     public static final String SURNAME = "surname";
     public static final String USERNAME = "username";
-    private static final String UUID = "uuid";
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(UserModel.class.getName());
 
     public UserModel() {
         super();
@@ -24,27 +28,43 @@ public class UserModel extends BaseTreeModel {
         super(properties);
     }
 
-    public UserModel(String id, String username, String email, String name, String surname,
-            String mobile, String uuid) {
-        setId(id);
-        setUsername(username);
-        setName(name);
-        setSurname(surname);
-        setEmail(email);
-        setMobile(mobile);
-        setUuid(uuid);
-    }
-
     public UserModel(TreeModel parent) {
         super(parent);
+    }
+
+    public UserModel(UserJso jso) {
+        this();
+        setId(jso.getId());
+        setEmail(jso.getEmail());
+        setMobile(jso.getMobile());
+        setName(jso.getName());
+        setSurname(jso.getSurname());
+        setUsername(jso.getUsername());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UserModel) {
+            return getId() == ((UserModel) obj).getId();
+        } else {
+            return super.equals(obj);
+        }
     }
 
     public String getEmail() {
         return get(EMAIL);
     }
 
-    public String getId() {
-        return get(ID);
+    public int getId() {
+        Object property = get(ID);
+        if (property instanceof Integer) {
+            return ((Integer) property).intValue();
+        } else if (property instanceof String) {
+            return Integer.parseInt((String) property);
+        } else {
+            LOGGER.severe("Missing property: " + ID);
+            return -1;
+        }
     }
 
     public String getMobile() {
@@ -60,25 +80,20 @@ public class UserModel extends BaseTreeModel {
     }
 
     public String getUsername() {
-        return get(USERNAME);
+        return get(USERNAME, "USERNAME MISSING");
     }
 
-    public String getUuid() {
-        return get(UUID);
-    }
-
-    private UserModel setEmail(String email) {
+    public UserModel setEmail(String email) {
         set(EMAIL, email);
         return this;
-
     }
 
-    public UserModel setId(String id) {
+    public UserModel setId(int id) {
         set(ID, id);
         return this;
     }
 
-    private UserModel setMobile(String mobile) {
+    public UserModel setMobile(String mobile) {
         set(MOBILE, mobile);
         return this;
     }
@@ -88,32 +103,18 @@ public class UserModel extends BaseTreeModel {
         return this;
     }
 
-    private UserModel setSurname(String surname) {
+    public UserModel setSurname(String surname) {
         set(SURNAME, surname);
         return this;
     }
 
-    private UserModel setUsername(String username) {
+    public UserModel setUsername(String username) {
         set(USERNAME, username);
-        set("text", username);
         return this;
-    }
-
-    private void setUuid(String uuid) {
-        set(UUID, uuid);
     }
 
     @Override
     public String toString() {
-        return get(USERNAME, "User #" + getId());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof UserModel) {
-            return this.getId().equals(((UserModel) obj).getId());
-        } else {
-            return super.equals(obj);
-        }
+        return getUsername();
     }
 }

@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.groups.list.GetGroupUsersResponseJso;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 
 public class SensorShareController extends Controller {
 
@@ -66,8 +67,12 @@ public class SensorShareController extends Controller {
     }
 
     private void shareSensorCallback(AppEvent event) {
-        // parse the new list of users
-        List<UserModel> users = UserParser.parseGroupUsers(event.<String> getData("response"));
+
+        String response = event.<String> getData("response");
+
+        // parse list of users from the response
+        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+        List<UserModel> users = jso.getUsers();
 
         final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
         final String username = event.<String> getData("user");
@@ -110,7 +115,7 @@ public class SensorShareController extends Controller {
 
             // prepare request properties
             final String method = "POST";
-            final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/users.json";
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final String body = "{\"user\":{\"username\":\"" + username + "\"}}";
             final AppEvent onSuccess = new AppEvent(SensorShareEvents.ShareAjaxSuccess);

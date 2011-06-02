@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.states.connect;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
@@ -9,25 +10,26 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceModel;
+import nl.sense_os.commonsense.client.groups.list.GetServicesResponseJso;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnectController extends Controller {
-    private static final Logger logger = Logger.getLogger("StateConnectController");
+
+    private static final Logger LOGGER = Logger.getLogger(StateConnectController.class.getName());
     private View connecter;
 
     public StateConnectController() {
+
+        LOGGER.setLevel(Level.ALL);
+
         registerEventTypes(StateConnectEvents.ShowSensorConnecter);
 
         registerEventTypes(StateConnectEvents.ServiceNameRequest,
@@ -42,19 +44,18 @@ public class StateConnectController extends Controller {
                 StateConnectEvents.AvailableSensorsNotUpdated);
     }
 
-    private void connectService(TreeModel sensor, TreeModel service, String serviceName) {
+    private void connectService(SensorModel sensor, SensorModel stateSensor, String serviceName) {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID)
-                + "/services.json";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ConnectAjaxSuccess);
         final AppEvent onFailure = new AppEvent(StateConnectEvents.ConnectAjaxFailure);
 
         // prepare request body
         String body = "{\"service\":{";
-        body += "\"id\":\"" + service.<String> get(SensorModel.ID) + "\"";
+        body += "\"id\":\"" + stateSensor.getId() + "\"";
         body += ",\"name\":\"" + serviceName + "\"";
         body += "}}";
 
@@ -98,20 +99,20 @@ public class StateConnectController extends Controller {
         proxyCallback.onSuccess(result);
     }
 
-    private void getServiceName(TreeModel service) {
+    private void getServiceName(SensorModel stateSensor) {
 
-        if (service.getChildCount() == 0) {
+        if (stateSensor.getChildCount() == 0) {
             // if a service has no child sensors, we cannot get the name
             getServiceNameError();
             return;
         }
-        SensorModel sensor = (SensorModel) service.getChild(0);
+        SensorModel sensor = (SensorModel) stateSensor.getChild(0);
 
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get(SensorModel.ID) + "/services";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ServiceNameAjaxSuccess);
-        onSuccess.setData("service", service);
+        onSuccess.setData("stateSensor", stateSensor);
         final AppEvent onFailure = new AppEvent(StateConnectEvents.ServiceNameAjaxFailure);
 
         // send request to AjaxController
@@ -125,45 +126,33 @@ public class StateConnectController extends Controller {
 
     }
 
-    private void getServiceNameCallback(TreeModel service, String response) {
+    private void getServiceNameCallback(SensorModel stateSensor, String response) {
         if (response != null) {
-            // try to get "methods" array
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonVal = json.get("services");
-            if (null != jsonVal) {
-                JSONArray services = jsonVal.isArray();
-                if (null != services) {
 
-                    for (int i = 0; i < services.size(); i++) {
-                        JSONObject serviceJson = services.get(i).isObject();
-                        if (serviceJson != null) {
-                            String id = serviceJson.get(ServiceModel.ID).isString().stringValue();
-                            if (id.equals(service.<String> get(SensorModel.ID))) {
-                                String name = serviceJson.get(ServiceModel.NAME).isString()
-                                        .stringValue();
+            // parse list of running services from the response
+            GetServicesResponseJso jso = JsonUtils.unsafeEval(response);
+            List<ServiceModel> services = jso.getServices();
 
-                                // forward event to Connecter
-                                AppEvent event = new AppEvent(StateConnectEvents.ServiceNameSuccess);
-                                event.setData("name", name);
-                                forwardToView(this.connecter, event);
-                                return;
-                            }
-                        }
-                    }
+            // find the right service among all the running services
+            for (ServiceModel service : services) {
 
-                    // if we made it here, the service was not found!
-                    getServiceNameError();
+                int id = service.getId();
+                if (id == stateSensor.getId()) {
+                    String name = service.getName();
 
-                } else {
-                    logger.severe("Error parsing running services response: \"services\" is not a JSON Array");
-                    getServiceNameError();
+                    // forward event to Connecter
+                    AppEvent event = new AppEvent(StateConnectEvents.ServiceNameSuccess);
+                    event.setData("name", name);
+                    forwardToView(this.connecter, event);
+                    return;
                 }
-            } else {
-                logger.severe("Error parsing running services response: \"services\" is is not found");
-                getServiceNameError();
             }
+
+            // if we made it here, the service was not found!
+            getServiceNameError();
+
         } else {
-            logger.severe("Error parsing running services response: response=null");
+            LOGGER.severe("Error parsing running services response: response=null");
             getServiceNameError();
         }
 
@@ -181,7 +170,7 @@ public class StateConnectController extends Controller {
          * Get available sensors for this service
          */
         if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
-            // logger.fine( "AvailableSensorsRequested");
+            LOGGER.fine("AvailableSensorsRequested");
             final String serviceName = event.<String> getData("name");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
@@ -193,19 +182,19 @@ public class StateConnectController extends Controller {
          * Connect sensor to the service
          */
         if (type.equals(StateConnectEvents.ConnectRequested)) {
-            // logger.fine( "ConnectRequested");
-            final TreeModel sensor = event.<TreeModel> getData("sensor");
-            final TreeModel service = event.<TreeModel> getData("service");
+            LOGGER.fine("ConnectRequested");
+            final SensorModel sensor = event.<SensorModel> getData("sensor");
+            final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             final String serviceName = event.<String> getData("serviceName");
-            connectService(sensor, service, serviceName);
+            connectService(sensor, stateSensor, serviceName);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxFailure)) {
-            logger.warning("ConnectAjaxFailure");
+            LOGGER.warning("ConnectAjaxFailure");
             final int code = event.getData("code");
             connectServiceErrorCallback(code);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxSuccess)) {
-            // logger.fine( "ConnectAjaxSuccess");
+            LOGGER.fine("ConnectAjaxSuccess");
             final String response = event.<String> getData("response");
             connectServiceCallback(response);
 
@@ -215,18 +204,18 @@ public class StateConnectController extends Controller {
          * Get service name (before getting available sensors)
          */
         if (type.equals(StateConnectEvents.ServiceNameRequest)) {
-            // logger.fine( "ServiceNameRequest");
-            final TreeModel service = event.<TreeModel> getData("service");
+            LOGGER.fine("ServiceNameRequest");
+            final SensorModel service = event.<SensorModel> getData("stateSensor");
             getServiceName(service);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxSuccess)) {
-            // logger.fine( "ServiceNameAjaxSuccess");
-            final TreeModel service = event.<TreeModel> getData("service");
+            LOGGER.fine("ServiceNameAjaxSuccess");
+            final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             final String response = event.<String> getData("response");
-            getServiceNameCallback(service, response);
+            getServiceNameCallback(stateSensor, response);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxFailure)) {
-            logger.warning("ServiceNameAjaxFailure");
+            LOGGER.warning("ServiceNameAjaxFailure");
             getServiceNameError();
 
         } else

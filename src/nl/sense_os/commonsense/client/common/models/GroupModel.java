@@ -2,16 +2,14 @@ package nl.sense_os.commonsense.client.common.models;
 
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
-public class GroupModel extends BaseTreeModel {
+/**
+ * Model for a group (essentially a special user). GXT-style bean, used in various GXT components.
+ */
+public class GroupModel extends UserModel {
 
     private static final long serialVersionUID = 1L;
-    public static final String ID = "id";
-    public static final String EMAIL = "email";
-    public static final String USERNAME = "username";
-    public static final String NAME = "name";
 
     public GroupModel() {
         super();
@@ -25,24 +23,7 @@ public class GroupModel extends BaseTreeModel {
         super(parent);
     }
 
-    public String getId() {
-        return get(ID);
-    }
-
-    public String getEmail() {
-        return get(EMAIL);
-    }
-
-    public String getUsername() {
-        return get(USERNAME);
-    }
-
-    public String getName() {
-        return get(NAME);
-    }
-
-    @Override
-    public String toString() {
-        return get("text", "Group #" + getId());
+    public GroupModel(UserJso jso) {
+        super(jso);
     }
 }

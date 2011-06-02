@@ -120,12 +120,12 @@ public class StateGrid extends View {
     }
 
     private void disconnectSensor() {
-        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
-        TreeModel service = sensor.getParent();
+        SensorModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        SensorModel stateSensor = store.getParent(sensor);
 
         AppEvent event = new AppEvent(StateListEvents.RemoveRequested);
         event.setData("sensor", sensor);
-        event.setData("service", service);
+        event.setData("stateSensor", stateSensor);
         Dispatcher.forwardEvent(event);
         setBusy(true);
     }
@@ -246,7 +246,7 @@ public class StateGrid extends View {
             @Override
             public boolean hasChildren(SensorModel parent) {
                 // only state sensors have children
-                return parent.getType().equals("2");
+                return (parent.getType() == 2);
             };
         };
 
@@ -259,23 +259,25 @@ public class StateGrid extends View {
         List<ColumnConfig> columns = LibraryColumnsFactory.create().getColumns();
         ColumnModel cm = new ColumnModel(columns);
         ColumnConfig type = cm.getColumnById(SensorModel.TYPE);
-        type.setRenderer(new TreeGridCellRenderer<SensorModel>() {
+        if (type != null) {
+            type.setRenderer(new TreeGridCellRenderer<SensorModel>() {
 
-            @Override
-            protected String getText(TreeGrid<SensorModel> grid, SensorModel model,
-                    String property, int rowIndex, int colIndex) {
-                // type text is always empty, use SenseIconProvider to differentiate
-                return "";
-            }
-        });
-        type.setWidth(85);
+                @Override
+                protected String getText(TreeGrid<SensorModel> grid, SensorModel model,
+                        String property, int rowIndex, int colIndex) {
+                    // type text is always empty, use SenseIconProvider to differentiate
+                    return "";
+                }
+            });
+            type.setWidth(65);
+        }
 
         this.grid = new TreeGrid<SensorModel>(this.store, cm);
         this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
         this.grid.setId("stateGrid");
         this.grid.setStateful(true);
         this.grid.setAutoLoad(true);
-        this.grid.setAutoExpandColumn(SensorModel.DISPLAY_NAME);
+        this.grid.setAutoExpandColumn(SensorModel.ENVIRONMENT_NAME);
         this.grid.setIconProvider(new SenseIconProvider<SensorModel>());
     }
 

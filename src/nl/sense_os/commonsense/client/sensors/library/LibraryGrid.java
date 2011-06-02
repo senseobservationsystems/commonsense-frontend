@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
@@ -16,6 +19,7 @@ import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
@@ -52,9 +56,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.List;
-import java.util.logging.Logger;
 
 public class LibraryGrid extends View {
 
@@ -310,6 +311,10 @@ public class LibraryGrid extends View {
         this.store = new GroupingStore<SensorModel>(loader);
         this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
         this.store.setMonitorChanges(true);
+
+        // this.store.groupBy(SensorModel.DEVICE_TYPE, true);
+        this.store.sort(SensorModel.DISPLAY_NAME, SortDir.ASC);
+        this.store.setDefaultSort(SensorModel.DISPLAY_NAME, SortDir.ASC);
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();

@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider<M> {
 
-    private static final Logger logger = Logger.getLogger("SenseIconProvider");
+    private static final Logger LOGGER = Logger.getLogger(SenseIconProvider.class.getName());
 
     public static final String GXT_ICONS_PATH = "gxt/images/gxt/icons/";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";
@@ -72,9 +72,11 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             return ICON_DEVICE;
 
         } else if (model instanceof SensorModel) {
-            List<UserModel> users = ((SensorModel) model).getUsers();
+            SensorModel sensor = (SensorModel) model;
+
+            List<UserModel> users = sensor.getUsers();
+            int type = sensor.getType();
             if (users != null && users.size() > 0) {
-                final int type = Integer.parseInt(model.<String> get("type"));
                 switch (type) {
                 case 0:
                     return ICON_SENSOR_FEED_SHARED;
@@ -90,7 +92,6 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
                     return ICON_GXT_LEAF;
                 }
             } else {
-                final int type = Integer.parseInt(model.<String> get("type"));
                 switch (type) {
                 case 0:
                     return ICON_SENSOR_FEED;
@@ -116,7 +117,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             }
 
         } else {
-            logger.severe("Unexpected model class: " + model);
+            LOGGER.severe("Unexpected model class: " + model);
             return ICON_GXT_DONE;
         }
     }

@@ -19,7 +19,6 @@ import nl.sense_os.commonsense.client.common.models.SensorModel;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -77,10 +76,10 @@ public class SensorDataGrid extends LayoutContainer {
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
                 String id = model.<String> get(property);
-                for (TreeModel sensor : sensors) {
-                    if (id.equals(sensor.<String> get("id"))) {
-                        String name = sensor.<String> get("name");
-                        String deviceType = sensor.<String> get("device_type");
+                for (SensorModel sensor : sensors) {
+                    if (id.equals("" + sensor.getId())) {
+                        String name = sensor.getName();
+                        String deviceType = sensor.getPhysicalSensor();
                         if (name.equals(deviceType)) {
                             return name;
                         }
@@ -155,13 +154,13 @@ public class SensorDataGrid extends LayoutContainer {
 
     private String createUrl(List<SensorModel> sensors) {
 
-        String id = sensors.get(0).<String> get("id");
+        int id = sensors.get(0).getId();
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        String result = Urls.DATA.replaceAll("<id>", id);
+        String result = Urls.DATA.replaceAll("<id>", "" + id);
         result += "?session_id=" + sessionId;
 
-        final String alias = sensors.get(0).get(SensorModel.ALIAS);
-        if (alias != null) {
+        final int alias = sensors.get(0).getAlias();
+        if (alias != -1) {
             result += "&alias=" + alias;
         }
         result += "&total=1";

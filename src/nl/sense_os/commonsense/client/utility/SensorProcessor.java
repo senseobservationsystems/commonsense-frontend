@@ -20,7 +20,7 @@ public class SensorProcessor<M extends SensorModel> extends ModelProcessor<M> {
         final UserModel owner = model.getOwner();
         if (null != owner) {
             model.set(SensorModel.OWNER_EMAIL, owner.getEmail());
-            model.set(SensorModel.OWNER_ID, owner.getId());
+            model.set(SensorModel.OWNER_ID, "" + owner.getId());
             model.set(SensorModel.OWNER_MOBILE, owner.getMobile());
             model.set(SensorModel.OWNER_NAME, owner.getName());
             model.set(SensorModel.OWNER_SURNAME, owner.getSurname());
@@ -36,7 +36,7 @@ public class SensorProcessor<M extends SensorModel> extends ModelProcessor<M> {
 
         final DeviceModel device = model.getDevice();
         if (null != device) {
-            model.set(SensorModel.DEVICE_ID, device.getId());
+            model.set(SensorModel.DEVICE_ID, "" + device.getId());
             model.set(SensorModel.DEVICE_TYPE, device.getType());
             model.set(SensorModel.DEVICE_UUID, device.getUuid());
         } else {
@@ -47,11 +47,11 @@ public class SensorProcessor<M extends SensorModel> extends ModelProcessor<M> {
 
         final EnvironmentModel environment = model.getEnvironment();
         if (null != environment) {
-            model.set(SensorModel.ENVIRONMENT_ID, environment.getId());
+            model.set(SensorModel.ENVIRONMENT_ID, "" + environment.getId());
             model.set(SensorModel.ENVIRONMENT_NAME, environment.getName());
-            model.set(SensorModel.ENVIRONMENT_FLOORS, environment.getFloors());
-            model.set(SensorModel.ENVIRONMENT_OUTLINE, environment.getOutline());
-            model.set(SensorModel.ENVIRONMENT_POSITION, environment.getPosition());
+            model.set(SensorModel.ENVIRONMENT_FLOORS, "" + environment.getFloors());
+            model.set(SensorModel.ENVIRONMENT_OUTLINE, "" + environment.getOutline());
+            model.set(SensorModel.ENVIRONMENT_POSITION, "" + environment.getPosition());
         } else {
             model.remove(SensorModel.ENVIRONMENT_ID);
             model.remove(SensorModel.ENVIRONMENT_NAME);

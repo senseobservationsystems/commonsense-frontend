@@ -43,7 +43,7 @@ public class LibraryColumnsFactory {
             @Override
             public Object render(SensorModel model, String property, ColumnData config,
                     int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                if (model.getType().equals("1") && !model.getPhysicalSensor().equals(model.getName())) {
+                if (model.getType() == 1 && !model.getPhysicalSensor().equals(model.getName())) {
                     return model.getPhysicalSensor();
                 } else {
                     return "";
@@ -55,7 +55,7 @@ public class LibraryColumnsFactory {
         ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);
         devId.setHidden(true);
 
-        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE_TYPE, "Device", 100);
+        ColumnConfig device = new ColumnConfig(SensorModel.DEVICE, "Device", 100);
 
         ColumnConfig devUuid = new ColumnConfig(SensorModel.DEVICE_UUID, "Device UUID", 50);
         devUuid.setHidden(true);

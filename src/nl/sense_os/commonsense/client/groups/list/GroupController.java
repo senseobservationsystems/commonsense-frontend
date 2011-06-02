@@ -8,21 +8,20 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
-import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupController extends Controller {
@@ -48,6 +47,7 @@ public class GroupController extends Controller {
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(InviteEvents.InviteComplete);
+        registerEventTypes(GroupCreateEvents.CreateComplete);
     }
 
     /**
@@ -65,7 +65,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupMembers(GroupModel group, AsyncCallback<List<TreeModel>> callback) {
+    private void getGroupMembers(GroupModel group, AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
@@ -100,7 +100,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroups(AsyncCallback<List<TreeModel>> callback) {
+    private void getGroups(AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
         Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
@@ -135,33 +135,33 @@ public class GroupController extends Controller {
         if (type.equals(GroupEvents.LoadRequest)) {
             // logger.fine( "LoadRequest");
             final Object loadConfig = event.getData("loadConfig");
-            final AsyncCallback<List<TreeModel>> callback = event
-                    .<AsyncCallback<List<TreeModel>>> getData("callback");
+            final AsyncCallback<List<UserModel>> callback = event
+                    .<AsyncCallback<List<UserModel>>> getData("callback");
             onLoadRequest(loadConfig, callback);
 
         } else if (type.equals(GroupEvents.GroupsAjaxFailure)) {
             logger.warning("GroupsAjaxFailure");
             // final int code = event.getData("code");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
+            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
             onGroupsFailure(callback);
 
         } else if (type.equals(GroupEvents.GroupsAjaxSuccess)) {
             // logger.fine( "GroupsAjaxSuccess");
             final String response = event.getData("response");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
+            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
             onGroupsSuccess(response, callback);
 
         } else if (type.equals(GroupEvents.GroupMembersAjaxFailure)) {
             logger.warning("GroupMembersAjaxFailure");
             // final int code = event.getData("code");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
+            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
             onGroupMembersFailure(callback);
 
         } else if (type.equals(GroupEvents.GroupMembersAjaxSuccess)) {
             // logger.fine( "GroupMembersAjaxSuccess");
             final String response = event.getData("response");
             final GroupModel group = event.getData("group");
-            final AsyncCallback<List<TreeModel>> callback = event.getData("callback");
+            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
             onGroupMembersSuccess(response, group, callback);
 
         } else
@@ -171,7 +171,7 @@ public class GroupController extends Controller {
          */
         if (type.equals(GroupEvents.LeaveRequested)) {
             // logger.fine( "LeaveRequested");
-            final String groupId = event.<String> getData();
+            final int groupId = event.getData();
             leaveGroup(groupId);
 
         } else if (type.equals(GroupEvents.AjaxLeaveFailure)) {
@@ -215,7 +215,7 @@ public class GroupController extends Controller {
         Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
     }
 
-    private void leaveGroup(String groupId) {
+    private void leaveGroup(int groupId) {
 
         // prepare request property
         final String method = "DELETE";
@@ -234,7 +234,7 @@ public class GroupController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void onGroupMembersFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void onGroupMembersFailure(AsyncCallback<List<UserModel>> callback) {
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         if (null != callback) {
@@ -259,9 +259,13 @@ public class GroupController extends Controller {
      *            complete.
      */
     private void onGroupMembersSuccess(String response, GroupModel group,
-            AsyncCallback<List<TreeModel>> callback) {
+            AsyncCallback<List<UserModel>> callback) {
 
-        List<UserModel> users = UserParser.parseGroupUsers(response);
+        // parse list of users from the response
+        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+        List<UserModel> users = jso.getUsers();
+
+        // add users to the group
         for (UserModel user : users) {
             group.add(user);
         }
@@ -269,11 +273,11 @@ public class GroupController extends Controller {
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         if (null != callback) {
-            callback.onSuccess(new ArrayList<TreeModel>(users));
+            callback.onSuccess(new ArrayList<UserModel>(users));
         }
     }
 
-    private void onGroupsFailure(AsyncCallback<List<TreeModel>> callback) {
+    private void onGroupsFailure(AsyncCallback<List<UserModel>> callback) {
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         if (null != callback) {
@@ -291,18 +295,19 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of groups is
      *            complete.
      */
-    private void onGroupsSuccess(String response, AsyncCallback<List<TreeModel>> callback) {
+    private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
 
-        // parse the array with group details
-        List<GroupModel> groups = GroupParser.parseGroups(response);
+        // parse list of groups from the response
+        GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+        List<GroupModel> groups = jso.getGroups();
 
         Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-        callback.onSuccess(new ArrayList<TreeModel>(groups));
+        callback.onSuccess(new ArrayList<UserModel>(groups));
     }
 
-    private void onLoadRequest(Object loadConfig, AsyncCallback<List<TreeModel>> callback) {
+    private void onLoadRequest(Object loadConfig, AsyncCallback<List<UserModel>> callback) {
 
         if (null == loadConfig) {
             getGroups(callback);
@@ -312,7 +317,7 @@ public class GroupController extends Controller {
             getGroupMembers(group, callback);
 
         } else {
-            callback.onSuccess(new ArrayList<TreeModel>());
+            callback.onSuccess(new ArrayList<UserModel>());
         }
     }
 }

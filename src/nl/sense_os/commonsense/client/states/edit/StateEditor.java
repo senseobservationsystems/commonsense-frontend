@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -43,7 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 public class StateEditor extends View {
 
     private static final Logger logger = Logger.getLogger("StateEditor");
-    private TreeModel service;
+    private SensorModel stateSensor;
     private ComboBox<ModelData> methodField;
     private FieldSet paramFields;
     private LabelField returnField;
@@ -129,7 +129,7 @@ public class StateEditor extends View {
         methodField = new ComboBox<ModelData>();
         methodField.setFieldLabel("Method");
         methodField.setDisplayField("name");
-        methodField.setEmptyText("Select service method...");
+        methodField.setEmptyText("Select state service method...");
         methodField.setStore(this.store);
         methodField.setTypeAhead(true);
         methodField.setTriggerAction(TriggerAction.ALL);
@@ -213,8 +213,8 @@ public class StateEditor extends View {
     }
 
     private void onShow(AppEvent event) {
-        service = event.<TreeModel> getData();
-        List<ModelData> methods = service.get("methods");
+        stateSensor = event.<SensorModel> getData();
+        List<ModelData> methods = stateSensor.get("methods");
 
         if (null != methods) {
 
@@ -240,7 +240,7 @@ public class StateEditor extends View {
             }
         }
         AppEvent event = new AppEvent(StateEditEvents.InvokeMethodRequested);
-        event.setData("service", service);
+        event.setData("stateSensor", stateSensor);
         event.setData("method", method);
         event.setData("parameters", params);
         Dispatcher.forwardEvent(event);

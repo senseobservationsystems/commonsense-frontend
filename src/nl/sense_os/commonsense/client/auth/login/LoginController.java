@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.utility.Md5Hasher;
@@ -16,10 +15,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JsonUtils;
 
 public class LoginController extends Controller {
 
@@ -81,7 +77,7 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
             // logger.fine( "AjaxLoginSuccess");
             final String response = event.<String> getData("response");
-            parseLoginReponse(response);
+            onLoginSuccess(response);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
             logger.warning("AjaxLoginFailure");
@@ -165,11 +161,6 @@ public class LoginController extends Controller {
         Dispatcher.forwardEvent(LoginEvents.LoginSuccess, user);
     }
 
-    private void onLoggedIn(String sessionId) {
-        Registry.register(Constants.REG_SESSION_ID, sessionId);
-        getCurrentUser();
-    }
-
     private void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
@@ -190,26 +181,21 @@ public class LoginController extends Controller {
         onLoggedOut("Status code: " + code);
     }
 
-    private void parseLoginReponse(String response) {
+    private void onLoginSuccess(String response) {
         if (response != null) {
 
             // try to get "session_id" object
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonVal = json.get("session_id");
-            if (null != jsonVal) {
-                JSONString jsonString = jsonVal.isString();
-                if (null != jsonString) {
-                    String sessionId = jsonString.stringValue();
+            LoginResponseJso jso = JsonUtils.unsafeEval(response);
+            String sessionId = jso.getSessionId();
 
-                    onLoggedIn(sessionId);
-                } else {
-                    logger.severe("Error parsing login response: \"session_id\" is not a JSON String");
-                    onLoginFailure(0);
-                }
+            if (null != sessionId) {
+                Registry.register(Constants.REG_SESSION_ID, sessionId);
+                getCurrentUser();
+
             } else {
-                logger.severe("Error parsing login response: \"session_id\" is is not found");
                 onLoginFailure(0);
             }
+
         } else {
             logger.severe("Error parsing login response: response=null");
             onLoginFailure(0);
@@ -220,23 +206,16 @@ public class LoginController extends Controller {
         if (response != null) {
 
             // try to get "user" object
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonValue = json.get("user");
-            if (null != jsonValue) {
-                JSONObject jsonUser = jsonValue.isObject();
+            CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
+            UserModel user = jso.getUser();
 
-                if (null != jsonUser) {
-                    UserModel user = UserParser.parseUser(jsonUser);
-                    onCurrentUser(user);
-                } else {
-                    logger.severe("Error parsing current user response: "
-                            + "\"user\" is not a valid JSONObject");
-                    onLoginFailure(0);
-                }
+            if (null != user) {
+                onCurrentUser(user);
             } else {
-                logger.severe("Error parsing current user response: \"user\" JSONValue not found");
+                logger.severe("Unexpected current user response");
                 onLoginFailure(0);
             }
+
         } else {
             logger.severe("Error parsing current user response: response=null");
             onLoginFailure(0);

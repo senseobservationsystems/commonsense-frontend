@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Polygon;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -155,8 +156,10 @@ public class EnvGrid extends View {
                     Grid<EnvironmentModel> grid) {
                 Polygon outline = model.getOutline();
                 String outString = "";
-                for (int i = 0; i < outline.getVertexCount(); i++) {
-                    outString += outline.getVertex(i).toUrlValue() + "; ";
+                if (outline != null) {
+                    for (int i = 0; i < outline.getVertexCount(); i++) {
+                        outString += outline.getVertex(i).toUrlValue() + "; ";
+                    }
                 }
                 return outString;
             }
@@ -169,7 +172,12 @@ public class EnvGrid extends View {
             public Object render(EnvironmentModel model, String property, ColumnData config,
                     int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
                     Grid<EnvironmentModel> grid) {
-                return model.getPosition().toUrlValue();
+                LatLng position = model.getPosition();
+                if (null != position) {
+                    return model.getPosition().toUrlValue();
+                } else {
+                    return "";
+                }
             }
         });
         position.setHidden(true);

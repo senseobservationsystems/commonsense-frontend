@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
@@ -21,14 +20,18 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("EnvController");
+    private static final Logger LOGGER = Logger.getLogger(EnvController.class.getName());
     private View grid;
 
     public EnvController() {
+
+        // LOGGER.setLevel(Level.ALL);
+
         // events to update the list of groups
         registerEventTypes(MainEvents.Init);
         registerEventTypes(VizEvents.Show);
@@ -70,20 +73,20 @@ public class EnvController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(EnvEvents.ListRequested)) {
-            logger.fine("LoadRequest");
+            LOGGER.fine("LoadRequest");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);
 
         } else if (type.equals(EnvEvents.ListAjaxSuccess)) {
-            // logger.fine( "FullDetailsAjaxSuccess");
+            LOGGER.fine("ListAjaxSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListSuccess(response, callback);
 
         } else if (type.equals(EnvEvents.ListAjaxFailure)) {
-            logger.warning("FullDetailsAjaxFailure");
+            LOGGER.warning("ListAjaxFailure");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListFailure(callback);
@@ -91,18 +94,18 @@ public class EnvController extends Controller {
         } else
 
         if (type.equals(EnvEvents.DeleteRequest)) {
-            logger.fine("DeleteRequest");
+            LOGGER.fine("DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            logger.fine("DeleteAjaxSuccess");
+            LOGGER.fine("DeleteAjaxSuccess");
             // final String response = event.getData("response");
             final EnvironmentModel environment = event.getData("environment");
             onDeleteSuccess(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxFailure)) {
-            logger.warning("DeleteAjaxFailure");
+            LOGGER.warning("DeleteAjaxFailure");
             // final int code = event.getData("code");
             onDeleteFailure();
 
@@ -148,8 +151,10 @@ public class EnvController extends Controller {
     }
 
     private void onListSuccess(String response, AsyncCallback<List<EnvironmentModel>> callback) {
-        List<EnvironmentModel> environments = new ArrayList<EnvironmentModel>();
-        EnvironmentParser.parseList(response, environments);
+
+        // parse the list of environments from the response
+        GetEnvironmentsResponseJso jso = JsonUtils.unsafeEval(response);
+        List<EnvironmentModel> environments = jso.getEnvironments();
 
         Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).addAll(environments);
 

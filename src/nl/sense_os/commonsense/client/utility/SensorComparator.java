@@ -20,8 +20,8 @@ public class SensorComparator<M extends Object> implements Comparator<Object> {
 
         SensorModel mdl1 = (SensorModel) obj1;
         SensorModel mdl2 = (SensorModel) obj2;
-        int type1 = Integer.parseInt(mdl1.getType());
-        switch (type1) {
+        int type1 = -1;
+        switch (mdl1.getType()) {
         case 0:
             type1 = FEEDS;
             break;
@@ -38,8 +38,8 @@ public class SensorComparator<M extends Object> implements Comparator<Object> {
             type1 = APPLICATIONS;
             break;
         }
-        int type2 = Integer.parseInt(mdl2.getType());
-        switch (type2) {
+        int type2 = -1;
+        switch (mdl2.getType()) {
         case 0:
             type2 = FEEDS;
             break;

@@ -29,7 +29,7 @@ public class SensorGroupRenderer implements GridGroupRenderer {
 
         String group = data.group;
         if (data.field.equals(SensorModel.TYPE)) {
-            int type = Integer.parseInt(data.group);
+            int type = Integer.parseInt("" + data.group);
             switch (type) {
             case 0:
                 group = "Feeds";

@@ -1,10 +1,11 @@
 package nl.sense_os.commonsense.client.viz.data.cache;
 
-import nl.sense_os.commonsense.client.common.json.overlays.BackEndDataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
+import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.core.client.JsonUtils;
 
 /**
@@ -34,7 +35,7 @@ final class CacheJso extends JavaScriptObject {
      * @param id
      *            ID of the sensor to remove the data for.
      */
-    protected native void remove(String id) /*-{
+    protected native void remove(int id) /*-{
 		for ( var i = 0; i < this.content.length; i++) {
 			var timeseries = this.content[i];
 			if (timeseries.id == id) {
@@ -55,7 +56,7 @@ final class CacheJso extends JavaScriptObject {
      *            End time of period to get data from, in milliseconds. Passed as a double because
      *            JavaScript does not have long type.
      */
-    protected native JsArray<Timeseries> request(JsArray<?> ids, double start, double end) /*-{
+    protected native JsArray<Timeseries> request(JsArrayInteger ids, double start, double end) /*-{
 		var result = [];
 
 		// for each sensor in the request
@@ -132,7 +133,7 @@ final class CacheJso extends JavaScriptObject {
      * @param values
      *            JsArray with sensor value objects.
      */
-    protected native void store(String id, String label, double start, double end,
+    protected native void store(int id, String label, double start, double end,
             JsArray<BackEndDataPoint> values) /*-{
 
 		// check all values in the array 

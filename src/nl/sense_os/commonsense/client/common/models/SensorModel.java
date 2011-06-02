@@ -2,15 +2,19 @@ package nl.sense_os.commonsense.client.common.models;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
+
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
+/**
+ * Model for a sensor. GXT-style bean, used in various GXT components.
+ */
 public class SensorModel extends BaseTreeModel {
 
     public static final String DATA_STRUCTURE = "data_structure";
     public static final String DATA_TYPE = "data_type";
-    public static final String DATA_TYPE_ID = "data_type_id";
     public static final String PHYSICAL_SENSOR = "device_type";
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -43,6 +47,7 @@ public class SensorModel extends BaseTreeModel {
     public static final String ENVIRONMENT_POSITION = "environment_position";
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(SensorModel.class.getName());
 
     public SensorModel() {
         super();
@@ -50,6 +55,21 @@ public class SensorModel extends BaseTreeModel {
 
     public SensorModel(Map<String, Object> properties) {
         super(properties);
+    }
+
+    public SensorModel(SensorJso jso) {
+        this();
+        setId(jso.getId());
+        setName(jso.getName());
+        setType(jso.getType());
+        setPhysicalSensor(jso.getPhysicalSensor());
+        setDataStructure(jso.getDataStructure());
+        setDataType(jso.getDataType());
+        setDevice(jso.getDevice());
+        setDisplayName(jso.getDisplayName());
+        setEnvironment(jso.getEnvironment());
+        setOwner(jso.getOwner());
+        setPagerType(jso.getPagerType());
     }
 
     public SensorModel(TreeModel parent) {
@@ -61,15 +81,12 @@ public class SensorModel extends BaseTreeModel {
         if (obj instanceof SensorModel) {
             final SensorModel sensor = (SensorModel) obj;
 
-            boolean idEqual = this.getId().equals(sensor.getId());
-            boolean ownerEqual = this.getOwner() == null
-                    || (this.getOwner().equals(sensor.getOwner()));
-            boolean environmentEqual = this.getEnvironment() == null
-                    || (this.getEnvironment().equals(sensor.getEnvironment()));
-            boolean deviceEqual = this.getDevice() == null
-                    || (this.getDevice().equals(sensor.getDevice()));
-            boolean parentEqual = this.getParent() == null
-                    || (this.getParent().equals(sensor.getParent()));
+            boolean idEqual = getId() == sensor.getId();
+            boolean ownerEqual = getOwner() == null || getOwner().equals(sensor.getOwner());
+            boolean environmentEqual = getEnvironment() == null
+                    || getEnvironment().equals(sensor.getEnvironment());
+            boolean deviceEqual = getDevice() == null || getDevice().equals(sensor.getDevice());
+            boolean parentEqual = getParent() == null || getParent().equals(sensor.getParent());
 
             return idEqual && ownerEqual && environmentEqual && deviceEqual && parentEqual;
         } else {
@@ -77,68 +94,192 @@ public class SensorModel extends BaseTreeModel {
         }
     }
 
-    public String getAlias() {
-        return get(ALIAS);
+    /**
+     * @return The ID of the group that can access this sensor, if the current user is not directly
+     *         able to access it. If the sensor has no alias, -1 is returned.
+     */
+    public int getAlias() {
+        Object property = get(ALIAS);
+        if (property instanceof Integer) {
+            return ((Integer) property).intValue();
+        } else if (property instanceof String) {
+            return Integer.parseInt((String) property);
+        } else {
+            return -1;
+        }
     }
 
+    /**
+     * @return A list of services that are available for this sensor.
+     */
     public List<ServiceModel> getAvailServices() {
         return get(AVAIL_SERVICES);
     }
 
+    /**
+     * @return The data structure of this sensor, if it has a complex data type. For JSON sensors,
+     *         this should contain the names of the fields and their types.
+     */
     public String getDataStructure() {
         return get(DATA_STRUCTURE);
     }
 
+    /**
+     * @return The data type of this sensor. E.g. 'float', 'string or 'json'.
+     */
     public String getDataType() {
         return get(DATA_TYPE);
     }
 
-    public String getDataTypeId() {
-        return get(DATA_TYPE_ID);
-    }
-
+    /**
+     * @return The device that this sensor is connected to.
+     */
     public DeviceModel getDevice() {
         return get(DEVICE);
     }
 
+    /**
+     * @return The sensor's display name.
+     */
     public String getDisplayName() {
         return get(DISPLAY_NAME);
     }
 
+    /**
+     * @return The environment this sensor is connected to (if any).
+     */
     public EnvironmentModel getEnvironment() {
         return get(ENVIRONMENT);
     }
 
-    public String getId() {
-        return get(ID);
+    /**
+     * @return The sensor's ID.
+     */
+    public int getId() {
+        Object property = get(ID);
+        if (property instanceof Integer) {
+            return ((Integer) property).intValue();
+        } else if (property instanceof String) {
+            return Integer.parseInt((String) property);
+        } else {
+            LOGGER.severe("Missing property: " + ID);
+            return -1;
+        }
     }
 
+    /**
+     * @return The sensor's name.
+     */
     public String getName() {
         return get(NAME);
     }
 
+    /**
+     * @return The sensor's owner.
+     */
     public UserModel getOwner() {
         return get(OWNER);
     }
 
+    /**
+     * @return The sensor's pager type.
+     */
     public String getPagerType() {
         return get(PAGER_TYPE);
     }
 
+    /**
+     * @return The physical sensing device of this sensor, of any. Not to be confused with the
+     *         device that the sensor is connected to.
+     */
     public String getPhysicalSensor() {
         return get(PHYSICAL_SENSOR);
     }
 
-    public String getType() {
-        return get(TYPE);
+    /**
+     * @return The sensor type, e.g. a physical sensor, or state sensor.
+     */
+    public int getType() {
+        Object property = get(TYPE);
+        if (property instanceof Integer) {
+            return ((Integer) property).intValue();
+        } else if (property instanceof String) {
+            return Integer.parseInt((String) property);
+        } else {
+            LOGGER.severe("Missing property: " + TYPE);
+            return -1;
+        }
     }
 
+    /**
+     * @return The list of users that have access to this sensor.
+     */
     public List<UserModel> getUsers() {
         return get(USERS);
     }
 
+    public SensorModel setAlias(int alias) {
+        set(ALIAS, alias);
+        return this;
+    }
+
+    public SensorModel setDataStructure(String dataStructure) {
+        set(DATA_STRUCTURE, dataStructure);
+        return this;
+    }
+
+    public SensorModel setDataType(String dataType) {
+        set(DATA_TYPE, dataType);
+        return this;
+    }
+
+    public SensorModel setDevice(DeviceModel device) {
+        set(DEVICE, device);
+        return this;
+    }
+
+    public SensorModel setDisplayName(String displayName) {
+        set(DISPLAY_NAME, displayName);
+        return this;
+    }
+
+    public SensorModel setEnvironment(EnvironmentModel environment) {
+        set(ENVIRONMENT, environment);
+        return this;
+    }
+
+    public SensorModel setId(int id) {
+        set(ID, id);
+        return this;
+    }
+
+    public SensorModel setName(String name) {
+        set(NAME, name);
+        return this;
+    }
+
+    public SensorModel setOwner(UserModel owner) {
+        set(OWNER, owner);
+        return this;
+    }
+
+    public SensorModel setPagerType(String pagerType) {
+        set(PAGER_TYPE, pagerType);
+        return this;
+    }
+
+    public SensorModel setPhysicalSensor(String physicalSensor) {
+        set(PHYSICAL_SENSOR, physicalSensor);
+        return this;
+    }
+
+    public SensorModel setType(int type) {
+        set(TYPE, type);
+        return this;
+    }
+
     @Override
     public String toString() {
-        return get(DISPLAY_NAME, "Sensor #" + getId());
+        return getDisplayName();
     }
 }

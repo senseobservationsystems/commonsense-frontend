@@ -8,11 +8,10 @@ import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.overlays.BackEndDataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.BackEndSensorData;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
+import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -46,9 +45,9 @@ public class DataController extends Controller {
             SensorModel sensor = sensors.get(index);
 
             final String method = "GET";
-            String url = Urls.DATA.replace("<id>", sensor.getId()) + "?last=1";
-            if (null != sensor.get(SensorModel.ALIAS)) {
-                url += "&alias=" + sensor.get(SensorModel.ALIAS);
+            String url = Urls.DATA.replace("<id>", "" + sensor.getId()) + "?last=1";
+            if (-1 != sensor.getAlias()) {
+                url += "&alias=" + sensor.getAlias();
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.LatestValueAjaxSuccess);
@@ -192,7 +191,7 @@ public class DataController extends Controller {
         updateSubProgress(-1, -1, "Parsing received data chunk...");
 
         // parse the incoming data
-        BackEndSensorData jsoResponse = BackEndSensorData.create(response);
+        GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
         if (sensorProgress == 0) {
             sensorTotal = jsoResponse.getTotal(); // store the total count
@@ -271,7 +270,7 @@ public class DataController extends Controller {
     private void onLatestValueSuccess(String response, List<SensorModel> sensors, int index,
             VizPanel panel) {
 
-        BackEndSensorData jso = BackEndSensorData.create(response);
+        GetSensorDataResponseJso jso = GetSensorDataResponseJso.create(response);
         if (jso.getTotal() == 1) {
             Cache.store(sensors.get(index), 0, 0, jso.getData());
         } else if (jso.getTotal() != 0) {
@@ -311,7 +310,7 @@ public class DataController extends Controller {
             }
 
             final String method = "GET";
-            String url = Urls.DATA.replace("<id>", sensor.getId());
+            String url = Urls.DATA.replace("<id>", "" + sensor.getId());
 
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
@@ -324,7 +323,7 @@ public class DataController extends Controller {
             } else if ((end - start) / 1000 >= 604800) {
                 url += "&interval=420";
             }
-            if (null != sensor.getAlias()) {
+            if (-1 != sensor.getAlias()) {
                 url += "&alias=" + sensor.getAlias();
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);

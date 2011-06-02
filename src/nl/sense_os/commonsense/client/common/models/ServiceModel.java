@@ -6,6 +6,9 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
+/**
+ * Model for a service. GXT-style bean, used in various GXT components.
+ */
 public class ServiceModel extends BaseTreeModel {
 
     private static final long serialVersionUID = 1L;
@@ -25,21 +28,49 @@ public class ServiceModel extends BaseTreeModel {
         super(parent);
     }
 
-    public String getName() {
-        return get(NAME);
+    public ServiceModel(ServiceJso jso) {
+        this();
+        setId(jso.getId());
+        setName(jso.getName());
+        setDataFields(jso.getDataFields());
     }
 
-    public String getId() {
-        return get(ID);
+    public ServiceModel setDataFields(List<String> dataFields) {
+        set(DATA_FIELDS, dataFields);
+        return this;
+    }
+
+    public ServiceModel setName(String name) {
+        set(NAME, name);
+        return this;
+    }
+
+    public ServiceModel setId(int id) {
+        set(ID, id);
+        return this;
     }
 
     public List<String> getDataFields() {
         return get(DATA_FIELDS);
     }
 
-    @Override
-    public String toString() {
-        return get("text", "Service #" + getId());
+    public int getId() {
+        Object property = get(ID);
+        if (property instanceof Integer) {
+            return ((Integer) property).intValue();
+        } else if (property instanceof String) {
+            return Integer.parseInt((String) property);
+        } else {
+            return -1;
+        }
     }
 
+    public String getName() {
+        return get(NAME);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

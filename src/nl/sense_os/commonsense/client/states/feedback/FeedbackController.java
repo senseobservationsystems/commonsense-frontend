@@ -263,8 +263,8 @@ public class FeedbackController extends Controller {
 
             // prepare request properties
             final String method = "POST";
-            final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/"
-                    + state.getId() + "/manualLearn.json";
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + state.getId()
+                    + "/manualLearn.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
             onSuccess.setData("state", state);

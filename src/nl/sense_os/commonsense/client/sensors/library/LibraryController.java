@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.GroupParser;
-import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
-import nl.sense_os.commonsense.client.common.json.parsers.ServiceParser;
-import nl.sense_os.commonsense.client.common.json.parsers.UserParser;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
@@ -20,6 +17,9 @@ import nl.sense_os.commonsense.client.common.models.ServiceModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
+import nl.sense_os.commonsense.client.groups.list.AvailServicesResponseJso;
+import nl.sense_os.commonsense.client.groups.list.GetGroupUsersResponseJso;
+import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryController extends Controller {
@@ -49,6 +50,9 @@ public class LibraryController extends Controller {
     private boolean isLoadingServices;
 
     public LibraryController() {
+
+        // LOGGER.setLevel(Level.ALL);
+
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(VizEvents.Show);
@@ -69,8 +73,6 @@ public class LibraryController extends Controller {
         registerEventTypes(StateCreateEvents.CreateServiceComplete, StateListEvents.RemoveComplete,
                 StateDefaultsEvents.CheckDefaultsSuccess);
         registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
-
-        // LOGGER.setLevel(Level.ALL);
     }
 
     private List<DeviceModel> devicesFromLibrary(List<SensorModel> library) {
@@ -97,7 +99,7 @@ public class LibraryController extends Controller {
 
             SensorModel sensor = library.get(index);
             String params = "";
-            if (sensor.getAlias() != null) {
+            if (sensor.getAlias() != -1) {
                 params = "?alias=" + sensor.getAlias();
             }
 
@@ -184,7 +186,7 @@ public class LibraryController extends Controller {
 
         if (index < groups.size()) {
 
-            String groupId = groups.get(index).getId();
+            int groupId = groups.get(index).getId();
 
             // prepare request properties
             final String method = "GET";
@@ -209,9 +211,12 @@ public class LibraryController extends Controller {
             Dispatcher.forwardEvent(ajaxRequest);
 
         } else {
-            // continue loading the users in the background
-            getUsers(library, 0);
-            getAvailableServices(library, 0);
+
+            // continue loading more details in the background
+            if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
+                getUsers(library, 0);
+                getAvailableServices(library, 0);
+            }
 
             // notify the view that the list is complete
             onLoadComplete(library, callback);
@@ -409,7 +414,11 @@ public class LibraryController extends Controller {
     }
 
     private void onAvailServicesSuccess(String response, List<SensorModel> library, int index) {
-        List<ServiceModel> services = ServiceParser.parseList(response);
+
+        // parse list of services from response
+        AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
+        List<ServiceModel> services = jso.getServices();
+
         SensorModel sensor = library.get(index);
         sensor.set(SensorModel.AVAIL_SERVICES, services);
 
@@ -424,7 +433,10 @@ public class LibraryController extends Controller {
     private void onFullDetailsSuccess(String response, List<SensorModel> library, int page,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
-        int total = SensorParser.parseSensors(response, library);
+        // parse response
+        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+        int total = responseJso.getTotal();
+        library.addAll(responseJso.getSensors());
 
         LOGGER.fine("total: " + total + ", library size: " + library.size());
 
@@ -445,16 +457,20 @@ public class LibraryController extends Controller {
 
     private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
             List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        LOGGER.fine("Received group sensors response...");
 
         // parse group sensors
         List<SensorModel> groupSensors = new ArrayList<SensorModel>();
-        SensorParser.parseSensors(response, groupSensors);
+        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+        groupSensors.addAll(responseJso.getSensors());
+
+        LOGGER.finest("Parsed group sensors...");
 
         GroupModel group = groups.get(index);
         for (SensorModel groupSensor : groupSensors) {
             if (!library.contains(groupSensor)) {
                 // set SensorModel.ALIAS property
-                groupSensor.set(SensorModel.ALIAS, group.getId());
+                groupSensor.setAlias(group.getId());
                 library.add(groupSensor);
             }
         }
@@ -470,12 +486,17 @@ public class LibraryController extends Controller {
 
     private void onGroupsSuccess(String response, List<SensorModel> library,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        List<GroupModel> groups = GroupParser.parseGroups(response);
+
+        // parse list of groups from the response
+        GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+        List<GroupModel> groups = jso.getGroups();
+
         getGroupSensors(groups, 0, library, callback);
     }
 
     private void onLoadComplete(List<SensorModel> library,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
+        LOGGER.fine("Load complete...");
 
         // update list of devices
         Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).addAll(
@@ -485,8 +506,13 @@ public class LibraryController extends Controller {
         notifyState();
 
         if (null != callback) {
-            callback.onSuccess(new BaseListLoadResult<SensorModel>(library));
+            LOGGER.finest("Create load result...");
+            ListLoadResult<SensorModel> result = new BaseListLoadResult<SensorModel>(library);
+
+            LOGGER.finest("Call back with load result...");
+            callback.onSuccess(result);
         }
+        LOGGER.finest("Dispatch ListUpdated...");
         Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
     }
 
@@ -537,8 +563,10 @@ public class LibraryController extends Controller {
     }
 
     private void onUsersSuccess(String response, List<SensorModel> library, int index) {
-        // parse the list of users
-        List<UserModel> users = UserParser.parseGroupUsers(response);
+
+        // parse list of users from the response
+        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+        List<UserModel> users = jso.getUsers();
 
         // remove the owner from the list
         users.remove(Registry.get(Constants.REG_USER));

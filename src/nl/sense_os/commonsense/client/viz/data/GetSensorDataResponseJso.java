@@ -1,16 +1,18 @@
-package nl.sense_os.commonsense.client.common.json.overlays;
+package nl.sense_os.commonsense.client.viz.data;
+
+import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
-public class BackEndSensorData extends JavaScriptObject {
+public class GetSensorDataResponseJso extends JavaScriptObject {
 
-    protected BackEndSensorData() {
+    protected GetSensorDataResponseJso() {
         // empty protected constructor
     }
 
     /**
-     * Creates a BackEndSensorData from the JSON response from CommonSense. Also converts any
+     * Creates a GetSensorDataResponseJso from the JSON response from CommonSense. Also converts any
      * "embedded" JSON-disguised-as-String objects, so that e.g.
      * <code>{"foo":"{\"bar\":\"baz\"}"}</code> will get completely converted.
      * 
@@ -18,7 +20,7 @@ public class BackEndSensorData extends JavaScriptObject {
      *            Raw response from CommonSense.
      * @return JavaScriptObject representing the response.
      */
-    public final static native BackEndSensorData create(String source) /*-{
+    public final static native GetSensorDataResponseJso create(String source) /*-{
         function stripslashes(str) {
             return (str + '').replace(/\\(.?)/g, function(s, n1) {
                 switch (n1) {

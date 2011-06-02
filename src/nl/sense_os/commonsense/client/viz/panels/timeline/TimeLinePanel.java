@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.json.overlays.DataPoint;
-import nl.sense_os.commonsense.client.common.json.overlays.Timeseries;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.chap.links.client.Graph;
@@ -78,8 +78,7 @@ public class TimeLinePanel extends VizPanel {
         // LOGGER.fine( "addData...");
 
         // special pim message
-        if (!isPimCheckComplete
-                && Registry.<UserModel> get(Constants.REG_USER).getId().equals("1547")) {
+        if (!isPimCheckComplete && Registry.<UserModel> get(Constants.REG_USER).getId() == 1547) {
             MessageBox.confirm(null, "Hoi Pim! Wil je eventueel de tijdslijnvisualisatie zien?",
                     new Listener<MessageBoxEvent>() {
 

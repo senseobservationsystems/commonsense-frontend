@@ -39,7 +39,7 @@ public class InviteController extends Controller {
 
         } else if (type.equals(InviteEvents.InviteRequested)) {
             // logger.fine( "InviteRequested");
-            final String groupId = event.getData("groupId");
+            final int groupId = event.getData("groupId");
             final String email = event.getData("username");
             inviteUser(groupId, email);
 
@@ -67,7 +67,7 @@ public class InviteController extends Controller {
         this.inviter = new GroupInviter(this);
     }
 
-    private void inviteUser(String groupId, String username) {
+    private void inviteUser(int groupId, String username) {
 
         // prepare request properties
         final String method = "POST";

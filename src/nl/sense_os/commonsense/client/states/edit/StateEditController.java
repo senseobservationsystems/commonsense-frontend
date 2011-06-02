@@ -6,10 +6,10 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -72,15 +72,15 @@ public class StateEditController extends Controller {
     private void invokeMethod(AppEvent event) {
 
         // get event info
-        TreeModel service = event.<TreeModel> getData("service");
-        ModelData sensor = service.getChild(0);
+        SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+        SensorModel sensor = (SensorModel) stateSensor.getChild(0);
         ModelData serviceMethod = event.<ModelData> getData("method");
         List<String> params = event.<List<String>> getData("parameters");
 
         // prepare request properties
         final String method = params.size() > 0 ? "POST" : "GET";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/"
-                + service.<String> get("id") + "/" + serviceMethod.<String> get("name") + ".json";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
+                + "/" + serviceMethod.<String> get("name") + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateEditEvents.InvokeMethodAjaxSuccess);
         final AppEvent onFailure = new AppEvent(StateEditEvents.InvokeMethodAjaxFailure);

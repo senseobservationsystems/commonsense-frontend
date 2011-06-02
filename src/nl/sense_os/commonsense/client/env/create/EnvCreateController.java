@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.json.parsers.EnvironmentParser;
-import nl.sense_os.commonsense.client.common.json.parsers.SensorParser;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -19,10 +17,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Polygon;
 
@@ -50,7 +46,7 @@ public class EnvCreateController extends Controller {
             // prepare body
             String sensorsArray = "[";
             for (SensorModel sensor : sensors) {
-                if (sensor.getAlias() == null) {
+                if (sensor.getAlias() == -1) {
                     sensorsArray += "{\"id\":" + sensor.getId() + "},";
                 }
             }
@@ -234,6 +230,7 @@ public class EnvCreateController extends Controller {
             createSensor(devices, index, name, floors, outline, sensors);
         }
     }
+
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -367,10 +364,10 @@ public class EnvCreateController extends Controller {
     }
 
     private void onCreateEnvironmentSuccess(String response, List<SensorModel> sensors) {
-        JSONObject responseJson = JSONParser.parseLenient(response).isObject();
-        if (null != responseJson) {
-            JSONObject envJson = responseJson.get("environment").isObject();
-            EnvironmentModel environment = EnvironmentParser.parse(envJson);
+
+        CreateEnvironmentResponseJso jso = JsonUtils.unsafeEval(response);
+        EnvironmentModel environment = jso.getEnvironment();
+        if (null != environment) {
 
             // update global environment list
             Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).add(environment);
@@ -412,10 +409,9 @@ public class EnvCreateController extends Controller {
             String name, int floors, Polygon outline, List<SensorModel> sensors) {
 
         // parse the new sensor details from the response
-        JSONValue rawJson = JSONParser.parseLenient(response);
-        if (null != rawJson && null != rawJson.isObject()) {
-            JSONObject sensorJson = rawJson.isObject().get("sensor").isObject();
-            SensorModel positionSensor = SensorParser.parseSensor(sensorJson);
+        CreateSensorResponseJso jso = JsonUtils.unsafeEval(response);
+        if (null != jso.getSensor()) {
+            SensorModel positionSensor = jso.getSensor();
 
             // add the new sensor to the list of sensors for this environment
             sensors.add(positionSensor);
@@ -440,8 +436,8 @@ public class EnvCreateController extends Controller {
             List<SensorModel> sensors) {
 
         // update the sensor model
-        sensor.set(SensorModel.DEVICE, devices.get(index));
-        sensor.set(SensorModel.TYPE, "1");
+        sensor.setDevice(devices.get(index));
+        sensor.setType(1);
 
         setPosition(sensor, devices, index, name, floors, outline, sensors);
     }

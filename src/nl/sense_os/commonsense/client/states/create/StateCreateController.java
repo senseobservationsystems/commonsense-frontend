@@ -13,7 +13,6 @@ import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -48,12 +47,12 @@ public class StateCreateController extends Controller {
                 StateCreateEvents.AjaxCreateSuccess, StateCreateEvents.AjaxCreateFailure);
     }
 
-    private void createService(String name, TreeModel service, ModelData sensor,
+    private void createService(String name, ServiceModel service, SensorModel sensor,
             List<ModelData> dataFields) {
 
         // prepare request properties
         final String method = "POST";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services.json";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxCreateSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxCreateFailure);
@@ -87,14 +86,13 @@ public class StateCreateController extends Controller {
     private void getAvailableServices(SensorModel sensor) {
 
         String aliasParam = "";
-        if (sensor.get(SensorModel.ALIAS) != null && sensor.<String> get(SensorModel.ALIAS).length() > 0) {
-            aliasParam = "?alias=" + sensor.<String> get(SensorModel.ALIAS);
+        if (sensor.getAlias() != -1) {
+            aliasParam = "?alias=" + sensor.getAlias();
         }
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.<String> get("id") + "/services/available"
-                + aliasParam;
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxAvailableServiceFailure);
@@ -138,8 +136,8 @@ public class StateCreateController extends Controller {
         if (type.equals(StateCreateEvents.CreateServiceRequested)) {
             // logger.fine( "CreateRequested");
             final String name = event.<String> getData("name");
-            final TreeModel service = event.<TreeModel> getData("service");
-            final ModelData sensor = event.<ModelData> getData("sensor");
+            final ServiceModel service = event.<ServiceModel> getData("service");
+            final SensorModel sensor = event.<SensorModel> getData("sensor");
             final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
             createService(name, service, sensor, dataFields);
 
