@@ -324,6 +324,7 @@ public class LibraryGrid extends View {
         view.setShowGroupedColumn(true);
         view.setForceFit(true);
         view.setGroupRenderer(new SensorGroupRenderer(cm));
+        view.setStartCollapsed(true);
 
         this.grid = new Grid<SensorModel>(this.store, cm);
         this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
