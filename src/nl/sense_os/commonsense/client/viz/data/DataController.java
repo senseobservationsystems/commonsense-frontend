@@ -325,15 +325,14 @@ public class DataController extends Controller {
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
             String totalStr = "&total=1";
-            if ((end - start) / 1000 >= 2419200) {
-                url += "&interval=3600";
+            
+            if ((end - start) / 1000 >= 3600) { // only get 1000 points when the time range is >= 1 hour
+                url += "&interval="+Math.ceil(((double)(end - start) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
-            } else if ((end - start) / 1000 >= 604800) {
-                url += "&interval=605";
-                totalStr = "";
-            }
+            }            
+           
             if (-1 != sensor.getAlias()) {
-                url += "&alias=" + sensor.getAlias();
+            	url += "&alias=" + sensor.getAlias();
             }
             if (sensorTotal == 0) {
                 url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
