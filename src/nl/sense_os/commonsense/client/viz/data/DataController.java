@@ -194,9 +194,9 @@ public class DataController extends Controller {
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
         if (sensorProgress == 0) {
-            sensorTotal = jsoResponse.getTotal(); // store the total count
+            sensorTotal = jsoResponse.getTotal(); // store the total count            
         }
-
+       
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
@@ -211,6 +211,10 @@ public class DataController extends Controller {
             BackEndDataPoint last = data.get(data.length() - 1);
             double lastDate = Double.parseDouble(last.getDate());
             sensorChunkStart = Math.round(lastDate * 1000) + 1;
+            
+            // if interval is used no total will be given
+            if(sensorTotal == -1)
+            	sensorTotal = data.length();
         }
 
         // update UI after parsing data
@@ -314,17 +318,20 @@ public class DataController extends Controller {
 
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
-            if (sensorTotal == 0) {
-                url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
-                url += "&total=1";
-            }
+            String totalStr = "&total=1";
             if ((end - start) / 1000 >= 2419200) {
                 url += "&interval=3600";
+                totalStr = ""; // with interval the max can be calculated no need for total
             } else if ((end - start) / 1000 >= 604800) {
-                url += "&interval=420";
+                url += "&interval=605";
+                totalStr = "";
             }
             if (-1 != sensor.getAlias()) {
                 url += "&alias=" + sensor.getAlias();
+            }
+            if (sensorTotal == 0) {
+                url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
+                url += totalStr;
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);
