@@ -40,11 +40,26 @@ public class GetSensorDataResponseJso extends JavaScriptObject {
         return eval('(' + jsonFixed + ')');
     }-*/;
 
+    /**
+     * @return The 'data' property of the response, containing an array with sensor data. If 'data'
+     *         is undefined, an empty array is returned.
+     */
     public final native JsArray<BackEndDataPoint> getData() /*-{
-        return this.data;
+        if (undefined != this.data) {
+            return this.data;
+        } else {
+            return [];
+        }
     }-*/;
 
+    /**
+     * @return The 'total' property of the response. If 'total' is undefined, -1 is returned.
+     */
     public final native int getTotal() /*-{
-        return this.total;
+        if (undefined != this.total) {
+            return this.total;
+        } else {
+            return -1;
+        }
     }-*/;
 }
