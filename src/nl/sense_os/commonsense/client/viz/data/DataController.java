@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.viz.data;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -32,7 +33,7 @@ public class DataController extends Controller {
 
     public DataController() {
 
-        // LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.FINE);
 
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
@@ -178,9 +179,6 @@ public class DataController extends Controller {
 
         // pass data on to visualization
         JsArray<Timeseries> data = Cache.request(sensors, start, end);
-
-        LOGGER.fine("Got timeseries data out of cache...");
-
         vizPanel.addData(data);
     }
 
@@ -199,15 +197,19 @@ public class DataController extends Controller {
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
-        if (sensorProgress == 0) {
-            sensorTotal = jsoResponse.getTotal(); // store the total count
-        }
-
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
         // get the date of the last datapoint
         JsArray<BackEndDataPoint> data = jsoResponse.getData();
+
+        // save the total number of points if this is the first request for this sensor
+        if (sensorProgress == 0) {
+            sensorTotal = jsoResponse.getTotal(); // store the total count
+        }
+        if (sensorTotal == -1) {
+            sensorTotal = data.length();
+        }
 
         // update progress
         sensorProgress = sensorProgress + data.length();
@@ -217,10 +219,6 @@ public class DataController extends Controller {
             BackEndDataPoint last = data.get(data.length() - 1);
             double lastDate = Double.parseDouble(last.getDate());
             sensorChunkStart = Math.round(lastDate * 1000) + 1;
-
-            // if interval is used no total will be given
-            if (sensorTotal == -1)
-                sensorTotal = data.length();
         }
 
         // update UI after parsing data
@@ -306,7 +304,7 @@ public class DataController extends Controller {
 
             // check if the sensor has cached data
             long realStart = start;
-            if (sensorTotal == 0) {
+            if (sensorProgress == 0) {
                 JsArray<Timeseries> cacheContent = Cache.request(Arrays.asList(sensor), start, end);
                 for (int i = 0; i < cacheContent.length(); i++) {
                     Timeseries timeseries = cacheContent.get(i);
@@ -314,6 +312,8 @@ public class DataController extends Controller {
                         realStart = timeseries.getEnd();
                         LOGGER.fine("Using data from cache to limit request period");
                     } else {
+                        LOGGER.fine("Cannot re-use cached data! Start of cache: "
+                                + timeseries.getStart() + " start of request: " + start);
                         Cache.remove(sensor);
                     }
                 }
@@ -325,14 +325,15 @@ public class DataController extends Controller {
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
             String totalStr = "&total=1";
-            
-            if ((end - start) / 1000 >= 3600) { // only get 1000 points when the time range is >= 1 hour
-                url += "&interval="+Math.ceil(((double)(end - start) / 1000000d));
+
+            if ((end - start) / 1000 >= 3600) { // only get 1000 points when the time range is >= 1
+                                                // hour
+                url += "&interval=" + Math.ceil(((double) (end - start) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
-            }            
-           
+            }
+
             if (-1 != sensor.getAlias()) {
-            	url += "&alias=" + sensor.getAlias();
+                url += "&alias=" + sensor.getAlias();
             }
             if (sensorTotal == 0) {
                 url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);

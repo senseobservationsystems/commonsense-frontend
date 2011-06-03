@@ -3,7 +3,9 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -18,6 +20,7 @@ import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -30,6 +33,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -41,12 +45,14 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -54,6 +60,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -181,24 +188,46 @@ public class LibraryGrid extends View {
             protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
                     SensorModel record, String property, String filter) {
 
-                if (record.getName().contains(filter.toLowerCase())) {
-                    return true;
-                } else if (record.getPhysicalSensor().contains(filter.toLowerCase())) {
-                    return true;
-                } else if (record.getDevice() != null
-                        && record.getDevice().getType().contains(filter.toLowerCase())) {
-                    return true;
-                } else if (record.getDataType().contains(filter.toLowerCase())) {
+                String matchMe = record.getDisplayName().toLowerCase() + " "
+                        + record.getPhysicalSensor().toLowerCase() + " "
+                        + record.<String> get(SensorModel.DEVICE_TYPE, "").toLowerCase() + " "
+                        + record.<String> get(SensorModel.ENVIRONMENT_NAME, "").toLowerCase();
+                if (matchMe.contains(filter.toLowerCase())) {
                     return true;
                 } else {
                     return false;
                 }
             }
         };
+        final CheckBox onlyMe = new CheckBox();
+        onlyMe.setBoxLabel("Only my own sensors");
+        onlyMe.setHideLabel(true);
+        onlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                StoreFilter<SensorModel> filter = new StoreFilter<SensorModel>() {
+                    public boolean select(com.extjs.gxt.ui.client.store.Store<SensorModel> store,
+                            SensorModel parent, SensorModel item, String property) {
+                        UserModel user = Registry.get(Constants.REG_USER);
+                        return item.get(SensorModel.OWNER_USERNAME, "").equals(user.getUsername());
+                    };
+                };
+
+                if (onlyMe.getValue()) {
+                    store.addFilter(filter);
+                    store.applyFilters(null);
+                } else {
+                    store.removeFilter(filter);
+                    store.clearFilters();
+                }
+            }
+        });
         this.filter.bind(this.store);
         this.filterBar.add(this.filter);
+        this.filterBar.add(new SeparatorToolItem());
+        this.filterBar.add(onlyMe);
     }
-
     private void initToolBar() {
 
         // listen to toolbar button clicks
