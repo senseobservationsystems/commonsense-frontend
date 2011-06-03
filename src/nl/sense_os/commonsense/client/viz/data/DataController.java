@@ -31,7 +31,9 @@ public class DataController extends Controller {
     private static final int PER_PAGE = 1000; // max: 1000
 
     public DataController() {
+
         // LOGGER.setLevel(Level.ALL);
+
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -170,12 +172,16 @@ public class DataController extends Controller {
     }
 
     private void onDataComplete(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
-        // logger.fine( "onDataComplete...");
+        LOGGER.fine("onDataComplete...");
 
         hideProgress();
 
         // pass data on to visualization
-        vizPanel.addData(Cache.request(sensors, start, end));
+        JsArray<Timeseries> data = Cache.request(sensors, start, end);
+
+        LOGGER.fine("Got timeseries data out of cache...");
+
+        vizPanel.addData(data);
     }
 
     private void onDataFailed(int code) {
@@ -194,9 +200,9 @@ public class DataController extends Controller {
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
         if (sensorProgress == 0) {
-            sensorTotal = jsoResponse.getTotal(); // store the total count            
+            sensorTotal = jsoResponse.getTotal(); // store the total count
         }
-       
+
         // store data in cache
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
@@ -211,10 +217,10 @@ public class DataController extends Controller {
             BackEndDataPoint last = data.get(data.length() - 1);
             double lastDate = Double.parseDouble(last.getDate());
             sensorChunkStart = Math.round(lastDate * 1000) + 1;
-            
+
             // if interval is used no total will be given
-            if(sensorTotal == -1)
-            	sensorTotal = data.length();
+            if (sensorTotal == -1)
+                sensorTotal = data.length();
         }
 
         // update UI after parsing data

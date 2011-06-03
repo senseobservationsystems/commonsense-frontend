@@ -75,7 +75,6 @@ public class TimeLinePanel extends VizPanel {
 
     @Override
     public void addData(final JsArray<Timeseries> data) {
-        // LOGGER.fine( "addData...");
 
         // special pim message
         if (!isPimCheckComplete && Registry.<UserModel> get(Constants.REG_USER).getId() == 1547) {
@@ -96,6 +95,9 @@ public class TimeLinePanel extends VizPanel {
             return;
         }
 
+        LOGGER.fine("addData...");
+        LOGGER.fine(data.length() + " timeseries");
+
         if (data.length() == 0) {
             onNoData();
             return;
@@ -106,11 +108,11 @@ public class TimeLinePanel extends VizPanel {
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
             if (ts.getType().equalsIgnoreCase("number")) {
-                LOGGER.fine(ts.getLabel() + ": " + ts.getData().length()
+                LOGGER.finest(ts.getLabel() + ": " + ts.getData().length()
                         + " data points (number data)");
                 numberData.push(ts);
             } else {
-                // LOGGER.fine( ts.getLabel() + " (" + ts.getType() + " data)");
+                LOGGER.finest(ts.getLabel() + " (" + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
