@@ -35,11 +35,13 @@ public abstract class VizPanel extends ContentPanel {
 
     private static final Logger LOGGER = Logger.getLogger(VizPanel.class.getName());
     private static final int REFRESH_PERIOD = 1000 * 10;
-    private List<SensorModel> sensors;
-    private long start;
-    private long end;
     private RefreshTimer refreshTimer;
-    protected boolean isAutoRefresh;
+    private boolean isAutoRefresh;
+
+    protected List<SensorModel> sensors;
+    protected JsArray<Timeseries> data;
+    protected long start;
+    protected long end;
 
     /**
      * Creates new VizPanel instance.
@@ -55,7 +57,39 @@ public abstract class VizPanel extends ContentPanel {
      * @param data
      *            Timeseries to display.
      */
-    public abstract void addData(JsArray<Timeseries> data);
+    public void addData(JsArray<Timeseries> data) {
+        if (null == this.data) {
+            this.data = data;
+
+        } else {
+            for (int i = 0; i < data.length(); i++) {
+                Timeseries toAppend = data.get(i);
+                boolean appended = false;
+                for (int j = 0; j < this.data.length(); j++) {
+                    Timeseries original = this.data.get(j);
+                    if (toAppend.getLabel().equals(original.getLabel())) {
+                        LOGGER.fine("Append data to " + original.getLabel());
+                        original.append(toAppend);
+                        appended = true;
+                        break;
+                    }
+                }
+                if (!appended) {
+                    LOGGER.fine("Add new timeseries to the graph data " + toAppend.getLabel());
+                    this.data.push(toAppend);
+                }
+            }
+        }
+
+        onNewData();
+    }
+
+    /**
+     * Called when the data was updated.
+     * 
+     * @see #data
+     */
+    public abstract void onNewData();
 
     /**
      * Adds tool buttons to the panel's heading.
@@ -203,9 +237,17 @@ public abstract class VizPanel extends ContentPanel {
     protected void refreshData() {
         if (null != this.sensors) {
             for (SensorModel sensor : sensors) {
-                AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
+                long refreshStart = start;
+                for (int i = 0; i < data.length(); i++) {
+                    Timeseries ts = data.get(i);
+                    if (ts.getId() == sensor.getId()) {
+                        refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+                    }
+                }
+                AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
                 refreshRequest.setData("sensors", this.sensors);
-                refreshRequest.setData("start", this.start);
+                refreshRequest.setData("startTime", refreshStart);
+                refreshRequest.setData("endTime", System.currentTimeMillis());
                 refreshRequest.setData("vizPanel", this);
                 Dispatcher.forwardEvent(refreshRequest);
             }

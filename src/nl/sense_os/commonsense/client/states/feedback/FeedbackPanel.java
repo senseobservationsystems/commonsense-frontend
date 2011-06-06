@@ -61,6 +61,7 @@ public class FeedbackPanel extends VizPanel {
     private List<String> labels;
 
     private Graph graph;
+    private final Graph.Options graphOpts = Graph.Options.create();
     private Timeline timeline;
     private Timeline states;
     private DataTable initialStates;
@@ -93,7 +94,7 @@ public class FeedbackPanel extends VizPanel {
     }
 
     @Override
-    public void addData(JsArray<Timeseries> data) {
+    public void onNewData() {
         LOGGER.fine("Add data...");
 
         JsArray<Timeseries> numberData = JsArray.createArray().cast();
@@ -295,16 +296,15 @@ public class FeedbackPanel extends VizPanel {
     private void createGraph(JsArray<Timeseries> data) {
 
         // Graph options
-        Graph.Options options = Graph.Options.create();
-        options.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
-        options.setLineRadius(2);
-        options.setWidth("100%");
-        options.setHeight("100%");
-        options.setLegendCheckboxes(true);
-        options.setLegendWidth(125);
+        graphOpts.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
+        graphOpts.setLineRadius(2);
+        graphOpts.setWidth("100%");
+        graphOpts.setHeight("100%");
+        graphOpts.setLegendCheckboxes(true);
+        graphOpts.setLegendWidth(125);
 
         // create graph instance
-        this.graph = new Graph(data, options);
+        this.graph = new Graph(data, graphOpts);
 
         this.graph.addRangeChangeHandler(new RangeChangeHandler() {
 
@@ -526,7 +526,7 @@ public class FeedbackPanel extends VizPanel {
         if (null == this.graph) {
             createGraph(data);
         } else {
-            redrawGraph();
+            graph.draw(data, this.graphOpts);
         }
     }
 

@@ -56,7 +56,7 @@ public class MapPanel extends VizPanel {
     }
 
     @Override
-    public void addData(JsArray<Timeseries> data) {
+    public void onNewData() {
 
         // sort lat/lng data
         Timeseries ts;
