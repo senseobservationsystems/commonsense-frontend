@@ -23,12 +23,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnectController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(StateConnectController.class.getName());
+    private static final Logger LOG = Logger.getLogger(StateConnectController.class.getName());
     private View connecter;
 
     public StateConnectController() {
 
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         registerEventTypes(StateConnectEvents.ShowSensorConnecter);
 
@@ -152,7 +152,7 @@ public class StateConnectController extends Controller {
             getServiceNameError();
 
         } else {
-            LOGGER.severe("Error parsing running services response: response=null");
+            LOG.severe("Error parsing running services response: response=null");
             getServiceNameError();
         }
 
@@ -170,7 +170,7 @@ public class StateConnectController extends Controller {
          * Get available sensors for this service
          */
         if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
-            LOGGER.fine("AvailableSensorsRequested");
+            LOG.fine("AvailableSensorsRequested");
             final String serviceName = event.<String> getData("name");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
@@ -182,19 +182,19 @@ public class StateConnectController extends Controller {
          * Connect sensor to the service
          */
         if (type.equals(StateConnectEvents.ConnectRequested)) {
-            LOGGER.fine("ConnectRequested");
+            LOG.fine("ConnectRequested");
             final SensorModel sensor = event.<SensorModel> getData("sensor");
             final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             final String serviceName = event.<String> getData("serviceName");
             connectService(sensor, stateSensor, serviceName);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxFailure)) {
-            LOGGER.warning("ConnectAjaxFailure");
+            LOG.warning("ConnectAjaxFailure");
             final int code = event.getData("code");
             connectServiceErrorCallback(code);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxSuccess)) {
-            LOGGER.fine("ConnectAjaxSuccess");
+            LOG.fine("ConnectAjaxSuccess");
             final String response = event.<String> getData("response");
             connectServiceCallback(response);
 
@@ -204,18 +204,18 @@ public class StateConnectController extends Controller {
          * Get service name (before getting available sensors)
          */
         if (type.equals(StateConnectEvents.ServiceNameRequest)) {
-            LOGGER.fine("ServiceNameRequest");
+            LOG.fine("ServiceNameRequest");
             final SensorModel service = event.<SensorModel> getData("stateSensor");
             getServiceName(service);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxSuccess)) {
-            LOGGER.fine("ServiceNameAjaxSuccess");
+            LOG.fine("ServiceNameAjaxSuccess");
             final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             final String response = event.<String> getData("response");
             getServiceNameCallback(stateSensor, response);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxFailure)) {
-            LOGGER.warning("ServiceNameAjaxFailure");
+            LOG.warning("ServiceNameAjaxFailure");
             getServiceNameError();
 
         } else

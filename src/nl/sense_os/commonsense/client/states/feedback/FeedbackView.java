@@ -15,11 +15,11 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class FeedbackView extends View {
 
-    private static final Logger LOGGER = Logger.getLogger("FeedbackView");
+    private static final Logger LOG = Logger.getLogger(FeedbackView.class.getName());
 
     public FeedbackView(Controller c) {
         super(c);
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class FeedbackView extends View {
         final EventType type = event.getType();
 
         if (type.equals(FeedbackEvents.FeedbackInit)) {
-            LOGGER.finest("FeedbackInit");
+            LOG.finest("FeedbackInit");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onInitEvent(state, sensors);
@@ -38,14 +38,14 @@ public class FeedbackView extends View {
          * Request for labels
          */
         if (type.equals(FeedbackEvents.LabelsSuccess)) {
-            LOGGER.finest("LabelsSuccess");
+            LOG.finest("LabelsSuccess");
             final List<String> labels = event.<List<String>> getData("labels");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onLabelsSuccess(state, sensors, labels);
 
         } else if (type.equals(FeedbackEvents.LabelsFailure)) {
-            LOGGER.warning("LabelsFailure");
+            LOG.warning("LabelsFailure");
             onLabelsFailure();
 
         } else
@@ -54,7 +54,7 @@ public class FeedbackView extends View {
          * Feedback chooser panel has finished
          */
         if (type.equals(FeedbackEvents.FeedbackChosen)) {
-            LOGGER.finest("FeedbackChosen");
+            LOG.finest("FeedbackChosen");
             final List<String> labels = event.<List<String>> getData("labels");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
@@ -68,19 +68,19 @@ public class FeedbackView extends View {
          * Feedback results
          */
         if (type.equals(FeedbackEvents.FeedbackComplete)) {
-            LOGGER.fine("FeedbackComplete");
+            LOG.fine("FeedbackComplete");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackComplete();
 
         } else if (type.equals(FeedbackEvents.FeedbackFailed)) {
-            LOGGER.warning("FeedbackFailed");
+            LOG.warning("FeedbackFailed");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             panel.onFeedbackFailed();
 
         } else
 
         {
-            LOGGER.warning("Unexpected event type!");
+            LOG.warning("Unexpected event type!");
         }
     }
 

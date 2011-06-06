@@ -50,7 +50,7 @@ public abstract class VizPanel extends ContentPanel {
      * Creates new VizPanel instance.
      */
     protected VizPanel() {
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
         addToolButtons();
     }
 

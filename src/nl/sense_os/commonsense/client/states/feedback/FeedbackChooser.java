@@ -25,11 +25,11 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class FeedbackChooser extends View {
 
-    private static final Logger LOGGER = Logger.getLogger(FeedbackChooser.class.getName());
+    private static final Logger LOG = Logger.getLogger(FeedbackChooser.class.getName());
 
     public FeedbackChooser(Controller c) {
         super(c);
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
     }
 
     @Override
@@ -37,14 +37,14 @@ public class FeedbackChooser extends View {
         final EventType type = event.getType();
 
         if (type.equals(FeedbackEvents.ShowChooser)) {
-            LOGGER.finest("ShowChooser");
+            LOG.finest("ShowChooser");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final List<String> labels = event.<List<String>> getData("labels");
             showChooser(state, sensors, labels);
 
         } else {
-            LOGGER.warning("Unexpected event: " + event);
+            LOG.warning("Unexpected event: " + event);
         }
 
     }
@@ -113,10 +113,10 @@ public class FeedbackChooser extends View {
                 } else if (label.equals("4 weeks")) {
                     startTime = endTime - (4 * week);
                 } else {
-                    LOGGER.warning("Unexpected radio button label: " + label);
+                    LOG.warning("Unexpected radio button label: " + label);
                 }
 
-                LOGGER.finest("Start time: " + startTime + ", end time: " + endTime);
+                LOG.finest("Start time: " + startTime + ", end time: " + endTime);
 
                 AppEvent proceed = new AppEvent(FeedbackEvents.FeedbackChosen);
                 proceed.setData("state", state);

@@ -1,5 +1,10 @@
 package nl.sense_os.commonsense.client.env.view;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -11,18 +16,13 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class EnvViewController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(EnvViewController.class.getName());
+    private static final Logger LOG = Logger.getLogger(EnvViewController.class.getName());
     private View viewer;
 
     public EnvViewController() {
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         registerEventTypes(EnvViewEvents.Show);
         registerEventTypes(EnvViewEvents.RequestSensors);
@@ -33,7 +33,7 @@ public class EnvViewController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(EnvViewEvents.RequestSensors)) {
-            LOGGER.finest("RequestSensors");
+            LOG.finest("RequestSensors");
             final EnvironmentModel environment = event.getData("environment");
             final EnvMap panel = event.getData("panel");
             onSensorsRequest(environment, panel);
@@ -47,7 +47,7 @@ public class EnvViewController extends Controller {
 
     @Override
     protected void initialize() {
-        LOGGER.finest("Initialize...");
+        LOG.finest("Initialize...");
         this.viewer = new EnvViewer(this);
         super.initialize();
     }

@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.env.list;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -25,12 +26,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(EnvController.class.getName());
+    private static final Logger LOG = Logger.getLogger(EnvController.class.getName());
     private View grid;
 
     public EnvController() {
 
-        // LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         // events to update the list of groups
         registerEventTypes(MainEvents.Init);
@@ -73,20 +74,20 @@ public class EnvController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(EnvEvents.ListRequested)) {
-            LOGGER.fine("LoadRequest");
+            LOG.fine("LoadRequest");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);
 
         } else if (type.equals(EnvEvents.ListAjaxSuccess)) {
-            LOGGER.fine("ListAjaxSuccess");
+            LOG.fine("ListAjaxSuccess");
             final String response = event.getData("response");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListSuccess(response, callback);
 
         } else if (type.equals(EnvEvents.ListAjaxFailure)) {
-            LOGGER.warning("ListAjaxFailure");
+            LOG.warning("ListAjaxFailure");
             final AsyncCallback<List<EnvironmentModel>> callback = event
                     .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
             onListFailure(callback);
@@ -94,18 +95,18 @@ public class EnvController extends Controller {
         } else
 
         if (type.equals(EnvEvents.DeleteRequest)) {
-            LOGGER.fine("DeleteRequest");
+            LOG.fine("DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            LOGGER.fine("DeleteAjaxSuccess");
+            LOG.fine("DeleteAjaxSuccess");
             // final String response = event.getData("response");
             final EnvironmentModel environment = event.getData("environment");
             onDeleteSuccess(environment);
 
         } else if (type.equals(EnvEvents.DeleteAjaxFailure)) {
-            LOGGER.warning("DeleteAjaxFailure");
+            LOG.warning("DeleteAjaxFailure");
             // final int code = event.getData("code");
             onDeleteFailure();
 

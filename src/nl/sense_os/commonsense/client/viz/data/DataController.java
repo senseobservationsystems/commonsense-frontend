@@ -26,13 +26,13 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(DataController.class.getName());
+    private static final Logger LOG = Logger.getLogger(DataController.class.getName());
     private View progressDialog;
     private static final int PER_PAGE = 1000; // max: 1000
 
     public DataController() {
 
-        LOGGER.setLevel(Level.FINE);
+        LOG.setLevel(Level.WARNING);
 
         registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
@@ -81,7 +81,7 @@ public class DataController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(DataEvents.DataRequest)) {
-            LOGGER.finest("DataRequest");
+            LOG.finest("DataRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long start = event.getData("startTime");
             final long end = event.getData("endTime");
@@ -90,7 +90,7 @@ public class DataController extends Controller {
             onDataRequest(start, end, sensors, vizPanel);
 
         } else if (type.equals(DataEvents.RefreshRequest)) {
-            LOGGER.finest("RefreshRequest");
+            LOG.finest("RefreshRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long start = event.getData("start");
             final VizPanel vizPanel = event.getData("vizPanel");
@@ -98,13 +98,13 @@ public class DataController extends Controller {
             onRefreshRequest(sensors, start, vizPanel);
 
         } else if (type.equals(DataEvents.AjaxDataFailure)) {
-            LOGGER.warning("AjaxDataFailure");
+            LOG.warning("AjaxDataFailure");
             final int code = event.getData("code");
 
             onDataFailed(code);
 
         } else if (type.equals(DataEvents.AjaxDataSuccess)) {
-            LOGGER.finest("AjaxDataSuccess");
+            LOG.finest("AjaxDataSuccess");
             final String response = event.<String> getData("response");
             final long start = event.getData("start");
             final long end = event.getData("end");
@@ -123,13 +123,13 @@ public class DataController extends Controller {
          * Request for latest sensor value
          */
         if (type.equals(DataEvents.LatestValuesRequest)) {
-            LOGGER.finest("LatestValuesRequest");
+            LOG.finest("LatestValuesRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final VizPanel vizPanel = event.getData("vizPanel");
             onLatestValuesRequest(sensors, vizPanel);
 
         } else if (type.equals(DataEvents.LatestValueAjaxSuccess)) {
-            LOGGER.finest("LatestValueAjaxSuccess");
+            LOG.finest("LatestValueAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.getData("index");
@@ -137,7 +137,7 @@ public class DataController extends Controller {
             onLatestValueSuccess(response, sensors, index, panel);
 
         } else if (type.equals(DataEvents.LatestValueAjaxFailure)) {
-            LOGGER.warning("LatestValueAjaxFailure");
+            LOG.warning("LatestValueAjaxFailure");
             // final int code = event.getData("code");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final int index = event.getData("index");
@@ -154,7 +154,7 @@ public class DataController extends Controller {
          * Something is wrong
          */
         {
-            LOGGER.warning("Unexpected event received!");
+            LOG.warning("Unexpected event received!");
         }
     }
 
@@ -172,7 +172,7 @@ public class DataController extends Controller {
     }
 
     private void onDataComplete(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
-        LOGGER.fine("onDataComplete...");
+        LOG.fine("onDataComplete...");
 
         hideProgress();
 
@@ -261,7 +261,7 @@ public class DataController extends Controller {
     }
 
     private void onLatestValuesComplete(List<SensorModel> sensors, VizPanel panel) {
-        LOGGER.finest("Latest values complete...");
+        LOG.finest("Latest values complete...");
         panel.addData(Cache.request(sensors, 0, System.currentTimeMillis()));
     }
 
@@ -315,8 +315,8 @@ public class DataController extends Controller {
              * cacheContent = Cache.request(Arrays.asList(sensor), start, end); for (int i = 0; i <
              * cacheContent.length(); i++) { Timeseries timeseries = cacheContent.get(i); if
              * (timeseries.getStart() <= realStart) { realStart = timeseries.getEnd();
-             * LOGGER.fine("Using data from cache to limit request period"); } else {
-             * LOGGER.fine("Cannot re-use cached data! Start of cache: " + timeseries.getStart() +
+             * LOG.fine("Using data from cache to limit request period"); } else {
+             * LOG.fine("Cannot re-use cached data! Start of cache: " + timeseries.getStart() +
              * " start of request: " + start); Cache.remove(sensor); } } }
              */
 
@@ -375,7 +375,7 @@ public class DataController extends Controller {
     }
 
     private void updateMainProgress(int progress, int total) {
-        LOGGER.finest("updateMainProgress...");
+        LOG.finest("updateMainProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
         update.setData("progress", progress);
         update.setData("total", total);
@@ -383,7 +383,7 @@ public class DataController extends Controller {
     }
 
     private void updateSubProgress(double progress, double total, String text) {
-        LOGGER.finest("updateSubProgress...");
+        LOG.finest("updateSubProgress...");
         // subprogress is in automatic mode
     }
 }

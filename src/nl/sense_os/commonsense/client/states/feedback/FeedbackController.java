@@ -26,12 +26,14 @@ import com.google.gwt.json.client.JSONValue;
 
 public class FeedbackController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(FeedbackController.class.getName());
+    private static final Logger LOG = Logger.getLogger(FeedbackController.class.getName());
     private View feedback;
     private View chooser;
 
     public FeedbackController() {
-        LOGGER.setLevel(Level.ALL);
+
+        LOG.setLevel(Level.WARNING);
+
         registerEventTypes(FeedbackEvents.FeedbackInit);
         registerEventTypes(FeedbackEvents.ShowChooser, FeedbackEvents.FeedbackChosen);
 
@@ -50,14 +52,14 @@ public class FeedbackController extends Controller {
          * Submit feedback data.
          */
         if (type.equals(FeedbackEvents.FeedbackSubmit)) {
-            // LOGGER.fine( "FeedbackSubmit");
+            // LOG.fine( "FeedbackSubmit");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             markFeedback(state, changes, 0, panel);
 
         } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
-            // LOGGER.fine( "AjaxFeedbackSuccess");
+            // LOG.fine( "AjaxFeedbackSuccess");
             // final String response = event.<String> getData("response");
             final SensorModel state = event.<SensorModel> getData("state");
             final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
@@ -66,7 +68,7 @@ public class FeedbackController extends Controller {
             onFeedbackMarked(state, changes, index, panel);
 
         } else if (type.equals(FeedbackEvents.FeedbackAjaxFailure)) {
-            LOGGER.warning("AjaxFeedbackFailure");
+            LOG.warning("AjaxFeedbackFailure");
             // final int code = event.getData("code");
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             onFeedbackFailed(panel);
@@ -77,20 +79,20 @@ public class FeedbackController extends Controller {
          * Get state labels.
          */
         if (type.equals(FeedbackEvents.LabelsRequest)) {
-            // LOGGER.fine( "LabelsRequest");
+            // LOG.fine( "LabelsRequest");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
             getLabels(state, sensors);
 
         } else if (type.equals(FeedbackEvents.LabelsAjaxSuccess)) {
-            // LOGGER.fine( "LabelsAjaxSuccess");
+            // LOG.fine( "LabelsAjaxSuccess");
             final String response = event.getData("response");
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
             onLabelsSuccess(response, state, sensors);
 
         } else if (type.equals(FeedbackEvents.LabelsAjaxFailure)) {
-            LOGGER.warning("LabelsAjaxFailure");
+            LOG.warning("LabelsAjaxFailure");
             final int code = event.getData("code");
             onLabelsFailure(code);
 
@@ -143,7 +145,7 @@ public class FeedbackController extends Controller {
                                             if (null != rawString) {
                                                 list.add(rawString.stringValue());
                                             } else {
-                                                LOGGER.warning("label is not a JSON string");
+                                                LOG.warning("label is not a JSON string");
                                                 onLabelsFailure(0);
                                             }
                                         }
@@ -151,35 +153,35 @@ public class FeedbackController extends Controller {
                                         onLabelsComplete(state, sensors, list);
 
                                     } else {
-                                        LOGGER.warning("\"classLabels\" is not a JSON array");
+                                        LOG.warning("\"classLabels\" is not a JSON array");
                                         onLabelsFailure(0);
                                     }
                                 } else {
-                                    LOGGER.warning("\"classLabels\" is not valid JSON");
+                                    LOG.warning("\"classLabels\" is not valid JSON");
                                     onLabelsFailure(0);
                                 }
                             } else {
-                                LOGGER.warning("result is not valid JSON");
+                                LOG.warning("result is not valid JSON");
                                 onLabelsFailure(0);
                             }
                         } else {
-                            LOGGER.warning("\"result\" is not a JSON string");
+                            LOG.warning("\"result\" is not a JSON string");
                             onLabelsFailure(0);
                         }
                     } else {
-                        LOGGER.warning("\"result\" is not valid JSON");
+                        LOG.warning("\"result\" is not valid JSON");
                         onLabelsFailure(0);
                     }
                 } else {
-                    LOGGER.warning("response is not a JSON object");
+                    LOG.warning("response is not a JSON object");
                     onLabelsFailure(0);
                 }
             } else {
-                LOGGER.warning("response is not valid JSON");
+                LOG.warning("response is not valid JSON");
                 onLabelsFailure(0);
             }
         } else {
-            LOGGER.warning("response=null");
+            LOG.warning("response=null");
             onLabelsFailure(0);
         }
 
@@ -229,7 +231,7 @@ public class FeedbackController extends Controller {
             ajaxRequest.setData("onFailure", onFailure);
             Dispatcher.forwardEvent(ajaxRequest);
         } else {
-            LOGGER.warning("No sensors!");
+            LOG.warning("No sensors!");
             onLabelsFailure(0);
         }
     }
@@ -251,7 +253,7 @@ public class FeedbackController extends Controller {
 
             // TODO also process delete changes
             while (change.getType() == FeedbackData.TYPE_REMOVE) {
-                LOGGER.warning("Skipping feedback deletion!");
+                LOG.warning("Skipping feedback deletion!");
                 index++;
                 if (index < changes.size()) {
                     change = changes.get(index);
@@ -303,7 +305,7 @@ public class FeedbackController extends Controller {
     }
 
     private void onFeedbackFailed(FeedbackPanel panel) {
-        LOGGER.fine("Feedback failure");
+        LOG.fine("Feedback failure");
         AppEvent failure = new AppEvent(FeedbackEvents.FeedbackFailed);
         failure.setData("panel", panel);
         forwardToView(this.feedback, failure);

@@ -49,7 +49,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnecter extends View {
 
-    private static final Logger LOGGER = Logger.getLogger(StateConnecter.class.getName());
+    private static final Logger LOG = Logger.getLogger(StateConnecter.class.getName());
     private Window window;
     private FormPanel form;
     private Button submitButton;
@@ -63,35 +63,35 @@ public class StateConnecter extends View {
 
     public StateConnecter(Controller c) {
         super(c);
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateConnectEvents.ShowSensorConnecter)) {
-            LOGGER.fine("Show");
+            LOG.fine("Show");
             onShow(event);
 
         } else if (type.equals(StateConnectEvents.ConnectSuccess)) {
-            LOGGER.fine("ConnectSuccess");
+            LOG.fine("ConnectSuccess");
             hideWindow();
 
         } else if (type.equals(StateConnectEvents.ConnectFailure)) {
-            LOGGER.warning("ConnectFailure");
+            LOG.warning("ConnectFailure");
             onConnectFailure();
 
         } else if (type.equals(StateConnectEvents.ServiceNameSuccess)) {
-            LOGGER.fine("ServiceNameSuccess");
+            LOG.fine("ServiceNameSuccess");
             final String serviceName = event.getData("name");
             onServiceNameSuccess(serviceName);
 
         } else if (type.equals(StateConnectEvents.ServiceNameFailure)) {
-            LOGGER.warning("ServiceNameFailure");
+            LOG.warning("ServiceNameFailure");
             onServiceNameFailure();
 
         } else {
-            LOGGER.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
@@ -112,7 +112,7 @@ public class StateConnecter extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    LOGGER.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
@@ -194,14 +194,14 @@ public class StateConnecter extends View {
                     AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
-                    // LOGGER.fine( "Load library... Renew cache: " + force);
+                    // LOG.fine( "Load library... Renew cache: " + force);
                     AppEvent loadRequest = new AppEvent(
                             StateConnectEvents.AvailableSensorsRequested);
                     loadRequest.setData("name", serviceName);
                     loadRequest.setData("callback", callback);
                     fireEvent(loadRequest);
                 } else {
-                    LOGGER.warning("Unexpected load config: " + loadConfig);
+                    LOG.warning("Unexpected load config: " + loadConfig);
                     callback.onFailure(null);
                 }
             }

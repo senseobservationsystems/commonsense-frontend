@@ -46,7 +46,7 @@ public class TimeLinePanel extends VizPanel {
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         // set up layout
         setHeading("Time line: " + title);

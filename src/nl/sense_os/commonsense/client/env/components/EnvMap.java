@@ -67,12 +67,10 @@ public class EnvMap extends VizPanel {
 
     public EnvMap() {
         this(null);
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
     }
 
     public EnvMap(EnvironmentModel environment) {
-
-        LOG.setLevel(Level.ALL);
 
         // Create the map.
         this.map = new MapWidget();

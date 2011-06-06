@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.viz.data.cache;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -13,7 +14,7 @@ import com.google.gwt.core.client.JsonUtils;
 
 public class Cache {
 
-    private static final Logger LOGGER = Logger.getLogger(Cache.class.getName());
+    private static final Logger LOG = Logger.getLogger(Cache.class.getName());
     private static CacheJso cache;
 
     protected Cache() {
@@ -24,7 +25,7 @@ public class Cache {
         if (cache != null) {
             cache.remove(sensor.getId());
         } else {
-            LOGGER.fine("Cannot remove cached data: cache=null");
+            LOG.fine("Cannot remove cached data: cache=null");
         }
     }
 
@@ -60,15 +61,15 @@ public class Cache {
             // get data from cache
             JsArray<Timeseries> result = cache.request(JsonUtils.<JsArrayInteger> unsafeEval(ids),
                     start, end);
-            LOGGER.fine("Retrieved " + result.length() + " timeseries from the cache.");
+            LOG.fine("Retrieved " + result.length() + " timeseries from the cache.");
             for (int i = 0; i < result.length(); i++) {
-                LOGGER.fine(result.get(i).getLabel() + ": " + result.get(i).getData().length()
+                LOG.fine(result.get(i).getLabel() + ": " + result.get(i).getData().length()
                         + " points");
             }
             return result;
 
         } else {
-            LOGGER.fine("No cache object, returning empty array...");
+            LOG.fine("No cache object, returning empty array...");
             return JsArray.createArray().cast();
 
         }
@@ -89,12 +90,12 @@ public class Cache {
      */
     public static void store(SensorModel sensor, long start, long end,
             JsArray<BackEndDataPoint> data) {
-        // LOGGER.setLevel(Level.ALL);
-        LOGGER.fine("Caching " + data.length() + " data points for " + sensor.getDisplayName());
+        LOG.setLevel(Level.WARNING);
+        LOG.fine("Caching " + data.length() + " data points for " + sensor.getDisplayName());
 
         if (null == cache) {
             // create cache object
-            LOGGER.fine("Create cache...");
+            LOG.fine("Create cache...");
             cache = CacheJso.create();
         }
         cache.store(sensor.getId(), sensor.getDisplayName(), start, end, data);

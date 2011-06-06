@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.CommonSense;
@@ -42,7 +43,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryController extends Controller {
 
-    private final static Logger LOGGER = Logger.getLogger(LibraryController.class.getName());
+    private final static Logger LOG = Logger.getLogger(LibraryController.class.getName());
     private static final int PER_PAGE = 1000;
     private View grid;
     private boolean isLoadingList;
@@ -51,7 +52,7 @@ public class LibraryController extends Controller {
 
     public LibraryController() {
 
-        // LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -276,7 +277,7 @@ public class LibraryController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(LibraryEvents.LoadRequest)) {
-            LOGGER.finest("LoadRequest");
+            LOG.finest("LoadRequest");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
             final boolean renewCache = event.getData("renewCache");
             onLoadRequest(renewCache, callback);
@@ -287,7 +288,7 @@ public class LibraryController extends Controller {
          * Personal sensors
          */
         if (type.equals(LibraryEvents.FullDetailsAjaxSuccess)) {
-            LOGGER.finest("FullDetailsAjaxSuccess");
+            LOG.finest("FullDetailsAjaxSuccess");
             final String response = event.getData("response");
             final List<SensorModel> library = event.getData("library");
             final int page = event.getData("page");
@@ -295,7 +296,7 @@ public class LibraryController extends Controller {
             onFullDetailsSuccess(response, library, page, callback);
 
         } else if (type.equals(LibraryEvents.FullDetailsAjaxFailure)) {
-            LOGGER.warning("FullDetailsAjaxFailure");
+            LOG.warning("FullDetailsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
             onFullDetailsFailure(callback);
 
@@ -305,7 +306,7 @@ public class LibraryController extends Controller {
          * Group sensors
          */
         if (type.equals(LibraryEvents.GroupsAjaxSuccess)) {
-            LOGGER.finest("GroupsAjaxSuccess");
+            LOG.finest("GroupsAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
@@ -313,13 +314,13 @@ public class LibraryController extends Controller {
             onGroupsSuccess(response, library, callback);
 
         } else if (type.equals(LibraryEvents.GroupsAjaxFailure)) {
-            LOGGER.warning("GroupsAjaxFailure");
+            LOG.warning("GroupsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
             onGroupsFailure(callback);
 
         } else if (type.equals(LibraryEvents.GroupSensorsAjaxSuccess)) {
-            LOGGER.finest("GroupSensorsAjaxSuccess");
+            LOG.finest("GroupSensorsAjaxSuccess");
             final String response = event.<String> getData("response");
             final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
             final int index = event.getData("index");
@@ -329,7 +330,7 @@ public class LibraryController extends Controller {
             onGroupSensorsSuccess(response, groups, index, library, callback);
 
         } else if (type.equals(LibraryEvents.GroupSensorsAjaxFailure)) {
-            LOGGER.warning("GroupSensorsAjaxFailure");
+            LOG.warning("GroupSensorsAjaxFailure");
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event
                     .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
             onGroupSensorsFailure(callback);
@@ -340,14 +341,14 @@ public class LibraryController extends Controller {
          * Available services
          */
         if (type.equals(LibraryEvents.AvailServicesAjaxSuccess)) {
-            LOGGER.finest("AvailServicesAjaxSuccess");
+            LOG.finest("AvailServicesAjaxSuccess");
             final String response = event.<String> getData("response");
             final int index = event.getData("index");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             onAvailServicesSuccess(response, library, index);
 
         } else if (type.equals(LibraryEvents.AvailServicesAjaxFailure)) {
-            LOGGER.warning("AvailServicesAjaxFailure");
+            LOG.warning("AvailServicesAjaxFailure");
             final int index = event.getData("index");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             onAvailServicesFailure(library, index);
@@ -358,14 +359,14 @@ public class LibraryController extends Controller {
          * Sensor users
          */
         if (type.equals(LibraryEvents.UsersAjaxSuccess)) {
-            LOGGER.finest("UsersAjaxSuccess");
+            LOG.finest("UsersAjaxSuccess");
             final String response = event.<String> getData("response");
             final int index = event.getData("index");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             onUsersSuccess(response, library, index);
 
         } else if (type.equals(LibraryEvents.UsersAjaxFailure)) {
-            LOGGER.warning("UsersAjaxFailure");
+            LOG.warning("UsersAjaxFailure");
             final int index = event.getData("index");
             final List<SensorModel> library = event.<List<SensorModel>> getData("library");
             onUsersFailure(library, index);
@@ -376,7 +377,7 @@ public class LibraryController extends Controller {
          * Clear data after logout
          */
         if (type.equals(LoginEvents.LoggedOut)) {
-            LOGGER.finest("LoggedOut");
+            LOG.finest("LoggedOut");
             onLogout();
 
         } else
@@ -385,7 +386,7 @@ public class LibraryController extends Controller {
          * Pass through to view
          */
         {
-            LOGGER.finest("Pass through to grid");
+            LOG.finest("Pass through to grid");
             forwardToView(this.grid, event);
         }
 
@@ -440,7 +441,7 @@ public class LibraryController extends Controller {
         int total = responseJso.getTotal();
         library.addAll(responseJso.getSensors());
 
-        LOGGER.fine("total: " + total + ", library size: " + library.size());
+        LOG.fine("total: " + total + ", library size: " + library.size());
 
         if (total > library.size()) {
             // get the next page with sensors
@@ -459,14 +460,14 @@ public class LibraryController extends Controller {
 
     private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
             List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        LOGGER.fine("Received group sensors response...");
+        LOG.fine("Received group sensors response...");
 
         // parse group sensors
         List<SensorModel> groupSensors = new ArrayList<SensorModel>();
         GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
         groupSensors.addAll(responseJso.getSensors());
 
-        LOGGER.finest("Parsed group sensors...");
+        LOG.finest("Parsed group sensors...");
 
         GroupModel group = groups.get(index);
         for (SensorModel groupSensor : groupSensors) {
@@ -498,7 +499,7 @@ public class LibraryController extends Controller {
 
     private void onLoadComplete(List<SensorModel> library,
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
-        LOGGER.fine("Load complete...");
+        LOG.fine("Load complete...");
 
         // update list of devices
         Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).addAll(
@@ -508,13 +509,13 @@ public class LibraryController extends Controller {
         notifyState();
 
         if (null != callback) {
-            LOGGER.finest("Create load result...");
+            LOG.finest("Create load result...");
             ListLoadResult<SensorModel> result = new BaseListLoadResult<SensorModel>(library);
 
-            LOGGER.finest("Call back with load result...");
+            LOG.finest("Call back with load result...");
             callback.onSuccess(result);
         }
-        LOGGER.finest("Dispatch ListUpdated...");
+        LOG.finest("Dispatch ListUpdated...");
         Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
     }
 
