@@ -75,6 +75,7 @@ public class DataController extends Controller {
             onLatestValuesComplete(sensors, panel);
         }
     }
+
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -277,11 +278,7 @@ public class DataController extends Controller {
             VizPanel panel) {
 
         GetSensorDataResponseJso jso = GetSensorDataResponseJso.create(response);
-        if (jso.getTotal() == 1) {
-            Cache.store(sensors.get(index), 0, 0, jso.getData());
-        } else if (jso.getTotal() != 0) {
-            LOGGER.warning("Unexpected total: " + jso.getTotal());
-        }
+        Cache.store(sensors.get(index), 0, 0, jso.getData());
 
         index++;
         getLatestValues(sensors, index, panel);
@@ -378,7 +375,7 @@ public class DataController extends Controller {
     }
 
     private void updateMainProgress(int progress, int total) {
-        // logger.fine( "updateMainProgress...");
+        LOGGER.finest("updateMainProgress...");
         AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
         update.setData("progress", progress);
         update.setData("total", total);
@@ -386,12 +383,7 @@ public class DataController extends Controller {
     }
 
     private void updateSubProgress(double progress, double total, String text) {
-        // logger.fine( "updateSubProgress...");
-        AppEvent update = new AppEvent(DataEvents.UpdateDataProgress);
-        update.setData("progress", progress);
-        update.setData("total", total);
-        update.setData("text", text);
-        forwardToView(progressDialog, update);
+        LOGGER.finest("updateSubProgress...");
+        // subprogress is in automatic mode
     }
-
 }

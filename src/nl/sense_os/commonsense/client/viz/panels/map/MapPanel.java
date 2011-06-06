@@ -30,7 +30,7 @@ import com.google.gwt.maps.client.overlay.PolylineOptions;
 
 public class MapPanel extends VizPanel {
 
-    private static final Logger logger = Logger.getLogger("MapPanel");
+    private static final Logger LOG = Logger.getLogger(MapPanel.class.getName());
     private MapWidget map;
     private DateSlider startSlider;
     private DateSlider endSlider;
@@ -45,35 +45,14 @@ public class MapPanel extends VizPanel {
     public MapPanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
-        this.setHeading("Map: " + title);
-        this.setLayout(new BorderLayout());
-        this.setId("viz-map-" + title);
+        setHeading("Map: " + title);
+        setLayout(new BorderLayout());
+        setId("viz-map-" + title);
 
         initSliders();
         initMapWidget();
 
         visualize(sensors, start, end);
-    }
-
-    @Override
-    public void onNewData() {
-
-        // sort lat/lng data
-        Timeseries ts;
-        for (int i = 0; i < data.length(); i++) {
-            ts = data.get(i);
-            if (ts.getLabel().endsWith("latitude")) {
-                this.latTimeseries = ts;
-            } else if (ts.getLabel().endsWith("longitude")) {
-                this.lngTimeseries = ts;
-            }
-        }
-
-        if (this.latTimeseries != null && this.lngTimeseries != null) {
-            calcSliderRange();
-            drawTrace();
-            centerMap();
-        }
     }
 
     /**
@@ -84,7 +63,7 @@ public class MapPanel extends VizPanel {
      */
     private void calcSliderRange() {
 
-        JsArray<DataPoint> values = this.latTimeseries.getData();
+        JsArray<DataPoint> values = latTimeseries.getData();
         DataPoint v = values.get(0);
         int min = (int) Math.floor(v.getTimestamp().getTime() / 1000l);
         v = values.get(values.length() - 1);
@@ -109,9 +88,9 @@ public class MapPanel extends VizPanel {
     }
 
     private void centerMap() {
-        final LatLngBounds bounds = this.trace.getBounds();
-        this.map.setCenter(bounds.getCenter());
-        this.map.setZoomLevel(this.map.getBoundsZoomLevel(bounds));
+        final LatLngBounds bounds = trace.getBounds();
+        map.setCenter(bounds.getCenter());
+        map.setZoomLevel(map.getBoundsZoomLevel(bounds));
     }
 
     /**
@@ -121,25 +100,25 @@ public class MapPanel extends VizPanel {
     private void drawTrace() {
 
         // clean the map
-        this.map.clearOverlays();
-        this.trace = null;
+        map.clearOverlays();
+        trace = null;
 
         // get the time window for the trace from the sliders
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
 
         // get the sensor values
-        JsArray<DataPoint> latValues = this.latTimeseries.getData();
-        JsArray<DataPoint> lngValues = this.lngTimeseries.getData();
+        JsArray<DataPoint> latValues = latTimeseries.getData();
+        JsArray<DataPoint> lngValues = lngTimeseries.getData();
 
-        // logger.fine( "Number of points: " + latValues.length());
+        // LOG.fine( "Number of points: " + latValues.length());
 
         // Draw the filtered points.
         if (latValues.length() > 0 && maxTime > minTime) {
             LatLng[] points = new LatLng[latValues.length()];
 
-            this.traceStartIndex = -1;
-            this.traceEndIndex = -1;
+            traceStartIndex = -1;
+            traceEndIndex = -1;
             int lastPoint = -1;
             FloatDataPoint lat;
             FloatDataPoint lng;
@@ -154,7 +133,7 @@ public class MapPanel extends VizPanel {
                     // update indices
                     lastPoint = j;
                     traceEndIndex = i;
-                    if (-1 == this.traceStartIndex) {
+                    if (-1 == traceStartIndex) {
                         traceStartIndex = i;
                     }
                     // store coordinate
@@ -166,20 +145,20 @@ public class MapPanel extends VizPanel {
 
             // Add the first marker
             final MarkerOptions markerOptions = MarkerOptions.newInstance();
-            this.startMarker = new Marker(points[0], markerOptions);
-            this.map.addOverlay(startMarker);
+            startMarker = new Marker(points[0], markerOptions);
+            map.addOverlay(startMarker);
 
             // Add the last marker
-            this.endMarker = new Marker(points[lastPoint], markerOptions);
-            this.map.addOverlay(endMarker);
+            endMarker = new Marker(points[lastPoint], markerOptions);
+            map.addOverlay(endMarker);
 
             // Draw a track line
             PolylineOptions lineOptions = PolylineOptions.newInstance(false, true);
-            this.trace = new Polyline(points, "#FF7F00", 5, 1, lineOptions);
-            this.map.addOverlay(this.trace);
+            trace = new Polyline(points, "#FF7F00", 5, 1, lineOptions);
+            map.addOverlay(trace);
 
         } else {
-            logger.warning("No position values in selected time range");
+            LOG.warning("No position values in selected time range");
         }
     }
 
@@ -188,16 +167,16 @@ public class MapPanel extends VizPanel {
      */
     private void initMapWidget() {
 
-        this.map = new MapWidget();
-        this.map.setWidth("100%");
+        map = new MapWidget();
+        map.setWidth("100%");
 
         // Add some controls for the zoom level
-        this.map.setUIToDefault();
+        map.setUIToDefault();
 
         // Add the map to the layout
         BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.CENTER);
         layoutData.setMargins(new Margins(5));
-        this.add(this.map, layoutData);
+        this.add(map, layoutData);
     }
 
     /**
@@ -221,21 +200,21 @@ public class MapPanel extends VizPanel {
         };
 
         // create start time slider
-        this.startSlider = new DateSlider();
-        this.startSlider.setMessage("{0}");
-        this.startSlider.setId("viz-map-startSlider");
-        this.startSlider.addListener(Events.Change, slideListener);
+        startSlider = new DateSlider();
+        startSlider.setMessage("{0}");
+        startSlider.setId("viz-map-startSlider");
+        startSlider.addListener(Events.Change, slideListener);
 
-        SliderField startField = new SliderField(this.startSlider);
+        SliderField startField = new SliderField(startSlider);
         startField.setFieldLabel("Trace start");
 
-        this.endSlider = new DateSlider();
-        this.endSlider.setMessage("{0}");
-        this.endSlider.setValue(this.endSlider.getMaxValue());
-        this.endSlider.setId("viz-map-endSlider");
-        this.endSlider.addListener(Events.Change, slideListener);
+        endSlider = new DateSlider();
+        endSlider.setMessage("{0}");
+        endSlider.setValue(endSlider.getMaxValue());
+        endSlider.setId("viz-map-endSlider");
+        endSlider.addListener(Events.Change, slideListener);
 
-        SliderField endField = new SliderField(this.endSlider);
+        SliderField endField = new SliderField(endSlider);
         endField.setFieldLabel("Trace end");
 
         slidersForm.add(startField, new FormData("-5"));
@@ -246,18 +225,39 @@ public class MapPanel extends VizPanel {
         this.add(slidersForm, data);
     }
 
+    @Override
+    protected void onNewData() {
+
+        // sort lat/lng data
+        Timeseries ts;
+        for (int i = 0; i < data.length(); i++) {
+            ts = data.get(i);
+            if (ts.getLabel().endsWith("latitude")) {
+                latTimeseries = ts;
+            } else if (ts.getLabel().endsWith("longitude")) {
+                lngTimeseries = ts;
+            }
+        }
+
+        if (latTimeseries != null && lngTimeseries != null) {
+            calcSliderRange();
+            drawTrace();
+            centerMap();
+        }
+    }
+
     private void updateTrace() {
 
-        // logger.fine( "updateTrace ");
+        // LOG.fine( "updateTrace ");
 
         if (null == trace || false == trace.isVisible()) {
-            logger.fine("updateTrace skipped: trace is not shown yet");
+            LOG.fine("updateTrace skipped: trace is not shown yet");
             return;
         }
 
         // get the sensor values
-        JsArray<DataPoint> latValues = this.latTimeseries.getData();
-        JsArray<DataPoint> lonValues = this.lngTimeseries.getData();
+        JsArray<DataPoint> latValues = latTimeseries.getData();
+        JsArray<DataPoint> lonValues = lngTimeseries.getData();
 
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
@@ -280,31 +280,31 @@ public class MapPanel extends VizPanel {
             }
         }
 
-        // logger.fine( "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
-        // logger.fine( "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
+        // LOG.fine( "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
+        // LOG.fine( "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex);
 
         if (newTraceStartIndex > newTraceEndIndex) {
-            logger.warning("Start index of trace is larger than end index?!");
+            LOG.warning("Start index of trace is larger than end index?!");
         }
 
         // add vertices at START of trace if newTraceStart < traceStartIndex
         if (newTraceStartIndex < traceStartIndex) {
-            // logger.fine( "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
+            // LOG.fine( "Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
             FloatDataPoint lat;
             FloatDataPoint lon;
-            for (int i = this.traceStartIndex - 1; i >= newTraceStartIndex; i--) {
+            for (int i = traceStartIndex - 1; i >= newTraceStartIndex; i--) {
                 lat = latValues.get(i).cast();
                 lon = lonValues.get(i).cast();
-                this.trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
+                trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
             }
         }
 
         // delete vertices at START of trace if newTraceStart > traceStartIndex
         if (newTraceStartIndex > traceStartIndex) {
-            // logger.fine( "Delete " + (newTraceStartIndex - traceStartIndex) +
+            // LOG.fine( "Delete " + (newTraceStartIndex - traceStartIndex) +
             // " vertices at start");
-            for (int i = this.traceStartIndex; i < newTraceStartIndex; i++) {
-                this.trace.deleteVertex(0);
+            for (int i = traceStartIndex; i < newTraceStartIndex; i++) {
+                trace.deleteVertex(0);
             }
         }
 
@@ -312,26 +312,26 @@ public class MapPanel extends VizPanel {
         FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
         FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
         LatLng startCoordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
-        this.startMarker.setLatLng(startCoordinate);
+        startMarker.setLatLng(startCoordinate);
 
         // add vertices at END of trace if newTraceEnd > traceEndIndex
         if (newTraceEndIndex > traceEndIndex) {
-            // logger.fine( "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
+            // LOG.fine( "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
             FloatDataPoint lat;
             FloatDataPoint lon;
-            for (int i = this.traceEndIndex + 1; i <= newTraceEndIndex; i++) {
+            for (int i = traceEndIndex + 1; i <= newTraceEndIndex; i++) {
                 lat = latValues.get(i).cast();
                 lon = lonValues.get(i).cast();
-                this.trace.insertVertex(this.trace.getVertexCount(),
+                trace.insertVertex(trace.getVertexCount(),
                         LatLng.newInstance(lat.getValue(), lon.getValue()));
             }
         }
 
         // delete vertices at END of trace if newTraceEnd < traceEndIndex
         if (newTraceEndIndex < traceEndIndex) {
-            // logger.fine( "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
-            for (int i = this.traceEndIndex; i > newTraceEndIndex; i--) {
-                this.trace.deleteVertex(this.trace.getVertexCount() - 1);
+            // LOG.fine( "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
+            for (int i = traceEndIndex; i > newTraceEndIndex; i--) {
+                trace.deleteVertex(trace.getVertexCount() - 1);
             }
         }
 
@@ -339,10 +339,10 @@ public class MapPanel extends VizPanel {
         FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
         FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
         LatLng endCoordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
-        this.endMarker.setLatLng(endCoordinate);
+        endMarker.setLatLng(endCoordinate);
 
         // update trace indexes
-        this.traceStartIndex = newTraceStartIndex;
-        this.traceEndIndex = newTraceEndIndex;
+        traceStartIndex = newTraceStartIndex;
+        traceEndIndex = newTraceEndIndex;
     }
 }

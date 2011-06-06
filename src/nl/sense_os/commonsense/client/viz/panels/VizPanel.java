@@ -25,6 +25,9 @@ import com.google.gwt.user.client.ui.Widget;
 
 public abstract class VizPanel extends ContentPanel {
 
+    /**
+     * Timer to periodically refresh the data for the visualization.
+     */
     private class RefreshTimer extends Timer {
 
         @Override
@@ -33,7 +36,7 @@ public abstract class VizPanel extends ContentPanel {
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(VizPanel.class.getName());
+    private static final Logger LOG = Logger.getLogger(VizPanel.class.getName());
     private static final int REFRESH_PERIOD = 1000 * 10;
     private RefreshTimer refreshTimer;
     private boolean isAutoRefresh;
@@ -47,7 +50,7 @@ public abstract class VizPanel extends ContentPanel {
      * Creates new VizPanel instance.
      */
     protected VizPanel() {
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.ALL);
         addToolButtons();
     }
 
@@ -68,14 +71,14 @@ public abstract class VizPanel extends ContentPanel {
                 for (int j = 0; j < this.data.length(); j++) {
                     Timeseries original = this.data.get(j);
                     if (toAppend.getLabel().equals(original.getLabel())) {
-                        LOGGER.fine("Append data to " + original.getLabel());
+                        LOG.fine("Append data to " + original.getLabel());
                         original.append(toAppend);
                         appended = true;
                         break;
                     }
                 }
                 if (!appended) {
-                    LOGGER.fine("Add new timeseries to the graph data " + toAppend.getLabel());
+                    LOG.fine("Add new timeseries to the graph data " + toAppend.getLabel());
                     this.data.push(toAppend);
                 }
             }
@@ -85,11 +88,9 @@ public abstract class VizPanel extends ContentPanel {
     }
 
     /**
-     * Called when the data was updated.
-     * 
-     * @see #data
+     * Called when the data was updated. The data is stored in the <code>data</code> field.
      */
-    public abstract void onNewData();
+    protected abstract void onNewData();
 
     /**
      * Adds tool buttons to the panel's heading.
@@ -145,7 +146,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    LOGGER.fine(" panel hidden");
+                    LOG.fine(" panel hidden");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -156,7 +157,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    LOGGER.fine("panel closed");
+                    LOG.fine("panel closed");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -167,7 +168,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    LOGGER.fine("panel removed");
+                    LOG.fine("panel removed");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -178,7 +179,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    LOGGER.fine("panel shown");
+                    LOG.fine("panel shown");
                     if (isAutoRefresh) {
                         refreshData();
                         refreshTimer.scheduleRepeating(REFRESH_PERIOD);
@@ -187,7 +188,7 @@ public abstract class VizPanel extends ContentPanel {
 
             });
         } else {
-            LOGGER.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
+            LOG.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
         }
     }
 
@@ -252,7 +253,7 @@ public abstract class VizPanel extends ContentPanel {
                 Dispatcher.forwardEvent(refreshRequest);
             }
         } else {
-            LOGGER.warning("Cannot refresh data: list of sensors is null");
+            LOG.warning("Cannot refresh data: list of sensors is null");
         }
     }
 

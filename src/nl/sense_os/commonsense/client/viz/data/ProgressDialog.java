@@ -90,6 +90,7 @@ public class ProgressDialog extends View {
         form.setLabelSeparator(" ");
 
         subProgress = new ProgressBar();
+        subProgress.auto();
         AdapterField subProgressField = new AdapterField(subProgress);
         subProgressField.setFieldLabel("Requesting sensor data...");
         form.add(subProgressField, new FormData("-5"));

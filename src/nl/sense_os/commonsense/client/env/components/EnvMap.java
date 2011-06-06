@@ -51,7 +51,7 @@ import com.google.gwt.user.client.Element;
 
 public class EnvMap extends VizPanel {
 
-    private static final Logger LOGGER = Logger.getLogger(EnvMap.class.getName());
+    private static final Logger LOG = Logger.getLogger(EnvMap.class.getName());
     private MapWidget map;
     private final Map<Marker, List<DeviceModel>> deviceMarkers = new HashMap<Marker, List<DeviceModel>>();
 
@@ -67,11 +67,12 @@ public class EnvMap extends VizPanel {
 
     public EnvMap() {
         this(null);
+        LOG.setLevel(Level.ALL);
     }
 
     public EnvMap(EnvironmentModel environment) {
 
-        LOGGER.setLevel(Level.ALL);
+        LOG.setLevel(Level.ALL);
 
         // Create the map.
         this.map = new MapWidget();
@@ -92,9 +93,7 @@ public class EnvMap extends VizPanel {
 
     @Override
     public void onNewData() {
-        LOGGER.finest("Got latest values...");
-
-        this.map.clearOverlays();
+        LOG.finest("Got latest values...");
 
         // order the data by sensor ID
         this.sensorValues = new HashMap<Integer, List<Timeseries>>();
@@ -114,14 +113,16 @@ public class EnvMap extends VizPanel {
     }
 
     private void drawMarkers() {
+        LOG.fine("Draw markers...");
+
         for (SensorModel sensor : sensors) {
             if (sensor.getName().contains("position")) {
-                List<Timeseries> data = sensorValues.get(sensor.getId());
-                if (data != null) {
+                List<Timeseries> positionData = sensorValues.get(sensor.getId());
+                if (positionData != null) {
 
                     JsArray<DataPoint> lat = null;
                     JsArray<DataPoint> lng = null;
-                    for (Timeseries ts : data) {
+                    for (Timeseries ts : positionData) {
                         if (ts.getLabel().contains("latitude")) {
                             lat = ts.getData();
                         } else if (ts.getLabel().contains("longitude")) {
@@ -131,6 +132,8 @@ public class EnvMap extends VizPanel {
 
                     // draw the marker
                     if (null != lat && null != lng) {
+                        LOG.fine("Marker for " + sensor.getDevice() + "...");
+
                         FloatDataPoint lastLat = lat.get(lat.length() - 1).cast();
                         FloatDataPoint lastLng = lng.get(lng.length() - 1).cast();
                         double latValue = lastLat.getValue();
@@ -146,7 +149,15 @@ public class EnvMap extends VizPanel {
 
                         Marker marker = new Marker(coordinate, options);
                         map.addOverlay(marker);
+
+                    } else {
+                        LOG.warning("Cannot draw marker for " + sensor.getDevice()
+                                + ": position data has not latitude or longitude!");
                     }
+
+                } else {
+                    LOG.fine("Cannot draw marker for " + sensor.getDevice()
+                            + ": position data is null!");
                 }
             }
         }
@@ -154,7 +165,7 @@ public class EnvMap extends VizPanel {
     }
 
     private void addDeviceMarker(LatLng latLng, List<DeviceModel> devices) {
-        LOGGER.finest("Add device marker...");
+        LOG.finest("Add device marker...");
 
         // create title
         String title = "";
@@ -186,7 +197,7 @@ public class EnvMap extends VizPanel {
     }
 
     public void clearDevices() {
-        LOGGER.finest("Clear devices...");
+        LOG.finest("Clear devices...");
 
         for (Marker marker : deviceMarkers.keySet()) {
             this.map.removeOverlay(marker);
@@ -195,7 +206,7 @@ public class EnvMap extends VizPanel {
     }
 
     public void clearOutline() {
-        LOGGER.finest("Clear outline...");
+        LOG.finest("Clear outline...");
 
         this.map.removeOverlay(this.outline);
         initOutline();
@@ -203,11 +214,11 @@ public class EnvMap extends VizPanel {
 
     public void editDevices(boolean enable) {
         if (enable) {
-            LOGGER.finest("Devices enabled...");
+            LOG.finest("Devices enabled...");
             this.map.addMapClickHandler(mapClickHandler);
             this.outline.addPolygonClickHandler(this.polygonClickHandler);
         } else {
-            LOGGER.finest("Devices disabled...");
+            LOG.finest("Devices disabled...");
             this.map.removeMapClickHandler(mapClickHandler);
             this.outline.removePolygonClickHandler(this.polygonClickHandler);
         }
@@ -216,7 +227,7 @@ public class EnvMap extends VizPanel {
     public void editOutline(boolean enable) {
 
         if (enable) {
-            LOGGER.finest("Outline enabled...");
+            LOG.finest("Outline enabled...");
             if (null == outline) {
                 initOutline();
                 this.outline.setDrawingEnabled(PolyEditingOptions.newInstance(128));
@@ -227,7 +238,7 @@ public class EnvMap extends VizPanel {
                 this.outline.setDrawingEnabled(PolyEditingOptions.newInstance(128));
             }
         } else {
-            LOGGER.finest("Outline disabled...");
+            LOG.finest("Outline disabled...");
             this.outline.setEditingEnabled(false);
         }
     }
@@ -285,7 +296,7 @@ public class EnvMap extends VizPanel {
                 if (null != latLng) {
                     showDeviceChooser(latLng);
                 } else {
-                    LOGGER.warning("Clicked polygon, but LatLng=null");
+                    LOG.warning("Clicked polygon, but LatLng=null");
                 }
 
             }
@@ -337,7 +348,7 @@ public class EnvMap extends VizPanel {
 
     private void initOutline() {
 
-        this.outline = new Polygon(new LatLng[]{});
+        this.outline = new Polygon(new LatLng[] {});
         this.map.addOverlay(this.outline);
         this.outline.addPolygonEndLineHandler(new PolygonEndLineHandler() {
 
@@ -362,10 +373,10 @@ public class EnvMap extends VizPanel {
 
         if (null != environment) {
             if (null != environment.getOutline()) {
-                LOGGER.fine("outline: " + environment.getOutline());
+                LOG.fine("outline: " + environment.getOutline());
                 setOutline(environment.getOutline());
             } else {
-                LOGGER.warning("Environment has no outline!");
+                LOG.warning("Environment has no outline!");
             }
 
             // request the environment sensors
@@ -385,11 +396,11 @@ public class EnvMap extends VizPanel {
         this.map.setCenter(this.outline.getBounds().getCenter());
         // this.map.setZoomLevel(this.map.getBoundsZoomLevel(this.outline.getBounds()));
         this.map.setZoomLevel(15);
-        LOGGER.finest("Zoom level: " + this.map.getBoundsZoomLevel(this.outline.getBounds()));
+        LOG.finest("Zoom level: " + this.map.getBoundsZoomLevel(this.outline.getBounds()));
     }
 
     public void setSensors(List<SensorModel> sensors) {
-        LOGGER.finest("Set sensors...");
+        LOG.finest("Set sensors...");
 
         this.sensors = sensors;
 
@@ -401,7 +412,7 @@ public class EnvMap extends VizPanel {
     }
 
     private void showDeviceChooser(LatLng latLng) {
-        LOGGER.finest("Show device chooser...");
+        LOG.finest("Show device chooser...");
 
         store.removeAll();
 
