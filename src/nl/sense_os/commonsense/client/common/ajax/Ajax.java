@@ -116,6 +116,8 @@ public class Ajax {
 				xhr.open(method, url);
 				xhr.onload = handleSuccess;
 				xhr.onerror = handleFailure;
+				xhr.onprogress = function() {
+				};
 				xhr.timeout = 10000;
 				xhr.ontimeout = handleTimeOut;
 				xhr.send(body);
