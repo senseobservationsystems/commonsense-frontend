@@ -21,6 +21,7 @@ public class FeedbackView extends View {
         super(c);
         LOGGER.setLevel(Level.ALL);
     }
+
     @Override
     protected void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -109,7 +110,7 @@ public class FeedbackView extends View {
 
     private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels,
             long start, long end) {
-        String title = state.<String> get("text");
+        String title = state.getDisplayName();
         FeedbackPanel panel = new FeedbackPanel(state, sensors, start, end, title, labels);
 
         AppEvent showEvent = new AppEvent(FeedbackEvents.ShowFeedback);
