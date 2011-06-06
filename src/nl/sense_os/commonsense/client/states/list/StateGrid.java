@@ -68,7 +68,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateGrid extends View {
 
-    protected static final Logger logger = Logger.getLogger("StateGrid");
+    private static final Logger LOG = Logger.getLogger(StateGrid.class.getName());
     private ContentPanel panel;
     private TreeGrid<SensorModel> grid;
     private TreeStore<SensorModel> store;
@@ -120,7 +120,7 @@ public class StateGrid extends View {
     }
 
     private void disconnectSensor() {
-        SensorModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        SensorModel sensor = grid.getSelectionModel().getSelectedItem();
         SensorModel stateSensor = store.getParent(sensor);
 
         AppEvent event = new AppEvent(StateListEvents.RemoveRequested);
@@ -131,9 +131,9 @@ public class StateGrid extends View {
     }
 
     private SensorModel getSelectedState() {
-        SensorModel selection = this.grid.getSelectionModel().getSelectedItem();
+        SensorModel selection = grid.getSelectionModel().getSelectedItem();
         while (store.getParent(selection) instanceof SensorModel) {
-            selection = (SensorModel) store.getParent(selection);
+            selection = store.getParent(selection);
         }
         return selection;
     }
@@ -146,54 +146,54 @@ public class StateGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(StateListEvents.ShowGrid)) {
-            // logger.fine( "ShowGrid");
+            // LOG.fine( "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
         } else if (type.equals(VizEvents.Show)) {
-            // logger.fine( "Show Visualization");
+            // LOG.fine( "Show Visualization");
             refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine( "LoggedOut");
+            // LOG.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(StateListEvents.Done)) {
-            // logger.fine( "TreeUpdated");
+            // LOG.fine( "TreeUpdated");
             setBusy(false);
 
         } else if (type.equals(StateListEvents.Working)) {
-            // logger.fine( "Working");
+            // LOG.fine( "Working");
             setBusy(true);
 
         } else if (type.equals(StateListEvents.LoadComplete)) {
-            // logger.fine( "TreeUpdated");
+            // LOG.fine( "TreeUpdated");
             onLoadComplete();
 
         } else if (type.equals(StateListEvents.RemoveComplete)) {
-            // logger.fine( "RemoveComplete");
+            // LOG.fine( "RemoveComplete");
             onRemoveComplete(event);
 
         } else if (type.equals(StateListEvents.RemoveFailed)) {
-            logger.warning("RemoveFailed");
+            LOG.warning("RemoveFailed");
             onRemoveFailed(event);
 
         } else if (type.equals(StateConnectEvents.ConnectSuccess)
                 || type.equals(StateCreateEvents.CreateServiceComplete)
                 || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
                 || type.equals(SensorDeleteEvents.DeleteSuccess)) {
-            // logger.fine( "External trigger for update");
+            // LOG.fine( "External trigger for update");
             refreshLoader(true);
 
         } else {
-            logger.severe("Unexpected event type: " + type);
+            LOG.severe("Unexpected event type: " + type);
         }
     }
 
     private void initFilter() {
         filterBar = new ToolBar();
         filterBar.add(new LabelToolItem("Filter: "));
-        this.filter = new StoreFilterField<SensorModel>() {
+        filter = new StoreFilterField<SensorModel>() {
 
             @Override
             protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
@@ -213,7 +213,7 @@ public class StateGrid extends View {
                 }
             }
         };
-        filter.bind(this.store);
+        filter.bind(store);
         filterBar.add(filter);
 
         // TODO fix filtering
@@ -241,19 +241,18 @@ public class StateGrid extends View {
         };
 
         // tree loader
-        this.loader = new BaseTreeLoader<SensorModel>(proxy) {
+        loader = new BaseTreeLoader<SensorModel>(proxy) {
 
             @Override
             public boolean hasChildren(SensorModel parent) {
                 // only state sensors have children
-                return (parent.getType() == 2);
+                return parent.getType() == 2;
             };
         };
 
         // tree store
-        this.store = new TreeStore<SensorModel>(this.loader);
-        this.store
-                .setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator<SensorModel>()));
+        store = new TreeStore<SensorModel>(loader);
+        store.setStoreSorter(new StoreSorter<SensorModel>(new SensorComparator<SensorModel>()));
 
         // column model, make sure you add a TreeGridCellRenderer
         List<ColumnConfig> columns = LibraryColumnsFactory.create().getColumns();
@@ -272,13 +271,13 @@ public class StateGrid extends View {
             type.setWidth(65);
         }
 
-        this.grid = new TreeGrid<SensorModel>(this.store, cm);
-        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
-        this.grid.setId("stateGrid");
-        this.grid.setStateful(true);
-        this.grid.setAutoLoad(true);
-        this.grid.setAutoExpandColumn(SensorModel.ENVIRONMENT_NAME);
-        this.grid.setIconProvider(new SenseIconProvider<SensorModel>());
+        grid = new TreeGrid<SensorModel>(store, cm);
+        grid.setModelProcessor(new SensorProcessor<SensorModel>());
+        grid.setId("stateGrid");
+        grid.setStateful(true);
+        grid.setAutoLoad(true);
+        grid.setAutoExpandColumn(SensorModel.ENVIRONMENT_NAME);
+        grid.setIconProvider(new SenseIconProvider<SensorModel>());
     }
 
     private void initHeaderTool() {
@@ -296,11 +295,12 @@ public class StateGrid extends View {
     protected void initialize() {
         super.initialize();
 
-        this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("Manage states");
+        panel = new ContentPanel(new FitLayout());
+        panel.setHeading("Manage states");
+        panel.setAnimCollapse(false);
 
         // track whether the panel is expanded
-        this.panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
+        panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
@@ -314,14 +314,14 @@ public class StateGrid extends View {
         initToolBar();
 
         // do layout
-        this.panel.getHeader().addTool(this.refreshButton);
-        this.panel.setTopComponent(this.toolBar);
+        panel.getHeader().addTool(refreshButton);
+        panel.setTopComponent(toolBar);
         ContentPanel content = new ContentPanel(new FitLayout());
         content.setBodyBorder(false);
         content.setHeaderVisible(false);
-        content.setTopComponent(this.filterBar);
-        content.add(this.grid);
-        this.panel.add(content);
+        content.setTopComponent(filterBar);
+        content.add(grid);
+        panel.add(content);
 
         setupDragDrop();
     }
@@ -335,16 +335,16 @@ public class StateGrid extends View {
             public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
                 SensorModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    StateGrid.this.deleteButton.enable();
-                    StateGrid.this.editButton.enable();
-                    StateGrid.this.connectButton.enable();
+                    deleteButton.enable();
+                    editButton.enable();
+                    connectButton.enable();
 
                     // only able to disconnect if sensor is selected
                     TreeModel parent = selection.getParent();
                     if (parent != null) {
-                        StateGrid.this.disconnectButton.enable();
+                        disconnectButton.enable();
                     } else {
-                        StateGrid.this.disconnectButton.disable();
+                        disconnectButton.disable();
                     }
 
                     // only able to give feedback if state has manualLearn method
@@ -357,40 +357,40 @@ public class StateGrid extends View {
                             break;
                         }
                     }
-                    StateGrid.this.feedbackButton.setEnabled(canHazFeedback);
+                    feedbackButton.setEnabled(canHazFeedback);
 
                 } else {
-                    StateGrid.this.editButton.enable();
-                    StateGrid.this.feedbackButton.enable();
-                    StateGrid.this.deleteButton.disable();
-                    StateGrid.this.connectButton.disable();
-                    StateGrid.this.disconnectButton.disable();
+                    editButton.enable();
+                    feedbackButton.enable();
+                    deleteButton.disable();
+                    connectButton.disable();
+                    disconnectButton.disable();
                 }
             }
         });
-        this.grid.setSelectionModel(selectionModel);
+        grid.setSelectionModel(selectionModel);
 
         final SelectionListener<MenuEvent> l = new SelectionListener<MenuEvent>() {
 
             @Override
             public void componentSelected(MenuEvent me) {
                 MenuItem source = (MenuItem) me.getItem();
-                if (source.equals(StateGrid.this.createButton)) {
+                if (source.equals(createButton)) {
                     onCreateClick();
-                } else if (source.equals(StateGrid.this.deleteButton)) {
+                } else if (source.equals(deleteButton)) {
                     deleteState();
-                } else if (source.equals(StateGrid.this.editButton)) {
+                } else if (source.equals(editButton)) {
                     onEditClick();
-                } else if (source.equals(StateGrid.this.connectButton)) {
+                } else if (source.equals(connectButton)) {
                     onConnectClick();
-                } else if (source.equals(StateGrid.this.disconnectButton)) {
+                } else if (source.equals(disconnectButton)) {
                     confirmDisconnect();
-                } else if (source.equals(StateGrid.this.feedbackButton)) {
+                } else if (source.equals(feedbackButton)) {
                     showFeedback();
-                } else if (source.equals(StateGrid.this.defaultsButton)) {
+                } else if (source.equals(defaultsButton)) {
                     checkDefaultStates();
                 } else {
-                    logger.warning("Unexpected button clicked");
+                    LOG.warning("Unexpected button clicked");
                 }
             }
         };
@@ -398,48 +398,48 @@ public class StateGrid extends View {
         // menu item for editing service stuff
         Menu serviceMenu = new Menu();
 
-        this.createButton = new MenuItem("New State", l);
-        serviceMenu.add(this.createButton);
+        createButton = new MenuItem("New State", l);
+        serviceMenu.add(createButton);
 
-        this.defaultsButton = new MenuItem("Default States", l);
-        serviceMenu.add(this.defaultsButton);
+        defaultsButton = new MenuItem("Default States", l);
+        serviceMenu.add(defaultsButton);
 
         SeparatorMenuItem separator = new SeparatorMenuItem();
         serviceMenu.add(separator);
 
-        this.deleteButton = new MenuItem("Delete State", l);
-        this.deleteButton.disable();
-        serviceMenu.add(this.deleteButton);
+        deleteButton = new MenuItem("Delete State", l);
+        deleteButton.disable();
+        serviceMenu.add(deleteButton);
 
         SeparatorMenuItem separator2 = new SeparatorMenuItem();
         serviceMenu.add(separator2);
 
-        this.editButton = new MenuItem("Algorithm Parameters", l);
-        this.editButton.disable();
-        serviceMenu.add(this.editButton);
+        editButton = new MenuItem("Algorithm Parameters", l);
+        editButton.disable();
+        serviceMenu.add(editButton);
 
-        this.feedbackButton = new MenuItem("Give Algorithm Feedback", l);
-        this.feedbackButton.disable();
-        serviceMenu.add(this.feedbackButton);
+        feedbackButton = new MenuItem("Give Algorithm Feedback", l);
+        feedbackButton.disable();
+        serviceMenu.add(feedbackButton);
 
         // menu item for editing sensor stuff
         Menu sensorsMenu = new Menu();
 
-        this.connectButton = new MenuItem("Connect Sensor", l);
-        this.connectButton.disable();
-        sensorsMenu.add(this.connectButton);
+        connectButton = new MenuItem("Connect Sensor", l);
+        connectButton.disable();
+        sensorsMenu.add(connectButton);
 
-        this.disconnectButton = new MenuItem("Disconnect Sensor", l);
-        this.disconnectButton.disable();
-        sensorsMenu.add(this.disconnectButton);
+        disconnectButton = new MenuItem("Disconnect Sensor", l);
+        disconnectButton.disable();
+        sensorsMenu.add(disconnectButton);
 
         // create tool bar
-        this.toolBar = new MenuBar();
+        toolBar = new MenuBar();
         toolBar.add(new MenuBarItem("State", serviceMenu));
         toolBar.add(new MenuBarItem("Sensors", sensorsMenu));
 
         // add to panel
-        this.panel.setTopComponent(toolBar);
+        panel.setTopComponent(toolBar);
     }
 
     private void onConnectClick() {
@@ -459,12 +459,12 @@ public class StateGrid extends View {
     }
 
     private void onLoadComplete() {
-        this.isListDirty = false;
+        isListDirty = false;
         // this.filter.clear(); // TODO: does not work well with the tree loader
     }
 
     private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
+        store.removeAll();
     }
 
     private void onRemoveComplete(AppEvent event) {
@@ -487,18 +487,17 @@ public class StateGrid extends View {
     }
 
     private void refreshLoader(boolean force) {
-        if (force || (this.store.getChildCount() == 0 || this.isListDirty)
-                && this.panel.isExpanded()) {
-            // logger.fine( "Refresh loader...");
-            this.loader.load();
+        if (force || (store.getChildCount() == 0 || isListDirty) && panel.isExpanded()) {
+            // LOG.fine( "Refresh loader...");
+            loader.load();
         }
     }
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.panel.getHeader().setIcon(IconHelper.create(""));
+            panel.getHeader().setIcon(IconHelper.create(""));
         }
     }
 
@@ -506,7 +505,7 @@ public class StateGrid extends View {
      * Sets up the sensor list for drag and drop.
      */
     private void setupDragDrop() {
-        new TreeGridDragSource(this.grid);
+        new TreeGridDragSource(grid);
     }
 
     private void showFeedback() {
@@ -521,10 +520,10 @@ public class StateGrid extends View {
 
     private void showPanel(LayoutContainer parent) {
         if (null != parent) {
-            parent.add(this.panel);
+            parent.add(panel);
             parent.layout();
         } else {
-            logger.severe("Failed to show states panel: parent=null");
+            LOG.severe("Failed to show states panel: parent=null");
         }
     }
 }

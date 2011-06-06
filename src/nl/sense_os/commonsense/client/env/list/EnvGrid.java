@@ -53,7 +53,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvGrid extends View {
 
-    protected static final Logger logger = Logger.getLogger("EnvGrid");
+    private static final Logger LOG = Logger.getLogger(EnvGrid.class.getName());
     private Button createButton;
     private Button deleteButton;
     private Button editButton;
@@ -76,7 +76,7 @@ public class EnvGrid extends View {
 
     private void deleteEnvironment() {
         AppEvent delete = new AppEvent(EnvEvents.DeleteRequest);
-        delete.setData("environment", this.grid.getSelectionModel().getSelectedItem());
+        delete.setData("environment", grid.getSelectionModel().getSelectedItem());
         fireEvent(delete);
     }
 
@@ -88,38 +88,38 @@ public class EnvGrid extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(EnvEvents.ShowGrid)) {
-            // logger.fine( "ShowGrid");
+            // LOG.fine( "ShowGrid");
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
         } else if (type.equals(EnvEvents.ListUpdated)) {
-            // logger.fine( "ListUpdated");
+            // LOG.fine( "ListUpdated");
             onListUpdated(event);
 
         } else if (type.equals(VizEvents.Show)) {
-            // logger.fine( "Show Visualization");
+            // LOG.fine( "Show Visualization");
             refreshLoader(false);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine( "LoggedOut");
+            // LOG.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(EnvEvents.Working)) {
-            // logger.fine( "Working");
+            // LOG.fine( "Working");
             setBusyIcon(true);
 
         } else if (type.equals(EnvEvents.Done)) {
-            // logger.fine( "Working");
+            // LOG.fine( "Working");
             setBusyIcon(false);
 
         } else if (type.equals(EnvCreateEvents.CreateSuccess)
                 || type.equals(EnvEvents.DeleteSuccess)) {
-            // logger.fine( "Done");
-            this.isListDirty = true;
+            // LOG.fine( "Done");
+            isListDirty = true;
             refreshLoader(false);
 
         } else {
-            logger.severe("Unexpected event type: " + type);
+            LOG.severe("Unexpected event type: " + type);
         }
     }
 
@@ -135,13 +135,13 @@ public class EnvGrid extends View {
                 if (loadConfig instanceof ListLoadConfig) {
                     fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
                 } else {
-                    logger.warning("Unexpected loadconfig: " + loadConfig);
+                    LOG.warning("Unexpected loadconfig: " + loadConfig);
                     callback.onFailure(null);
                 }
             }
         };
-        this.loader = new BaseListLoader<ListLoadResult<EnvironmentModel>>(proxy);
-        this.store = new ListStore<EnvironmentModel>(this.loader);
+        loader = new BaseListLoader<ListLoadResult<EnvironmentModel>>(proxy);
+        store = new ListStore<EnvironmentModel>(loader);
 
         ColumnConfig name = new ColumnConfig(EnvironmentModel.NAME, "Name", 100);
         ColumnConfig floors = new ColumnConfig(EnvironmentModel.FLOORS, "Floors", 100);
@@ -184,11 +184,11 @@ public class EnvGrid extends View {
 
         ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
 
-        this.grid = new Grid<EnvironmentModel>(this.store, cm);
-        this.grid.setId("buildingGrid");
-        this.grid.setStateful(true);
-        this.grid.setLoadMask(true);
-        this.grid.setAutoExpandColumn(EnvironmentModel.NAME);
+        grid = new Grid<EnvironmentModel>(store, cm);
+        grid.setId("buildingGrid");
+        grid.setStateful(true);
+        grid.setLoadMask(true);
+        grid.setAutoExpandColumn(EnvironmentModel.NAME);
     }
 
     private void initHeaderTool() {
@@ -206,11 +206,12 @@ public class EnvGrid extends View {
     protected void initialize() {
         super.initialize();
 
-        this.panel = new ContentPanel(new FitLayout());
-        this.panel.setHeading("Manage environments");
+        panel = new ContentPanel(new FitLayout());
+        panel.setHeading("Manage environments");
+        panel.setAnimCollapse(false);
 
         // track whether the panel is expanded
-        this.panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
+        panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
             @Override
             public void handleEvent(ComponentEvent be) {
@@ -223,9 +224,9 @@ public class EnvGrid extends View {
         initToolBar();
 
         // add grid to panel
-        this.panel.setTopComponent(toolBar);
-        this.panel.add(this.grid);
-        this.panel.getHeader().addTool(this.refreshTool);
+        panel.setTopComponent(toolBar);
+        panel.add(grid);
+        panel.getHeader().addTool(refreshTool);
     }
 
     private void initToolBar() {
@@ -235,37 +236,37 @@ public class EnvGrid extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Button source = ce.getButton();
-                if (source.equals(EnvGrid.this.createButton)) {
+                if (source.equals(createButton)) {
                     createEnvironment();
-                } else if (source.equals(EnvGrid.this.deleteButton)) {
+                } else if (source.equals(deleteButton)) {
                     onDeleteClick();
-                } else if (source.equals(EnvGrid.this.viewButton)) {
+                } else if (source.equals(viewButton)) {
                     onViewClick();
-                } else if (source.equals(EnvGrid.this.editButton)) {
+                } else if (source.equals(editButton)) {
                     onEditClick();
                 } else {
-                    logger.warning("Unexpected buttons pressed");
+                    LOG.warning("Unexpected buttons pressed");
                 }
             }
         };
 
-        this.viewButton = new Button("View", l);
-        this.viewButton.disable();
+        viewButton = new Button("View", l);
+        viewButton.disable();
 
-        this.createButton = new Button("Create", l);
+        createButton = new Button("Create", l);
 
-        this.editButton = new Button("Edit", l);
-        this.editButton.disable();
+        editButton = new Button("Edit", l);
+        editButton.disable();
 
-        this.deleteButton = new Button("Remove", l);
-        this.deleteButton.disable();
+        deleteButton = new Button("Remove", l);
+        deleteButton.disable();
 
         // create tool bar
         toolBar = new ToolBar();
-        toolBar.add(this.viewButton);
-        toolBar.add(this.createButton);
-        toolBar.add(this.editButton);
-        toolBar.add(this.deleteButton);
+        toolBar.add(viewButton);
+        toolBar.add(createButton);
+        toolBar.add(editButton);
+        toolBar.add(deleteButton);
 
         // enable/disable buttons according to grid selection
         GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
@@ -277,26 +278,15 @@ public class EnvGrid extends View {
                     public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
                         EnvironmentModel selection = se.getSelectedItem();
                         if (null != selection) {
-                            EnvGrid.this.deleteButton.enable();
+                            deleteButton.enable();
                             viewButton.enable();
                         } else {
-                            EnvGrid.this.deleteButton.disable();
+                            deleteButton.disable();
                             viewButton.disable();
                         }
                     }
                 });
-        this.grid.setSelectionModel(selectionModel);
-    }
-
-    protected void onEditClick() {
-        // TODO Auto-generated method stub
-
-    }
-
-    protected void onViewClick() {
-        AppEvent viewEvent = new AppEvent(EnvViewEvents.Show);
-        viewEvent.setData("environment", this.grid.getSelectionModel().getSelectedItem());
-        Dispatcher.forwardEvent(viewEvent);
+        grid.setSelectionModel(selectionModel);
     }
 
     private void onDeleteClick() {
@@ -313,34 +303,45 @@ public class EnvGrid extends View {
                 });
     }
 
+    protected void onEditClick() {
+        // TODO Auto-generated method stub
+
+    }
+
     private void onListUpdated(AppEvent event) {
-        this.isListDirty = false;
+        isListDirty = false;
     }
 
     private void onLoggedOut(AppEvent event) {
-        this.store.removeAll();
+        store.removeAll();
+    }
+
+    protected void onViewClick() {
+        AppEvent viewEvent = new AppEvent(EnvViewEvents.Show);
+        viewEvent.setData("environment", grid.getSelectionModel().getSelectedItem());
+        Dispatcher.forwardEvent(viewEvent);
     }
 
     private void refreshLoader(boolean force) {
-        if (force || (this.store.getCount() == 0 || this.isListDirty) && this.panel.isExpanded()) {
-            this.loader.load();
+        if (force || (store.getCount() == 0 || isListDirty) && panel.isExpanded()) {
+            loader.load();
         }
     }
 
     private void setBusyIcon(boolean busy) {
         if (busy) {
-            this.panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.panel.getHeader().setIcon(IconHelper.create(""));
+            panel.getHeader().setIcon(IconHelper.create(""));
         }
     }
 
     private void showPanel(LayoutContainer parent) {
         if (null != parent) {
-            parent.add(this.panel);
+            parent.add(panel);
             parent.layout();
         } else {
-            logger.severe("Failed to show buildings panel: parent=null");
+            LOG.severe("Failed to show buildings panel: parent=null");
         }
     }
 }

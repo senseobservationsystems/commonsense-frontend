@@ -19,7 +19,7 @@ import com.google.gwt.core.client.JsonUtils;
 
 public class LoginController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("LoginController");
+    private static final Logger LOG = Logger.getLogger(LoginController.class.getName());
     private View loginView;
 
     public LoginController() {
@@ -47,7 +47,7 @@ public class LoginController extends Controller {
      * successful.
      */
     private void getCurrentUser() {
-        final String url = Urls.USERS + "/current" + ".json";
+        final String url = Urls.USERS + "/current.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // send request to AjaxController
@@ -65,22 +65,22 @@ public class LoginController extends Controller {
         EventType eventType = event.getType();
 
         if (eventType.equals(LoginEvents.LoginRequest)) {
-            // logger.fine( "LoginRequest");
+            // LOG.fine( "LoginRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             login(username, password);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            // logger.fine( "RequestLogout");
+            // LOG.fine( "RequestLogout");
             logout(event);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
-            // logger.fine( "AjaxLoginSuccess");
+            // LOG.fine( "AjaxLoginSuccess");
             final String response = event.<String> getData("response");
             onLoginSuccess(response);
 
         } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
-            logger.warning("AjaxLoginFailure");
+            LOG.warning("AjaxLoginFailure");
             final int code = event.getData("code");
             if (code == 403) {
                 onAuthenticationFailure();
@@ -89,22 +89,22 @@ public class LoginController extends Controller {
             }
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
-            // logger.fine( "AjaxLogoutSuccess");
+            // LOG.fine( "AjaxLogoutSuccess");
             final String response = event.<String> getData("response");
             onLoggedOut(response);
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
-            logger.warning("AjaxLogoutFailure");
+            LOG.warning("AjaxLogoutFailure");
             final int code = event.getData("code");
             onLogoutFailure(code);
 
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
-            // logger.fine( "AjaxUserSuccess");
+            // LOG.fine( "AjaxUserSuccess");
             final String response = event.<String> getData("response");
             parseUserReponse(response);
 
         } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
-            logger.warning("AjaxUserFailure");
+            LOG.warning("AjaxUserFailure");
             final int code = event.getData("code");
             onLoginFailure(code);
 
@@ -197,7 +197,7 @@ public class LoginController extends Controller {
             }
 
         } else {
-            logger.severe("Error parsing login response: response=null");
+            LOG.severe("Error parsing login response: response=null");
             onLoginFailure(0);
         }
     }
@@ -212,12 +212,12 @@ public class LoginController extends Controller {
             if (null != user) {
                 onCurrentUser(user);
             } else {
-                logger.severe("Unexpected current user response");
+                LOG.severe("Unexpected current user response");
                 onLoginFailure(0);
             }
 
         } else {
-            logger.severe("Error parsing current user response: response=null");
+            LOG.severe("Error parsing current user response: response=null");
             onLoginFailure(0);
         }
     }
