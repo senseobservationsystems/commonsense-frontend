@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
@@ -45,8 +46,9 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private void onLoggedOut() {
-        History.newItem(NavPanel.HOME);
-        History.fireCurrentHistoryState();
+        // History.newItem(NavPanel.HOME);
+        // History.fireCurrentHistoryState();
+        Window.Location.reload();
     }
 
     private void onLoggedIn() {

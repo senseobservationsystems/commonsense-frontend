@@ -156,7 +156,7 @@ public class SensorDataGrid extends LayoutContainer {
 
         int id = sensors.get(0).getId();
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        String result = Urls.DATA.replaceAll("<id>", "" + id);
+        String result = Urls.SENSORS + "/" + id + "/data.json";
         result += "?session_id=" + sessionId;
 
         final int alias = sensors.get(0).getAlias();

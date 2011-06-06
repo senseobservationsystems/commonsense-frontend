@@ -93,7 +93,8 @@ public class UnshareController extends Controller {
 
             // prepare request properties
             final String method = "DELETE";
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users/" + user.getId();
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users/" + user.getId()
+                    + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(UnshareEvents.UnshareAjaxSuccess);
             onSuccess.setData("sensor", sensor);

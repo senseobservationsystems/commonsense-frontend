@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -29,11 +30,13 @@ import com.google.gwt.visualization.client.events.RangeChangeHandler;
 public class TimeLinePanel extends VizPanel {
 
     private static final Logger LOGGER = Logger.getLogger(TimeLinePanel.class.getName());
-    protected Graph graph;
-    protected final Graph.Options graphOpts;
-    protected Timeline timeline;
-    protected final Timeline.Options tlineOpts;
-    protected final DataTable dataTable;
+    private Graph graph;
+    private final Graph.Options graphOpts;
+    private JsArray<Timeseries> graphData;
+    private Timeline timeline;
+    private final Timeline.Options tlineOpts;
+    private JsArray<Timeseries> tlineData;
+    private final DataTable dataTable;
 
     private boolean isPimCheckComplete = false;
     private boolean showTimeLine = true;
@@ -41,7 +44,7 @@ public class TimeLinePanel extends VizPanel {
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
-        // LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.ALL);
 
         // set up layout
         setHeading("Time line: " + title);
@@ -98,7 +101,7 @@ public class TimeLinePanel extends VizPanel {
         LOGGER.fine("addData...");
         LOGGER.fine(data.length() + " timeseries");
 
-        if (data.length() == 0) {
+        if (null == this.tlineData && null == this.graphData && data.length() == 0) {
             onNoData();
             return;
         }
@@ -112,7 +115,8 @@ public class TimeLinePanel extends VizPanel {
                         + " data points (number data)");
                 numberData.push(ts);
             } else {
-                LOGGER.finest(ts.getLabel() + " (" + ts.getType() + " data)");
+                LOGGER.finest(ts.getLabel() + ": " + ts.getData().length() + " data points ("
+                        + ts.getType() + " data)");
                 stringData.push(ts);
             }
         }
@@ -204,7 +208,7 @@ public class TimeLinePanel extends VizPanel {
         };
         wrapper.add(this.timeline);
 
-        this.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 45)));
+        this.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 70)));
         this.layout();
     }
 
@@ -237,14 +241,71 @@ public class TimeLinePanel extends VizPanel {
     }
 
     private void showNumberData(JsArray<Timeseries> data) {
+
+        // try to append the added data
+        appendGraphData(data);
+
         if (null == this.graph) {
-            createGraph(data);
+            createGraph(this.graphData);
         } else {
             redrawGraph();
         }
     }
 
+    private void appendGraphData(JsArray<Timeseries> data) {
+        if (null == this.graphData) {
+            this.graphData = data;
+
+        } else {
+            for (int i = 0; i < data.length(); i++) {
+                Timeseries toAppend = data.get(i);
+                boolean appended = false;
+                for (int j = 0; j < graphData.length(); j++) {
+                    Timeseries original = graphData.get(j);
+                    if (toAppend.getLabel().equals(original.getLabel())) {
+                        LOGGER.fine("Append data to " + original.getLabel());
+                        original.append(toAppend);
+                        appended = true;
+                        break;
+                    }
+                }
+                if (!appended) {
+                    LOGGER.fine("Add new timeseries to the graph data " + toAppend.getLabel());
+                    this.graphData.push(toAppend);
+                }
+            }
+        }
+    }
+
+    private void appendTlineData(JsArray<Timeseries> data) {
+        if (null == this.tlineData) {
+            this.tlineData = data;
+
+        } else {
+            for (int i = 0; i < data.length(); i++) {
+                Timeseries toAppend = data.get(i);
+                boolean appended = false;
+                for (int j = 0; j < tlineData.length(); j++) {
+                    Timeseries original = graphData.get(j);
+                    if (toAppend.getLabel().equals(original.getLabel())) {
+                        LOGGER.fine("Append data to " + original.getLabel());
+                        original.append(toAppend);
+                        appended = true;
+                        break;
+                    }
+                }
+                if (!appended) {
+                    LOGGER.fine("Add new timeseries to the timeline data " + toAppend.getLabel());
+                    this.tlineData.push(toAppend);
+                }
+            }
+        }
+    }
+
     private void showStringData(JsArray<Timeseries> data) {
+
+        // try to append the data to any earlier data
+        appendTlineData(data);
 
         // clear the data table
         this.dataTable.removeRows(0, this.dataTable.getNumberOfRows());
@@ -253,8 +314,8 @@ public class TimeLinePanel extends VizPanel {
         Timeseries ts;
         JsArray<DataPoint> values;
         DataPoint lastPoint = null, dataPoint = null, nextPoint = null;
-        for (int i = 0; i < data.length(); i++) {
-            ts = data.get(i);
+        for (int i = 0; i < this.tlineData.length(); i++) {
+            ts = this.tlineData.get(i);
             values = ts.getData();
             for (int j = 0, index = this.dataTable.getNumberOfRows(); j < values.length(); j++) {
                 lastPoint = dataPoint;

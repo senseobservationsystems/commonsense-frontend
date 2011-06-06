@@ -71,7 +71,7 @@ public class GroupController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.GROUPS + "/" + group.getId() + "/users";
+        final String url = Urls.GROUPS + "/" + group.getId() + "/users" + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.GroupMembersAjaxSuccess);
         onSuccess.setData("callback", callback);
@@ -107,7 +107,7 @@ public class GroupController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.GROUPS;
+        final String url = Urls.GROUPS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.GroupsAjaxSuccess);
         onSuccess.setData("callback", callback);
@@ -219,7 +219,7 @@ public class GroupController extends Controller {
 
         // prepare request property
         final String method = "DELETE";
-        final String url = Urls.GROUPS + "/" + groupId;
+        final String url = Urls.GROUPS + "/" + groupId + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxLeaveSuccess);
         final AppEvent onFailure = new AppEvent(GroupEvents.AjaxLeaveFailure);

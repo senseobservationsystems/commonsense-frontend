@@ -92,7 +92,8 @@ public class StateCreateController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + aliasParam;
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + ".json"
+                + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
         final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxAvailableServiceFailure);

@@ -51,7 +51,7 @@ public class EnvController extends Controller {
 
         // prepare request properties
         final String method = "DELETE";
-        final String url = Urls.ENVIRONMENTS + "/" + environment.getId();
+        final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvEvents.DeleteAjaxSuccess);
         onSuccess.setData("environment", environment);
@@ -172,7 +172,7 @@ public class EnvController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.ENVIRONMENTS;
+        final String url = Urls.ENVIRONMENTS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(EnvEvents.ListAjaxSuccess);
         onSuccess.setData("callback", callback);

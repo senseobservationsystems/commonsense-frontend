@@ -105,7 +105,8 @@ public class LibraryController extends Controller {
 
             // prepare request properties
             final String method = "GET";
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + params;
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available"
+                    + ".json" + params;
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(LibraryEvents.AvailServicesAjaxSuccess);
             onSuccess.setData("index", index);
@@ -136,7 +137,7 @@ public class LibraryController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "?per_page=" + PER_PAGE + "&page=" + page
+        final String url = Urls.SENSORS + ".json" + "?per_page=" + PER_PAGE + "&page=" + page
                 + "&details=full";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(LibraryEvents.FullDetailsAjaxSuccess);
@@ -162,7 +163,7 @@ public class LibraryController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.GROUPS + "?per_page=" + PER_PAGE;
+        final String url = Urls.GROUPS + ".json" + "?per_page=" + PER_PAGE;
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupsAjaxSuccess);
         onSuccess.setData("library", library);
@@ -190,7 +191,8 @@ public class LibraryController extends Controller {
 
             // prepare request properties
             final String method = "GET";
-            final String url = Urls.SENSORS + "?per_page=1000&details=full&alias=" + groupId;
+            final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full&alias="
+                    + groupId;
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupSensorsAjaxSuccess);
             onSuccess.setData("groups", groups);
@@ -243,7 +245,7 @@ public class LibraryController extends Controller {
 
             // prepare request properties
             final String method = "GET";
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users";
+            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users" + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(LibraryEvents.UsersAjaxSuccess);
             onSuccess.setData("index", index);

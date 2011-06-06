@@ -47,7 +47,7 @@ public class LoginController extends Controller {
      * successful.
      */
     private void getCurrentUser() {
-        final String url = Urls.USERS + "/current";
+        final String url = Urls.USERS + "/current" + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // send request to AjaxController
@@ -139,7 +139,7 @@ public class LoginController extends Controller {
     private void logout(AppEvent event) {
 
         // prepare request properties
-        String url = Urls.LOGOUT;
+        String url = Urls.LOGOUT + ".json";
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // send request to AjaxController

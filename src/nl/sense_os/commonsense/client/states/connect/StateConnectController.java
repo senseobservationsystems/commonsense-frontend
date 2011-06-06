@@ -109,7 +109,7 @@ public class StateConnectController extends Controller {
         SensorModel sensor = (SensorModel) stateSensor.getChild(0);
 
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services";
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services" + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateConnectEvents.ServiceNameAjaxSuccess);
         onSuccess.setData("stateSensor", stateSensor);

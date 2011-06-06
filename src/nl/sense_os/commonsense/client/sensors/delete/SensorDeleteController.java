@@ -44,7 +44,7 @@ public class SensorDeleteController extends Controller {
 
             // prepare request properties
             final String method = "DELETE";
-            final String url = Urls.SENSORS + "/" + sensor.getId();
+            final String url = Urls.SENSORS + "/" + sensor.getId() + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(SensorDeleteEvents.DeleteAjaxSuccess);
             onSuccess.setData("sensors", sensors);

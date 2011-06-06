@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.viz.panels;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -32,7 +33,7 @@ public abstract class VizPanel extends ContentPanel {
         }
     }
 
-    private static final Logger logger = Logger.getLogger("VizPanel");
+    private static final Logger LOGGER = Logger.getLogger(VizPanel.class.getName());
     private static final int REFRESH_PERIOD = 1000 * 10;
     private List<SensorModel> sensors;
     private long start;
@@ -44,6 +45,7 @@ public abstract class VizPanel extends ContentPanel {
      * Creates new VizPanel instance.
      */
     protected VizPanel() {
+        LOGGER.setLevel(Level.ALL);
         addToolButtons();
     }
 
@@ -109,7 +111,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // logger.fine( "hide");
+                    LOGGER.fine(" panel hidden");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -120,7 +122,18 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // logger.fine( "close");
+                    LOGGER.fine("panel closed");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Remove, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    LOGGER.fine("panel removed");
                     if (isAutoRefresh) {
                         refreshTimer.cancel();
                     }
@@ -131,7 +144,7 @@ public abstract class VizPanel extends ContentPanel {
 
                 @Override
                 public void handleEvent(ComponentEvent be) {
-                    // logger.fine( "show");
+                    LOGGER.fine("panel shown");
                     if (isAutoRefresh) {
                         refreshData();
                         refreshTimer.scheduleRepeating(REFRESH_PERIOD);
@@ -140,7 +153,7 @@ public abstract class VizPanel extends ContentPanel {
 
             });
         } else {
-            logger.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
+            LOGGER.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
         }
     }
 
@@ -189,13 +202,15 @@ public abstract class VizPanel extends ContentPanel {
      */
     protected void refreshData() {
         if (null != this.sensors) {
-            AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
-            refreshRequest.setData("sensors", this.sensors);
-            refreshRequest.setData("start", this.start);
-            refreshRequest.setData("vizPanel", this);
-            Dispatcher.forwardEvent(refreshRequest);
+            for (SensorModel sensor : sensors) {
+                AppEvent refreshRequest = new AppEvent(DataEvents.RefreshRequest);
+                refreshRequest.setData("sensors", this.sensors);
+                refreshRequest.setData("start", this.start);
+                refreshRequest.setData("vizPanel", this);
+                Dispatcher.forwardEvent(refreshRequest);
+            }
         } else {
-            logger.warning("Cannot refresh data: list of sensors is null");
+            LOGGER.warning("Cannot refresh data: list of sensors is null");
         }
     }
 

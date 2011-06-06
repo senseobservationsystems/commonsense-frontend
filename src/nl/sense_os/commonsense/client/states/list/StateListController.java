@@ -64,7 +64,8 @@ public class StateListController extends Controller {
 
         // prepare request data
         final String method = "DELETE";
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId();
+        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
+                + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxDisconnectSuccess);
         final AppEvent onFailure = new AppEvent(StateListEvents.AjaxDisconnectFailure);
@@ -91,7 +92,7 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors";
+        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors" + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.ConnectedAjaxSuccess);
         onSuccess.setData("state", state);
@@ -117,7 +118,7 @@ public class StateListController extends Controller {
             // prepare request properties
             final String method = "GET";
             final String url = Urls.SENSORS + "/" + sensors.get(0).getId() + "/services/"
-                    + state.getId() + "/methods";
+                    + state.getId() + "/methods" + ".json";
             final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(StateListEvents.GetMethodsAjaxSuccess);
             onSuccess.setData("state", state);
@@ -145,7 +146,7 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final String method = "GET";
-        final String url = Urls.SENSORS + "?per_page=1000&details=full";
+        final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxStateSensorsSuccess);
         onSuccess.setData("callback", callback);

@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.viz.data;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +47,7 @@ public class DataController extends Controller {
             SensorModel sensor = sensors.get(index);
 
             final String method = "GET";
-            String url = Urls.DATA.replace("<id>", "" + sensor.getId()) + "?last=1";
+            String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json" + "?last=1";
             if (-1 != sensor.getAlias()) {
                 url += "&alias=" + sensor.getAlias();
             }
@@ -76,7 +75,6 @@ public class DataController extends Controller {
             onLatestValuesComplete(sensors, panel);
         }
     }
-
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -291,7 +289,17 @@ public class DataController extends Controller {
 
     private void onRefreshRequest(List<SensorModel> sensors, long start, VizPanel vizPanel) {
 
-        onDataRequest(start, System.currentTimeMillis(), sensors, vizPanel);
+        // end time is right now
+        long end = System.currentTimeMillis();
+
+        // get new start time
+        JsArray<Timeseries> cacheContent = Cache.request(sensors, start, end);
+        for (int i = 0; i < cacheContent.length(); i++) {
+            Timeseries ts = cacheContent.get(i);
+            start = ts.getEnd() > start ? ts.getEnd() : start;
+        }
+
+        onDataRequest(start, end, sensors, vizPanel);
     }
 
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
@@ -302,33 +310,30 @@ public class DataController extends Controller {
 
             SensorModel sensor = sensors.get(sensorIndex);
 
-            // check if the sensor has cached data
+            // remove data from the cache, because using it is too complicated for our tiny brains
+            Cache.remove(sensor);
             long realStart = start;
-            if (sensorProgress == 0) {
-                JsArray<Timeseries> cacheContent = Cache.request(Arrays.asList(sensor), start, end);
-                for (int i = 0; i < cacheContent.length(); i++) {
-                    Timeseries timeseries = cacheContent.get(i);
-                    if (timeseries.getStart() <= realStart) {
-                        realStart = timeseries.getEnd();
-                        LOGGER.fine("Using data from cache to limit request period");
-                    } else {
-                        LOGGER.fine("Cannot re-use cached data! Start of cache: "
-                                + timeseries.getStart() + " start of request: " + start);
-                        Cache.remove(sensor);
-                    }
-                }
-            }
+            /*
+             * // check if the sensor has cached data if (sensorProgress == 0) { JsArray<Timeseries>
+             * cacheContent = Cache.request(Arrays.asList(sensor), start, end); for (int i = 0; i <
+             * cacheContent.length(); i++) { Timeseries timeseries = cacheContent.get(i); if
+             * (timeseries.getStart() <= realStart) { realStart = timeseries.getEnd();
+             * LOGGER.fine("Using data from cache to limit request period"); } else {
+             * LOGGER.fine("Cannot re-use cached data! Start of cache: " + timeseries.getStart() +
+             * " start of request: " + start); Cache.remove(sensor); } } }
+             */
 
             final String method = "GET";
-            String url = Urls.DATA.replace("<id>", "" + sensor.getId());
+            String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json";
 
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
             String totalStr = "&total=1";
 
-            if ((end - start) / 1000 >= 3600) { // only get 1000 points when the time range is >= 1
-                                                // hour
-                url += "&interval=" + Math.ceil(((double) (end - start) / 1000000d));
+            if ((end - realStart) / 1000 >= 3600) { // only get 1000 points when the time range is
+                                                    // >= 1
+                // hour
+                url += "&interval=" + Math.ceil(((double) (end - realStart) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
             }
 
