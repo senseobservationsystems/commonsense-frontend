@@ -141,8 +141,10 @@ public class SensorDeleteDialog extends View {
     private void setBusy(boolean busy) {
         if (busy) {
             this.removeButton.setIcon(SenseIconProvider.ICON_LOADING);
+            this.cancelButton.setEnabled(false);
         } else {
             this.removeButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            this.cancelButton.setEnabled(true);
         }
     }
 }
