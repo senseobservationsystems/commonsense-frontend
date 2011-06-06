@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
@@ -22,7 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class NavPanel extends LayoutContainer {
 
-    private static final Logger LOGGER = Logger.getLogger(NavPanel.class.getName());
+    private static final Logger LOG = Logger.getLogger(NavPanel.class.getName());
     public static final String DEMO = "demo";
     public static final String HELP = "help";
     public static final String HOME = "home";
@@ -54,11 +55,11 @@ public class NavPanel extends LayoutContainer {
 
     private void initLogo() {
         if (Constants.DEV_MODE) {
-            logo = new Image("/img/logo_dev-header.png");
+            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_dev-header.png");
         } else if (Constants.TEST_MODE) {
-            logo = new Image("/img/logo_test-header.png");
+            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_test-header.png");
         } else {
-            logo = new Image("/img/logo_sense-header.png");
+            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_sense-header.png");
         }
         logo.setPixelSize(100, 30);
         logo.setStyleName("sense-header-logo");
@@ -154,7 +155,7 @@ public class NavPanel extends LayoutContainer {
         } else if (highlight.equals(SIGN_OUT)) {
             this.current = this.logout;
         } else {
-            LOGGER.warning("Unexpected highlight: " + highlight);
+            LOG.warning("Unexpected highlight: " + highlight);
         }
         this.current.addStyleName("sense-nav-item-selected");
 
@@ -177,7 +178,7 @@ public class NavPanel extends LayoutContainer {
             this.userName.setText(user.toString());
         } else {
             // should never be visible
-            LOGGER.severe("Something is wrong: user=null");
+            LOG.severe("Something is wrong: user=null");
             this.userName.setText("NULL");
         }
     }
