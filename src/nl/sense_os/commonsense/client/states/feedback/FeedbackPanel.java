@@ -69,13 +69,13 @@ public class FeedbackPanel extends VizPanel {
     private Button submitButton;
     private Button cancelButton;
 
-    public FeedbackPanel(SensorModel statesSensor, List<SensorModel> sensors, long start, long end,
+    public FeedbackPanel(SensorModel stateSensor, List<SensorModel> sensors, long start, long end,
             String title, List<String> labels) {
         super();
 
         LOG.setLevel(Level.WARNING);
 
-        stateSensor = statesSensor;
+        this.stateSensor = stateSensor;
         this.labels = labels;
 
         // Graph options
@@ -97,11 +97,11 @@ public class FeedbackPanel extends VizPanel {
         tlineOpts.setGroupsWidth(135);
 
         // set up layout
-        setHeading("Feedback: " + statesSensor.get("text"));
+        setHeading("Feedback: " + stateSensor.getType());
         setBodyBorder(false);
         setLayout(new RowLayout(Orientation.VERTICAL));
 
-        sensors.add(statesSensor);
+        sensors.add(stateSensor);
         LOG.finest("Start time: " + start + ", end time: " + end);
         visualize(sensors, start, end);
 
