@@ -310,7 +310,7 @@ public class FeedbackPanel extends VizPanel {
         });
 
         // this LayoutContainer ensures that the graph is sized and resized correctly
-        LayoutContainer wrapper = new LayoutContainer() {
+        LayoutContainer wrapper = new LayoutContainer(new FitLayout()) {
             @Override
             protected void onAfterLayout() {
                 super.onAfterLayout();
@@ -324,7 +324,7 @@ public class FeedbackPanel extends VizPanel {
                 layout(true);
             }
         };
-        wrapper.add(sensorTline);
+        wrapper.add(sensorTline, new FitData(0));
 
         vizContainer.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 70)));
         this.layout();
@@ -434,7 +434,7 @@ public class FeedbackPanel extends VizPanel {
         });
 
         // this LayoutContainer ensures that the graph is sized and resized correctly
-        LayoutContainer wrapper = new LayoutContainer() {
+        LayoutContainer wrapper = new LayoutContainer(new FitLayout()) {
             @Override
             protected void onAfterLayout() {
                 redrawFeedback();
@@ -443,12 +443,11 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onResize(int width, int height) {
-                // redrawTimeline();
-                layout(true);
+                this.layout(true);
                 super.onResize(width, height);
             }
         };
-        wrapper.add(stateTline);
+        wrapper.add(stateTline, new FitData(0));
 
         feedbackContainer.add(wrapper, new FitData(new Margins(5, 145, 5, 70)));
 
