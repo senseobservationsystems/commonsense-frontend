@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.main.components.NavPanel;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
@@ -20,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -236,27 +238,31 @@ public abstract class VizPanel extends ContentPanel {
      * Dispatches request for refreshing the sensor data.
      */
     protected void refreshData() {
-        if (null != this.sensors) {
-            for (SensorModel sensor : sensors) {
-                long refreshStart = start;
-                for (int i = 0; i < data.length(); i++) {
-                    Timeseries ts = data.get(i);
-                    if (ts.getId() == sensor.getId()) {
-                        refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+        if (History.getToken().equals(NavPanel.VISUALIZATION)) {
+
+            if (null != this.sensors) {
+                for (SensorModel sensor : sensors) {
+                    long refreshStart = start;
+                    for (int i = 0; i < data.length(); i++) {
+                        Timeseries ts = data.get(i);
+                        if (ts.getId() == sensor.getId()) {
+                            refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+                        }
                     }
+                    AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
+                    refreshRequest.setData("sensors", this.sensors);
+                    refreshRequest.setData("startTime", refreshStart);
+                    refreshRequest.setData("endTime", System.currentTimeMillis());
+                    refreshRequest.setData("vizPanel", this);
+                    Dispatcher.forwardEvent(refreshRequest);
                 }
-                AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
-                refreshRequest.setData("sensors", this.sensors);
-                refreshRequest.setData("startTime", refreshStart);
-                refreshRequest.setData("endTime", System.currentTimeMillis());
-                refreshRequest.setData("vizPanel", this);
-                Dispatcher.forwardEvent(refreshRequest);
+            } else {
+                LOG.warning("Cannot refresh data: list of sensors is null");
             }
         } else {
-            LOG.warning("Cannot refresh data: list of sensors is null");
+            LOG.fine("Did not refresh because the current history token is: " + History.getToken());
         }
     }
-
     /**
      * Stores sensors and time range, and dispatches event to request sensor data.
      * 
