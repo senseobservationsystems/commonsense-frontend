@@ -62,10 +62,10 @@ import com.google.gwt.visualization.client.VisualizationUtils;
  */
 public class CommonSense implements EntryPoint {
 
-    private static final Logger LOGGER = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Mon Jun 6 23:18";
-    public static final boolean HACK_QUICK_LOGIN = true;
-    public static final boolean HACK_SKIP_LIB_DETAILS = true;
+    private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
+    public static final String LAST_DEPLOYED = "Wed Jun 8 18:11";
+    public static final boolean HACK_QUICK_LOGIN = false;
+    public static final boolean HACK_SKIP_LIB_DETAILS = false;
     public static final boolean HACK_TEST_NAVBAR = false;
     public static final boolean HACK_TEST_ENVCREATOR = false;
     public static final boolean HACK_TEST_MAPVIZ = false;
@@ -154,7 +154,7 @@ public class CommonSense implements EntryPoint {
      * Logs in automatically for quicker testing.
      */
     private void quickLogin() {
-        LOGGER.config("Quick login...");
+        LOG.config("Quick login...");
 
         initControllers();
 
@@ -165,7 +165,7 @@ public class CommonSense implements EntryPoint {
     }
 
     private void testEnvCreator() {
-        LOGGER.config("Test environment creator...");
+        LOG.config("Test environment creator...");
 
         initControllers();
 
@@ -179,7 +179,7 @@ public class CommonSense implements EntryPoint {
     }
 
     private void testMapViz() {
-        LOGGER.config("Test map visualization...");
+        LOG.config("Test map visualization...");
 
         Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
@@ -224,7 +224,7 @@ public class CommonSense implements EntryPoint {
     }
 
     private void testTimeline() {
-        LOGGER.config("Test timeline...");
+        LOG.config("Test timeline...");
 
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
@@ -270,7 +270,9 @@ public class CommonSense implements EntryPoint {
                 options.setEditable(true);
 
                 // create the timeline, with data and options
+                LOG.severe("Before time line instantiation");
                 Timeline timeline = new Timeline(data, options);
+                LOG.severe("After time line instantiation");
 
                 RootPanel.get("gwt").add(timeline);
             }

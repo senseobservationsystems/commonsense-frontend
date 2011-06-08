@@ -109,6 +109,7 @@ public class VizTypeChooser extends View {
         super.initialize();
 
         this.submitEvent = new AppEvent(DataEvents.DataRequest);
+        this.submitEvent.setData("showProgress", true);
 
         this.window = new CenteredWindow();
         this.window.setHeading("Visualization wizard");

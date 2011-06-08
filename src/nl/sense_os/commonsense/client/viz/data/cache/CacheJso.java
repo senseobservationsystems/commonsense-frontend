@@ -91,15 +91,11 @@ final class CacheJso extends JavaScriptObject {
                                 // console.log('new selection start time! '
                                 // + dataPoint.date);
                                 selection.start = dataPoint.date;
-                            } else if (dataPoint.date > selection.end) {
+                            }
+                            if (dataPoint.date > selection.end) {
                                 // console.log('new selection end time! '
                                 // + dataPoint.date);
                                 selection.end = dataPoint.date;
-                            } else {
-                                // console.log('data point: ' + dataPoint.date
-                                // + ', selection start: '
-                                // + selection.start + ', selection end: '
-                                // + selection.end);
                             }
                         } else {
                             // console.log('data point: ' + dataPoint.date

@@ -42,8 +42,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.ajaxloader.client.Properties;
-import com.google.gwt.ajaxloader.client.Properties.TypeException;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.visualization.client.DataTable;
@@ -97,7 +95,7 @@ public class FeedbackPanel extends VizPanel {
         tlineOpts.setGroupsWidth(135);
 
         // set up layout
-        setHeading("Feedback: " + stateSensor.getType());
+        setHeading("Feedback: " + stateSensor.getDisplayName());
         setBodyBorder(false);
         setLayout(new RowLayout(Orientation.VERTICAL));
 
@@ -120,12 +118,6 @@ public class FeedbackPanel extends VizPanel {
             public void onAdd(AddEvent event) {
                 showLabelChoice();
             }
-
-            @Override
-            protected void onEvent(Properties properties) throws TypeException {
-                // LOG.fine( "AddHandler onEvent... " + properties);
-                onAdd(null);
-            }
         });
 
         stateTline.addEditHandler(new EditHandler() {
@@ -133,12 +125,6 @@ public class FeedbackPanel extends VizPanel {
             @Override
             public void onEdit(EditEvent event) {
                 showLabelChoice();
-            }
-
-            @Override
-            protected void onEvent(Properties properties) throws TypeException {
-                // LOG.fine( "EditHandler onEvent... " + properties);
-                onEdit(null);
             }
         });
     }
@@ -311,17 +297,17 @@ public class FeedbackPanel extends VizPanel {
 
         // this LayoutContainer ensures that the graph is sized and resized correctly
         LayoutContainer wrapper = new LayoutContainer(new FitLayout()) {
+
             @Override
             protected void onAfterLayout() {
-                super.onAfterLayout();
                 redrawTimeline();
+                super.onAfterLayout();
             }
 
             @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
-                // redrawTimeline();
-                layout(true);
+                this.layout(true);
             }
         };
         wrapper.add(sensorTline, new FitData(0));
@@ -435,6 +421,7 @@ public class FeedbackPanel extends VizPanel {
 
         // this LayoutContainer ensures that the graph is sized and resized correctly
         LayoutContainer wrapper = new LayoutContainer(new FitLayout()) {
+
             @Override
             protected void onAfterLayout() {
                 redrawFeedback();
@@ -443,8 +430,8 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             protected void onResize(int width, int height) {
-                this.layout(true);
                 super.onResize(width, height);
+                this.layout(true);
             }
         };
         wrapper.add(stateTline, new FitData(0));
@@ -533,6 +520,11 @@ public class FeedbackPanel extends VizPanel {
     @Override
     protected void onNewData() {
         LOG.fine("New data...");
+
+        // do not refresh because it messes up the state data..?
+        if (stateTline != null) {
+            return;
+        }
 
         JsArray<Timeseries> numberData = JavaScriptObject.createArray().cast();
         JsArray<Timeseries> stringData = JavaScriptObject.createArray().cast();

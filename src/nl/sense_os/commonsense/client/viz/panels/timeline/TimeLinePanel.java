@@ -48,7 +48,7 @@ public class TimeLinePanel extends VizPanel {
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
         super();
 
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         // set up layout
         setHeading("Time line: " + title);
@@ -171,14 +171,14 @@ public class TimeLinePanel extends VizPanel {
 
             @Override
             protected void onResize(int width, int height) {
-                super.onResize(width, height);
                 redrawGraph();
+                super.onResize(width, height);
             }
         };
         graphWrapper.add(graph);
 
-        this.add(graphWrapper, new FillData(0));
-        this.layout();
+        add(graphWrapper, new FillData(0));
+        layout();
     }
 
     /**
@@ -209,21 +209,20 @@ public class TimeLinePanel extends VizPanel {
 
             @Override
             protected void onAfterLayout() {
-                LOG.finest("Redraw time line after layout...");
                 redrawTimeline();
                 super.onAfterLayout();
             }
 
             @Override
             protected void onResize(int width, int height) {
-                LOG.finest("Layout time line wrapper...");
-                this.layout(true);
                 super.onResize(width, height);
+                this.layout(true);
             }
         };
-        wrapper.add(timeline, new FitData(0));
+        wrapper.add(timeline, new FitData());
 
-        this.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 70)));
+        insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 70)));
+        layout();
     }
 
     @Override
@@ -282,19 +281,23 @@ public class TimeLinePanel extends VizPanel {
         }
 
         // make sure both show the same time range
-        // if (graph != null && timeline != null) {
-        // Graph.DateRange graphRange = graph.getVisibleChartRange();
-        // Timeline.DateRange tlineRange = timeline.getVisibleChartRange();
-        // Date rangeStart = graphRange.getStart().before(tlineRange.getStart()) ? graphRange
-        // .getStart() : tlineRange.getStart();
-        // Date rangeEnd = graphRange.getEnd().after(tlineRange.getEnd())
-        // ? graphRange.getEnd()
-        // : tlineRange.getEnd();
-        // graph.setVisibleChartRange(rangeStart, rangeEnd);
-        // graph.redraw();
-        // timeline.setVisibleChartRange(rangeStart, rangeEnd);
-        // timeline.redraw();
-        // }
+        if (graph != null && timeline != null) {
+            Graph.DateRange graphRange = graph.getVisibleChartRange();
+            Timeline.DateRange tlineRange = timeline.getVisibleChartRange();
+            Date rangeStart = graphRange.getStart().before(tlineRange.getStart()) ? graphRange
+                    .getStart() : tlineRange.getStart();
+            Date rangeEnd = graphRange.getEnd().after(tlineRange.getEnd())
+                    ? graphRange.getEnd()
+                    : tlineRange.getEnd();
+            graph.setVisibleChartRange(rangeStart, rangeEnd);
+            graph.redraw();
+            timeline.setVisibleChartRange(rangeStart, rangeEnd);
+            timeline.redraw();
+        } else if (graph != null) {
+            graph.redraw();
+        } else if (timeline != null) {
+            timeline.redraw();
+        }
     }
 
     /**

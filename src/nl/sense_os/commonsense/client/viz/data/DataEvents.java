@@ -4,7 +4,6 @@ import com.extjs.gxt.ui.client.event.EventType;
 
 public class DataEvents {
     public static final EventType DataRequest = new EventType();
-    public static final EventType RefreshRequest = new EventType();
 
     protected static final EventType HideProgress = new EventType();
     protected static final EventType ShowProgress = new EventType();

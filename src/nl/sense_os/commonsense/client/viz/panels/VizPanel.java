@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.viz.panels;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
@@ -246,14 +249,25 @@ public abstract class VizPanel extends ContentPanel {
                     for (int i = 0; i < data.length(); i++) {
                         Timeseries ts = data.get(i);
                         if (ts.getId() == sensor.getId()) {
+                            LOG.finest("Found time series for sensor " + sensor.getDisplayName());
+                            LOG.fine("time series end: "
+                                    + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL)
+                                            .format(new Date(ts.getEnd())));
                             refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+
                         }
                     }
+
+                    LOG.fine("refresh start: "
+                            + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
+                                    new Date(refreshStart)));
+
                     AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
                     refreshRequest.setData("sensors", this.sensors);
                     refreshRequest.setData("startTime", refreshStart);
                     refreshRequest.setData("endTime", System.currentTimeMillis());
                     refreshRequest.setData("vizPanel", this);
+                    refreshRequest.setData("showProgress", false);
                     Dispatcher.forwardEvent(refreshRequest);
                 }
             } else {
@@ -283,6 +297,7 @@ public abstract class VizPanel extends ContentPanel {
         dataRequest.setData("startTime", start);
         dataRequest.setData("endTime", end);
         dataRequest.setData("vizPanel", this);
+        dataRequest.setData("showProgress", true);
         Dispatcher.forwardEvent(dataRequest);
     }
 }

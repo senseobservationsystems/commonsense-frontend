@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.viz.data;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +23,8 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataController extends Controller {
@@ -34,7 +37,7 @@ public class DataController extends Controller {
 
         LOG.setLevel(Level.WARNING);
 
-        registerEventTypes(DataEvents.DataRequest, DataEvents.RefreshRequest);
+        registerEventTypes(DataEvents.DataRequest);
         registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(DataEvents.LatestValuesRequest, DataEvents.LatestValueAjaxSuccess,
@@ -86,22 +89,16 @@ public class DataController extends Controller {
             final long start = event.getData("startTime");
             final long end = event.getData("endTime");
             final VizPanel vizPanel = event.getData("vizPanel");
+            final boolean showProgress = event.getData("showProgress");
 
-            onDataRequest(start, end, sensors, vizPanel);
-
-        } else if (type.equals(DataEvents.RefreshRequest)) {
-            LOG.finest("RefreshRequest");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long start = event.getData("start");
-            final VizPanel vizPanel = event.getData("vizPanel");
-
-            onRefreshRequest(sensors, start, vizPanel);
+            onDataRequest(start, end, sensors, vizPanel, showProgress);
 
         } else if (type.equals(DataEvents.AjaxDataFailure)) {
             LOG.warning("AjaxDataFailure");
             final int code = event.getData("code");
+            final boolean showProgress = event.getData("showProgress");
 
-            onDataFailed(code);
+            onDataFailed(code, showProgress);
 
         } else if (type.equals(DataEvents.AjaxDataSuccess)) {
             LOG.finest("AjaxDataSuccess");
@@ -114,9 +111,10 @@ public class DataController extends Controller {
             final int sensorProgress = event.getData("sensorProgress");
             final int sensorTotal = event.getData("sensorTotal");
             final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
+            final boolean showProgress = event.getData("showProgress");
 
             onDataReceived(response, start, end, sensors, sensorIndex, sensorChunkStart,
-                    sensorProgress, sensorTotal, vizPanel);
+                    sensorProgress, sensorTotal, vizPanel, showProgress);
         } else
 
         /*
@@ -181,17 +179,16 @@ public class DataController extends Controller {
         vizPanel.addData(data);
     }
 
-    private void onDataFailed(int code) {
-        hideProgress();
-        MessageBox.alert(null, "Data request failed! Please try again.", null);
+    private void onDataFailed(int code, boolean showProgress) {
+        if (showProgress) {
+            hideProgress();
+            MessageBox.alert(null, "Data request failed! Please try again.", null);
+        }
     }
 
     private void onDataReceived(String response, long start, long end, List<SensorModel> sensors,
             int sensorIndex, long sensorChunkStart, int sensorProgress, int sensorTotal,
-            VizPanel vizPanel) {
-
-        // update UI before parsing data
-        updateSubProgress(-1, -1, "Parsing received data chunk...");
+            VizPanel vizPanel, boolean showProgress) {
 
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
@@ -220,10 +217,6 @@ public class DataController extends Controller {
             sensorChunkStart = Math.round(lastDate * 1000) + 1;
         }
 
-        // update UI after parsing data
-        updateSubProgress(sensorProgress, sensorTotal, "Requesting data chunk...from:" + start
-                + " total:" + sensorTotal + " got:" + sensorProgress);
-
         // check if there are more pages to request for this sensor
         if (sensorProgress >= sensorTotal) {
             // completed all pages for this sensor
@@ -231,28 +224,42 @@ public class DataController extends Controller {
             sensorTotal = 0;
             sensorChunkStart = 0;
             sensorProgress = 0;
-            updateMainProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
+
+            if (showProgress) {
+                updateProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
+            }
         } else {
             // continue with next chunk
+            LOG.warning("Next chunk?! sensorProgress=" + sensorProgress + ", sensorTotal="
+                    + sensorTotal);
         }
 
         // check if there are still sensors left to do
         if (sensorIndex < sensors.size()) {
             requestData(start, end, sensors, sensorIndex, sensorChunkStart, sensorProgress,
-                    sensorTotal, vizPanel);
+                    sensorTotal, vizPanel, showProgress);
         } else {
             // completed all pages for all sensors
             onDataComplete(start, end, sensors, vizPanel);
         }
     }
 
-    private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel) {
+    private void onDataRequest(long start, long end, List<SensorModel> sensors, VizPanel vizPanel,
+            boolean showProgress) {
         final int sensorIndex = 0;
-        final int sensorProgress = 0, sensorTotal = 0;
+        final int sensorProgress = 0;
+        final int sensorTotal = 0;
         final long sensorChunkStart = start;
-        showProgress(sensors.size());
+
+        if (showProgress) {
+            showProgress(sensors.size());
+        }
+
+        LOG.fine("request start: "
+                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
+
         requestData(start, end, sensors, sensorIndex, sensorChunkStart, sensorProgress,
-                sensorTotal, vizPanel);
+                sensorTotal, vizPanel, showProgress);
     }
 
     private void onLatestValueFailure(List<SensorModel> sensors, int index, VizPanel vizPanel) {
@@ -284,24 +291,10 @@ public class DataController extends Controller {
         getLatestValues(sensors, index, panel);
     }
 
-    private void onRefreshRequest(List<SensorModel> sensors, long start, VizPanel vizPanel) {
-
-        // end time is right now
-        long end = System.currentTimeMillis();
-
-        // get new start time
-        JsArray<Timeseries> cacheContent = Cache.request(sensors, start, end);
-        for (int i = 0; i < cacheContent.length(); i++) {
-            Timeseries ts = cacheContent.get(i);
-            start = ts.getEnd() > start ? ts.getEnd() : start;
-        }
-
-        onDataRequest(start, end, sensors, vizPanel);
-    }
-
     private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            long sensorChunkStart, int sensorProgress, int sensorTotal, VizPanel vizPanel) {
-        // logger.fine( "requestData...");
+            long sensorChunkStart, int sensorProgress, int sensorTotal, VizPanel vizPanel,
+            boolean showProgress) {
+        LOG.fine("requestData...");
 
         if (sensorIndex < sensors.size()) {
 
@@ -328,8 +321,15 @@ public class DataController extends Controller {
             String totalStr = "&total=1";
 
             if ((end - realStart) / 1000 >= 3600) { // only get 1000 points when the time range is
-                                                    // >= 1
-                // hour
+                                                    // >= 1 hour
+
+                LOG.warning("request start: "
+                        + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
+                                new Date(realStart)));
+                LOG.warning("request end: "
+                        + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
+                                new Date(end)));
+
                 url += "&interval=" + Math.ceil(((double) (end - realStart) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
             }
@@ -340,6 +340,8 @@ public class DataController extends Controller {
             if (sensorTotal == 0) {
                 url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
                 url += totalStr;
+            } else {
+                LOG.severe("sensorTotal=" + sensorTotal);
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);
@@ -351,7 +353,9 @@ public class DataController extends Controller {
             onSuccess.setData("sensorProgress", sensorProgress);
             onSuccess.setData("sensorTotal", sensorTotal);
             onSuccess.setData("vizPanel", vizPanel);
+            onSuccess.setData("showProgress", showProgress);
             final AppEvent onFailure = new AppEvent(DataEvents.AjaxDataFailure);
+            onFailure.setData("showProgress", showProgress);
 
             // send request to AjaxController
             final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
@@ -374,16 +378,11 @@ public class DataController extends Controller {
         forwardToView(progressDialog, showProgress);
     }
 
-    private void updateMainProgress(int progress, int total) {
-        LOG.finest("updateMainProgress...");
+    private void updateProgress(int progress, int total) {
+        LOG.finest("Update progress...");
         AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
         update.setData("progress", progress);
         update.setData("total", total);
         forwardToView(progressDialog, update);
-    }
-
-    private void updateSubProgress(double progress, double total, String text) {
-        LOG.finest("updateSubProgress...");
-        // subprogress is in automatic mode
     }
 }

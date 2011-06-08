@@ -58,5 +58,7 @@ public class Timeseries extends JavaScriptObject {
 
         this.end = toAppend.end;
 
+        console.log(toAppend.data.length + " points appended. Total length: " + this.data.length);
+
     }-*/;
 }
