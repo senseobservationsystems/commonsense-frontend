@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class RegisterPanel extends View {
 
-    private static final Logger logger = Logger.getLogger("RegisterPanel");
+    private static final Logger LOG = Logger.getLogger(RegisterPanel.class.getName());
     private ContentPanel panel;
     private RegisterForm form;
 
@@ -33,20 +33,20 @@ public class RegisterPanel extends View {
         final EventType type = event.getType();
 
         if (type.equals(RegisterEvents.Show)) {
-            // logger.fine( "Show");
+            // LOG.fine( "Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(RegisterEvents.RegisterSuccess)) {
-            // logger.fine( "RegisterSuccess");
+            // LOG.fine( "RegisterSuccess");
             onSuccess();
 
         } else if (type.equals(RegisterEvents.RegisterFailure)) {
-            logger.warning( "RegisterFailure");
+            LOG.warning("RegisterFailure");
             onFailure();
 
         } else {
-            logger.severe("Unexpected event type!");
+            LOG.severe("Unexpected event type!");
         }
     }
 
