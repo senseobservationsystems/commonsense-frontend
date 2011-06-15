@@ -1,9 +1,8 @@
 package nl.sense_os.commonsense.client.common.ajax;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import nl.sense_os.commonsense.client.common.constants.Constants;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -12,22 +11,11 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 public class AjaxController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("AjaxController");
+    private static final Logger LOG = Logger.getLogger(AjaxController.class.getName());
 
     public AjaxController() {
+        LOG.setLevel(Level.WARNING);
         registerEventTypes(AjaxEvents.Request);
-    }
-
-    @Override
-    public void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-
-        if (type.equals(AjaxEvents.Request)) {
-            // logger.fine( "Request");
-            doRequest(event);
-        } else {
-            logger.warning("Unexpected event received");
-        }
     }
 
     /**
@@ -49,49 +37,73 @@ public class AjaxController extends Controller {
         AppEvent onSuccess = event.<AppEvent> getData("onSuccess");
         AppEvent onFailure = event.<AppEvent> getData("onFailure");
 
-        // change the url for the dev deployment
-        // if (GWT.getModuleBaseURL().contains("common-sense-dev")) {
-        // url.replaceFirst("api", "api.dev");
-        // }
+        LOG.fine("Request URL: '" + url + "'");
 
-        Ajax.request(method, url, sessionId, body, onSuccess, onFailure, this, Constants.TED_MODE);
+        Ajax.request(method, url, sessionId, body, onSuccess, onFailure, this);
+    }
+
+    @Override
+    public void handleEvent(AppEvent event) {
+        EventType type = event.getType();
+
+        if (type.equals(AjaxEvents.Request)) {
+            LOG.finest("Request");
+            doRequest(event);
+        } else {
+            LOG.warning("Unexpected event received");
+        }
+    }
+
+    /**
+     * Dispatches an event to signal the request has failed due to an authentication error. Adds the
+     * request's HTTP status code to the "code" property of the onFailure AppEvent. NB: this is not
+     * a reliable indicator that there was an authentication error! At the time of writing only
+     * Google Chrome and FF4 support this, other browsers will return directly to
+     * {@link #onFailure(String, String, String, String, int, AppEvent)} when the request was
+     * forbidden.
+     * 
+     * @param method
+     *            HTTP method of the failed request.
+     * @param url
+     *            URL of the failed request.
+     * @param sessionId
+     *            The session ID of the failed request.
+     * @param body
+     *            The body of the failed request.
+     * @param onFailure
+     *            Callback event type to signal failure.
+     */
+    public void onAuthError(String method, String url, String sessionId, String body,
+            int statusCode, AppEvent onFailure) {
+        LOG.warning("Authentication error!");
+        onFailure(method, url, sessionId, body, statusCode, onFailure);
     }
 
     /**
      * Dispatches an event to signal the request has failed. The dispatched event contains all the
-     * necessary information about the request, plus the failed request's HTTP status code.
+     * necessary information about the request, plus the failed request's HTTP status code if this
+     * is available.
      * 
-     * @param statusCode
-     *            HTTP code of the response (will be 0 on most browsers, except Chrome)
+     * @param method
+     *            HTTP method of the failed request.
+     * @param url
+     *            URL of the failed request.
+     * @param sessionId
+     *            The session ID of the failed request.
+     * @param body
+     *            The body of the failed request.
      * @param onFailure
-     *            AppEvent to dispatch
+     *            Callback event type to signal failure.
      */
     public void onFailure(String method, String url, String sessionId, String body, int statusCode,
             AppEvent onFailure) {
-        logger.warning("onFailure: " + statusCode);
+        LOG.warning("Failure! Code: " + statusCode);
         onFailure.setData("method", method);
         onFailure.setData("url", url);
         onFailure.setData("session_id", sessionId);
         onFailure.setData("body", body);
         onFailure.setData("code", statusCode);
         Dispatcher.forwardEvent(onFailure);
-    }
-
-    /**
-     * Dispatches an event to signal the request has failed. Adds the request's HTTP status code to
-     * the "code" property of the onFailure AppEvent. NB: this is not a reliable indicator that
-     * there was an authentication error! This method will only be called in Google Chrome, other
-     * browsers will return to {@link #onFailure(int, AppEvent)} when the request was forbidden.
-     * 
-     * @param statusCode
-     *            HTTP code of the response (should be 403)
-     * @param onFailure
-     *            AppEvent to dispatch
-     */
-    public void onAuthError(String method, String url, String sessionId, String body,
-            int statusCode, AppEvent onFailure) {
-        logger.warning("onAuthError");
-        onFailure(method, url, sessionId, body, statusCode, onFailure);
     }
 
     /**
@@ -104,14 +116,30 @@ public class AjaxController extends Controller {
      *            AppEvent to dispatch
      */
     public void onSuccess(String response, AppEvent onSuccess) {
-        // logger.fine( "onSuccess");
+        LOG.finest("Success");
+        LOG.fine("Response: '" + response + "'");
         onSuccess.setData("response", response);
         Dispatcher.forwardEvent(onSuccess);
     }
 
+    /**
+     * Dispatches an event to signal the request has failed due to time out, by calling through to
+     * {@link #onFailure(String, String, String, String, int, AppEvent)}.
+     * 
+     * @param method
+     *            HTTP method of the failed request.
+     * @param url
+     *            URL of the failed request.
+     * @param sessionId
+     *            The session ID of the failed request.
+     * @param body
+     *            The body of the failed request.
+     * @param onFailure
+     *            Callback event type to signal failure.
+     */
     public void onTimeOut(String method, String url, String sessionId, String body,
             AppEvent onFailure) {
-        logger.warning("onTimeOut");
+        LOG.warning("Time out!");
         onFailure(method, url, sessionId, body, -1, onFailure);
     }
 }
