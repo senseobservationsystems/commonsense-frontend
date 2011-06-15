@@ -7,21 +7,18 @@ import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JsonUtils;
 
 public class StateEditController extends Controller {
-    private static final Logger logger = Logger.getLogger("StateEditController");
+    private static final Logger LOG = Logger.getLogger(StateEditController.class.getName());
     private View editor;
 
     public StateEditController() {
@@ -40,18 +37,18 @@ public class StateEditController extends Controller {
          * Invoke a service method
          */
         if (type.equals(StateEditEvents.InvokeMethodRequested)) {
-            // logger.fine( "InvokeMethodRequested");
+            // LOG.fine( "InvokeMethodRequested");
             invokeMethod(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodAjaxFailure)) {
-            logger.warning("AjaxMethodFailure");
+            LOG.warning("AjaxMethodFailure");
             final int code = event.getData("code");
-            invokeMethodErrorCallback(code);
+            onInvokeMethodFailure(code);
 
         } else if (type.equals(StateEditEvents.InvokeMethodAjaxSuccess)) {
-            // logger.fine( "AjaxMethodSuccess");
+            // LOG.fine( "AjaxMethodSuccess");
             final String response = event.<String> getData("response");
-            invokeMethodCallback(response);
+            onInvokeMethodSuccess(response);
 
         } else
 
@@ -59,14 +56,14 @@ public class StateEditController extends Controller {
          * Pass through to editor view
          */
         {
-            forwardToView(this.editor, event);
+            forwardToView(editor, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.editor = new StateEditor(this);
+        editor = new StateEditor(this);
     }
 
     private void invokeMethod(AppEvent event) {
@@ -74,13 +71,13 @@ public class StateEditController extends Controller {
         // get event info
         SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
         SensorModel sensor = (SensorModel) stateSensor.getChild(0);
-        ModelData serviceMethod = event.<ModelData> getData("method");
+        ServiceMethodModel serviceMethod = event.<ServiceMethodModel> getData("method");
         List<String> params = event.<List<String>> getData("parameters");
 
         // prepare request properties
         final String method = params.size() > 0 ? "POST" : "GET";
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
-                + "/" + serviceMethod.<String> get("name") + ".json";
+                + "/" + serviceMethod.getName() + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
         final AppEvent onSuccess = new AppEvent(StateEditEvents.InvokeMethodAjaxSuccess);
         final AppEvent onFailure = new AppEvent(StateEditEvents.InvokeMethodAjaxFailure);
@@ -107,34 +104,23 @@ public class StateEditController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void invokeMethodCallback(String response) {
+    private void onInvokeMethodFailure(int code) {
+        forwardToView(editor, new AppEvent(StateEditEvents.InvokeMethodFailed));
+    }
 
-        if (response != null) {
-            // try to get "methods" array
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonVal = json.get("result");
-            if (null != jsonVal) {
-                JSONString jsonResult = jsonVal.isString();
-                if (null != jsonResult) {
-                    String result = jsonResult.stringValue();
-                    forwardToView(this.editor, new AppEvent(StateEditEvents.InvokeMethodComplete,
-                            result));
-                } else {
-                    logger.severe("Error parsing service methods response: \"result\" is not a JSON String");
-                    invokeMethodErrorCallback(0);
-                }
-            } else {
-                logger.severe("Error parsing service methods response: \"result\" is is not found");
-                invokeMethodErrorCallback(0);
-            }
+    private void onInvokeMethodSuccess(String response) {
+
+        // parse result from the response
+        String result = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
+            result = jso.getResult();
+        }
+
+        if (result != null) {
+            forwardToView(editor, new AppEvent(StateEditEvents.InvokeMethodComplete, result));
         } else {
-            logger.severe("Error parsing service methods response: response=null");
-            invokeMethodErrorCallback(0);
+            onInvokeMethodFailure(0);
         }
     }
-
-    private void invokeMethodErrorCallback(int code) {
-        forwardToView(this.editor, new AppEvent(StateEditEvents.InvokeMethodFailed));
-    }
-
 }

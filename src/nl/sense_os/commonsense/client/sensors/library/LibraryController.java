@@ -18,13 +18,13 @@ import nl.sense_os.commonsense.client.common.models.ServiceModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
-import nl.sense_os.commonsense.client.groups.list.AvailServicesResponseJso;
 import nl.sense_os.commonsense.client.groups.list.GetGroupUsersResponseJso;
 import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.sensors.unshare.UnshareEvents;
+import nl.sense_os.commonsense.client.states.create.AvailServicesResponseJso;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
@@ -419,8 +419,11 @@ public class LibraryController extends Controller {
     private void onAvailServicesSuccess(String response, List<SensorModel> library, int index) {
 
         // parse list of services from response
-        AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
-        List<ServiceModel> services = jso.getServices();
+        List<ServiceModel> services = new ArrayList<ServiceModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
+            services = jso.getServices();
+        }
 
         SensorModel sensor = library.get(index);
         sensor.set(SensorModel.AVAIL_SERVICES, services);
@@ -437,16 +440,19 @@ public class LibraryController extends Controller {
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // parse response
-        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-        int total = responseJso.getTotal();
-        library.addAll(responseJso.getSensors());
+        int total = library.size();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+            total = responseJso.getTotal();
+            library.addAll(responseJso.getSensors());
+        }
 
         LOG.fine("total: " + total + ", library size: " + library.size());
 
         if (total > library.size()) {
             // get the next page with sensors
             page++;
-            // getFullDetails(library, page, callback);
+            getFullDetails(library, page, callback);
 
         } else {
             // get the group IDs to get the group sensors
@@ -464,8 +470,10 @@ public class LibraryController extends Controller {
 
         // parse group sensors
         List<SensorModel> groupSensors = new ArrayList<SensorModel>();
-        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-        groupSensors.addAll(responseJso.getSensors());
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+            groupSensors.addAll(responseJso.getSensors());
+        }
 
         LOG.finest("Parsed group sensors...");
 
@@ -491,8 +499,11 @@ public class LibraryController extends Controller {
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // parse list of groups from the response
-        GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
-        List<GroupModel> groups = jso.getGroups();
+        List<GroupModel> groups = new ArrayList<GroupModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+            groups = jso.getGroups();
+        }
 
         getGroupSensors(groups, 0, library, callback);
     }
@@ -568,8 +579,11 @@ public class LibraryController extends Controller {
     private void onUsersSuccess(String response, List<SensorModel> library, int index) {
 
         // parse list of users from the response
-        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
-        List<UserModel> users = jso.getUsers();
+        List<UserModel> users = new ArrayList<UserModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+            users = jso.getUsers();
+        }
 
         // remove the owner from the list
         users.remove(Registry.get(Constants.REG_USER));

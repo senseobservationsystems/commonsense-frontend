@@ -9,6 +9,7 @@ import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
@@ -20,18 +21,12 @@ import nl.sense_os.commonsense.client.utility.TreeCopier;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateListController extends Controller {
@@ -270,8 +265,10 @@ public class StateListController extends Controller {
 
         // parse list of sensors from response
         List<SensorModel> sensors = new ArrayList<SensorModel>();
-        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-        sensors.addAll(responseJso.getSensors());
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+            sensors.addAll(responseJso.getSensors());
+        }
 
         // get details from library
         List<SensorModel> result = new ArrayList<SensorModel>();
@@ -300,7 +297,14 @@ public class StateListController extends Controller {
 
     private void onMethodsSuccess(String response, SensorModel state, List<SensorModel> sensors,
             AsyncCallback<List<SensorModel>> callback) {
-        List<ModelData> methods = parseServiceMethods(response);
+
+        // parse list of methods from the response
+        List<ServiceMethodModel> methods = new ArrayList<ServiceMethodModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetMethodsResponseJso jso = JsonUtils.unsafeEval(response);
+            methods = jso.getMethods();
+        }
+
         if (null != methods) {
             state.set("methods", methods);
             onLoadComplete(sensors, callback);
@@ -317,8 +321,10 @@ public class StateListController extends Controller {
 
         // parse list of sensors from response
         List<SensorModel> sensors = new ArrayList<SensorModel>();
-        GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-        sensors.addAll(responseJso.getSensors());
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+            sensors.addAll(responseJso.getSensors());
+        }
 
         UserModel user = Registry.<UserModel> get(Constants.REG_USER);
         List<SensorModel> states = new ArrayList<SensorModel>();
@@ -355,41 +361,5 @@ public class StateListController extends Controller {
         if (null != callback) {
             callback.onFailure(null);
         }
-    }
-
-    private List<ModelData> parseServiceMethods(String response) {
-        if (response != null) {
-            // try to get "methods" array
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonVal = json.get("methods");
-            if (null != jsonVal) {
-                JSONArray jsonArray = jsonVal.isArray();
-                if (null != jsonArray) {
-                    List<ModelData> methods = new ArrayList<ModelData>();
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject methodObj = jsonArray.get(i).isObject();
-
-                        ModelData m = new BaseModelData();
-                        m.set("name", methodObj.get("name").isString().stringValue());
-                        m.set("return", methodObj.get("return value").isString().stringValue());
-                        JSONArray params = methodObj.get("parameters").isArray();
-                        List<String> paramsList = new ArrayList<String>();
-                        for (int j = 0; j < params.size(); j++) {
-                            paramsList.add(params.get(j).isString().stringValue());
-                        }
-                        m.set("parameters", paramsList);
-                        methods.add(m);
-                    }
-                    return methods;
-                } else {
-                    logger.severe("Error parsing service methods response: \"methods\" is not a JSON Array");
-                }
-            } else {
-                logger.severe("Error parsing service methods response: \"methods\" is is not found");
-            }
-        } else {
-            logger.severe("Error parsing service methods response: response=null");
-        }
-        return null;
     }
 }

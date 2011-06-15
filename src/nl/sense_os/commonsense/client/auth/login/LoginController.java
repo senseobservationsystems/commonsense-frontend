@@ -164,9 +164,7 @@ public class LoginController extends Controller {
     private void onLoggedOut(String response) {
         Registry.unregister(Constants.REG_SESSION_ID);
         Registry.unregister(Constants.REG_USER);
-
         Registry.unregister(Constants.REG_SERVICES);
-
         Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 
@@ -185,8 +183,11 @@ public class LoginController extends Controller {
         if (response != null) {
 
             // try to get "session_id" object
-            LoginResponseJso jso = JsonUtils.unsafeEval(response);
-            String sessionId = jso.getSessionId();
+            String sessionId = null;
+            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+                LoginResponseJso jso = JsonUtils.unsafeEval(response);
+                sessionId = jso.getSessionId();
+            }
 
             if (null != sessionId) {
                 Registry.register(Constants.REG_SESSION_ID, sessionId);
@@ -206,8 +207,11 @@ public class LoginController extends Controller {
         if (response != null) {
 
             // try to get "user" object
-            CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
-            UserModel user = jso.getUser();
+            UserModel user = null;
+            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+                CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
+                user = jso.getUser();
+            }
 
             if (null != user) {
                 onCurrentUser(user);

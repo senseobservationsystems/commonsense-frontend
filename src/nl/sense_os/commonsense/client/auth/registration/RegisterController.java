@@ -15,7 +15,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class RegisterController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("RegisterController");
+    private static final Logger LOG = Logger.getLogger(RegisterController.class.getName());
     private View form;
 
     public RegisterController() {
@@ -29,7 +29,7 @@ public class RegisterController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(RegisterEvents.RegisterRequest)) {
-            // logger.fine("RegisterRequest");
+            // LOG.fine("RegisterRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             final String name = event.<String> getData("name");
@@ -39,18 +39,18 @@ public class RegisterController extends Controller {
             register(username, password, name, surname, email, mobile);
 
         } else if (type.equals(RegisterEvents.AjaxRegisterSuccess)) {
-            // logger.fine("AjaxRegisterSuccess");
+            // LOG.fine("AjaxRegisterSuccess");
             final String response = event.<String> getData("response");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
-            registerCallback(response, username, password);
+            onRegisterSuccess(response, username, password);
 
         } else if (type.equals(RegisterEvents.AjaxRegisterFailure)) {
-            logger.warning("AjaxRegisterFailure");
-            registerFailure();
+            LOG.warning("AjaxRegisterFailure");
+            onRegisterFailure();
 
         } else {
-            forwardToView(this.form, event);
+            forwardToView(form, event);
         }
 
     }
@@ -58,7 +58,20 @@ public class RegisterController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.form = new RegisterPanel(this);
+        form = new RegisterPanel(this);
+    }
+
+    private void onRegisterFailure() {
+        forwardToView(form, new AppEvent(RegisterEvents.RegisterFailure));
+    }
+
+    private void onRegisterSuccess(String response, String username, String password) {
+        AppEvent loginRequest = new AppEvent(LoginEvents.LoginRequest);
+        loginRequest.setData("username", username);
+        loginRequest.setData("password", password);
+        Dispatcher.forwardEvent(loginRequest);
+
+        forwardToView(form, new AppEvent(RegisterEvents.RegisterSuccess));
     }
 
     private void register(String username, String password, String name, String surname,
@@ -94,18 +107,4 @@ public class RegisterController extends Controller {
         ajaxRequest.setData("onFailure", onFailure);
         Dispatcher.forwardEvent(ajaxRequest);
     }
-
-    private void registerCallback(String response, String username, String password) {
-        AppEvent loginRequest = new AppEvent(LoginEvents.LoginRequest);
-        loginRequest.setData("username", username);
-        loginRequest.setData("password", password);
-        Dispatcher.forwardEvent(loginRequest);
-
-        forwardToView(this.form, new AppEvent(RegisterEvents.RegisterSuccess));
-    }
-
-    private void registerFailure() {
-        forwardToView(this.form, new AppEvent(RegisterEvents.RegisterFailure));
-    }
-
 }

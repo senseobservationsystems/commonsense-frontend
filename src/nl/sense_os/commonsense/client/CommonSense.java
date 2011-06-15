@@ -7,6 +7,7 @@ import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -63,13 +64,13 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Wed Jun 8 18:11";
-    public static final boolean HACK_QUICK_LOGIN = false;
-    public static final boolean HACK_SKIP_LIB_DETAILS = false;
-    public static final boolean HACK_TEST_NAVBAR = false;
-    public static final boolean HACK_TEST_ENVCREATOR = false;
-    public static final boolean HACK_TEST_MAPVIZ = false;
-    public static final boolean HACK_TEST_TIMELINE = false;
+    public static final String LAST_DEPLOYED = "Wed Jun 15 18:26";
+    public static final boolean HACK_QUICK_LOGIN = !Constants.STABLE_MODE && false;
+    public static final boolean HACK_SKIP_LIB_DETAILS = !Constants.STABLE_MODE && false;
+    public static final boolean HACK_TEST_NAVBAR = !Constants.STABLE_MODE && false;
+    public static final boolean HACK_TEST_ENVCREATOR = !Constants.STABLE_MODE && false;
+    public static final boolean HACK_TEST_MAPVIZ = !Constants.STABLE_MODE && false;
+    public static final boolean HACK_TEST_TIMELINE = !Constants.STABLE_MODE && false;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.

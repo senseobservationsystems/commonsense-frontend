@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -42,12 +42,12 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class StateEditor extends View {
 
-    private static final Logger logger = Logger.getLogger("StateEditor");
+    private static final Logger LOG = Logger.getLogger(StateEditor.class.getName());
     private SensorModel stateSensor;
-    private ComboBox<ModelData> methodField;
+    private ComboBox<ServiceMethodModel> methodField;
     private FieldSet paramFields;
     private LabelField returnField;
-    private ListStore<ModelData> store;
+    private ListStore<ServiceMethodModel> methodStore;
     private Window window;
     private FormPanel form;
     private Button submitButton;
@@ -61,19 +61,19 @@ public class StateEditor extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateEditEvents.ShowEditor)) {
-            // logger.fine( "Show");
+            LOG.finest("Show");
             onShow(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodComplete)) {
-            // logger.fine( "InvokeMethodComplete");
+            LOG.finest("InvokeMethodComplete");
             onInvokeComplete(event);
 
         } else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
-            logger.warning("InvokeMethodFailed");
+            LOG.warning("InvokeMethodFailed");
             onInvokeFailed(event);
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
@@ -94,7 +94,7 @@ public class StateEditor extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
@@ -124,21 +124,21 @@ public class StateEditor extends View {
     }
 
     private void initFields() {
-        this.store = new ListStore<ModelData>();
+        this.methodStore = new ListStore<ServiceMethodModel>();
 
-        methodField = new ComboBox<ModelData>();
+        methodField = new ComboBox<ServiceMethodModel>();
         methodField.setFieldLabel("Method");
-        methodField.setDisplayField("name");
+        methodField.setDisplayField(ServiceMethodModel.NAME);
         methodField.setEmptyText("Select state service method...");
-        methodField.setStore(this.store);
+        methodField.setStore(this.methodStore);
         methodField.setTypeAhead(true);
         methodField.setTriggerAction(TriggerAction.ALL);
 
-        methodField.addSelectionChangedListener(new SelectionChangedListener<ModelData>() {
+        methodField.addSelectionChangedListener(new SelectionChangedListener<ServiceMethodModel>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<ModelData> se) {
-                ModelData method = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<ServiceMethodModel> se) {
+                ServiceMethodModel method = se.getSelectedItem();
                 updateParametersField(method);
                 updateReturnField(method);
                 form.layout();
@@ -214,12 +214,12 @@ public class StateEditor extends View {
 
     private void onShow(AppEvent event) {
         stateSensor = event.<SensorModel> getData();
-        List<ModelData> methods = stateSensor.get("methods");
+        List<ServiceMethodModel> methods = stateSensor.get("methods");
 
         if (null != methods) {
 
-            this.store.removeAll();
-            this.store.add(methods);
+            this.methodStore.removeAll();
+            this.methodStore.add(methods);
 
             this.window.show();
             this.window.center();
@@ -232,7 +232,7 @@ public class StateEditor extends View {
     private void onSubmit() {
         setBusy(true);
 
-        ModelData method = methodField.getValue();
+        ServiceMethodModel method = methodField.getValue();
         List<String> params = new ArrayList<String>();
         for (Component c : paramFields.getItems()) {
             if (c instanceof TextField<?>) {
@@ -246,8 +246,8 @@ public class StateEditor extends View {
         Dispatcher.forwardEvent(event);
     }
 
-    private void updateParametersField(ModelData method) {
-        List<String> params = method.<List<String>> get("parameters");
+    private void updateParametersField(ServiceMethodModel method) {
+        List<String> params = method.getParameters();
 
         paramFields.removeAll();
         if (params.size() > 0) {
@@ -269,8 +269,8 @@ public class StateEditor extends View {
         paramFields.layout();
     }
 
-    private void updateReturnField(ModelData method) {
-        String returns = method.<String> get("return");
+    private void updateReturnField(ServiceMethodModel method) {
+        String returns = method.getReturnValue();
 
         if (returns.length() > 0) {
             returnField.setFieldLabel("Result (" + returns + "):");

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.groups.list;
+package nl.sense_os.commonsense.client.states.create;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,7 +16,11 @@ public class GetGroupsResponseJso extends JavaScriptObject {
     }
 
     public final native JsArray<UserJso> getRawGroups() /*-{
-		return this.groups;
+        if (undefined != this.groups) {
+            return this.groups;
+        } else {
+            return [];
+        }
     }-*/;
 
     public final List<GroupModel> getGroups() {

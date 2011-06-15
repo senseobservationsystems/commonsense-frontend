@@ -18,14 +18,11 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JsonUtils;
 
 public class StateCreateController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("StateCreateController");
+    private static final Logger LOG = Logger.getLogger(StateCreateController.class.getName());
     private View creator;
     private boolean isLoadingSensors;
 
@@ -116,17 +113,17 @@ public class StateCreateController extends Controller {
          * Request available services for a sensor
          */
         if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
-            // logger.fine( "AvailableServicesRequested");
+            // LOG.fine( "AvailableServicesRequested");
             final SensorModel sensor = event.getData("sensor");
             getAvailableServices(sensor);
 
         } else if (type.equals(StateCreateEvents.AjaxAvailableServiceSuccess)) {
-            // logger.fine( "AjaxAvailableServiceSuccess");
+            // LOG.fine( "AjaxAvailableServiceSuccess");
             final String response = event.getData("response");
             onAvailableServicesSuccess(response);
 
         } else if (type.equals(StateCreateEvents.AjaxAvailableServiceFailure)) {
-            logger.warning("AjaxAvailableServiceFailure");
+            LOG.warning("AjaxAvailableServiceFailure");
             onAvailableServicesFailure();
 
         } else
@@ -135,7 +132,7 @@ public class StateCreateController extends Controller {
          * Create service from a sensor
          */
         if (type.equals(StateCreateEvents.CreateServiceRequested)) {
-            // logger.fine( "CreateRequested");
+            // LOG.fine( "CreateRequested");
             final String name = event.<String> getData("name");
             final ServiceModel service = event.<ServiceModel> getData("service");
             final SensorModel sensor = event.<SensorModel> getData("sensor");
@@ -143,12 +140,12 @@ public class StateCreateController extends Controller {
             createService(name, service, sensor, dataFields);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
-            logger.warning("CreateAjaxFailure");
+            LOG.warning("CreateAjaxFailure");
             final int code = event.getData("code");
             onCreateServiceFailure(code);
 
         } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
-            // logger.fine( "CreateAjaxSuccess");
+            // LOG.fine( "CreateAjaxSuccess");
             final String response = event.<String> getData("response");
             onCreateServiceSuccess(response);
 
@@ -158,12 +155,12 @@ public class StateCreateController extends Controller {
          * Load all sensors to create service from
          */
         if (type.equals(StateCreateEvents.LoadSensors)) {
-            // logger.fine( "LoadSensors");
+            // LOG.fine( "LoadSensors");
             loadSensors();
 
         } else if (type.equals(LibraryEvents.ListUpdated)) {
             if (isLoadingSensors) {
-                // logger.fine( "Sensor lists updated: LoadSensors");
+                // LOG.fine( "Sensor lists updated: LoadSensors");
                 loadSensors();
             }
 
@@ -173,14 +170,14 @@ public class StateCreateController extends Controller {
          * Pass rest through to creator view
          */
         {
-            forwardToView(this.creator, event);
+            forwardToView(creator, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.creator = new StateCreator(this);
+        creator = new StateCreator(this);
     }
 
     /**
@@ -188,7 +185,7 @@ public class StateCreateController extends Controller {
      */
     // TODO does not signal LoadFailure
     private void loadSensors() {
-        this.isLoadingSensors = true;
+        isLoadingSensors = true;
 
         List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
         if (null == sensors) {
@@ -199,65 +196,29 @@ public class StateCreateController extends Controller {
         AppEvent success = new AppEvent(StateCreateEvents.LoadSensorsSuccess);
         success.setData("sensors", sensors);
         forwardToView(creator, success);
-        this.isLoadingSensors = false;
+        isLoadingSensors = false;
     }
 
     private void onAvailableServicesFailure() {
-        forwardToView(this.creator, new AppEvent(StateCreateEvents.AvailableServicesNotUpdated));
+        forwardToView(creator, new AppEvent(StateCreateEvents.AvailableServicesNotUpdated));
     }
 
     private void onAvailableServicesSuccess(String response) {
 
-        if (response != null) {
-            // try to get "methods" array
-            JSONObject json = JSONParser.parseStrict(response).isObject();
-            JSONValue jsonVal = json.get("available_services");
-            if (null != jsonVal) {
-                JSONArray services = jsonVal.isArray();
-                if (null != services) {
-
-                    List<ServiceModel> result = new ArrayList<ServiceModel>();
-                    for (int i = 0; i < services.size(); i++) {
-                        JSONObject serviceJson = services.get(i).isObject();
-                        if (serviceJson != null) {
-                            String name = serviceJson.get(ServiceModel.NAME).isString()
-                                    .stringValue();
-                            JSONArray dataFieldsJson = serviceJson.get(ServiceModel.DATA_FIELDS)
-                                    .isArray();
-                            List<String> dataFields = new ArrayList<String>();
-                            for (int j = 0; j < dataFieldsJson.size(); j++) {
-                                String field = dataFieldsJson.get(j).isString().stringValue();
-                                dataFields.add(field);
-                            }
-
-                            ServiceModel service = new ServiceModel();
-                            service.set(ServiceModel.NAME, name);
-                            service.set(ServiceModel.DATA_FIELDS, dataFields);
-                            result.add(service);
-                        }
-                    }
-
-                    AppEvent success = new AppEvent(StateCreateEvents.AvailableServicesUpdated);
-                    success.setData("services", result);
-                    forwardToView(this.creator, success);
-
-                } else {
-                    logger.severe("Error parsing service methods response: \"available_services\" is not a JSON Array");
-                    onAvailableServicesFailure();
-                }
-            } else {
-                logger.severe("Error parsing service methods response: \"available_services\" is is not found");
-                onAvailableServicesFailure();
-            }
-        } else {
-            logger.severe("Error parsing service methods response: response=null");
-            onAvailableServicesFailure();
-            onAvailableServicesFailure();
+        // parse list of services from response
+        List<ServiceModel> services = new ArrayList<ServiceModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
+            services = jso.getServices();
         }
+
+        AppEvent success = new AppEvent(StateCreateEvents.AvailableServicesUpdated);
+        success.setData("services", services);
+        forwardToView(creator, success);
     }
 
     private void onCreateServiceFailure(int code) {
-        forwardToView(this.creator, new AppEvent(StateCreateEvents.CreateServiceFailed));
+        forwardToView(creator, new AppEvent(StateCreateEvents.CreateServiceFailed));
     }
 
     private void onCreateServiceSuccess(String response) {

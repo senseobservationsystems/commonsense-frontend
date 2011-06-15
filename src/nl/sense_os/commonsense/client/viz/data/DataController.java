@@ -322,14 +322,6 @@ public class DataController extends Controller {
 
             if ((end - realStart) / 1000 >= 3600) { // only get 1000 points when the time range is
                                                     // >= 1 hour
-
-                LOG.warning("request start: "
-                        + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
-                                new Date(realStart)));
-                LOG.warning("request end: "
-                        + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
-                                new Date(end)));
-
                 url += "&interval=" + Math.ceil(((double) (end - realStart) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
             }
@@ -341,8 +333,9 @@ public class DataController extends Controller {
                 url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
                 url += totalStr;
             } else {
-                LOG.severe("sensorTotal=" + sensorTotal);
+                LOG.severe("Requesting second chunk of data?! sensorTotal=" + sensorTotal);
             }
+
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);
             onSuccess.setData("start", start);

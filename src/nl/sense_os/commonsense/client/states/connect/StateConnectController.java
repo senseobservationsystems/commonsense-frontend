@@ -70,14 +70,6 @@ public class StateConnectController extends Controller {
         Dispatcher.forwardEvent(ajaxRequest);
     }
 
-    private void connectServiceCallback(String response) {
-        Dispatcher.forwardEvent(StateConnectEvents.ConnectSuccess);
-    }
-
-    private void connectServiceErrorCallback(int code) {
-        forwardToView(this.connecter, new AppEvent(StateConnectEvents.ConnectFailure));
-    }
-
     private void getAvailableSensors(String serviceName,
             final AsyncCallback<List<SensorModel>> proxyCallback) {
 
@@ -103,7 +95,7 @@ public class StateConnectController extends Controller {
 
         if (stateSensor.getChildCount() == 0) {
             // if a service has no child sensors, we cannot get the name
-            getServiceNameError();
+            onServiceNameFailure();
             return;
         }
         SensorModel sensor = (SensorModel) stateSensor.getChild(0);
@@ -124,42 +116,6 @@ public class StateConnectController extends Controller {
         ajaxRequest.setData("onFailure", onFailure);
         Dispatcher.forwardEvent(ajaxRequest);
 
-    }
-
-    private void getServiceNameCallback(SensorModel stateSensor, String response) {
-        if (response != null) {
-
-            // parse list of running services from the response
-            GetServicesResponseJso jso = JsonUtils.unsafeEval(response);
-            List<ServiceModel> services = jso.getServices();
-
-            // find the right service among all the running services
-            for (ServiceModel service : services) {
-
-                int id = service.getId();
-                if (id == stateSensor.getId()) {
-                    String name = service.getName();
-
-                    // forward event to Connecter
-                    AppEvent event = new AppEvent(StateConnectEvents.ServiceNameSuccess);
-                    event.setData("name", name);
-                    forwardToView(this.connecter, event);
-                    return;
-                }
-            }
-
-            // if we made it here, the service was not found!
-            getServiceNameError();
-
-        } else {
-            LOG.severe("Error parsing running services response: response=null");
-            getServiceNameError();
-        }
-
-    }
-
-    private void getServiceNameError() {
-        forwardToView(this.connecter, new AppEvent(StateConnectEvents.ServiceNameFailure));
     }
 
     @Override
@@ -191,12 +147,12 @@ public class StateConnectController extends Controller {
         } else if (type.equals(StateConnectEvents.ConnectAjaxFailure)) {
             LOG.warning("ConnectAjaxFailure");
             final int code = event.getData("code");
-            connectServiceErrorCallback(code);
+            onConnectServiceFailure(code);
 
         } else if (type.equals(StateConnectEvents.ConnectAjaxSuccess)) {
             LOG.fine("ConnectAjaxSuccess");
             final String response = event.<String> getData("response");
-            connectServiceCallback(response);
+            onConnectServiceSuccess(response);
 
         } else
 
@@ -212,11 +168,11 @@ public class StateConnectController extends Controller {
             LOG.fine("ServiceNameAjaxSuccess");
             final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             final String response = event.<String> getData("response");
-            getServiceNameCallback(stateSensor, response);
+            onServiceNameSuccess(stateSensor, response);
 
         } else if (type.equals(StateConnectEvents.ServiceNameAjaxFailure)) {
             LOG.warning("ServiceNameAjaxFailure");
-            getServiceNameError();
+            onServiceNameFailure();
 
         } else
 
@@ -224,7 +180,7 @@ public class StateConnectController extends Controller {
          * Forward to the connector view
          */
         {
-            forwardToView(this.connecter, event);
+            forwardToView(connecter, event);
         }
 
     }
@@ -232,7 +188,47 @@ public class StateConnectController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.connecter = new StateConnecter(this);
+        connecter = new StateConnecter(this);
+    }
+
+    private void onConnectServiceFailure(int code) {
+        forwardToView(connecter, new AppEvent(StateConnectEvents.ConnectFailure));
+    }
+
+    private void onConnectServiceSuccess(String response) {
+        Dispatcher.forwardEvent(StateConnectEvents.ConnectSuccess);
+    }
+
+    private void onServiceNameFailure() {
+        forwardToView(connecter, new AppEvent(StateConnectEvents.ServiceNameFailure));
+    }
+
+    private void onServiceNameSuccess(SensorModel stateSensor, String response) {
+
+        // parse list of running services from the response
+        List<ServiceModel> services = new ArrayList<ServiceModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetServicesResponseJso jso = JsonUtils.unsafeEval(response);
+            services = jso.getServices();
+        }
+
+        // find the right service among all the running services
+        for (ServiceModel service : services) {
+
+            int id = service.getId();
+            if (id == stateSensor.getId()) {
+                String name = service.getName();
+
+                // forward event to Connecter
+                AppEvent event = new AppEvent(StateConnectEvents.ServiceNameSuccess);
+                event.setData("name", name);
+                forwardToView(connecter, event);
+                return;
+            }
+        }
+
+        // if we made it here, the service was not found!
+        onServiceNameFailure();
     }
 
 }

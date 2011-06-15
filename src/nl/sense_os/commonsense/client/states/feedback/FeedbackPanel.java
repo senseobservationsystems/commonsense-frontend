@@ -44,6 +44,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.events.RangeChangeHandler;
@@ -71,7 +73,7 @@ public class FeedbackPanel extends VizPanel {
             String title, List<String> labels) {
         super();
 
-        LOG.setLevel(Level.WARNING);
+        LOG.setLevel(Level.ALL);
 
         this.stateSensor = stateSensor;
         this.labels = labels;
@@ -100,7 +102,10 @@ public class FeedbackPanel extends VizPanel {
         setLayout(new RowLayout(Orientation.VERTICAL));
 
         sensors.add(stateSensor);
-        LOG.finest("Start time: " + start + ", end time: " + end);
+        LOG.finest("Start time: "
+                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM).format(
+                        new Date(start)) + ", end time: "
+                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM).format(new Date(end)));
         visualize(sensors, start, end);
 
         feedbackContainer = new LayoutContainer(new FitLayout());
@@ -109,7 +114,6 @@ public class FeedbackPanel extends VizPanel {
         this.add(vizContainer, new RowData(1, 1));
         createButtons();
     }
-
     private void addFeedbackHandlers() {
 
         stateTline.addAddHandler(new AddHandler() {
@@ -559,9 +563,13 @@ public class FeedbackPanel extends VizPanel {
         }
 
         // find out the time range that spans all three charts
-        Timeline.DateRange stateRange = stateTline.getVisibleChartRange();
-        Date rangeStart = stateRange.getStart();
-        Date rangeEnd = stateRange.getEnd();
+        Date rangeStart = new Date(this.start);
+        Date rangeEnd = new Date(this.start);
+        if (stateTline != null && stateData.length() > 0) {
+            Timeline.DateRange stateRange = stateTline.getVisibleChartRange();
+            rangeStart = stateRange.getStart();
+            rangeEnd = stateRange.getEnd();
+        }
         if (graph != null) {
             Graph.DateRange range = graph.getVisibleChartRange();
             rangeStart = range.getStart().before(rangeStart) ? range.getStart() : rangeStart;
@@ -584,6 +592,8 @@ public class FeedbackPanel extends VizPanel {
             sensorTline.setVisibleChartRange(rangeStart, rangeEnd);
             sensorTline.redraw();
         }
+
+        LOG.finest("onNewData finished...");
     }
 
     private void redrawFeedback() {

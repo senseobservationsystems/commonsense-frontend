@@ -16,7 +16,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 
 public class GroupCreateController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("GroupCreateController");
+    private static final Logger LOG = Logger.getLogger(GroupCreateController.class.getName());
     private View creator;
 
     public GroupCreateController() {
@@ -59,18 +59,18 @@ public class GroupCreateController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(GroupCreateEvents.CreateRequested)) {
-            // logger.fine( "CreateRequested");
+            // LOG.fine( "CreateRequested");
             final String name = event.getData("name");
             final String username = event.getData("username");
             final String password = event.getData("password");
             createGroup(name, username, password);
 
         } else if (type.equals(GroupCreateEvents.CreateAjaxFailure)) {
-            logger.warning("CreateAjaxFailure");
+            LOG.warning("CreateAjaxFailure");
             onCreateFailure();
 
         } else if (type.equals(GroupCreateEvents.CreateAjaxSuccess)) {
-            // logger.fine( "CreateAjaxSuccess");
+            // LOG.fine( "CreateAjaxSuccess");
             onCreateSuccess();
 
         } else
@@ -79,22 +79,22 @@ public class GroupCreateController extends Controller {
          * Pass through to view
          */
         {
-            forwardToView(this.creator, event);
+            forwardToView(creator, event);
 
         }
-    }
-
-    private void onCreateSuccess() {
-        Dispatcher.forwardEvent(GroupCreateEvents.CreateComplete);
-    }
-
-    private void onCreateFailure() {
-        forwardToView(this.creator, new AppEvent(GroupCreateEvents.CreateFailed));
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.creator = new GroupCreator(this);
+        creator = new GroupCreator(this);
+    }
+
+    private void onCreateFailure() {
+        forwardToView(creator, new AppEvent(GroupCreateEvents.CreateFailed));
+    }
+
+    private void onCreateSuccess() {
+        Dispatcher.forwardEvent(GroupCreateEvents.CreateComplete);
     }
 }

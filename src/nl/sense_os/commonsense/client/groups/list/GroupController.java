@@ -262,8 +262,11 @@ public class GroupController extends Controller {
             AsyncCallback<List<UserModel>> callback) {
 
         // parse list of users from the response
-        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
-        List<UserModel> users = jso.getUsers();
+        List<UserModel> users = new ArrayList<UserModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+            users = jso.getUsers();
+        }
 
         // add users to the group
         for (UserModel user : users) {
@@ -298,8 +301,11 @@ public class GroupController extends Controller {
     private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
 
         // parse list of groups from the response
-        GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
-        List<GroupModel> groups = jso.getGroups();
+        List<GroupModel> groups = new ArrayList<GroupModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+            groups = jso.getGroups();
+        }
 
         Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);

@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.sensors.share;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,7 +21,7 @@ import com.google.gwt.core.client.JsonUtils;
 
 public class SensorShareController extends Controller {
 
-    private final static Logger logger = Logger.getLogger("SensorShareController");
+    private final static Logger LOG = Logger.getLogger(SensorShareController.class.getName());
     private View shareDialog;
 
     public SensorShareController() {
@@ -35,20 +36,27 @@ public class SensorShareController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorShareEvents.ShareRequest)) {
-            // logger.fine( "ShareRequest");
+            LOG.finest("ShareRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final String user = event.<String> getData("user");
-            shareSensors(sensors, user, 0);
+            shareSensor(sensors, user, 0, 0);
 
         } else if (type.equals(SensorShareEvents.ShareAjaxSuccess)) {
-            // logger.fine( "ShareAjaxSuccess");
-            // final String response = event.<String> getData("response");
-            shareSensorCallback(event);
+            LOG.finest("ShareAjaxSuccess");
+            final String response = event.<String> getData("response");
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final int index = event.getData("index");
+            final String username = event.<String> getData("user");
+            onShareSensorSuccess(response, sensors, index, username);
 
         } else if (type.equals(SensorShareEvents.ShareAjaxFailure)) {
-            logger.warning("ShareAjaxFailure");
+            LOG.warning("ShareAjaxFailure");
             // final int code = event.getData("code");
-            shareSensorErrorCallback(event);
+            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final String username = event.<String> getData("user");
+            final int index = event.getData("index");
+            final int retryCount = event.getData("retry");
+            onShareSensorFailure(sensors, username, index, retryCount);
 
         } else
 
@@ -56,48 +64,47 @@ public class SensorShareController extends Controller {
          * Pass through to View
          */
         {
-            forwardToView(this.shareDialog, event);
+            forwardToView(shareDialog, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.shareDialog = new SensorShareDialog(this);
+        shareDialog = new SensorShareDialog(this);
     }
 
-    private void shareSensorCallback(AppEvent event) {
-
-        String response = event.<String> getData("response");
-
-        // parse list of users from the response
-        GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
-        List<UserModel> users = jso.getUsers();
-
-        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-        final String username = event.<String> getData("user");
-
-        // update the sensor model
-        SensorModel sensor = sensors.remove(0);
-        sensor.set(SensorModel.USERS, users);
-
-        shareSensors(sensors, username, 0);
-    }
-
-    private void shareSensorErrorCallback(AppEvent event) {
-        final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-        final String username = event.<String> getData("user");
-        int retryCount = event.<Integer> getData("retry");
+    private void onShareSensorFailure(List<SensorModel> sensors, String username, int index,
+            int retryCount) {
 
         if (retryCount < 3) {
             // retry
             retryCount++;
-            shareSensors(sensors, username, retryCount);
+            shareSensor(sensors, username, index, retryCount);
 
         } else {
             // give up
             Dispatcher.forwardEvent(SensorShareEvents.ShareFailed);
         }
+    }
+
+    private void onShareSensorSuccess(String response, List<SensorModel> sensors, int index,
+            String username) {
+
+        // parse list of users from the response
+        List<UserModel> users = new ArrayList<UserModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+            users = jso.getUsers();
+        }
+
+        // update the sensor model
+        SensorModel sensor = sensors.get(index);
+        sensor.set(SensorModel.USERS, users);
+
+        index++;
+
+        shareSensor(sensors, username, index, 0);
     }
 
     /**
@@ -107,11 +114,11 @@ public class SensorShareController extends Controller {
      * @param event
      *            AppEvent with "sensors" and "user" properties
      */
-    private void shareSensors(List<SensorModel> sensors, String username, int retryCount) {
+    private void shareSensor(List<SensorModel> sensors, String username, int index, int retryCount) {
 
-        if (null != sensors && sensors.size() > 0) {
+        if (null != sensors && index < sensors.size()) {
             // get first sensor from the list
-            SensorModel sensor = sensors.get(0);
+            SensorModel sensor = sensors.get(index);
 
             // prepare request properties
             final String method = "POST";
@@ -121,9 +128,11 @@ public class SensorShareController extends Controller {
             final AppEvent onSuccess = new AppEvent(SensorShareEvents.ShareAjaxSuccess);
             onSuccess.setData("sensors", sensors);
             onSuccess.setData("user", username);
+            onSuccess.setData("index", index);
             final AppEvent onFailure = new AppEvent(SensorShareEvents.ShareAjaxFailure);
             onFailure.setData("sensors", sensors);
             onFailure.setData("user", username);
+            onFailure.setData("index", index);
             onFailure.setData("retry", retryCount);
 
             // send request to AjaxController

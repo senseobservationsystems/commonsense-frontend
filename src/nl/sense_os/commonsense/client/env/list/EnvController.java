@@ -113,19 +113,19 @@ public class EnvController extends Controller {
         } else
 
         {
-            forwardToView(this.grid, event);
+            forwardToView(grid, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.grid = new EnvGrid(this);
+        grid = new EnvGrid(this);
         Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<EnvironmentModel>());
     }
 
     private void onDeleteFailure() {
-        forwardToView(this.grid, new AppEvent(EnvEvents.DeleteFailure));
+        forwardToView(grid, new AppEvent(EnvEvents.DeleteFailure));
     }
 
     private void onDeleteSuccess(EnvironmentModel environment) {
@@ -145,7 +145,7 @@ public class EnvController extends Controller {
     }
 
     private void onListFailure(AsyncCallback<List<EnvironmentModel>> callback) {
-        forwardToView(this.grid, new AppEvent(EnvEvents.Done));
+        forwardToView(grid, new AppEvent(EnvEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
@@ -154,12 +154,15 @@ public class EnvController extends Controller {
     private void onListSuccess(String response, AsyncCallback<List<EnvironmentModel>> callback) {
 
         // parse the list of environments from the response
-        GetEnvironmentsResponseJso jso = JsonUtils.unsafeEval(response);
-        List<EnvironmentModel> environments = jso.getEnvironments();
+        List<EnvironmentModel> environments = new ArrayList<EnvironmentModel>();
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetEnvironmentsResponseJso jso = JsonUtils.unsafeEval(response);
+            environments = jso.getEnvironments();
+        }
 
         Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).addAll(environments);
 
-        forwardToView(this.grid, new AppEvent(EnvEvents.Done));
+        forwardToView(grid, new AppEvent(EnvEvents.Done));
         Dispatcher.forwardEvent(EnvEvents.ListUpdated);
         if (null != callback) {
             callback.onSuccess(environments);
@@ -168,7 +171,7 @@ public class EnvController extends Controller {
 
     private void requestList(AsyncCallback<List<EnvironmentModel>> callback) {
 
-        forwardToView(this.grid, new AppEvent(EnvEvents.Working));
+        forwardToView(grid, new AppEvent(EnvEvents.Working));
         Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
         // prepare request properties

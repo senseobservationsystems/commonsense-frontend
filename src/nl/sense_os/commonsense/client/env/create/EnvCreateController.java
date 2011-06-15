@@ -331,14 +331,14 @@ public class EnvCreateController extends Controller {
         } else
 
         {
-            forwardToView(this.creator, event);
+            forwardToView(creator, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.creator = new EnvCreator(this);
+        creator = new EnvCreator(this);
     }
 
     private void onAddSensorsFailure(EnvironmentModel environment) {
@@ -365,8 +365,13 @@ public class EnvCreateController extends Controller {
 
     private void onCreateEnvironmentSuccess(String response, List<SensorModel> sensors) {
 
-        CreateEnvironmentResponseJso jso = JsonUtils.unsafeEval(response);
-        EnvironmentModel environment = jso.getEnvironment();
+        // parse the response
+        EnvironmentModel environment = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            CreateEnvironmentResponseJso jso = JsonUtils.unsafeEval(response);
+            environment = jso.getEnvironment();
+        }
+
         if (null != environment) {
 
             // update global environment list
@@ -381,7 +386,7 @@ public class EnvCreateController extends Controller {
     }
 
     private void onCreateFailure() {
-        forwardToView(this.creator, new AppEvent(EnvCreateEvents.CreateFailure));
+        forwardToView(creator, new AppEvent(EnvCreateEvents.CreateFailure));
 
     }
 
@@ -409,9 +414,13 @@ public class EnvCreateController extends Controller {
             String name, int floors, Polygon outline, List<SensorModel> sensors) {
 
         // parse the new sensor details from the response
-        CreateSensorResponseJso jso = JsonUtils.unsafeEval(response);
-        if (null != jso.getSensor()) {
-            SensorModel positionSensor = jso.getSensor();
+        SensorModel positionSensor = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            CreateSensorResponseJso jso = JsonUtils.unsafeEval(response);
+            positionSensor = jso.getSensor();
+        }
+
+        if (null != positionSensor) {
 
             // add the new sensor to the list of sensors for this environment
             sensors.add(positionSensor);

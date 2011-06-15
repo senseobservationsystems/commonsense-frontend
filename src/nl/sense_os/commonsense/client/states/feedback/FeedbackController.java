@@ -9,6 +9,7 @@ import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.states.edit.ServiceMethodResponseJso;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -17,6 +18,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -120,71 +122,53 @@ public class FeedbackController extends Controller {
 
     private void onLabelsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
 
-        if (response != null) {
-            JSONValue rawJson = JSONParser.parseStrict(response);
-            if (null != rawJson) {
-                JSONObject json = rawJson.isObject();
-                if (null != json) {
-                    JSONValue rawResult = json.get("result");
-                    if (null != rawResult) {
-                        JSONString rawResultString = rawResult.isString();
-                        if (null != rawResultString) {
-                            String resultString = rawResultString.stringValue();
-                            resultString = resultString.replaceAll("&quot;", "\"");
-                            rawResult = JSONParser.parseStrict(resultString);
-                            if (null != rawResult) {
-                                JSONObject result = rawResult.isObject();
-                                JSONValue rawLabels = result.get("classLabels");
-                                if (null != rawLabels) {
-                                    JSONArray labels = rawLabels.isArray();
-                                    if (null != labels) {
-                                        List<String> list = new ArrayList<String>();
-                                        JSONString rawString;
-                                        for (int i = 0; i < labels.size(); i++) {
-                                            rawString = labels.get(i).isString();
-                                            if (null != rawString) {
-                                                list.add(rawString.stringValue());
-                                            } else {
-                                                LOG.warning("label is not a JSON string");
-                                                onLabelsFailure(0);
-                                            }
-                                        }
+        // parse result from the GetClassLabels response
+        String resultString = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
+            resultString = jso.getResult();
+        }
 
-                                        onLabelsComplete(state, sensors, list);
-
-                                    } else {
-                                        LOG.warning("\"classLabels\" is not a JSON array");
-                                        onLabelsFailure(0);
-                                    }
-                                } else {
-                                    LOG.warning("\"classLabels\" is not valid JSON");
-                                    onLabelsFailure(0);
-                                }
+        // parse labels from raw result String
+        if (resultString != null) {
+            resultString = resultString.replaceAll("&quot;", "\"");
+            JSONValue rawResult = JSONParser.parseStrict(resultString);
+            if (null != rawResult) {
+                JSONObject result = rawResult.isObject();
+                JSONValue rawLabels = result.get("classLabels");
+                if (null != rawLabels) {
+                    JSONArray labels = rawLabels.isArray();
+                    if (null != labels) {
+                        List<String> list = new ArrayList<String>();
+                        JSONString rawString;
+                        for (int i = 0; i < labels.size(); i++) {
+                            rawString = labels.get(i).isString();
+                            if (null != rawString) {
+                                list.add(rawString.stringValue());
                             } else {
-                                LOG.warning("result is not valid JSON");
+                                LOG.warning("label is not a JSON string");
                                 onLabelsFailure(0);
                             }
-                        } else {
-                            LOG.warning("\"result\" is not a JSON string");
-                            onLabelsFailure(0);
                         }
+
+                        onLabelsComplete(state, sensors, list);
+
                     } else {
-                        LOG.warning("\"result\" is not valid JSON");
+                        LOG.warning("\"classLabels\" is not a JSON array");
                         onLabelsFailure(0);
                     }
                 } else {
-                    LOG.warning("response is not a JSON object");
+                    LOG.warning("\"classLabels\" is not valid JSON");
                     onLabelsFailure(0);
                 }
             } else {
-                LOG.warning("response is not valid JSON");
+                LOG.warning("result is not valid JSON");
                 onLabelsFailure(0);
             }
         } else {
-            LOG.warning("response=null");
+            LOG.warning("\"result\" is not a JSON string");
             onLabelsFailure(0);
         }
-
     }
 
     private void onLabelsComplete(SensorModel state, List<SensorModel> sensors, List<String> labels) {
