@@ -89,19 +89,15 @@ public abstract class VizPanel extends ContentPanel {
             }
         }
 
-        onNewData();
+        onNewData(this.data);
     }
-
-    /**
-     * Called when the data was updated. The data is stored in the <code>data</code> field.
-     */
-    protected abstract void onNewData();
 
     /**
      * Adds tool buttons to the panel's heading.
      */
     private void addToolButtons() {
 
+        // regular refresh button
         final ToolButton refresh = new ToolButton("x-tool-refresh",
                 new SelectionListener<IconButtonEvent>() {
 
@@ -111,6 +107,8 @@ public abstract class VizPanel extends ContentPanel {
                     }
                 });
         refresh.setToolTip("refresh");
+
+        // auto-refresh button
         final ToolButton autoRefresh = new ToolButton("x-tool-right");
         autoRefresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
@@ -139,81 +137,10 @@ public abstract class VizPanel extends ContentPanel {
         });
         autoRefresh.setToolTip("start auto-refresh");
 
-        Header header = this.getHeader();
+        // add buttons to the panel's header
+        Header header = getHeader();
         header.addTool(autoRefresh);
         header.addTool(refresh);
-    }
-
-    private void registerHideListener() {
-        Widget parent = VizPanel.this.getParent();
-        if (parent instanceof TabItem) {
-            ((TabItem) parent).addListener(Events.Hide, new Listener<ComponentEvent>() {
-
-                @Override
-                public void handleEvent(ComponentEvent be) {
-                    LOG.fine(" panel hidden");
-                    if (isAutoRefresh) {
-                        refreshTimer.cancel();
-                    }
-                }
-
-            });
-            ((TabItem) parent).addListener(Events.Close, new Listener<ComponentEvent>() {
-
-                @Override
-                public void handleEvent(ComponentEvent be) {
-                    LOG.fine("panel closed");
-                    if (isAutoRefresh) {
-                        refreshTimer.cancel();
-                    }
-                }
-
-            });
-            ((TabItem) parent).addListener(Events.Remove, new Listener<ComponentEvent>() {
-
-                @Override
-                public void handleEvent(ComponentEvent be) {
-                    LOG.fine("panel removed");
-                    if (isAutoRefresh) {
-                        refreshTimer.cancel();
-                    }
-                }
-
-            });
-            ((TabItem) parent).addListener(Events.Show, new Listener<ComponentEvent>() {
-
-                @Override
-                public void handleEvent(ComponentEvent be) {
-                    LOG.fine("panel shown");
-                    if (isAutoRefresh) {
-                        refreshData();
-                        refreshTimer.scheduleRepeating(REFRESH_PERIOD);
-                    }
-                }
-
-            });
-        } else {
-            LOG.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
-        }
-    }
-
-    @Override
-    public void hide() {
-
-        if (null != this.refreshTimer) {
-            this.refreshTimer.cancel();
-            this.isAutoRefresh = false;
-            this.refreshTimer = null;
-        }
-
-        Widget parent = this.getParent();
-        if (parent instanceof TabItem) {
-            // remove tab item from tab panel
-            parent.removeFromParent();
-        } else {
-            this.removeFromParent();
-        }
-        super.hide();
     }
 
     /**
@@ -237,46 +164,138 @@ public abstract class VizPanel extends ContentPanel {
         return start;
     }
 
+    @Override
+    public void hide() {
+
+        if (null != refreshTimer) {
+            refreshTimer.cancel();
+            isAutoRefresh = false;
+            refreshTimer = null;
+        }
+
+        Widget parent = getParent();
+        if (parent instanceof TabItem) {
+            // remove tab item from tab panel
+            parent.removeFromParent();
+        } else {
+            removeFromParent();
+        }
+        super.hide();
+    }
+
+    /**
+     * Called when the data was changed and the panel should update accordingly.
+     * 
+     * @param Array
+     *            with the new data to visualize. The data is also stored in the panel's
+     *            <code>data</code> field.
+     */
+    protected abstract void onNewData(JsArray<Timeseries> data);
+
     /**
      * Dispatches request for refreshing the sensor data.
      */
     protected void refreshData() {
-        if (History.getToken().equals(NavPanel.VISUALIZATION)) {
 
-            if (null != this.sensors) {
-                for (SensorModel sensor : sensors) {
-                    long refreshStart = start;
-                    for (int i = 0; i < data.length(); i++) {
-                        Timeseries ts = data.get(i);
-                        if (ts.getId() == sensor.getId()) {
-                            LOG.finest("Found time series for sensor " + sensor.getDisplayName());
-                            LOG.fine("time series end: "
-                                    + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL)
-                                            .format(new Date(ts.getEnd())));
-                            refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
-
-                        }
-                    }
-
-                    LOG.fine("refresh start: "
-                            + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
-                                    new Date(refreshStart)));
-
-                    AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
-                    refreshRequest.setData("sensors", this.sensors);
-                    refreshRequest.setData("startTime", refreshStart);
-                    refreshRequest.setData("endTime", System.currentTimeMillis());
-                    refreshRequest.setData("vizPanel", this);
-                    refreshRequest.setData("showProgress", false);
-                    Dispatcher.forwardEvent(refreshRequest);
-                }
-            } else {
-                LOG.warning("Cannot refresh data: list of sensors is null");
-            }
-        } else {
+        // don't refresh when the user has left the visualization section of the app
+        if (!History.getToken().equals(NavPanel.VISUALIZATION)) {
             LOG.fine("Did not refresh because the current history token is: " + History.getToken());
+            return;
+        }
+
+        if (null != sensors) {
+
+            for (SensorModel sensor : sensors) {
+
+                // find the latest data point for which we have data and refresh from this point
+                long refreshStart = start;
+                for (int i = 0; i < data.length(); i++) {
+                    Timeseries ts = data.get(i);
+                    if (ts.getId() == sensor.getId()) {
+                        LOG.finest("Found time series for sensor " + sensor.getDisplayName());
+                        LOG.fine("time series end: "
+                                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
+                                        new Date(ts.getEnd())));
+                        refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+
+                    }
+                }
+
+                DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL);
+                LOG.fine("Refresh start time: " + dtf.format(new Date(refreshStart)));
+
+                // submit request event
+                AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
+                refreshRequest.setData("sensors", sensors);
+                refreshRequest.setData("startTime", refreshStart);
+                refreshRequest.setData("endTime", System.currentTimeMillis());
+                refreshRequest.setData("vizPanel", this);
+                refreshRequest.setData("showProgress", false);
+                Dispatcher.forwardEvent(refreshRequest);
+            }
+
+        } else {
+            LOG.warning("Cannot refresh data: list of sensors is null");
         }
     }
+
+    /**
+     * Registers listeners to keep track if the visibility of this panel. Used to stop the auto
+     * refresh requests when the panel is hidden.
+     */
+    private void registerHideListener() {
+        Widget parent = VizPanel.this.getParent();
+        if (parent instanceof TabItem) {
+            ((TabItem) parent).addListener(Events.Hide, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    LOG.finest("Panel " + getHeading() + " hidden");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Close, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    LOG.finest("Panel " + getHeading() + " closed");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Remove, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    LOG.finest("Panel " + getHeading() + " removed");
+                    if (isAutoRefresh) {
+                        refreshTimer.cancel();
+                    }
+                }
+
+            });
+            ((TabItem) parent).addListener(Events.Show, new Listener<ComponentEvent>() {
+
+                @Override
+                public void handleEvent(ComponentEvent be) {
+                    LOG.finest("Panel " + getHeading() + " shown");
+                    if (isAutoRefresh) {
+                        refreshData();
+                        refreshTimer.scheduleRepeating(REFRESH_PERIOD);
+                    }
+                }
+
+            });
+        } else {
+            LOG.warning("Cannot register show/hide listeners: Parent is not a tabitem!");
+        }
+    }
+
     /**
      * Stores sensors and time range, and dispatches event to request sensor data.
      * 

@@ -90,7 +90,7 @@ public class EnvMap extends VizPanel {
     }
 
     @Override
-    public void onNewData() {
+    public void onNewData(JsArray<Timeseries> data) {
         LOG.finest("Got latest values...");
 
         // order the data by sensor ID
@@ -346,7 +346,7 @@ public class EnvMap extends VizPanel {
 
     private void initOutline() {
 
-        this.outline = new Polygon(new LatLng[] {});
+        this.outline = new Polygon(new LatLng[]{});
         this.map.addOverlay(this.outline);
         this.outline.addPolygonEndLineHandler(new PolygonEndLineHandler() {
 

@@ -226,7 +226,7 @@ public class TimeLinePanel extends VizPanel {
     }
 
     @Override
-    protected void onNewData() {
+    protected void onNewData(final JsArray<Timeseries> data) {
 
         // special pim message
         if (!isPimCheckComplete && Registry.<UserModel> get(Constants.REG_USER).getId() == 1547) {
@@ -241,7 +241,7 @@ public class TimeLinePanel extends VizPanel {
                                 showTimeLine = false;
                             }
                             isPimCheckComplete = true;
-                            onNewData();
+                            onNewData(data);
                         }
                     });
             return;

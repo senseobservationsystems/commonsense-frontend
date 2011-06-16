@@ -351,10 +351,12 @@ public class StateGrid extends View {
                     SensorModel state = getSelectedState();
                     List<ModelData> methods = state.get("methods");
                     boolean canHazFeedback = false;
-                    for (ModelData method : methods) {
-                        if (method.get("name").equals("GetManualInputMode")) {
-                            canHazFeedback = true;
-                            break;
+                    if (null != methods) {
+                        for (ModelData method : methods) {
+                            if (method.get("name").equals("GetManualInputMode")) {
+                                canHazFeedback = true;
+                                break;
+                            }
                         }
                     }
                     feedbackButton.setEnabled(canHazFeedback);

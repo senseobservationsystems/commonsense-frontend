@@ -20,6 +20,8 @@ import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -55,7 +57,7 @@ public class FeedbackPanel extends VizPanel {
     private static final Logger LOG = Logger.getLogger(FeedbackPanel.class.getName());
 
     private final SensorModel stateSensor;
-    private final LayoutContainer feedbackContainer;
+    private final LayoutContainer stateContainer;
     private final LayoutContainer vizContainer;
     private List<String> labels;
 
@@ -101,26 +103,29 @@ public class FeedbackPanel extends VizPanel {
         setBodyBorder(false);
         setLayout(new RowLayout(Orientation.VERTICAL));
 
+        // separate containers for the state timeline and for the other sensor visualizations
+        stateContainer = new LayoutContainer(new FitLayout());
+        add(stateContainer, new RowData(1, 150));
+        vizContainer = new LayoutContainer(new FillLayout(Orientation.VERTICAL));
+        add(vizContainer, new RowData(1, 1));
+        createButtons();
+
+        // request sensor data
         sensors.add(stateSensor);
-        LOG.finest("Start time: "
-                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM).format(
-                        new Date(start)) + ", end time: "
-                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM).format(new Date(end)));
         visualize(sensors, start, end);
 
-        feedbackContainer = new LayoutContainer(new FitLayout());
-        this.add(feedbackContainer, new RowData(1, 150));
-        vizContainer = new LayoutContainer(new FillLayout(Orientation.VERTICAL));
-        this.add(vizContainer, new RowData(1, 1));
-        createButtons();
+        DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
+        LOG.finest("Start time: " + dtf.format(new Date(start)) + ", end time: "
+                + dtf.format(new Date(end)));
     }
+
     private void addFeedbackHandlers() {
 
         stateTline.addAddHandler(new AddHandler() {
 
             @Override
             public void onAdd(AddEvent event) {
-                showLabelChoice();
+                showLabelChoice(true);
             }
         });
 
@@ -128,7 +133,7 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             public void onEdit(EditEvent event) {
-                showLabelChoice();
+                showLabelChoice(false);
             }
         });
     }
@@ -162,6 +167,7 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void createGraph(JsArray<Timeseries> numberData) {
+        LOG.fine("Create line graph...");
 
         // Graph options
         graphOpts.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
@@ -201,13 +207,14 @@ public class FeedbackPanel extends VizPanel {
         graphWrapper.add(graph);
 
         vizContainer.add(graphWrapper, new FillData(0));
-        this.layout();
+        layout();
     }
 
     /**
      * @return An DataTable with the correct columns for Timeline visualization.
      */
     private DataTable createSensorsTable(JsArray<Timeseries> data) {
+        LOG.fine("Create sensors data table...");
 
         DataTable dataTable = DataTable.create();
         dataTable.addColumn(DataTable.ColumnType.DATETIME, "startdate");
@@ -269,6 +276,7 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void createSensorsTimeline(DataTable table) {
+        LOG.fine("Create sensors timeline...");
 
         // time line options
         Timeline.Options options = Timeline.Options.create();
@@ -283,6 +291,7 @@ public class FeedbackPanel extends VizPanel {
 
         sensorTline = new Timeline(table, options);
 
+        // keep the range equal to the other charts
         sensorTline.addRangeChangeHandler(new RangeChangeHandler() {
 
             @Override
@@ -317,13 +326,14 @@ public class FeedbackPanel extends VizPanel {
         wrapper.add(sensorTline, new FitData(0));
 
         vizContainer.insert(wrapper, 0, new FillData(new Margins(5, 10, 5, 70)));
-        this.layout();
+        layout();
     }
 
     /**
      * @return A DataTable with the correct columns for Timeline visualization.
      */
     private DataTable createStateTable(JsArray<Timeseries> stateData) {
+        LOG.fine("Create state data table...");
 
         DataTable table = DataTable.create();
         table.addColumn(DataTable.ColumnType.DATETIME, "startdate");
@@ -395,6 +405,7 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void createStateTimeline(DataTable table) {
+        LOG.fine("Create state timeline...");
 
         // time line options
         Timeline.Options options = Timeline.Options.create();
@@ -406,6 +417,9 @@ public class FeedbackPanel extends VizPanel {
         options.setGroupsWidth(135);
 
         stateTline = new Timeline(table, options);
+        if (table.getNumberOfRows() == 0) {
+            stateTline.setVisibleChartRange(new Date(start), new Date(end));
+        }
 
         stateTline.addRangeChangeHandler(new RangeChangeHandler() {
 
@@ -435,12 +449,13 @@ public class FeedbackPanel extends VizPanel {
             @Override
             protected void onResize(int width, int height) {
                 super.onResize(width, height);
-                this.layout(true);
+                this.layout();
             }
         };
         wrapper.add(stateTline, new FitData(0));
 
-        feedbackContainer.add(wrapper, new FitData(new Margins(5, 145, 5, 70)));
+        stateContainer.add(wrapper, new FitData(new Margins(5, 145, 5, 70)));
+        layout();
 
         addFeedbackHandlers();
     }
@@ -522,13 +537,8 @@ public class FeedbackPanel extends VizPanel {
     }
 
     @Override
-    protected void onNewData() {
+    protected void onNewData(JsArray<Timeseries> data) {
         LOG.fine("New data...");
-
-        // do not refresh because it messes up the state data..?
-        if (stateTline != null) {
-            return;
-        }
 
         JsArray<Timeseries> numberData = JavaScriptObject.createArray().cast();
         JsArray<Timeseries> stringData = JavaScriptObject.createArray().cast();
@@ -563,8 +573,8 @@ public class FeedbackPanel extends VizPanel {
         }
 
         // find out the time range that spans all three charts
-        Date rangeStart = new Date(this.start);
-        Date rangeEnd = new Date(this.start);
+        Date rangeStart = new Date(start);
+        Date rangeEnd = new Date(start);
         if (stateTline != null && stateData.length() > 0) {
             Timeline.DateRange stateRange = stateTline.getVisibleChartRange();
             rangeStart = stateRange.getStart();
@@ -634,7 +644,7 @@ public class FeedbackPanel extends VizPanel {
 
         // retrieve the row number of the changed event
         JsArray<Selection> sel = stateTline.getSelections();
-        if (sel.length() > 0) {
+        if (sel != null && sel.length() > 0) {
             final int row = sel.get(0).getRow();
 
             if (label != null) {
@@ -645,7 +655,16 @@ public class FeedbackPanel extends VizPanel {
         }
     }
 
-    private void showLabelChoice() {
+    private void removeActiveEvent() {
+        JsArray<Selection> sel = stateTline.getSelections();
+        if (sel != null && sel.length() > 0) {
+            final int row = sel.get(0).getRow();
+            stateTline.getData().removeRow(row);
+            stateTline.redraw();
+        }
+    }
+
+    private void showLabelChoice(final boolean newEntry) {
 
         // get current label
         JsArray<Selection> sel = stateTline.getSelections();
@@ -661,6 +680,16 @@ public class FeedbackPanel extends VizPanel {
         choiceWindow.setSize(300, 100);
         choiceWindow.setLayout(new FitLayout());
         choiceWindow.setHeading("State label selection");
+        choiceWindow.addListener(Events.Close, new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                LOG.finest("Label choice closed");
+                if (newEntry) {
+                    removeActiveEvent();
+                }
+            }
+        });
 
         FormPanel choiceForm = new FormPanel();
         choiceForm.setHeaderVisible(false);
@@ -668,6 +697,7 @@ public class FeedbackPanel extends VizPanel {
 
         final SimpleComboBox<String> labelCombo = new SimpleComboBox<String>();
         labelCombo.setFieldLabel("Select state");
+        labelCombo.setEmptyText("Select one, or enter a new state.");
         labelCombo.setAllowBlank(false);
         labelCombo.setTypeAhead(true);
         labelCombo.setTriggerAction(TriggerAction.ALL);
@@ -696,6 +726,9 @@ public class FeedbackPanel extends VizPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                if (newEntry) {
+                    removeActiveEvent();
+                }
                 choiceWindow.hide();
             }
         });
@@ -712,26 +745,34 @@ public class FeedbackPanel extends VizPanel {
     }
 
     private void showNumberData(JsArray<Timeseries> data) {
+        LOG.fine("Show numeric data...");
+
         if (null == graph) {
             createGraph(data);
         } else {
+            LOG.fine("Draw on existing line graph");
             graph.draw(data, graphOpts);
         }
     }
 
     private void showStateData(JsArray<Timeseries> data) {
-
-        // create a new data table
-        DataTable table = createStateTable(data);
+        LOG.fine("Show state data...");
 
         if (null == stateTline) {
+            // create a new data table
+            DataTable table = createStateTable(data);
             createStateTimeline(table);
         } else {
-            stateTline.draw(table);
+            // do not update the state data table! this erases all feedback that was already added!
+            stateTline.redraw();
+
+            // LOG.fine("Draw on existing state timeline");
+            // stateTline.draw(table);
         }
     }
 
     private void showStringData(JsArray<Timeseries> data) {
+        LOG.fine("Show string data...");
 
         // create a new data table
         DataTable table = createSensorsTable(data);
@@ -740,6 +781,7 @@ public class FeedbackPanel extends VizPanel {
             if (null == sensorTline) {
                 createSensorsTimeline(table);
             } else {
+                LOG.fine("Draw on existing sensors timeline");
                 sensorTline.draw(table);
             }
         } else {
