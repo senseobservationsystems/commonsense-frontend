@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.viz.panels.table;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -24,6 +21,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * An object of this class renders a grid and a tool bar in a content panel.
  * 
@@ -32,8 +33,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
  */
 public class PaginationGridPanel extends ContentPanel {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("PaginatonGridPanel");
+    private static final Logger LOG = Logger.getLogger(PaginationGridPanel.class.getName());
 
     private Grid<ModelData> grid;
     private PagingToolBar toolBar;
@@ -48,6 +48,8 @@ public class PaginationGridPanel extends ContentPanel {
      *            column config
      */
     public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize) {
+
+        LOG.setLevel(Level.WARNING);
 
         initGrid(url, mt, colConf);
 

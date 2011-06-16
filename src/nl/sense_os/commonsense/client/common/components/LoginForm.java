@@ -142,7 +142,7 @@ public class LoginForm extends FormPanel {
     }
 
     public void setUsername(String username) {
-        if (null != username) {
+        if (null != username && !username.equalsIgnoreCase("null")) {
             this.username.setValue(username);
         } else {
             this.username.clear();

@@ -1,12 +1,12 @@
 package nl.sense_os.commonsense.client.common.constants;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.core.client.GWT;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Constants {
 
@@ -19,7 +19,7 @@ public class Constants {
     /**
      * true if the app is deployed to common-sense-test.appspot.com.
      */
-    public static final boolean TEST_MODE = GWT.getModuleBaseURL().contains(
+    public static final boolean TEST_MODE = false || GWT.getModuleBaseURL().contains(
             "common-sense-test.appspot.com");
 
     /**

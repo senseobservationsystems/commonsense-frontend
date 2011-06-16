@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.viz.choice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
@@ -19,25 +15,37 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.util.DateWrapper;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class VizTypeChooser extends View {
 
-    private static final Logger logger = Logger.getLogger("VizTypeChooser");
+    private static final Logger LOG = Logger.getLogger(VizTypeChooser.class.getName());
 
     private Window window;
     private CardLayout layout;
@@ -48,14 +56,22 @@ public class VizTypeChooser extends View {
     private Button buttonToTypes;
     private RadioGroup timeRangeField;
     private RadioGroup typesField;
-    private Radio timeLine;
-    private Radio table;
-    private Radio map;
-    private Radio network;
+    private Radio timeLineRadio;
+    private Radio tableRadio;
+    private Radio mapRadio;
+    private Radio networkRadio;
 
     private List<SensorModel> sensors;
     private List<SensorModel> locationSensors;
     private AppEvent submitEvent;
+
+    private DateField startDateField;
+
+    private TimeField startTimeField;
+
+    private DateField endDateField;
+
+    private TimeField endTimeField;
 
     public VizTypeChooser(Controller c) {
         super(c);
@@ -64,13 +80,13 @@ public class VizTypeChooser extends View {
     private boolean checkForLocationSensors(List<SensorModel> list) {
 
         // create array to send as parameter in RPC
-        this.locationSensors = new ArrayList<SensorModel>();
+        locationSensors = new ArrayList<SensorModel>();
         for (SensorModel sensor : list) {
 
             String structure = sensor.<String> get("data_structure");
 
             if (null != structure && structure.contains("longitude")) {
-                this.locationSensors.add(new SensorModel(sensor.getProperties()));
+                locationSensors.add(new SensorModel(sensor.getProperties()));
 
             } else {
                 // do nothing
@@ -78,7 +94,7 @@ public class VizTypeChooser extends View {
         }
 
         // check whether there are any sensors at all
-        if (this.locationSensors.size() == 0) {
+        if (locationSensors.size() == 0) {
             return false;
         }
         return true;
@@ -95,34 +111,34 @@ public class VizTypeChooser extends View {
             hideWindow();
 
         } else {
-            logger.fine("Unexpected event type: " + type);
+            LOG.fine("Unexpected event type: " + type);
         }
     }
 
     private void hideWindow() {
-        this.window.hide();
-        this.layout.setActiveItem(this.typeForm);
+        window.hide();
+        layout.setActiveItem(typeForm);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.submitEvent = new AppEvent(DataEvents.DataRequest);
-        this.submitEvent.setData("showProgress", true);
+        submitEvent = new AppEvent(DataEvents.DataRequest);
+        submitEvent.setData("showProgress", true);
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Visualization wizard");
-        this.window.setMinWidth(323);
-        this.window.setMinHeight(200);
+        window = new CenteredWindow();
+        window.setHeading("Visualization wizard");
+        window.setMinWidth(425);
+        window.setMinHeight(275);
 
-        this.layout = new CardLayout();
-        this.window.setLayout(this.layout);
+        layout = new CardLayout();
+        window.setLayout(layout);
 
         initTypePanel();
         initTimeRangePanel();
 
-        this.layout.setActiveItem(this.window.getItem(0));
+        layout.setActiveItem(window.getItem(0));
     }
 
     private void initTimeRangeButtons() {
@@ -141,74 +157,205 @@ public class VizTypeChooser extends View {
             }
         };
 
-        this.buttonToTypes = new Button("Back", l);
-        this.timeRangeForm.addButton(this.buttonToTypes);
+        buttonToTypes = new Button("Back", l);
+        timeRangeForm.addButton(buttonToTypes);
 
-        this.buttonComplete = new Button("Go!", l);
-        this.timeRangeForm.addButton(this.buttonComplete);
+        buttonComplete = new Button("Go!", l);
+        timeRangeForm.addButton(buttonComplete);
 
         Button cancel = new Button("Cancel", l);
-        this.timeRangeForm.addButton(cancel);
+        timeRangeForm.addButton(cancel);
 
-        FormButtonBinding binding = new FormButtonBinding(this.timeRangeForm);
-        binding.addButton(this.buttonComplete);
+        FormButtonBinding binding = new FormButtonBinding(timeRangeForm);
+        binding.addButton(buttonComplete);
     }
 
     private void initTimeRangeFields() {
-        this.timeRangeField = new RadioGroup();
-        this.timeRangeField.setFieldLabel("Select the time range to visualize");
-
-        final Radio radio1Hr = new Radio();
-        radio1Hr.setBoxLabel("1 hour");
-
-        final Radio radioDay = new Radio();
-        radioDay.setBoxLabel("1 day");
-        radioDay.setValue(true);
-
-        final Radio radioWeek = new Radio();
-        radioWeek.setBoxLabel("1 week");
-
-        final Radio radioMonth = new Radio();
-        radioMonth.setBoxLabel("4 weeks");
-
-        this.timeRangeField.add(radio1Hr);
-        this.timeRangeField.add(radioDay);
-        this.timeRangeField.add(radioWeek);
-        this.timeRangeField.add(radioMonth);
-        this.timeRangeField.setOriginalValue(radioDay);
-        this.timeRangeField.setSelectionRequired(true);
 
         final FormData formData = new FormData("-10");
-        this.timeRangeForm.add(this.timeRangeField, formData);
+
+        LabelField mainLabel = new LabelField("Select the time range to visualize");
+        mainLabel.setHideLabel(true);
+
+        final Radio radio1Hr = new Radio();
+        radio1Hr.setBoxLabel("Last hour");
+        radio1Hr.setHideLabel(true);
+
+        final Radio radioDay = new Radio();
+        radioDay.setBoxLabel("Last day");
+        radioDay.setValue(true);
+        radioDay.setHideLabel(true);
+
+        final Radio radioWeek = new Radio();
+        radioWeek.setBoxLabel("Last week");
+        radioWeek.setHideLabel(true);
+
+        final Radio radioMonth = new Radio();
+        radioMonth.setBoxLabel("Last month");
+        radioMonth.setHideLabel(true);
+
+        final Radio radioSpecific = new Radio();
+        radioSpecific.setBoxLabel("Other:");
+        radioSpecific.setHideLabel(true);
+
+        timeRangeField = new RadioGroup();
+        timeRangeField.add(radio1Hr);
+        timeRangeField.add(radioDay);
+        timeRangeField.add(radioWeek);
+        timeRangeField.add(radioMonth);
+        timeRangeField.add(radioSpecific);
+        timeRangeField.setOriginalValue(radioDay);
+        timeRangeField.setSelectionRequired(true);
+
+        // defaultRangeSet.add(timeRangeField, formData);
+
+        // advanced date chooser
+        final FieldSet advancedRangeSet = new FieldSet();
+        advancedRangeSet.setLayout(new FormLayout(LabelAlign.TOP));
+        advancedRangeSet.setEnabled(false);
+
+        Date start = new Date(System.currentTimeMillis() + 1000 * 60 * (15 - 60 * 24));
+
+        startDateField = new DateField();
+        startDateField.setFieldLabel("Start date");
+        startDateField.setValue(start);
+
+        startTimeField = new TimeField();
+        startTimeField.setFieldLabel("Start time");
+        startTimeField.setValue(startTimeField.findModel(start));
+        startTimeField.setTriggerAction(TriggerAction.ALL);
+
+        Date end = new Date(System.currentTimeMillis() + 1000 * 60 * 15);
+
+        endDateField = new DateField();
+        endDateField.setFieldLabel("End date");
+        endDateField.setValue(end);
+
+        endTimeField = new TimeField();
+        endTimeField.setFieldLabel("End time");
+        endTimeField.setValue(endTimeField.findModel(end));
+        endTimeField.setTriggerAction(TriggerAction.ALL);
+
+        // start date and time layout
+        LayoutContainer startField = new LayoutContainer(new ColumnLayout());
+        LayoutContainer startDateWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
+        startDateWrapper.add(startDateField, formData);
+        startField.add(startDateWrapper, new ColumnData(.5));
+        LayoutContainer startTimeWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
+        startTimeWrapper.add(startTimeField, formData);
+        startField.add(startTimeWrapper, new ColumnData(.5));
+
+        // end date and time layout
+        LayoutContainer endField = new LayoutContainer(new ColumnLayout());
+        LayoutContainer endDateWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
+        endDateWrapper.add(endDateField, formData);
+        endField.add(endDateWrapper, new ColumnData(.5));
+        LayoutContainer endTimeWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
+        endTimeWrapper.add(endTimeField, formData);
+        endField.add(endTimeWrapper, new ColumnData(.5));
+
+        // enable or disable specific date chooser
+        timeRangeField.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                boolean enable = radioSpecific.equals(timeRangeField.getValue());
+                advancedRangeSet.setEnabled(enable);
+                startDateField.setAllowBlank(!enable);
+                startTimeField.setAllowBlank(!enable);
+                endDateField.setAllowBlank(!enable);
+                endTimeField.setAllowBlank(!enable);
+
+                final long endTime = System.currentTimeMillis() + 1000 * 60 * 15;
+                final long hour = 1000 * 60 * 60;
+                final long day = 24 * hour;
+                final long week = 7 * day;
+
+                long startTime = endTime;
+                Radio r = timeRangeField.getValue();
+                if (radio1Hr.equals(r)) {
+                    startTime = endTime - hour;
+                } else if (radioDay.equals(r)) {
+                    startTime = endTime - day;
+                } else if (radioWeek.equals(r)) {
+                    startTime = endTime - week;
+                } else if (radioMonth.equals(r)) {
+                    startTime = endTime - 4 * week;
+                } else if (radioSpecific.equals(r)) {
+                    return;
+                } else {
+                    LOG.warning("Unexpected radio button selected: " + r);
+                }
+
+                // update fields
+                startDateField.setValue(new Date(startTime));
+                startTimeField.setValue(startTimeField.findModel(new Date(startTime)));
+                endDateField.setValue(new Date(endTime));
+                endTimeField.setValue(endTimeField.findModel(new Date(endTime)));
+            }
+        });
+
+        advancedRangeSet.add(startField, formData);
+        advancedRangeSet.add(endField, formData);
+
+        LayoutContainer left = new LayoutContainer(new FormLayout());
+        left.setStyleAttribute("paddingRight", "10px");
+        left.add(radio1Hr, formData);
+        left.add(radioSpecific, formData);
+
+        LayoutContainer center1 = new LayoutContainer(new FormLayout());
+        center1.setStyleAttribute("paddingRight", "10px");
+        center1.add(radioDay, formData);
+
+        LayoutContainer center2 = new LayoutContainer(new FormLayout());
+        center2.setStyleAttribute("paddingRight", "10px");
+        center2.add(radioWeek, formData);
+
+        LayoutContainer right = new LayoutContainer(new FormLayout());
+        right.setStyleAttribute("paddingLeft", "10px");
+        right.add(radioMonth, formData);
+
+        LayoutContainer main = new LayoutContainer(new ColumnLayout());
+        main.add(left, new ColumnData(.25));
+        main.add(center1, new ColumnData(.25));
+        main.add(center2, new ColumnData(.25));
+        main.add(right, new ColumnData(.25));
+
+        timeRangeForm.add(mainLabel, new FormData());
+        timeRangeForm.add(main, new FormData());
+        timeRangeForm.add(advancedRangeSet, new FormData());
+
+        // advancedRangeSet.collapse();
     }
 
     private void initTimeRangePanel() {
-        this.timeRangeForm = new FormPanel();
-        this.timeRangeForm.setHeaderVisible(false);
-        this.timeRangeForm.setBodyBorder(false);
-        this.timeRangeForm.setLabelAlign(LabelAlign.TOP);
+        timeRangeForm = new FormPanel();
+        timeRangeForm.setHeaderVisible(false);
+        timeRangeForm.setBodyBorder(false);
+        timeRangeForm.setLabelAlign(LabelAlign.TOP);
 
         initTimeRangeFields();
         initTimeRangeButtons();
         saveSelectedTimes();
 
-        this.window.add(this.timeRangeForm);
+        window.add(timeRangeForm);
     }
 
     private void initTypeButtons() {
-        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
+        typesField.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
                 Radio label = typesField.getValue();
-                if (label.equals(timeLine) || label.equals(map) || label.equals(network)) {
+                if (label.equals(timeLineRadio) || label.equals(mapRadio)
+                        || label.equals(networkRadio)) {
                     buttonToTimeRange.setText("Next");
 
-                } else if (label.equals(table)) {
+                } else if (label.equals(tableRadio)) {
                     buttonToTimeRange.setText("Go!");
 
                 } else {
-                    logger.warning("Unexpected selection: " + label);
+                    LOG.warning("Unexpected selection: " + label);
                 }
             }
         });
@@ -234,17 +381,17 @@ public class VizTypeChooser extends View {
 
         Button back = new Button("Back", l);
         back.disable();
-        this.typeForm.addButton(back);
+        typeForm.addButton(back);
 
-        this.buttonToTimeRange = new Button("Next", l);
-        this.buttonToTimeRange.setStyleAttribute("font-weight", "bold");
-        this.typeForm.addButton(this.buttonToTimeRange);
+        buttonToTimeRange = new Button("Next", l);
+        buttonToTimeRange.setStyleAttribute("font-weight", "bold");
+        typeForm.addButton(buttonToTimeRange);
 
         Button cancel = new Button("Cancel", l);
-        this.typeForm.addButton(cancel);
+        typeForm.addButton(cancel);
 
-        FormButtonBinding binding = new FormButtonBinding(this.typeForm);
-        binding.addButton(this.buttonToTimeRange);
+        FormButtonBinding binding = new FormButtonBinding(typeForm);
+        binding.addButton(buttonToTimeRange);
     }
 
     private void initTypeFields() {
@@ -252,44 +399,40 @@ public class VizTypeChooser extends View {
         LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
 
-        LayoutContainer left = new LayoutContainer();
+        LayoutContainer left = new LayoutContainer(new FormLayout());
         left.setStyleAttribute("paddingRight", "10px");
-        FormLayout layout = new FormLayout();
-        left.setLayout(layout);
 
-        this.typesField = new RadioGroup();
-        this.typesField.setFieldLabel("Select a visualization type");
+        typesField = new RadioGroup();
+        typesField.setFieldLabel("Select a visualization type");
 
-        this.timeLine = new Radio();
-        this.timeLine.setBoxLabel("Time line");
-        this.timeLine.setHideLabel(true);
-        this.timeLine.setValue(true);
-        left.add(this.timeLine, new FormData());
+        timeLineRadio = new Radio();
+        timeLineRadio.setBoxLabel("Time line");
+        timeLineRadio.setHideLabel(true);
+        timeLineRadio.setValue(true);
+        left.add(timeLineRadio, new FormData());
 
-        this.table = new Radio();
-        this.table.setBoxLabel("Table");
-        this.table.setHideLabel(true);
-        left.add(this.table, new FormData());
+        tableRadio = new Radio();
+        tableRadio.setBoxLabel("Table");
+        tableRadio.setHideLabel(true);
+        left.add(tableRadio, new FormData());
 
-        LayoutContainer right = new LayoutContainer();
+        LayoutContainer right = new LayoutContainer(new FormLayout());
         right.setStyleAttribute("paddingLeft", "10px");
-        layout = new FormLayout();
-        right.setLayout(layout);
 
-        this.map = new Radio();
-        this.map.setBoxLabel("Map");
-        this.map.setHideLabel(true);
-        this.map.disable();
-        right.add(this.map, new FormData());
+        mapRadio = new Radio();
+        mapRadio.setBoxLabel("Map");
+        mapRadio.setHideLabel(true);
+        mapRadio.disable();
+        right.add(mapRadio, new FormData());
 
-        this.network = new Radio();
-        this.network.setBoxLabel("Network");
-        this.network.setHideLabel(true);
-        this.network.disable();
-        right.add(this.network, new FormData());
+        networkRadio = new Radio();
+        networkRadio.setBoxLabel("Network");
+        networkRadio.setHideLabel(true);
+        networkRadio.disable();
+        right.add(networkRadio, new FormData());
 
         // listen to changes in types field
-        this.typesField.addListener(Events.Change, new Listener<FieldEvent>() {
+        typesField.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
@@ -298,57 +441,36 @@ public class VizTypeChooser extends View {
         });
 
         // add the choices to the typesfield
-        this.typesField.add(timeLine);
-        this.typesField.add(table);
-        this.typesField.add(map);
-        this.typesField.add(network);
-        this.typesField.setOriginalValue(timeLine);
-        this.typesField.setSelectionRequired(true);
+        typesField.add(timeLineRadio);
+        typesField.add(tableRadio);
+        typesField.add(mapRadio);
+        typesField.add(networkRadio);
+        typesField.setOriginalValue(timeLineRadio);
+        typesField.setSelectionRequired(true);
 
         main.add(left, new ColumnData(.5));
         main.add(right, new ColumnData(.5));
 
         LabelField label = new LabelField("Select a visualization type:");
         label.setHideLabel(true);
-        this.typeForm.add(label, new FormData());
-        this.typeForm.add(main, new FormData("100%"));
+        typeForm.add(label, new FormData());
+        typeForm.add(main, new FormData("100%"));
 
         // final FormData formData = new FormData("-10");
         // this.typeForm.add(main, formData);
     }
 
     private void initTypePanel() {
-        this.typeForm = new FormPanel();
-        this.typeForm.setHeaderVisible(false);
-        this.typeForm.setBodyBorder(false);
-        this.typeForm.setLabelAlign(LabelAlign.TOP);
+        typeForm = new FormPanel();
+        typeForm.setHeaderVisible(false);
+        typeForm.setBodyBorder(false);
+        typeForm.setLabelAlign(LabelAlign.TOP);
 
         initTypeFields();
         initTypeButtons();
         saveSelectedType();
 
-        this.window.add(this.typeForm);
-    }
-
-    private void showWindow(List<SensorModel> sensors) {
-        this.sensors = sensors;
-        if (this.sensors.size() > 0) {
-            this.window.show();
-            this.window.center();
-        } else {
-            MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);
-        }
-
-        if (checkForLocationSensors(this.sensors)) {
-            this.map.enable();
-        } else {
-            this.map.disable();
-
-            // make sure the map radio button is not selected
-            if (this.typesField.getValue().equals(this.map)) {
-                this.typesField.setValue(this.timeLine);
-            }
-        }
+        window.add(typeForm);
     }
 
     /**
@@ -356,14 +478,14 @@ public class VizTypeChooser extends View {
      * the user pressed "Go!".
      */
     private void saveSelectedTimes() {
-        final long endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
 
         // constants
         final long hour = 1000 * 60 * 60;
         final long day = 24 * hour;
         final long week = 7 * day;
 
-        String label = this.timeRangeField.getValue().getBoxLabel();
+        String label = timeRangeField.getValue().getBoxLabel();
         long startTime = endTime;
         if (label.equals("1 hour")) {
             startTime = endTime - hour;
@@ -372,14 +494,31 @@ public class VizTypeChooser extends View {
         } else if (label.equals("1 week")) {
             startTime = endTime - week;
         } else if (label.equals("4 weeks")) {
-            startTime = endTime - (4 * week);
+            startTime = endTime - 4 * week;
+        } else if (label.equals("Other:")) {
+            DateWrapper startWrapper = new DateWrapper(startDateField.getValue());
+            startWrapper = startWrapper.resetTime();
+            startWrapper = startWrapper.addHours(startTimeField.getValue().getHour() - 12);
+            startWrapper = startWrapper.addMinutes(startTimeField.getValue().getMinutes());
+            startTime = startWrapper.getTime();
+
+            DateWrapper endWrapper = new DateWrapper(endDateField.getValue());
+            endWrapper = endWrapper.resetTime();
+            endWrapper = endWrapper.addHours(endTimeField.getValue().getHour() - 12);
+            endWrapper = endWrapper.addMinutes(endTimeField.getValue().getMinutes());
+            endTime = endWrapper.getTime();
+
         } else {
-            logger.warning("Unexpected radio button label: " + label);
+            LOG.warning("Unexpected radio button label: " + label);
         }
 
+        DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_LONG);
+        LOG.severe("Start: " + dtf.format(new Date(startTime)));
+        LOG.severe("End:   " + dtf.format(new Date(endTime)));
+
         // save the start and end time in the event
-        this.submitEvent.setData("startTime", startTime);
-        this.submitEvent.setData("endTime", endTime);
+        submitEvent.setData("startTime", startTime);
+        submitEvent.setData("endTime", endTime);
     }
 
     /**
@@ -388,40 +527,60 @@ public class VizTypeChooser extends View {
      */
     private void saveSelectedType() {
         Radio label = typesField.getValue();
-        if (label.equals(this.timeLine)) {
-            this.submitEvent = new AppEvent(VizEvents.ShowTimeLine);
-            this.submitEvent.setData("sensors", this.sensors);
+        if (label.equals(timeLineRadio)) {
+            submitEvent = new AppEvent(VizEvents.ShowTimeLine);
+            submitEvent.setData("sensors", sensors);
 
-            this.buttonToTimeRange.setText("Next");
+            buttonToTimeRange.setText("Next");
 
-        } else if (label.equals(this.table)) {
-            this.submitEvent = new AppEvent(VizEvents.ShowTable);
-            this.submitEvent.setData("sensors", this.sensors);
+        } else if (label.equals(tableRadio)) {
+            submitEvent = new AppEvent(VizEvents.ShowTable);
+            submitEvent.setData("sensors", sensors);
 
-            this.buttonToTimeRange.setText("Go!");
+            buttonToTimeRange.setText("Go!");
 
-        } else if (label.equals(this.map)) {
-            this.submitEvent = new AppEvent(VizEvents.ShowMap);
-            this.submitEvent.setData("sensors", this.locationSensors);
-            // this.submitEvent.setData("sensors", this.sensors);
+        } else if (label.equals(mapRadio)) {
+            submitEvent = new AppEvent(VizEvents.ShowMap);
+            submitEvent.setData("sensors", locationSensors);
 
-            this.buttonToTimeRange.setText("Next");
+            buttonToTimeRange.setText("Next");
 
-        } else if (label.equals(this.network)) {
-            this.submitEvent = new AppEvent(VizEvents.ShowNetwork);
-            this.submitEvent.setData("sensors", this.sensors);
+        } else if (label.equals(networkRadio)) {
+            submitEvent = new AppEvent(VizEvents.ShowNetwork);
+            submitEvent.setData("sensors", sensors);
 
-            this.buttonToTimeRange.setText("Next");
+            buttonToTimeRange.setText("Next");
 
         } else {
-            logger.warning("Unexpected selection: " + label);
+            LOG.warning("Unexpected selection: " + label);
+        }
+    }
+
+    private void showWindow(List<SensorModel> sensors) {
+        this.sensors = sensors;
+        if (this.sensors.size() > 0) {
+            window.show();
+            window.center();
+        } else {
+            MessageBox.info(null, "No sensor types or devices selected, nothing to display.", null);
+        }
+
+        if (checkForLocationSensors(this.sensors)) {
+            mapRadio.enable();
+        } else {
+            mapRadio.disable();
+
+            // make sure the map radio button is not selected
+            if (typesField.getValue().equals(mapRadio)) {
+                typesField.setValue(timeLineRadio);
+            }
         }
     }
 
     private void submitForm() {
         saveSelectedType();
         saveSelectedTimes();
-        Dispatcher.forwardEvent(this.submitEvent);
+        Dispatcher.forwardEvent(submitEvent);
         hideWindow();
     }
 }

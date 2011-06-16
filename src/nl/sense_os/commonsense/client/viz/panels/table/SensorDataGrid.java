@@ -7,11 +7,6 @@
  */
 package nl.sense_os.commonsense.client.viz.panels.table;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -32,6 +27,11 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class SensorDataGrid extends LayoutContainer {
 
@@ -163,6 +163,9 @@ public class SensorDataGrid extends LayoutContainer {
         if (alias != -1) {
             result += "&alias=" + alias;
         }
+
+        long timeRange = 1000l * 60 * 60 * 24 * 7 * 4; // 4 weeks
+        result += "&start_date=" + Math.round((System.currentTimeMillis() - timeRange) / 1000);
         result += "&total=1";
         return result;
     }
