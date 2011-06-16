@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.auth.login;
 
-import java.util.Date;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
 
@@ -20,6 +17,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Cookies;
+
+import java.util.Date;
+import java.util.logging.Logger;
 
 public class LoginPanel extends View {
 
