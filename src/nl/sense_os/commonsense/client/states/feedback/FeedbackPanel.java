@@ -75,7 +75,7 @@ public class FeedbackPanel extends VizPanel {
             String title, List<String> labels) {
         super();
 
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
 
         this.stateSensor = stateSensor;
         this.labels = labels;
