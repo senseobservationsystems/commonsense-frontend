@@ -1,9 +1,13 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.ajax.AjaxController;
+import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -46,16 +50,12 @@ import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
-
-import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -64,13 +64,13 @@ import java.util.logging.Logger;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Wed Jun 16 17:45";
-    public static final boolean HACK_QUICK_LOGIN = !GWT.isProdMode() && false;
-    public static final boolean HACK_SKIP_LIB_DETAILS = !GWT.isProdMode() && false;
-    public static final boolean HACK_TEST_NAVBAR = !GWT.isProdMode() && false;
-    public static final boolean HACK_TEST_ENVCREATOR = !GWT.isProdMode() && false;
-    public static final boolean HACK_TEST_MAPVIZ = !GWT.isProdMode() && false;
-    public static final boolean HACK_TEST_TIMELINE = !GWT.isProdMode() && false;
+    public static final String LAST_DEPLOYED = "Wed Jun 17 09:50";
+    public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_TIMELINE = Constants.ALLOW_HACKS && false;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.

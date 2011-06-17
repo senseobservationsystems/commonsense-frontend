@@ -1,12 +1,12 @@
 package nl.sense_os.commonsense.client.common.constants;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.google.gwt.core.client.GWT;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.core.client.GWT;
 
 public class Constants {
 
@@ -32,6 +32,11 @@ public class Constants {
      * true if the app is deployed to anything but the stable, test or ted appspot.
      */
     public static final boolean DEV_MODE = !STABLE_MODE && !TEST_MODE && !TED_MODE;
+
+    /**
+     * true if shortcut 'hacks' for easy developing are allowed
+     */
+    public static final boolean ALLOW_HACKS = !GWT.isProdMode();
 
     /**
      * Registry key for the list of all devices for the current user

@@ -1,5 +1,10 @@
 package nl.sense_os.commonsense.client.viz.choice;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
@@ -38,39 +43,39 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Logger;
-
 public class VizTypeChooser extends View {
 
     private static final Logger LOG = Logger.getLogger(VizTypeChooser.class.getName());
 
     private Window window;
     private CardLayout layout;
-    private FormPanel typeForm;
-    private FormPanel timeRangeForm;
+
+    private List<SensorModel> sensors;
+    private List<SensorModel> locationSensors;
+
+    private AppEvent submitEvent;
+
     private Button buttonComplete;
     private Button buttonToTimeRange;
     private Button buttonToTypes;
-    private RadioGroup timeRangeField;
+
+    private FormPanel typeForm;
     private RadioGroup typesField;
     private Radio timeLineRadio;
     private Radio tableRadio;
     private Radio mapRadio;
     private Radio networkRadio;
 
-    private List<SensorModel> sensors;
-    private List<SensorModel> locationSensors;
-    private AppEvent submitEvent;
-
+    private FormPanel timeRangeForm;
+    private RadioGroup timeRangeField;
+    private Radio hourRadio;
+    private Radio dayRadio;
+    private Radio weekRadio;
+    private Radio monthRadio;
+    private Radio otherTimeRadio;
     private DateField startDateField;
-
     private TimeField startTimeField;
-
     private DateField endDateField;
-
     private TimeField endTimeField;
 
     public VizTypeChooser(Controller c) {
@@ -177,34 +182,34 @@ public class VizTypeChooser extends View {
         LabelField mainLabel = new LabelField("Select the time range to visualize");
         mainLabel.setHideLabel(true);
 
-        final Radio radio1Hr = new Radio();
-        radio1Hr.setBoxLabel("Last hour");
-        radio1Hr.setHideLabel(true);
+        hourRadio = new Radio();
+        hourRadio.setBoxLabel("Last hour");
+        hourRadio.setHideLabel(true);
 
-        final Radio radioDay = new Radio();
-        radioDay.setBoxLabel("Last day");
-        radioDay.setValue(true);
-        radioDay.setHideLabel(true);
+        dayRadio = new Radio();
+        dayRadio.setBoxLabel("Last day");
+        dayRadio.setValue(true);
+        dayRadio.setHideLabel(true);
 
-        final Radio radioWeek = new Radio();
-        radioWeek.setBoxLabel("Last week");
-        radioWeek.setHideLabel(true);
+        weekRadio = new Radio();
+        weekRadio.setBoxLabel("Last week");
+        weekRadio.setHideLabel(true);
 
-        final Radio radioMonth = new Radio();
-        radioMonth.setBoxLabel("Last month");
-        radioMonth.setHideLabel(true);
+        monthRadio = new Radio();
+        monthRadio.setBoxLabel("Last month");
+        monthRadio.setHideLabel(true);
 
-        final Radio radioSpecific = new Radio();
-        radioSpecific.setBoxLabel("Other:");
-        radioSpecific.setHideLabel(true);
+        otherTimeRadio = new Radio();
+        otherTimeRadio.setBoxLabel("Other:");
+        otherTimeRadio.setHideLabel(true);
 
         timeRangeField = new RadioGroup();
-        timeRangeField.add(radio1Hr);
-        timeRangeField.add(radioDay);
-        timeRangeField.add(radioWeek);
-        timeRangeField.add(radioMonth);
-        timeRangeField.add(radioSpecific);
-        timeRangeField.setOriginalValue(radioDay);
+        timeRangeField.add(hourRadio);
+        timeRangeField.add(dayRadio);
+        timeRangeField.add(weekRadio);
+        timeRangeField.add(monthRadio);
+        timeRangeField.add(otherTimeRadio);
+        timeRangeField.setOriginalValue(dayRadio);
         timeRangeField.setSelectionRequired(true);
 
         // defaultRangeSet.add(timeRangeField, formData);
@@ -259,7 +264,7 @@ public class VizTypeChooser extends View {
 
             @Override
             public void handleEvent(FieldEvent be) {
-                boolean enable = radioSpecific.equals(timeRangeField.getValue());
+                boolean enable = otherTimeRadio.equals(timeRangeField.getValue());
                 advancedRangeSet.setEnabled(enable);
                 startDateField.setAllowBlank(!enable);
                 startTimeField.setAllowBlank(!enable);
@@ -273,15 +278,15 @@ public class VizTypeChooser extends View {
 
                 long startTime = endTime;
                 Radio r = timeRangeField.getValue();
-                if (radio1Hr.equals(r)) {
+                if (hourRadio.equals(r)) {
                     startTime = endTime - hour;
-                } else if (radioDay.equals(r)) {
+                } else if (dayRadio.equals(r)) {
                     startTime = endTime - day;
-                } else if (radioWeek.equals(r)) {
+                } else if (weekRadio.equals(r)) {
                     startTime = endTime - week;
-                } else if (radioMonth.equals(r)) {
+                } else if (monthRadio.equals(r)) {
                     startTime = endTime - 4 * week;
-                } else if (radioSpecific.equals(r)) {
+                } else if (otherTimeRadio.equals(r)) {
                     return;
                 } else {
                     LOG.warning("Unexpected radio button selected: " + r);
@@ -300,20 +305,20 @@ public class VizTypeChooser extends View {
 
         LayoutContainer left = new LayoutContainer(new FormLayout());
         left.setStyleAttribute("paddingRight", "10px");
-        left.add(radio1Hr, formData);
-        left.add(radioSpecific, formData);
+        left.add(hourRadio, formData);
+        left.add(otherTimeRadio, formData);
 
         LayoutContainer center1 = new LayoutContainer(new FormLayout());
         center1.setStyleAttribute("paddingRight", "10px");
-        center1.add(radioDay, formData);
+        center1.add(dayRadio, formData);
 
         LayoutContainer center2 = new LayoutContainer(new FormLayout());
         center2.setStyleAttribute("paddingRight", "10px");
-        center2.add(radioWeek, formData);
+        center2.add(weekRadio, formData);
 
         LayoutContainer right = new LayoutContainer(new FormLayout());
         right.setStyleAttribute("paddingLeft", "10px");
-        right.add(radioMonth, formData);
+        right.add(monthRadio, formData);
 
         LayoutContainer main = new LayoutContainer(new ColumnLayout());
         main.add(left, new ColumnData(.25));
@@ -475,27 +480,32 @@ public class VizTypeChooser extends View {
 
     /**
      * Saves the selected time range from the form into the AppEvent that will be dispatched when
-     * the user pressed "Go!".
+     * the user presses "Go!".
      */
     private void saveSelectedTimes() {
         long endTime = System.currentTimeMillis();
+        long startTime = endTime;
 
         // constants
         final long hour = 1000 * 60 * 60;
         final long day = 24 * hour;
         final long week = 7 * day;
 
-        String label = timeRangeField.getValue().getBoxLabel();
-        long startTime = endTime;
-        if (label.equals("1 hour")) {
+        // see which radio was selected
+        Radio selected = timeRangeField.getValue();
+        if (hourRadio.equals(selected)) {
             startTime = endTime - hour;
-        } else if (label.equals("1 day")) {
+
+        } else if (dayRadio.equals(selected)) {
             startTime = endTime - day;
-        } else if (label.equals("1 week")) {
+
+        } else if (weekRadio.equals(selected)) {
             startTime = endTime - week;
-        } else if (label.equals("4 weeks")) {
-            startTime = endTime - 4 * week;
-        } else if (label.equals("Other:")) {
+
+        } else if (monthRadio.equals(selected)) {
+            startTime = endTime - Math.round(29.53 * day);
+
+        } else if (otherTimeRadio.equals(selected)) {
             DateWrapper startWrapper = new DateWrapper(startDateField.getValue());
             startWrapper = startWrapper.resetTime();
             startWrapper = startWrapper.addHours(startTimeField.getValue().getHour() - 12);
@@ -509,7 +519,7 @@ public class VizTypeChooser extends View {
             endTime = endWrapper.getTime();
 
         } else {
-            LOG.warning("Unexpected radio button label: " + label);
+            LOG.warning("Unexpected radio button selected: " + selected);
         }
 
         DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_LONG);
@@ -523,36 +533,37 @@ public class VizTypeChooser extends View {
 
     /**
      * Saves the selected visualization type from the form into the AppEvent that will be dispatched
-     * when the user pressed "Go!".
+     * when the user presses "Go!".
      */
     private void saveSelectedType() {
-        Radio label = typesField.getValue();
-        if (label.equals(timeLineRadio)) {
+
+        Radio selected = typesField.getValue();
+        if (timeLineRadio.equals(selected)) {
             submitEvent = new AppEvent(VizEvents.ShowTimeLine);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Next");
 
-        } else if (label.equals(tableRadio)) {
+        } else if (tableRadio.equals(selected)) {
             submitEvent = new AppEvent(VizEvents.ShowTable);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Go!");
 
-        } else if (label.equals(mapRadio)) {
+        } else if (mapRadio.equals(selected)) {
             submitEvent = new AppEvent(VizEvents.ShowMap);
             submitEvent.setData("sensors", locationSensors);
 
             buttonToTimeRange.setText("Next");
 
-        } else if (label.equals(networkRadio)) {
+        } else if (networkRadio.equals(selected)) {
             submitEvent = new AppEvent(VizEvents.ShowNetwork);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Next");
 
         } else {
-            LOG.warning("Unexpected selection: " + label);
+            LOG.warning("Unexpected selection: " + selected);
         }
     }
 
