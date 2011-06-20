@@ -70,9 +70,9 @@ public class LoginController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("GET current user response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (200 == statusCode) {
+                if (Response.SC_OK == statusCode) {
                     parseUserReponse(response.getText());
-                } else if (403 == statusCode) {
+                } else if (Response.SC_FORBIDDEN == statusCode) {
                     onAuthenticationFailure();
                 } else {
                     LOG.warning("GET current user returned incorrect status: " + statusCode);
@@ -179,9 +179,9 @@ public class LoginController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("POST login response received: " + response.getStatusText());
                 final int statusCode = response.getStatusCode();
-                if (200 <= statusCode && statusCode <= 300) {
+                if (Response.SC_OK == statusCode) {
                     onLoginSuccess(response.getText());
-                } else if (403 == statusCode) {
+                } else if (Response.SC_FORBIDDEN == statusCode) {
                     onAuthenticationFailure();
                 } else {
                     LOG.warning("POST login returned incorrect status: " + statusCode);
@@ -221,7 +221,7 @@ public class LoginController extends Controller {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("GET logout response received: " + response.getStatusText());
-                if (200 == response.getStatusCode()) {
+                if (Response.SC_OK == response.getStatusCode()) {
                     onLoggedOut(response.getText());
                 } else {
                     LOG.warning("GET logout returned incorrect status: " + response.getStatusCode());
