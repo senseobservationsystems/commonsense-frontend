@@ -109,7 +109,7 @@ public class RegisterController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("POST registration response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (201 == statusCode) {
+                if (Response.SC_CREATED == statusCode) {
                     onRegisterSuccess(response.getText(), username, password);
                 } else {
                     LOG.warning("POST registration returned incorrect status: " + statusCode);
