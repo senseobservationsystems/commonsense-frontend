@@ -62,17 +62,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
         History.addValueChangeHandler(this);
 
-        // remind about test mode
-        if (Constants.TEST_MODE) {
-            if (Constants.TED_MODE) {
-                logger.config("Running in Ted mode! TAAIDIIII");
-            } else {
-                logger.config("Running in test mode...");
-            }
-        } else {
-            logger.config("Running in stable mode...");
-        }
-
         super.initialize();
     }
 

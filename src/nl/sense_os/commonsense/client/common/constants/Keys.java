@@ -3,14 +3,18 @@ package nl.sense_os.commonsense.client.common.constants;
 public class Keys {
 
     /**
-     * Google Maps API key, generated for http://common-sense-test.appspot.com
+     * Google Maps API key, generated for http://rc.sense-os.nl
      */
-    private static final String MAPS_KEY_TEST = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA";
+    private static final String MAPS_KEY_RC = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQsjUjcByiCivvn1ppG43l0EBYmuxQJjoQuotfoMFzKYEK6QgwlJRD2Pg";
+    // old key:
+    // "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA";
 
     /**
-     * Google Maps API key, generated for http://common-sense.appspot.com
+     * Google Maps API key, generated for http://common.sense-os.nl
      */
-    private static final String MAPS_KEY_STABLE = "ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw";
+    private static final String MAPS_KEY_STABLE = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQRZw5PnBZuDX77DtiPDAIQJTIImRRXR2NlGlzF15dD3pzgYJu67vgxTw";
+    // old key:
+    // "ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw";
 
     /**
      * Google Maps API key, generated for http://common.dev.sense-os.nl
@@ -20,8 +24,8 @@ public class Keys {
     /**
      * Maps key for "regular" deployments to appspot: either stable version or test version.
      */
-    private static final String MAPS_KEY_REGULAR = Constants.TEST_MODE
-            ? MAPS_KEY_TEST
+    private static final String MAPS_KEY_REGULAR = Constants.RC_MODE
+            ? MAPS_KEY_RC
             : MAPS_KEY_STABLE;
 
     /**

@@ -56,7 +56,7 @@ public class NavPanel extends LayoutContainer {
     private void initLogo() {
         if (Constants.DEV_MODE) {
             logo = new Image(GWT.getHostPageBaseURL() + "img/logo_dev-header.png");
-        } else if (Constants.TEST_MODE) {
+        } else if (Constants.RC_MODE) {
             logo = new Image(GWT.getHostPageBaseURL() + "img/logo_test-header.png");
         } else {
             logo = new Image(GWT.getHostPageBaseURL() + "img/logo_sense-header.png");

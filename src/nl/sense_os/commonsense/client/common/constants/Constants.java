@@ -11,27 +11,27 @@ import com.google.gwt.core.client.GWT;
 public class Constants {
 
     /**
-     * true if the app is deployed to common-sense-test.appspot.com.
+     * Flag for Stable mode. <code>true</code> if the app is deployed to common.sense-os.nl.
      */
-    public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains(
-            "common-sense.appspot.com");
+    public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
 
     /**
-     * true if the app is deployed to common-sense-test.appspot.com.
+     * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
      */
-    public static final boolean TEST_MODE = false || GWT.getModuleBaseURL().contains(
-            "common-sense-test.appspot.com");
+    public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
 
     /**
-     * true if the app is deployed to commonsense-test.appspot.com.
+     * Flag for 'ted' mode. <code>true</code> if the app is deployed to
+     * commonsense-test.appspot.com.
      */
     public static final boolean TED_MODE = GWT.getModuleBaseURL().contains(
             "commonsense-test.appspot.com");
 
     /**
-     * true if the app is deployed to anything but the stable, test or ted appspot.
+     * Flag for dev mode. <code>true</code> if the app is deployed to anything but the stable,
+     * release candidate or 'ted' location.
      */
-    public static final boolean DEV_MODE = !STABLE_MODE && !TEST_MODE && !TED_MODE;
+    public static final boolean DEV_MODE = !STABLE_MODE && !RC_MODE && !TED_MODE;
 
     /**
      * true if shortcut 'hacks' for easy developing are allowed
