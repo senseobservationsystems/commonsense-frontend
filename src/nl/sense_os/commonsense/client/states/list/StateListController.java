@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -27,11 +26,17 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateListController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("StateListController");
+    private static final Logger LOG = Logger.getLogger(StateListController.class.getName());
     private View tree;
 
     public StateListController() {
@@ -46,93 +51,137 @@ public class StateListController extends Controller {
                 StateDefaultsEvents.CheckDefaultsSuccess);
 
         // events to update the list of groups
-        registerEventTypes(StateListEvents.LoadRequest, StateListEvents.AjaxStateSensorsSuccess,
-                StateListEvents.AjaxStateSensorsFailure, StateListEvents.ConnectedAjaxSuccess,
-                StateListEvents.ConnectedAjaxFailure, StateListEvents.GetMethodsAjaxSuccess,
-                StateListEvents.GetMethodsAjaxFailure);
+        registerEventTypes(StateListEvents.LoadRequest);
 
-        registerEventTypes(StateListEvents.RemoveRequested, StateListEvents.AjaxDisconnectFailure,
-                StateListEvents.AjaxDisconnectSuccess, StateListEvents.RemoveComplete);
+        registerEventTypes(StateListEvents.RemoveRequested, StateListEvents.RemoveComplete);
     }
 
     private void disconnectService(SensorModel sensor, SensorModel stateSensor) {
 
         // prepare request data
-        final String method = "DELETE";
+        final Method method = RequestBuilder.DELETE;
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
                 + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxDisconnectSuccess);
-        final AppEvent onFailure = new AppEvent(StateListEvents.AjaxDisconnectFailure);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("DELETE service onError callback: " + exception.getMessage());
+                onDisconnectFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("DELETE service response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onDisconnectSuccess(response.getText());
+                } else {
+                    LOG.warning("DELETE service returned incorrect status: " + statusCode);
+                    onDisconnectFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("DELETE service request threw exception: " + e.getMessage());
+            onDisconnectFailure(0);
+        }
     }
 
-    private void disconnectServiceCallback(String response) {
-        Dispatcher.forwardEvent(StateListEvents.RemoveComplete);
-    }
-
-    private void disconnectServiceErrorCallback(int code) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.RemoveFailed));
-    }
-
-    private void getConnected(SensorModel state, AsyncCallback<List<SensorModel>> callback) {
+    private void getConnected(final SensorModel state,
+            final AsyncCallback<List<SensorModel>> callback) {
 
         // prepare request properties
-        final String method = "GET";
-        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors" + ".json";
+        final Method method = RequestBuilder.GET;
+        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateListEvents.ConnectedAjaxSuccess);
-        onSuccess.setData("state", state);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(StateListEvents.ConnectedAjaxFailure);
-        onFailure.setData("callback", callback);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET service sensors onError callback: " + exception.getMessage());
+                onConnectedFailure(callback);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET service sensors response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onConnectedSuccess(response.getText(), state, callback);
+                } else {
+                    LOG.warning("GET service sensors returned incorrect status: " + statusCode);
+                    onConnectedFailure(callback);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET service sensors request threw exception: " + e.getMessage());
+            onConnectedFailure(callback);
+        }
     }
 
-    private void getMethods(SensorModel state, List<SensorModel> sensors,
-            AsyncCallback<List<SensorModel>> callback) {
+    private void getMethods(final SensorModel state, final List<SensorModel> sensors,
+            final AsyncCallback<List<SensorModel>> callback) {
 
         if (sensors.size() > 0) {
             // prepare request properties
-            final String method = "GET";
+            final Method method = RequestBuilder.GET;
             final String url = Urls.SENSORS + "/" + sensors.get(0).getId() + "/services/"
-                    + state.getId() + "/methods" + ".json";
+                    + state.getId() + "/methods.json";
             final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(StateListEvents.GetMethodsAjaxSuccess);
-            onSuccess.setData("state", state);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("callback", callback);
-            final AppEvent onFailure = new AppEvent(StateListEvents.GetMethodsAjaxFailure);
-            onFailure.setData("callback", callback);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
 
-            Dispatcher.forwardEvent(ajaxRequest);
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("GET service methods onError callback: " + exception.getMessage());
+                    onMethodsFailure(callback);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("GET service methods response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onMethodsSuccess(response.getText(), state, sensors, callback);
+                    } else {
+                        LOG.warning("GET service methods returned incorrect status: " + statusCode);
+                        onMethodsFailure(callback);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("GET service methods request threw exception: " + e.getMessage());
+                onMethodsFailure(callback);
+            }
+
         } else {
-            logger.warning("State \'" + state + "\' has no connected sensors!");
+            LOG.warning("State \'" + state + "\' has no connected sensors!");
             onLoadComplete(sensors, callback);
         }
     }
@@ -140,23 +189,41 @@ public class StateListController extends Controller {
     private void getStateSensors(final AsyncCallback<List<SensorModel>> callback) {
 
         // prepare request properties
-        final String method = "GET";
+        final Method method = RequestBuilder.GET;
         final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateListEvents.AjaxStateSensorsSuccess);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(StateListEvents.AjaxStateSensorsFailure);
-        onFailure.setData("callback", callback);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET sensors onError callback: " + exception.getMessage());
+                onStateSensorsFailure(callback);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET sensors response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onStateSensorsSuccess(response.getText(), callback);
+                } else {
+                    LOG.warning("GET sensors returned incorrect status: " + statusCode);
+                    onStateSensorsFailure(callback);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET sensors request threw exception: " + e.getMessage());
+            onStateSensorsFailure(callback);
+        }
     }
 
     @Override
@@ -167,54 +234,11 @@ public class StateListController extends Controller {
          * Get list of states
          */
         if (type.equals(StateListEvents.LoadRequest)) {
-            // logger.fine( "LoadRequest");
+            // LOG.fine( "LoadRequest");
             final Object loadConfig = event.getData("loadConfig");
             final AsyncCallback<List<SensorModel>> callback = event
                     .<AsyncCallback<List<SensorModel>>> getData("callback");
             load(loadConfig, callback);
-
-        } else if (type.equals(StateListEvents.AjaxStateSensorsSuccess)) {
-            // logger.fine( "AjaxStateSensorsSuccess");
-            final String response = event.<String> getData("response");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onStateSensorsSuccess(response, callback);
-
-        } else if (type.equals(StateListEvents.AjaxStateSensorsFailure)) {
-            logger.warning("AjaxStateSensorsFailure");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onStateSensorsFailure(callback);
-
-        } else if (type.equals(StateListEvents.ConnectedAjaxSuccess)) {
-            // logger.fine( "ConnectedAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onConnectedSuccess(response, state, callback);
-
-        } else if (type.equals(StateListEvents.ConnectedAjaxFailure)) {
-            logger.warning("ConnectedAjaxFailure");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onConnectedFailure(callback);
-
-        } else if (type.equals(StateListEvents.GetMethodsAjaxSuccess)) {
-            // logger.fine( "AjaxGetMethodsSuccess");
-            final String response = event.<String> getData("response");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onMethodsSuccess(response, state, sensors, callback);
-
-        } else if (type.equals(StateListEvents.GetMethodsAjaxFailure)) {
-            logger.warning("AjaxGetMethodsFailure");
-            // final int code = event.getData("code");
-            final AsyncCallback<List<SensorModel>> callback = event
-                    .<AsyncCallback<List<SensorModel>>> getData("callback");
-            onMethodsFailure(callback);
 
         } else
 
@@ -222,20 +246,10 @@ public class StateListController extends Controller {
          * Disconnect a sensor from a state
          */
         if (type.equals(StateListEvents.RemoveRequested)) {
-            // logger.fine( "RemoveRequested");
+            // LOG.fine( "RemoveRequested");
             SensorModel sensor = event.<SensorModel> getData("sensor");
             SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
             disconnectService(sensor, stateSensor);
-
-        } else if (type.equals(StateListEvents.AjaxDisconnectFailure)) {
-            logger.warning("AjaxDisconnectFailure");
-            final int code = event.getData("code");
-            disconnectServiceErrorCallback(code);
-
-        } else if (type.equals(StateListEvents.AjaxDisconnectSuccess)) {
-            // logger.fine( "AjaxDisconnectSuccess");
-            final String response = event.<String> getData("response");
-            disconnectServiceCallback(response);
 
         } else
 
@@ -243,18 +257,29 @@ public class StateListController extends Controller {
          * Pass on to state tree view
          */
         {
-            forwardToView(this.tree, event);
+            forwardToView(tree, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.tree = new StateGrid(this);
+        tree = new StateGrid(this);
+    }
+
+    private void load(Object loadConfig, AsyncCallback<List<SensorModel>> callback) {
+        forwardToView(tree, new AppEvent(StateListEvents.Working));
+        if (null == loadConfig) {
+            getStateSensors(callback);
+        } else if (loadConfig instanceof SensorModel && ((SensorModel) loadConfig).getType() == 2) {
+            getConnected((SensorModel) loadConfig, callback);
+        } else {
+            onLoadComplete(new ArrayList<SensorModel>(), callback);
+        }
     }
 
     private void onConnectedFailure(AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.Done));
+        forwardToView(tree, new AppEvent(StateListEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
@@ -288,8 +313,31 @@ public class StateListController extends Controller {
         getMethods(state, result, callback);
     }
 
+    private void onDisconnectFailure(int code) {
+        forwardToView(tree, new AppEvent(StateListEvents.RemoveFailed));
+    }
+
+    private void onDisconnectSuccess(String response) {
+        Dispatcher.forwardEvent(StateListEvents.RemoveComplete);
+    }
+
+    private void onLoadComplete(List<SensorModel> result, AsyncCallback<List<SensorModel>> callback) {
+        forwardToView(tree, new AppEvent(StateListEvents.Done));
+        forwardToView(tree, new AppEvent(StateListEvents.LoadComplete));
+        if (null != callback) {
+            callback.onSuccess(result);
+        }
+    }
+
+    private void onLoadFailure(AsyncCallback<List<SensorModel>> callback) {
+        forwardToView(tree, new AppEvent(StateListEvents.Done));
+        if (null != callback) {
+            callback.onFailure(null);
+        }
+    }
+
     private void onMethodsFailure(AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.Done));
+        forwardToView(tree, new AppEvent(StateListEvents.Done));
         if (null != callback) {
             callback.onFailure(null);
         }
@@ -335,31 +383,5 @@ public class StateListController extends Controller {
         }
 
         onLoadComplete(states, callback);
-    }
-
-    private void load(Object loadConfig, AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.Working));
-        if (null == loadConfig) {
-            getStateSensors(callback);
-        } else if (loadConfig instanceof SensorModel && ((SensorModel) loadConfig).getType() == 2) {
-            getConnected((SensorModel) loadConfig, callback);
-        } else {
-            onLoadComplete(new ArrayList<SensorModel>(), callback);
-        }
-    }
-
-    private void onLoadComplete(List<SensorModel> result, AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.Done));
-        forwardToView(this.tree, new AppEvent(StateListEvents.LoadComplete));
-        if (null != callback) {
-            callback.onSuccess(result);
-        }
-    }
-
-    private void onLoadFailure(AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(this.tree, new AppEvent(StateListEvents.Done));
-        if (null != callback) {
-            callback.onFailure(null);
-        }
     }
 }

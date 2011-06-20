@@ -7,7 +7,5 @@ public class StateDefaultsEvents {
     public static final EventType CheckDefaults = new EventType();
     public static final EventType CheckDefaultsSuccess = new EventType();
     protected static final EventType CheckDefaultsFailure = new EventType();
-    protected static final EventType AjaxDefaultsSuccess = new EventType();
-    protected static final EventType AjaxDefaultsFailure = new EventType();
     protected static final EventType CheckDefaultsRequest = new EventType();
 }

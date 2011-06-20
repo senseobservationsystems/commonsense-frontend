@@ -11,14 +11,10 @@ public class FeedbackEvents {
     protected static final EventType FeedbackComplete = new EventType();
     protected static final EventType FeedbackCancelled = new EventType();
     protected static final EventType FeedbackFailed = new EventType();
-    protected static final EventType FeedbackAjaxSuccess = new EventType();
-    protected static final EventType FeedbackAjaxFailure = new EventType();
 
     protected static final EventType LabelsRequest = new EventType();
     protected static final EventType LabelsSuccess = new EventType();
     protected static final EventType LabelsFailure = new EventType();
-    protected static final EventType LabelsAjaxSuccess = new EventType();
-    protected static final EventType LabelsAjaxFailure = new EventType();
 
     protected static final EventType ShowChooser = new EventType();
     protected static final EventType FeedbackChosen = new EventType();

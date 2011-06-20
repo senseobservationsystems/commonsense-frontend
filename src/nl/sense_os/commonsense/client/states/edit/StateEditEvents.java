@@ -8,6 +8,4 @@ public class StateEditEvents {
     protected static final EventType InvokeMethodRequested = new EventType();
     protected static final EventType InvokeMethodComplete = new EventType();
     protected static final EventType InvokeMethodFailed = new EventType();
-    protected static final EventType InvokeMethodAjaxSuccess = new EventType();
-    protected static final EventType InvokeMethodAjaxFailure = new EventType();
 }

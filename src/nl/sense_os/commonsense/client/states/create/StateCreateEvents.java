@@ -11,8 +11,6 @@ public class StateCreateEvents {
     public static final EventType CreateServiceComplete = new EventType();
     protected static final EventType CreateServiceCancelled = new EventType();
     protected static final EventType CreateServiceFailed = new EventType();
-    protected static final EventType AjaxCreateSuccess = new EventType();
-    protected static final EventType AjaxCreateFailure = new EventType();
 
     // load all sensors to create service from
     protected static final EventType LoadSensors = new EventType();
@@ -23,6 +21,4 @@ public class StateCreateEvents {
     protected static final EventType AvailableServicesRequested = new EventType();
     protected static final EventType AvailableServicesUpdated = new EventType();
     protected static final EventType AvailableServicesNotUpdated = new EventType();
-    protected static final EventType AjaxAvailableServiceSuccess = new EventType();
-    protected static final EventType AjaxAvailableServiceFailure = new EventType();
 }

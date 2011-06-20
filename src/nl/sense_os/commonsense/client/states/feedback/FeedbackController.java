@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -16,9 +15,14 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -39,11 +43,9 @@ public class FeedbackController extends Controller {
         registerEventTypes(FeedbackEvents.FeedbackInit);
         registerEventTypes(FeedbackEvents.ShowChooser, FeedbackEvents.FeedbackChosen);
 
-        registerEventTypes(FeedbackEvents.FeedbackSubmit, FeedbackEvents.FeedbackAjaxFailure,
-                FeedbackEvents.FeedbackAjaxSuccess);
+        registerEventTypes(FeedbackEvents.FeedbackSubmit);
 
-        registerEventTypes(FeedbackEvents.LabelsRequest, FeedbackEvents.LabelsAjaxSuccess,
-                FeedbackEvents.LabelsAjaxFailure);
+        registerEventTypes(FeedbackEvents.LabelsRequest);
     }
 
     @Override
@@ -60,21 +62,6 @@ public class FeedbackController extends Controller {
             final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
             markFeedback(state, changes, 0, panel);
 
-        } else if (type.equals(FeedbackEvents.FeedbackAjaxSuccess)) {
-            // LOG.fine( "AjaxFeedbackSuccess");
-            // final String response = event.<String> getData("response");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
-            final int index = event.getData("index");
-            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
-            onFeedbackMarked(state, changes, index, panel);
-
-        } else if (type.equals(FeedbackEvents.FeedbackAjaxFailure)) {
-            LOG.warning("AjaxFeedbackFailure");
-            // final int code = event.getData("code");
-            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
-            onFeedbackFailed(panel);
-
         } else
 
         /*
@@ -85,18 +72,6 @@ public class FeedbackController extends Controller {
             final SensorModel state = event.getData("state");
             final List<SensorModel> sensors = event.getData("sensors");
             getLabels(state, sensors);
-
-        } else if (type.equals(FeedbackEvents.LabelsAjaxSuccess)) {
-            // LOG.fine( "LabelsAjaxSuccess");
-            final String response = event.getData("response");
-            final SensorModel state = event.getData("state");
-            final List<SensorModel> sensors = event.getData("sensors");
-            onLabelsSuccess(response, state, sensors);
-
-        } else if (type.equals(FeedbackEvents.LabelsAjaxFailure)) {
-            LOG.warning("LabelsAjaxFailure");
-            final int code = event.getData("code");
-            onLabelsFailure(code);
 
         } else
 
@@ -179,7 +154,7 @@ public class FeedbackController extends Controller {
         forwardToView(this.feedback, event);
     }
 
-    private void getLabels(SensorModel state, List<SensorModel> sensors) {
+    private void getLabels(final SensorModel state, final List<SensorModel> sensors) {
 
         List<ModelData> methods = state.<List<ModelData>> get("methods");
         boolean canHazClassLabels = false;
@@ -197,23 +172,43 @@ public class FeedbackController extends Controller {
             SensorModel sensor = sensors.get(0);
 
             // prepare request properties
-            final String method = "GET";
+            final Method method = RequestBuilder.GET;
             final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + state.getId()
                     + "/GetClassLabels.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(FeedbackEvents.LabelsAjaxSuccess);
-            onSuccess.setData("state", state);
-            onSuccess.setData("sensors", sensors);
-            final AppEvent onFailure = new AppEvent(FeedbackEvents.LabelsAjaxFailure);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("GET class labels onError callback: " + exception.getMessage());
+                    onLabelsFailure(0);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("GET class labels response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onLabelsSuccess(response.getText(), state, sensors);
+                    } else {
+                        LOG.warning("GET class labels returned incorrect status: " + statusCode);
+                        onLabelsFailure(statusCode);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("GET class labels request threw exception: " + e.getMessage());
+                onLabelsFailure(0);
+            }
+
         } else {
             LOG.warning("No sensors!");
             onLabelsFailure(0);
@@ -227,8 +222,8 @@ public class FeedbackController extends Controller {
         this.chooser = new FeedbackChooser(this);
     }
 
-    private void markFeedback(SensorModel state, List<FeedbackData> changes, int index,
-            FeedbackPanel panel) {
+    private void markFeedback(final SensorModel state, final List<FeedbackData> changes,
+            final int index, final FeedbackPanel panel) {
 
         SensorModel sensor = (SensorModel) state.getChild(0);
 
@@ -238,9 +233,10 @@ public class FeedbackController extends Controller {
             // TODO also process delete changes
             while (change.getType() == FeedbackData.TYPE_REMOVE) {
                 LOG.warning("Skipping feedback deletion!");
-                index++;
-                if (index < changes.size()) {
-                    change = changes.get(index);
+                int newIndex = index;
+                newIndex++;
+                if (newIndex < changes.size()) {
+                    change = changes.get(newIndex);
                 } else {
                     onFeedbackComplete(panel);
                     return;
@@ -248,17 +244,10 @@ public class FeedbackController extends Controller {
             }
 
             // prepare request properties
-            final String method = "POST";
+            final Method method = RequestBuilder.POST;
             final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + state.getId()
                     + "/manualLearn.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(FeedbackEvents.FeedbackAjaxSuccess);
-            onSuccess.setData("state", state);
-            onSuccess.setData("changes", changes);
-            onSuccess.setData("index", index);
-            onSuccess.setData("panel", panel);
-            final AppEvent onFailure = new AppEvent(FeedbackEvents.FeedbackAjaxFailure);
-            onFailure.setData("panel", panel);
 
             // prepare request body
             String body = "{\"start_date\":\""
@@ -267,15 +256,37 @@ public class FeedbackController extends Controller {
                     + NumberFormat.getFormat("#.000").format(change.getEnd() / 1000d) + "\"";
             body += ",\"class_label\":\"" + change.getLabel() + "\"}";
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("body", body);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("POST feedback onError callback: " + exception.getMessage());
+                    onFeedbackFailed(panel);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("POST feedback response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onFeedbackMarked(state, changes, index, panel);
+                    } else {
+                        LOG.warning("POST feedback returned incorrect status: " + statusCode);
+                        onFeedbackFailed(panel);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(body, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("POST feedback request threw exception: " + e.getMessage());
+                onFeedbackFailed(panel);
+            }
 
         } else {
             onFeedbackComplete(panel);

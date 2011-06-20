@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -19,6 +18,11 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class StateCreateController extends Controller {
 
@@ -30,9 +34,7 @@ public class StateCreateController extends Controller {
         registerEventTypes(StateCreateEvents.ShowCreator);
 
         // get available services for a sensor
-        registerEventTypes(StateCreateEvents.AvailableServicesRequested,
-                StateCreateEvents.AjaxAvailableServiceSuccess,
-                StateCreateEvents.AjaxAvailableServiceFailure);
+        registerEventTypes(StateCreateEvents.AvailableServicesRequested);
 
         // load all sensors to create service from
         registerEventTypes(StateCreateEvents.LoadSensors);
@@ -40,19 +42,15 @@ public class StateCreateController extends Controller {
 
         // create state from sensor
         registerEventTypes(StateCreateEvents.CreateServiceRequested,
-                StateCreateEvents.CreateServiceComplete, StateCreateEvents.CreateServiceCancelled,
-                StateCreateEvents.AjaxCreateSuccess, StateCreateEvents.AjaxCreateFailure);
+                StateCreateEvents.CreateServiceComplete, StateCreateEvents.CreateServiceCancelled);
     }
 
     private void createService(String name, ServiceModel service, SensorModel sensor,
             List<ModelData> dataFields) {
 
         // prepare request properties
-        final String method = "POST";
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxCreateSuccess);
-        final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxCreateFailure);
 
         // create request body
         String serviceJson = "\"service\":{";
@@ -69,15 +67,37 @@ public class StateCreateController extends Controller {
         sensorJson += "}";
         final String body = "{" + serviceJson + "," + sensorJson + "}";
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("body", body);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST sensor service onError callback: " + exception.getMessage());
+                onCreateServiceFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST sensor service response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_CREATED == statusCode) {
+                    onCreateServiceSuccess(response.getText());
+                } else {
+                    LOG.warning("POST sensor service returned incorrect status: " + statusCode);
+                    onCreateServiceFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(body, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("POST sensor service request threw exception: " + e.getMessage());
+            onCreateServiceFailure(0);
+        }
     }
 
     private void getAvailableServices(SensorModel sensor) {
@@ -88,23 +108,42 @@ public class StateCreateController extends Controller {
         }
 
         // prepare request properties
-        final String method = "GET";
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + ".json"
                 + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateCreateEvents.AjaxAvailableServiceSuccess);
-        final AppEvent onFailure = new AppEvent(StateCreateEvents.AjaxAvailableServiceFailure);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET sensor services onError callback: " + exception.getMessage());
+                onAvailableServicesFailure();
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET sensor services response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_CREATED == statusCode) {
+                    onAvailableServicesSuccess(response.getText());
+                } else {
+                    LOG.warning("GET sensor services returned incorrect status: " + statusCode);
+                    onAvailableServicesFailure();
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET sensor services request threw exception: " + e.getMessage());
+            onAvailableServicesFailure();
+        }
     }
-
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
@@ -116,15 +155,6 @@ public class StateCreateController extends Controller {
             // LOG.fine( "AvailableServicesRequested");
             final SensorModel sensor = event.getData("sensor");
             getAvailableServices(sensor);
-
-        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceSuccess)) {
-            // LOG.fine( "AjaxAvailableServiceSuccess");
-            final String response = event.getData("response");
-            onAvailableServicesSuccess(response);
-
-        } else if (type.equals(StateCreateEvents.AjaxAvailableServiceFailure)) {
-            LOG.warning("AjaxAvailableServiceFailure");
-            onAvailableServicesFailure();
 
         } else
 
@@ -138,16 +168,6 @@ public class StateCreateController extends Controller {
             final SensorModel sensor = event.<SensorModel> getData("sensor");
             final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
             createService(name, service, sensor, dataFields);
-
-        } else if (type.equals(StateCreateEvents.AjaxCreateFailure)) {
-            LOG.warning("CreateAjaxFailure");
-            final int code = event.getData("code");
-            onCreateServiceFailure(code);
-
-        } else if (type.equals(StateCreateEvents.AjaxCreateSuccess)) {
-            // LOG.fine( "CreateAjaxSuccess");
-            final String response = event.<String> getData("response");
-            onCreateServiceSuccess(response);
 
         } else
 

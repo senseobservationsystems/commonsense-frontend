@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.states.defaults;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
@@ -15,26 +14,27 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class StateDefaultsController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("StateDefaultsController");
+    private static final Logger LOG = Logger.getLogger(StateDefaultsController.class.getName());
     private View dialog;
 
     public StateDefaultsController() {
         registerEventTypes(StateDefaultsEvents.CheckDefaults,
-                StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.AjaxDefaultsSuccess,
-                StateDefaultsEvents.AjaxDefaultsFailure, StateDefaultsEvents.CheckDefaultsSuccess);
+                StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
     }
 
     private void checkDefaults(List<DeviceModel> devices, boolean overwrite) {
 
         // prepare request properties
-        final String method = "POST";
         final String url = Urls.STATES + "/default/check.json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateDefaultsEvents.AjaxDefaultsSuccess);
-        final AppEvent onFailure = new AppEvent(StateDefaultsEvents.AjaxDefaultsFailure);
 
         // prepare body
         String body = "{\"sensors\":[";
@@ -52,24 +52,37 @@ public class StateDefaultsController extends Controller {
         body += "\"update\":\"" + (overwrite ? 1 : 0) + "\"";
         body += "}";
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("body", body);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST default services onError callback: " + exception.getMessage());
+                onCheckDefaultsFailure();
+            }
 
-    private void onCheckDefaultsSuccess(String response) {
-        Dispatcher.forwardEvent(StateDefaultsEvents.CheckDefaultsSuccess);
-    }
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST default services response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_CREATED == statusCode) {
+                    onCheckDefaultsSuccess(response.getText());
+                } else {
+                    LOG.warning("POST default services returned incorrect status: " + statusCode);
+                    onCheckDefaultsFailure();
+                }
+            }
+        };
 
-    private void onCheckDefaultsFailure() {
-        forwardToView(this.dialog, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(body, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("POST default services request threw exception: " + e.getMessage());
+            onCheckDefaultsFailure();
+        }
     }
 
     @Override
@@ -77,25 +90,15 @@ public class StateDefaultsController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
-            logger.fine("CheckDefaultsRequest");
+            LOG.fine("CheckDefaultsRequest");
             List<DeviceModel> devices = event.getData("devices");
             boolean overwrite = event.getData("overwrite");
             checkDefaults(devices, overwrite);
 
-        } else if (type.equals(StateDefaultsEvents.AjaxDefaultsSuccess)) {
-            logger.fine("AjaxDefaultsSuccess");
-            final String response = event.<String> getData("response");
-            onCheckDefaultsSuccess(response);
-
-        } else if (type.equals(StateDefaultsEvents.AjaxDefaultsFailure)) {
-            logger.warning("AjaxDefaultsFailure");
-            // final int code = event.getData("code");
-            onCheckDefaultsFailure();
-
         } else
 
         /*
-         * Pass on to state tree view
+         * Pass on to view
          */
         {
             forwardToView(this.dialog, event);
@@ -107,6 +110,14 @@ public class StateDefaultsController extends Controller {
     protected void initialize() {
         super.initialize();
         this.dialog = new StateDefaultsDialog(this);
+    }
+
+    private void onCheckDefaultsFailure() {
+        forwardToView(this.dialog, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
+    }
+
+    private void onCheckDefaultsSuccess(String response) {
+        Dispatcher.forwardEvent(StateDefaultsEvents.CheckDefaultsSuccess);
     }
 
 }

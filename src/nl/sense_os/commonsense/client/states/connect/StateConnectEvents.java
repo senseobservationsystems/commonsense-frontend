@@ -9,8 +9,6 @@ public class StateConnectEvents {
     protected static final EventType ServiceNameRequest = new EventType();
     protected static final EventType ServiceNameSuccess = new EventType();
     protected static final EventType ServiceNameFailure = new EventType();
-    protected static final EventType ServiceNameAjaxSuccess = new EventType();
-    protected static final EventType ServiceNameAjaxFailure = new EventType();
 
     // get available sensors to connect
     protected static final EventType AvailableSensorsRequested = new EventType();
@@ -21,6 +19,4 @@ public class StateConnectEvents {
     protected static final EventType ConnectRequested = new EventType();
     public static final EventType ConnectSuccess = new EventType();
     protected static final EventType ConnectFailure = new EventType();
-    protected static final EventType ConnectAjaxSuccess = new EventType();
-    protected static final EventType ConnectAjaxFailure = new EventType();
 }

@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.states.edit;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -13,9 +12,14 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class StateEditController extends Controller {
     private static final Logger LOG = Logger.getLogger(StateEditController.class.getName());
@@ -25,8 +29,7 @@ public class StateEditController extends Controller {
         registerEventTypes(StateEditEvents.ShowEditor);
 
         // perform a method for this state
-        registerEventTypes(StateEditEvents.InvokeMethodRequested,
-                StateEditEvents.InvokeMethodAjaxSuccess, StateEditEvents.InvokeMethodAjaxFailure);
+        registerEventTypes(StateEditEvents.InvokeMethodRequested);
     }
 
     @Override
@@ -39,16 +42,6 @@ public class StateEditController extends Controller {
         if (type.equals(StateEditEvents.InvokeMethodRequested)) {
             // LOG.fine( "InvokeMethodRequested");
             invokeMethod(event);
-
-        } else if (type.equals(StateEditEvents.InvokeMethodAjaxFailure)) {
-            LOG.warning("AjaxMethodFailure");
-            final int code = event.getData("code");
-            onInvokeMethodFailure(code);
-
-        } else if (type.equals(StateEditEvents.InvokeMethodAjaxSuccess)) {
-            // LOG.fine( "AjaxMethodSuccess");
-            final String response = event.<String> getData("response");
-            onInvokeMethodSuccess(response);
 
         } else
 
@@ -75,12 +68,10 @@ public class StateEditController extends Controller {
         List<String> params = event.<List<String>> getData("parameters");
 
         // prepare request properties
-        final String method = params.size() > 0 ? "POST" : "GET";
+        final Method method = params.size() > 0 ? RequestBuilder.POST : RequestBuilder.GET;
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
                 + "/" + serviceMethod.getName() + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(StateEditEvents.InvokeMethodAjaxSuccess);
-        final AppEvent onFailure = new AppEvent(StateEditEvents.InvokeMethodAjaxFailure);
 
         // create request body
         String body = null;
@@ -93,15 +84,37 @@ public class StateEditController extends Controller {
             body += "]}";
         }
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("body", body);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST service method onError callback: " + exception.getMessage());
+                onInvokeMethodFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST service method response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onInvokeMethodSuccess(response.getText());
+                } else {
+                    LOG.warning("POST service method returned incorrect status: " + statusCode);
+                    onInvokeMethodFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(body, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("POST service method request threw exception: " + e.getMessage());
+            onInvokeMethodFailure(0);
+        }
     }
 
     private void onInvokeMethodFailure(int code) {
