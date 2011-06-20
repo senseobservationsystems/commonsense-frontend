@@ -53,8 +53,10 @@ public class RegisterController extends Controller {
         form = new RegisterPanel(this);
     }
 
-    private void onRegisterFailure() {
-        forwardToView(form, new AppEvent(RegisterEvents.RegisterFailure));
+    private void onRegisterFailure(int code) {
+        AppEvent failure = new AppEvent(RegisterEvents.RegisterFailure);
+        failure.setData("code", code);
+        forwardToView(form, failure);
     }
 
     private void onRegisterSuccess(String response, String username, String password) {
@@ -89,7 +91,7 @@ public class RegisterController extends Controller {
             @Override
             public void onError(Request request, Throwable exception) {
                 LOG.warning("POST registration onError callback: " + exception.getMessage());
-                onRegisterFailure();
+                onRegisterFailure(0);
             }
 
             @Override
@@ -100,7 +102,7 @@ public class RegisterController extends Controller {
                     onRegisterSuccess(response.getText(), username, password);
                 } else {
                     LOG.warning("POST registration returned incorrect status: " + statusCode);
-                    onRegisterFailure();
+                    onRegisterFailure(statusCode);
                 }
             }
         };
@@ -111,7 +113,7 @@ public class RegisterController extends Controller {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {
             LOG.warning("POST registration request threw exception: " + e.getMessage());
-            onRegisterFailure();
+            onRegisterFailure(0);
         }
     }
 

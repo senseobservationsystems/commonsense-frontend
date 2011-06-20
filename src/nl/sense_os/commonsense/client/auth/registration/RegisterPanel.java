@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.http.client.Response;
 
 public class RegisterPanel extends View {
 
@@ -43,7 +44,8 @@ public class RegisterPanel extends View {
 
         } else if (type.equals(RegisterEvents.RegisterFailure)) {
             LOG.warning("RegisterFailure");
-            onFailure();
+            final int code = event.getData("code");
+            onFailure(code);
 
         } else {
             LOG.severe("Unexpected event type!");
@@ -75,22 +77,35 @@ public class RegisterPanel extends View {
         this.form.reset();
     }
 
-    private void onFailure() {
-        setBusy(false);
-        MessageBox.confirm(null,
-                "Registration failed! Your username might already be taken.\n\nRetry anyway?",
-                new Listener<MessageBoxEvent>() {
+    private void onFailure(int code) {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        Button b = be.getButtonClicked();
-                        if (b.getText().equalsIgnoreCase("yes")) {
-                            register();
-                        } else {
+        setBusy(false);
+
+        if (code == Response.SC_CONFLICT) {
+            MessageBox.alert(null,
+                    "Registration failed!\n\nYour username is already taken. Try another one.",
+                    new Listener<MessageBoxEvent>() {
+
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
                             setBusy(false);
                         }
-                    }
-                });
+                    });
+        } else {
+            MessageBox.confirm(null, "Something went wrong during registration.\n\nRetry?",
+                    new Listener<MessageBoxEvent>() {
+
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            Button b = be.getButtonClicked();
+                            if (b.getText().equalsIgnoreCase("yes")) {
+                                register();
+                            } else {
+                                setBusy(false);
+                            }
+                        }
+                    });
+        }
     }
 
     private void register() {
