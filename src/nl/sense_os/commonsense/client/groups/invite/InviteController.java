@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.groups.invite;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 
@@ -12,33 +11,28 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class InviteController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("InviteController");
+    private static final Logger LOG = Logger.getLogger(InviteController.class.getName());
     private View inviter;
 
     public InviteController() {
         registerEventTypes(InviteEvents.ShowInviter, InviteEvents.InviteComplete,
-                InviteEvents.InviteRequested, InviteEvents.InviteAjaxFailure,
-                InviteEvents.InviteAjaxSuccess);
+                InviteEvents.InviteRequested);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(InviteEvents.InviteAjaxFailure)) {
-            logger.warning("InviteAjaxFailure");
-            onInviteFailure();
-            forwardToView(this.inviter, new AppEvent(InviteEvents.InviteFailed));
-
-        } else if (type.equals(InviteEvents.InviteAjaxSuccess)) {
-            // logger.fine( "InviteAjaxSuccess");
-            onInviteSuccess();
-
-        } else if (type.equals(InviteEvents.InviteRequested)) {
-            // logger.fine( "InviteRequested");
+        if (type.equals(InviteEvents.InviteRequested)) {
+            // LOG.fine( "InviteRequested");
             final int groupId = event.getData("groupId");
             final String email = event.getData("username");
             inviteUser(groupId, email);
@@ -70,24 +64,43 @@ public class InviteController extends Controller {
     private void inviteUser(int groupId, String username) {
 
         // prepare request properties
-        final String method = "POST";
         final String url = Urls.GROUPS + "/" + groupId + "/users.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(InviteEvents.InviteAjaxSuccess);
-        final AppEvent onFailure = new AppEvent(InviteEvents.InviteAjaxFailure);
 
         // prepare request body
         String body = "{\"user\":{\"username\":\"" + username + "\"}}";
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("body", body);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST group user onError callback: " + exception.getMessage());
+                onInviteFailure();
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST group user response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_CREATED == statusCode) {
+                    onInviteSuccess();
+                } else {
+                    LOG.warning("POST group user returned incorrect status: " + statusCode);
+                    onInviteFailure();
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(body, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("POST group user request threw exception: " + e.getMessage());
+            onInviteFailure();
+        }
     }
 
 }

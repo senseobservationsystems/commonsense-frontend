@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
@@ -22,11 +21,16 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupController extends Controller {
 
-    private static final Logger logger = Logger.getLogger("GroupController");
+    private static final Logger LOG = Logger.getLogger(GroupController.class.getName());
     private View tree;
 
     public GroupController() {
@@ -34,14 +38,11 @@ public class GroupController extends Controller {
         registerEventTypes(GroupEvents.ShowGrid);
 
         // events to update the list of groups
-        registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working,
-                GroupEvents.GroupsAjaxSuccess, GroupEvents.GroupsAjaxSuccess,
-                GroupEvents.GroupMembersAjaxSuccess, GroupEvents.GroupMembersAjaxFailure);
+        registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working);
 
         // events to leave a group
         registerEventTypes(GroupEvents.LeaveComplete, GroupEvents.LeaveFailed,
-                GroupEvents.LeaveRequested, GroupEvents.AjaxLeaveFailure,
-                GroupEvents.AjaxLeaveSuccess);
+                GroupEvents.LeaveRequested);
 
         registerEventTypes(VizEvents.Show);
         registerEventTypes(MainEvents.Init);
@@ -65,29 +66,46 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupMembers(GroupModel group, AsyncCallback<List<UserModel>> callback) {
+    private void getGroupMembers(final GroupModel group,
+            final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
         // prepare request properties
-        final String method = "GET";
         final String url = Urls.GROUPS + "/" + group.getId() + "/users" + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(GroupEvents.GroupMembersAjaxSuccess);
-        onSuccess.setData("callback", callback);
-        onSuccess.setData("group", group);
-        final AppEvent onFailure = new AppEvent(GroupEvents.GroupMembersAjaxFailure);
-        onFailure.setData("callback", callback);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET group users onError callback: " + exception.getMessage());
+                onGroupMembersFailure(callback);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET group users response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onGroupMembersSuccess(response.getText(), group, callback);
+                } else {
+                    LOG.warning("GET group users returned incorrect status: " + statusCode);
+                    onGroupMembersFailure(callback);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET group users request threw exception: " + e.getMessage());
+            onGroupMembersFailure(callback);
+        }
     }
 
     /**
@@ -100,29 +118,46 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroups(AsyncCallback<List<UserModel>> callback) {
+    private void getGroups(final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
         Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
 
         // prepare request properties
-        final String method = "GET";
         final String url = Urls.GROUPS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(GroupEvents.GroupsAjaxSuccess);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(GroupEvents.GroupsAjaxFailure);
-        onFailure.setData("callback", callback);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET groups onError callback: " + exception.getMessage());
+                onGroupsFailure(callback);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET groups response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onGroupsSuccess(response.getText(), callback);
+                } else {
+                    LOG.warning("GET groups returned incorrect status: " + statusCode);
+                    onGroupsFailure(callback);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET groups request threw exception: " + e.getMessage());
+            onGroupsFailure(callback);
+        }
     }
 
     @Override
@@ -133,36 +168,11 @@ public class GroupController extends Controller {
          * Load list of groups
          */
         if (type.equals(GroupEvents.LoadRequest)) {
-            // logger.fine( "LoadRequest");
+            // LOG.fine( "LoadRequest");
             final Object loadConfig = event.getData("loadConfig");
             final AsyncCallback<List<UserModel>> callback = event
                     .<AsyncCallback<List<UserModel>>> getData("callback");
             onLoadRequest(loadConfig, callback);
-
-        } else if (type.equals(GroupEvents.GroupsAjaxFailure)) {
-            logger.warning("GroupsAjaxFailure");
-            // final int code = event.getData("code");
-            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
-            onGroupsFailure(callback);
-
-        } else if (type.equals(GroupEvents.GroupsAjaxSuccess)) {
-            // logger.fine( "GroupsAjaxSuccess");
-            final String response = event.getData("response");
-            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
-            onGroupsSuccess(response, callback);
-
-        } else if (type.equals(GroupEvents.GroupMembersAjaxFailure)) {
-            logger.warning("GroupMembersAjaxFailure");
-            // final int code = event.getData("code");
-            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
-            onGroupMembersFailure(callback);
-
-        } else if (type.equals(GroupEvents.GroupMembersAjaxSuccess)) {
-            // logger.fine( "GroupMembersAjaxSuccess");
-            final String response = event.getData("response");
-            final GroupModel group = event.getData("group");
-            final AsyncCallback<List<UserModel>> callback = event.getData("callback");
-            onGroupMembersSuccess(response, group, callback);
 
         } else
 
@@ -170,17 +180,9 @@ public class GroupController extends Controller {
          * Leave a group
          */
         if (type.equals(GroupEvents.LeaveRequested)) {
-            // logger.fine( "LeaveRequested");
+            // LOG.fine( "LeaveRequested");
             final int groupId = event.getData();
             leaveGroup(groupId);
-
-        } else if (type.equals(GroupEvents.AjaxLeaveFailure)) {
-            logger.warning("AjaxLeaveFailure");
-            forwardToView(this.tree, new AppEvent(GroupEvents.LeaveFailed));
-
-        } else if (type.equals(GroupEvents.AjaxLeaveSuccess)) {
-            // logger.fine( "AjaxLeaveSuccess");
-            forwardToView(this.tree, new AppEvent(GroupEvents.LeaveComplete));
 
         } else
 
@@ -188,7 +190,7 @@ public class GroupController extends Controller {
          * Clear data after logout
          */
         if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine( "LoggedOut");
+            // LOG.fine( "LoggedOut");
             onLogout();
 
         } else
@@ -218,20 +220,48 @@ public class GroupController extends Controller {
     private void leaveGroup(int groupId) {
 
         // prepare request property
-        final String method = "DELETE";
         final String url = Urls.GROUPS + "/" + groupId + ".json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(GroupEvents.AjaxLeaveSuccess);
-        final AppEvent onFailure = new AppEvent(GroupEvents.AjaxLeaveFailure);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-        Dispatcher.forwardEvent(ajaxRequest);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("DELETE group onError callback: " + exception.getMessage());
+                onLeaveFailure();
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("DELETE group response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onLeaveSuccess();
+                } else {
+                    LOG.warning("DELETE group returned incorrect status: " + statusCode);
+                    onLeaveFailure();
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("DELETE group request threw exception: " + e.getMessage());
+            onLeaveFailure();
+        }
+    }
+
+    private void onLeaveFailure() {
+        forwardToView(tree, new AppEvent(GroupEvents.LeaveFailed));
+    }
+
+    private void onLeaveSuccess() {
+        Dispatcher.forwardEvent(new AppEvent(GroupEvents.LeaveComplete));
     }
 
     private void onGroupMembersFailure(AsyncCallback<List<UserModel>> callback) {

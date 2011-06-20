@@ -7,6 +7,4 @@ public class InviteEvents {
     protected static final EventType InviteRequested = new EventType();
     public static final EventType InviteComplete = new EventType();
     protected static final EventType InviteFailed = new EventType();
-    protected static final EventType InviteAjaxSuccess = new EventType();
-    protected static final EventType InviteAjaxFailure = new EventType();
 }
