@@ -16,6 +16,11 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class LoginController extends Controller {
 
@@ -47,17 +52,44 @@ public class LoginController extends Controller {
      * successful.
      */
     private void getCurrentUser() {
+
+        // prepare request details
         final String url = Urls.USERS + "/current.json";
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "GET");
-        requestEvent.setData("url", url);
-        requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxUserSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxUserFailure));
-        Dispatcher.forwardEvent(requestEvent);
+        // prepare request callback
+        RequestCallback callback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET current user onError callback: " + exception.getMessage());
+                onLoginFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET current user response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (200 == statusCode) {
+                    parseUserReponse(response.getText());
+                } else if (403 == statusCode) {
+                    onAuthenticationFailure();
+                } else {
+                    LOG.warning("GET current user returned incorrect status: " + statusCode);
+                    onLoginFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, callback);
+        } catch (RequestException e) {
+            LOG.warning("GET current user request threw exception: " + e.getMessage());
+            onLoginFailure(0);
+        }
     }
 
     @Override
@@ -65,17 +97,17 @@ public class LoginController extends Controller {
         EventType eventType = event.getType();
 
         if (eventType.equals(LoginEvents.LoginRequest)) {
-            // LOG.fine( "LoginRequest");
+            LOG.finest("LoginRequest");
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             login(username, password);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            // LOG.fine( "RequestLogout");
-            logout(event);
+            LOG.finest("RequestLogout");
+            logout();
 
         } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
-            // LOG.fine( "AjaxLoginSuccess");
+            LOG.finest("AjaxLoginSuccess");
             final String response = event.<String> getData("response");
             onLoginSuccess(response);
 
@@ -89,7 +121,7 @@ public class LoginController extends Controller {
             }
 
         } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
-            // LOG.fine( "AjaxLogoutSuccess");
+            LOG.finest("AjaxLogoutSuccess");
             final String response = event.<String> getData("response");
             onLoggedOut(response);
 
@@ -99,7 +131,7 @@ public class LoginController extends Controller {
             onLogoutFailure(code);
 
         } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
-            // LOG.fine( "AjaxUserSuccess");
+            LOG.finest("AjaxUserSuccess");
             final String response = event.<String> getData("response");
             parseUserReponse(response);
 
@@ -109,51 +141,108 @@ public class LoginController extends Controller {
             onLoginFailure(code);
 
         } else {
-            forwardToView(this.loginView, event);
+            forwardToView(loginView, event);
         }
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        this.loginView = new LoginPanel(this);
+        loginView = new LoginPanel(this);
     }
 
+    /**
+     * Sends a login request to the CommonSense API.
+     * 
+     * @param username
+     *            The username to use for log in.
+     * @param password
+     *            The password to user for log in. Will be hashed before submission.
+     */
     private void login(String username, String password) {
 
-        // prepare request properties
+        // prepare quest details
         String url = Urls.LOGIN + ".json";
-        String hashPass = Md5Hasher.hash(password);
-        String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
+        String body = "{\"username\":\"" + username + "\",\"password\":\""
+                + Md5Hasher.hash(password) + "\"}";
 
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "POST");
-        requestEvent.setData("url", url);
-        requestEvent.setData("body", body);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLoginSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLoginFailure));
-        Dispatcher.forwardEvent(requestEvent);
+        // prepare request callback
+        RequestCallback callback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST login onError callback: " + exception.getMessage());
+                onLoginFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST login response received: " + response.getStatusText());
+                final int statusCode = response.getStatusCode();
+                if (200 <= statusCode && statusCode <= 300) {
+                    onLoginSuccess(response.getText());
+                } else if (403 == statusCode) {
+                    onAuthenticationFailure();
+                } else {
+                    LOG.warning("POST login returned incorrect status: " + statusCode);
+                    onLoginFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        try {
+            builder.sendRequest(body, callback);
+        } catch (RequestException e) {
+            LOG.warning("POST login request threw exception: " + e.getMessage());
+            onLoginFailure(0);
+        }
     }
 
-    private void logout(AppEvent event) {
+    /**
+     * Sends a logout request for the current session to the CommonSense API.
+     */
+    private void logout() {
 
         // prepare request properties
         String url = Urls.LOGOUT + ".json";
         String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "GET");
-        requestEvent.setData("url", url);
-        requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLogoutSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLogoutFailure));
-        Dispatcher.forwardEvent(requestEvent);
+        // prepare callback
+        RequestCallback callback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET logout onError callback: " + exception.getMessage());
+                onLogoutFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET logout response received: " + response.getStatusText());
+                if (200 == response.getStatusCode()) {
+                    onLoggedOut(response.getText());
+                } else {
+                    LOG.warning("GET logout returned incorrect status: " + response.getStatusCode());
+                    onLogoutFailure(0);
+                }
+            }
+        };
+
+        // perform request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, callback);
+        } catch (RequestException e) {
+            LOG.warning("GET logout request threw exception: " + e.getMessage());
+            onLogoutFailure(0);
+        }
     }
 
     private void onAuthenticationFailure() {
-        forwardToView(this.loginView, new AppEvent(LoginEvents.AuthenticationFailure));
+        forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
 
     private void onCurrentUser(UserModel user) {
@@ -171,12 +260,7 @@ public class LoginController extends Controller {
     private void onLoginFailure(int code) {
         AppEvent errorEvent = new AppEvent(LoginEvents.LoginFailure);
         errorEvent.setData("code", code);
-        forwardToView(this.loginView, errorEvent);
-    }
-
-    private void onLogoutFailure(int code) {
-        // TODO handle logout error events
-        onLoggedOut("Status code: " + code);
+        forwardToView(loginView, errorEvent);
     }
 
     private void onLoginSuccess(String response) {
@@ -203,6 +287,11 @@ public class LoginController extends Controller {
         }
     }
 
+    private void onLogoutFailure(int code) {
+        // TODO handle logout error events
+        onLoggedOut("Status code: " + code);
+    }
+
     private void parseUserReponse(String response) {
         if (response != null) {
 
@@ -224,5 +313,56 @@ public class LoginController extends Controller {
             LOG.severe("Error parsing current user response: response=null");
             onLoginFailure(0);
         }
+    }
+
+    /**
+     * Requests the current user's details from CommonSense. Only used to check if the login was
+     * successful.
+     */
+    private void xhrGetCurrentUser() {
+        final String url = Urls.USERS + "/current.json";
+        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+
+        // send request to AjaxController
+        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+        requestEvent.setData("method", "GET");
+        requestEvent.setData("url", url);
+        requestEvent.setData("session_id", sessionId);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxUserSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxUserFailure));
+        Dispatcher.forwardEvent(requestEvent);
+    }
+
+    private void xhrLogin(String username, String password) {
+
+        // prepare request properties
+        String url = Urls.LOGIN + ".json";
+        String hashPass = Md5Hasher.hash(password);
+        String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
+
+        // send request to AjaxController
+        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+        requestEvent.setData("method", "POST");
+        requestEvent.setData("url", url);
+        requestEvent.setData("body", body);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLoginSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLoginFailure));
+        Dispatcher.forwardEvent(requestEvent);
+    }
+
+    private void xhrLogout(AppEvent event) {
+
+        // prepare request properties
+        String url = Urls.LOGOUT + ".json";
+        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+
+        // send request to AjaxController
+        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+        requestEvent.setData("method", "GET");
+        requestEvent.setData("url", url);
+        requestEvent.setData("session_id", sessionId);
+        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLogoutSuccess));
+        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLogoutFailure));
+        Dispatcher.forwardEvent(requestEvent);
     }
 }
