@@ -14,14 +14,6 @@ public class LoginEvents {
     protected static final EventType AuthenticationFailure = new EventType();
     protected static final EventType LoginFailure = new EventType();
 
-    // Ajax-related event types
-    protected static final EventType AjaxLoginFailure = new EventType();
-    protected static final EventType AjaxLoginSuccess = new EventType();
-    protected static final EventType AjaxLogoutFailure = new EventType();
-    protected static final EventType AjaxLogoutSuccess = new EventType();
-    protected static final EventType AjaxUserFailure = new EventType();
-    protected static final EventType AjaxUserSuccess = new EventType();
-
     // layout-related event types
     public static final EventType Show = new EventType();
 }

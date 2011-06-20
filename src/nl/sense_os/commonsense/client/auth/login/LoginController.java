@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -37,11 +36,6 @@ public class LoginController extends Controller {
 
         // local events
         registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
-
-        // ajax events
-        registerEventTypes(LoginEvents.AjaxLoginSuccess, LoginEvents.AjaxLoginFailure,
-                LoginEvents.AjaxLogoutSuccess, LoginEvents.AjaxLogoutFailure,
-                LoginEvents.AjaxUserSuccess, LoginEvents.AjaxUserFailure);
 
         // layout events
         registerEventTypes(LoginEvents.Show);
@@ -105,40 +99,6 @@ public class LoginController extends Controller {
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             LOG.finest("RequestLogout");
             logout();
-
-        } else if (eventType.equals(LoginEvents.AjaxLoginSuccess)) {
-            LOG.finest("AjaxLoginSuccess");
-            final String response = event.<String> getData("response");
-            onLoginSuccess(response);
-
-        } else if (eventType.equals(LoginEvents.AjaxLoginFailure)) {
-            LOG.warning("AjaxLoginFailure");
-            final int code = event.getData("code");
-            if (code == 403) {
-                onAuthenticationFailure();
-            } else {
-                onLoginFailure(code);
-            }
-
-        } else if (eventType.equals(LoginEvents.AjaxLogoutSuccess)) {
-            LOG.finest("AjaxLogoutSuccess");
-            final String response = event.<String> getData("response");
-            onLoggedOut(response);
-
-        } else if (eventType.equals(LoginEvents.AjaxLogoutFailure)) {
-            LOG.warning("AjaxLogoutFailure");
-            final int code = event.getData("code");
-            onLogoutFailure(code);
-
-        } else if (eventType.equals(LoginEvents.AjaxUserSuccess)) {
-            LOG.finest("AjaxUserSuccess");
-            final String response = event.<String> getData("response");
-            parseUserReponse(response);
-
-        } else if (eventType.equals(LoginEvents.AjaxUserFailure)) {
-            LOG.warning("AjaxUserFailure");
-            final int code = event.getData("code");
-            onLoginFailure(code);
 
         } else {
             forwardToView(loginView, event);
@@ -315,54 +275,50 @@ public class LoginController extends Controller {
         }
     }
 
-    /**
-     * Requests the current user's details from CommonSense. Only used to check if the login was
-     * successful.
-     */
-    private void xhrGetCurrentUser() {
-        final String url = Urls.USERS + "/current.json";
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+    // private void xhrGetCurrentUser() {
+    // final String url = Urls.USERS + "/current.json";
+    // final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+    //
+    // // send request to AjaxController
+    // AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+    // requestEvent.setData("method", "GET");
+    // requestEvent.setData("url", url);
+    // requestEvent.setData("session_id", sessionId);
+    // requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxUserSuccess));
+    // requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxUserFailure));
+    // Dispatcher.forwardEvent(requestEvent);
+    // }
 
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "GET");
-        requestEvent.setData("url", url);
-        requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxUserSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxUserFailure));
-        Dispatcher.forwardEvent(requestEvent);
-    }
+    // private void xhrLogin(String username, String password) {
+    //
+    // // prepare request properties
+    // String url = Urls.LOGIN + ".json";
+    // String hashPass = Md5Hasher.hash(password);
+    // String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
+    //
+    // // send request to AjaxController
+    // AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+    // requestEvent.setData("method", "POST");
+    // requestEvent.setData("url", url);
+    // requestEvent.setData("body", body);
+    // requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLoginSuccess));
+    // requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLoginFailure));
+    // Dispatcher.forwardEvent(requestEvent);
+    // }
 
-    private void xhrLogin(String username, String password) {
-
-        // prepare request properties
-        String url = Urls.LOGIN + ".json";
-        String hashPass = Md5Hasher.hash(password);
-        String body = "{\"username\":\"" + username + "\",\"password\":\"" + hashPass + "\"}";
-
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "POST");
-        requestEvent.setData("url", url);
-        requestEvent.setData("body", body);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLoginSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLoginFailure));
-        Dispatcher.forwardEvent(requestEvent);
-    }
-
-    private void xhrLogout(AppEvent event) {
-
-        // prepare request properties
-        String url = Urls.LOGOUT + ".json";
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
-
-        // send request to AjaxController
-        AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
-        requestEvent.setData("method", "GET");
-        requestEvent.setData("url", url);
-        requestEvent.setData("session_id", sessionId);
-        requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLogoutSuccess));
-        requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLogoutFailure));
-        Dispatcher.forwardEvent(requestEvent);
-    }
+    // private void xhrLogout(AppEvent event) {
+    //
+    // // prepare request properties
+    // String url = Urls.LOGOUT + ".json";
+    // String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    //
+    // // send request to AjaxController
+    // AppEvent requestEvent = new AppEvent(AjaxEvents.Request);
+    // requestEvent.setData("method", "GET");
+    // requestEvent.setData("url", url);
+    // requestEvent.setData("session_id", sessionId);
+    // requestEvent.setData("onSuccess", new AppEvent(LoginEvents.AjaxLogoutSuccess));
+    // requestEvent.setData("onFailure", new AppEvent(LoginEvents.AjaxLogoutFailure));
+    // Dispatcher.forwardEvent(requestEvent);
+    // }
 }
