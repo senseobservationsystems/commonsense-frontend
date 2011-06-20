@@ -7,8 +7,6 @@ public class RegisterEvents {
     public static final EventType Show = new EventType();
 
     protected static final EventType RegisterRequest = new EventType();
-    protected static final EventType AjaxRegisterSuccess = new EventType();
-    protected static final EventType AjaxRegisterFailure = new EventType();
     protected static final EventType RegisterSuccess = new EventType();
     protected static final EventType RegisterFailure = new EventType();
 
