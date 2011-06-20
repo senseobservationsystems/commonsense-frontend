@@ -10,12 +10,7 @@ public class EnvEvents {
     protected static final EventType Working = new EventType();
     protected static final EventType Done = new EventType();
 
-    protected static final EventType ListAjaxSuccess = new EventType();
-    protected static final EventType ListAjaxFailure = new EventType();
-
     public static final EventType DeleteRequest = new EventType();
-    protected static final EventType DeleteAjaxSuccess = new EventType();
-    protected static final EventType DeleteAjaxFailure = new EventType();
     public static final EventType DeleteSuccess = new EventType();
     protected static final EventType DeleteFailure = new EventType();
 }

@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
@@ -22,6 +21,11 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvController extends Controller {
@@ -39,34 +43,48 @@ public class EnvController extends Controller {
         registerEventTypes(LoginEvents.LoggedOut);
         registerEventTypes(EnvEvents.ShowGrid);
 
-        registerEventTypes(EnvEvents.ListRequested, EnvEvents.ListUpdated,
-                EnvEvents.ListAjaxSuccess, EnvEvents.ListAjaxFailure);
-
-        registerEventTypes(EnvEvents.DeleteRequest, EnvEvents.DeleteAjaxSuccess,
-                EnvEvents.DeleteAjaxFailure, EnvEvents.DeleteSuccess);
-
+        registerEventTypes(EnvEvents.ListRequested, EnvEvents.ListUpdated);
+        registerEventTypes(EnvEvents.DeleteRequest, EnvEvents.DeleteSuccess);
         registerEventTypes(EnvCreateEvents.CreateSuccess);
     }
 
-    private void delete(EnvironmentModel environment) {
+    private void delete(final EnvironmentModel environment) {
 
         // prepare request properties
-        final String method = "DELETE";
         final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(EnvEvents.DeleteAjaxSuccess);
-        onSuccess.setData("environment", environment);
-        final AppEvent onFailure = new AppEvent(EnvEvents.DeleteAjaxSuccess);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback callback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("DELETE environment onError callback: " + exception.getMessage());
+                onDeleteFailure();
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("DELETE environment response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onDeleteSuccess(environment);
+                } else {
+                    LOG.warning("DELETE environment returned incorrect status: " + statusCode);
+                    onDeleteFailure();
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, callback);
+        } catch (RequestException e) {
+            LOG.warning("DELETE environment request threw exception: " + e.getMessage());
+            onDeleteFailure();
+        }
     }
 
     @Override
@@ -79,36 +97,15 @@ public class EnvController extends Controller {
                     .<AsyncCallback<List<EnvironmentModel>>> getData();
             requestList(callback);
 
-        } else if (type.equals(EnvEvents.ListAjaxSuccess)) {
-            LOG.fine("ListAjaxSuccess");
-            final String response = event.getData("response");
-            final AsyncCallback<List<EnvironmentModel>> callback = event
-                    .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
-            onListSuccess(response, callback);
-
-        } else if (type.equals(EnvEvents.ListAjaxFailure)) {
-            LOG.warning("ListAjaxFailure");
-            final AsyncCallback<List<EnvironmentModel>> callback = event
-                    .<AsyncCallback<List<EnvironmentModel>>> getData("callback");
-            onListFailure(callback);
-
         } else
 
+        /*
+         * Delete request
+         */
         if (type.equals(EnvEvents.DeleteRequest)) {
             LOG.fine("DeleteRequest");
             final EnvironmentModel environment = event.getData("environment");
             delete(environment);
-
-        } else if (type.equals(EnvEvents.DeleteAjaxSuccess)) {
-            LOG.fine("DeleteAjaxSuccess");
-            // final String response = event.getData("response");
-            final EnvironmentModel environment = event.getData("environment");
-            onDeleteSuccess(environment);
-
-        } else if (type.equals(EnvEvents.DeleteAjaxFailure)) {
-            LOG.warning("DeleteAjaxFailure");
-            // final int code = event.getData("code");
-            onDeleteFailure();
 
         } else
 
@@ -169,28 +166,93 @@ public class EnvController extends Controller {
         }
     }
 
-    private void requestList(AsyncCallback<List<EnvironmentModel>> callback) {
+    private void requestList(final AsyncCallback<List<EnvironmentModel>> callback) {
 
         forwardToView(grid, new AppEvent(EnvEvents.Working));
         Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
         // prepare request properties
-        final String method = "GET";
         final String url = Urls.ENVIRONMENTS + ".json";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(EnvEvents.ListAjaxSuccess);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(EnvEvents.ListAjaxFailure);
-        onFailure.setData("callback", callback);
 
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
 
-        Dispatcher.forwardEvent(ajaxRequest);
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET environments onError callback: " + exception.getMessage());
+                onListFailure(callback);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET environments response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onListSuccess(response.getText(), callback);
+                } else if (Response.SC_NO_CONTENT == statusCode) {
+                    onListSuccess(null, callback);
+                } else {
+                    LOG.warning("GET environments returned incorrect status: " + statusCode);
+                    onListFailure(callback);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET environments request threw exception: " + e.getMessage());
+            onListFailure(callback);
+        }
     }
+
+    // private void xhrDelete(EnvironmentModel environment) {
+    //
+    // // prepare request properties
+    // final String method = "DELETE";
+    // final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + ".json";
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(EnvEvents.DeleteAjaxSuccess);
+    // onSuccess.setData("environment", environment);
+    // final AppEvent onFailure = new AppEvent(EnvEvents.DeleteAjaxSuccess);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    // }
+
+    // private void xhrRequestList(AsyncCallback<List<EnvironmentModel>> callback) {
+    //
+    // forwardToView(grid, new AppEvent(EnvEvents.Working));
+    // Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
+    //
+    // // prepare request properties
+    // final String method = "GET";
+    // final String url = Urls.ENVIRONMENTS + ".json";
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(EnvEvents.ListAjaxSuccess);
+    // onSuccess.setData("callback", callback);
+    // final AppEvent onFailure = new AppEvent(EnvEvents.ListAjaxFailure);
+    // onFailure.setData("callback", callback);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    // }
 }
