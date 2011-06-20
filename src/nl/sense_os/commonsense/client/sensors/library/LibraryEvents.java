@@ -12,14 +12,4 @@ public class LibraryEvents {
 
     public static final EventType LoadRequest = new EventType();
     public static final EventType ListUpdated = new EventType();
-    protected static final EventType FullDetailsAjaxFailure = new EventType();
-    protected static final EventType FullDetailsAjaxSuccess = new EventType();
-    protected static final EventType GroupsAjaxSuccess = new EventType();
-    protected static final EventType GroupsAjaxFailure = new EventType();
-    protected static final EventType GroupSensorsAjaxSuccess = new EventType();
-    protected static final EventType GroupSensorsAjaxFailure = new EventType();
-    protected static final EventType UsersAjaxSuccess = new EventType();
-    protected static final EventType UsersAjaxFailure = new EventType();
-    protected static final EventType AvailServicesAjaxSuccess = new EventType();
-    protected static final EventType AvailServicesAjaxFailure = new EventType();
 }

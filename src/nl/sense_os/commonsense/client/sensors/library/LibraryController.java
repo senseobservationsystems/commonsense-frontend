@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
@@ -63,13 +62,7 @@ public class LibraryController extends Controller {
         registerEventTypes(VizEvents.Show);
 
         registerEventTypes(LibraryEvents.ShowLibrary, LibraryEvents.LoadRequest,
-                LibraryEvents.ListUpdated, LibraryEvents.FullDetailsAjaxSuccess,
-                LibraryEvents.FullDetailsAjaxFailure);
-        registerEventTypes(LibraryEvents.GroupsAjaxSuccess, LibraryEvents.GroupsAjaxFailure,
-                LibraryEvents.GroupSensorsAjaxSuccess, LibraryEvents.GroupSensorsAjaxFailure);
-        registerEventTypes(LibraryEvents.UsersAjaxSuccess, LibraryEvents.UsersAjaxFailure);
-        registerEventTypes(LibraryEvents.AvailServicesAjaxSuccess,
-                LibraryEvents.AvailServicesAjaxFailure);
+                LibraryEvents.ListUpdated);
 
         // external events
         registerEventTypes(SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
@@ -128,7 +121,7 @@ public class LibraryController extends Controller {
                     LOG.finest("GET available services response received: "
                             + response.getStatusText());
                     int statusCode = response.getStatusCode();
-                    if (200 == statusCode) {
+                    if (Response.SC_OK == statusCode) {
                         onAvailServicesSuccess(response.getText(), library, index);
                     } else {
                         LOG.warning("GET available services returned incorrect status: "
@@ -176,12 +169,19 @@ public class LibraryController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("GET sensors response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (200 == statusCode) {
+                if (Response.SC_OK == statusCode) {
                     // different callbacks for shared or unshared requests
                     if (shared) {
                         onSharedSensorsSuccess(response.getText(), library, page, callback);
                     } else {
                         onUnsharedSensorsSuccess(response.getText(), library, page, callback);
+                    }
+                } else if (Response.SC_NO_CONTENT == statusCode) {
+                    // different callbacks for shared or unshared requests
+                    if (shared) {
+                        onSharedSensorsSuccess(null, library, page, callback);
+                    } else {
+                        onUnsharedSensorsSuccess(null, library, page, callback);
                     }
                 } else {
                     LOG.warning("GET sensors returned incorrect status: " + statusCode);
@@ -221,9 +221,9 @@ public class LibraryController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("GET groups response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (200 == statusCode) {
+                if (Response.SC_OK == statusCode) {
                     onGroupsSuccess(response.getText(), library, callback);
-                } else if (204 == statusCode) {
+                } else if (Response.SC_NO_CONTENT == statusCode) {
                     // no content
                     onGroupsSuccess(null, library, callback);
                 } else {
@@ -270,9 +270,9 @@ public class LibraryController extends Controller {
                 public void onResponseReceived(Request request, Response response) {
                     LOG.finest("GET group sensors response received: " + response.getStatusText());
                     int statusCode = response.getStatusCode();
-                    if (200 == statusCode) {
+                    if (Response.SC_OK == statusCode) {
                         onGroupSensorsSuccess(response.getText(), groups, index, library, callback);
-                    } else if (204 == statusCode) {
+                    } else if (Response.SC_NO_CONTENT == statusCode) {
                         // no content
                         onGroupSensorsSuccess(null, groups, index, library, callback);
                     } else {
@@ -313,77 +313,6 @@ public class LibraryController extends Controller {
             final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
             final boolean renewCache = event.getData("renewCache");
             onLoadRequest(renewCache, callback);
-
-        } else
-
-        /*
-         * Personal sensors
-         */
-        if (type.equals(LibraryEvents.FullDetailsAjaxSuccess)) {
-            LOG.finest("FullDetailsAjaxSuccess");
-            final String response = event.getData("response");
-            final List<SensorModel> library = event.getData("library");
-            final int page = event.getData("page");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
-            onSharedSensorsSuccess(response, library, page, callback);
-
-        } else if (type.equals(LibraryEvents.FullDetailsAjaxFailure)) {
-            LOG.warning("FullDetailsAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData();
-            onFullDetailsFailure(callback);
-
-        } else
-
-        /*
-         * Group sensors
-         */
-        if (type.equals(LibraryEvents.GroupsAjaxSuccess)) {
-            LOG.finest("GroupsAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final List<SensorModel> library = event.<List<SensorModel>> getData("library");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onGroupsSuccess(response, library, callback);
-
-        } else if (type.equals(LibraryEvents.GroupsAjaxFailure)) {
-            LOG.warning("GroupsAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onGroupsFailure(callback);
-
-        } else if (type.equals(LibraryEvents.GroupSensorsAjaxSuccess)) {
-            LOG.finest("GroupSensorsAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final List<GroupModel> groups = event.<List<GroupModel>> getData("groups");
-            final int index = event.getData("index");
-            final List<SensorModel> library = event.<List<SensorModel>> getData("library");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onGroupSensorsSuccess(response, groups, index, library, callback);
-
-        } else if (type.equals(LibraryEvents.GroupSensorsAjaxFailure)) {
-            LOG.warning("GroupSensorsAjaxFailure");
-            final AsyncCallback<ListLoadResult<SensorModel>> callback = event
-                    .<AsyncCallback<ListLoadResult<SensorModel>>> getData("callback");
-            onGroupSensorsFailure(callback);
-
-        } else
-
-        /*
-         * Available services
-         */
-        if (type.equals(LibraryEvents.AvailServicesAjaxSuccess)) {
-            LOG.finest("AvailServicesAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final int index = event.getData("index");
-            final List<SensorModel> library = event.<List<SensorModel>> getData("library");
-            onAvailServicesSuccess(response, library, index);
-
-        } else if (type.equals(LibraryEvents.AvailServicesAjaxFailure)) {
-            LOG.warning("AvailServicesAjaxFailure");
-            final int index = event.getData("index");
-            final List<SensorModel> library = event.<List<SensorModel>> getData("library");
-            onAvailServicesFailure(library, index);
 
         } else
 
@@ -615,138 +544,139 @@ public class LibraryController extends Controller {
         }
     }
 
-    private void xhrGetAvailableServices(List<SensorModel> library, int index) {
+    // private void xhrGetAvailableServices(List<SensorModel> library, int index) {
+    //
+    // if (index < library.size()) {
+    //
+    // isLoadingServices = true;
+    // notifyState();
+    //
+    // SensorModel sensor = library.get(index);
+    // String params = "";
+    // if (sensor.getAlias() != -1) {
+    // params = "?alias=" + sensor.getAlias();
+    // }
+    //
+    // // prepare request properties
+    // final String method = "GET";
+    // final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available"
+    // + ".json" + params;
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(LibraryEvents.AvailServicesAjaxSuccess);
+    // onSuccess.setData("index", index);
+    // onSuccess.setData("library", library);
+    // final AppEvent onFailure = new AppEvent(LibraryEvents.AvailServicesAjaxFailure);
+    // onFailure.setData("index", index);
+    // onFailure.setData("library", library);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    //
+    // } else {
+    // // hooray we're done!
+    // isLoadingServices = false;
+    // notifyState();
+    // }
+    // }
 
-        if (index < library.size()) {
+    // private void xhrGetFullDetails(List<SensorModel> library, int page, boolean shared,
+    // AsyncCallback<ListLoadResult<SensorModel>> callback) {
+    //
+    // // prepare request properties
+    // final String method = "GET";
+    // final String url = Urls.SENSORS + ".json" + "?per_page=" + PER_PAGE + "&page=" + page
+    // + "&details=full" + "&shared=" + (shared ? "1" : "0");
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(LibraryEvents.FullDetailsAjaxSuccess);
+    // onSuccess.setData("library", library);
+    // onSuccess.setData("page", page);
+    // onSuccess.setData("callback", callback);
+    // final AppEvent onFailure = new AppEvent(LibraryEvents.FullDetailsAjaxFailure);
+    // onFailure.setData("callback", callback);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    // }
 
-            isLoadingServices = true;
-            notifyState();
+    // private void xhrGetGroups(List<SensorModel> library,
+    // AsyncCallback<ListLoadResult<SensorModel>> callback) {
+    //
+    // // prepare request properties
+    // final String method = "GET";
+    // final String url = Urls.GROUPS + ".json" + "?per_page=" + PER_PAGE;
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupsAjaxSuccess);
+    // onSuccess.setData("library", library);
+    // onSuccess.setData("callback", callback);
+    // final AppEvent onFailure = new AppEvent(LibraryEvents.GroupsAjaxFailure);
+    // onFailure.setData("callback", callback);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    // }
 
-            SensorModel sensor = library.get(index);
-            String params = "";
-            if (sensor.getAlias() != -1) {
-                params = "?alias=" + sensor.getAlias();
-            }
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available"
-                    + ".json" + params;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(LibraryEvents.AvailServicesAjaxSuccess);
-            onSuccess.setData("index", index);
-            onSuccess.setData("library", library);
-            final AppEvent onFailure = new AppEvent(LibraryEvents.AvailServicesAjaxFailure);
-            onFailure.setData("index", index);
-            onFailure.setData("library", library);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-
-        } else {
-            // hooray we're done!
-            isLoadingServices = false;
-            notifyState();
-        }
-    }
-
-    private void xhrGetFullDetails(List<SensorModel> library, int page, boolean shared,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        // prepare request properties
-        final String method = "GET";
-        final String url = Urls.SENSORS + ".json" + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&details=full" + "&shared=" + (shared ? "1" : "0");
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(LibraryEvents.FullDetailsAjaxSuccess);
-        onSuccess.setData("library", library);
-        onSuccess.setData("page", page);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(LibraryEvents.FullDetailsAjaxFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void xhrGetGroups(List<SensorModel> library,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        // prepare request properties
-        final String method = "GET";
-        final String url = Urls.GROUPS + ".json" + "?per_page=" + PER_PAGE;
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-        final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupsAjaxSuccess);
-        onSuccess.setData("library", library);
-        onSuccess.setData("callback", callback);
-        final AppEvent onFailure = new AppEvent(LibraryEvents.GroupsAjaxFailure);
-        onFailure.setData("callback", callback);
-
-        // send request to AjaxController
-        final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-        ajaxRequest.setData("method", method);
-        ajaxRequest.setData("url", url);
-        ajaxRequest.setData("session_id", sessionId);
-        ajaxRequest.setData("onSuccess", onSuccess);
-        ajaxRequest.setData("onFailure", onFailure);
-
-        Dispatcher.forwardEvent(ajaxRequest);
-    }
-
-    private void xhrGetGroupSensors(List<GroupModel> groups, int index, List<SensorModel> library,
-            AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-        if (index < groups.size()) {
-
-            int groupId = groups.get(index).getId();
-
-            // prepare request properties
-            final String method = "GET";
-            final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full&alias="
-                    + groupId;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupSensorsAjaxSuccess);
-            onSuccess.setData("groups", groups);
-            onSuccess.setData("index", index);
-            onSuccess.setData("library", library);
-            onSuccess.setData("callback", callback);
-            final AppEvent onFailure = new AppEvent(LibraryEvents.GroupSensorsAjaxFailure);
-            onFailure.setData("callback", callback);
-
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-
-            Dispatcher.forwardEvent(ajaxRequest);
-
-        } else {
-
-            // continue loading more details in the background
-            if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
-                // getUsers(library, 0);
-                getAvailableServices(library, 0);
-            }
-
-            // notify the view that the list is complete
-            onLoadComplete(library, callback);
-        }
-    }
+    // private void xhrGetGroupSensors(List<GroupModel> groups, int index, List<SensorModel>
+    // library,
+    // AsyncCallback<ListLoadResult<SensorModel>> callback) {
+    //
+    // if (index < groups.size()) {
+    //
+    // int groupId = groups.get(index).getId();
+    //
+    // // prepare request properties
+    // final String method = "GET";
+    // final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full&alias="
+    // + groupId;
+    // final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+    // final AppEvent onSuccess = new AppEvent(LibraryEvents.GroupSensorsAjaxSuccess);
+    // onSuccess.setData("groups", groups);
+    // onSuccess.setData("index", index);
+    // onSuccess.setData("library", library);
+    // onSuccess.setData("callback", callback);
+    // final AppEvent onFailure = new AppEvent(LibraryEvents.GroupSensorsAjaxFailure);
+    // onFailure.setData("callback", callback);
+    //
+    // // send request to AjaxController
+    // final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
+    // ajaxRequest.setData("method", method);
+    // ajaxRequest.setData("url", url);
+    // ajaxRequest.setData("session_id", sessionId);
+    // ajaxRequest.setData("onSuccess", onSuccess);
+    // ajaxRequest.setData("onFailure", onFailure);
+    //
+    // Dispatcher.forwardEvent(ajaxRequest);
+    //
+    // } else {
+    //
+    // // continue loading more details in the background
+    // if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
+    // // getUsers(library, 0);
+    // getAvailableServices(library, 0);
+    // }
+    //
+    // // notify the view that the list is complete
+    // onLoadComplete(library, callback);
+    // }
+    // }
 }
