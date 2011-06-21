@@ -45,7 +45,16 @@ public class UserModel extends BaseTreeModel {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof UserModel) {
-            return getId() == ((UserModel) obj).getId();
+            UserModel user = ((UserModel) obj);
+            if (null == user.getParent()) {
+                return getId() == ((UserModel) obj).getId();
+            } else {
+                if (user.getParent() != this.getParent()) {
+                    return false;
+                } else {
+                    return getId() == ((UserModel) obj).getId();
+                }
+            }
         } else {
             return super.equals(obj);
         }

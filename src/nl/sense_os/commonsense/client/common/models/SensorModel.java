@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
@@ -69,6 +68,7 @@ public class SensorModel extends BaseTreeModel {
         setDisplayName(jso.getDisplayName());
         setEnvironment(jso.getEnvironment());
         setOwner(jso.getOwner());
+        setUsers(jso.getUsers());
         setPagerType(jso.getPagerType());
     }
 
@@ -82,13 +82,18 @@ public class SensorModel extends BaseTreeModel {
             final SensorModel sensor = (SensorModel) obj;
 
             boolean idEqual = getId() == sensor.getId();
-            boolean ownerEqual = getOwner() == null || getOwner().equals(sensor.getOwner());
-            boolean environmentEqual = getEnvironment() == null
-                    || getEnvironment().equals(sensor.getEnvironment());
-            boolean deviceEqual = getDevice() == null || getDevice().equals(sensor.getDevice());
-            boolean parentEqual = getParent() == null || getParent().equals(sensor.getParent());
+            boolean ownerEqual = (getOwner() == null && sensor.getOwner() == null)
+                    || (null != getOwner() && getOwner().equals(sensor.getOwner()));
+            boolean environmentEqual = (getEnvironment() == null && sensor.getEnvironment() == null)
+                    || (null != getEnvironment() && getEnvironment()
+                            .equals(sensor.getEnvironment()));
+            boolean deviceEqual = (getDevice() == null && sensor.getDevice() == null)
+                    || (null != getDevice() && getDevice().equals(sensor.getDevice()));
+            boolean parentEqual = (getParent() == null && sensor.getParent() == null)
+                    || (null != getParent() && getParent().equals(sensor.getParent()));
 
             return idEqual && ownerEqual && environmentEqual && deviceEqual && parentEqual;
+
         } else {
             return super.equals(obj);
         }
@@ -275,6 +280,11 @@ public class SensorModel extends BaseTreeModel {
 
     public SensorModel setType(int type) {
         set(TYPE, type);
+        return this;
+    }
+
+    private SensorModel setUsers(List<UserModel> users) {
+        set(USERS, users);
         return this;
     }
 
