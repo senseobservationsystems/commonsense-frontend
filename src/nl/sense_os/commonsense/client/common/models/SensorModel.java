@@ -229,27 +229,55 @@ public class SensorModel extends BaseTreeModel {
     }
 
     public SensorModel setDataStructure(String dataStructure) {
-        set(DATA_STRUCTURE, dataStructure);
+        if (null == dataStructure) {
+            remove(DATA_STRUCTURE);
+        } else {
+            set(DATA_STRUCTURE, dataStructure);
+        }
         return this;
     }
 
     public SensorModel setDataType(String dataType) {
-        set(DATA_TYPE, dataType);
+        if (null == dataType) {
+            remove(DATA_TYPE);
+        } else {
+            set(DATA_TYPE, dataType);
+        }
         return this;
     }
 
     public SensorModel setDevice(DeviceModel device) {
-        set(DEVICE, device);
+        if (null == device) {
+            remove(DEVICE);
+            remove(DEVICE_ID);
+            remove(DEVICE_TYPE);
+            remove(DEVICE_UUID);
+        } else {
+            set(DEVICE, device);
+        }
         return this;
     }
 
     public SensorModel setDisplayName(String displayName) {
-        set(DISPLAY_NAME, displayName);
+        if (null == displayName) {
+            remove(DISPLAY_NAME);
+        } else {
+            set(DISPLAY_NAME, displayName);
+        }
         return this;
     }
 
     public SensorModel setEnvironment(EnvironmentModel environment) {
-        set(ENVIRONMENT, environment);
+        if (null == environment) {
+            remove(ENVIRONMENT);
+            remove(ENVIRONMENT_FLOORS);
+            remove(ENVIRONMENT_ID);
+            remove(ENVIRONMENT_NAME);
+            remove(ENVIRONMENT_OUTLINE);
+            remove(ENVIRONMENT_POSITION);
+        } else {
+            set(ENVIRONMENT, environment);
+        }
         return this;
     }
 
@@ -259,22 +287,44 @@ public class SensorModel extends BaseTreeModel {
     }
 
     public SensorModel setName(String name) {
-        set(NAME, name);
+        if (null == name) {
+            remove(NAME);
+        } else {
+            set(NAME, name);
+        }
         return this;
     }
 
     public SensorModel setOwner(UserModel owner) {
-        set(OWNER, owner);
+        if (null == owner) {
+            remove(OWNER);
+            remove(OWNER_EMAIL);
+            remove(OWNER_ID);
+            remove(OWNER_MOBILE);
+            remove(OWNER_NAME);
+            remove(OWNER_SURNAME);
+            remove(OWNER_USERNAME);
+        } else {
+            set(OWNER, owner);
+        }
         return this;
     }
 
     public SensorModel setPagerType(String pagerType) {
-        set(PAGER_TYPE, pagerType);
+        if (null == pagerType) {
+            remove(PAGER_TYPE);
+        } else {
+            set(PAGER_TYPE, pagerType);
+        }
         return this;
     }
 
     public SensorModel setPhysicalSensor(String physicalSensor) {
-        set(PHYSICAL_SENSOR, physicalSensor);
+        if (null == physicalSensor) {
+            remove(PHYSICAL_SENSOR);
+        } else {
+            set(PHYSICAL_SENSOR, physicalSensor);
+        }
         return this;
     }
 
@@ -283,8 +333,12 @@ public class SensorModel extends BaseTreeModel {
         return this;
     }
 
-    private SensorModel setUsers(List<UserModel> users) {
-        set(USERS, users);
+    public SensorModel setUsers(List<UserModel> users) {
+        if (null == users) {
+            remove(USERS);
+        } else {
+            set(USERS, users);
+        }
         return this;
     }
 
