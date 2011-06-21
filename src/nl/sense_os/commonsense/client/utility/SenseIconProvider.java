@@ -75,36 +75,38 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             SensorModel sensor = (SensorModel) model;
 
             List<UserModel> users = sensor.getUsers();
+            UserModel currentUser = Registry.get(Constants.REG_USER);
             int type = sensor.getType();
-            if (users != null && users.size() > 0) {
+            if (users != null
+                    && (users.size() > 1 || (!users.contains(currentUser) && users.size() > 0))) {
                 switch (type) {
-                case 0:
-                    return ICON_SENSOR_FEED_SHARED;
-                case 1:
-                    return ICON_SENSOR_DEVICE_SHARED;
-                case 2:
-                    return ICON_SENSOR_STATE_SHARED;
-                case 3:
-                    return ICON_SENSOR_PUBLIC_SHARED;
-                case 4:
-                    return ICON_SENSOR_ENVIRONMENT_SHARED;
-                default:
-                    return ICON_GXT_LEAF;
+                    case 0 :
+                        return ICON_SENSOR_FEED_SHARED;
+                    case 1 :
+                        return ICON_SENSOR_DEVICE_SHARED;
+                    case 2 :
+                        return ICON_SENSOR_STATE_SHARED;
+                    case 3 :
+                        return ICON_SENSOR_PUBLIC_SHARED;
+                    case 4 :
+                        return ICON_SENSOR_ENVIRONMENT_SHARED;
+                    default :
+                        return ICON_GXT_LEAF;
                 }
             } else {
                 switch (type) {
-                case 0:
-                    return ICON_SENSOR_FEED;
-                case 1:
-                    return ICON_SENSOR_DEVICE;
-                case 2:
-                    return ICON_SENSOR_STATE;
-                case 3:
-                    return ICON_SENSOR_PUBLIC;
-                case 4:
-                    return ICON_SENSOR_ENVIRONMENT;
-                default:
-                    return ICON_GXT_LEAF;
+                    case 0 :
+                        return ICON_SENSOR_FEED;
+                    case 1 :
+                        return ICON_SENSOR_DEVICE;
+                    case 2 :
+                        return ICON_SENSOR_STATE;
+                    case 3 :
+                        return ICON_SENSOR_PUBLIC;
+                    case 4 :
+                        return ICON_SENSOR_ENVIRONMENT;
+                    default :
+                        return ICON_GXT_LEAF;
                 }
             }
 
