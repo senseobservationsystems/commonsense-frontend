@@ -13,18 +13,6 @@
     
     <!-- load the GWT script -->
     <script type="text/javascript" language="javascript" src="commonsense/commonsense.nocache.js"></script>
-    
-    <!-- Google phone number library -->
-    <script src="http://closure-library.googlecode.com/svn/trunk/closure/goog/base.js"></script>
-    <script>
-      goog.require('goog.dom');
-      goog.require('goog.json');
-      goog.require('goog.proto2.ObjectSerializer');
-    </script>
-    <script src="libphonenumber/phonemetadata.pb.js"></script>
-    <script src="libphonenumber/phonenumber.pb.js"></script>
-    <script src="libphonenumber/metadata.js"></script>
-    <script src="libphonenumber/phonenumberutil.js"></script>
 
   </head>
 
@@ -37,13 +25,19 @@
           <span id="loading-msg">Loading...</span>
         </div>
       </div>  
-    </div> 
+    </div>
     
-    <!-- required for Google Maps API (does not load the real API yet) -->
-    <!-- common-sense-test.appspot.com key -->
-    <!-- <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA"></script> -->
-    <!-- common-sense.appspot.com key -->
-    <!-- <script type="text/javascript" src="http://www.googl"ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQYr_M-iqqVQWbBU0ti1KBe5MFjFxQAq9nNCLMy6cXkTX8xOCj9FjzFJA"e.com/jsapi?key=ABQIAAAA3D_pshePfBK3EagBrZGggxRw2HbSAHXTbPxYxhYhGrEpeVUi1BS8AbO5bPL1UMzVm1LL2thJx-M_jw"></script> -->
+    <!-- Google phone number library -->
+    <script src="http://closure-library.googlecode.com/svn/trunk/closure/goog/base.js"></script>
+    <script>
+      goog.require('goog.dom');
+      goog.require('goog.json');
+      goog.require('goog.proto2.ObjectSerializer');
+    </script>
+    <script src="libphonenumber/phonemetadata.pb.js"></script>
+    <script src="libphonenumber/phonenumber.pb.js"></script>
+    <script src="libphonenumber/metadata.js"></script>
+    <script src="libphonenumber/phonenumberutil.js"></script>
     
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
         style="position: absolute; width: 0; height: 0; border: 0"></iframe>
