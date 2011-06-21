@@ -231,16 +231,10 @@ public class FeedbackController extends Controller {
             FeedbackData change = changes.get(index);
 
             // TODO also process delete changes
-            while (change.getType() == FeedbackData.TYPE_REMOVE) {
+            if (change.getType() == FeedbackData.TYPE_REMOVE) {
                 LOG.warning("Skipping feedback deletion!");
-                int newIndex = index;
-                newIndex++;
-                if (newIndex < changes.size()) {
-                    change = changes.get(newIndex);
-                } else {
-                    onFeedbackComplete(panel);
-                    return;
-                }
+                markFeedback(state, changes, index + 1, panel);
+                return;
             }
 
             // prepare request properties

@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
-import nl.sense_os.commonsense.client.common.ajax.AjaxController;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -64,7 +63,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Mon Jun 20 10:15";
+    public static final String LAST_DEPLOYED = "Tue Jun 21 12:16";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
@@ -94,7 +93,6 @@ public class CommonSense implements EntryPoint {
         Dispatcher dispatcher = Dispatcher.get();
 
         dispatcher.addController(new MainController());
-        dispatcher.addController(new AjaxController());
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new VizController());

@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -19,10 +18,15 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -38,40 +42,54 @@ public class DataController extends Controller {
         LOG.setLevel(Level.WARNING);
 
         registerEventTypes(DataEvents.DataRequest);
-        registerEventTypes(DataEvents.AjaxDataFailure, DataEvents.AjaxDataSuccess);
         registerEventTypes(LoginEvents.LoggedOut);
-        registerEventTypes(DataEvents.LatestValuesRequest, DataEvents.LatestValueAjaxSuccess,
-                DataEvents.LatestValueAjaxFailure);
+        registerEventTypes(DataEvents.LatestValuesRequest);
     }
 
-    private void getLatestValues(List<SensorModel> sensors, int index, VizPanel panel) {
+    private void getLatestValues(final List<SensorModel> sensors, final int index,
+            final VizPanel panel) {
         if (index < sensors.size()) {
 
             SensorModel sensor = sensors.get(index);
 
-            final String method = "GET";
+            final Method method = RequestBuilder.GET;
             String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json" + "?last=1";
             if (-1 != sensor.getAlias()) {
                 url += "&alias=" + sensor.getAlias();
             }
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(DataEvents.LatestValueAjaxSuccess);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("index", index);
-            onSuccess.setData("panel", panel);
-            final AppEvent onFailure = new AppEvent(DataEvents.LatestValueAjaxFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("index", index);
-            onFailure.setData("panel", panel);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("GET last data onError callback: " + exception.getMessage());
+                    onLatestValueFailure(sensors, index, panel);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("GET last data response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onLatestValueSuccess(response.getText(), sensors, index, panel);
+                    } else {
+                        LOG.warning("GET last data returned incorrect status: " + statusCode);
+                        onLatestValueFailure(sensors, index, panel);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("GET slast data request threw exception: " + e.getMessage());
+                onLatestValueFailure(sensors, index, panel);
+            }
 
         } else {
             // hoooray we're done!
@@ -93,28 +111,6 @@ public class DataController extends Controller {
 
             onDataRequest(start, end, sensors, vizPanel, showProgress);
 
-        } else if (type.equals(DataEvents.AjaxDataFailure)) {
-            LOG.warning("AjaxDataFailure");
-            final int code = event.getData("code");
-            final boolean showProgress = event.getData("showProgress");
-
-            onDataFailed(code, showProgress);
-
-        } else if (type.equals(DataEvents.AjaxDataSuccess)) {
-            LOG.finest("AjaxDataSuccess");
-            final String response = event.<String> getData("response");
-            final long start = event.getData("start");
-            final long end = event.getData("end");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int sensorIndex = event.getData("sensorIndex");
-            final long sensorChunkStart = event.getData("sensorChunkStart");
-            final int sensorProgress = event.getData("sensorProgress");
-            final int sensorTotal = event.getData("sensorTotal");
-            final VizPanel vizPanel = event.<VizPanel> getData("vizPanel");
-            final boolean showProgress = event.getData("showProgress");
-
-            onDataReceived(response, start, end, sensors, sensorIndex, sensorChunkStart,
-                    sensorProgress, sensorTotal, vizPanel, showProgress);
         } else
 
         /*
@@ -125,22 +121,6 @@ public class DataController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final VizPanel vizPanel = event.getData("vizPanel");
             onLatestValuesRequest(sensors, vizPanel);
-
-        } else if (type.equals(DataEvents.LatestValueAjaxSuccess)) {
-            LOG.finest("LatestValueAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.getData("index");
-            final VizPanel panel = event.<VizPanel> getData("panel");
-            onLatestValueSuccess(response, sensors, index, panel);
-
-        } else if (type.equals(DataEvents.LatestValueAjaxFailure)) {
-            LOG.warning("LatestValueAjaxFailure");
-            // final int code = event.getData("code");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.getData("index");
-            final VizPanel panel = event.<VizPanel> getData("panel");
-            onLatestValueFailure(sensors, index, panel);
 
         } else
 
@@ -291,9 +271,9 @@ public class DataController extends Controller {
         getLatestValues(sensors, index, panel);
     }
 
-    private void requestData(long start, long end, List<SensorModel> sensors, int sensorIndex,
-            long sensorChunkStart, int sensorProgress, int sensorTotal, VizPanel vizPanel,
-            boolean showProgress) {
+    private void requestData(long start, final long end, final List<SensorModel> sensors,
+            final int sensorIndex, final long sensorChunkStart, final int sensorProgress,
+            final int sensorTotal, final VizPanel vizPanel, final boolean showProgress) {
         LOG.fine("requestData...");
 
         if (sensorIndex < sensors.size()) {
@@ -302,18 +282,9 @@ public class DataController extends Controller {
 
             // remove data from the cache, because using it is too complicated for our tiny brains
             Cache.remove(sensor);
-            long realStart = start;
-            /*
-             * // check if the sensor has cached data if (sensorProgress == 0) { JsArray<Timeseries>
-             * cacheContent = Cache.request(Arrays.asList(sensor), start, end); for (int i = 0; i <
-             * cacheContent.length(); i++) { Timeseries timeseries = cacheContent.get(i); if
-             * (timeseries.getStart() <= realStart) { realStart = timeseries.getEnd();
-             * LOG.fine("Using data from cache to limit request period"); } else {
-             * LOG.fine("Cannot re-use cached data! Start of cache: " + timeseries.getStart() +
-             * " start of request: " + start); Cache.remove(sensor); } } }
-             */
+            final long realStart = start;
 
-            final String method = "GET";
+            final Method method = RequestBuilder.GET;
             String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json";
 
             url += "?per_page=" + PER_PAGE;
@@ -337,27 +308,40 @@ public class DataController extends Controller {
             }
 
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(DataEvents.AjaxDataSuccess);
-            onSuccess.setData("start", start);
-            onSuccess.setData("end", end);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("sensorIndex", sensorIndex);
-            onSuccess.setData("sensorChunkStart", sensorChunkStart);
-            onSuccess.setData("sensorProgress", sensorProgress);
-            onSuccess.setData("sensorTotal", sensorTotal);
-            onSuccess.setData("vizPanel", vizPanel);
-            onSuccess.setData("showProgress", showProgress);
-            final AppEvent onFailure = new AppEvent(DataEvents.AjaxDataFailure);
-            onFailure.setData("showProgress", showProgress);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("GET data onError callback: " + exception.getMessage());
+                    onDataFailed(0, showProgress);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("GET data response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onDataReceived(response.getText(), realStart, end, sensors, sensorIndex,
+                                sensorChunkStart, sensorProgress, sensorTotal, vizPanel,
+                                showProgress);
+                    } else {
+                        LOG.warning("GET data returned incorrect status: " + statusCode);
+                        onDataFailed(0, showProgress);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("GET data request threw exception: " + e.getMessage());
+                onDataFailed(0, showProgress);
+            }
 
         } else {
             // should not happen, but just in case...

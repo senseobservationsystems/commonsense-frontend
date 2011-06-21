@@ -96,8 +96,7 @@ public class LibraryGrid extends View {
             final LayoutContainer parent = event.getData("parent");
             showPanel(parent);
 
-        } else if (type.equals(StateCreateEvents.CreateServiceComplete)
-                || type.equals(StateListEvents.RemoveComplete)
+        } else if (type.equals(StateListEvents.RemoveComplete)
                 || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
                 || type.equals(SensorDeleteEvents.DeleteSuccess)
                 || type.equals(SensorDeleteEvents.DeleteFailure)
@@ -107,6 +106,10 @@ public class LibraryGrid extends View {
                 || type.equals(SensorShareEvents.ShareComplete)) {
             LOG.finest("Library changed");
             onLibChanged();
+
+        } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
+            LOG.finest("CreateServiceComplete");
+            refreshLoader(true);
 
         } else if (type.equals(LibraryEvents.Done)) {
             LOG.finest("Done");
@@ -362,7 +365,7 @@ public class LibraryGrid extends View {
     }
 
     private void onLibChanged() {
-        // refreshLoader(false);
+        refreshLoader(false);
     }
 
     private void onListUpdate() {
@@ -402,7 +405,7 @@ public class LibraryGrid extends View {
     }
 
     private void refreshLoader(boolean force) {
-        this.force = force;
+        this.force = this.force || force;
         loader.load();
     }
 

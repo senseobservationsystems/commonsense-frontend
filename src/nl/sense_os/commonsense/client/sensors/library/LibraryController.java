@@ -503,6 +503,7 @@ public class LibraryController extends Controller {
             UserModel user = Registry.<UserModel> get(Constants.REG_USER);
             for (SensorModel sharedSensor : responseJso.getSensors()) {
                 sharedSensor.getUsers().add(user);
+                library.remove(sharedSensor);
                 library.add(sharedSensor);
             }
         }

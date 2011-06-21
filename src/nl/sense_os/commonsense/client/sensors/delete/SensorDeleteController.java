@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.sensors.delete;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -14,17 +13,21 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class SensorDeleteController extends Controller {
 
-    private final static Logger logger = Logger.getLogger("DeleteController");
+    private final static Logger LOG = Logger.getLogger(SensorDeleteController.class.getName());
     private View deleteDialog;
 
     public SensorDeleteController() {
-        registerEventTypes(SensorDeleteEvents.ShowDeleteDialog,
-                SensorDeleteEvents.DeleteAjaxSuccess, SensorDeleteEvents.DeleteAjaxFailure,
-                SensorDeleteEvents.DeleteRequest, SensorDeleteEvents.DeleteSuccess,
-                SensorDeleteEvents.DeleteFailure);
+        registerEventTypes(SensorDeleteEvents.ShowDeleteDialog, SensorDeleteEvents.DeleteRequest,
+                SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
     }
 
     /**
@@ -37,31 +40,47 @@ public class SensorDeleteController extends Controller {
      * @param retryCount
      *            Counter for failed requests that were retried.
      */
-    private void delete(List<SensorModel> sensors, int index, int retryCount) {
+    private void delete(final List<SensorModel> sensors, final int index, final int retryCount) {
 
         if (index < sensors.size()) {
             SensorModel sensor = sensors.get(index);
 
             // prepare request properties
-            final String method = "DELETE";
+            final Method method = RequestBuilder.DELETE;
             final String url = Urls.SENSORS + "/" + sensor.getId() + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(SensorDeleteEvents.DeleteAjaxSuccess);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("index", index);
-            final AppEvent onFailure = new AppEvent(SensorDeleteEvents.DeleteAjaxFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("index", index);
-            onFailure.setData("retry", retryCount);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
-            Dispatcher.forwardEvent(ajaxRequest);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("DELETE sensor onError callback: " + exception.getMessage());
+                    onDeleteFailure(sensors, index, retryCount);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("DELETE sensor response received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onDeleteSuccess(sensors, index);
+                    } else {
+                        LOG.warning("DELETE sensor returned incorrect status: " + statusCode);
+                        onDeleteFailure(sensors, index, retryCount);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("DELETE sensor request threw exception: " + e.getMessage());
+                onDeleteFailure(sensors, index, retryCount);
+            }
 
         } else {
             // done!
@@ -74,23 +93,9 @@ public class SensorDeleteController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(SensorDeleteEvents.DeleteRequest)) {
-            logger.fine("DeleteRequest");
+            LOG.fine("DeleteRequest");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             delete(sensors, 0, 0);
-
-        } else if (type.equals(SensorDeleteEvents.DeleteAjaxSuccess)) {
-            logger.fine("AjaxDeleteSuccess");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.getData("index");
-            onDeleteSuccess(sensors, index);
-
-        } else if (type.equals(SensorDeleteEvents.DeleteAjaxFailure)) {
-            logger.warning("AjaxDeleteFailure");
-            // final int code = event.getData("code");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.getData("index");
-            final int retryCount = event.getData("retry");
-            onDeleteFailure(sensors, index, retryCount);
 
         } else
 
@@ -139,7 +144,11 @@ public class SensorDeleteController extends Controller {
     private void onDeleteSuccess(List<SensorModel> sensors, int index) {
 
         // remove the sensor from the cached library
-        Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(sensors.get(index));
+        boolean removed = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(
+                sensors.get(index));
+        if (!removed) {
+            LOG.warning("Failed to remove the sensor from the library!");
+        }
 
         // continue with the rest of the list
         index++;

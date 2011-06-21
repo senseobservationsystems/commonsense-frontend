@@ -299,7 +299,13 @@ public class StateListController extends Controller {
         List<SensorModel> result = new ArrayList<SensorModel>();
         List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
         for (SensorModel sensor : sensors) {
-            int index = library.indexOf(sensor);
+            int index = -1;
+            for (SensorModel libSensor : library) {
+                if (libSensor.getId() == sensor.getId()) {
+                    index = library.indexOf(libSensor);
+                    break;
+                }
+            }
             if (index != -1) {
                 SensorModel detailed = (SensorModel) TreeCopier.copySensor(library.get(index));
                 state.add(detailed);

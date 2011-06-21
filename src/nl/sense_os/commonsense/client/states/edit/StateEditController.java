@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.states.edit;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -26,9 +27,8 @@ public class StateEditController extends Controller {
     private View editor;
 
     public StateEditController() {
+        LOG.setLevel(Level.ALL);
         registerEventTypes(StateEditEvents.ShowEditor);
-
-        // perform a method for this state
         registerEventTypes(StateEditEvents.InvokeMethodRequested);
     }
 
@@ -40,8 +40,11 @@ public class StateEditController extends Controller {
          * Invoke a service method
          */
         if (type.equals(StateEditEvents.InvokeMethodRequested)) {
-            // LOG.fine( "InvokeMethodRequested");
-            invokeMethod(event);
+            LOG.finest("InvokeMethodRequested");
+            final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+            final ServiceMethodModel serviceMethod = event.<ServiceMethodModel> getData("method");
+            final List<String> params = event.<List<String>> getData("parameters");
+            invokeMethod(stateSensor, serviceMethod, params);
 
         } else
 
@@ -59,13 +62,15 @@ public class StateEditController extends Controller {
         editor = new StateEditor(this);
     }
 
-    private void invokeMethod(AppEvent event) {
+    private void invokeMethod(SensorModel stateSensor, ServiceMethodModel serviceMethod,
+            List<String> params) {
 
-        // get event info
-        SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+        // get one of the state sensor children
         SensorModel sensor = (SensorModel) stateSensor.getChild(0);
-        ServiceMethodModel serviceMethod = event.<ServiceMethodModel> getData("method");
-        List<String> params = event.<List<String>> getData("parameters");
+
+        LOG.fine("State: " + stateSensor);
+        LOG.fine("Sensor: " + sensor);
+        LOG.fine("Method: " + serviceMethod);
 
         // prepare request properties
         final Method method = params.size() > 0 ? RequestBuilder.POST : RequestBuilder.GET;

@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.client.sensors.unshare;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -15,16 +15,22 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class UnshareController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(UnshareController.class.getName());
+    private static final Logger LOG = Logger.getLogger(UnshareController.class.getName());
     private View dialog;
 
     public UnshareController() {
+        LOG.setLevel(Level.ALL);
         registerEventTypes(UnshareEvents.ShowUnshareDialog);
-        registerEventTypes(UnshareEvents.UnshareRequest, UnshareEvents.UnshareComplete,
-                UnshareEvents.UnshareAjaxSuccess, UnshareEvents.UnshareAjaxFailure);
+        registerEventTypes(UnshareEvents.UnshareRequest, UnshareEvents.UnshareComplete);
     }
 
     @Override
@@ -32,22 +38,10 @@ public class UnshareController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(UnshareEvents.UnshareRequest)) {
-            LOGGER.finest("UnshareRequest");
+            LOG.finest("UnshareRequest");
             SensorModel sensor = event.getData("sensor");
             List<UserModel> users = event.getData("users");
             onUnshareRequest(sensor, users);
-
-        } else if (type.equals(UnshareEvents.UnshareAjaxSuccess)) {
-            LOGGER.finest("UnshareAjaxSuccess");
-            String response = event.getData("response");
-            SensorModel sensor = event.getData("sensor");
-            List<UserModel> users = event.getData("users");
-            int index = event.getData("index");
-            onUnshareSuccess(response, sensor, users, index);
-
-        } else if (type.equals(UnshareEvents.UnshareAjaxFailure)) {
-            LOGGER.warning("UnshareAjaxFailure");
-            onUnshareFailure();
 
         } else
 
@@ -55,65 +49,106 @@ public class UnshareController extends Controller {
          * Pass through to dialog
          */
         {
-            forwardToView(this.dialog, event);
+            forwardToView(dialog, event);
         }
 
     }
 
-    private void onUnshareFailure() {
-        forwardToView(this.dialog, new AppEvent(UnshareEvents.UnshareFailed));
+    @Override
+    protected void initialize() {
+        dialog = new UnshareDialog(this);
+        super.initialize();
+    }
+
+    private void onUnshareComplete(SensorModel sensor) {
+
+        // update library
+        List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+        int index = library.indexOf(sensor);
+        if (index != -1) {
+            LOG.fine("Updating sensor's users in the library");
+            library.get(index).setUsers(null);
+            library.get(index).setUsers(sensor.getUsers());
+        } else {
+            LOG.warning("Cannot find the unshared sensor in the library!");
+        }
+
+        // dispatch event
+        Dispatcher.forwardEvent(UnshareEvents.UnshareComplete);
+    }
+
+    private void onUnshareFailure(int statusCode) {
+        forwardToView(dialog, new AppEvent(UnshareEvents.UnshareFailed));
+    }
+    private void onUnshareRequest(SensorModel sensor, List<UserModel> users) {
+        unshare(sensor, users, 0);
     }
 
     private void onUnshareSuccess(String response, SensorModel sensor, List<UserModel> users,
             int index) {
         // update the sensor model
-        List<UserModel> sensorUsers = sensor.<List<UserModel>> get("users");
+        List<UserModel> sensorUsers = sensor.getUsers();
         sensorUsers.remove(users.get(index));
-        sensor.set(SensorModel.USERS, sensorUsers);
+        sensor.setUsers(sensorUsers);
 
         // continue with the next user to remove
         index++;
         unshare(sensor, users, index);
     }
 
-    private void onUnshareRequest(SensorModel sensor, List<UserModel> users) {
-        unshare(sensor, users, 0);
-    }
-
-    @Override
-    protected void initialize() {
-        this.dialog = new UnshareDialog(this);
-        super.initialize();
-    }
-
-    private void unshare(SensorModel sensor, List<UserModel> users, int index) {
+    private void unshare(final SensorModel sensor, final List<UserModel> users, final int index) {
 
         if (index < users.size()) {
             UserModel user = users.get(index);
 
+            UserModel currentUser = Registry.<UserModel> get(Constants.REG_USER);
+            if (currentUser.equals(user)) {
+                LOG.finest("Skipped unsharing with the current user...");
+                unshare(sensor, users, index + 1);
+                return;
+            }
+            LOG.fine("Unsharing " + sensor + " with " + user);
+
             // prepare request properties
-            final String method = "DELETE";
+            final Method method = RequestBuilder.DELETE;
             final String url = Urls.SENSORS + "/" + sensor.getId() + "/users/" + user.getId()
                     + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            final AppEvent onSuccess = new AppEvent(UnshareEvents.UnshareAjaxSuccess);
-            onSuccess.setData("sensor", sensor);
-            onSuccess.setData("index", index);
-            onSuccess.setData("users", users);
-            final AppEvent onFailure = new AppEvent(UnshareEvents.UnshareAjaxFailure);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
 
-            Dispatcher.forwardEvent(ajaxRequest);
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("DELETE sensor user onError callback: " + exception.getMessage());
+                    onUnshareFailure(0);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("DELETE sensor user received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onUnshareSuccess(response.getText(), sensor, users, index);
+                    } else {
+                        LOG.warning("DELETE sensor user returned incorrect status: " + statusCode);
+                        onUnshareFailure(statusCode);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("DELETE sensor user request threw exception: " + e.getMessage());
+                onUnshareFailure(0);
+            }
+
         } else {
-            Dispatcher.forwardEvent(UnshareEvents.UnshareComplete);
+            onUnshareComplete(sensor);
         }
     }
-
 }

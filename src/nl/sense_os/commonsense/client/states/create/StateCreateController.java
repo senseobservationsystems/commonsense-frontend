@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
@@ -108,6 +109,7 @@ public class StateCreateController extends Controller {
         }
 
         // prepare request properties
+        final Method method = RequestBuilder.GET;
         final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + ".json"
                 + aliasParam;
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
@@ -125,7 +127,7 @@ public class StateCreateController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("GET sensor services response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (Response.SC_CREATED == statusCode) {
+                if (Response.SC_OK == statusCode) {
                     onAvailableServicesSuccess(response.getText());
                 } else {
                     LOG.warning("GET sensor services returned incorrect status: " + statusCode);
@@ -135,7 +137,7 @@ public class StateCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
         try {
             builder.sendRequest(null, reqCallback);
@@ -242,7 +244,10 @@ public class StateCreateController extends Controller {
     }
 
     private void onCreateServiceSuccess(String response) {
-        // update global sensor list
+
+        // TODO update global sensor list
+
+        // dispatch event
         Dispatcher.forwardEvent(StateCreateEvents.CreateServiceComplete);
     }
 }

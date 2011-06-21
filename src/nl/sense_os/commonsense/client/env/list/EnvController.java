@@ -131,7 +131,7 @@ public class EnvController extends Controller {
         List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
         for (SensorModel sensor : library) {
             if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
-                sensor.remove(SensorModel.ENVIRONMENT);
+                sensor.setEnvironment(null);
             }
         }
 

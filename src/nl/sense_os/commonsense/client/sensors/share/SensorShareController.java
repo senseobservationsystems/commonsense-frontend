@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.ajax.AjaxEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -18,6 +17,12 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 public class SensorShareController extends Controller {
 
@@ -27,8 +32,7 @@ public class SensorShareController extends Controller {
     public SensorShareController() {
         registerEventTypes(SensorShareEvents.ShowShareDialog, SensorShareEvents.ShareRequest,
                 SensorShareEvents.ShareComplete, SensorShareEvents.ShareCancelled,
-                SensorShareEvents.ShareFailed, SensorShareEvents.ShareAjaxFailure,
-                SensorShareEvents.ShareAjaxSuccess);
+                SensorShareEvents.ShareFailed);
     }
 
     @Override
@@ -40,23 +44,6 @@ public class SensorShareController extends Controller {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final String user = event.<String> getData("user");
             shareSensor(sensors, user, 0, 0);
-
-        } else if (type.equals(SensorShareEvents.ShareAjaxSuccess)) {
-            LOG.finest("ShareAjaxSuccess");
-            final String response = event.<String> getData("response");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final int index = event.getData("index");
-            final String username = event.<String> getData("user");
-            onShareSensorSuccess(response, sensors, index, username);
-
-        } else if (type.equals(SensorShareEvents.ShareAjaxFailure)) {
-            LOG.warning("ShareAjaxFailure");
-            // final int code = event.getData("code");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final String username = event.<String> getData("user");
-            final int index = event.getData("index");
-            final int retryCount = event.getData("retry");
-            onShareSensorFailure(sensors, username, index, retryCount);
 
         } else
 
@@ -100,7 +87,7 @@ public class SensorShareController extends Controller {
 
         // update the sensor model
         SensorModel sensor = sensors.get(index);
-        sensor.set(SensorModel.USERS, users);
+        sensor.setUsers(users);
 
         index++;
 
@@ -114,41 +101,72 @@ public class SensorShareController extends Controller {
      * @param event
      *            AppEvent with "sensors" and "user" properties
      */
-    private void shareSensor(List<SensorModel> sensors, String username, int index, int retryCount) {
+    private void shareSensor(final List<SensorModel> sensors, final String username,
+            final int index, final int retryCount) {
 
         if (null != sensors && index < sensors.size()) {
             // get first sensor from the list
             SensorModel sensor = sensors.get(index);
 
             // prepare request properties
-            final String method = "POST";
+            final Method method = RequestBuilder.POST;
             final String url = Urls.SENSORS + "/" + sensor.getId() + "/users.json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final String body = "{\"user\":{\"username\":\"" + username + "\"}}";
-            final AppEvent onSuccess = new AppEvent(SensorShareEvents.ShareAjaxSuccess);
-            onSuccess.setData("sensors", sensors);
-            onSuccess.setData("user", username);
-            onSuccess.setData("index", index);
-            final AppEvent onFailure = new AppEvent(SensorShareEvents.ShareAjaxFailure);
-            onFailure.setData("sensors", sensors);
-            onFailure.setData("user", username);
-            onFailure.setData("index", index);
-            onFailure.setData("retry", retryCount);
 
-            // send request to AjaxController
-            final AppEvent ajaxRequest = new AppEvent(AjaxEvents.Request);
-            ajaxRequest.setData("method", method);
-            ajaxRequest.setData("url", url);
-            ajaxRequest.setData("session_id", sessionId);
-            ajaxRequest.setData("body", body);
-            ajaxRequest.setData("onSuccess", onSuccess);
-            ajaxRequest.setData("onFailure", onFailure);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
 
-            Dispatcher.forwardEvent(ajaxRequest);
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("POST sensor user onError callback: " + exception.getMessage());
+                    onShareSensorFailure(sensors, username, index, retryCount);
+                }
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("POST sensor user received: " + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_CREATED == statusCode) {
+                        onShareSensorSuccess(response.getText(), sensors, index, username);
+                    } else {
+                        LOG.warning("POST sensor user returned incorrect status: " + statusCode);
+                        onShareSensorFailure(sensors, username, index, retryCount);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(body, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("POST sensor user request threw exception: " + e.getMessage());
+                onShareSensorFailure(sensors, username, index, retryCount);
+            }
 
         } else {
             // done
-            Dispatcher.forwardEvent(SensorShareEvents.ShareComplete);
+            onShareSuccess(sensors);
         }
+    }
+
+    private void onShareSuccess(List<SensorModel> sensors) {
+
+        // update library
+        for (SensorModel sensor : sensors) {
+            List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+            int index = library.indexOf(sensor);
+            if (index != -1) {
+                LOG.fine("Updating sensor users in the library");
+                library.get(index).setUsers(sensor.getUsers());
+            } else {
+                LOG.warning("Cannot find the newly shared sensor in the library!");
+            }
+        }
+
+        // dispatch event
+        Dispatcher.forwardEvent(SensorShareEvents.ShareComplete);
     }
 }
