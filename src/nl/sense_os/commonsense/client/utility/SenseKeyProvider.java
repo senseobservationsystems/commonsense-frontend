@@ -15,20 +15,20 @@ import com.extjs.gxt.ui.client.data.TreeModel;
  */
 public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M> {
 
-    private static final Logger logger = Logger.getLogger("SenseKeyProvider");
+    private static final Logger LOG = Logger.getLogger(SenseKeyProvider.class.getName());
 
-    @SuppressWarnings("unchecked")
     @Override
-    public String getKey(M model) {
+    public String getKey(M initialModel) {
         String key = "";
+        TreeModel model = initialModel;
         while (model != null) {
             key += getPartialKey(model);
-            model = (M) model.getParent();
+            model = model.getParent();
         }
         return key;
     }
 
-    private String getPartialKey(M model) {
+    private String getPartialKey(TreeModel model) {
 
         if (model instanceof DeviceModel) {
             DeviceModel device = (DeviceModel) model;
@@ -44,7 +44,7 @@ public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M
             UserModel user = (UserModel) model;
             return "U_" + user.getId() + ": " + user.getName() + "; ";
         } else {
-            logger.severe("Unexpected class: " + model);
+            LOG.severe("Unexpected class: " + model);
             return model + "; ";
         }
     }
