@@ -523,8 +523,8 @@ public class VizTypeChooser extends View {
         }
 
         DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_LONG);
-        LOG.severe("Start: " + dtf.format(new Date(startTime)));
-        LOG.severe("End:   " + dtf.format(new Date(endTime)));
+        LOG.fine("Start: " + dtf.format(new Date(startTime)));
+        LOG.fine("End:   " + dtf.format(new Date(endTime)));
 
         // save the start and end time in the event
         submitEvent.setData("startTime", startTime);

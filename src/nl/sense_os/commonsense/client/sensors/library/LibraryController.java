@@ -74,7 +74,7 @@ public class LibraryController extends Controller {
     }
 
     private List<DeviceModel> devicesFromLibrary(List<SensorModel> library) {
-        LOG.warning("Listing devices...");
+        LOG.finest("Listing devices...");
         List<DeviceModel> devices = new ArrayList<DeviceModel>();
 
         // gather the devices of all sensors in the library
