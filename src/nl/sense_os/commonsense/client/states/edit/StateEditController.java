@@ -27,7 +27,7 @@ public class StateEditController extends Controller {
     private View editor;
 
     public StateEditController() {
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
         registerEventTypes(StateEditEvents.ShowEditor);
         registerEventTypes(StateEditEvents.InvokeMethodRequested);
     }

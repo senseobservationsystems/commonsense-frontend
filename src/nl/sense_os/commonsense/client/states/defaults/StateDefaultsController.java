@@ -33,7 +33,7 @@ public class StateDefaultsController extends Controller {
     private void checkDefaults(List<DeviceModel> devices, boolean overwrite) {
 
         // prepare request properties
-        final String url = Urls.STATES + "/default/check.json";
+        final String url = Urls.STATES + "/default/check.json/";
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare body
@@ -65,7 +65,7 @@ public class StateDefaultsController extends Controller {
             public void onResponseReceived(Request request, Response response) {
                 LOG.finest("POST default services response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
-                if (Response.SC_CREATED == statusCode) {
+                if (Response.SC_OK == statusCode) {
                     onCheckDefaultsSuccess(response.getText());
                 } else {
                     LOG.warning("POST default services returned incorrect status: " + statusCode);

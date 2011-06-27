@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.states.list;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -88,6 +89,7 @@ public class StateGrid extends View {
 
     public StateGrid(Controller controller) {
         super(controller);
+        LOG.setLevel(Level.WARNING);
     }
 
     private void checkDefaultStates() {
@@ -135,6 +137,7 @@ public class StateGrid extends View {
         while (store.getParent(selection) instanceof SensorModel) {
             selection = store.getParent(selection);
         }
+        LOG.finest("Selected state: " + selection);
         return selection;
     }
 

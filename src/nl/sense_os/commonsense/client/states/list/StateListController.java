@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client.states.list;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
@@ -33,6 +29,10 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class StateListController extends Controller {
 
@@ -138,8 +138,7 @@ public class StateListController extends Controller {
         }
     }
 
-    private void getMethods(final SensorModel state, final List<SensorModel> sensors,
-            final AsyncCallback<List<SensorModel>> callback) {
+    private void getMethods(final SensorModel state, final List<SensorModel> sensors) {
 
         if (sensors.size() > 0) {
             // prepare request properties
@@ -154,7 +153,7 @@ public class StateListController extends Controller {
                 @Override
                 public void onError(Request request, Throwable exception) {
                     LOG.warning("GET service methods onError callback: " + exception.getMessage());
-                    onMethodsFailure(callback);
+                    onMethodsFailure(0);
                 }
 
                 @Override
@@ -162,10 +161,10 @@ public class StateListController extends Controller {
                     LOG.finest("GET service methods response received: " + response.getStatusText());
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
-                        onMethodsSuccess(response.getText(), state, sensors, callback);
+                        onMethodsSuccess(response.getText(), state, sensors);
                     } else {
                         LOG.warning("GET service methods returned incorrect status: " + statusCode);
-                        onMethodsFailure(callback);
+                        onMethodsFailure(statusCode);
                     }
                 }
             };
@@ -177,12 +176,11 @@ public class StateListController extends Controller {
                 builder.sendRequest(null, reqCallback);
             } catch (RequestException e) {
                 LOG.warning("GET service methods request threw exception: " + e.getMessage());
-                onMethodsFailure(callback);
+                onMethodsFailure(0);
             }
 
         } else {
             LOG.warning("State \'" + state + "\' has no connected sensors!");
-            onLoadComplete(sensors, callback);
         }
     }
 
@@ -316,7 +314,11 @@ public class StateListController extends Controller {
             }
         }
 
-        getMethods(state, result, callback);
+        // return to view
+        onLoadComplete(result, callback);
+
+        // continue getting methods
+        getMethods(state, result);
     }
 
     private void onDisconnectFailure(int code) {
@@ -342,15 +344,11 @@ public class StateListController extends Controller {
         }
     }
 
-    private void onMethodsFailure(AsyncCallback<List<SensorModel>> callback) {
-        forwardToView(tree, new AppEvent(StateListEvents.Done));
-        if (null != callback) {
-            callback.onFailure(null);
-        }
+    private void onMethodsFailure(int statusCode) {
+        // TODO
     }
 
-    private void onMethodsSuccess(String response, SensorModel state, List<SensorModel> sensors,
-            AsyncCallback<List<SensorModel>> callback) {
+    private void onMethodsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
 
         // parse list of methods from the response
         List<ServiceMethodModel> methods = new ArrayList<ServiceMethodModel>();
@@ -361,9 +359,6 @@ public class StateListController extends Controller {
 
         if (null != methods) {
             state.set("methods", methods);
-            onLoadComplete(sensors, callback);
-        } else {
-            onMethodsFailure(callback);
         }
     }
 
