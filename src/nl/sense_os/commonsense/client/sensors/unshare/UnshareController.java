@@ -28,7 +28,7 @@ public class UnshareController extends Controller {
     private View dialog;
 
     public UnshareController() {
-        LOG.setLevel(Level.ALL);
+        LOG.setLevel(Level.WARNING);
         registerEventTypes(UnshareEvents.ShowUnshareDialog);
         registerEventTypes(UnshareEvents.UnshareRequest, UnshareEvents.UnshareComplete);
     }
