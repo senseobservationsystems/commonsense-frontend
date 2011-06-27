@@ -68,7 +68,8 @@ public class DemoView extends View {
         if (null != sessionId) {
             params = "&session_id=" + sessionId;
         }
-        final Frame dashboard = new Frame("http://data.sense-os.nl/dashboard?plain=1" + params);
+        final Frame dashboard = new Frame("http://data.sense-os.nl/dashboard?plain=1&hd_mode=1"
+                + params);
         dashboard.setStylePrimaryName("senseFrame");
         final TabItem dashboardItem = new TabItem("Availability");
         dashboardItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
