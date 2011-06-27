@@ -53,7 +53,7 @@ public class RegisterForm extends FormPanel {
     }
 
     private static final Logger LOG = Logger.getLogger(RegisterForm.class.getName());
-    private static final String EMAIL_REGEX = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:[a-zA-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)";
+    private static final String EMAIL_REGEX = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:([a-zA-Z]{2})|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)";
 
     private static native final String validatePhoneNumber(String phoneNumber, String regionCode) /*-{
         try {
