@@ -74,6 +74,7 @@ public class LibraryController extends Controller {
     }
 
     private List<DeviceModel> devicesFromLibrary(List<SensorModel> library) {
+        LOG.warning("Listing devices...");
         List<DeviceModel> devices = new ArrayList<DeviceModel>();
 
         // gather the devices of all sensors in the library
@@ -82,6 +83,7 @@ public class LibraryController extends Controller {
             device = sensor.getDevice();
             if (device != null && !devices.contains(device)) {
                 devices.add(device);
+                LOG.fine("Device: " + device);
             }
         }
 
@@ -432,6 +434,7 @@ public class LibraryController extends Controller {
         LOG.fine("Load complete...");
 
         // update list of devices
+        Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).clear();
         Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).addAll(
                 devicesFromLibrary(library));
 
