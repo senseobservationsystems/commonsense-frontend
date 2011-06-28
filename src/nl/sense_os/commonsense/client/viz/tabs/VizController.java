@@ -19,7 +19,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
 public class VizController extends Controller {
 

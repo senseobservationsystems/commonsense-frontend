@@ -56,7 +56,6 @@ import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -65,7 +64,7 @@ import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Tue Jun 28 12:09";
+    public static final String LAST_DEPLOYED = "Tue Jun 28 12:38";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && true;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
