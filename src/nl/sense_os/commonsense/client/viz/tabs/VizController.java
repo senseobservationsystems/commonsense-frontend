@@ -115,7 +115,7 @@ public class VizController extends Controller {
                 isVizApiLoaded = true;
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, PieChart.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(vizCallback, new String[]{});
 
         // double check that the API has been loaded within 10 seconds
         new Timer() {

@@ -282,6 +282,6 @@ public class CommonSense implements EntryPoint {
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, PieChart.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[]{});
     }
 }
