@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.viz.choice.VizTypeChooser;
 
-import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -20,6 +19,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
 public class VizController extends Controller {
 
@@ -115,7 +115,7 @@ public class VizController extends Controller {
                 isVizApiLoaded = true;
             }
         };
-        VisualizationUtils.loadVisualizationApi(vizCallback, Timeline.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(vizCallback, PieChart.PACKAGE);
 
         // double check that the API has been loaded within 10 seconds
         new Timer() {

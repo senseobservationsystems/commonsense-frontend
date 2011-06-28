@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginController;
@@ -55,6 +56,7 @@ import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
+import com.google.gwt.visualization.client.visualizations.corechart.PieChart;
 
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
@@ -63,7 +65,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Mon Jun 27 12:01";
+    public static final String LAST_DEPLOYED = "Tue Jun 28 12:09";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && true;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
@@ -225,6 +227,8 @@ public class CommonSense implements EntryPoint {
     private void testTimeline() {
         LOG.config("Test timeline...");
 
+        LOG.setLevel(Level.ALL);
+
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {
 
@@ -269,15 +273,15 @@ public class CommonSense implements EntryPoint {
                 options.setEditable(true);
 
                 // create the timeline, with data and options
-                LOG.severe("Before time line instantiation");
+                LOG.fine("Before time line instantiation");
                 Timeline timeline = new Timeline(data, options);
-                LOG.severe("After time line instantiation");
+                LOG.fine("After time line instantiation");
 
                 RootPanel.get("gwt").add(timeline);
             }
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, Timeline.PACKAGE);
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, PieChart.PACKAGE);
     }
 }
