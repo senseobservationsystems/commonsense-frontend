@@ -16,11 +16,6 @@ public class Constants {
     public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
 
     /**
-     * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
-     */
-    public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
-
-    /**
      * Flag for 'ted' mode. <code>true</code> if the app is deployed to
      * commonsense-test.appspot.com.
      */
@@ -31,7 +26,14 @@ public class Constants {
      * Flag for dev mode. <code>true</code> if the app is deployed to anything but the stable,
      * release candidate or 'ted' location.
      */
-    public static final boolean DEV_MODE = !STABLE_MODE && !RC_MODE && !TED_MODE;
+    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
+            .contains("common.dev.sense-os.nl");
+
+    /**
+     * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
+     */
+    public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl")
+            || (!STABLE_MODE && !TED_MODE && !DEV_MODE);
 
     /**
      * true if shortcut 'hacks' for easy developing are allowed
