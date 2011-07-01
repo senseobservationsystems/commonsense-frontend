@@ -72,7 +72,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (token != null && token.contains("session_id=")) {
             LOG.fine("Google auth redirect");
 
-            String sessionId = token.substring(10);
+            String sessionId = token.substring("session_id=".length());
 
             if (null != sessionId && sessionId.length() > 0) {
                 AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
