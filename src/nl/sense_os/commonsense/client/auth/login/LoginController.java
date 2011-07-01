@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.auth.login;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -20,6 +21,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.Location;
 
 public class LoginController extends Controller {
 
@@ -28,11 +31,14 @@ public class LoginController extends Controller {
 
     public LoginController() {
 
+        LOG.setLevel(Level.WARNING);
+
         registerEventTypes(MainEvents.Init);
 
         // general login events
         registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut,
                 LoginEvents.LoginRequest, LoginEvents.RequestLogout);
+        registerEventTypes(LoginEvents.GoogleAuthRequest, LoginEvents.GoogleAuthResult);
 
         // local events
         registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
@@ -95,6 +101,15 @@ public class LoginController extends Controller {
             final String username = event.<String> getData("username");
             final String password = event.<String> getData("password");
             login(username, password);
+
+        } else if (eventType.equals(LoginEvents.GoogleAuthRequest)) {
+            LOG.finest("GoogleAuthRequest");
+            loginThroughGoogle();
+
+        } else if (eventType.equals(LoginEvents.GoogleAuthResult)) {
+            LOG.finest("GoogleAuthResult");
+            final String sessionId = event.getData("sessionId");
+            onGoogleAuthResult(sessionId);
 
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             LOG.finest("RequestLogout");
@@ -160,6 +175,13 @@ public class LoginController extends Controller {
         }
     }
 
+    private void loginThroughGoogle() {
+        String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
+                + Location.getQueryString();
+        Window.open("http://api.dev.sense-os.nl/login/openID/google.json?callback_url=" + callback,
+                "_self", "");
+    }
+
     /**
      * Sends a logout request for the current session to the CommonSense API.
      */
@@ -208,6 +230,12 @@ public class LoginController extends Controller {
     private void onCurrentUser(UserModel user) {
         Registry.register(Constants.REG_USER, user);
         Dispatcher.forwardEvent(LoginEvents.LoginSuccess, user);
+    }
+
+    private void onGoogleAuthResult(String sessionId) {
+        LOG.fine("Session ID: " + sessionId);
+        Registry.register(Constants.REG_SESSION_ID, sessionId);
+        getCurrentUser();
     }
 
     private void onLoggedOut(String response) {

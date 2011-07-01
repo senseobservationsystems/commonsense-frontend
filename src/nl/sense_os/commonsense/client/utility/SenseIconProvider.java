@@ -26,6 +26,8 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             + "phone_Android.png");
     public static final AbstractImagePrototype ICON_GROUP = IconHelper.create(SENSE_ICONS_PATH
             + "group.png");
+    public static final AbstractImagePrototype ICON_GOOGLE = IconHelper.create(SENSE_ICONS_PATH
+            + "google.gif");
     public static final AbstractImagePrototype ICON_GXT_DONE = IconHelper.create(GXT_ICONS_PATH
             + "done.gif");
     public static final AbstractImagePrototype ICON_GXT_FOLDER = IconHelper.create(GXT_ICONS_PATH

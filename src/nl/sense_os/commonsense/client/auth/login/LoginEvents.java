@@ -16,4 +16,6 @@ public class LoginEvents {
 
     // layout-related event types
     public static final EventType Show = new EventType();
+    public static final EventType GoogleAuthRequest = new EventType();
+    public static final EventType GoogleAuthResult = new EventType();
 }

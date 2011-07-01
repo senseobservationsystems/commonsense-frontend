@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.common.components;
 
+import java.util.logging.Logger;
+
+import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -8,6 +11,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
@@ -17,34 +21,37 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 public class LoginForm extends FormPanel {
+
+    private static final Logger LOG = Logger.getLogger(LoginForm.class.getName());
     private TextField<String> username;
     private TextField<String> password;
     private CheckBox rememberMe;
     private Button submit;
+    private Button google;
 
     public LoginForm() {
         super();
 
-        this.setBodyBorder(false);
-        this.setHeaderVisible(false);
-        this.setScrollMode(Scroll.AUTOY);
+        setBodyBorder(false);
+        setHeaderVisible(false);
+        setScrollMode(Scroll.AUTOY);
         this.setHeight(175);
-        this.setLabelAlign(LabelAlign.TOP);
+        setLabelAlign(LabelAlign.TOP);
 
         initFields();
         initButtons();
     }
 
     public String getPassword() {
-        return this.password.getValue();
+        return password.getValue();
     }
 
     public boolean getRememberMe() {
-        return this.rememberMe.getValue();
+        return rememberMe.getValue();
     }
 
     public String getUsername() {
-        return this.username.getValue();
+        return username.getValue();
     }
 
     private void initButtons() {
@@ -55,16 +62,24 @@ public class LoginForm extends FormPanel {
                 final Button b = be.getButton();
                 if (b.equals(submit)) {
                     submit();
+                } else if (b.equals(google)) {
+                    onGoogleClick();
+                } else {
+                    LOG.severe("Unknown button pressed!");
                 }
             }
         };
 
         // submit button
-        this.submit = new Button("Sign in", SenseIconProvider.ICON_BUTTON_GO, l);
-        this.submit.setType("submit");
+        submit = new Button("Sign in", SenseIconProvider.ICON_BUTTON_GO, l);
+        submit.setType("submit");
 
-        this.setButtonAlign(HorizontalAlignment.CENTER);
-        this.addButton(submit);
+        // google login button
+        google = new Button("Use Google account", SenseIconProvider.ICON_GOOGLE, l);
+
+        setButtonAlign(HorizontalAlignment.CENTER);
+        addButton(submit);
+        addButton(google);
 
         final FormButtonBinding binding = new FormButtonBinding(this);
         binding.addButton(submit);
@@ -72,37 +87,41 @@ public class LoginForm extends FormPanel {
         setupSubmit();
     }
 
+    private void onGoogleClick() {
+        Dispatcher.forwardEvent(LoginEvents.GoogleAuthRequest);
+    }
+
     private void initFields() {
 
         final FormData formData = new FormData("-10");
 
         // username field
-        this.username = new TextField<String>();
-        this.username.setFieldLabel("Username");
-        this.username.setAllowBlank(false);
+        username = new TextField<String>();
+        username.setFieldLabel("Username");
+        username.setAllowBlank(false);
 
         // password field
-        this.password = new TextField<String>();
-        this.password.setFieldLabel("Password");
-        this.password.setAllowBlank(false);
-        this.password.setPassword(true);
+        password = new TextField<String>();
+        password.setFieldLabel("Password");
+        password.setAllowBlank(false);
+        password.setPassword(true);
 
         // remember me check box
-        this.rememberMe = new CheckBox();
-        this.rememberMe.setHideLabel(true);
-        this.rememberMe.setBoxLabel("Remember username");
-        this.rememberMe.setValue(true);
+        rememberMe = new CheckBox();
+        rememberMe.setHideLabel(true);
+        rememberMe.setBoxLabel("Remember username");
+        rememberMe.setValue(true);
 
-        this.add(this.username, formData);
-        this.add(this.password, formData);
-        this.add(this.rememberMe, formData);
+        this.add(username, formData);
+        this.add(password, formData);
+        this.add(rememberMe, formData);
     }
 
     public void setBusy(boolean busy) {
         if (busy) {
-            this.submit.setIcon(SenseIconProvider.ICON_LOADING);
+            submit.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 
@@ -134,11 +153,11 @@ public class LoginForm extends FormPanel {
                 }
             }
         };
-        this.username.addKeyListener(submitListener);
-        this.password.addKeyListener(submitListener);
+        username.addKeyListener(submitListener);
+        password.addKeyListener(submitListener);
 
         // form action is not a regular URL, but we listen for the submit event instead
-        this.setAction("javascript:;");
+        setAction("javascript:;");
     }
 
     public void setUsername(String username) {

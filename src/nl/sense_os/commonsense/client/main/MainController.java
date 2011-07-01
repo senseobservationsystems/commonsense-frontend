@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -19,7 +20,7 @@ import com.google.gwt.user.client.Window;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
-    private static final Logger logger = Logger.getLogger("MainController");
+    private static final Logger LOG = Logger.getLogger(MainController.class.getName());
     private View mainView;
     private String currentToken;
 
@@ -67,10 +68,23 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
     private void goToFirstScreen() {
 
-        // supply initial History token
-        String startLocation = NavPanel.HOME;
-        History.newItem(startLocation);
-        History.fireCurrentHistoryState();
+        String token = History.getToken();
+        if (token != null && token.contains("session_id=")) {
+            LOG.fine("Google auth redirect");
+
+            String sessionId = token.substring(10);
+
+            if (null != sessionId && sessionId.length() > 0) {
+                AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
+                authenticated.setData("sessionId", sessionId);
+                Dispatcher.forwardEvent(authenticated);
+            }
+        } else {
+            // supply initial History token
+            String startLocation = NavPanel.HOME;
+            History.newItem(startLocation);
+            History.fireCurrentHistoryState();
+        }
     }
 
     @Override
@@ -85,7 +99,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         if (isLoginRequired(token)) {
             UserModel user = Registry.<UserModel> get(Constants.REG_USER);
             if (null == user) {
-                logger.warning("Not signed in: refusing new history token " + token);
+                LOG.warning("Not signed in: refusing new history token " + token);
                 History.newItem(NavPanel.HOME);
                 History.fireCurrentHistoryState();
                 return;
