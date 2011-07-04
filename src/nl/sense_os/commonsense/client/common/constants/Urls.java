@@ -14,6 +14,7 @@ public class Urls {
     public static final String ENVIRONMENTS = BASE_URL + "/environments";
     public static final String GROUPS = BASE_URL + "/groups";
     public static final String LOGIN = BASE_URL + "/login";
+    public static final String LOGIN_GOOGLE = BASE_URL + "/login/openID/google";
     public static final String LOGOUT = BASE_URL + "/logout";
     public static final String SENSORS = BASE_URL + "/sensors";
     public static final String STATES = BASE_URL + "/states";

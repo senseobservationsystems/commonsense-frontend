@@ -178,8 +178,7 @@ public class LoginController extends Controller {
     private void loginThroughGoogle() {
         String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
                 + Location.getQueryString();
-        Window.open("http://api.dev.sense-os.nl/login/openID/google.json?callback_url=" + callback,
-                "_self", "");
+        Window.open(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback, "_self", "");
     }
 
     /**
