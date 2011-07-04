@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
+import nl.sense_os.commonsense.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
@@ -20,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.History;
 
 public class LoginPanel extends View {
 
@@ -93,9 +95,16 @@ public class LoginPanel extends View {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         resetFormValues();
+                        navigateHome();
                     }
                 });
         setBusy(false);
+    }
+
+    private void navigateHome() {
+        String startLocation = NavPanel.HOME;
+        History.newItem(startLocation);
+        History.fireCurrentHistoryState();
     }
 
     private void onError(AppEvent event) {
@@ -105,6 +114,7 @@ public class LoginPanel extends View {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         resetFormValues();
+                        navigateHome();
                     }
                 });
     }
