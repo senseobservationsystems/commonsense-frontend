@@ -155,7 +155,7 @@ public class LibraryController extends Controller {
 
         // prepare request properties
         final String url = Urls.SENSORS + ".json" + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&details=full" + "&shared=" + (shared ? "1" : "0");
+                + "&details=full" + (shared ? "&shared=1" : "");
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
