@@ -7,6 +7,11 @@
  */
 package nl.sense_os.commonsense.client.viz.panels.table;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -28,22 +33,17 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Logger;
-
 public class SensorDataGrid extends LayoutContainer {
 
     @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger("SensorDataGrid");
 
-    public SensorDataGrid(final List<SensorModel> sensors) {
+    public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
 
         // grid panel parameters
         ModelType model = createModelType();
         final List<ColumnConfig> colConf = createColConfig(sensors);
-        final String url = createUrl(sensors);
+        final String url = createUrl(sensors, startTime, endTime);
         final int pageSize = 25;
 
         // Grid.
@@ -152,7 +152,7 @@ public class SensorDataGrid extends LayoutContainer {
         return model;
     }
 
-    private String createUrl(List<SensorModel> sensors) {
+    private String createUrl(List<SensorModel> sensors, long startTime, long endTime) {
 
         int id = sensors.get(0).getId();
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
@@ -164,8 +164,8 @@ public class SensorDataGrid extends LayoutContainer {
             result += "&alias=" + alias;
         }
 
-        long timeRange = 1000l * 60 * 60 * 24 * 7 * 4; // 4 weeks
-        result += "&start_date=" + Math.round((System.currentTimeMillis() - timeRange) / 1000);
+        result += "&start_date=" + Math.round(startTime / 1000);
+        result += "&end_date=" + Math.round(endTime / 1000);
         result += "&total=1";
         return result;
     }

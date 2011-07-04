@@ -352,12 +352,9 @@ public class VizTypeChooser extends View {
             @Override
             public void handleEvent(FieldEvent be) {
                 Radio label = typesField.getValue();
-                if (label.equals(timeLineRadio) || label.equals(mapRadio)
-                        || label.equals(networkRadio)) {
+                if (label.equals(timeLineRadio) || label.equals(tableRadio)
+                        || label.equals(mapRadio) || label.equals(networkRadio)) {
                     buttonToTimeRange.setText("Next");
-
-                } else if (label.equals(tableRadio)) {
-                    buttonToTimeRange.setText("Go!");
 
                 } else {
                     LOG.warning("Unexpected selection: " + label);
@@ -370,13 +367,13 @@ public class VizTypeChooser extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().equals(buttonToTimeRange)) {
-                    if (buttonToTimeRange.getText().equalsIgnoreCase("next")) {
+                    String buttonLabel = buttonToTimeRange.getText();
+                    if (buttonLabel.equalsIgnoreCase("next")) {
                         layout.setActiveItem(timeRangeForm);
-                    } else {
-                        // skip time range selection
-                        submitEvent.setData("startTime", System.currentTimeMillis());
-                        submitEvent.setData("endTime", 0);
+                    } else if (buttonLabel.equalsIgnoreCase("go!")) {
                         submitForm();
+                    } else {
+                        LOG.warning("Unexpected button pressed: " + buttonLabel);
                     }
                 } else {
                     Dispatcher.forwardEvent(VizEvents.TypeChoiceCancelled);
@@ -548,7 +545,7 @@ public class VizTypeChooser extends View {
             submitEvent = new AppEvent(VizEvents.ShowTable);
             submitEvent.setData("sensors", sensors);
 
-            buttonToTimeRange.setText("Go!");
+            buttonToTimeRange.setText("Next");
 
         } else if (mapRadio.equals(selected)) {
             submitEvent = new AppEvent(VizEvents.ShowMap);

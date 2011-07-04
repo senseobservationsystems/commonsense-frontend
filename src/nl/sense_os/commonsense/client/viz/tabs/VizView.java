@@ -94,7 +94,9 @@ public class VizView extends View {
         } else if (type.equals(VizEvents.ShowTable)) {
             // logger.fine( "ShowTable");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            showTable(sensors);
+            final long startTime = event.getData("startTime");
+            final long endTime = event.getData("endTime");
+            showTable(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowMap)) {
             // logger.fine( "ShowMap");
@@ -285,7 +287,7 @@ public class VizView extends View {
         }
     }
 
-    private void showTable(List<SensorModel> sensors) {
+    private void showTable(List<SensorModel> sensors, long startTime, long endTime) {
 
         // add table tab item
         final TabItem item = new TabItem(createChartTitle(sensors));
@@ -297,7 +299,7 @@ public class VizView extends View {
         this.tabPanel.setSelection(item);
 
         // add sensor data grid
-        item.add(new SensorDataGrid(sensors), new FitData());
+        item.add(new SensorDataGrid(sensors, startTime, endTime), new FitData());
         item.layout();
     }
 
