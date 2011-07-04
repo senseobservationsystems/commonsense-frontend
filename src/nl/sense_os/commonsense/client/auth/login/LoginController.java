@@ -21,7 +21,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 
 public class LoginController extends Controller {
@@ -38,7 +37,9 @@ public class LoginController extends Controller {
         // general login events
         registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut,
                 LoginEvents.LoginRequest, LoginEvents.RequestLogout);
-        registerEventTypes(LoginEvents.GoogleAuthRequest, LoginEvents.GoogleAuthResult);
+        registerEventTypes(LoginEvents.GoogleAuthRequest, LoginEvents.GoogleAuthResult,
+                LoginEvents.GoogleAuthConflict, LoginEvents.GoogleAuthError,
+                LoginEvents.GoogleConnectRequest);
 
         // local events
         registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
@@ -111,12 +112,59 @@ public class LoginController extends Controller {
             final String sessionId = event.getData("sessionId");
             onGoogleAuthResult(sessionId);
 
+        } else if (eventType.equals(LoginEvents.GoogleConnectRequest)) {
+            LOG.finest("GoogleConnectRequest");
+            final String username = event.getData("username");
+            final String password = event.getData("password");
+            onGoogleConnectRequest(username, password);
+
         } else if (eventType.equals(LoginEvents.RequestLogout)) {
             LOG.finest("RequestLogout");
             logout();
 
         } else {
             forwardToView(loginView, event);
+        }
+    }
+
+    private void onGoogleConnectRequest(String username, String password) {
+
+        // prepare request details
+        String url = Urls.LOGIN + ".json";
+        String body = "{\"username\":\"" + username + "\",\"password\":\""
+                + Md5Hasher.hash(password) + "\"}";
+
+        // prepare request callback
+        RequestCallback callback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("POST login onError callback: " + exception.getMessage());
+                onLoginFailure(0);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("POST login response received: " + response.getStatusText());
+                final int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onGoogleConnectLoginSuccess(response.getText());
+                } else if (Response.SC_FORBIDDEN == statusCode) {
+                    onAuthenticationFailure();
+                } else {
+                    LOG.warning("POST login returned incorrect status: " + statusCode);
+                    onLoginFailure(statusCode);
+                }
+            }
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        try {
+            builder.sendRequest(body, callback);
+        } catch (RequestException e) {
+            LOG.warning("POST login request threw exception: " + e.getMessage());
+            onLoginFailure(0);
         }
     }
 
@@ -136,7 +184,7 @@ public class LoginController extends Controller {
      */
     private void login(String username, String password) {
 
-        // prepare quest details
+        // prepare request details
         String url = Urls.LOGIN + ".json";
         String body = "{\"username\":\"" + username + "\",\"password\":\""
                 + Md5Hasher.hash(password) + "\"}";
@@ -178,7 +226,38 @@ public class LoginController extends Controller {
     private void loginThroughGoogle() {
         String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
                 + Location.getQueryString();
-        Window.open(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback, "_self", "");
+        Location.replace(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback);
+    }
+
+    private void connectWithGoogle(String sessionId) {
+        String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
+                + Location.getQueryString();
+        Location.replace(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback + "&session_id="
+                + sessionId);
+    }
+
+    private void onGoogleConnectLoginSuccess(String response) {
+        if (response != null) {
+
+            // try to get "session_id" object
+            String sessionId = null;
+            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+                LoginResponseJso jso = JsonUtils.unsafeEval(response);
+                sessionId = jso.getSessionId();
+            }
+
+            if (null != sessionId) {
+                Registry.register(Constants.REG_SESSION_ID, sessionId);
+                connectWithGoogle(sessionId);
+
+            } else {
+                onLoginFailure(0);
+            }
+
+        } else {
+            LOG.severe("Error parsing login response: response=null");
+            onLoginFailure(0);
+        }
     }
 
     /**

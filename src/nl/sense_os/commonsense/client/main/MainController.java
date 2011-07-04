@@ -12,13 +12,10 @@ import nl.sense_os.commonsense.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -35,15 +32,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
         registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
-    }
-
-    /**
-     * Navigates the application to the home view
-     */
-    private void goHome() {
-        String startLocation = NavPanel.HOME;
-        History.newItem(startLocation);
-        History.fireCurrentHistoryState();
     }
 
     @Override
@@ -85,7 +73,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
                 Dispatcher.forwardEvent(authenticated);
             } else {
                 LOG.warning("Did not find Session ID after google authentication");
-                goHome();
+                navigateHome();
             }
 
         } else if (token != null && token.contains("error=")) {
@@ -108,29 +96,8 @@ public class MainController extends Controller implements ValueChangeHandler<Str
             Location.replace(newUrl);
 
         } else {
-            goHome();
+            navigateHome();
         }
-    }
-
-    private String urlParameterToFragment(String url, String parameterToFragment) {
-        String fragmentContent = Location.getParameter(parameterToFragment);
-
-        // hack together a new URL without the session_id parameter
-        String newUrl = Location.getProtocol() + "//" + Location.getHost() + Location.getPath();
-
-        // append any other parameters
-        String paramString = "?";
-        Map<String, List<String>> params = Location.getParameterMap();
-        for (Entry<String, List<String>> parameter : params.entrySet()) {
-            if (!parameter.getKey().equals(parameterToFragment)) {
-                paramString += parameter.getKey() + "=" + parameter.getValue().get(0) + "&";
-            }
-        }
-        paramString = paramString.substring(0, paramString.length() - 1);
-        newUrl += paramString;
-        newUrl += "#" + parameterToFragment + "=" + fragmentContent;
-
-        return newUrl;
     }
 
     @Override
@@ -158,15 +125,36 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         return valid;
     }
 
-    private void onError(String errorMsg) {
-        MessageBox.alert(null, "Failed to get login credentials from Google!"
-                + "<br><br>Error message: '" + errorMsg + "'", new Listener<MessageBoxEvent>() {
+    /**
+     * Navigates the application to the home view
+     */
+    private void navigateHome() {
+        String startLocation = NavPanel.HOME;
+        History.newItem(startLocation);
+        History.fireCurrentHistoryState();
+    }
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                goHome();
-            }
-        });
+    private void onError(String errorMsg) {
+
+        if (errorMsg.contains("e-mail address:") && errorMsg.contains("is already registered")) {
+
+            // parse email address
+            int startIndex = errorMsg.indexOf("e-mail address: ") + "e-mail address: ".length();
+            int endIndex = errorMsg.indexOf(" is already registered");
+            String email = errorMsg.substring(startIndex, endIndex);
+
+            // dispatch event
+            AppEvent connect = new AppEvent(LoginEvents.GoogleAuthConflict);
+            connect.setData("email", email);
+            Dispatcher.forwardEvent(connect);
+
+        } else {
+
+            // dispatch event
+            AppEvent error = new AppEvent(LoginEvents.GoogleAuthError);
+            error.setData("msg", errorMsg);
+            Dispatcher.forwardEvent(error);
+        }
     }
 
     private void onLoggedIn() {
@@ -205,5 +193,26 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         currentToken = token;
 
         forwardToView(mainView, navEvent);
+    }
+
+    private String urlParameterToFragment(String url, String parameterToFragment) {
+        String fragmentContent = Location.getParameter(parameterToFragment);
+
+        // hack together a new URL without the session_id parameter
+        String newUrl = Location.getProtocol() + "//" + Location.getHost() + Location.getPath();
+
+        // append any other parameters
+        String paramString = "?";
+        Map<String, List<String>> params = Location.getParameterMap();
+        for (Entry<String, List<String>> parameter : params.entrySet()) {
+            if (!parameter.getKey().equals(parameterToFragment)) {
+                paramString += parameter.getKey() + "=" + parameter.getValue().get(0) + "&";
+            }
+        }
+        paramString = paramString.substring(0, paramString.length() - 1);
+        newUrl += paramString;
+        newUrl += "#" + parameterToFragment + "=" + fragmentContent;
+
+        return newUrl;
     }
 }

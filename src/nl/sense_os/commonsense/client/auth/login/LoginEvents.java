@@ -18,4 +18,7 @@ public class LoginEvents {
     public static final EventType Show = new EventType();
     public static final EventType GoogleAuthRequest = new EventType();
     public static final EventType GoogleAuthResult = new EventType();
+    public static final EventType GoogleAuthConflict = new EventType();
+    public static final EventType GoogleAuthError = new EventType();
+    public static final EventType GoogleConnectRequest = new EventType();
 }

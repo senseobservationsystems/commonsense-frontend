@@ -7,11 +7,15 @@ import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -19,13 +23,21 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 
 public class LoginPanel extends View {
 
-    private static final Logger logger = Logger.getLogger("LoginPanel");
+    private static final Logger LOG = Logger.getLogger(LoginPanel.class.getName());
     private ContentPanel panel;
     private LoginForm form;
 
@@ -40,28 +52,38 @@ public class LoginPanel extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(LoginEvents.Show)) {
-            // logger.fine("Show");
+            // LOG.fine("Show");
             LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(LoginEvents.AuthenticationFailure)) {
-            logger.warning("AuthenticationFailure");
+            LOG.warning("AuthenticationFailure");
             onAuthenticationFailure(event);
 
         } else if (type.equals(LoginEvents.LoginSuccess)) {
-            // logger.fine("LoginSuccess");
+            // LOG.fine("LoginSuccess");
             onLoggedIn(event);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine("LoggedOut");
+            // LOG.fine("LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(LoginEvents.LoginFailure)) {
-            logger.warning("LoginFailure");
+            LOG.warning("LoginFailure");
             onError(event);
 
+        } else if (type.equals(LoginEvents.GoogleAuthConflict)) {
+            LOG.warning("GoogleAuthConflict");
+            final String email = event.getData("email");
+            onGoogleAuthConflict(email);
+
+        } else if (type.equals(LoginEvents.GoogleAuthError)) {
+            LOG.warning("GoogleAuthError");
+            final String msg = event.getData("msg");
+            onGoogleAuthError(msg);
+
         } else {
-            logger.severe("Unexpected event type: " + type);
+            LOG.severe("Unexpected event type: " + type);
         }
     }
 
@@ -117,6 +139,95 @@ public class LoginPanel extends View {
                         navigateHome();
                     }
                 });
+    }
+
+    private void onGoogleAuthConflict(String email) {
+
+        final Window window = new Window();
+        window.setLayout(new FitLayout());
+        window.setSize(325, 300);
+        window.setClosable(false);
+        window.setHeading("Login Failed");
+
+        FormPanel connectForm = new FormPanel();
+        connectForm.setLabelAlign(LabelAlign.TOP);
+        connectForm.setHeaderVisible(false);
+        connectForm.setBodyBorder(false);
+        connectForm.setScrollMode(Scroll.AUTOY);
+
+        LabelField explanation = new LabelField(
+                "Your Google email address is already registered with a Sense account!"
+                        + "<br><br>"
+                        + "Please enter the username and password of your Sense account, so we can link your Google account to it.");
+        explanation.setHideLabel(true);
+
+        // form fields
+        final TextField<String> username = new TextField<String>();
+        username.setFieldLabel("Sense Username");
+        username.setValue(email);
+        username.setAllowBlank(false);
+
+        final TextField<String> password = new TextField<String>();
+        password.setFieldLabel("Sense Password");
+        password.setAllowBlank(false);
+        password.setPassword(true);
+
+        // add fields to form
+        connectForm.add(explanation, new FormData("-10"));
+        connectForm.add(username, new FormData("-10"));
+        connectForm.add(password, new FormData("-10"));
+
+        // buttons
+        Button submit = new Button("Connect");
+        submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                window.hide();
+
+                AppEvent connect = new AppEvent(LoginEvents.GoogleConnectRequest);
+                connect.setData("username", username.getValue());
+                connect.setData("password", password.getValue());
+                fireEvent(connect);
+            }
+        });
+        new FormButtonBinding(connectForm).addButton(submit);
+
+        Button cancel = new Button("Cancel");
+        cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                window.hide();
+
+                String startLocation = NavPanel.HOME;
+                History.newItem(startLocation);
+                History.fireCurrentHistoryState();
+            }
+        });
+
+        // add form and buttons to window
+        window.add(connectForm);
+        window.addButton(submit);
+        window.addButton(cancel);
+        window.setButtonAlign(HorizontalAlignment.CENTER);
+
+        // show window
+        window.show();
+    }
+
+    private void onGoogleAuthError(String msg) {
+
+        MessageBox.alert(null, "Failed to get login credentials from Google!"
+                + "<br><br>Error message: '" + msg + "'", new Listener<MessageBoxEvent>() {
+
+            @Override
+            public void handleEvent(MessageBoxEvent be) {
+                String startLocation = NavPanel.HOME;
+                History.newItem(startLocation);
+                History.fireCurrentHistoryState();
+            }
+        });
     }
 
     private void onLoggedIn(AppEvent event) {
