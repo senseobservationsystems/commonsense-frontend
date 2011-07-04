@@ -68,8 +68,11 @@ public class DemoView extends View {
         if (null != sessionId) {
             params = "&session_id=" + sessionId;
         }
-        final Frame dashboard = new Frame("http://data.sense-os.nl/dashboard?plain=1&hd_mode=1"
-                + params);
+        String dashboardUrl = "http://data.sense-os.nl/dashboard?plain=1&hd_mode=1" + params;
+        if (Constants.DEV_MODE) {
+            dashboardUrl = "http://data.dev.sense-os.nl/dashboard?plain=1&hd_mode=1" + params;
+        }
+        Frame dashboard = new Frame(dashboardUrl);
         dashboard.setStylePrimaryName("senseFrame");
         final TabItem dashboardItem = new TabItem("Availability");
         dashboardItem.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH
@@ -100,7 +103,6 @@ public class DemoView extends View {
         humid3dItem.add(humid3d);
         this.tabPanel.add(humid3dItem);
     }
-
     private void showPanel(LayoutContainer parent) {
         if (null != parent) {
             initTabItems();
