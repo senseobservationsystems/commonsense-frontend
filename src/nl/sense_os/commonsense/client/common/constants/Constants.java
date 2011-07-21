@@ -23,17 +23,23 @@ public class Constants {
             "commonsense-test.appspot.com");
 
     /**
-     * Flag for dev mode. <code>true</code> if the app is deployed to anything but the stable,
-     * release candidate or 'ted' location.
+     * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
      */
-    public static final boolean DEV_MODE = true || GWT.getModuleBaseURL().contains(
-            "common.dev.sense-os.nl");
+    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
+            .contains("common.dev.sense-os.nl");
+
+    /**
+     * Flag for Apigee test mode. <code>true</code> if the app is deployed to
+     * apigee.common.sense-os.nl.
+     */
+    public static final boolean APIGEE_MODE = GWT.getModuleBaseURL().contains(
+            "apigee.common.sense-os.nl");
 
     /**
      * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
      */
     public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl")
-            || (!STABLE_MODE && !TED_MODE && !DEV_MODE);
+            || (!STABLE_MODE && !TED_MODE && !DEV_MODE && !APIGEE_MODE);
 
     /**
      * true if shortcut 'hacks' for easy developing are allowed

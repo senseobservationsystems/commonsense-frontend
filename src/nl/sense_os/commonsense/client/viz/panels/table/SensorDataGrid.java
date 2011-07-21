@@ -165,7 +165,9 @@ public class SensorDataGrid extends LayoutContainer {
         }
 
         result += "&start_date=" + Math.round(startTime / 1000);
-        result += "&end_date=" + Math.round(endTime / 1000);
+        if (endTime != -1) {
+            result += "&end_date=" + Math.round(endTime / 1000);
+        }
         result += "&total=1";
         return result;
     }

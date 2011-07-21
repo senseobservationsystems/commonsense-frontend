@@ -228,7 +228,7 @@ public abstract class VizPanel extends ContentPanel {
                 AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
                 refreshRequest.setData("sensors", sensors);
                 refreshRequest.setData("startTime", refreshStart);
-                refreshRequest.setData("endTime", System.currentTimeMillis());
+                refreshRequest.setData("endTime", end);
                 refreshRequest.setData("vizPanel", this);
                 refreshRequest.setData("showProgress", false);
                 Dispatcher.forwardEvent(refreshRequest);

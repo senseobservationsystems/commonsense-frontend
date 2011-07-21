@@ -289,22 +289,30 @@ public class DataController extends Controller {
 
             url += "?per_page=" + PER_PAGE;
             url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
-            String totalStr = "&total=1";
+            String totalStr = "";
 
-            if ((end - realStart) / 1000 >= 3600) { // only get 1000 points when the time range is
-                                                    // >= 1 hour
-                url += "&interval=" + Math.ceil(((double) (end - realStart) / 1000000d));
+            // request interpolation if the time range is >= 1 hour
+            long endTime = end == -1 ? System.currentTimeMillis() : end;
+            if ((endTime - realStart) >= 3600 * 1000) {
+                url += "&interval=" + Math.ceil(((double) (endTime - realStart) / 1000000d));
                 totalStr = ""; // with interval the max can be calculated no need for total
+            } else {
+                totalStr = "&total=1";
             }
 
+            // use alias if necessary
             if (-1 != sensor.getAlias()) {
                 url += "&alias=" + sensor.getAlias();
             }
+
+            // there should only be one page per request
             if (sensorTotal == 0) {
-                url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
+                if (end != -1) {
+                    url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
+                }
                 url += totalStr;
             } else {
-                LOG.severe("Requesting second chunk of data?! sensorTotal=" + sensorTotal);
+                LOG.severe("Requesting second page of data?! sensorTotal=" + sensorTotal);
             }
 
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);

@@ -64,7 +64,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Mon Jul 4 17:25";
+    public static final String LAST_DEPLOYED = "Thu Jul 7 17:00";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && true;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;

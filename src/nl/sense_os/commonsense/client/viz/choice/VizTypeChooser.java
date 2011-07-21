@@ -279,13 +279,13 @@ public class VizTypeChooser extends View {
                 long startTime = endTime;
                 Radio r = timeRangeField.getValue();
                 if (hourRadio.equals(r)) {
-                    startTime = endTime - hour;
+                    startTime = System.currentTimeMillis() - hour;
                 } else if (dayRadio.equals(r)) {
-                    startTime = endTime - day;
+                    startTime = System.currentTimeMillis() - day;
                 } else if (weekRadio.equals(r)) {
-                    startTime = endTime - week;
+                    startTime = System.currentTimeMillis() - week;
                 } else if (monthRadio.equals(r)) {
-                    startTime = endTime - 4 * week;
+                    startTime = System.currentTimeMillis() - 4 * week;
                 } else if (otherTimeRadio.equals(r)) {
                     return;
                 } else {
@@ -480,7 +480,7 @@ public class VizTypeChooser extends View {
      * the user presses "Go!".
      */
     private void saveSelectedTimes() {
-        long endTime = System.currentTimeMillis();
+        long endTime = -1;
         long startTime = endTime;
 
         // constants
@@ -491,16 +491,20 @@ public class VizTypeChooser extends View {
         // see which radio was selected
         Radio selected = timeRangeField.getValue();
         if (hourRadio.equals(selected)) {
-            startTime = endTime - hour;
+            startTime = System.currentTimeMillis() - hour;
+            endTime = -1;
 
         } else if (dayRadio.equals(selected)) {
-            startTime = endTime - day;
+            startTime = System.currentTimeMillis() - day;
+            endTime = -1;
 
         } else if (weekRadio.equals(selected)) {
-            startTime = endTime - week;
+            startTime = System.currentTimeMillis() - week;
+            endTime = -1;
 
         } else if (monthRadio.equals(selected)) {
-            startTime = endTime - Math.round(29.53 * day);
+            startTime = System.currentTimeMillis() - Math.round(29.53 * day);
+            endTime = -1;
 
         } else if (otherTimeRadio.equals(selected)) {
             DateWrapper startWrapper = new DateWrapper(startDateField.getValue());
@@ -521,7 +525,9 @@ public class VizTypeChooser extends View {
 
         DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_LONG);
         LOG.fine("Start: " + dtf.format(new Date(startTime)));
-        LOG.fine("End:   " + dtf.format(new Date(endTime)));
+        if (endTime != -1) {
+            LOG.fine("End:   " + dtf.format(new Date(endTime)));
+        }
 
         // save the start and end time in the event
         submitEvent.setData("startTime", startTime);

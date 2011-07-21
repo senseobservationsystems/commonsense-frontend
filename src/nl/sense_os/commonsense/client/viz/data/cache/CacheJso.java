@@ -83,7 +83,7 @@ final class CacheJso extends JavaScriptObject {
                     // select the right data points from the time series
                     for ( var k = 0; k < timeseries.data.length; k++) {
                         var dataPoint = timeseries.data[k];
-                        if (dataPoint.date >= start && dataPoint.date <= end) {
+                        if (dataPoint.date >= start && (end == -1 || dataPoint.date <= end)) {
                             selection.data.push(dataPoint);
 
                             // update start / end time of the selection time series
