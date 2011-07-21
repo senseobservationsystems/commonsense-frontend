@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.core.client.JsonUtils;
 
 public class StateEditor extends View {
 
@@ -193,8 +194,65 @@ public class StateEditor extends View {
 
     private void onInvokeComplete(AppEvent event) {
         setBusy(false);
-        returnField.setValue(event.<String> getData());
+        String response = event.<String> getData();
+        String pretty = makePrettyJson(response);
+        returnField.setValue(pretty);
         returnField.enable();
+    }
+
+    private String makePrettyJson(String response) {
+        response = response.replace("&quot;", "\"");
+        String pretty = "";
+        if (JsonUtils.safeToEval(response)) {
+            int indentAmount = 0;
+            String indentString = "  ";
+            for (int i = 0; i < response.length(); i++) {
+
+                // check for new lines
+                if (response.charAt(i) == '{') {
+                    pretty += "{\n";
+                    indentAmount++;
+                    // indent
+                    for (int j = 0; j < indentAmount; j++) {
+                        pretty += indentString;
+                    }
+                } else if (response.charAt(i) == '[') {
+                    pretty += "[\n";
+                    indentAmount++;
+                    // indent
+                    for (int j = 0; j < indentAmount; j++) {
+                        pretty += indentString;
+                    }
+                } else if (response.charAt(i) == ',') {
+                    pretty += ",\n";
+                    // indent
+                    for (int j = 0; j < indentAmount; j++) {
+                        pretty += indentString;
+                    }
+                } else if (response.charAt(i) == '}') {
+                    pretty += "\n";
+                    indentAmount--;
+                    // indent
+                    for (int j = 0; j < indentAmount; j++) {
+                        pretty += indentString;
+                    }
+                    pretty += "}";
+                } else if (response.charAt(i) == ']') {
+                    pretty += "\n";
+                    indentAmount--;
+                    // indent
+                    for (int j = 0; j < indentAmount; j++) {
+                        pretty += indentString;
+                    }
+                    pretty += "]";
+                } else {
+                    pretty += response.charAt(i);
+                }
+            }
+        } else {
+            pretty = response;
+        }
+        return "<pre>" + pretty + "</pre>";
     }
 
     private void onInvokeFailed(AppEvent event) {
@@ -205,8 +263,6 @@ public class StateEditor extends View {
             public void handleEvent(MessageBoxEvent be) {
                 if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
                     onSubmit();
-                } else {
-                    window.hide();
                 }
             }
         });

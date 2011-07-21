@@ -83,7 +83,7 @@ public class StateEditController extends Controller {
         if (params.size() > 0) {
             body = "{\"parameters\":[";
             for (String p : params) {
-                body += "\"" + p + "\",";
+                body += "\"" + p.replace("\"", "\\\"") + "\",";
             }
             body = body.substring(0, body.length() - 1);
             body += "]}";
