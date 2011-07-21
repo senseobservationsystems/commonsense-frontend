@@ -35,11 +35,8 @@ public class StateConnectController extends Controller {
         LOG.setLevel(Level.WARNING);
 
         registerEventTypes(StateConnectEvents.ShowSensorConnecter);
-
         registerEventTypes(StateConnectEvents.ServiceNameRequest);
-
         registerEventTypes(StateConnectEvents.ConnectRequested, StateConnectEvents.ConnectSuccess);
-
         registerEventTypes(StateConnectEvents.AvailableSensorsRequested,
                 StateConnectEvents.AvailableSensorsUpdated,
                 StateConnectEvents.AvailableSensorsNotUpdated);
@@ -248,5 +245,4 @@ public class StateConnectController extends Controller {
         // if we made it here, the service was not found!
         onServiceNameFailure();
     }
-
 }

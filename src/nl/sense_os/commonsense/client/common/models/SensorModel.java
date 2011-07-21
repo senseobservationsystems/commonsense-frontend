@@ -228,6 +228,11 @@ public class SensorModel extends BaseTreeModel {
         return this;
     }
 
+    public SensorModel setAvailServices(List<ServiceModel> services) {
+        set(AVAIL_SERVICES, services);
+        return this;
+    }
+
     public SensorModel setDataStructure(String dataStructure) {
         if (null == dataStructure) {
             remove(DATA_STRUCTURE);

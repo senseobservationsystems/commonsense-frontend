@@ -22,7 +22,6 @@ import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.client.sensors.unshare.UnshareEvents;
-import nl.sense_os.commonsense.client.states.create.AvailServicesResponseJso;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
@@ -36,6 +35,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -90,63 +90,45 @@ public class LibraryController extends Controller {
         return devices;
     }
 
-    private void getAvailableServices(final List<SensorModel> library, final int index) {
+    private void getAvailableServices(final List<SensorModel> library) {
 
-        if (index < library.size()) {
+        isLoadingServices = true;
+        notifyState();
 
-            isLoadingServices = true;
-            notifyState();
+        // prepare request properties
+        final String url = Urls.SENSORS + "/services/available.json";
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
-            SensorModel sensor = library.get(index);
-            String params = "";
-            if (sensor.getAlias() != -1) {
-                params = "?alias=" + sensor.getAlias();
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET available services onError callback: " + exception.getMessage());
+                onAvailServicesFailure(library);
             }
 
-            // prepare request properties
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available.json"
-                    + params;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-
-            // prepare request callback
-            RequestCallback reqCallback = new RequestCallback() {
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    LOG.warning("GET available services onError callback: "
-                            + exception.getMessage());
-                    onAvailServicesFailure(library, index);
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET available services response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onAvailServicesSuccess(response.getText(), library);
+                } else {
+                    LOG.warning("GET available services returned incorrect status: " + statusCode);
+                    onAvailServicesFailure(library);
                 }
-
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    LOG.finest("GET available services response received: "
-                            + response.getStatusText());
-                    int statusCode = response.getStatusCode();
-                    if (Response.SC_OK == statusCode) {
-                        onAvailServicesSuccess(response.getText(), library, index);
-                    } else {
-                        LOG.warning("GET available services returned incorrect status: "
-                                + statusCode);
-                        onAvailServicesFailure(library, index);
-                    }
-                }
-            };
-
-            // send request
-            RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-            builder.setHeader("X-SESSION_ID", sessionId);
-            try {
-                builder.sendRequest(null, reqCallback);
-            } catch (RequestException e) {
-                LOG.warning("GET  available services request threw exception: " + e.getMessage());
-                onAvailServicesFailure(library, index);
             }
+        };
 
-        } else {
-            // hooray we're done!
-            isLoadingServices = false;
-            notifyState();
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET  available services request threw exception: " + e.getMessage());
+            onAvailServicesFailure(library);
         }
     }
 
@@ -298,7 +280,7 @@ public class LibraryController extends Controller {
 
             // continue loading more details in the background
             if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
-                getAvailableServices(library, 0);
+                getAvailableServices(library);
             }
 
             // notify the view that the list is complete
@@ -356,25 +338,30 @@ public class LibraryController extends Controller {
 
     }
 
-    private void onAvailServicesFailure(List<SensorModel> library, int index) {
-        index++;
-        getAvailableServices(library, index);
+    private void onAvailServicesFailure(List<SensorModel> library) {
+        isLoadingServices = false;
+        notifyState();
     }
 
-    private void onAvailServicesSuccess(String response, List<SensorModel> library, int index) {
+    private void onAvailServicesSuccess(String response, List<SensorModel> library) {
 
         // parse list of services from response
-        List<ServiceModel> services = new ArrayList<ServiceModel>();
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
-            services = jso.getServices();
+            JsArray<AvailServicesResponseEntryJso> entries = jso.getEntries();
+            for (int i = 0; i < jso.getTotal(); i++) {
+                int id = entries.get(i).getSensorId();
+                List<ServiceModel> availServices = entries.get(i).getServices();
+                for (SensorModel sensor : library) {
+                    if (sensor.getId() == id) {
+                        sensor.setAvailServices(availServices);
+                    }
+                }
+            }
         }
 
-        SensorModel sensor = library.get(index);
-        sensor.set(SensorModel.AVAIL_SERVICES, services);
-
-        index++;
-        getAvailableServices(library, index);
+        isLoadingServices = false;
+        notifyState();
     }
 
     private void onFullDetailsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
