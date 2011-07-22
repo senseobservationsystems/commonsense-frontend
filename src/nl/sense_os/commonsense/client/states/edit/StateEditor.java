@@ -79,7 +79,7 @@ public class StateEditor extends View {
     }
 
     private void hideWindow() {
-        this.window.hide();
+        window.hide();
     }
 
     private void initButtons() {
@@ -99,39 +99,26 @@ public class StateEditor extends View {
                 }
             }
         };
-        this.submitButton = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO, l);
 
-        this.cancelButton = new Button("Cancel", l);
+        cancelButton = new Button("Cancel", l);
 
-        final FormButtonBinding binding = new FormButtonBinding(this.form);
-        binding.addButton(this.submitButton);
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(submitButton);
 
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.submitButton);
-        this.form.addButton(this.cancelButton);
-    }
-
-    private void initForm() {
-
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
-        this.form.setScrollMode(Scroll.AUTOY);
-
-        initFields();
-        initButtons();
-
-        this.window.add(form);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.addButton(submitButton);
+        form.addButton(cancelButton);
     }
 
     private void initFields() {
-        this.methodStore = new ListStore<ServiceMethodModel>();
+        methodStore = new ListStore<ServiceMethodModel>();
 
         methodField = new ComboBox<ServiceMethodModel>();
         methodField.setFieldLabel("Method");
         methodField.setDisplayField(ServiceMethodModel.NAME);
         methodField.setEmptyText("Select state service method...");
-        methodField.setStore(this.methodStore);
+        methodField.setStore(methodStore);
         methodField.setTypeAhead(true);
         methodField.setTriggerAction(TriggerAction.ALL);
 
@@ -147,6 +134,7 @@ public class StateEditor extends View {
         });
 
         Listener<FieldSetEvent> l = new Listener<FieldSetEvent>() {
+            @Override
             public void handleEvent(FieldSetEvent be) {
                 form.layout(true);
             }
@@ -170,34 +158,29 @@ public class StateEditor extends View {
         form.add(returnField, formData);
     }
 
+    private void initForm() {
+
+        form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
+        form.setScrollMode(Scroll.AUTOY);
+
+        initFields();
+        initButtons();
+
+        window.add(form);
+    }
+
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Set or get algorithm parameters");
-        this.window.setSize(400, 247);
-        this.window.setLayout(new FitLayout());
+        window = new CenteredWindow();
+        window.setHeading("Set or get algorithm parameters");
+        window.setSize(400, 247);
+        window.setLayout(new FitLayout());
 
         initForm();
-    }
-
-    private void setBusy(boolean busy) {
-        if (busy) {
-            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
-            this.cancelButton.disable();
-        } else {
-            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-            this.cancelButton.enable();
-        }
-    }
-
-    private void onInvokeComplete(AppEvent event) {
-        setBusy(false);
-        String response = event.<String> getData();
-        String pretty = makePrettyJson(response);
-        returnField.setValue(pretty);
-        returnField.enable();
     }
 
     private String makePrettyJson(String response) {
@@ -255,6 +238,14 @@ public class StateEditor extends View {
         return "<pre>" + pretty + "</pre>";
     }
 
+    private void onInvokeComplete(AppEvent event) {
+        setBusy(false);
+        String response = event.<String> getData();
+        String pretty = makePrettyJson(response);
+        returnField.setValue(pretty);
+        returnField.enable();
+    }
+
     private void onInvokeFailed(AppEvent event) {
         setBusy(false);
         MessageBox.confirm(null, "Method failed, retry?", new Listener<MessageBoxEvent>() {
@@ -273,12 +264,13 @@ public class StateEditor extends View {
         List<ServiceMethodModel> methods = stateSensor.get("methods");
 
         if (null != methods) {
+            methodStore.removeAll();
+            methodStore.add(methods);
+            methodField.clear();
 
-            this.methodStore.removeAll();
-            this.methodStore.add(methods);
+            window.show();
+            window.center();
 
-            this.window.show();
-            this.window.center();
         } else {
             MessageBox.alert(null, "This state algorithm cannot be edited!", null);
         }
@@ -302,8 +294,18 @@ public class StateEditor extends View {
         Dispatcher.forwardEvent(event);
     }
 
+    private void setBusy(boolean busy) {
+        if (busy) {
+            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            cancelButton.disable();
+        } else {
+            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            cancelButton.enable();
+        }
+    }
+
     private void updateParametersField(ServiceMethodModel method) {
-        List<String> params = method.getParameters();
+        List<String> params = method != null ? method.getParameters() : new ArrayList<String>();
 
         paramFields.removeAll();
         if (params.size() > 0) {
@@ -326,7 +328,7 @@ public class StateEditor extends View {
     }
 
     private void updateReturnField(ServiceMethodModel method) {
-        String returns = method.getReturnValue();
+        String returns = method != null ? method.getReturnValue() : "";
 
         if (returns.length() > 0) {
             returnField.setFieldLabel("Result (" + returns + "):");
