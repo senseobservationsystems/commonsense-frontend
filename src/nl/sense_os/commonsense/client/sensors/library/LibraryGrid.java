@@ -3,9 +3,12 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
+import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
+import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -15,12 +18,8 @@ import nl.sense_os.commonsense.client.sensors.unshare.UnshareEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -44,8 +43,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.GroupingStore;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -53,7 +50,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
@@ -76,12 +72,12 @@ public class LibraryGrid extends View {
     private Button unshareButton;
     private Button removeButton;
     private Button vizButton;
-    private StoreFilterField<SensorModel> filter;
     private ToolBar filterBar;
-    private boolean force = true;
+    private boolean forceRefresh = true;
 
     public LibraryGrid(Controller controller) {
         super(controller);
+        // LOG.setLevel(Level.ALL);
     }
 
     @Override
@@ -132,56 +128,36 @@ public class LibraryGrid extends View {
         }
     }
 
-    private void initFilter() {
+    private void initFilters() {
 
-        filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        filter = new StoreFilterField<SensorModel>() {
+        // text filter
+        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        textFilter.bind(store);
 
-            @Override
-            protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
-                    SensorModel record, String property, String filter) {
+        // filter to show only my own sensors
+        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        store.addFilter(ownerFilter);
 
-                String matchMe = record.getDisplayName().toLowerCase() + " "
-                        + record.getPhysicalSensor().toLowerCase() + " "
-                        + record.<String> get(SensorModel.DEVICE_TYPE, "").toLowerCase() + " "
-                        + record.<String> get(SensorModel.ENVIRONMENT_NAME, "").toLowerCase();
-                if (matchMe.contains(filter.toLowerCase())) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-        final CheckBox onlyMe = new CheckBox();
-        onlyMe.setBoxLabel("Only my own sensors");
-        onlyMe.setHideLabel(true);
-        onlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+        // checkbox to toggle filter
+        final CheckBox filterOnlyMe = new CheckBox();
+        filterOnlyMe.setBoxLabel("Only my own sensors");
+        filterOnlyMe.setHideLabel(true);
+        filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
-                StoreFilter<SensorModel> filter = new StoreFilter<SensorModel>() {
-                    @Override
-                    public boolean select(com.extjs.gxt.ui.client.store.Store<SensorModel> store,
-                            SensorModel parent, SensorModel item, String property) {
-                        UserModel user = Registry.get(Constants.REG_USER);
-                        return item.get(SensorModel.OWNER_USERNAME, "").equals(user.getUsername());
-                    };
-                };
 
-                if (onlyMe.getValue()) {
-                    store.addFilter(filter);
-                    store.applyFilters(null);
-                } else {
-                    store.removeFilter(filter);
-                    store.clearFilters();
-                }
+                ownerFilter.setEnabled(filterOnlyMe.getValue());
+                store.applyFilters(null);
             }
         });
-        filter.bind(store);
-        filterBar.add(filter);
+
+        // add filters to filter bar
+        filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        filterBar.add(textFilter);
         filterBar.add(new SeparatorToolItem());
-        filterBar.add(onlyMe);
+        filterBar.add(filterOnlyMe);
     }
 
     private void initGrid() {
@@ -195,12 +171,12 @@ public class LibraryGrid extends View {
                 // only load when the panel is not collapsed
                 if (panel.isExpanded()) {
                     if (loadConfig instanceof ListLoadConfig) {
-                        // LOG.fine( "Load library... Renew cache: " + force);
+                        // LOG.fine( "Load library... Renew cache: " + forceRefresh);
                         AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
                         loadRequest.setData("callback", callback);
-                        loadRequest.setData("renewCache", force);
+                        loadRequest.setData("renewCache", forceRefresh);
                         fireEvent(loadRequest);
-                        force = false;
+                        forceRefresh = false;
                     } else {
                         LOG.warning("Unexpected load config: " + loadConfig);
                         callback.onFailure(null);
@@ -272,10 +248,10 @@ public class LibraryGrid extends View {
             }
         });
 
-        force = true;
+        forceRefresh = true;
 
         initGrid();
-        initFilter();
+        initFilters();
         initToolBar();
         initHeaderTool();
 
@@ -369,7 +345,9 @@ public class LibraryGrid extends View {
     }
 
     private void onListUpdate() {
-        filter.clear();
+        // re-filter the sensors store
+        store.clearFilters();
+        store.applyFilters(null);
     }
 
     private void onRemoveClick() {
@@ -405,7 +383,7 @@ public class LibraryGrid extends View {
     }
 
     private void refreshLoader(boolean force) {
-        this.force = this.force || force;
+        this.forceRefresh = this.forceRefresh || force;
         loader.load();
     }
 

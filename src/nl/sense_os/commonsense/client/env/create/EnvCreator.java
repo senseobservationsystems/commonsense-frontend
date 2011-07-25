@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
+import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.env.components.EnvMap;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 
@@ -23,7 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -31,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -44,6 +47,9 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class EnvCreator extends View {
@@ -69,6 +75,8 @@ public class EnvCreator extends View {
     private boolean isOutlineValid;
     private ContentPanel sensorsPanel;
     private Grid<SensorModel> grid;
+    private ToolBar sensorsFilterBar;
+    private GroupingStore<SensorModel> sensorsStore;
 
     public EnvCreator(Controller c) {
         super(c);
@@ -77,18 +85,18 @@ public class EnvCreator extends View {
     private void checkValidity() {
 
         if (isFormValid) {
-            this.form.setHeading("Step 1: Basic info");
+            form.setHeading("Step 1: Basic info");
         }
 
         if (isOutlineValid) {
-            this.outlinePanel.setHeading("Step 2: Outline");
+            outlinePanel.setHeading("Step 2: Outline");
         }
 
         // submit button
         if (isFormValid && isOutlineValid) {
-            this.submitButton.enable();
+            submitButton.enable();
         } else {
-            this.submitButton.disable();
+            submitButton.disable();
         }
     }
 
@@ -109,7 +117,7 @@ public class EnvCreator extends View {
             onCreateFailure();
 
         } else if (type.equals(EnvCreateEvents.OutlineComplete)) {
-            LOGGER.warning("OutlineComplete");
+            LOGGER.finest("OutlineComplete");
             onOutlineComplete();
 
         } else {
@@ -121,7 +129,7 @@ public class EnvCreator extends View {
     private void hidePanel() {
         LOGGER.finest("Hide panel...");
 
-        this.window.hide();
+        window.hide();
     }
 
     /**
@@ -131,37 +139,101 @@ public class EnvCreator extends View {
     private void initButtons() {
 
         // forward button
-        this.submitButton = new Button("Submit", new SelectionListener<ButtonEvent>() {
+        submitButton = new Button("Submit", new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
                 submit();
             }
         });
-        this.submitButton.setMinWidth(75);
-        this.submitButton.disable();
+        submitButton.setMinWidth(75);
+        submitButton.disable();
 
         // cancel button
-        this.cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+        cancelButton = new Button("Cancel", new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
                 hidePanel();
             }
         });
-        this.cancelButton.setMinWidth(75);
+        cancelButton.setMinWidth(75);
 
-        this.buttons = new ButtonBar();
-        this.buttons.setAlignment(HorizontalAlignment.CENTER);
-        this.buttons.add(this.cancelButton);
-        this.buttons.add(this.submitButton);
+        buttons = new ButtonBar();
+        buttons.setAlignment(HorizontalAlignment.CENTER);
+        buttons.add(cancelButton);
+        buttons.add(submitButton);
+    }
+
+    private void initDevicesPanel() {
+        devicesPanel = new ContentPanel();
+        // this.sensorsPanel.setStyleAttribute("background-color", "white");
+        devicesPanel.setHeading("Step 3: Position devices");
+
+        Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                map.editDevices(be.getType().equals(Events.Expand));
+            }
+        };
+        devicesPanel.addListener(Events.Expand, enabler);
+        devicesPanel.addListener(Events.Collapse, enabler);
+
+        Text explanation = new Text("Click on the map to add devices to the new environment...");
+        devicesPanel.add(explanation, new FlowData(10));
+
+        Button resetButton = new Button("Reset", new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                map.clearDevices();
+                map.editOutline(false);
+                map.editDevices(true);
+                checkValidity();
+            }
+        });
+        resetButton.setMinWidth(75);
+        devicesPanel.add(resetButton, new FlowData(0, 10, 10, 10));
+    }
+
+    private void initSensorsFilters() {
+
+        // text filter
+        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        textFilter.bind(sensorsStore);
+
+        // filter to show only my own sensors
+        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        sensorsStore.addFilter(ownerFilter);
+
+        // checkbox to toggle filter
+        final CheckBox filterOnlyMe = new CheckBox();
+        filterOnlyMe.setBoxLabel("Only my own sensors");
+        filterOnlyMe.setHideLabel(true);
+        filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+
+                ownerFilter.setEnabled(filterOnlyMe.getValue());
+                sensorsStore.applyFilters(null);
+            }
+        });
+
+        // add filters to filter bar
+        sensorsFilterBar = new ToolBar();
+        sensorsFilterBar.add(new LabelToolItem("Filter: "));
+        sensorsFilterBar.add(textFilter);
+        sensorsFilterBar.add(new SeparatorToolItem());
+        sensorsFilterBar.add(filterOnlyMe);
     }
 
     private void initForm() {
 
-        this.form = new FormPanel();
-        this.form.setHeading("Step 1: Basic info");
-        this.form.setBodyBorder(false);
+        form = new FormPanel();
+        form.setHeading("Step 1: Basic info");
+        form.setBodyBorder(false);
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -176,13 +248,13 @@ public class EnvCreator extends View {
                 }
             }
         };
-        this.form.addListener(Events.Expand, enabler);
-        this.form.addListener(Events.Collapse, enabler);
+        form.addListener(Events.Expand, enabler);
+        form.addListener(Events.Collapse, enabler);
 
         initFormFields();
 
-        this.form.add(this.name, new FormData("-10"));
-        this.form.add(this.floors, new FormData("-10"));
+        form.add(name, new FormData("-10"));
+        form.add(floors, new FormData("-10"));
     }
 
     /**
@@ -190,18 +262,18 @@ public class EnvCreator extends View {
      */
     private void initFormFields() {
 
-        this.name = new TextField<String>();
-        this.name.setFieldLabel("Name");
-        this.name.setAllowBlank(false);
+        name = new TextField<String>();
+        name.setFieldLabel("Name");
+        name.setAllowBlank(false);
 
-        this.floors = new SpinnerField();
-        this.floors.setFieldLabel("Number of floors");
-        this.floors.setPropertyEditorType(Integer.class);
-        this.floors.setFormat(NumberFormat.getFormat("#"));
-        this.floors.setAllowDecimals(false);
-        this.floors.setAllowBlank(false);
-        this.floors.setMinValue(1);
-        this.floors.setOriginalValue(1);
+        floors = new SpinnerField();
+        floors.setFieldLabel("Number of floors");
+        floors.setPropertyEditorType(Integer.class);
+        floors.setFormat(NumberFormat.getFormat("#"));
+        floors.setAllowDecimals(false);
+        floors.setAllowBlank(false);
+        floors.setMinValue(1);
+        floors.setOriginalValue(1);
 
         // listen for form validity
         Listener<FieldEvent> validListener = new Listener<FieldEvent>() {
@@ -233,24 +305,24 @@ public class EnvCreator extends View {
                 checkValidity();
             }
         };
-        this.name.addListener(Events.Valid, validListener);
-        this.name.addListener(Events.Invalid, validListener);
-        this.floors.addListener(Events.Valid, validListener);
-        this.floors.addListener(Events.Invalid, validListener);
+        name.addListener(Events.Valid, validListener);
+        name.addListener(Events.Invalid, validListener);
+        floors.addListener(Events.Valid, validListener);
+        floors.addListener(Events.Invalid, validListener);
     }
 
     @Override
     protected void initialize() {
         LOGGER.finest("Initialize...");
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Create new environment");
-        this.window.setLayout(new BorderLayout());
-        this.window.setMinWidth(720);
-        this.window.setSize("85%", "600px");
+        window = new CenteredWindow();
+        window.setHeading("Create new environment");
+        window.setLayout(new BorderLayout());
+        window.setMinWidth(720);
+        window.setSize("85%", "600px");
 
-        this.west = new ContentPanel(new AccordionLayout());
-        this.west.setHeaderVisible(false);
+        west = new ContentPanel(new AccordionLayout());
+        west.setHeaderVisible(false);
 
         initForm();
         initOutlinePanel();
@@ -260,25 +332,25 @@ public class EnvCreator extends View {
         initButtons();
 
         // do layout
-        this.west.add(this.form);
-        this.west.add(this.outlinePanel);
-        this.west.add(this.devicesPanel);
-        this.west.add(this.sensorsPanel);
-        this.west.setBottomComponent(buttons);
-        this.window.add(this.west, new BorderLayoutData(LayoutRegion.WEST, .33f, 275, 2000));
-        this.window.add(this.map, new BorderLayoutData(LayoutRegion.CENTER));
+        west.add(form);
+        west.add(outlinePanel);
+        west.add(devicesPanel);
+        west.add(sensorsPanel);
+        west.setBottomComponent(buttons);
+        window.add(west, new BorderLayoutData(LayoutRegion.WEST, .33f, 275, 2000));
+        window.add(map, new BorderLayoutData(LayoutRegion.CENTER));
 
         super.initialize();
     }
 
     private void initMapPanel() {
-        this.map = new EnvMap();
+        map = new EnvMap();
     }
 
     private void initOutlinePanel() {
-        this.outlinePanel = new ContentPanel();
+        outlinePanel = new ContentPanel();
         // this.outlinePanel.setStyleAttribute("background-color", "white");
-        this.outlinePanel.setHeading("Step 2: Outline");
+        outlinePanel.setHeading("Step 2: Outline");
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -301,11 +373,11 @@ public class EnvCreator extends View {
                 }
             }
         };
-        this.outlinePanel.addListener(Events.Expand, enabler);
-        this.outlinePanel.addListener(Events.Collapse, enabler);
+        outlinePanel.addListener(Events.Expand, enabler);
+        outlinePanel.addListener(Events.Collapse, enabler);
 
         Text explanation = new Text("Click the map to draw an outline for your environment");
-        this.outlinePanel.add(explanation, new FlowData(10));
+        outlinePanel.add(explanation, new FlowData(10));
 
         Button resetButton = new Button("Reset", new SelectionListener<ButtonEvent>() {
 
@@ -319,46 +391,14 @@ public class EnvCreator extends View {
             }
         });
         resetButton.setMinWidth(75);
-        this.outlinePanel.add(resetButton, new FlowData(0, 10, 10, 10));
-    }
-
-    private void initDevicesPanel() {
-        this.devicesPanel = new ContentPanel();
-        // this.sensorsPanel.setStyleAttribute("background-color", "white");
-        this.devicesPanel.setHeading("Step 3: Position devices");
-
-        Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
-
-            @Override
-            public void handleEvent(ComponentEvent be) {
-                map.editDevices(be.getType().equals(Events.Expand));
-            }
-        };
-        this.devicesPanel.addListener(Events.Expand, enabler);
-        this.devicesPanel.addListener(Events.Collapse, enabler);
-
-        Text explanation = new Text("Click on the map to add devices to the new environment...");
-        this.devicesPanel.add(explanation, new FlowData(10));
-
-        Button resetButton = new Button("Reset", new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                map.clearDevices();
-                map.editOutline(false);
-                map.editDevices(true);
-                checkValidity();
-            }
-        });
-        resetButton.setMinWidth(75);
-        this.devicesPanel.add(resetButton, new FlowData(0, 10, 10, 10));
+        outlinePanel.add(resetButton, new FlowData(0, 10, 10, 10));
     }
 
     private void initSensorsPanel() {
 
-        this.sensorsPanel = new ContentPanel(new FitLayout());
+        sensorsPanel = new ContentPanel(new FitLayout());
         // this.sensorsPanel.setStyleAttribute("background-color", "white");
-        this.sensorsPanel.setHeading("Step 4: Other sensors");
+        sensorsPanel.setHeading("Step 4: Other sensors");
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -367,19 +407,20 @@ public class EnvCreator extends View {
                 // do something fancy
             }
         };
-        this.sensorsPanel.addListener(Events.Expand, enabler);
-        this.sensorsPanel.addListener(Events.Collapse, enabler);
+        sensorsPanel.addListener(Events.Expand, enabler);
+        sensorsPanel.addListener(Events.Collapse, enabler);
 
         Text explanation = new Text(
                 "Select any additional sensors that are related to your environment");
         LayoutContainer explWrapper = new LayoutContainer();
         explWrapper.add(explanation, new FlowData(10));
-        this.sensorsPanel.setTopComponent(explWrapper);
+        sensorsPanel.setTopComponent(explWrapper);
 
-        ListStore<SensorModel> store = new ListStore<SensorModel>();
-
+        sensorsStore = new GroupingStore<SensorModel>();
         List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-        store.add(library);
+        sensorsStore.add(library);
+
+        initSensorsFilters();
 
         CheckBoxSelectionModel<SensorModel> sm = new CheckBoxSelectionModel<SensorModel>();
 
@@ -388,11 +429,12 @@ public class EnvCreator extends View {
         cols.add(0, sm.getColumn());
         ColumnModel cm = new ColumnModel(cols);
 
-        grid = new Grid<SensorModel>(store, cm);
+        grid = new Grid<SensorModel>(sensorsStore, cm);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
 
-        this.sensorsPanel.add(grid);
+        sensorsPanel.setTopComponent(sensorsFilterBar);
+        sensorsPanel.add(grid);
     }
 
     private void onCreateFailure() {
@@ -430,32 +472,32 @@ public class EnvCreator extends View {
     private void resetPanel() {
         LOGGER.finest("Reset panel...");
 
-        this.form.reset();
-        this.map.clearOutline();
-        this.map.clearDevices();
-        this.map.editOutline(false);
-        this.map.editDevices(false);
-        this.submitButton.disable();
+        form.reset();
+        map.clearOutline();
+        map.clearDevices();
+        map.editOutline(false);
+        map.editDevices(false);
+        submitButton.disable();
 
-        ((AccordionLayout) this.west.getLayout()).setActiveItem(this.form);
+        ((AccordionLayout) west.getLayout()).setActiveItem(form);
     }
 
     private void showPanel() {
         resetPanel();
 
-        this.window.show();
-        this.window.center();
+        window.show();
+        window.center();
     }
 
     private void submit() {
         LOGGER.finest("Submit...");
 
         AppEvent create = new AppEvent(EnvCreateEvents.CreateRequest);
-        create.setData("name", this.name.getValue());
-        create.setData("floors", this.floors.getValue().intValue());
-        create.setData("devices", this.map.getDevices());
-        create.setData("sensors", this.grid.getSelectionModel().getSelectedItems());
-        create.setData("outline", this.map.getOutline());
+        create.setData("name", name.getValue());
+        create.setData("floors", floors.getValue().intValue());
+        create.setData("devices", map.getDevices());
+        create.setData("sensors", grid.getSelectionModel().getSelectedItems());
+        create.setData("outline", map.getOutline());
         fireEvent(create);
     }
 }

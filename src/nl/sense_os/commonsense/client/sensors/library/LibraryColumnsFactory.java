@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -14,10 +14,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 public class LibraryColumnsFactory {
-
-    private LibraryColumnsFactory() {
-        // private constructor to prevent instatiation
-    }
 
     public static ColumnModel create() {
 
@@ -72,5 +68,9 @@ public class LibraryColumnsFactory {
                 devUuid, dataType, environment, owner);
 
         return new ColumnModel(columns);
+    }
+
+    private LibraryColumnsFactory() {
+        // private constructor to prevent instatiation
     }
 }

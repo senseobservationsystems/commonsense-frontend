@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.utility.Md5Hasher;
+import nl.sense_os.commonsense.client.common.utility.Md5Hasher;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

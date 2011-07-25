@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -34,7 +34,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class SensorShareDialog extends View {
 
-    private static final Logger logger = Logger.getLogger("SensorShareDialog");
+    private static final Logger LOG = Logger.getLogger(SensorShareDialog.class.getName());
     private Window window;
     private FormPanel form;
     private TextField<String> user;
@@ -52,29 +52,29 @@ public class SensorShareDialog extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(SensorShareEvents.ShowShareDialog)) {
-            // logger.fine( "Show");
+            // LOG.fine( "Show");
             onShow(event);
 
         } else if (type.equals(SensorShareEvents.ShareCancelled)) {
-            // logger.fine( "Cancelled");
+            // LOG.fine( "Cancelled");
             hideWindow();
 
         } else if (type.equals(SensorShareEvents.ShareComplete)) {
-            // logger.fine( "Complete");
+            // LOG.fine( "Complete");
             onComplete(event);
 
         } else if (type.equals(SensorShareEvents.ShareFailed)) {
-            logger.warning("Failed");
+            LOG.warning("Failed");
             onFailed(event);
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
     private void hideWindow() {
-        this.window.hide();
-        this.form.reset();
+        window.hide();
+        form.reset();
         setBusy(false);
     }
 
@@ -92,20 +92,20 @@ public class SensorShareDialog extends View {
                 } else if (b.equals(cancelButton)) {
                     Dispatcher.forwardEvent(SensorShareEvents.ShareCancelled);
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
 
-        this.createButton = new Button("Share", SenseIconProvider.ICON_BUTTON_GO, l);
-        this.cancelButton = new Button("Cancel", l);
+        createButton = new Button("Share", SenseIconProvider.ICON_BUTTON_GO, l);
+        cancelButton = new Button("Cancel", l);
 
-        final FormButtonBinding binding = new FormButtonBinding(this.form);
-        binding.addButton(this.createButton);
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(createButton);
 
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.createButton);
-        this.form.addButton(this.cancelButton);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.addButton(createButton);
+        form.addButton(cancelButton);
     }
 
     private void initFields() {
@@ -114,34 +114,34 @@ public class SensorShareDialog extends View {
 
         store = new ListStore<TreeModel>();
 
-        this.user = new TextField<String>();
-        this.user.setFieldLabel("Share with");
-        this.user.setEmptyText("Enter a username...");
-        this.user.setAllowBlank(false);
+        user = new TextField<String>();
+        user.setFieldLabel("Share with");
+        user.setEmptyText("Enter a username...");
+        user.setAllowBlank(false);
 
-        this.form.add(this.user, formData);
+        form.add(user, formData);
     }
 
     private void initForm() {
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
-        this.form.setScrollMode(Scroll.AUTOY);
+        form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
+        form.setScrollMode(Scroll.AUTOY);
 
         initFields();
         initButtons();
 
-        this.window.add(form);
+        window.add(form);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Manage data sharing");
-        this.window.setLayout(new FitLayout());
-        this.window.setSize(323, 200);
+        window = new CenteredWindow();
+        window.setHeading("Manage data sharing");
+        window.setLayout(new FitLayout());
+        window.setSize(323, 200);
 
         initForm();
     }
@@ -149,7 +149,7 @@ public class SensorShareDialog extends View {
     private void onComplete(AppEvent event) {
 
         String info = "";
-        if (this.sensors.size() > 1) {
+        if (sensors.size() > 1) {
             info = "The sensors were successfully shared with " + user.getValue() + ".";
         } else {
             info = "The sensor was successfully shared with " + user.getValue() + ".";
@@ -177,13 +177,13 @@ public class SensorShareDialog extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.sensors = event.<List<SensorModel>> getData("sensors");
+        sensors = event.<List<SensorModel>> getData("sensors");
         List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-        this.store.removeAll();
-        this.store.add(users);
+        store.removeAll();
+        store.add(users);
 
-        this.window.show();
-        this.window.center();
+        window.show();
+        window.center();
     }
 
     private void onSubmit() {
@@ -201,11 +201,11 @@ public class SensorShareDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.createButton.setIcon(SenseIconProvider.ICON_LOADING);
-            this.cancelButton.disable();
+            createButton.setIcon(SenseIconProvider.ICON_LOADING);
+            cancelButton.disable();
         } else {
-            this.createButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-            this.cancelButton.enable();
+            createButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            cancelButton.enable();
         }
     }
 

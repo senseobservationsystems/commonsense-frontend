@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.panels.table.SensorDataGrid;
 import nl.sense_os.commonsense.client.viz.panels.timeline.TimeLinePanel;
@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.Frame;
 
 public class VizView extends View {
 
-    private static final Logger logger = Logger.getLogger("VizView");
+    private static final Logger LOG = Logger.getLogger(VizView.class.getName());
     private TabPanel tabPanel;
 
     public VizView(Controller controller) {
@@ -70,46 +70,46 @@ public class VizView extends View {
             // do nothing, initialization is done in initialize()
 
         } else if (type.equals(VizEvents.Show)) {
-            // logger.fine( "Show");
+            // LOG.fine( "Show");
             final LayoutContainer parent = event.<LayoutContainer> getData("parent");
             showPanel(parent);
 
         } else if (type.equals(LoginEvents.LoggedOut)) {
-            // logger.fine( "LoggedOut");
+            // LOG.fine( "LoggedOut");
             onLoggedOut(event);
 
         } else if (type.equals(FeedbackEvents.ShowFeedback)) {
-            logger.fine("ShowFeedback");
+            LOG.fine("ShowFeedback");
             final ContentPanel panel = event.<ContentPanel> getData("panel");
             final String title = event.<String> getData("title");
             showFeedback(panel, title);
 
         } else if (type.equals(VizEvents.ShowTimeLine)) {
-            // logger.fine( "ShowTimeLine");
+            // LOG.fine( "ShowTimeLine");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showTimeLine(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowTable)) {
-            // logger.fine( "ShowTable");
+            // LOG.fine( "ShowTable");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showTable(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowMap)) {
-            // logger.fine( "ShowMap");
+            // LOG.fine( "ShowMap");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long startTime = event.getData("startTime");
             final long endTime = event.getData("endTime");
             showMap(sensors, startTime, endTime);
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
-            logger.warning("ShowNetwork not implemented");
+            LOG.warning("ShowNetwork not implemented");
 
         } else {
-            logger.severe("Unexpected event type: " + type);
+            LOG.severe("Unexpected event type: " + type);
         }
     }
 
@@ -123,13 +123,13 @@ public class VizView extends View {
 
     private void initTabPanel() {
         // Tabs panel
-        this.tabPanel = new TabPanel();
-        this.tabPanel.setId("tab-panel");
-        this.tabPanel.setSize("100%", "100%");
-        this.tabPanel.setPlain(true);
-        this.tabPanel.setMinTabWidth(120);
-        this.tabPanel.setResizeTabs(true);
-        this.tabPanel.addStyleName("transparent");
+        tabPanel = new TabPanel();
+        tabPanel.setId("tab-panel");
+        tabPanel.setSize("100%", "100%");
+        tabPanel.setPlain(true);
+        tabPanel.setMinTabWidth(120);
+        tabPanel.setResizeTabs(true);
+        tabPanel.addStyleName("transparent");
 
         // Welcome tab item
         final Frame welcomeFrame = new Frame("http://welcome.sense-os.nl/node/9");
@@ -139,7 +139,7 @@ public class VizView extends View {
         welcomeItem.setLayout(new FitLayout());
         LayoutData data = new FitData(new Margins(0));
         welcomeItem.add(welcomeFrame, data);
-        this.tabPanel.add(welcomeItem);
+        tabPanel.add(welcomeItem);
 
         // // Track trace
         // final Frame trackTrace = new Frame("http://almendetracker.appspot.com/?profileURL="
@@ -203,14 +203,10 @@ public class VizView extends View {
         showTypeChoice(sensors);
     }
 
-    private void showTypeChoice(List<SensorModel> sensors) {
-        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, sensors);
-    }
-
     private void resetTabs() {
         for (TabItem items : tabPanel.getItems()) {
             if (items.isClosable()) {
-                this.tabPanel.remove(items);
+                tabPanel.remove(items);
             }
         }
     }
@@ -221,7 +217,7 @@ public class VizView extends View {
      * @see #onTagsDropped(ArrayList)
      */
     private void setupDragDrop() {
-        final DropTarget dropTarget = new DropTarget(this.tabPanel);
+        final DropTarget dropTarget = new DropTarget(tabPanel);
         dropTarget.setOperation(Operation.COPY);
         dropTarget.addDNDListener(new DNDListener() {
 
@@ -239,10 +235,10 @@ public class VizView extends View {
                         List<SensorModel> list = (List<SensorModel>) data;
                         showTypeChoice(list);
                     } else {
-                        logger.fine("Unknown list type: " + listEntry);
+                        LOG.fine("Unknown list type: " + listEntry);
                     }
                 } else {
-                    logger.warning("Cannot handle dropped data: " + data);
+                    LOG.warning("Cannot handle dropped data: " + data);
                 }
             }
         });
@@ -258,8 +254,8 @@ public class VizView extends View {
 
         item.add(panel);
 
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
+        tabPanel.add(item);
+        tabPanel.setSelection(item);
     }
 
     private void showMap(List<SensorModel> sensors, long startTime, long endTime) {
@@ -274,16 +270,16 @@ public class VizView extends View {
         MapPanel map = new MapPanel(sensors, startTime, endTime, title);
         item.add(map);
 
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
+        tabPanel.add(item);
+        tabPanel.setSelection(item);
     }
 
     private void showPanel(LayoutContainer parent) {
         if (null != parent) {
-            parent.add(this.tabPanel);
+            parent.add(tabPanel);
             parent.layout();
         } else {
-            logger.severe("Failed to show visualization panel: parent=null");
+            LOG.severe("Failed to show visualization panel: parent=null");
         }
     }
 
@@ -295,8 +291,8 @@ public class VizView extends View {
         item.setClosable(true);
         item.setScrollMode(Scroll.AUTO);
         item.setLayout(new FitLayout());
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
+        tabPanel.add(item);
+        tabPanel.setSelection(item);
 
         // add sensor data grid
         item.add(new SensorDataGrid(sensors, startTime, endTime), new FitData());
@@ -315,7 +311,11 @@ public class VizView extends View {
         final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime, title);
         item.add(chart);
 
-        this.tabPanel.add(item);
-        this.tabPanel.setSelection(item);
+        tabPanel.add(item);
+        tabPanel.setSelection(item);
+    }
+
+    private void showTypeChoice(List<SensorModel> sensors) {
+        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, sensors);
     }
 }

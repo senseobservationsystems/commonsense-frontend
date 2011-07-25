@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.utility;
+package nl.sense_os.commonsense.client.common.utility;
 
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.GroupModel;

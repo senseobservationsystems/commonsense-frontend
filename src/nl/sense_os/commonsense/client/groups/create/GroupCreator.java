@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.groups.create;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -29,11 +29,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupCreator extends View {
 
-    private static final Logger logger = Logger.getLogger("GroupCreator");
+    private static final Logger LOG = Logger.getLogger(GroupCreator.class.getName());
     private Window window;
     private FormPanel form;
     private TextField<String> name;
-    // private TextField<String> email;
     private TextField<String> username;
     private TextField<String> password;
     private Button submitButton;
@@ -51,15 +50,15 @@ public class GroupCreator extends View {
             onShow(event);
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)) {
-            // logger.fine( "CreateGroupComplete");
+            // LOG.fine( "CreateGroupComplete");
             onComplete(event);
 
         } else if (type.equals(GroupCreateEvents.CreateFailed)) {
-            // logger.warning( "CreateGroupFailed");
+            // LOG.warning( "CreateGroupFailed");
             onFailed(event);
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
@@ -93,7 +92,7 @@ public class GroupCreator extends View {
                 } else if (pressed.equals(cancelButton)) {
                     hideDialog();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
@@ -132,7 +131,7 @@ public class GroupCreator extends View {
 
             @Override
             public void handleEvent(FieldSetEvent be) {
-                // logger.fine( "Expand");
+                // LOG.fine( "Expand");
                 boolean isVisible = loginFields.isExpanded();
                 username.setAllowBlank(!isVisible);
                 password.setAllowBlank(!isVisible);

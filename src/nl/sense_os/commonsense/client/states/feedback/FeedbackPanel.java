@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
@@ -627,6 +627,15 @@ public class FeedbackPanel extends VizPanel {
         }
     }
 
+    private void removeActiveEvent() {
+        JsArray<Selection> sel = stateTline.getSelections();
+        if (sel != null && sel.length() > 0) {
+            final int row = sel.get(0).getRow();
+            stateTline.getData().removeRow(row);
+            stateTline.redraw();
+        }
+    }
+
     private void setBusy(boolean busy) {
         if (busy) {
             submitButton.setIcon(SenseIconProvider.ICON_LOADING);
@@ -652,15 +661,6 @@ public class FeedbackPanel extends VizPanel {
                 stateTline.getData().setValue(row, 2, label);
                 stateTline.redraw();
             }
-        }
-    }
-
-    private void removeActiveEvent() {
-        JsArray<Selection> sel = stateTline.getSelections();
-        if (sel != null && sel.length() > 0) {
-            final int row = sel.get(0).getRow();
-            stateTline.getData().removeRow(row);
-            stateTline.redraw();
         }
     }
 

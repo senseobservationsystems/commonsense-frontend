@@ -1,18 +1,22 @@
 package nl.sense_os.commonsense.client.states.list;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.common.utility.TreeCopier;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.library.GetSensorsResponseJso;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.client.utility.TreeCopier;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -29,10 +33,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 
 public class StateListController extends Controller {
 

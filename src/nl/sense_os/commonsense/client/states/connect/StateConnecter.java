@@ -5,11 +5,11 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.utility.SensorProcessor;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -116,12 +116,12 @@ public class StateConnecter extends View {
                 }
             }
         };
-        this.submitButton = new Button("Connect", SenseIconProvider.ICON_BUTTON_GO, l);
-        this.cancelButton = new Button("Cancel", l);
+        submitButton = new Button("Connect", SenseIconProvider.ICON_BUTTON_GO, l);
+        cancelButton = new Button("Cancel", l);
 
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.submitButton);
-        this.form.addButton(this.cancelButton);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.addButton(submitButton);
+        form.addButton(cancelButton);
 
         // handle selections
         GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
@@ -138,7 +138,7 @@ public class StateConnecter extends View {
                 }
             }
         });
-        this.grid.setSelectionModel(selectionModel);
+        grid.setSelectionModel(selectionModel);
     }
 
     private void initFields() {
@@ -148,7 +148,7 @@ public class StateConnecter extends View {
         ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeaderVisible(false);
         panel.setStyleAttribute("backgroundColor", "white");
-        panel.add(this.grid);
+        panel.add(grid);
 
         AdapterField field = new AdapterField(panel);
         field.setHeight(150);
@@ -156,32 +156,20 @@ public class StateConnecter extends View {
         field.setFieldLabel("Select a sensor to use as input for the state sensor");
 
         final FormData formData = new FormData("-10");
-        this.form.add(field, formData);
+        form.add(field, formData);
     }
 
     private void initForm() {
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setLabelAlign(LabelAlign.TOP);
-        this.form.setBodyBorder(false);
+        form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setLabelAlign(LabelAlign.TOP);
+        form.setBodyBorder(false);
         // this.form.setFieldWidth(275);
 
         initFields();
         initButtons();
 
-        this.window.add(this.form);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-
-        this.window = new CenteredWindow();
-        this.window.setHeading("Connect sensor(s) to state");
-        this.window.setSize(404, 250);
-        this.window.setLayout(new FitLayout());
-
-        initForm();
+        window.add(form);
     }
 
     private void initGrid() {
@@ -208,12 +196,12 @@ public class StateConnecter extends View {
         };
 
         // list loader
-        this.loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
+        loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
 
         // list store
-        this.store = new GroupingStore<SensorModel>(loader);
-        this.store.setKeyProvider(new SenseKeyProvider<SensorModel>());
-        this.store.setMonitorChanges(true);
+        store = new GroupingStore<SensorModel>(loader);
+        store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        store.setMonitorChanges(true);
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
@@ -224,13 +212,25 @@ public class StateConnecter extends View {
         view.setForceFit(true);
         view.setGroupRenderer(new SensorGroupRenderer(cm));
 
-        this.grid = new Grid<SensorModel>(this.store, cm);
-        this.grid.setModelProcessor(new SensorProcessor<SensorModel>());
-        this.grid.setView(view);
-        this.grid.setBorders(false);
-        this.grid.setId("state-connecter-grid");
-        this.grid.setStateful(true);
-        this.grid.setLoadMask(true);
+        grid = new Grid<SensorModel>(store, cm);
+        grid.setModelProcessor(new SensorProcessor<SensorModel>());
+        grid.setView(view);
+        grid.setBorders(false);
+        grid.setId("state-connecter-grid");
+        grid.setStateful(true);
+        grid.setLoadMask(true);
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+
+        window = new CenteredWindow();
+        window.setHeading("Connect sensor(s) to state");
+        window.setSize(404, 250);
+        window.setLayout(new FitLayout());
+
+        initForm();
     }
 
     private void onConnectFailure() {
@@ -250,7 +250,7 @@ public class StateConnecter extends View {
 
     private void onServiceNameFailure() {
 
-        this.waitDialog.close();
+        waitDialog.close();
 
         MessageBox.confirm(null, "Failed to get state service name, retry?",
                 new Listener<MessageBoxEvent>() {
@@ -269,47 +269,47 @@ public class StateConnecter extends View {
     private void onServiceNameSuccess(String serviceName) {
         this.serviceName = serviceName;
 
-        this.waitDialog.close();
+        waitDialog.close();
 
-        this.store.removeAll();
+        store.removeAll();
         refreshLoader();
 
-        this.submitButton.disable();
+        submitButton.disable();
         setBusy(false);
-        this.window.show();
-        this.window.center();
+        window.show();
+        window.center();
     }
 
     private void onShow(AppEvent event) {
-        this.stateSensor = event.getData();
+        stateSensor = event.getData();
 
         requestServiceName();
     }
 
     private void refreshLoader() {
-        this.loader.load();
+        loader.load();
     }
 
     private void requestServiceName() {
-        this.waitDialog = MessageBox.wait(null, "Please wait.", "Getting state sensor details...");
+        waitDialog = MessageBox.wait(null, "Please wait.", "Getting state sensor details...");
 
         AppEvent request = new AppEvent(StateConnectEvents.ServiceNameRequest);
-        request.setData("stateSensor", this.stateSensor);
+        request.setData("stateSensor", stateSensor);
         fireEvent(request);
     }
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
-            this.cancelButton.disable();
+            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            cancelButton.disable();
         } else {
-            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-            this.cancelButton.enable();
+            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            cancelButton.enable();
         }
     }
 
     private void submitForm() {
-        TreeModel sensor = this.grid.getSelectionModel().getSelectedItem();
+        TreeModel sensor = grid.getSelectionModel().getSelectedItem();
         AppEvent event = new AppEvent(StateConnectEvents.ConnectRequested);
         event.setData("stateSensor", stateSensor);
         event.setData("serviceName", serviceName);

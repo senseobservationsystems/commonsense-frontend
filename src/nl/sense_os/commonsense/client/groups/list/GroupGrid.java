@@ -6,12 +6,12 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.common.utility.SensorComparator;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.utility.SensorComparator;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;

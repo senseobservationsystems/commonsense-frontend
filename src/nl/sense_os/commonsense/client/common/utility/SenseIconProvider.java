@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.utility;
+package nl.sense_os.commonsense.client.common.utility;
 
 import java.util.List;
 import java.util.logging.Logger;

@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class GroupInviter extends View {
 
-    private static final Logger logger = Logger.getLogger("GroupInviter");
+    private static final Logger LOG = Logger.getLogger(GroupInviter.class.getName());
     private Window window;
     private FormPanel form;
     private TextField<String> username;
@@ -43,20 +43,20 @@ public class GroupInviter extends View {
             onShow(event);
 
         } else if (type.equals(InviteEvents.InviteComplete)) {
-            // logger.fine( "InviteComplete");
+            // LOG.fine( "InviteComplete");
             hideWindow();
 
         } else if (type.equals(InviteEvents.InviteFailed)) {
-            logger.warning("InviteFailed");
+            LOG.warning("InviteFailed");
             onFailed(event);
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
     private void hideWindow() {
-        this.window.hide();
+        window.hide();
         setBusy(false);
     }
 
@@ -73,49 +73,49 @@ public class GroupInviter extends View {
                 } else if (b.equals(cancelButton)) {
                     hideWindow();
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
 
-        this.inviteButton = new Button("Invite", SenseIconProvider.ICON_BUTTON_GO, l);
+        inviteButton = new Button("Invite", SenseIconProvider.ICON_BUTTON_GO, l);
 
-        this.cancelButton = new Button("Cancel", l);
+        cancelButton = new Button("Cancel", l);
         setBusy(false);
 
-        final FormButtonBinding binding = new FormButtonBinding(this.form);
-        binding.addButton(this.inviteButton);
+        final FormButtonBinding binding = new FormButtonBinding(form);
+        binding.addButton(inviteButton);
 
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.inviteButton);
-        this.form.addButton(this.cancelButton);
+        form.setButtonAlign(HorizontalAlignment.CENTER);
+        form.addButton(inviteButton);
+        form.addButton(cancelButton);
     }
 
     private void initForm() {
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
+        form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
 
         final FormData formData = new FormData("-10");
 
-        this.username = new TextField<String>();
-        this.username.setFieldLabel("Username");
-        this.username.setAllowBlank(false);
-        this.form.add(this.username, formData);
+        username = new TextField<String>();
+        username.setFieldLabel("Username");
+        username.setAllowBlank(false);
+        form.add(username, formData);
 
         initButtons();
 
-        this.window.add(this.form);
+        window.add(form);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Invite user to group");
-        this.window.setSize(323, 200);
-        this.window.setLayout(new FitLayout());
+        window = new CenteredWindow();
+        window.setHeading("Invite user to group");
+        window.setSize(323, 200);
+        window.setLayout(new FitLayout());
 
         initForm();
     }
@@ -126,28 +126,28 @@ public class GroupInviter extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.group = event.<GroupModel> getData("group");
-        logger.fine("Invite users for group " + group.getId());
-        this.form.reset();
+        group = event.<GroupModel> getData("group");
+        LOG.fine("Invite users for group " + group.getId());
+        form.reset();
 
-        this.window.show();
-        this.window.center();
+        window.show();
+        window.center();
     }
 
     private void onSubmit() {
         setBusy(true);
 
         AppEvent event = new AppEvent(InviteEvents.InviteRequested);
-        event.setData("groupId", this.group.getId());
-        event.setData("username", this.username.getValue());
+        event.setData("groupId", group.getId());
+        event.setData("username", username.getValue());
         fireEvent(event);
     }
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.inviteButton.setIcon(SenseIconProvider.ICON_LOADING);
+            inviteButton.setIcon(SenseIconProvider.ICON_LOADING);
         } else {
-            this.inviteButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            inviteButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
     }
 }

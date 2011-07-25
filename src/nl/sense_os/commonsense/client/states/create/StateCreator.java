@@ -5,17 +5,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
+import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
+import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.utility.SensorProcessor;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -35,8 +34,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -47,7 +44,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -61,7 +57,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 public class StateCreator extends View {
 
-    private static final Logger logger = Logger.getLogger("StateCreator");
+    private static final Logger LOG = Logger.getLogger(StateCreator.class.getName());
     private Window window;
     private FormPanel form;
     private TextField<String> nameField;
@@ -71,7 +67,6 @@ public class StateCreator extends View {
     private GroupingStore<SensorModel> sensorsStore;
     private Grid<SensorModel> sensorsGrid;
     private ToolBar sensorsFilterBar;
-    private StoreFilterField<SensorModel> sensorsFilter;
     private ListStore<ModelData> dataFieldsStore;
     private Grid<ModelData> dataFieldsGrid;
     private AdapterField dataFieldsField;
@@ -87,41 +82,41 @@ public class StateCreator extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateCreateEvents.ShowCreator)) {
-            logger.fine("ShowCreator");
+            LOG.fine("ShowCreator");
             showWindow();
 
         } else if (type.equals(StateCreateEvents.CreateServiceCancelled)) {
-            // logger.fine( "CreateCancelled");
+            // LOG.fine( "CreateCancelled");
             onCancelled(event);
 
         } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
-            // logger.fine( "CreateComplete");
+            // LOG.fine( "CreateComplete");
             onComplete(event);
 
         } else if (type.equals(StateCreateEvents.CreateServiceFailed)) {
-            logger.warning("CreateFailed");
+            LOG.warning("CreateFailed");
             onFailed(event);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsSuccess)) {
-            // logger.fine( "LoadSensorsSuccess");
+            // LOG.fine( "LoadSensorsSuccess");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsFailure)) {
-            logger.warning("LoadSensorsFailure");
+            LOG.warning("LoadSensorsFailure");
             onLoadSensorsComplete(null);
 
         } else if (type.equals(StateCreateEvents.AvailableServicesUpdated)) {
-            // logger.fine( "AvailableServicesUpdated");
+            // LOG.fine( "AvailableServicesUpdated");
             final List<ServiceModel> services = event.<List<ServiceModel>> getData("services");
             onAvailableServicesComplete(services);
 
         } else if (type.equals(StateCreateEvents.AvailableServicesNotUpdated)) {
-            logger.warning("AvailableServicesNotUpdated");
+            LOG.warning("AvailableServicesNotUpdated");
             onAvailableServicesComplete(null);
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
@@ -138,7 +133,7 @@ public class StateCreator extends View {
                 } else if (pressed.equals(cancelButton)) {
                     StateCreator.this.fireEvent(StateCreateEvents.CreateServiceCancelled);
                 } else {
-                    logger.warning("Unexpected button pressed");
+                    LOG.warning("Unexpected button pressed");
                 }
             }
         };
@@ -280,54 +275,34 @@ public class StateCreator extends View {
 
     private void initSensorsFilter() {
 
-        sensorsFilterBar = new ToolBar();
-        sensorsFilterBar.add(new LabelToolItem("Filter: "));
-        sensorsFilter = new StoreFilterField<SensorModel>() {
+        // text filter
+        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        textFilter.bind(sensorsStore);
 
-            @Override
-            protected boolean doSelect(Store<SensorModel> store, SensorModel parent,
-                    SensorModel record, String property, String filter) {
+        // filter to show only my own sensors
+        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        sensorsStore.addFilter(ownerFilter);
 
-                String matchMe = record.getDisplayName().toLowerCase() + " "
-                        + record.getPhysicalSensor().toLowerCase() + " "
-                        + record.<String> get(SensorModel.DEVICE_TYPE, "").toLowerCase() + " "
-                        + record.<String> get(SensorModel.ENVIRONMENT_NAME, "").toLowerCase();
-                if (matchMe.contains(filter.toLowerCase())) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-        final CheckBox onlyMe = new CheckBox();
-        onlyMe.setBoxLabel("Only my own sensors");
-        onlyMe.setHideLabel(true);
-        onlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+        // checkbox to toggle filter
+        final CheckBox filterOnlyMe = new CheckBox();
+        filterOnlyMe.setBoxLabel("Only my own sensors");
+        filterOnlyMe.setHideLabel(true);
+        filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
-                StoreFilter<SensorModel> filter = new StoreFilter<SensorModel>() {
-                    @Override
-                    public boolean select(com.extjs.gxt.ui.client.store.Store<SensorModel> store,
-                            SensorModel parent, SensorModel item, String property) {
-                        UserModel user = Registry.get(Constants.REG_USER);
-                        return item.get(SensorModel.OWNER_USERNAME, "").equals(user.getUsername());
-                    };
-                };
 
-                if (onlyMe.getValue()) {
-                    sensorsStore.addFilter(filter);
-                    sensorsStore.applyFilters(null);
-                } else {
-                    sensorsStore.removeFilter(filter);
-                    sensorsStore.clearFilters();
-                }
+                ownerFilter.setEnabled(filterOnlyMe.getValue());
+                sensorsStore.applyFilters(null);
             }
         });
-        sensorsFilter.bind(sensorsStore);
-        sensorsFilterBar.add(sensorsFilter);
+
+        // add filters to filter bar
+        sensorsFilterBar = new ToolBar();
+        sensorsFilterBar.add(new LabelToolItem("Filter: "));
+        sensorsFilterBar.add(textFilter);
         sensorsFilterBar.add(new SeparatorToolItem());
-        sensorsFilterBar.add(onlyMe);
+        sensorsFilterBar.add(filterOnlyMe);
     }
 
     private void initSensorsGrid() {
@@ -395,6 +370,8 @@ public class StateCreator extends View {
 
         if (sensors != null) {
             sensorsStore.add(sensors);
+            sensorsStore.clearFilters();
+            sensorsStore.applyFilters(null);
         } else {
             window.hide();
             MessageBox.alert(null, "Error getting list of source sensors!", null);

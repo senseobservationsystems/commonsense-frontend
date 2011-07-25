@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class SensorDeleteDialog extends View {
 
-    private static final Logger logger = Logger.getLogger("SensorDeleteDialog");
+    private static final Logger LOG = Logger.getLogger(SensorDeleteDialog.class.getName());
     private Window window;
     private Text text;
     private Button removeButton;
@@ -35,7 +35,7 @@ public class SensorDeleteDialog extends View {
 
     private void closeWindow() {
         setBusy(false);
-        this.window.hide();
+        window.hide();
     }
 
     @Override
@@ -43,20 +43,20 @@ public class SensorDeleteDialog extends View {
         final EventType type = event.getType();
 
         if (type.equals(SensorDeleteEvents.ShowDeleteDialog)) {
-            logger.fine("Show");
+            LOG.fine("Show");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             onShow(sensors);
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
-            logger.fine("DeleteSuccess");
+            LOG.fine("DeleteSuccess");
             onRemoveSuccess();
 
         } else if (type.equals(SensorDeleteEvents.DeleteFailure)) {
-            logger.warning("DeleteFailure");
+            LOG.warning("DeleteFailure");
             onRemoveFailure();
 
         } else {
-            logger.warning("Unexpected event type");
+            LOG.warning("Unexpected event type");
         }
 
     }
@@ -76,26 +76,26 @@ public class SensorDeleteDialog extends View {
             }
         };
 
-        this.removeButton = new Button("Yes", SenseIconProvider.ICON_BUTTON_GO, l);
-        this.cancelButton = new Button("No", l);
-        this.window.setButtonAlign(HorizontalAlignment.CENTER);
-        this.window.addButton(this.removeButton);
-        this.window.addButton(this.cancelButton);
+        removeButton = new Button("Yes", SenseIconProvider.ICON_BUTTON_GO, l);
+        cancelButton = new Button("No", l);
+        window.setButtonAlign(HorizontalAlignment.CENTER);
+        window.addButton(removeButton);
+        window.addButton(cancelButton);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Remove sensors");
-        this.window.setLayout(new FitLayout());
-        this.window.setSize(323, 200);
+        window = new CenteredWindow();
+        window.setHeading("Remove sensors");
+        window.setLayout(new FitLayout());
+        window.setSize(323, 200);
 
-        this.text = new Text();
-        this.text.setStyleAttribute("font-size", "13px");
-        this.text.setStyleAttribute("margin", "10px");
-        this.window.add(text);
+        text = new Text();
+        text.setStyleAttribute("font-size", "13px");
+        text.setStyleAttribute("margin", "10px");
+        window.add(text);
 
         initButtons();
 
@@ -103,9 +103,9 @@ public class SensorDeleteDialog extends View {
     }
 
     private void onRemoveFailure() {
-        this.text.setText("Removal failed, retry?");
+        text.setText("Removal failed, retry?");
         setBusy(false);
-        this.window.show();
+        window.show();
     }
 
     private void onRemoveSuccess() {
@@ -126,9 +126,9 @@ public class SensorDeleteDialog extends View {
         message += "<br><br>";
         message += "Warning: the removal can not be undone! Any data you stored for this sensor will be lost. Forever.";
 
-        this.text.setText(message);
-        this.window.show();
-        this.window.center();
+        text.setText(message);
+        window.show();
+        window.center();
     }
 
     private void remove() {
@@ -140,11 +140,11 @@ public class SensorDeleteDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            this.removeButton.setIcon(SenseIconProvider.ICON_LOADING);
-            this.cancelButton.setEnabled(false);
+            removeButton.setIcon(SenseIconProvider.ICON_LOADING);
+            cancelButton.setEnabled(false);
         } else {
-            this.removeButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-            this.cancelButton.setEnabled(true);
+            removeButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            cancelButton.setEnabled(true);
         }
     }
 }

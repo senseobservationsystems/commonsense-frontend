@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.common.utility.TestData;
 import nl.sense_os.commonsense.client.demo.DemoController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
@@ -32,7 +33,6 @@ import nl.sense_os.commonsense.client.states.defaults.StateDefaultsController;
 import nl.sense_os.commonsense.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateListController;
-import nl.sense_os.commonsense.client.utility.TestData;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
@@ -64,7 +64,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Thu Jul 7 17:00";
+    public static final String LAST_DEPLOYED = "Fri Jul 22 09:39";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;

@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -40,7 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class StateDefaultsDialog extends View {
 
-    private static final Logger logger = Logger.getLogger("StateDefaultsDialog");
+    private static final Logger LOG = Logger.getLogger(StateDefaultsDialog.class.getName());
     private CenteredWindow window;
     private ListStore<DeviceModel> store;
     private Grid<DeviceModel> grid;
@@ -59,24 +59,24 @@ public class StateDefaultsDialog extends View {
         final EventType type = event.getType();
 
         if (type.equals(StateDefaultsEvents.CheckDefaults)) {
-            // logger.fine( "CheckDefaults");
+            // LOG.fine( "CheckDefaults");
             showDialog();
 
         } else if (type.equals(StateDefaultsEvents.CheckDefaultsSuccess)) {
-            // logger.fine( "CheckDefaultsSuccess");
+            // LOG.fine( "CheckDefaultsSuccess");
             onCheckDefaultsSucess();
 
         } else if (type.equals(StateDefaultsEvents.CheckDefaultsFailure)) {
-            logger.warning("CheckDefaultsFailure");
+            LOG.warning("CheckDefaultsFailure");
             onCheckDefaultsFailure();
 
         } else {
-            logger.warning("Unexpected event type: " + type);
+            LOG.warning("Unexpected event type: " + type);
         }
     }
 
-    protected void hideDialog() {
-        this.window.hide();
+    private void hideDialog() {
+        window.hide();
     }
 
     private void initButtons() {
@@ -118,17 +118,17 @@ public class StateDefaultsDialog extends View {
     }
 
     private void initForm() {
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
-        this.form.setScrollMode(Scroll.AUTOY);
-        this.form.setLabelAlign(LabelAlign.TOP);
+        form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
+        form.setScrollMode(Scroll.AUTOY);
+        form.setLabelAlign(LabelAlign.TOP);
 
         LabelField label = new LabelField("CommonSense will generate default state sensors, "
                 + "using the sensors in your library.<br><br>");
         label.setHideLabel(true);
 
-        AdapterField gridField = new AdapterField(this.grid);
+        AdapterField gridField = new AdapterField(grid);
         gridField.setHeight(100);
         gridField.setResizeWidget(true);
         gridField.setFieldLabel("Select device(s) to use for the states");
@@ -222,12 +222,12 @@ public class StateDefaultsDialog extends View {
         window.center();
     }
 
-    protected void submit() {
+    private void submit() {
         setBusy(true);
 
         AppEvent checkDefaults = new AppEvent(StateDefaultsEvents.CheckDefaultsRequest);
         checkDefaults.setData("devices", grid.getSelectionModel().getSelection());
-        checkDefaults.setData("overwrite", this.overwrite.getValue());
+        checkDefaults.setData("overwrite", overwrite.getValue());
         fireEvent(checkDefaults);
     }
 }
