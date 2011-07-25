@@ -177,7 +177,7 @@ public class StateEditor extends View {
 
         window = new CenteredWindow();
         window.setHeading("Set or get algorithm parameters");
-        window.setSize(400, 247);
+        window.setSize(640, 360);
         window.setLayout(new FitLayout());
 
         initForm();

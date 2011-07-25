@@ -1,13 +1,14 @@
 package nl.sense_os.commonsense.client.states.connect;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
 import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
+import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 
@@ -22,6 +23,8 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -37,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -45,6 +49,9 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnecter extends View {
@@ -60,10 +67,11 @@ public class StateConnecter extends View {
     private String serviceName;
     private MessageBox waitDialog;
     private Grid<SensorModel> grid;
+    private ToolBar filterBar;
 
     public StateConnecter(Controller c) {
         super(c);
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.WARNING);
     }
 
     @Override
@@ -144,19 +152,57 @@ public class StateConnecter extends View {
     private void initFields() {
 
         initGrid();
+        initFilters();
 
         ContentPanel panel = new ContentPanel(new FitLayout());
         panel.setHeaderVisible(false);
         panel.setStyleAttribute("backgroundColor", "white");
+        panel.setTopComponent(filterBar);
         panel.add(grid);
 
         AdapterField field = new AdapterField(panel);
-        field.setHeight(150);
+        field.setHeight(380);
         field.setResizeWidget(true);
         field.setFieldLabel("Select a sensor to use as input for the state sensor");
 
         final FormData formData = new FormData("-10");
         form.add(field, formData);
+    }
+
+    /**
+     * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
+     * owner filter.
+     */
+    private void initFilters() {
+
+        // text filter
+        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        textFilter.bind(store);
+
+        // filter to show only my own sensors
+        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        store.addFilter(ownerFilter);
+
+        // checkbox to toggle filter
+        final CheckBox filterOnlyMe = new CheckBox();
+        filterOnlyMe.setBoxLabel("Only my own sensors");
+        filterOnlyMe.setHideLabel(true);
+        filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+
+                ownerFilter.setEnabled(filterOnlyMe.getValue());
+                store.applyFilters(null);
+            }
+        });
+
+        // add filters to filter bar
+        filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        filterBar.add(textFilter);
+        filterBar.add(new SeparatorToolItem());
+        filterBar.add(filterOnlyMe);
     }
 
     private void initForm() {
@@ -227,7 +273,7 @@ public class StateConnecter extends View {
 
         window = new CenteredWindow();
         window.setHeading("Connect sensor(s) to state");
-        window.setSize(404, 250);
+        window.setSize(540, 480);
         window.setLayout(new FitLayout());
 
         initForm();

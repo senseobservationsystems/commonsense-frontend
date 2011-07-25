@@ -128,6 +128,10 @@ public class LibraryGrid extends View {
         }
     }
 
+    /**
+     * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
+     * owner filter.
+     */
     private void initFilters() {
 
         // text filter
