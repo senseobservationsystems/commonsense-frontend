@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.sensors.library;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.CommonSense;
@@ -55,7 +54,7 @@ public class LibraryController extends Controller {
 
     public LibraryController() {
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.WARNING);
 
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -90,13 +89,21 @@ public class LibraryController extends Controller {
         return devices;
     }
 
-    private void getAvailableServices(final List<SensorModel> library) {
+    /**
+     * Requests a list of all available services for all sensors the user owns.
+     * 
+     * @param alias
+     *            Optional parameter to get the available services for sensors that are not shared
+     *            directly with the user but with a group.
+     */
+    private void getAvailableServices(String alias) {
 
         isLoadingServices = true;
         notifyState();
 
         // prepare request properties
-        final String url = Urls.SENSORS + "/services/available.json";
+        final String params = alias != null && alias.length() > 0 ? "alias=" + alias : "";
+        final String url = Urls.SENSORS + "/services/available.json?" + params;
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -104,8 +111,8 @@ public class LibraryController extends Controller {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                LOG.warning("GET available services onError callback: " + exception.getMessage());
-                onAvailServicesFailure(library);
+                LOG.warning("GET available services error callback: " + exception.getMessage());
+                onAvailServicesFailure();
             }
 
             @Override
@@ -113,10 +120,12 @@ public class LibraryController extends Controller {
                 LOG.finest("GET available services response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onAvailServicesSuccess(response.getText(), library);
+                    onAvailServicesSuccess(response.getText());
+                } else if (Response.SC_NO_CONTENT == statusCode) {
+                    onAvailServicesSuccess(null);
                 } else {
                     LOG.warning("GET available services returned incorrect status: " + statusCode);
-                    onAvailServicesFailure(library);
+                    onAvailServicesFailure();
                 }
             }
         };
@@ -128,7 +137,7 @@ public class LibraryController extends Controller {
             builder.sendRequest(null, reqCallback);
         } catch (RequestException e) {
             LOG.warning("GET  available services request threw exception: " + e.getMessage());
-            onAvailServicesFailure(library);
+            onAvailServicesFailure();
         }
     }
 
@@ -145,7 +154,7 @@ public class LibraryController extends Controller {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                LOG.warning("GET sensors onError callback: " + exception.getMessage());
+                LOG.warning("GET sensors error callback: " + exception.getMessage());
                 onFullDetailsFailure(callback);
             }
 
@@ -154,19 +163,9 @@ public class LibraryController extends Controller {
                 LOG.finest("GET sensors response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    // different callbacks for shared or unshared requests
-                    if (shared) {
-                        onSharedSensorsSuccess(response.getText(), library, page, callback);
-                    } else {
-                        onUnsharedSensorsSuccess(response.getText(), library, page, callback);
-                    }
+                    onFullDetailsSuccess(response.getText(), library, page, shared, callback);
                 } else if (Response.SC_NO_CONTENT == statusCode) {
-                    // different callbacks for shared or unshared requests
-                    if (shared) {
-                        onSharedSensorsSuccess(null, library, page, callback);
-                    } else {
-                        onUnsharedSensorsSuccess(null, library, page, callback);
-                    }
+                    onFullDetailsSuccess(null, library, page, shared, callback);
                 } else {
                     LOG.warning("GET sensors returned incorrect status: " + statusCode);
                     onFullDetailsFailure(callback);
@@ -182,6 +181,17 @@ public class LibraryController extends Controller {
         } catch (RequestException e) {
             LOG.warning("GET sensors request threw exception: " + e.getMessage());
             onFullDetailsFailure(callback);
+        }
+    }
+
+    protected void onFullDetailsSuccess(String response, List<SensorModel> library, int page,
+            boolean shared, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+
+        // different callbacks for shared or unshared requests
+        if (shared) {
+            onSharedSensorsSuccess(response, library, page, callback);
+        } else {
+            onUnsharedSensorsSuccess(response, library, page, callback);
         }
     }
 
@@ -278,11 +288,6 @@ public class LibraryController extends Controller {
 
         } else {
 
-            // continue loading more details in the background
-            if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
-                getAvailableServices(library);
-            }
-
             // notify the view that the list is complete
             onLoadComplete(library, callback);
         }
@@ -338,12 +343,14 @@ public class LibraryController extends Controller {
 
     }
 
-    private void onAvailServicesFailure(List<SensorModel> library) {
+    private void onAvailServicesFailure() {
         isLoadingServices = false;
         notifyState();
     }
 
-    private void onAvailServicesSuccess(String response, List<SensorModel> library) {
+    private void onAvailServicesSuccess(String response) {
+
+        List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
 
         // parse list of services from response
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
@@ -392,6 +399,11 @@ public class LibraryController extends Controller {
                 groupSensor.setAlias(group.getId());
                 library.add(groupSensor);
             }
+        }
+
+        // get available services fro the group sensors
+        if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.size() > 0) {
+            getAvailableServices("" + group.getId());
         }
 
         // next group
@@ -506,6 +518,11 @@ public class LibraryController extends Controller {
             getFullDetails(library, page, true, callback);
 
         } else {
+            // request full details for my own sensors
+            if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
+                getAvailableServices(null);
+            }
+
             // continue by getting the group sensors
             getGroups(library, callback);
         }
