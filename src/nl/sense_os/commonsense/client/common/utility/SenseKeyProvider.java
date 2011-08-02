@@ -38,7 +38,7 @@ public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M
             return "G_" + group.getId() + ": " + group.getName() + "; ";
         } else if (model instanceof SensorModel) {
             SensorModel sensor = (SensorModel) model;
-            return "S_" + sensor.getId() + sensor.getName() + sensor.getPhysicalSensor()
+            return "S_" + sensor.getId() + sensor.getName() + sensor.getDescription()
                     + sensor.getType() + "; ";
         } else if (model instanceof UserModel) {
             UserModel user = (UserModel) model;

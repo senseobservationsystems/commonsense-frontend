@@ -79,7 +79,7 @@ public class SensorDataGrid extends LayoutContainer {
                 for (SensorModel sensor : sensors) {
                     if (id.equals("" + sensor.getId())) {
                         String name = sensor.getName();
-                        String deviceType = sensor.getPhysicalSensor();
+                        String deviceType = sensor.getDescription();
                         if (name.equals(deviceType)) {
                             return name;
                         }

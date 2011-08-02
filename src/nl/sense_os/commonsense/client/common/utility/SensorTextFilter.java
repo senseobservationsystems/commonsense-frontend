@@ -11,7 +11,7 @@ public class SensorTextFilter<M extends SensorModel> extends StoreFilterField<M>
     protected boolean doSelect(Store<M> store, M parent, M record, String property, String filter) {
 
         String matchMe = record.getDisplayName().toLowerCase() + " "
-                + record.getPhysicalSensor().toLowerCase() + " "
+                + record.getDescription().toLowerCase() + " "
                 + record.<String> get(SensorModel.DEVICE_TYPE, "").toLowerCase() + " "
                 + record.<String> get(SensorModel.ENVIRONMENT_NAME, "").toLowerCase() + " "
                 + record.<String> get(SensorModel.OWNER_USERNAME, "").toLowerCase();

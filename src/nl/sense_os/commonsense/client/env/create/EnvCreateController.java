@@ -213,7 +213,7 @@ public class EnvCreateController extends Controller {
         String sensor = "{";
         sensor += "\"" + SensorModel.NAME + "\":\"position\",";
         sensor += "\"" + SensorModel.DISPLAY_NAME + "\":\"position\",";
-        sensor += "\"" + SensorModel.PHYSICAL_SENSOR + "\":\"position\",";
+        sensor += "\"" + SensorModel.DESCRIPTION + "\":\"position\",";
         sensor += "\"" + SensorModel.DATA_TYPE + "\":\"json\",";
         sensor += "\"" + SensorModel.DATA_STRUCTURE + "\":\"" + dataStructure + "\"";
         sensor += "}";

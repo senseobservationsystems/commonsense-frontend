@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.client.sensors.library;
 
-import java.util.Arrays;
-import java.util.List;
-
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
@@ -12,6 +9,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LibraryColumnsFactory {
 
@@ -32,20 +32,7 @@ public class LibraryColumnsFactory {
 
         ColumnConfig name = new ColumnConfig(SensorModel.DISPLAY_NAME, "Name", 200);
 
-        ColumnConfig physical = new ColumnConfig(SensorModel.PHYSICAL_SENSOR, "Physical sensor",
-                200);
-        physical.setRenderer(new GridCellRenderer<SensorModel>() {
-
-            @Override
-            public Object render(SensorModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<SensorModel> store, Grid<SensorModel> grid) {
-                if (model.getType() == 1 && !model.getPhysicalSensor().equals(model.getName())) {
-                    return model.getPhysicalSensor();
-                } else {
-                    return "";
-                }
-            }
-        });
+        ColumnConfig physical = new ColumnConfig(SensorModel.DESCRIPTION, "Description", 200);
         physical.setHidden(true);
 
         ColumnConfig devId = new ColumnConfig(SensorModel.DEVICE_ID, "Device ID", 50);

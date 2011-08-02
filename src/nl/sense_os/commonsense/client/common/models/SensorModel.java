@@ -1,11 +1,11 @@
 package nl.sense_os.commonsense.client.common.models;
 
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.data.TreeModel;
+
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
-import com.extjs.gxt.ui.client.data.TreeModel;
 
 /**
  * Model for a sensor. GXT-style bean, used in various GXT components.
@@ -14,7 +14,7 @@ public class SensorModel extends BaseTreeModel {
 
     public static final String DATA_STRUCTURE = "data_structure";
     public static final String DATA_TYPE = "data_type";
-    public static final String PHYSICAL_SENSOR = "device_type";
+    public static final String DESCRIPTION = "device_type";
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String DISPLAY_NAME = "display_name";
@@ -61,7 +61,7 @@ public class SensorModel extends BaseTreeModel {
         setId(jso.getId());
         setName(jso.getName());
         setType(jso.getType());
-        setPhysicalSensor(jso.getPhysicalSensor());
+        setDescription(jso.getPhysicalSensor());
         setDataStructure(jso.getDataStructure());
         setDataType(jso.getDataType());
         setDevice(jso.getDevice());
@@ -137,6 +137,13 @@ public class SensorModel extends BaseTreeModel {
     }
 
     /**
+     * @return The description of this sensor, of any.
+     */
+    public String getDescription() {
+        return get(DESCRIPTION);
+    }
+
+    /**
      * @return The device that this sensor is connected to.
      */
     public DeviceModel getDevice() {
@@ -194,14 +201,6 @@ public class SensorModel extends BaseTreeModel {
     }
 
     /**
-     * @return The physical sensing device of this sensor, of any. Not to be confused with the
-     *         device that the sensor is connected to.
-     */
-    public String getPhysicalSensor() {
-        return get(PHYSICAL_SENSOR);
-    }
-
-    /**
      * @return The sensor type, e.g. a physical sensor, or state sensor.
      */
     public int getType() {
@@ -247,6 +246,15 @@ public class SensorModel extends BaseTreeModel {
             remove(DATA_TYPE);
         } else {
             set(DATA_TYPE, dataType);
+        }
+        return this;
+    }
+
+    public SensorModel setDescription(String physicalSensor) {
+        if (null == physicalSensor) {
+            remove(DESCRIPTION);
+        } else {
+            set(DESCRIPTION, physicalSensor);
         }
         return this;
     }
@@ -320,15 +328,6 @@ public class SensorModel extends BaseTreeModel {
             remove(PAGER_TYPE);
         } else {
             set(PAGER_TYPE, pagerType);
-        }
-        return this;
-    }
-
-    public SensorModel setPhysicalSensor(String physicalSensor) {
-        if (null == physicalSensor) {
-            remove(PHYSICAL_SENSOR);
-        } else {
-            set(PHYSICAL_SENSOR, physicalSensor);
         }
         return this;
     }

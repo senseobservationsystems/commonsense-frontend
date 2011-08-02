@@ -204,7 +204,7 @@ public class StateGrid extends View {
                 filter = filter.toLowerCase();
                 if (record.getName().toLowerCase().contains(filter)) {
                     return true;
-                } else if (record.getPhysicalSensor().toLowerCase().contains(filter)) {
+                } else if (record.getDescription().toLowerCase().contains(filter)) {
                     return true;
                 } else if (record.getDevice() != null
                         && record.getDevice().getType().toLowerCase().contains(filter)) {
