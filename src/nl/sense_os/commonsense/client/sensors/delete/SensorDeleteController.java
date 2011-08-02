@@ -19,6 +19,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class SensorDeleteController extends Controller {
 
@@ -46,8 +47,10 @@ public class SensorDeleteController extends Controller {
             SensorModel sensor = sensors.get(index);
 
             // prepare request properties
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + ".json");
+            final String url = urlBuilder.buildString();
             final Method method = RequestBuilder.DELETE;
-            final String url = Urls.SENSORS + "/" + sensor.getId() + ".json";
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback

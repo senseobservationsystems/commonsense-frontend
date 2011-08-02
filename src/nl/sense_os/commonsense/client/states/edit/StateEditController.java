@@ -21,6 +21,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class StateEditController extends Controller {
     private static final Logger LOG = Logger.getLogger(StateEditController.class.getName());
@@ -74,8 +75,10 @@ public class StateEditController extends Controller {
 
         // prepare request properties
         final Method method = params.size() > 0 ? RequestBuilder.POST : RequestBuilder.GET;
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
-                + "/" + serviceMethod.getName() + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
+                + stateSensor.getId() + "/" + serviceMethod.getName() + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // create request body

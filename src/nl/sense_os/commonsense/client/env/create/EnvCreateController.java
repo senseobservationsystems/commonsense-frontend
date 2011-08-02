@@ -19,9 +19,11 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Polygon;
@@ -52,7 +54,10 @@ public class EnvCreateController extends Controller {
             String body = "{\"sensors\":" + sensorsArray + "}";
 
             // prepare request properties
-            final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + "/sensors.json";
+            final Method method = RequestBuilder.POST;
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_ENV + "/" + environment.getId() + "/sensors.json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback
@@ -81,13 +86,13 @@ public class EnvCreateController extends Controller {
             };
 
             // send request
-            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+            RequestBuilder builder = new RequestBuilder(method, url);
             builder.setHeader("X-SESSION_ID", sessionId);
+            builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
             try {
                 builder.sendRequest(body, reqCallback);
             } catch (RequestException e) {
-                LOG.warning("POST environment sensors request threw exception: "
-                        + e.getMessage());
+                LOG.warning("POST environment sensors request threw exception: " + e.getMessage());
                 onAddSensorsFailure(environment);
             }
 
@@ -95,7 +100,6 @@ public class EnvCreateController extends Controller {
             onCreateComplete();
         }
     }
-
     private void addSensorToDevice(final SensorModel sensor, final List<DeviceModel> devices,
             final int index, final String name, final int floors, final Polygon outline,
             final List<SensorModel> sensors) {
@@ -110,7 +114,10 @@ public class EnvCreateController extends Controller {
         body += "}";
 
         // prepare request properties
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/device.json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/device.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -137,8 +144,9 @@ public class EnvCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
@@ -162,7 +170,10 @@ public class EnvCreateController extends Controller {
         String position = outline.getBounds().getCenter().toUrlValue();
 
         // prepare request properties
-        final String url = Urls.ENVIRONMENTS + ".json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_ENV + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         String body = "{\"environment\":{";
@@ -195,8 +206,9 @@ public class EnvCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
@@ -220,7 +232,10 @@ public class EnvCreateController extends Controller {
         String body = "{\"sensor\":" + sensor + "}";
 
         // prepare request properties
-        final String url = Urls.SENSORS + ".json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -247,8 +262,9 @@ public class EnvCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
@@ -448,7 +464,10 @@ public class EnvCreateController extends Controller {
         LatLng latLng = device.<LatLng> get("latlng");
 
         // prepare request properties
-        final String url = Urls.SENSORS + "/" + positionSensor.getId() + "/data.json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + positionSensor.getId() + "/data.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         String value = "{\\\"latitude\\\":" + latLng.getLatitude() + ",\\\"longitude\\\":"
@@ -482,8 +501,9 @@ public class EnvCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {

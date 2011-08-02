@@ -13,9 +13,11 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class RegisterController extends Controller {
 
@@ -72,7 +74,10 @@ public class RegisterController extends Controller {
             String surname, String email, String mobile) {
 
         // prepare request properties
-        final String url = Urls.USERS + ".json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_USERS + ".json");
+        final String url = urlBuilder.buildString();
 
         // create request body
         String userJson = "\"user\":{";
@@ -108,7 +113,8 @@ public class RegisterController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {

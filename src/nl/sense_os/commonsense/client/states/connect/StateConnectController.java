@@ -20,9 +20,11 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateConnectController extends Controller {
@@ -45,7 +47,10 @@ public class StateConnectController extends Controller {
     private void connectService(SensorModel sensor, SensorModel stateSensor, String serviceName) {
 
         // prepare request properties
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request body
@@ -77,8 +82,9 @@ public class StateConnectController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
@@ -117,7 +123,10 @@ public class StateConnectController extends Controller {
         }
         SensorModel sensor = (SensorModel) stateSensor.getChild(0);
 
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
+        final Method method = RequestBuilder.GET;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -143,7 +152,7 @@ public class StateConnectController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
         try {
             builder.sendRequest(null, reqCallback);

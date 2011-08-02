@@ -26,6 +26,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupController extends Controller {
@@ -72,7 +73,9 @@ public class GroupController extends Controller {
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
         // prepare request properties
-        final String url = Urls.GROUPS + "/" + group.getId() + "/users" + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -124,7 +127,9 @@ public class GroupController extends Controller {
         Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
 
         // prepare request properties
-        final String url = Urls.GROUPS + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -220,7 +225,9 @@ public class GroupController extends Controller {
     private void leaveGroup(int groupId) {
 
         // prepare request property
-        final String url = Urls.GROUPS + "/" + groupId + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + groupId + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request callback

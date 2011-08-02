@@ -38,9 +38,11 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryController extends Controller {
@@ -96,14 +98,21 @@ public class LibraryController extends Controller {
      *            Optional parameter to get the available services for sensors that are not shared
      *            directly with the user but with a group.
      */
-    private void getAvailableServices(String alias) {
+    private void getAvailableServices(final int page, final String alias) {
 
         isLoadingServices = true;
         notifyState();
 
         // prepare request properties
-        final String params = alias != null && alias.length() > 0 ? "alias=" + alias : "";
-        final String url = Urls.SENSORS + "/services/available.json?" + params;
+        final Method method = RequestBuilder.GET;
+        final UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + "/services/available.json");
+        urlBuilder.setParameter("per_page", "" + PER_PAGE);
+        urlBuilder.setParameter("page", "" + page);
+        if (alias != null && alias.length() > 0) {
+            urlBuilder.setParameter("alias", alias);
+        }
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -120,9 +129,9 @@ public class LibraryController extends Controller {
                 LOG.finest("GET available services response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onAvailServicesSuccess(response.getText());
+                    onAvailServicesSuccess(response.getText(), page, alias);
                 } else if (Response.SC_NO_CONTENT == statusCode) {
-                    onAvailServicesSuccess(null);
+                    onAvailServicesSuccess(null, page, alias);
                 } else {
                     LOG.warning("GET available services returned incorrect status: " + statusCode);
                     onAvailServicesFailure();
@@ -131,7 +140,7 @@ public class LibraryController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
         try {
             builder.sendRequest(null, reqCallback);
@@ -145,8 +154,15 @@ public class LibraryController extends Controller {
             final boolean shared, final AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // prepare request properties
-        final String url = Urls.SENSORS + ".json" + "?per_page=" + PER_PAGE + "&page=" + page
-                + "&details=full" + (shared ? "&shared=1" : "");
+        final UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + ".json");
+        urlBuilder.setParameter("per_page", "" + PER_PAGE);
+        urlBuilder.setParameter("page", "" + page);
+        urlBuilder.setParameter("details", "full");
+        if (shared) {
+            urlBuilder.setParameter("shared", "1");
+        }
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -184,7 +200,7 @@ public class LibraryController extends Controller {
         }
     }
 
-    protected void onFullDetailsSuccess(String response, List<SensorModel> library, int page,
+    private void onFullDetailsSuccess(String response, List<SensorModel> library, int page,
             boolean shared, AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // different callbacks for shared or unshared requests
@@ -199,7 +215,10 @@ public class LibraryController extends Controller {
             final AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // prepare request properties
-        final String url = Urls.GROUPS + ".json" + "?per_page=" + PER_PAGE;
+        final UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_GROUPS + ".json");
+        urlBuilder.setParameter("per_page", "" + PER_PAGE);
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -238,7 +257,7 @@ public class LibraryController extends Controller {
         }
     }
 
-    private void getGroupSensors(final List<GroupModel> groups, final int index,
+    private void getGroupSensors(final List<GroupModel> groups, final int index, final int page,
             final List<SensorModel> library,
             final AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
@@ -247,8 +266,13 @@ public class LibraryController extends Controller {
             int groupId = groups.get(index).getId();
 
             // prepare request properties
-            final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full&alias="
-                    + groupId;
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
+            urlBuilder.setParameter("per_page", "" + PER_PAGE);
+            urlBuilder.setParameter("page", "" + page);
+            urlBuilder.setParameter("details", "full");
+            urlBuilder.setParameter("alias", "" + groupId);
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback
@@ -265,10 +289,11 @@ public class LibraryController extends Controller {
                     LOG.finest("GET group sensors response received: " + response.getStatusText());
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
-                        onGroupSensorsSuccess(response.getText(), groups, index, library, callback);
+                        onGroupSensorsSuccess(response.getText(), groups, index, page, library,
+                                callback);
                     } else if (Response.SC_NO_CONTENT == statusCode) {
                         // no content
-                        onGroupSensorsSuccess(null, groups, index, library, callback);
+                        onGroupSensorsSuccess(null, groups, index, page, library, callback);
                     } else {
                         LOG.warning("GET group sensors returned incorrect status: " + statusCode);
                         onGroupSensorsFailure(callback);
@@ -348,7 +373,7 @@ public class LibraryController extends Controller {
         notifyState();
     }
 
-    private void onAvailServicesSuccess(String response) {
+    private void onAvailServicesSuccess(String response, int page, String alias) {
 
         List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
 
@@ -356,7 +381,7 @@ public class LibraryController extends Controller {
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
             JsArray<AvailServicesResponseEntryJso> entries = jso.getEntries();
-            for (int i = 0; i < jso.getTotal(); i++) {
+            for (int i = 0; i < entries.length(); i++) {
                 int id = entries.get(i).getSensorId();
                 List<ServiceModel> availServices = entries.get(i).getServices();
                 for (SensorModel sensor : library) {
@@ -364,6 +389,12 @@ public class LibraryController extends Controller {
                         sensor.setAvailServices(availServices);
                     }
                 }
+            }
+
+            if (entries.length() < jso.getTotal()) {
+                page++;
+                getAvailableServices(page, alias);
+                return;
             }
         }
 
@@ -380,14 +411,16 @@ public class LibraryController extends Controller {
     }
 
     private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
-            List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+            int page, List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
         LOG.fine("Received group sensors response...");
 
         // parse group sensors
         List<SensorModel> groupSensors = new ArrayList<SensorModel>();
+        int total = 0;
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
             groupSensors.addAll(responseJso.getSensors());
+            total = responseJso.getTotal();
         }
 
         LOG.finest("Parsed group sensors...");
@@ -401,14 +434,22 @@ public class LibraryController extends Controller {
             }
         }
 
-        // get available services fro the group sensors
-        if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.size() > 0) {
-            getAvailableServices("" + group.getId());
-        }
+        int retrieved = page * PER_PAGE + groupSensors.size();
+        if (total > retrieved) {
+            // not all sensors from the group are retrieved yet
+            page++;
+            getGroupSensors(groups, index, page, library, callback);
 
-        // next group
-        index++;
-        getGroupSensors(groups, index, library, callback);
+        } else {
+            if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.size() > 0) {
+                // get available services from the group sensors
+                getAvailableServices(0, "" + group.getId());
+            }
+
+            // next group
+            index++;
+            getGroupSensors(groups, index, 0, library, callback);
+        }
     }
 
     private void onGroupsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
@@ -425,7 +466,7 @@ public class LibraryController extends Controller {
             groups = jso.getGroups();
         }
 
-        getGroupSensors(groups, 0, library, callback);
+        getGroupSensors(groups, 0, 0, library, callback);
     }
 
     private void onLoadComplete(List<SensorModel> library,
@@ -520,7 +561,7 @@ public class LibraryController extends Controller {
         } else {
             // request full details for my own sensors
             if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
-                getAvailableServices(null);
+                getAvailableServices(0, null);
             }
 
             // continue by getting the group sensors

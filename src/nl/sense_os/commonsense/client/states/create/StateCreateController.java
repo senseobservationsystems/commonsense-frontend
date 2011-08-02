@@ -24,6 +24,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class StateCreateController extends Controller {
 
@@ -50,7 +51,10 @@ public class StateCreateController extends Controller {
             List<ModelData> dataFields) {
 
         // prepare request properties
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services.json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // create request body
@@ -91,8 +95,9 @@ public class StateCreateController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
         builder.setHeader("X-SESSION_ID", sessionId);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
@@ -103,15 +108,14 @@ public class StateCreateController extends Controller {
 
     private void getAvailableServices(SensorModel sensor) {
 
-        String aliasParam = "";
-        if (sensor.getAlias() != -1) {
-            aliasParam = "?alias=" + sensor.getAlias();
-        }
-
         // prepare request properties
         final Method method = RequestBuilder.GET;
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/available" + ".json"
-                + aliasParam;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/available.json");
+        if (sensor.getAlias() != -1) {
+            urlBuilder.setParameter("alias", "" + sensor.getAlias());
+        }
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request callback

@@ -27,6 +27,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -53,10 +54,13 @@ public class DataController extends Controller {
             SensorModel sensor = sensors.get(index);
 
             final Method method = RequestBuilder.GET;
-            String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json" + "?last=1";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+            urlBuilder.setParameter("last", "1");
             if (-1 != sensor.getAlias()) {
-                url += "&alias=" + sensor.getAlias();
+                urlBuilder.setParameter("alias", "" + sensor.getAlias());
             }
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback
@@ -285,32 +289,32 @@ public class DataController extends Controller {
             final long realStart = start;
 
             final Method method = RequestBuilder.GET;
-            String url = Urls.SENSORS + "/" + sensor.getId() + "/data.json";
-
-            url += "?per_page=" + PER_PAGE;
-            url += "&start_date=" + NumberFormat.getFormat("#.000").format(realStart / 1000d);
-            String totalStr = "";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+            urlBuilder.setParameter("per_page", "" + PER_PAGE);
+            urlBuilder.setParameter("start_date",
+                    NumberFormat.getFormat("#.000").format(realStart / 1000d));
 
             // request interpolation if the time range is >= 1 hour
             long endTime = end == -1 ? System.currentTimeMillis() : end;
             if ((endTime - realStart) >= 3600 * 1000) {
-                url += "&interval=" + Math.ceil(((double) (endTime - realStart) / 1000000d));
-                totalStr = ""; // with interval the max can be calculated no need for total
+                final String interval = "" + Math.ceil(((double) (endTime - realStart) / 1000000d));
+                urlBuilder.setParameter("interval", interval);
             } else {
-                totalStr = "&total=1";
+                urlBuilder.setParameter("total", "1");
             }
 
             // use alias if necessary
             if (-1 != sensor.getAlias()) {
-                url += "&alias=" + sensor.getAlias();
+                urlBuilder.setParameter("alias", "" + sensor.getAlias());
             }
 
             // there should only be one page per request
             if (sensorTotal == 0) {
                 if (end != -1) {
-                    url += "&end_date=" + NumberFormat.getFormat("#.000").format(end / 1000d);
+                    final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
+                    urlBuilder.setParameter("end_date", endDate);
                 }
-                url += totalStr;
             } else {
                 LOG.severe("Requesting second page of data?! sensorTotal=" + sensorTotal);
             }
@@ -342,7 +346,7 @@ public class DataController extends Controller {
             };
 
             // send request
-            RequestBuilder builder = new RequestBuilder(method, url);
+            RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
             builder.setHeader("X-SESSION_ID", sessionId);
             try {
                 builder.sendRequest(null, reqCallback);
@@ -356,7 +360,6 @@ public class DataController extends Controller {
             onDataComplete(start, end, sensors, vizPanel);
         }
     }
-
     private void showProgress(int tasks) {
         AppEvent showProgress = new AppEvent(DataEvents.ShowProgress);
         showProgress.setData("tasks", tasks);

@@ -23,6 +23,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class SensorShareController extends Controller {
 
@@ -110,7 +111,9 @@ public class SensorShareController extends Controller {
 
             // prepare request properties
             final Method method = RequestBuilder.POST;
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users.json";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/users.json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
             final String body = "{\"user\":{\"username\":\"" + username + "\"}}";
 
@@ -139,6 +142,7 @@ public class SensorShareController extends Controller {
             // send request
             RequestBuilder builder = new RequestBuilder(method, url);
             builder.setHeader("X-SESSION_ID", sessionId);
+            builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
             try {
                 builder.sendRequest(body, reqCallback);
             } catch (RequestException e) {

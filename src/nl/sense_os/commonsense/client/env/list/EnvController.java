@@ -26,6 +26,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvController extends Controller {
@@ -51,7 +52,9 @@ public class EnvController extends Controller {
     private void delete(final EnvironmentModel environment) {
 
         // prepare request properties
-        final String url = Urls.ENVIRONMENTS + "/" + environment.getId() + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_ENV + "/" + environment.getId() + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -172,7 +175,8 @@ public class EnvController extends Controller {
         Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
         // prepare request properties
-        final String url = Urls.ENVIRONMENTS + ".json";
+        final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_ENV + ".json")
+                .buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback

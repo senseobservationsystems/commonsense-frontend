@@ -26,8 +26,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -156,20 +158,26 @@ public class SensorDataGrid extends LayoutContainer {
 
         int id = sensors.get(0).getId();
         String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-        String result = Urls.SENSORS + "/" + id + "/data.json";
-        result += "?session_id=" + sessionId;
+
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + id + "/data.json");
+        urlBuilder.setParameter("session_id", sessionId);
 
         final int alias = sensors.get(0).getAlias();
         if (alias != -1) {
-            result += "&alias=" + alias;
+            urlBuilder.setParameter("alias", "" + alias);
         }
 
-        result += "&start_date=" + Math.round(startTime / 1000);
+        urlBuilder.setParameter("start_date",
+                NumberFormat.getFormat("#.000").format(startTime / 1000d));
         if (endTime != -1) {
-            result += "&end_date=" + Math.round(endTime / 1000);
+            urlBuilder.setParameter("end_date",
+                    NumberFormat.getFormat("#.000").format(endTime / 1000d));
         }
-        result += "&total=1";
-        return result;
+
+        urlBuilder.setParameter("total", "1");
+
+        return urlBuilder.buildString();
     }
 
     private String renderJsonValue(JSONObject json) {

@@ -18,9 +18,11 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Window.Location;
 
 public class LoginController extends Controller {
@@ -55,7 +57,8 @@ public class LoginController extends Controller {
     private void getCurrentUser() {
 
         // prepare request details
-        final String url = Urls.USERS + "/current.json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        final String url = urlBuilder.setPath(Urls.PATH_USERS + "/current.json").buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -93,45 +96,44 @@ public class LoginController extends Controller {
         }
     }
 
-    @Override
-    public void handleEvent(AppEvent event) {
-        EventType eventType = event.getType();
+    /**
+     * Connects the current CommonSense user account with a Google account, for easy logging in with
+     * OpenID.
+     * 
+     * @param sessionId
+     *            The session ID of the current user.
+     */
+    private void googleConnect(String sessionId) {
 
-        if (eventType.equals(LoginEvents.LoginRequest)) {
-            LOG.finest("LoginRequest");
-            final String username = event.<String> getData("username");
-            final String password = event.<String> getData("password");
-            login(username, password);
+        final String callback = Location.getProtocol() + "//" + Location.getHost()
+                + Location.getPath() + Location.getQueryString();
 
-        } else if (eventType.equals(LoginEvents.GoogleAuthRequest)) {
-            LOG.finest("GoogleAuthRequest");
-            loginThroughGoogle();
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
+        urlBuilder.setParameter("callback_url", callback);
+        urlBuilder.setParameter("session_id", sessionId);
 
-        } else if (eventType.equals(LoginEvents.GoogleAuthResult)) {
-            LOG.finest("GoogleAuthResult");
-            final String sessionId = event.getData("sessionId");
-            onGoogleAuthResult(sessionId);
-
-        } else if (eventType.equals(LoginEvents.GoogleConnectRequest)) {
-            LOG.finest("GoogleConnectRequest");
-            final String username = event.getData("username");
-            final String password = event.getData("password");
-            onGoogleConnectRequest(username, password);
-
-        } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            LOG.finest("RequestLogout");
-            logout();
-
-        } else {
-            forwardToView(loginView, event);
-        }
+        Location.replace(urlBuilder.buildString());
     }
 
-    private void onGoogleConnectRequest(String username, String password) {
+    /**
+     * When CommonSense detects that a user already has a "regular" account after authentication
+     * through Google's OpenID server, we have to confirm this and connect the old account to the
+     * new authentication. The user has to log in with his old password and then we can continue.
+     * 
+     * @param username
+     *            The username to use for log in.
+     * @param password
+     *            The password to user for log in. Will be hashed before submission.
+     */
+    private void googleConnectConfirm(String username, String password) {
 
         // prepare request details
-        String url = Urls.LOGIN + ".json";
-        String body = "{\"username\":\"" + username + "\",\"password\":\""
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
+        final String url = urlBuilder.buildString();
+        final String body = "{\"username\":\"" + username + "\",\"password\":\""
                 + Md5Hasher.hash(password) + "\"}";
 
         // prepare request callback
@@ -148,7 +150,7 @@ public class LoginController extends Controller {
                 LOG.finest("POST login response received: " + response.getStatusText());
                 final int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onGoogleConnectLoginSuccess(response.getText());
+                    onGoogleConnectConfirmSuccess(response.getText());
                 } else if (Response.SC_FORBIDDEN == statusCode) {
                     onAuthenticationFailure();
                 } else {
@@ -159,12 +161,61 @@ public class LoginController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {
             LOG.warning("POST login request threw exception: " + e.getMessage());
             onLoginFailure(0);
+        }
+    }
+    /**
+     * Requests a session ID by authentication through Google's OpenID server.
+     */
+    private void googleLogin() {
+
+        final String callback = Location.getProtocol() + "//" + Location.getHost()
+                + Location.getPath() + Location.getQueryString();
+
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
+        urlBuilder.setParameter("callback_url", callback);
+
+        Location.replace(urlBuilder.buildString());
+    }
+
+    @Override
+    public void handleEvent(AppEvent event) {
+        EventType eventType = event.getType();
+
+        if (eventType.equals(LoginEvents.LoginRequest)) {
+            LOG.finest("LoginRequest");
+            final String username = event.<String> getData("username");
+            final String password = event.<String> getData("password");
+            login(username, password);
+
+        } else if (eventType.equals(LoginEvents.GoogleAuthRequest)) {
+            LOG.finest("GoogleAuthRequest");
+            googleLogin();
+
+        } else if (eventType.equals(LoginEvents.GoogleAuthResult)) {
+            LOG.finest("GoogleAuthResult");
+            final String sessionId = event.getData("sessionId");
+            onGoogleAuthResult(sessionId);
+
+        } else if (eventType.equals(LoginEvents.GoogleConnectRequest)) {
+            LOG.finest("GoogleConnectRequest");
+            final String username = event.getData("username");
+            final String password = event.getData("password");
+            googleConnectConfirm(username, password);
+
+        } else if (eventType.equals(LoginEvents.RequestLogout)) {
+            LOG.finest("RequestLogout");
+            logout();
+
+        } else {
+            forwardToView(loginView, event);
         }
     }
 
@@ -185,7 +236,10 @@ public class LoginController extends Controller {
     private void login(String username, String password) {
 
         // prepare request details
-        String url = Urls.LOGIN + ".json";
+        final Method method = RequestBuilder.POST;
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
+        final String url = urlBuilder.buildString();
         String body = "{\"username\":\"" + username + "\",\"password\":\""
                 + Md5Hasher.hash(password) + "\"}";
 
@@ -214,48 +268,12 @@ public class LoginController extends Controller {
         };
 
         // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+        RequestBuilder builder = new RequestBuilder(method, url);
+        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
         try {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {
             LOG.warning("POST login request threw exception: " + e.getMessage());
-            onLoginFailure(0);
-        }
-    }
-
-    private void loginThroughGoogle() {
-        String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
-                + Location.getQueryString();
-        Location.replace(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback);
-    }
-
-    private void connectWithGoogle(String sessionId) {
-        String callback = Location.getProtocol() + "//" + Location.getHost() + Location.getPath()
-                + Location.getQueryString();
-        Location.replace(Urls.LOGIN_GOOGLE + ".json?callback_url=" + callback + "&session_id="
-                + sessionId);
-    }
-
-    private void onGoogleConnectLoginSuccess(String response) {
-        if (response != null) {
-
-            // try to get "session_id" object
-            String sessionId = null;
-            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-                LoginResponseJso jso = JsonUtils.unsafeEval(response);
-                sessionId = jso.getSessionId();
-            }
-
-            if (null != sessionId) {
-                Registry.register(Constants.REG_SESSION_ID, sessionId);
-                connectWithGoogle(sessionId);
-
-            } else {
-                onLoginFailure(0);
-            }
-
-        } else {
-            LOG.severe("Error parsing login response: response=null");
             onLoginFailure(0);
         }
     }
@@ -266,8 +284,9 @@ public class LoginController extends Controller {
     private void logout() {
 
         // prepare request properties
-        String url = Urls.LOGOUT + ".json";
-        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+        final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_LOGOUT + ".json")
+                .buildString();
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare callback
         RequestCallback callback = new RequestCallback() {
@@ -314,6 +333,30 @@ public class LoginController extends Controller {
         LOG.fine("Session ID: " + sessionId);
         Registry.register(Constants.REG_SESSION_ID, sessionId);
         getCurrentUser();
+    }
+
+    private void onGoogleConnectConfirmSuccess(String response) {
+        if (response != null) {
+
+            // try to get "session_id" object
+            String sessionId = null;
+            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+                LoginResponseJso jso = JsonUtils.unsafeEval(response);
+                sessionId = jso.getSessionId();
+            }
+
+            if (null != sessionId) {
+                Registry.register(Constants.REG_SESSION_ID, sessionId);
+                googleConnect(sessionId);
+
+            } else {
+                onLoginFailure(0);
+            }
+
+        } else {
+            LOG.severe("Error parsing login response: response=null");
+            onLoginFailure(0);
+        }
     }
 
     private void onLoggedOut(String response) {

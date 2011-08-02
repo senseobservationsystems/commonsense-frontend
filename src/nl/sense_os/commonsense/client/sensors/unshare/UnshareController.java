@@ -21,6 +21,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 
 public class UnshareController extends Controller {
 
@@ -111,8 +112,10 @@ public class UnshareController extends Controller {
 
             // prepare request properties
             final Method method = RequestBuilder.DELETE;
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/users/" + user.getId()
-                    + ".json";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/users/" + user.getId()
+                    + ".json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback

@@ -32,6 +32,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class StateListController extends Controller {
@@ -60,8 +61,10 @@ public class StateListController extends Controller {
 
         // prepare request data
         final Method method = RequestBuilder.DELETE;
-        final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + stateSensor.getId()
-                + ".json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
+                + stateSensor.getId() + ".json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -102,7 +105,9 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final Method method = RequestBuilder.GET;
-        final String url = Urls.SENSORS + "/" + state.getId() + "/sensors.json";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + "/" + state.getId() + "/sensors.json");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback
@@ -143,8 +148,10 @@ public class StateListController extends Controller {
         if (sensors.size() > 0) {
             // prepare request properties
             final Method method = RequestBuilder.GET;
-            final String url = Urls.SENSORS + "/" + sensors.get(0).getId() + "/services/"
-                    + state.getId() + "/methods.json";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensors.get(0).getId() + "/services/"
+                    + state.getId() + "/methods.json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
             // prepare request callback
@@ -188,7 +195,11 @@ public class StateListController extends Controller {
 
         // prepare request properties
         final Method method = RequestBuilder.GET;
-        final String url = Urls.SENSORS + ".json" + "?per_page=1000&details=full";
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
+        urlBuilder.setParameter("per_page", "1000");
+        urlBuilder.setParameter("details", "full");
+        final String url = urlBuilder.buildString();
         final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
         // prepare request callback

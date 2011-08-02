@@ -23,6 +23,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -173,8 +174,10 @@ public class FeedbackController extends Controller {
 
             // prepare request properties
             final Method method = RequestBuilder.GET;
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + state.getId()
-                    + "/GetClassLabels.json";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
+                    + state.getId() + "/GetClassLabels.json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request callback
@@ -239,8 +242,10 @@ public class FeedbackController extends Controller {
 
             // prepare request properties
             final Method method = RequestBuilder.POST;
-            final String url = Urls.SENSORS + "/" + sensor.getId() + "/services/" + state.getId()
-                    + "/manualLearn.json";
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
+                    + state.getId() + "/manualLearn.json");
+            final String url = urlBuilder.buildString();
             final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
             // prepare request body
