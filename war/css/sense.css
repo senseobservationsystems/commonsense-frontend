@@ -1,6 +1,7 @@
 /* special style for Frame objects without borders */
 .senseFrame {
 	border: 0px;
+	frame-border: 0px;
 	background-color: transparent !important;
 }
 
