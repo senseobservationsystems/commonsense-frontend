@@ -30,6 +30,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Timer;
 
 public class FeedbackController extends Controller {
 
@@ -49,110 +50,58 @@ public class FeedbackController extends Controller {
         registerEventTypes(FeedbackEvents.LabelsRequest);
     }
 
-    @Override
-    public void handleEvent(AppEvent event) {
-        EventType type = event.getType();
+    private void checkFeedbackProcessed(final int checkCount, final SensorModel state,
+            final List<FeedbackData> changes, final int index, final FeedbackPanel panel) {
+        SensorModel sensor = (SensorModel) state.getChild(0);
 
-        /*
-         * Submit feedback data.
-         */
-        if (type.equals(FeedbackEvents.FeedbackSubmit)) {
-            // LOG.fine( "FeedbackSubmit");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
-            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
-            markFeedback(state, changes, 0, panel);
+        if (index < changes.size()) {
 
-        } else
+            // prepare request properties
+            final Method method = RequestBuilder.GET;
+            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
+                    + state.getId() + "/GetManualInputMode.json");
+            final String url = urlBuilder.buildString();
+            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
 
-        /*
-         * Get state labels.
-         */
-        if (type.equals(FeedbackEvents.LabelsRequest)) {
-            // LOG.fine( "LabelsRequest");
-            final SensorModel state = event.getData("state");
-            final List<SensorModel> sensors = event.getData("sensors");
-            getLabels(state, sensors);
+            // prepare request callback
+            RequestCallback reqCallback = new RequestCallback() {
 
-        } else
-
-        /*
-         * Feedback settings chooser
-         */
-        if (type.equals(FeedbackEvents.ShowChooser)) {
-            forwardToView(this.chooser, event);
-
-        } else
-
-        /*
-         * Pass through to view.
-         */
-        {
-            forwardToView(this.feedback, event);
-        }
-    }
-
-    private void onLabelsFailure(int code) {
-        forwardToView(this.feedback, new AppEvent(FeedbackEvents.LabelsFailure));
-    }
-
-    private void onLabelsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
-
-        // parse result from the GetClassLabels response
-        String resultString = null;
-        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-            ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
-            resultString = jso.getResult();
-        }
-
-        // parse labels from raw result String
-        if (resultString != null) {
-            resultString = resultString.replaceAll("&quot;", "\"");
-            JSONValue rawResult = JSONParser.parseStrict(resultString);
-            if (null != rawResult) {
-                JSONObject result = rawResult.isObject();
-                JSONValue rawLabels = result.get("classLabels");
-                if (null != rawLabels) {
-                    JSONArray labels = rawLabels.isArray();
-                    if (null != labels) {
-                        List<String> list = new ArrayList<String>();
-                        JSONString rawString;
-                        for (int i = 0; i < labels.size(); i++) {
-                            rawString = labels.get(i).isString();
-                            if (null != rawString) {
-                                list.add(rawString.stringValue());
-                            } else {
-                                LOG.warning("label is not a JSON string");
-                                onLabelsFailure(0);
-                            }
-                        }
-
-                        onLabelsComplete(state, sensors, list);
-
-                    } else {
-                        LOG.warning("\"classLabels\" is not a JSON array");
-                        onLabelsFailure(0);
-                    }
-                } else {
-                    LOG.warning("\"classLabels\" is not valid JSON");
-                    onLabelsFailure(0);
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    LOG.warning("GET manual input mode onError callback: " + exception.getMessage());
+                    onCheckProcessedFailed(panel);
                 }
-            } else {
-                LOG.warning("result is not valid JSON");
-                onLabelsFailure(0);
-            }
-        } else {
-            LOG.warning("\"result\" is not a JSON string");
-            onLabelsFailure(0);
-        }
-    }
 
-    private void onLabelsComplete(SensorModel state, List<SensorModel> sensors, List<String> labels) {
-        AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
-        event.setData("state", state);
-        event.setData("sensors", sensors);
-        event.setData("labels", labels);
-        forwardToView(this.feedback, event);
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    LOG.finest("GET manual input mode response received: "
+                            + response.getStatusText());
+                    int statusCode = response.getStatusCode();
+                    if (Response.SC_OK == statusCode) {
+                        onCheckProcessedSuccess(response.getText(), checkCount, state, changes,
+                                index, panel);
+                    } else {
+                        LOG.warning("GET manual input mode returned incorrect status: "
+                                + statusCode);
+                        onCheckProcessedFailed(panel);
+                    }
+                }
+            };
+
+            // send request
+            RequestBuilder builder = new RequestBuilder(method, url);
+            builder.setHeader("X-SESSION_ID", sessionId);
+            try {
+                builder.sendRequest(null, reqCallback);
+            } catch (RequestException e) {
+                LOG.warning("GET manual input mode request threw exception: " + e.getMessage());
+                onCheckProcessedFailed(panel);
+            }
+
+        } else {
+            LOG.severe("Cannot find sensor while checking if feedback is processed");
+        }
     }
 
     private void getLabels(final SensorModel state, final List<SensorModel> sensors) {
@@ -219,10 +168,53 @@ public class FeedbackController extends Controller {
     }
 
     @Override
+    public void handleEvent(AppEvent event) {
+        EventType type = event.getType();
+
+        /*
+         * Submit feedback data.
+         */
+        if (type.equals(FeedbackEvents.FeedbackSubmit)) {
+            // LOG.fine( "FeedbackSubmit");
+            final SensorModel state = event.<SensorModel> getData("state");
+            final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
+            final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
+            markFeedback(state, changes, 0, panel);
+
+        } else
+
+        /*
+         * Get state labels.
+         */
+        if (type.equals(FeedbackEvents.LabelsRequest)) {
+            // LOG.fine( "LabelsRequest");
+            final SensorModel state = event.getData("state");
+            final List<SensorModel> sensors = event.getData("sensors");
+            getLabels(state, sensors);
+
+        } else
+
+        /*
+         * Feedback settings chooser
+         */
+        if (type.equals(FeedbackEvents.ShowChooser)) {
+            forwardToView(chooser, event);
+
+        } else
+
+        /*
+         * Pass through to view.
+         */
+        {
+            forwardToView(feedback, event);
+        }
+    }
+
+    @Override
     protected void initialize() {
         super.initialize();
-        this.feedback = new FeedbackView(this);
-        this.chooser = new FeedbackChooser(this);
+        feedback = new FeedbackView(this);
+        chooser = new FeedbackChooser(this);
     }
 
     private void markFeedback(final SensorModel state, final List<FeedbackData> changes,
@@ -269,7 +261,7 @@ public class FeedbackController extends Controller {
                     LOG.finest("POST feedback response received: " + response.getStatusText());
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
-                        onFeedbackMarked(state, changes, index, panel);
+                        onFeedbackMarked(response.getText(), state, changes, index, panel);
                     } else {
                         LOG.warning("POST feedback returned incorrect status: " + statusCode);
                         onFeedbackFailed(panel);
@@ -292,22 +284,115 @@ public class FeedbackController extends Controller {
         }
     }
 
-    private void onFeedbackMarked(SensorModel state, List<FeedbackData> changes, int index,
-            FeedbackPanel panel) {
-        index++;
-        markFeedback(state, changes, index, panel);
+    private void onCheckProcessedFailed(FeedbackPanel panel) {
+        onFeedbackFailed(panel);
+    }
+
+    private void onCheckProcessedSuccess(String response, final int checkCount,
+            final SensorModel state, final List<FeedbackData> changes, final int index,
+            final FeedbackPanel panel) {
+
+        String result = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
+            result = jso.getResult();
+        }
+
+        if (result.equals("0")) {
+            // processing complete! mark the next feedback change
+            markFeedback(state, changes, index + 1, panel);
+        } else if (checkCount > 10) {
+            // processing takes too long
+            onFeedbackFailed(panel);
+        } else {
+            LOG.warning("Feedback still being processed... ManualInputMode=" + result);
+            new Timer() {
+
+                @Override
+                public void run() {
+                    checkFeedbackProcessed(checkCount + 1, state, changes, index, panel);
+                }
+            }.schedule(500);
+        }
+    }
+
+    private void onFeedbackComplete(FeedbackPanel panel) {
+        AppEvent complete = new AppEvent(FeedbackEvents.FeedbackComplete);
+        complete.setData("panel", panel);
+        forwardToView(feedback, complete);
     }
 
     private void onFeedbackFailed(FeedbackPanel panel) {
         LOG.fine("Feedback failure");
         AppEvent failure = new AppEvent(FeedbackEvents.FeedbackFailed);
         failure.setData("panel", panel);
-        forwardToView(this.feedback, failure);
+        forwardToView(feedback, failure);
     }
 
-    private void onFeedbackComplete(FeedbackPanel panel) {
-        AppEvent complete = new AppEvent(FeedbackEvents.FeedbackComplete);
-        complete.setData("panel", panel);
-        forwardToView(this.feedback, complete);
+    private void onFeedbackMarked(String response, SensorModel state, List<FeedbackData> changes,
+            int index, FeedbackPanel panel) {
+        checkFeedbackProcessed(0, state, changes, index, panel);
+    }
+
+    private void onLabelsComplete(SensorModel state, List<SensorModel> sensors, List<String> labels) {
+        AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
+        event.setData("state", state);
+        event.setData("sensors", sensors);
+        event.setData("labels", labels);
+        forwardToView(feedback, event);
+    }
+    private void onLabelsFailure(int code) {
+        forwardToView(feedback, new AppEvent(FeedbackEvents.LabelsFailure));
+    }
+
+    private void onLabelsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
+
+        // parse result from the GetClassLabels response
+        String resultString = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
+            resultString = jso.getResult();
+        }
+
+        // parse labels from raw result String
+        if (resultString != null) {
+            resultString = resultString.replaceAll("&quot;", "\"");
+            JSONValue rawResult = JSONParser.parseStrict(resultString);
+            if (null != rawResult) {
+                JSONObject result = rawResult.isObject();
+                JSONValue rawLabels = result.get("classLabels");
+                if (null != rawLabels) {
+                    JSONArray labels = rawLabels.isArray();
+                    if (null != labels) {
+                        List<String> list = new ArrayList<String>();
+                        JSONString rawString;
+                        for (int i = 0; i < labels.size(); i++) {
+                            rawString = labels.get(i).isString();
+                            if (null != rawString) {
+                                list.add(rawString.stringValue());
+                            } else {
+                                LOG.warning("label is not a JSON string");
+                                onLabelsFailure(0);
+                            }
+                        }
+
+                        onLabelsComplete(state, sensors, list);
+
+                    } else {
+                        LOG.warning("\"classLabels\" is not a JSON array");
+                        onLabelsFailure(0);
+                    }
+                } else {
+                    LOG.warning("\"classLabels\" is not valid JSON");
+                    onLabelsFailure(0);
+                }
+            } else {
+                LOG.warning("result is not valid JSON");
+                onLabelsFailure(0);
+            }
+        } else {
+            LOG.warning("\"result\" is not a JSON string");
+            onLabelsFailure(0);
+        }
     }
 }
