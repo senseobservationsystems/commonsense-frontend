@@ -10,12 +10,16 @@ public class DataPoint extends JavaScriptObject {
         // empty protected constructor
     }
 
+    public final native int getId() /*-{
+		return parseInt(this.id);
+    }-*/;
+
     protected final native double getRawDate() /*-{
-        return this.date;
+		return this.date;
     }-*/;
 
     public final native String getRawValue() /*-{
-        return '' + this.value;
+		return '' + this.value;
     }-*/;
 
     public final Date getTimestamp() {
