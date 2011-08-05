@@ -217,6 +217,18 @@ public class FeedbackController extends Controller {
         chooser = new FeedbackChooser(this);
     }
 
+    /**
+     * Submits feedback to CommonSense, one change at a time.
+     * 
+     * @param state
+     *            State sensor to submit feedback for.
+     * @param changes
+     *            List of feedback changes.
+     * @param index
+     *            Index of the change that has to be processed.
+     * @param panel
+     *            Feedback panel that should receive callbacks about the feedback processing.
+     */
     private void markFeedback(final SensorModel state, final List<FeedbackData> changes,
             final int index, final FeedbackPanel panel) {
 
@@ -284,6 +296,15 @@ public class FeedbackController extends Controller {
         }
     }
 
+    /**
+     * Notifies the feedback panel that processing is taking longer than usual.
+     * 
+     * @param panel
+     */
+    private void notifySlowProcessing(FeedbackPanel panel) {
+        panel.onFeedbackSlow();
+    }
+
     private void onCheckProcessedFailed(FeedbackPanel panel) {
         onFeedbackFailed(panel);
     }
@@ -301,11 +322,15 @@ public class FeedbackController extends Controller {
         if (result.equals("0")) {
             // processing complete! mark the next feedback change
             markFeedback(state, changes, index + 1, panel);
-        } else if (checkCount > 10) {
-            // processing takes too long
-            onFeedbackFailed(panel);
         } else {
             LOG.warning("Feedback still being processed... ManualInputMode=" + result);
+
+            if (checkCount == 10) {
+                // notify the user that processing is taking longer than usual
+                notifySlowProcessing(panel);
+            }
+
+            // check again in 500ms
             new Timer() {
 
                 @Override

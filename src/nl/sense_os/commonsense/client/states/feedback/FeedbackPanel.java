@@ -71,6 +71,8 @@ public class FeedbackPanel extends VizPanel {
     private Button submitButton;
     private Button cancelButton;
 
+    private boolean isProcessingInBackground;
+
     public FeedbackPanel(SensorModel stateSensor, List<SensorModel> sensors, long start, long end,
             String title, List<String> labels) {
         super();
@@ -522,18 +524,35 @@ public class FeedbackPanel extends VizPanel {
 
     public void onFeedbackComplete() {
         setBusy(false);
-        MessageBox.info(null, "Feedback succesfully processed.", new Listener<MessageBoxEvent>() {
+        if (!isProcessingInBackground) {
+            MessageBox.info(null, "Feedback succesfully processed.",
+                    new Listener<MessageBoxEvent>() {
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                // do nothing
-            }
-        });
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            // do nothing
+                        }
+                    });
+        }
     }
 
     public void onFeedbackFailed() {
         setBusy(false);
-        MessageBox.alert(null, "Failed to process feedback!", null);
+        if (!isProcessingInBackground) {
+            MessageBox.alert(null, "Failed to process feedback!", null);
+        }
+    }
+
+    public void onFeedbackSlow() {
+        setBusy(false);
+        if (!isProcessingInBackground) {
+            isProcessingInBackground = true;
+            String msg = "Oops! Processing of feedback is taking a longer than usual."
+                    + " This usually happens when you submit feedback for a very large time period."
+                    + "<br><br>"
+                    + "Processing will continue in the background, you can close the feedback panel.";
+            MessageBox.info(null, msg, null);
+        }
     }
 
     @Override
