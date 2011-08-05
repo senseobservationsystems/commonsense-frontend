@@ -37,7 +37,7 @@ public class TestData {
     public static final native JsArray<Timeseries> getTimeseriesPosition(int maxPoints) /*-{
 		var start = 1304208000000; // 01/05/2011
 		var lat = {
-			'id' : '1',
+			'id' : 1,
 			'label' : 'latitude',
 			'end' : 0,
 			'start' : start,
@@ -45,7 +45,7 @@ public class TestData {
 			'data' : []
 		};
 		var lng = {
-			'id' : '1',
+			'id' : 1,
 			'label' : 'longitude',
 			'end' : 0,
 			'start' : start,
@@ -60,15 +60,94 @@ public class TestData {
 			lat.data.push({
 				'date' : date,
 				'value' : latValue
+				
 			});
 			lat.end = date;
 
 			lng.data.push({
 				'date' : date,
 				'value' : lngValue
+				
 			});
 			lng.end = date;
 		}
 		return [ lat, lng ];
     }-*/;
+    
+    public static final native JsArray<Timeseries> getTimeseriesPosition1(int maxPoints) /*-{
+	var start = 1304208000000; // 01/05/2011
+	var lat = {
+		'id' : 2,
+		'label' : 'latitude',
+		'end' : 0,
+		'start' : start,
+		'type' : 'number',
+		'data' : []
+	};
+	var lng = {
+		'id' : 2,
+		'label' : 'longitude',
+		'end' : 0,
+		'start' : start,
+		'type' : 'number',
+		'data' : []
+	};
+	for ( var i = 0; i < maxPoints; i++) {
+		var date = start + (i * 3600000);
+		var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 20;
+		var lngValue = 180 * i / maxPoints;
+
+		lat.data.push({
+			'date' : date,
+			'value' : latValue
+		});
+		lat.end = date;
+
+		lng.data.push({
+			'date' : date,
+			'value' : lngValue
+		});
+		lng.end = date;
+	}
+	return [ lat, lng ];
+}-*/;
+    
+    
+    public static final native JsArray<Timeseries> getTimeseriesPosition2(int maxPoints) /*-{
+	var start = 1304208000000; // 01/05/2011
+	var lat = {
+		'id' : 3,
+		'label' : 'latitude',
+		'end' : 0,
+		'start' : start,
+		'type' : 'number',
+		'data' : []
+	};
+	var lng = {
+		'id' : 3,
+		'label' : 'longitude',
+		'end' : 0,
+		'start' : start,
+		'type' : 'number',
+		'data' : []
+	};
+	for ( var i = 0; i < maxPoints; i++) {
+		var date = start + (i * 3600000);
+		var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 40;
+		var lngValue = 180 * i / maxPoints;
+
+		lat.data.push({
+			'date' : date,
+			'value' : latValue
+		});
+		lat.end = date;
+
+		lng.data.push({
+			'date' : date,
+			'value' : lngValue
+		});
+		lng.end = date;
+	}
+	return [ lat, lng ];
+}-*/;
 }

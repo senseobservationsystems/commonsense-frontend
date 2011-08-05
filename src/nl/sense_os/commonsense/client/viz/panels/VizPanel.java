@@ -66,6 +66,7 @@ public abstract class VizPanel extends ContentPanel {
      *            Timeseries to display.
      */
     public void addData(JsArray<Timeseries> data) {
+    	LOG.fine("AddData from visPanel is called");
         if (null == this.data) {
             this.data = data;
 
@@ -75,7 +76,8 @@ public abstract class VizPanel extends ContentPanel {
                 boolean appended = false;
                 for (int j = 0; j < this.data.length(); j++) {
                     Timeseries original = this.data.get(j);
-                    if (toAppend.getLabel().equals(original.getLabel())) {
+                    if (toAppend.getLabel().equals(original.getLabel())
+                    && toAppend.getIdd() == original.getIdd() ) {
                         LOG.fine("Append data to " + original.getLabel());
                         original.append(toAppend);
                         appended = true;

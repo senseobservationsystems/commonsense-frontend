@@ -64,7 +64,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Fri Jul 22 09:39";
+    public static final String LAST_DEPLOYED = "Fri Jul 22 09:44";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
@@ -188,7 +188,7 @@ public class CommonSense implements EntryPoint {
                 Window window = new Window();
                 window.setLayout(new FitLayout());
                 window.setHeading("Maps test");
-                window.setSize("90%", "800px");
+                window.setSize("90%", "600px");
 
                 MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, "title");
                 window.add(map);
@@ -196,6 +196,10 @@ public class CommonSense implements EntryPoint {
                 window.center();
 
                 JsArray<Timeseries> data = TestData.getTimeseriesPosition(100);
+                JsArray<Timeseries> data1 = TestData.getTimeseriesPosition1(100);
+                for (int i = 0; i < data1.length(); i++) {
+                	data.push(data1.get(i));
+                }
                 map.addData(data);
             }
         });
