@@ -1,8 +1,10 @@
 package nl.sense_os.commonsense.client.viz.panels.map;
 
 import java.util.ArrayList;
+import java.math.*;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -47,8 +49,21 @@ public class MapPanel extends VizPanel {
     private int traceEndIndex;
     private int currentMinTime;
     private int currentMaxTime;
+    
+    // store all the id's that we get
+    ArrayList<Integer> Id_names = new ArrayList<Integer>();
 
     ArrayList<ArrayList<Timeseries>> latLongList;
+    // create an arrayList to store multiple arrayLists, with "bad points" to be discarded for each ID
+    ArrayList <ArrayList<Integer>> bigBadPoints = new ArrayList<ArrayList<Integer>>();
+    // create two arrayLists to store all good lat-long pairs and timestamps for all the IDs
+    ArrayList <ArrayList<ArrayList<Float>>> allGoodPoints = new ArrayList <ArrayList<ArrayList<Float>>>();
+    
+    ArrayList <ArrayList<Float>> allGoodLat = new ArrayList<ArrayList<Float>>();
+    ArrayList <ArrayList<Float>> allGoodLon = new ArrayList<ArrayList<Float>>();
+    ArrayList <ArrayList<Long>> allGoodTimestamps = new ArrayList<ArrayList<Long>>();
+    
+    
     ArrayList<Polyline> polyList = new ArrayList<Polyline>();
     ArrayList<Marker> startMarkerList = new ArrayList<Marker>();
     ArrayList<Marker> endMarkerList = new ArrayList<Marker>();
@@ -62,7 +77,7 @@ public class MapPanel extends VizPanel {
         setHeading("My map: " + title);
         setLayout(new BorderLayout());
         setId("viz-map-" + title);
-
+        LOG.setLevel(Level.ALL);
         initSliders();
         initMapWidget();
 
@@ -160,10 +175,10 @@ public class MapPanel extends VizPanel {
         // LOG.fine("Calculate slider range: min is " + min + " max " + max);
         // LOG.fine("The minimum date is " + min_i.getTimestamp().getTime());
         // LOG.fine("The maximum date is " + max_i.getTimestamp().getTime());
-        LOG.fine("The minimum date is " + calculDate(min_i));
-        LOG.fine("The maximum date is " + calculDate(max_i));
-        LOG.fine("The min according to slider is " + startSlider.onFormatValue(min));
-        LOG.fine("The max according to slider is " + endSlider.onFormatValue(max));
+        LOG.fine("Minimum date found is " + calculDate(min_i) + " maximum date found is " 
+        		+ calculDate(max_i));
+//        LOG.fine("The min according to slider is " + startSlider.onFormatValue(min) + 
+//        "the max according to slider is " + endSlider.onFormatValue(max));
     }
 
     private void centerMap() {
@@ -189,6 +204,8 @@ public class MapPanel extends VizPanel {
         // get the time window for the trace from the sliders
         int minTime = startSlider.getValue();
         int maxTime = endSlider.getValue();
+        
+        LOG.fine("Initial MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
         currentMinTime = startSlider.getValue();
         currentMaxTime = endSlider.getValue();
 
@@ -204,26 +221,41 @@ public class MapPanel extends VizPanel {
             }
 
             // get the sensor values
-            JsArray<DataPoint> latValues = latTimeseries.getData();
+            /*JsArray<DataPoint> latValues = latTimeseries.getData();
             JsArray<DataPoint> lngValues = lngTimeseries.getData();
+            */
+            
+            ArrayList<Float> latValues = allGoodLat.get(l);
+            ArrayList<Float> lonValues = allGoodLon.get(l);
+//            Here, latValues has changed from an array to arrayList, so check for size/length()
 
-            LOG.fine("Number of points: " + latValues.length());
+            LOG.fine("Number of points: " + latValues.size());
+            LOG.fine("BadPoints length for " + Id_names.get(l) + "is " + bigBadPoints.get(l).size());
+            ArrayList<Integer> curBadPoints = bigBadPoints.get(l);
 
             // Draw the filtered points.
-            if (latValues.length() > 0 && maxTime > minTime) {
-                LatLng[] points = new LatLng[latValues.length()];
+            if (latValues.size() > 0 && maxTime > minTime) {
+                LatLng[] points = new LatLng[latValues.size()];
 
                 traceStartIndex = -1;
                 traceEndIndex = -1;
                 int lastPoint = -1;
-                FloatDataPoint lat;
-                FloatDataPoint lng;
-                for (int i = 0, j = 0; i < latValues.length(); i++) {
-                    lat = latValues.get(i).cast();
-                    lng = lngValues.get(i).cast();
+                //FloatDataPoint lat;
+                //FloatDataPoint lng;
+                double lat;
+                double lng;
+                
+                for (int i = 0, j = 0; i < latValues.size(); i++) {
+                    //lat = latValues.get(i).cast();
+                    //lng = lngValues.get(i).cast();
+                	lat = latValues.get(i);
+                	lng = lonValues.get(i);
 
                     // timestamp in secs
-                    long timestamp = lat.getTimestamp().getTime() / 1000;
+                	long timestamp = allGoodTimestamps.get(l).get(i)/1000;
+                    //long timestamp = lat.getTimestamp().getTime() / 1000;
+                   // ArrayList<Integer> badPointsList = bigBadPoints.get(l);
+                    
                     // changed condition next line
                     if (/* timestamp >= minTime && timestamp < maxTime */timestamp != 0) {
                         // update indices
@@ -233,7 +265,8 @@ public class MapPanel extends VizPanel {
                             traceStartIndex = i;
                         }
                         // store coordinate
-                        LatLng coordinate = LatLng.newInstance(lat.getValue(), lng.getValue());
+                        //LatLng coordinate = LatLng.newInstance(lat.getValue(), lng.getValue());
+                        LatLng coordinate = LatLng.newInstance(lat, lng);
                         points[j] = coordinate;
                         j++;
                     }
@@ -242,8 +275,8 @@ public class MapPanel extends VizPanel {
                 traceStartIndexList.add(traceStartIndex);
                 traceEndIndexList.add(traceEndIndex);
 
-                LOG.fine("traceStartIndex for " + " is " + traceStartIndex + " traceEndIndex is "
-                        + traceEndIndex);
+//                LOG.fine("traceStartIndex for " + " is " + traceStartIndex + " traceEndIndex is "
+//                        + traceEndIndex);
 
                 // Add the first marker
                 final MarkerOptions markerOptions = MarkerOptions.newInstance();
@@ -354,11 +387,10 @@ public class MapPanel extends VizPanel {
         // objects by their ID
 
         ArrayList<ArrayList<Timeseries>> bigList = new ArrayList<ArrayList<Timeseries>>();
+        
+        
 
-        // store all the id's that we get
-
-        ArrayList<Integer> Id_names = new ArrayList<Integer>();
-
+        
         // if the ID is new, add it to the id list, create an arraylist for Timeseries with
         // that ID, and include that arraylist into the Big Arraylist
 
@@ -385,16 +417,218 @@ public class MapPanel extends VizPanel {
                 }
             }
         }
+        // for every ID in the bigList, get the lat and long timeseries, and check the distance
+        // between points in those timeseries
+        
+        LOG.fine("The biglist size is "+ bigList.size());
+        
+       
+         for (int r = 0; r < bigList.size(); r++) {
+       
+        	// get all the Timeseries for a given ID
+        	ArrayList<Timeseries> currentArray = bigList.get(r);
+        	
+        	LOG.fine ("LOOOKKK currentArray size is " + currentArray.size());
+        	
+    		boolean latitudeFound = false;
+    		boolean longitudeFound = false;
+    		
+    		ArrayList<Float> latPoints = new ArrayList<Float>();
+    		ArrayList<Float> lonPoints = new ArrayList<Float>();
+    		
+    		// for each ID, go through all the Timeseries and check if they are latitude/longitude
+        	for (int s = 0; s < currentArray.size(); s++ ) {
+        		Timeseries curTimeseries = currentArray.get(s);
+ 
+        		
+        		// create a new arrayList to store lat-long pairs for each index of data point
+        		
+        		
+        		if (curTimeseries.getLabel().endsWith("latitude")) {
+        			
+        			//get the latitude values of the current Timeseries
+        			JsArray<DataPoint> currentLatValues = curTimeseries.getData();
+        			//LOG.fine ("Latitude array found");
+        			
+        			for (int k = 0; k < currentLatValues.length(); k++ ) {
 
-        // LOG.fine("BigList size is " + bigList.size());
-        for (int i = 0; i < bigList.size(); i++) {
-            ArrayList<Timeseries> current = bigList.get(i);
-            for (int j = 0; j < current.size(); j++) {
-                // int currentId = current.get(j).getIdd();
-                // String currentLabel = current.get(j).getLabel();
-                // LOG.fine("Aha we got id " + currentId + "with label " + currentLabel);
-            }
-        }
+        				FloatDataPoint lat = currentLatValues.get(k).cast();
+        				float latValue = new Float(lat.getValue());
+        				// add latitude value to the pair
+        				latPoints.add(latValue);
+        				latitudeFound = true;
+        				//LOG.fine("the latitude equals " + latValue);
+        			}
+        		} // close if ends with latitude
+        		
+        		else if (curTimeseries.getLabel().endsWith("longitude")) {
+        			//get the latitude values of the current Timeseries
+        			JsArray<DataPoint> currentLonValues = curTimeseries.getData();
+        			
+        			for (int k = 0; k < currentLonValues.length(); k++ ) {
+        				FloatDataPoint lon = currentLonValues.get(k).cast();
+        				float lonValue = new Float (lon.getValue());
+        				
+        				// add the longitude value to the arrayList of latLong pairs
+        				lonPoints.add(lonValue);
+        				longitudeFound = true;
+        				//LOG.fine("the longitude equals " + lonValue);
+        			}
+        		} // close if ends with longitude
+        		
+        		if (latitudeFound == true && longitudeFound == true) {
+           		 
+//        			LOG.fine ("The length of latPoints for " + r + " is " + latPoints.size() + 
+//        					" The length of lonPoints  for " + r + " is " + lonPoints.size());
+        			break;
+        			
+        		}  // close if 
+			
+        	} // close for (all Timeseries for a given ID; now we created the latitude and longitude arrayLists)
+        	
+        	// make an arrayList to store lat-long pairs for this ID
+    		ArrayList<ArrayList<Float>> latLongPoints = new ArrayList<ArrayList<Float>>();
+    		int latLength = latPoints.size();
+    		
+    		// add the pair to the arrayList of latLong pairs
+    		for (int n = 0; n < latLength; n++) {
+    			ArrayList<Float> tempList = new ArrayList<Float>();
+    			tempList.add(latPoints.get(n));
+    			tempList.add(lonPoints.get(n));
+    			latLongPoints.add(tempList);
+
+    		}
+    		
+    		LOG.fine ("latLongPoints length for " + Id_names.get(r) + " is " + latLongPoints.size());
+    		
+    		// calculate distance in km between adjacent points of the given ID
+    		
+    		final int R = 6371; // km; the earth radius
+			
+			if (latLongPoints.size() > 1) {
+			// initialize latitude and longitude values to the first point
+				
+			// create an arrayList of "bad points" that have to be discarded for a given ID
+			ArrayList<Integer> badPoints = new ArrayList<Integer>();
+				
+			//create an arrayList to store lat-long pairs with only "good points" for a given ID
+			ArrayList <ArrayList<Float>> IdGoodPoints = new ArrayList<ArrayList<Float>>();
+			
+			// create three arrayLists to store latitudes, longitudes and timestamps of only "good points"
+			ArrayList<Float> IdGoodLat = new ArrayList<Float>();
+			ArrayList<Float> IdGoodLon = new ArrayList<Float>();
+			ArrayList <Long> IdGoodTimestamps = new ArrayList<Long>();	
+			
+							
+			double latit = latLongPoints.get(0).get(0);
+			double longit = latLongPoints.get(0).get(1);
+			long pointTimestamp = currentArray.get(0).getData().get(0).getTimestamp().getTime();
+			
+			
+			// we just assume the first point is "good" and add it to all the good arrayLists
+			ArrayList<Float> firstGoodPoint = new ArrayList<Float>();
+			firstGoodPoint.add(new Float (latit));
+			firstGoodPoint.add(new Float (longit));
+			IdGoodLat.add(new Float (latit));
+			IdGoodLon.add(new Float(longit));
+			IdGoodPoints.add(firstGoodPoint);
+			LOG.fine("IdGoodPoints size is " + IdGoodPoints.size());
+			IdGoodTimestamps.add(pointTimestamp);
+					
+				
+    		for (int p = 1; p < latLongPoints.size(); p++ ) {
+		
+    			double newLatit = latLongPoints.get(p).get(0);
+    			double newLongit = latLongPoints.get(p).get(1);
+    			long newPointTimestamp = currentArray.get(0).getData().get(p).getTimestamp().getTime();
+    			
+    			double radLongit = Math.toRadians(longit);
+    			double radLatit = Math.toRadians(latit);
+    			double radNewLongit = Math.toRadians(newLongit);
+    			double radNewLatit = Math.toRadians(newLatit);
+    			
+    			// distance in km between two points
+    			double distance = Math.acos(Math.sin(radLatit)*Math.sin(radNewLatit) + 
+    					Math.cos(radLatit)*Math.cos(radNewLatit) * 
+    					Math.cos(radNewLongit-radLongit)) * R;
+    						
+    			long timeDifference = newPointTimestamp - pointTimestamp;
+    			double hourDifference = timeDifference * 2.77777778 * 0.0000001;
+    			double speed = -1; 
+    			
+    			// speed in km/h
+    			if (hourDifference != 0) {
+    				speed = distance / hourDifference; 
+    				} 
+    			else 
+    				LOG.fine ("distance equals zero");
+    			
+    			String pointDate = calculDate (currentArray.get(0).getData().get(p));
+    			String prevPointDate = calculDate (currentArray.get(0).getData().get(p-1));
+    			
+    			
+    			
+    			if (speed > 500 && distance > 20) {
+    				LOG.fine ("There is nothing on earth that can move so fast!" + 
+    						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
+        					"\ncomparing timestamp " + pointDate + " to " + prevPointDate);
+    				LOG.fine("point " + p + " of " + Id_names.get(r) + " will be discarded" +
+    						" its newLatit is " + newLatit + " newLongit is " + newLongit);
+    				Integer newBadPoint = new Integer(p);
+    				badPoints.add(newBadPoint);
+    				
+    			} else {
+    				/*
+    				LOG.fine("point is " + p + " latit is " + latit + " longit is " + longit + 
+    						" newLatit is " + newLatit + " newLongit is " + newLongit + 
+    						" speed is " + speed + " distance is " + distance + " pointDate is " + pointDate);
+    				*/
+    				latit = newLatit;
+    				longit = newLongit;
+    				pointTimestamp = newPointTimestamp;
+    				
+    				// make an arrayList to store lat-long coordinates and timestamp as a "good Point"
+    				ArrayList<Float> goodPoint = new ArrayList<Float>();
+    				
+    				IdGoodLat.add(new Float(newLatit));
+    				IdGoodLon.add(new Float(newLongit));
+    				IdGoodTimestamps.add(newPointTimestamp);
+    				
+    				goodPoint.add(new Float (newLatit));
+    				goodPoint.add(new Float (newLongit));
+    				IdGoodPoints.add(goodPoint);
+    				
+    			}
+    			} // close if (latLongPoints size > 1)
+    			
+    			// add the "good" and "bad" points to the global lists
+    			bigBadPoints.add(badPoints);
+    			allGoodLat.add(IdGoodLat);
+    			allGoodLon.add(IdGoodLon);
+    			allGoodPoints.add(IdGoodPoints);
+    			allGoodTimestamps.add(IdGoodTimestamps);
+    			
+    			LOG.fine("badPoints length for " + Id_names.get(r) + " is " + badPoints.size());
+    			LOG.fine("goodPoints length for " + Id_names.get(r) + " is " + IdGoodPoints.size());
+        		
+        	} // close for current ID
+			
+			
+        	
+        	
+         } // close for bigList, the entire list of IDs
+    		
+    
+        			// example data: rotterdam latitude 51.9166667 Longitude: 4.5
+        			// Amsterdam Latitude: 52.35 Longitude: 4.9166667
+        			
+        			/*latit = 51.9166667;
+        			longit = 4.5;
+        			newLatit = 52.35;
+        			newLongit = 4.9166667;*/
+         
+        			//LOG.fine("The distance between the points is " + distance + "km, and the speed is " + speed + "kmh");
+
 
         // sort lat/lng data
 
@@ -408,6 +642,7 @@ public class MapPanel extends VizPanel {
         for (int i = 0; i < bigList.size(); i++) {
             ArrayList<Timeseries> curList = bigList.get(i);
             ArrayList<Timeseries> latLong = new ArrayList<Timeseries>();
+            LOG.fine("The old size is " + curList.size());
 
             boolean latSet = false;
             boolean longSet = false;
@@ -445,53 +680,25 @@ public class MapPanel extends VizPanel {
             }
         }
 
-        LOG.fine("The length of latLongList is " + latLongList.size());
+        //LOG.fine("The length of latLongList is " + latLongList.size());
 
-        // Timeseries ts;
-        // for (int i = 0; i < data.length(); i++) {
-        // ts = data.get(i);
-
-        // LOG.fine("Label " + data.get(i).getLabel() + " ID " +
-        // data.get(i).getIdd());
-
-        // LOG.fine("thats what we get" + ts.getLabel());
-
-        // JsArray<DataPoint> tsData = ts.getData();
-
-        /*
-         * for (int j = 0; j < tsData.length(); j++) { String value = tsData.get(j).getRawValue();
-         * //if (ts.getLabel().endsWith("latitude")|| ts.getLabel().endsWith("longitude")) { /*Date
-         * thedate = tsData.get(j).getTimestamp(); Calendar cal = Calendar.getInstance();
-         * cal.setTime(thedate);
-         * 
-         * //GMT hour and minute int month = cal.get (Calendar.MONTH) + 1; int datenow =
-         * cal.get(Calendar.DATE); int hour = cal.get(Calendar.HOUR_OF_DAY); int min =
-         * cal.get(Calendar.MINUTE);
-         */
-
-        // LOG.fine("this is " + ts.getLabel() + " and this data point has a value of " + value +
-        // " date "+ datenow + "." + month + " time " + hour + ":" + min);
-        // }
-        // } */
-
-        /*
-         * if (ts.getLabel().endsWith("latitude")) { latTimeseries = ts; } else if
-         * (ts.getLabel().endsWith("longitude")) { lngTimeseries = ts; }
-         */
-        // }
+        
 
         if (latTimeseries != null && lngTimeseries != null) {
             calcSliderRange();
             drawTrace();
             centerMap();
         }
+    			
     }
 
     private void updateTrace() {
 
-        int minTime = startSlider.getValue();
+        int minTime = startSlider.getValue();     
         int maxTime = endSlider.getValue();
-        // boolean weirdSlider = false;
+ 
+        LOG.fine("MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
+        
 
         int whichSlider = 0;
 
@@ -511,14 +718,7 @@ public class MapPanel extends VizPanel {
             return;
         }
 
-        if (minTime > maxTime) {
-            // if (whichSlider != 1) newTraceEndIndex = traceStartIndex;
-            // if (whichSlider != 2) newTraceStartIndex = traceEndIndex;
-            // LOG.fine("Ẅeird slider!");// newTraceEndIndex is " + newTraceEndIndex);
-            // weirdSlider = true;
-            // return;
-        }
-
+        
         // LOG.fine( "updateTrace ");
 
         for (int k = 0; k < latLongList.size(); k++) {
@@ -531,8 +731,8 @@ public class MapPanel extends VizPanel {
             traceStartIndex = traceStartIndexList.get(k);
             traceEndIndex = traceEndIndexList.get(k);
 
-            LOG.fine("traceStartIndex for " + k + " is " + traceStartIndex + " traceEndIndex is "
-                    + traceEndIndex);
+//            LOG.fine("traceStartIndex for " + k + " is " + traceStartIndex + " traceEndIndex is "
+//                    + traceEndIndex);
 
             if (null == trace || false == trace.isVisible()) {
                 LOG.fine("updateTrace skipped: trace is not shown yet");
@@ -540,56 +740,89 @@ public class MapPanel extends VizPanel {
             }
 
             // get the sensor values
+            /*
             JsArray<DataPoint> latValues = latTimeseries.getData();
             JsArray<DataPoint> lonValues = lngTimeseries.getData();
-
+			*/
+            
+            ArrayList<Float> latValues = allGoodLat.get(k);
+            ArrayList<Float> lonValues = allGoodLon.get(k);
+            
             // find the start end end indices of the trace in the sensor data array
-            int newTraceStartIndex = 0, newTraceEndIndex = latValues.length() - 1;
+            int newTraceStartIndex = 0, newTraceEndIndex = latValues.size() - 1;
             long timestamp;
             boolean done = false;
+            boolean done_end = false;
 
-            for (int i = 0; i < latValues.length(); i++) {
+            for (int i = 0; i < latValues.size(); i++) {
                 // get timestamp
-                timestamp = latValues.get(i).getTimestamp().getTime() / 1000;
+            	timestamp = allGoodTimestamps.get(k).get(i)/1000;
+//            	LOG.fine ("Timestamp is " + timestamp + " " + calculDate((int)timestamp) + " minTime is " + minTime + " " + calculDate (minTime) +
+//            			" maxTime is " + maxTime + " " + calculDate (maxTime));
+                //timestamp = latValues.get(i).getTimestamp().getTime() / 1000;
                 // changed first condition from >minTime
 
-                if (i == latValues.length() - 1 && timestamp < minTime) {
+                if (i == latValues.size() - 1 && timestamp < minTime) {
                     // start index is not changed
                     // end index is not changed
-                    newTraceStartIndex = latValues.length() - 1;
-                    newTraceEndIndex = latValues.length() - 1;
-                }
+                    newTraceStartIndex = latValues.size() - 1;
+                    newTraceEndIndex = latValues.size() - 1;
+                    LOG.fine(" end index is not changed: " + newTraceEndIndex);
+                } 
 
                 if (whichSlider != 1) {
                     // start index is not changed
                     // LOG.fine("start index is not changed: " + traceStartIndex);
                     newTraceStartIndex = traceStartIndex;
-                } else if (timestamp > minTime && newTraceStartIndex == 0 && done == false) {
+                   
+                } else if (i == 0 && timestamp == minTime) {
+                	// if whichSlider is 1 and it is moved back to the start, change the startIndex to 0
+                	LOG.fine ("Moved back to the start: setting traceStartIndex to 0");
+                	newTraceStartIndex = 0;
+                	done = true;
+                	
+            	} else if (whichSlider != 2 && timestamp > minTime && newTraceStartIndex == 0 && done == false) {
                     // this is the first index with start of visible range
-                    newTraceStartIndex = i;
+                    newTraceStartIndex = i; 
                     LOG.fine("changing newTraceStartIndex to " + i);
                     done = true;
-
                     // LOG.fine("At index " + i + "we're inside the visible range");
                     // storeStartIndex = newTraceStartIndex;
-
                 }
+                
+                
+                
                 if (whichSlider != 2) {
                     // end index is not changed
                     // LOG.fine("end index is not changed: " + traceEndIndex);
                     newTraceEndIndex = traceEndIndex;
 
-                } else if (timestamp > maxTime + 10) {
+                } else if (i == latValues.size() - 1 && timestamp == maxTime) {
+                	// if whichSlider is 2 and it is moved back to the end, change the endIndex to latValues.size - 1
+                	LOG.fine ("Moved back to the end: setting TraceEndIndex to " + (latValues.size()-1));
+                	done_end = true;
+                	
+                } else if (whichSlider != 1 && i == 0 && timestamp == maxTime) {
+                	newTraceEndIndex = 0;
+                	done_end = true;
+                	LOG.fine ("Moved back to the start with the second slider: setting TraceEndIndex to 0");
+                	
+                }
+                
+                else if (whichSlider != 1 && timestamp > maxTime + 10 && done_end == false) {
                     // this is the first index after the end of visible range
                     // + 10 because if the values are equal for us, the computer
                     // thinks the timestamp is a bit bigger
-                    LOG.fine("timestamp is " + calculDate((int) timestamp) + "maxTime is "
+                  LOG.fine("time is " + calculDate((int) timestamp) + " maxTime is "
                             + calculDate(maxTime));
+                  
+                  LOG.fine("timestamp is " + timestamp + " maxTime is " + maxTime);
 
-                    LOG.fine("Border reached: NewTraceEndIndex is " + newTraceEndIndex
-                            + "NewTraceStartIndex is " + newTraceStartIndex
-                            + "changing newTraceEndIndex to " + (i - 1));
+                   LOG.fine("Border reached: NewTraceEndIndex is " + newTraceEndIndex
+                            + " NewTraceStartIndex is " + newTraceStartIndex
+                            + " changing newTraceEndIndex to " + (i - 1));
                     newTraceEndIndex = i - 1;
+                    done_end = true;
                     // storeEndIndex = newTraceEndIndex;
                     break;
                 }
@@ -609,21 +842,26 @@ public class MapPanel extends VizPanel {
                 // return;
             }
 
-            LOG.fine("NewTraceStartIndex for " + k + " is " + newTraceStartIndex
-                    + " NewTraceEndIndex is " + newTraceEndIndex);
+            //LOG.fine("NewTraceStartIndex for " + k + " is " + newTraceStartIndex
+             //       + " NewTraceEndIndex is " + newTraceEndIndex);
 
             // add vertices at START of trace if newTraceStart < traceStartIndex
             if (newTraceStartIndex < traceStartIndex) {
 
-                FloatDataPoint lat;
-                FloatDataPoint lon;
+                //FloatDataPoint lat;
+                //FloatDataPoint lon;
+                double lat;
+                double lon;
                 // LOG.fine( "Add " + (traceStartIndex - newTraceStartIndex) +
                 // " vertices at start");
                 for (int i = traceStartIndex - 1; i >= newTraceStartIndex; i--) {
-                    lat = latValues.get(i).cast();
-                    lon = lonValues.get(i).cast();
+                    //lat = latValues.get(i).cast();
+                    //lon = lonValues.get(i).cast();  
+                    lat = latValues.get(i);
+                    lon = lonValues.get(i);  
                     if (whichSlider != 2) {
-                        trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
+                        //trace.insertVertex(0, LatLng.newInstance(lat.getValue(), lon.getValue()));
+                        trace.insertVertex(0, LatLng.newInstance(lat, lon));
                     }
                 }
 
@@ -640,23 +878,31 @@ public class MapPanel extends VizPanel {
             }
 
             // update start marker
-            FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
-            FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
-            LatLng startCoordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
+            //FloatDataPoint startLat = latValues.get(newTraceStartIndex).cast();
+            //FloatDataPoint startLon = lonValues.get(newTraceStartIndex).cast();
+            double startLat = latValues.get(newTraceStartIndex);
+            double startLon = lonValues.get(newTraceStartIndex);
+            //LatLng startCoordinate = LatLng.newInstance(startLat.getValue(), startLon.getValue());
+            LatLng startCoordinate = LatLng.newInstance(startLat, startLon);
             startMarker.setLatLng(startCoordinate);
             startMarkerList.get(k).setLatLng(startCoordinate);
 
             // add vertices at END of trace if newTraceEnd > traceEndIndex
             if (newTraceEndIndex > traceEndIndex) {
                 // LOG.fine( "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
-                FloatDataPoint lat;
-                FloatDataPoint lon;
+                //FloatDataPoint lat;
+                //FloatDataPoint lon;
+                double lat;
+                double lon;
                 int vertexCount = trace.getVertexCount();
                 for (int i = traceEndIndex + 1; i <= newTraceEndIndex; i++) {
-                    lat = latValues.get(i).cast();
-                    lon = lonValues.get(i).cast();
+                    //lat = latValues.get(i).cast();
+                    //lon = lonValues.get(i).cast();
+                    lat = latValues.get(i);
+                    lon = lonValues.get(i);
                     trace.insertVertex(vertexCount,
-                            LatLng.newInstance(lat.getValue(), lon.getValue()));
+                            //LatLng.newInstance(lat.getValue(), lon.getValue()));
+                    		LatLng.newInstance(lat, lon));
                     vertexCount++;
                 }
             }
@@ -687,17 +933,22 @@ public class MapPanel extends VizPanel {
             }
 
             // LOG.fine( "old start: " + traceStartIndex + ", old end: " + traceEndIndex);
-            // LOG.fine( "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex +
-            // "vertex count is " + trace.getVertexCount());
+            LOG.fine( "new start: " + newTraceStartIndex + ", new end: " + newTraceEndIndex +
+            "vertex count is " + trace.getVertexCount());
             // LOG.fine("old trace start index is" + traceStartIndex + ", oldtrace end index is " +
             // traceEndIndex);
             int vertCount = trace.getVertexCount();
-            LOG.fine("vertex count is " + vertCount);
+            //LOG.fine("vertex count is " + vertCount);
 
             // update end marker
-            FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
-            FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
-            LatLng endCoordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
+            //FloatDataPoint endLat = latValues.get(newTraceEndIndex).cast();
+           // FloatDataPoint endLon = lonValues.get(newTraceEndIndex).cast();
+            
+            double endLat = latValues.get(newTraceEndIndex);
+            double endLon = lonValues.get(newTraceEndIndex);
+            
+            LatLng endCoordinate = LatLng.newInstance(endLat, endLon);
+            //LatLng endCoordinate = LatLng.newInstance(endLat.getValue(), endLon.getValue());
             endMarker.setLatLng(endCoordinate);
             endMarkerList.get(k).setLatLng(endCoordinate);
 

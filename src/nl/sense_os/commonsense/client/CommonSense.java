@@ -195,8 +195,8 @@ public class CommonSense implements EntryPoint {
                 window.show();
                 window.center();
 
-                JsArray<Timeseries> data = TestData.getTimeseriesPosition(100);
-                JsArray<Timeseries> data1 = TestData.getTimeseriesPosition1(100);
+                JsArray<Timeseries> data = TestData.getTimeseriesPosition(10);
+                JsArray<Timeseries> data1 = TestData.getTimeseriesPosition1(10);
                 for (int i = 0; i < data1.length(); i++) {
                 	data.push(data1.get(i));
                 }
