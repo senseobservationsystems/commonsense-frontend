@@ -173,6 +173,7 @@ public class VizTypeChooser extends View {
                 if (label.equals(timeLineRadio) || label.equals(tableRadio)
                         || label.equals(mapRadio) || label.equals(networkRadio)) {
                     buttonToTimeRange.setText("Next");
+                    timeRangeForm.setSubsampleEnabled(!label.equals(tableRadio));
 
                 } else {
                     LOG.warning("Unexpected selection: " + label);

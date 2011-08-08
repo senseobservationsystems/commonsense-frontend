@@ -316,4 +316,17 @@ public class TimeRangeForm extends FormPanel {
     public void setLabel(String label) {
         mainLabel.setText(label);
     }
+
+    /**
+     * Toggles enabled status of the subsample checkbox, unchecking the box when it is disabled.
+     * 
+     * @param enabled
+     *            The desired status.
+     */
+    public void setSubsampleEnabled(boolean enabled) {
+        subsampleField.setEnabled(enabled);
+        if (!enabled) {
+            subsampleField.setValue(false);
+        }
+    }
 }
