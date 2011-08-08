@@ -697,7 +697,7 @@ public class MapPanel extends VizPanel {
         int minTime = startSlider.getValue();     
         int maxTime = endSlider.getValue();
  
-        LOG.fine("MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
+//        LOG.fine("MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
         
 
         int whichSlider = 0;
@@ -767,7 +767,7 @@ public class MapPanel extends VizPanel {
                     // end index is not changed
                     newTraceStartIndex = latValues.size() - 1;
                     newTraceEndIndex = latValues.size() - 1;
-                    LOG.fine(" end index is not changed: " + newTraceEndIndex);
+//                    LOG.fine(" end index is not changed: " + newTraceEndIndex);
                 } 
 
                 if (whichSlider != 1) {
@@ -777,14 +777,14 @@ public class MapPanel extends VizPanel {
                    
                 } else if (i == 0 && timestamp == minTime) {
                 	// if whichSlider is 1 and it is moved back to the start, change the startIndex to 0
-                	LOG.fine ("Moved back to the start: setting traceStartIndex to 0");
+//                	LOG.fine ("Moved back to the start: setting traceStartIndex to 0");
                 	newTraceStartIndex = 0;
                 	done = true;
                 	
             	} else if (whichSlider != 2 && timestamp > minTime && newTraceStartIndex == 0 && done == false) {
                     // this is the first index with start of visible range
                     newTraceStartIndex = i; 
-                    LOG.fine("changing newTraceStartIndex to " + i);
+//                    LOG.fine("changing newTraceStartIndex to " + i);
                     done = true;
                     // LOG.fine("At index " + i + "we're inside the visible range");
                     // storeStartIndex = newTraceStartIndex;
@@ -799,13 +799,13 @@ public class MapPanel extends VizPanel {
 
                 } else if (i == latValues.size() - 1 && timestamp == maxTime) {
                 	// if whichSlider is 2 and it is moved back to the end, change the endIndex to latValues.size - 1
-                	LOG.fine ("Moved back to the end: setting TraceEndIndex to " + (latValues.size()-1));
+//                	LOG.fine ("Moved back to the end: setting TraceEndIndex to " + (latValues.size()-1));
                 	done_end = true;
                 	
                 } else if (whichSlider != 1 && i == 0 && timestamp == maxTime) {
                 	newTraceEndIndex = 0;
                 	done_end = true;
-                	LOG.fine ("Moved back to the start with the second slider: setting TraceEndIndex to 0");
+//                	LOG.fine ("Moved back to the start with the second slider: setting TraceEndIndex to 0");
                 	
                 }
                 
@@ -813,14 +813,14 @@ public class MapPanel extends VizPanel {
                     // this is the first index after the end of visible range
                     // + 10 because if the values are equal for us, the computer
                     // thinks the timestamp is a bit bigger
-                  LOG.fine("time is " + calculDate((int) timestamp) + " maxTime is "
-                            + calculDate(maxTime));
+//                  LOG.fine("time is " + calculDate((int) timestamp) + " maxTime is "
+//                            + calculDate(maxTime));
                   
-                  LOG.fine("timestamp is " + timestamp + " maxTime is " + maxTime);
+//                  LOG.fine("timestamp is " + timestamp + " maxTime is " + maxTime);
 
-                   LOG.fine("Border reached: NewTraceEndIndex is " + newTraceEndIndex
-                            + " NewTraceStartIndex is " + newTraceStartIndex
-                            + " changing newTraceEndIndex to " + (i - 1));
+//                   LOG.fine("Border reached: NewTraceEndIndex is " + newTraceEndIndex
+//                            + " NewTraceStartIndex is " + newTraceStartIndex
+//                            + " changing newTraceEndIndex to " + (i - 1));
                     newTraceEndIndex = i - 1;
                     done_end = true;
                     // storeEndIndex = newTraceEndIndex;
