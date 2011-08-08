@@ -45,7 +45,8 @@ public class TimeLinePanel extends VizPanel {
      */
     private boolean isPimCheckComplete = false;
 
-    public TimeLinePanel(List<SensorModel> sensors, long start, long end, String title) {
+    public TimeLinePanel(List<SensorModel> sensors, long start, long end, boolean subsample,
+            String title) {
         super();
 
         LOG.setLevel(Level.WARNING);
@@ -73,7 +74,7 @@ public class TimeLinePanel extends VizPanel {
         tlineOpts.setGroupsOnRight(true);
         tlineOpts.setGroupsWidth(135);
 
-        visualize(sensors, start, end);
+        visualize(sensors, start, end, subsample);
     }
 
     /**

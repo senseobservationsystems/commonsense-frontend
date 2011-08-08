@@ -51,7 +51,7 @@ public class FeedbackChooser extends View {
         w.setLayout(new FitLayout());
         w.setHeading("Feedback panel settings");
         w.setMinWidth(425);
-        w.setMinHeight(275);
+        w.setMinHeight(305);
 
         final TimeRangeForm form = new TimeRangeForm();
         form.setLabel("Select the time range to give feedback:");
@@ -65,6 +65,7 @@ public class FeedbackChooser extends View {
 
                 final long startTime = form.getStartTime();
                 final long endTime = form.getEndTime();
+                final boolean subsample = form.getSubsample();
 
                 AppEvent proceed = new AppEvent(FeedbackEvents.FeedbackChosen);
                 proceed.setData("state", state);
@@ -72,6 +73,7 @@ public class FeedbackChooser extends View {
                 proceed.setData("labels", labels);
                 proceed.setData("start", startTime);
                 proceed.setData("end", endTime);
+                proceed.setData("subsample", subsample);
                 fireEvent(proceed);
 
                 w.hide();

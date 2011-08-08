@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
-import nl.sense_os.commonsense.client.viz.data.DataEvents;
+import nl.sense_os.commonsense.client.viz.data.DataRequestEvent;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
@@ -66,7 +65,7 @@ public abstract class VizPanel extends ContentPanel {
      *            Timeseries to display.
      */
     public void addData(JsArray<Timeseries> data) {
-    	LOG.fine("AddData from visPanel is called");
+        LOG.fine("AddData from visPanel is called");
         if (null == this.data) {
             this.data = data;
 
@@ -77,7 +76,7 @@ public abstract class VizPanel extends ContentPanel {
                 for (int j = 0; j < this.data.length(); j++) {
                     Timeseries original = this.data.get(j);
                     if (toAppend.getLabel().equals(original.getLabel())
-                    && toAppend.getIdd() == original.getIdd() ) {
+                            && toAppend.getIdd() == original.getIdd()) {
                         LOG.fine("Append data to " + original.getLabel());
                         original.append(toAppend);
                         appended = true;
@@ -227,12 +226,8 @@ public abstract class VizPanel extends ContentPanel {
                 LOG.fine("Refresh start time: " + dtf.format(new Date(refreshStart)));
 
                 // submit request event
-                AppEvent refreshRequest = new AppEvent(DataEvents.DataRequest);
-                refreshRequest.setData("sensors", sensors);
-                refreshRequest.setData("startTime", refreshStart);
-                refreshRequest.setData("endTime", end);
-                refreshRequest.setData("vizPanel", this);
-                refreshRequest.setData("showProgress", false);
+                DataRequestEvent refreshRequest = new DataRequestEvent(refreshStart, end, sensors,
+                        true, false, this);
                 Dispatcher.forwardEvent(refreshRequest);
             }
 
@@ -308,17 +303,13 @@ public abstract class VizPanel extends ContentPanel {
      * @param end
      *            End time of the period to display.
      */
-    protected void visualize(List<SensorModel> sensors, long start, long end) {
+    protected void visualize(List<SensorModel> sensors, long start, long end, boolean subsample) {
         this.sensors = sensors;
         this.start = start;
         this.end = end;
 
-        AppEvent dataRequest = new AppEvent(DataEvents.DataRequest);
-        dataRequest.setData("sensors", sensors);
-        dataRequest.setData("startTime", start);
-        dataRequest.setData("endTime", end);
-        dataRequest.setData("vizPanel", this);
-        dataRequest.setData("showProgress", true);
+        DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true,
+                this);
         Dispatcher.forwardEvent(dataRequest);
     }
 }

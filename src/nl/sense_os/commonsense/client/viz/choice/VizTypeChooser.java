@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.components.TimeRangeForm;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -112,13 +111,12 @@ public class VizTypeChooser extends View {
     protected void initialize() {
         super.initialize();
 
-        submitEvent = new AppEvent(DataEvents.DataRequest);
-        submitEvent.setData("showProgress", true);
+        submitEvent = new AppEvent(VizEvents.ShowTimeLine);
 
         window = new CenteredWindow();
         window.setHeading("Visualization wizard");
         window.setMinWidth(425);
-        window.setMinHeight(275);
+        window.setMinHeight(305);
 
         layout = new CardLayout();
         window.setLayout(layout);
@@ -128,7 +126,6 @@ public class VizTypeChooser extends View {
 
         layout.setActiveItem(window.getItem(0));
     }
-
     private void initTimeRangeButtons() {
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
@@ -303,6 +300,7 @@ public class VizTypeChooser extends View {
     private void saveSelectedTimes() {
         submitEvent.setData("startTime", timeRangeForm.getStartTime());
         submitEvent.setData("endTime", timeRangeForm.getEndTime());
+        submitEvent.setData("subsample", timeRangeForm.getSubsample());
     }
 
     /**

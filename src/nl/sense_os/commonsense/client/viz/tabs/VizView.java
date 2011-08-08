@@ -87,9 +87,10 @@ public class VizView extends View {
         } else if (type.equals(VizEvents.ShowTimeLine)) {
             // LOG.fine( "ShowTimeLine");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long startTime = event.getData("startTime");
-            final long endTime = event.getData("endTime");
-            showTimeLine(sensors, startTime, endTime);
+            final long start = event.getData("startTime");
+            final long end = event.getData("endTime");
+            final boolean subsample = event.getData("subsample");
+            showTimeLine(sensors, start, end, subsample);
 
         } else if (type.equals(VizEvents.ShowTable)) {
             // LOG.fine( "ShowTable");
@@ -101,9 +102,10 @@ public class VizView extends View {
         } else if (type.equals(VizEvents.ShowMap)) {
             // LOG.fine( "ShowMap");
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final long startTime = event.getData("startTime");
-            final long endTime = event.getData("endTime");
-            showMap(sensors, startTime, endTime);
+            final long start = event.getData("startTime");
+            final long end = event.getData("endTime");
+            final boolean subsample = event.getData("subsample");
+            showMap(sensors, start, end, subsample);
 
         } else if (type.equals(VizEvents.ShowNetwork)) {
             LOG.warning("ShowNetwork not implemented");
@@ -258,7 +260,7 @@ public class VizView extends View {
         tabPanel.setSelection(item);
     }
 
-    private void showMap(List<SensorModel> sensors, long startTime, long endTime) {
+    private void showMap(List<SensorModel> sensors, long start, long end, boolean subsample) {
 
         // add map tab item
         String title = createChartTitle(sensors);
@@ -267,7 +269,7 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        MapPanel map = new MapPanel(sensors, startTime, endTime, title);
+        MapPanel map = new MapPanel(sensors, start, end, subsample, title);
         item.add(map);
 
         tabPanel.add(item);
@@ -299,7 +301,7 @@ public class VizView extends View {
         item.layout();
     }
 
-    private void showTimeLine(List<SensorModel> sensors, long startTime, long endTime) {
+    private void showTimeLine(List<SensorModel> sensors, long start, long end, boolean subsample) {
 
         // add line chart tab item
         String title = createChartTitle(sensors);
@@ -308,7 +310,7 @@ public class VizView extends View {
         item.setLayout(new FitLayout());
         item.setClosable(true);
 
-        final TimeLinePanel chart = new TimeLinePanel(sensors, startTime, endTime, title);
+        final TimeLinePanel chart = new TimeLinePanel(sensors, start, end, subsample, title);
         item.add(chart);
 
         tabPanel.add(item);

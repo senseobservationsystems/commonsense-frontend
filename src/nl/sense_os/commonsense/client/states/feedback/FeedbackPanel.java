@@ -74,7 +74,7 @@ public class FeedbackPanel extends VizPanel {
     private boolean isProcessingInBackground;
 
     public FeedbackPanel(SensorModel stateSensor, List<SensorModel> sensors, long start, long end,
-            String title, List<String> labels) {
+            boolean subsample, String title, List<String> labels) {
         super();
 
         LOG.setLevel(Level.WARNING);
@@ -114,7 +114,7 @@ public class FeedbackPanel extends VizPanel {
 
         // request sensor data
         sensors.add(stateSensor);
-        visualize(sensors, start, end);
+        visualize(sensors, start, end, subsample);
 
         DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
         LOG.finest("Start time: " + dtf.format(new Date(start)) + ", end time: "

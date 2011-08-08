@@ -71,7 +71,7 @@ public class MapPanel extends VizPanel {
     ArrayList<Integer> traceEndIndexList = new ArrayList<Integer>();
     ArrayList<String> traceColorList = new ArrayList<String>();
 
-    public MapPanel(List<SensorModel> sensors, long start, long end, String title) {
+    public MapPanel(List<SensorModel> sensors, long start, long end, boolean subsample, String title) {
         super();
 
         setHeading("My map: " + title);
@@ -81,7 +81,7 @@ public class MapPanel extends VizPanel {
         initSliders();
         initMapWidget();
 
-        visualize(sensors, start, end);
+        visualize(sensors, start, end, subsample);
     }
 
     /**

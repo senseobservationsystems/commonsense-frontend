@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.DateWrapper;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -39,6 +40,7 @@ public class TimeRangeForm extends FormPanel {
     private TimeField startTimeField;
     private DateField endDateField;
     private TimeField endTimeField;
+    private CheckBox subsampleField;
     private LabelField mainLabel;
 
     public TimeRangeForm() {
@@ -136,6 +138,13 @@ public class TimeRangeForm extends FormPanel {
         LOG.fine("Start: " + dtf.format(new Date(startTime)));
 
         return startTime;
+    }
+
+    /**
+     * @return true if the user requested subsampling. Default value is true.
+     */
+    public boolean getSubsample() {
+        return subsampleField.getValue();
     }
 
     private void initTimeRangeFields() {
@@ -289,9 +298,15 @@ public class TimeRangeForm extends FormPanel {
         main.add(center2, new ColumnData(.25));
         main.add(right, new ColumnData(.25));
 
+        subsampleField = new CheckBox();
+        subsampleField.setBoxLabel("Use subsampling (recommended)");
+        subsampleField.setHideLabel(true);
+        subsampleField.setValue(true);
+
         add(mainLabel, new FormData());
         add(main, new FormData());
         add(advancedRangeSet, new FormData());
+        add(subsampleField, new FormData());
     }
 
     /**

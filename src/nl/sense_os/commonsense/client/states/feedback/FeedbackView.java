@@ -60,7 +60,8 @@ public class FeedbackView extends View {
             final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
             final long start = event.getData("start");
             final long end = event.getData("end");
-            showPanel(state, sensors, labels, start, end);
+            final boolean subsample = event.getData("subsample");
+            showPanel(state, sensors, labels, start, end, subsample);
 
         } else
 
@@ -109,9 +110,10 @@ public class FeedbackView extends View {
     }
 
     private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels,
-            long start, long end) {
+            long start, long end, boolean subsample) {
         String title = state.getDisplayName();
-        FeedbackPanel panel = new FeedbackPanel(state, sensors, start, end, title, labels);
+        FeedbackPanel panel = new FeedbackPanel(state, sensors, start, end, subsample, title,
+                labels);
 
         AppEvent showEvent = new AppEvent(FeedbackEvents.ShowFeedback);
         showEvent.setData("panel", panel);

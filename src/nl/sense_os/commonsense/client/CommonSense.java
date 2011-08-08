@@ -190,7 +190,7 @@ public class CommonSense implements EntryPoint {
                 window.setHeading("Maps test");
                 window.setSize("90%", "600px");
 
-                MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, "title");
+                MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, false, "title");
                 window.add(map);
                 window.show();
                 window.center();
@@ -198,7 +198,7 @@ public class CommonSense implements EntryPoint {
                 JsArray<Timeseries> data = TestData.getTimeseriesPosition(10);
                 JsArray<Timeseries> data1 = TestData.getTimeseriesPosition1(10);
                 for (int i = 0; i < data1.length(); i++) {
-                	data.push(data1.get(i));
+                    data.push(data1.get(i));
                 }
                 map.addData(data);
             }
