@@ -53,8 +53,9 @@ public class MapPanel extends VizPanel {
     
     // store all the id's that we get
     ArrayList<Integer> Id_names = new ArrayList<Integer>();
-
-    ArrayList<ArrayList<Timeseries>> latLongList;
+    
+    // create an arrayList with timeseries for all the IDs
+    ArrayList<ArrayList<Timeseries>> bigList;
     // create an arrayList to store multiple arrayLists, with "bad points" to be discarded for each ID
     ArrayList <ArrayList<Integer>> bigBadPoints = new ArrayList<ArrayList<Integer>>();
     // create two arrayLists to store all good lat-long pairs and timestamps for all the IDs
@@ -63,8 +64,7 @@ public class MapPanel extends VizPanel {
     ArrayList <ArrayList<Float>> allGoodLat = new ArrayList<ArrayList<Float>>();
     ArrayList <ArrayList<Float>> allGoodLon = new ArrayList<ArrayList<Float>>();
     ArrayList <ArrayList<Long>> allGoodTimestamps = new ArrayList<ArrayList<Long>>();
-    
-    
+     
     ArrayList<Polyline> polyList = new ArrayList<Polyline>();
     ArrayList<Marker> startMarkerList = new ArrayList<Marker>();
     ArrayList<Marker> endMarkerList = new ArrayList<Marker>();
@@ -115,7 +115,7 @@ public class MapPanel extends VizPanel {
         int max = 0;
 
         
-        for (int n = 0; n < latLongList.size(); n++) {
+        for (int n = 0; n < bigList.size(); n++) {
         	
         	ArrayList<Long> curTimestamps = allGoodTimestamps.get(n);
         	
@@ -131,11 +131,11 @@ public class MapPanel extends VizPanel {
         	}      
         }
 
-        LOG.fine("Calculate slider range : max found is " + max);
+        //LOG.fine("Calculate slider range : max found is " + max);
         int interval = (max - min) / 25;
         //max = min + 25 * interval;
         
-        LOG.fine("Calculate slider range: max assigned is " + max);
+        //LOG.fine("Calculate slider range: max assigned is " + max);
 
         startSlider.setMinValue(min);
         startSlider.setMaxValue(max);
@@ -156,7 +156,7 @@ public class MapPanel extends VizPanel {
         // for some reason; so i add something to the max, then it equals max anyway
  
         LOG.fine("Minimum date found is " + calculDate(min) + " maximum date found is " + calculDate(max));
-        LOG.fine("The min according to slider is " + startSlider.onFormatValue(min) + "the max according to slider is " + endSlider.onFormatValue(max));
+        //LOG.fine("The min according to slider is " + startSlider.onFormatValue(min) + "the max according to slider is " + endSlider.onFormatValue(max));
         //LOG.fine("And the start slider value is " + startSlider.getValue() + " " + calculDate(startSlider.getValue()));
     }
 
@@ -188,7 +188,7 @@ public class MapPanel extends VizPanel {
         currentMinTime = startSlider.getValue();
         currentMaxTime = endSlider.getValue();
 
-        for (int l = 0; l < latLongList.size(); l++) {
+        for (int l = 0; l < bigList.size(); l++) {
 
             traceColor = traceColorList.get(l);          
 
@@ -196,8 +196,8 @@ public class MapPanel extends VizPanel {
             ArrayList<Float> latValues = allGoodLat.get(l);           
             ArrayList<Float> lonValues = allGoodLon.get(l);
             
-            LOG.fine("Number of points: " + latValues.size());
-            LOG.fine("BadPoints length for " + Id_names.get(l) + "is " + bigBadPoints.get(l).size());            
+            LOG.fine("Number of points to draw: " + latValues.size());
+            //LOG.fine("BadPoints length for " + Id_names.get(l) + "is " + bigBadPoints.get(l).size());            
 
             // Draw the filtered points.
             if (latValues.size() > 0 && maxTime > minTime) {
@@ -352,13 +352,12 @@ public class MapPanel extends VizPanel {
 		// initialize latitude and longitude values to the goodStart				
 		double latit = latLongPoints.get(goodStart).get(0);
 		double longit = latLongPoints.get(goodStart).get(1);
-		long pointTimestamp = currentArray.get(goodStart).getData().get(0).getTimestamp().getTime();
+		long pointTimestamp = currentArray.get(0).getData().get(0).getTimestamp().getTime();
 		LOG.fine("goodStart is "+ goodStart + " latit is " + latit + " longit is " + longit);
 		
 		double radLongit = Math.toRadians(longit);
 		double radLatit = Math.toRadians(latit);
-		
-				
+						
 		// store lat-long coordinates and timestamps as a "good" point
 		ArrayList<Float> firstGoodPoint = new ArrayList<Float>();
 		
@@ -370,7 +369,7 @@ public class MapPanel extends VizPanel {
 		firstGoodPoint.add(new Float (longit));	
 		IdGoodPoints.add(firstGoodPoint);		
 		
-		LOG.fine("IdGoodPoints size is " + IdGoodPoints.size());
+		//LOG.fine("IdGoodPoints size is " + IdGoodPoints.size());
 		
 					
 		for (int p = goodStart + 1; p < latLongPoints.size(); p++ ) {
@@ -400,10 +399,12 @@ public class MapPanel extends VizPanel {
 				LOG.fine ("distance equals zero");
 			
 				
-			if (speed > 350 /*&& /*distance > 20 && hourDifference < 2*/ ) {
+			if (speed > 350 /*&& distance > 20 && hourDifference < 2*/ ) {
 				
 				Integer newBadPoint = new Integer(p);
 				badPoints.add(newBadPoint);
+				String pointDate = calculDate(currentArray.get(0).getData().get(p));
+				String prevPointDate = calculDate (currentArray.get(0).getData().get(p -1));
 				
 //				LOG.fine ("\nThere is nothing on earth that can move so fast!" + 
 //						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
@@ -491,7 +492,7 @@ public class MapPanel extends VizPanel {
         // create an ArrayList to store multiple arrayLists, to group the Timeseries
         // objects by their ID
 
-        ArrayList<ArrayList<Timeseries>> bigList = new ArrayList<ArrayList<Timeseries>>();
+        bigList = new ArrayList<ArrayList<Timeseries>>();
 
         // if the ID is new, add it to the id list, create an arraylist for Timeseries with
         // that ID, and include that arraylist into the Big Arraylist
@@ -593,7 +594,7 @@ public class MapPanel extends VizPanel {
     		LOG.fine ("latLongPoints length for " + Id_names.get(r) + " is " + latLongPoints.size());
     		
     		
-    		// we try to start with point 0 and see if we get more good points than bad.. otherwise we start from the next point.. and so on
+    		// we try to filter points, starting with point 0, and see if we get more good points than bad.. otherwise we start from the next point.. and so on
 			if (latLongPoints.size() > 1) {	
 						
 				int goodStart = 0;
@@ -619,17 +620,13 @@ public class MapPanel extends VizPanel {
 						else goodStart++;
 					}
 				}
-					
-				
+								
 				
         	} // done with current ID 
  	
          } // close for bigList, the entire list of IDs
     	        
          
-         // there are still references to latLongList, they have to be removed and then the following line can go
-         latLongList = bigList;       
-         //LOG.fine("The length of latLongList is " + latLongList.size());
 		
         if (!allGoodPoints.isEmpty()/*latTimeseries != null && lngTimeseries != null*/) {
             calcSliderRange();
@@ -642,7 +639,6 @@ public class MapPanel extends VizPanel {
 
         int minTime = startSlider.getValue();     
         int maxTime = endSlider.getValue();
- 
         //LOG.fine("MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
         
 
@@ -666,7 +662,7 @@ public class MapPanel extends VizPanel {
         
         // LOG.fine( "updateTrace ");
 
-        for (int k = 0; k < latLongList.size(); k++) {
+        for (int k = 0; k < bigList.size(); k++) {
             
             Polyline trace = polyList.get(k);
             startMarker = startMarkerList.get(k);
@@ -706,7 +702,7 @@ public class MapPanel extends VizPanel {
                     // end index is not changed
                     newTraceStartIndex = latValues.size() - 1;
                     newTraceEndIndex = latValues.size() - 1;
-//                    LOG.fine(" end index is not changed: " + newTraceEndIndex);
+                    //LOG.fine(" end index is not changed: " + newTraceEndIndex);
                 } 
 
                 if (whichSlider != 1) {
@@ -716,7 +712,7 @@ public class MapPanel extends VizPanel {
                    
                 } else if (i == 0 && timestamp == minTime) {
                 	// if whichSlider is 1 and it is moved back to the start, change the startIndex to 0
-//                	LOG.fine ("Moved back to the start: setting traceStartIndex to 0");
+                	//LOG.fine ("Moved back to the start: setting traceStartIndex to 0");
                 	newTraceStartIndex = 0;
                 	done = true;
                 	
