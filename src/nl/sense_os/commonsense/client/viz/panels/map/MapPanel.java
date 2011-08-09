@@ -399,18 +399,18 @@ public class MapPanel extends VizPanel {
 				LOG.fine ("distance equals zero");
 			
 				
-			if (speed > 350 /*&& distance > 20 && hourDifference < 2*/ ) {
+			if (speed > 350 && distance > 25 /* && hourDifference < 2*/ ) {
 				
 				Integer newBadPoint = new Integer(p);
 				badPoints.add(newBadPoint);
 				String pointDate = calculDate(currentArray.get(0).getData().get(p));
 				String prevPointDate = calculDate (currentArray.get(0).getData().get(p -1));
 				
-//				LOG.fine ("\nThere is nothing on earth that can move so fast!" + 
-//						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
-//    					"\ncomparing timestamp " + pointDate + " to " + prevPointDate +
-//    					"\npoint " + p + " of " + Id_names.get(r) + " will be discarded" +
-//						" its newLatit is " + newLatit + " newLongit is " + newLongit);
+				LOG.fine ("\nThere is nothing on earth that can move so fast!" + 
+						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
+    					"\ncomparing timestamp " + pointDate + " to " + prevPointDate +
+    					"\npoint " + p + " of " + Id_names.get(r) + " will be discarded" +
+						" its newLatit is " + newLatit + " newLongit is " + newLongit);
 				
 				
 			} else {
@@ -611,7 +611,7 @@ public class MapPanel extends VizPanel {
 					}
 					
 					else {
-						if (goodStart == currentArray.size()) {
+						if (goodStart == latLongPoints.size()) {
 						
 							LOG.fine ("Reached the end of the array and still didnt find any sensible data");
 							break;
@@ -624,9 +624,7 @@ public class MapPanel extends VizPanel {
 				
         	} // done with current ID 
  	
-         } // close for bigList, the entire list of IDs
-    	        
-         
+         } // close for bigList, the entire list of IDs    	                 
 		
         if (!allGoodPoints.isEmpty()/*latTimeseries != null && lngTimeseries != null*/) {
             calcSliderRange();
@@ -696,7 +694,7 @@ public class MapPanel extends VizPanel {
 //            	LOG.fine ("Timestamp is " + timestamp + " " + calculDate((int)timestamp) + " minTime is " + minTime + " " + calculDate (minTime) +
 //            			" maxTime is " + maxTime + " " + calculDate (maxTime));
                 //timestamp = latValues.get(i).getTimestamp().getTime() / 1000;              
-
+            	
                 if (i == latValues.size() - 1 && timestamp < minTime) {
                     // start index is not changed
                     // end index is not changed
