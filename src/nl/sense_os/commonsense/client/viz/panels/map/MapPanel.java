@@ -406,11 +406,11 @@ public class MapPanel extends VizPanel {
 				String pointDate = calculDate(currentArray.get(0).getData().get(p));
 				String prevPointDate = calculDate (currentArray.get(0).getData().get(p -1));
 				
-				LOG.fine ("\nThere is nothing on earth that can move so fast!" + 
-						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
-    					"\ncomparing timestamp " + pointDate + " to " + prevPointDate +
-    					"\npoint " + p + " of " + Id_names.get(r) + " will be discarded" +
-						" its newLatit is " + newLatit + " newLongit is " + newLongit);
+//				LOG.fine ("\nThere is nothing on earth that can move so fast!" + 
+//						"\ndistance is " + distance + "hourDifference is " + hourDifference + "speed is " + speed + " date is " + pointDate +
+//    					"\ncomparing timestamp " + pointDate + " to " + prevPointDate +
+//    					"\npoint " + p + " of " + Id_names.get(r) + " will be discarded" +
+//						" its newLatit is " + newLatit + " newLongit is " + newLongit);
 				
 				
 			} else {
