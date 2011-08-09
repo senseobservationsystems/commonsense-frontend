@@ -265,7 +265,7 @@ public class FeedbackController extends Controller {
                 @Override
                 public void onError(Request request, Throwable exception) {
                     LOG.warning("POST feedback onError callback: " + exception.getMessage());
-                    onFeedbackFailed(panel);
+                    onFeedbackFailed(0, panel);
                 }
 
                 @Override
@@ -274,9 +274,11 @@ public class FeedbackController extends Controller {
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
                         onFeedbackMarked(response.getText(), state, changes, index, panel);
+                    } else if (Response.SC_NO_CONTENT == statusCode) {
+                        onNoContent(state, changes, index, panel);
                     } else {
                         LOG.warning("POST feedback returned incorrect status: " + statusCode);
-                        onFeedbackFailed(panel);
+                        onFeedbackFailed(statusCode, panel);
                     }
                 }
             };
@@ -288,7 +290,7 @@ public class FeedbackController extends Controller {
                 builder.sendRequest(body, reqCallback);
             } catch (RequestException e) {
                 LOG.warning("POST feedback request threw exception: " + e.getMessage());
-                onFeedbackFailed(panel);
+                onFeedbackFailed(0, panel);
             }
 
         } else {
@@ -297,16 +299,36 @@ public class FeedbackController extends Controller {
     }
 
     /**
+     * Handles callback when feedback mark request returns 204 (No Content). This means that the
+     * source sensors have no data in the selected time interval. Not a big problem, we just
+     * continue with the next change.
+     * 
+     * @param state
+     *            State sensor the feedback was given for.
+     * @param changes
+     *            List of feedback changes that have to be sent to CommonSense, one by one.
+     * @param index
+     *            Index of the change that returned 204.
+     * @param panel
+     *            The feedback panel that originated the changes.
+     */
+    private void onNoContent(SensorModel state, List<FeedbackData> changes, int index,
+            FeedbackPanel panel) {
+        markFeedback(state, changes, index + 1, panel);
+    }
+
+    /**
      * Notifies the feedback panel that processing is taking longer than usual.
      * 
      * @param panel
+     *            The feedback panel that originated the changes, and should notify the user.
      */
     private void notifySlowProcessing(FeedbackPanel panel) {
         panel.onFeedbackSlow();
     }
 
     private void onCheckProcessedFailed(FeedbackPanel panel) {
-        onFeedbackFailed(panel);
+        onFeedbackFailed(0, panel);
     }
 
     private void onCheckProcessedSuccess(String response, final int checkCount,
@@ -347,7 +369,7 @@ public class FeedbackController extends Controller {
         forwardToView(feedback, complete);
     }
 
-    private void onFeedbackFailed(FeedbackPanel panel) {
+    private void onFeedbackFailed(int code, FeedbackPanel panel) {
         LOG.fine("Feedback failure");
         AppEvent failure = new AppEvent(FeedbackEvents.FeedbackFailed);
         failure.setData("panel", panel);
