@@ -134,8 +134,7 @@ public class StateDefaultsDialog extends View {
         gridField.setFieldLabel("Select device(s) to use for the states");
 
         overwrite = new CheckBox();
-        overwrite
-                .setBoxLabel("Update existing state sensors (this will overwrite of their settings)");
+        overwrite.setBoxLabel("Update existing state sensors (this will overwrite their settings)");
         overwrite.setHideLabel(true);
         overwrite.setValue(false);
 
