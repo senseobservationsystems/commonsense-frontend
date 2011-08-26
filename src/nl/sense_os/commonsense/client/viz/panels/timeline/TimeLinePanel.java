@@ -5,16 +5,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -39,11 +36,6 @@ public class TimeLinePanel extends VizPanel {
     private Timeline timeline;
     private final Timeline.Options tlineOpts = Timeline.Options.create();
     private boolean showTimeLine = true;
-
-    /**
-     * Used to enable Pim the hairy intern to skip drawing the time line.
-     */
-    private boolean isPimCheckComplete = false;
 
     public TimeLinePanel(List<SensorModel> sensors, long start, long end, boolean subsample,
             String title) {
@@ -228,25 +220,6 @@ public class TimeLinePanel extends VizPanel {
 
     @Override
     protected void onNewData(final JsArray<Timeseries> data) {
-
-        // special pim message
-        if (!isPimCheckComplete && Registry.<UserModel> get(Constants.REG_USER).getId() == 1547) {
-            MessageBox.confirm(null, "Hoi Pim! Wil je eventueel de tijdslijnvisualisatie zien?",
-                    new Listener<MessageBoxEvent>() {
-
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                                showTimeLine = true;
-                            } else {
-                                showTimeLine = false;
-                            }
-                            isPimCheckComplete = true;
-                            onNewData(data);
-                        }
-                    });
-            return;
-        }
 
         LOG.fine("New data...");
         LOG.fine("Total " + data.length() + " timeseries");

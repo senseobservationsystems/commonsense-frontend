@@ -225,6 +225,11 @@ final class CacheJso extends JavaScriptObject {
                 if (cache.content[index].end < datapoint.date) {
                     cache.content[index].end = datapoint.date;
                 }
+
+                // update data type
+                if (cache.content[index].type == 'number') {
+                    cache.content[index].type = typeof (datapoint.value);
+                }
             }
         }
     }-*/;

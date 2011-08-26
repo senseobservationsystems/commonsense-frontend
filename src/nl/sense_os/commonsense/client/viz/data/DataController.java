@@ -47,6 +47,30 @@ public class DataController extends Controller {
         registerEventTypes(DataEvents.LatestValuesRequest);
     }
 
+    private int calcInterval(long start, long end) {
+        long realEnd = end == -1 ? System.currentTimeMillis() : end;
+        double interval = Math.ceil(((realEnd - start) / 1000000d));
+        if (interval < 60) {
+            interval = 60;
+        } else if (interval < 300) {
+            interval = 300;
+        } else if (interval < 600) {
+            interval = 600;
+        } else if (interval < 1800) {
+            interval = 1800;
+        } else if (interval < 60 * 60 * 24 * 31 * 6 / 1000d) {
+            // for requests for up to 6 months in range, set interval to one hour
+            interval = 3600;
+        } else if (interval < 60 * 60 * 24 * 365 * 2 / 1000d) {
+            // for requests for up to 2 years in range, set interval to one day
+            interval = 86400;
+        } else {
+            // crazy large interval for crazy large requests
+            interval = 604800;
+        }
+        return Double.valueOf(interval).intValue();
+    }
+
     private void getLatestValues(final List<SensorModel> sensors, final int index,
             final VizPanel panel) {
         if (index < sensors.size()) {
@@ -208,13 +232,16 @@ public class DataController extends Controller {
      *            List of sensors that we are requesting data for.
      * @param sensorIndex
      *            Index of the sensor that the data belongs to.
-     * @param vizPanel
-     *            Panel that requested the data.
+     * @param subsampled
+     *            Boolean to indicate whether the data was subsampled.
      * @param showProgress
      *            Boolean to indicate whether to update the user of the progress.
+     * @param vizPanel
+     *            Panel that requested the data.
      */
     private void onReqSubsampledSuccess(String response, long start, long end,
-            List<SensorModel> sensors, int sensorIndex, VizPanel vizPanel, boolean showProgress) {
+            List<SensorModel> sensors, int sensorIndex, int pageIndex, boolean subsampled,
+            boolean showProgress, VizPanel vizPanel) {
 
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
@@ -223,15 +250,19 @@ public class DataController extends Controller {
         SensorModel sensor = sensors.get(sensorIndex);
         Cache.store(sensor, start, end, jsoResponse.getData());
 
-        // update progress indicator
-        sensorIndex++;
-        if (showProgress) {
-            updateProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
-        }
-
-        // check if there are still sensors left to do
-        if (sensorIndex < sensors.size()) {
-            reqDataSubsampled(start, end, sensors, sensorIndex, vizPanel, showProgress);
+        if (jsoResponse.getData().length() == PER_PAGE) {
+            // get next page
+            pageIndex++;
+            reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsampled,
+                    showProgress, vizPanel);
+        } else if (sensorIndex < sensors.size()) {
+            // next sensor
+            sensorIndex++;
+            if (showProgress) {
+                updateProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
+            }
+            reqDataSubsampled(start, end, sensors, sensorIndex, 0, subsampled, showProgress,
+                    vizPanel);
         } else {
             // completed all pages for all sensors
             onDataComplete(start, end, sensors, vizPanel);
@@ -262,9 +293,8 @@ public class DataController extends Controller {
      * @param showProgress
      *            Boolean to indicate whether to update the user of the progress.
      */
-    private void onReqPagedSuccess(String response, long start, long end,
-            List<SensorModel> sensors, int sensorIndex, int pageIndex, int total,
-            VizPanel vizPanel, boolean showProgress) {
+    private void onReqRawSuccess(String response, long start, long end, List<SensorModel> sensors,
+            int sensorIndex, int pageIndex, int total, VizPanel vizPanel, boolean showProgress) {
 
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
@@ -281,11 +311,11 @@ public class DataController extends Controller {
 
         // check if we need to fetch additional pages
         if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
-            reqDataPaged(start, end, sensors, sensorIndex, pageIndex + 1, total, vizPanel,
+            reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, vizPanel,
                     showProgress);
         } else {
             updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
-            reqDataPaged(start, end, sensors, sensorIndex + 1, 0, 0, vizPanel, showProgress);
+            reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, vizPanel, showProgress);
         }
     }
 
@@ -309,6 +339,7 @@ public class DataController extends Controller {
     private void onDataRequest(long start, long end, List<SensorModel> sensors, boolean subsample,
             boolean showProgress, VizPanel vizPanel) {
         final int sensorIndex = 0;
+        final int pageIndex = 0;
 
         if (showProgress) {
             showProgress(sensors.size());
@@ -317,11 +348,8 @@ public class DataController extends Controller {
         LOG.fine("request start: "
                 + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
 
-        if (subsample) {
-            reqDataSubsampled(start, end, sensors, sensorIndex, vizPanel, showProgress);
-        } else {
-            reqDataPaged(start, end, sensors, sensorIndex, 0, 0, vizPanel, showProgress);
-        }
+        reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
+                vizPanel);
     }
 
     /**
@@ -383,7 +411,7 @@ public class DataController extends Controller {
      * @param showProgress
      *            Set to true to display a progress dialog.
      */
-    private void reqDataPaged(final long start, final long end, final List<SensorModel> sensors,
+    private void reqDataRaw(final long start, final long end, final List<SensorModel> sensors,
             final int sensorIndex, final int pageIndex, final int sensorTotal,
             final VizPanel vizPanel, final boolean showProgress) {
         LOG.fine("Request paged data...");
@@ -434,7 +462,7 @@ public class DataController extends Controller {
                     LOG.finest("GET data (paged) response received: " + response.getStatusText());
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
-                        onReqPagedSuccess(response.getText(), start, end, sensors, sensorIndex,
+                        onReqRawSuccess(response.getText(), start, end, sensors, sensorIndex,
                                 pageIndex, sensorTotal, vizPanel, showProgress);
                     } else {
                         LOG.warning("GET data (paged) returned incorrect status: " + statusCode);
@@ -479,25 +507,28 @@ public class DataController extends Controller {
      * @param showProgress
      *            Set to true to display a progress dialog.
      */
-    private void reqDataSubsampled(long start, final long end, final List<SensorModel> sensors,
-            final int sensorIndex, final VizPanel vizPanel, final boolean showProgress) {
-        LOG.fine("Request subsampled data...");
+    private void reqDataSubsampled(final long start, final long end,
+            final List<SensorModel> sensors, final int sensorIndex, final int pageIndex,
+            final boolean subsample, final boolean showProgress, final VizPanel vizPanel) {
+        LOG.fine("Request data...");
 
         if (sensorIndex < sensors.size()) {
 
             final SensorModel sensor = sensors.get(sensorIndex);
 
-            // remove data from the cache, because using it is too complicated for our tiny brains
-            Cache.remove(sensor);
-            final long realStart = start;
+            // remove preexisting data from the cache, because reusing it is too complicated
+            if (pageIndex == 0) {
+                Cache.remove(sensor);
+            }
 
             final Method method = RequestBuilder.GET;
             final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
             urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
             urlBuilder.setParameter("per_page", "" + PER_PAGE);
+            urlBuilder.setParameter("page", "" + pageIndex);
 
             // start date parameter
-            final String startDate = NumberFormat.getFormat("#.000").format(realStart / 1000d);
+            final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
             urlBuilder.setParameter("start_date", startDate);
 
             // end date is optional
@@ -506,10 +537,10 @@ public class DataController extends Controller {
                 urlBuilder.setParameter("end_date", endDate);
             }
 
-            // set subsample interval to get max 1000 points
-            long realEnd = end == -1 ? System.currentTimeMillis() : end;
-            final String interval = "" + Math.ceil(((realEnd - realStart) / 1000000d));
-            urlBuilder.setParameter("interval", interval);
+            // set subsample interval
+            if (subsample) {
+                urlBuilder.setParameter("interval", "" + calcInterval(start, end));
+            }
 
             // use alias if necessary
             if (-1 != sensor.getAlias()) {
@@ -533,8 +564,8 @@ public class DataController extends Controller {
                             + response.getStatusText());
                     int statusCode = response.getStatusCode();
                     if (Response.SC_OK == statusCode) {
-                        onReqSubsampledSuccess(response.getText(), realStart, end, sensors,
-                                sensorIndex, vizPanel, showProgress);
+                        onReqSubsampledSuccess(response.getText(), start, end, sensors,
+                                sensorIndex, pageIndex, subsample, showProgress, vizPanel);
                     } else {
                         LOG.warning("GET data (subsampled) returned incorrect status: "
                                 + statusCode);

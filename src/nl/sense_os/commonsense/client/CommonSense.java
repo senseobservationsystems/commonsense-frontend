@@ -18,6 +18,7 @@ import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvController;
 import nl.sense_os.commonsense.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateController;
+import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteController;
 import nl.sense_os.commonsense.client.groups.list.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
@@ -64,13 +65,14 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Fri Aug 5 11:10";
+    public static final String LAST_DEPLOYED = "Thu Aug 11 11:15";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_TIMELINE = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && true;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -143,11 +145,21 @@ public class CommonSense implements EntryPoint {
             testNavBar();
         } else if (HACK_TEST_TIMELINE) {
             testTimeline();
+        } else if (HACK_TEST_GROUPCREATOR) {
+            testGroupCreator();
         } else {
             initControllers();
         }
 
         GXT.hideLoadingPanel("loading");
+    }
+
+    private void testGroupCreator() {
+
+        initControllers();
+
+        AppEvent login = new AppEvent(GroupCreateEvents.ShowCreator);
+        Dispatcher.forwardEvent(login);
     }
 
     /**

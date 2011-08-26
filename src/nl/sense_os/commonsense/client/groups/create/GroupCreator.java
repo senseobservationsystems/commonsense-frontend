@@ -4,42 +4,157 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupAccessMgtForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupNameForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupPresetsForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupReqSharingForm;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldSetEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 
 public class GroupCreator extends View {
 
     private static final Logger LOG = Logger.getLogger(GroupCreator.class.getName());
     private Window window;
-    private FormPanel form;
-    private TextField<String> name;
-    private TextField<String> username;
-    private TextField<String> password;
-    private Button submitButton;
-    private Button cancelButton;
+    private CardLayout layout;
+    private Button nextButton;
+    private Button backButton;
+    private GroupNameForm nameForm;
+    private GroupPresetsForm presetsForm;
+    private GroupAccessMgtForm accessMgmtForm;
+    private GroupReqSharingForm reqSharingForm;
+    private FormButtonBinding formButtonBinding;
 
     public GroupCreator(Controller c) {
         super(c);
+    }
+
+    private void goToNext() {
+
+        Component active = layout.getActiveItem();
+        if (active.equals(nameForm)) {
+            showPresets();
+        } else if (active.equals(presetsForm)) {
+            showAccessMgmt();
+        } else if (active.equals(accessMgmtForm)) {
+            showReqSharing();
+        } else {
+            LOG.warning("Cannot go to next: unexpected active item");
+        }
+    }
+
+    private void showNameForm() {
+        // update layout
+        layout.setActiveItem(nameForm);
+
+        // update button
+        nextButton.setText("Next");
+
+        // keep button updated
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(nameForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showPresets() {
+
+        // update layout
+        layout.setActiveItem(presetsForm);
+
+        // update button
+        Radio selected = presetsForm.getPresets().getValue();
+        if (selected instanceof GroupPresetsForm.CustomRadio) {
+            nextButton.setText("Next");
+        } else {
+            nextButton.setText("Create");
+        }
+
+        // listen to selection to update the button
+        RadioGroup presets = presetsForm.getPresets();
+        presets.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                Radio selected = ((RadioGroup) be.getField()).getValue();
+                if (selected instanceof GroupPresetsForm.CustomRadio) {
+                    nextButton.setText("Next");
+                } else {
+                    nextButton.setText("Create");
+                }
+            }
+        });
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(presetsForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showAccessMgmt() {
+
+        // update content
+        layout.setActiveItem(accessMgmtForm);
+
+        // update buttons
+        nextButton.setText("Next");
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(accessMgmtForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showReqSharing() {
+
+        // update content
+        layout.setActiveItem(reqSharingForm);
+
+        // update buttons
+        nextButton.setText("Next");
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(reqSharingForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void goToPrev() {
+
+        Component active = layout.getActiveItem();
+        if (active.equals(reqSharingForm)) {
+            showAccessMgmt();
+        } else if (active.equals(accessMgmtForm)) {
+            showPresets();
+        } else if (active.equals(presetsForm)) {
+            showNameForm();
+        } else {
+            LOG.warning("Cannot go to previous: unexpected active item");
+        }
     }
 
     @Override
@@ -63,115 +178,66 @@ public class GroupCreator extends View {
     }
 
     private void hideDialog() {
-        this.window.hide();
+        window.hide();
         setBusy(false);
     }
 
-    private void initForm() {
-
-        this.form = new FormPanel();
-        this.form.setHeaderVisible(false);
-        this.form.setBodyBorder(false);
-
-        initFields();
-        initButtons();
-
-        this.window.add(form);
-    }
-
     private void initButtons() {
+
+        // listener for clicks on the buttons
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
                 final Button pressed = ce.getButton();
-                if (pressed.equals(submitButton)) {
-                    if (form.isValid()) {
+                if (pressed.equals(nextButton)) {
+                    if (nextButton.getText().equals("Next")) {
+                        goToNext();
+                    } else {
                         onSubmit();
                     }
-                } else if (pressed.equals(cancelButton)) {
-                    hideDialog();
+                } else if (pressed.equals(backButton)) {
+                    goToPrev();
                 } else {
                     LOG.warning("Unexpected button pressed");
                 }
             }
         };
-        this.submitButton = new Button("Create", SenseIconProvider.ICON_BUTTON_GO, l);
 
-        this.cancelButton = new Button("Cancel", l);
+        nextButton = new Button("Next", l);
+        backButton = new Button("Back", l);
 
-        final FormButtonBinding binding = new FormButtonBinding(this.form);
-        binding.addButton(this.submitButton);
-
-        this.form.setButtonAlign(HorizontalAlignment.CENTER);
-        this.form.addButton(this.submitButton);
-        this.form.addButton(this.cancelButton);
+        window.setButtonAlign(HorizontalAlignment.RIGHT);
+        window.addButton(backButton);
+        window.addButton(nextButton);
     }
 
-    private void initFields() {
+    private void initForms() {
 
-        final FormData formData = new FormData("-10");
+        nameForm = new GroupNameForm();
+        presetsForm = new GroupPresetsForm();
+        accessMgmtForm = new GroupAccessMgtForm();
+        reqSharingForm = new GroupReqSharingForm();
 
-        this.name = new TextField<String>();
-        this.name.setFieldLabel("Name");
-        this.name.setAllowBlank(false);
-
-        // this.email = new TextField<String>();
-        // this.email.setFieldLabel("Email*");
-        // this.email.setAllowBlank(false);
-
-        final FieldSet loginFields = new FieldSet();
-        loginFields.setHeading("Log in as this group");
-        loginFields.setCheckboxToggle(true);
-        loginFields.setExpanded(false);
-        loginFields.setLayout(new FormLayout());
-
-        // allow the username and password to be blank iff the fieldset is not checked
-        Listener<FieldSetEvent> listener = new Listener<FieldSetEvent>() {
-
-            @Override
-            public void handleEvent(FieldSetEvent be) {
-                // LOG.fine( "Expand");
-                boolean isVisible = loginFields.isExpanded();
-                username.setAllowBlank(!isVisible);
-                password.setAllowBlank(!isVisible);
-            }
-        };
-        loginFields.addListener(Events.Expand, listener);
-        loginFields.addListener(Events.Collapse, listener);
-
-        this.username = new TextField<String>();
-        this.username.setFieldLabel("Username");
-
-        this.password = new TextField<String>();
-        this.password.setFieldLabel("Password");
-        this.password.setPassword(true);
-
-        loginFields.add(this.username, formData);
-        loginFields.add(this.password, formData);
-
-        this.form.add(this.name, formData);
-        this.form.add(loginFields, formData);
+        window.add(nameForm);
+        window.add(presetsForm);
+        window.add(accessMgmtForm);
+        window.add(reqSharingForm);
     }
 
     @Override
     protected void initialize() {
         super.initialize();
 
-        this.window = new CenteredWindow();
-        this.window.setHeading("Create group");
-        this.window.setSize(323, 200);
-        this.window.setLayout(new FitLayout());
+        window = new CenteredWindow();
+        window.setHeading("Create new group");
+        window.setSize(450, 400);
 
-        initForm();
-    }
+        layout = new CardLayout();
+        window.setLayout(layout);
 
-    private void setBusy(boolean busy) {
-        if (busy) {
-            this.submitButton.setIcon(SenseIconProvider.ICON_LOADING);
-        } else {
-            this.submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-        }
+        initForms();
+        initButtons();
     }
 
     private void onComplete(AppEvent event) {
@@ -195,22 +261,25 @@ public class GroupCreator extends View {
     }
 
     private void onShow(AppEvent event) {
-        this.form.reset();
-        this.window.show();
-        this.window.center();
+        showNameForm();
+        window.show();
+        window.center();
     }
 
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(GroupCreateEvents.CreateRequested);
-        event.setData("name", this.name.getValue());
-        // event.setData("email", this.email.getValue());
-        if (this.username.getValue() != null && this.username.getValue().length() > 0) {
-            event.setData("username", this.username.getValue());
-            event.setData("password", this.password.getValue());
-        }
+        AppEvent event = new GroupCreateRequest();
+        // TODO
         fireEvent(event);
+    }
+
+    private void setBusy(boolean busy) {
+        if (busy) {
+            nextButton.setIcon(SenseIconProvider.ICON_LOADING);
+        } else {
+            nextButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+        }
     }
 
 }
