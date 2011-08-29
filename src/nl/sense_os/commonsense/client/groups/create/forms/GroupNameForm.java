@@ -1,16 +1,14 @@
 package nl.sense_os.commonsense.client.groups.create.forms;
 
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupNameForm extends FormPanel {
+public class GroupNameForm extends AbstractGroupForm {
 
     private final TextField<String> name = new TextField<String>();
     private final TextField<String> description = new TextField<String>();
 
     public GroupNameForm() {
+        super();
 
         // init name field
         name.setFieldLabel("Group name");
@@ -23,11 +21,8 @@ public class GroupNameForm extends FormPanel {
         description.setHeight("100px");
 
         // init layout
-        setLayout(new FormLayout(LabelAlign.TOP));
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        add(name, new FormData("-10"));
-        add(description, new FormData("-10"));
+        add(name, layoutData);
+        add(description, layoutData);
     }
 
     public TextField<String> getName() {

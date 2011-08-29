@@ -3,15 +3,16 @@ package nl.sense_os.commonsense.client.groups.create.forms;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupPresetsForm extends FormPanel {
+public class GroupPresetsForm extends AbstractGroupForm {
 
     public class AnonymousRadio extends Radio {
 
@@ -31,45 +32,17 @@ public class GroupPresetsForm extends FormPanel {
     private final CommunityRadio community = new CommunityRadio();
     private final CustomRadio custom = new CustomRadio();
     private final RadioGroup presets = new RadioGroup();
-    private final TextField<String> privatePass = new TextField<String>();
+
+    private final TextField<String> password = new TextField<String>();
+    private final TextField<String> passwordConfirm = new TextField<String>();
 
     public GroupPresetsForm() {
 
-        // init radio fields
-        anonymous.setBoxLabel("Anonymous");
-        anonymous.setHideLabel(true);
-        hidden.setBoxLabel("Private");
-        hidden.setHideLabel(true);
-        community.setBoxLabel("Community");
-        community.setHideLabel(true);
-        custom.setBoxLabel("Custom");
-        custom.setHideLabel(true);
+        initRadios();
+        initTextFields();
 
-        // select anonymous
-        anonymous.setValue(true);
-        anonymous.setOriginalValue(true);
-
-        // radio presets manages selection
-        presets.add(anonymous);
-        presets.add(hidden);
-        presets.add(community);
-        presets.add(custom);
-        presets.setSelectionRequired(true);
-        presets.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                onSelectionChange((Radio) be.getField().getValue());
-            }
-        });
-
-        privatePass.setEmptyText("Enter a group password");
-        privatePass.setAllowBlank(false);
-        privatePass.setHideLabel(true);
-        privatePass.setEnabled(false);
-
-        LabelField mainLabel = new LabelField();
-        mainLabel.setFieldLabel("Pick a group preset:");
+        LabelField mainLabel = new LabelField("<b>Pick a group preset:</b>");
+        mainLabel.setHideLabel(true);
 
         LabelField anonyLabel = new LabelField(
                 "An anonymous group is visible for everyone and anyone can join the group."
@@ -87,27 +60,83 @@ public class GroupPresetsForm extends FormPanel {
         customLabel.setHideLabel(true);
 
         // init layout
-        setLayout(new FormLayout(LabelAlign.TOP));
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        FormData data = new FormData("0");
-        add(mainLabel, data);
-        add(anonymous, data);
-        add(anonyLabel, data);
-        add(hidden, data);
-        add(hiddenLabel, data);
-        add(privatePass, new FormData("-10"));
-        add(community, data);
-        add(communityLabel, data);
-        add(custom, data);
-        add(customLabel, data);
+        FormPanel subForm = new FormPanel();
+        subForm.setLayout(new FormLayout(LabelAlign.LEFT));
+        subForm.setHeaderVisible(false);
+        subForm.setBodyBorder(false);
+        subForm.add(password, layoutData);
+        subForm.add(passwordConfirm, layoutData);
+        setLayout(new FormLayout(LabelAlign.LEFT));
+        add(mainLabel, layoutData);
+        add(anonymous, layoutData);
+        add(anonyLabel, layoutData);
+        add(hidden, layoutData);
+        add(hiddenLabel, layoutData);
+        add(subForm, layoutData);
+        add(community, layoutData);
+        add(communityLabel, layoutData);
+        add(custom, layoutData);
+        add(customLabel, layoutData);
     }
 
-    private void onSelectionChange(Radio selection) {
-        boolean isPrivate = selection.equals(hidden);
-        privatePass.setEnabled(isPrivate);
-        privatePass.setAllowBlank(!isPrivate);
-        privatePass.validate();
+    private void initTextFields() {
+
+        password.setFieldLabel("Password");
+        password.setPassword(true);
+        passwordConfirm.setFieldLabel("Confirm password");
+        passwordConfirm.setPassword(true);
+        passwordConfirm.setValidator(new Validator() {
+
+            @Override
+            public String validate(Field<?> field, String value) {
+                if (password.getValue() == null || password.getValue().length() == 0) {
+                    return null;
+                } else {
+                    if (value.equals(password.getValue())) {
+                        return null;
+                    } else {
+                        return "passwords are not identical";
+                    }
+                }
+            }
+        });
+    }
+
+    private void initRadios() {
+
+        anonymous.setBoxLabel("Anonymous");
+        anonymous.setHideLabel(true);
+        hidden.setBoxLabel("Private");
+        hidden.setHideLabel(true);
+        community.setBoxLabel("Community");
+        community.setHideLabel(true);
+        custom.setBoxLabel("Custom");
+        custom.setHideLabel(true);
+
+        // radio presets manages selection
+        presets.add(anonymous);
+        presets.add(hidden);
+        presets.add(community);
+        presets.add(custom);
+        presets.setSelectionRequired(true);
+        presets.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                onSelectionChange(be.getField().getValue());
+            }
+        });
+    }
+
+    private void onSelectionChange(Object selection) {
+        boolean isPrivate = hidden.equals(selection);
+        password.setEnabled(isPrivate);
+        password.setAllowBlank(!isPrivate);
+        password.validate();
+
+        passwordConfirm.setEnabled(isPrivate);
+        passwordConfirm.setAllowBlank(!isPrivate);
+        passwordConfirm.validate();
     }
 
     public RadioGroup getPresets() {
@@ -115,6 +144,8 @@ public class GroupPresetsForm extends FormPanel {
     }
 
     public String getPrivatePass() {
-        return privatePass.getValue();
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
+                : null;
     }
 }

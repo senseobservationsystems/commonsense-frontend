@@ -4,15 +4,12 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupAccessMgtForm extends FormPanel {
+public class GroupAccessMgtForm extends AbstractGroupForm {
 
     private final RadioGroup visibility = new RadioGroup();
     private final Radio visible = new Radio();
@@ -25,6 +22,7 @@ public class GroupAccessMgtForm extends FormPanel {
     private final Radio adminEntrance = new Radio();
 
     public GroupAccessMgtForm() {
+        super();
 
         visible.setBoxLabel("Everyone can see that this group exists");
         visible.setHideLabel(true);
@@ -58,6 +56,7 @@ public class GroupAccessMgtForm extends FormPanel {
         });
 
         privatePass.setEmptyText("Enter a group password");
+        privatePass.setPassword(true);
         privatePass.setAllowBlank(false);
         privatePass.setHideLabel(true);
         privatePass.setEnabled(false);
@@ -66,16 +65,12 @@ public class GroupAccessMgtForm extends FormPanel {
         freeEntrance.setValue(true);
 
         // init layout
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        setLayout(new FormLayout(LabelAlign.TOP));
-        FormData data = new FormData("-10");
-        add(visibility, data);
-        add(policyLabel, data);
-        add(freeEntrance, data);
-        add(passEntrance, data);
-        add(privatePass, data);
-        add(adminEntrance, data);
+        add(visibility, layoutData);
+        add(policyLabel, layoutData);
+        add(freeEntrance, layoutData);
+        add(passEntrance, layoutData);
+        add(privatePass, layoutData);
+        add(adminEntrance, layoutData);
     }
 
     private void onSelectionChange(Radio selection) {

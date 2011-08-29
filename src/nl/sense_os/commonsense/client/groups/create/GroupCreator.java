@@ -5,8 +5,11 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupAccessMgtForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupLoginForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupMemberRightsForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupNameForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupPresetsForm;
+import nl.sense_os.commonsense.client.groups.create.forms.GroupReqMemberInfoForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupReqSharingForm;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -40,7 +43,10 @@ public class GroupCreator extends View {
     private GroupPresetsForm presetsForm;
     private GroupAccessMgtForm accessMgmtForm;
     private GroupReqSharingForm reqSharingForm;
+    private GroupReqMemberInfoForm reqMemberInfoForm;
     private FormButtonBinding formButtonBinding;
+    private GroupMemberRightsForm memberRightsForm;
+    private GroupLoginForm groupLoginForm;
 
     public GroupCreator(Controller c) {
         super(c);
@@ -55,98 +61,27 @@ public class GroupCreator extends View {
             showAccessMgmt();
         } else if (active.equals(accessMgmtForm)) {
             showReqSharing();
+        } else if (active.equals(reqSharingForm)) {
+            showReqMemberInfo();
+        } else if (active.equals(reqMemberInfoForm)) {
+            showMemberRights();
+        } else if (active.equals(memberRightsForm)) {
+            showGroupLogin();
         } else {
             LOG.warning("Cannot go to next: unexpected active item");
         }
     }
 
-    private void showNameForm() {
-        // update layout
-        layout.setActiveItem(nameForm);
-
-        // update button
-        nextButton.setText("Next");
-
-        // keep button updated
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-        formButtonBinding = new FormButtonBinding(nameForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    private void showPresets() {
-
-        // update layout
-        layout.setActiveItem(presetsForm);
-
-        // update button
-        Radio selected = presetsForm.getPresets().getValue();
-        if (selected instanceof GroupPresetsForm.CustomRadio) {
-            nextButton.setText("Next");
-        } else {
-            nextButton.setText("Create");
-        }
-
-        // listen to selection to update the button
-        RadioGroup presets = presetsForm.getPresets();
-        presets.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                Radio selected = ((RadioGroup) be.getField()).getValue();
-                if (selected instanceof GroupPresetsForm.CustomRadio) {
-                    nextButton.setText("Next");
-                } else {
-                    nextButton.setText("Create");
-                }
-            }
-        });
-
-        // button binding
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-        formButtonBinding = new FormButtonBinding(presetsForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    private void showAccessMgmt() {
-
-        // update content
-        layout.setActiveItem(accessMgmtForm);
-
-        // update buttons
-        nextButton.setText("Next");
-
-        // button binding
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-        formButtonBinding = new FormButtonBinding(accessMgmtForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    private void showReqSharing() {
-
-        // update content
-        layout.setActiveItem(reqSharingForm);
-
-        // update buttons
-        nextButton.setText("Next");
-
-        // button binding
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-        formButtonBinding = new FormButtonBinding(reqSharingForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
     private void goToPrev() {
 
         Component active = layout.getActiveItem();
-        if (active.equals(reqSharingForm)) {
+        if (active.equals(groupLoginForm)) {
+            showMemberRights();
+        } else if (active.equals(memberRightsForm)) {
+            showReqMemberInfo();
+        } else if (active.equals(reqMemberInfoForm)) {
+            showReqSharing();
+        } else if (active.equals(reqSharingForm)) {
             showAccessMgmt();
         } else if (active.equals(accessMgmtForm)) {
             showPresets();
@@ -218,11 +153,17 @@ public class GroupCreator extends View {
         presetsForm = new GroupPresetsForm();
         accessMgmtForm = new GroupAccessMgtForm();
         reqSharingForm = new GroupReqSharingForm();
+        reqMemberInfoForm = new GroupReqMemberInfoForm();
+        memberRightsForm = new GroupMemberRightsForm();
+        groupLoginForm = new GroupLoginForm();
 
         window.add(nameForm);
         window.add(presetsForm);
         window.add(accessMgmtForm);
         window.add(reqSharingForm);
+        window.add(reqMemberInfoForm);
+        window.add(memberRightsForm);
+        window.add(groupLoginForm);
     }
 
     @Override
@@ -231,7 +172,7 @@ public class GroupCreator extends View {
 
         window = new CenteredWindow();
         window.setHeading("Create new group");
-        window.setSize(450, 400);
+        window.setSize(500, 450);
 
         layout = new CardLayout();
         window.setLayout(layout);
@@ -280,6 +221,146 @@ public class GroupCreator extends View {
         } else {
             nextButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
         }
+    }
+
+    private void showAccessMgmt() {
+
+        // update content
+        layout.setActiveItem(accessMgmtForm);
+
+        // update buttons
+        nextButton.setText("Next");
+        backButton.setEnabled(true);
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(accessMgmtForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showGroupLogin() {
+
+        // update content
+        layout.setActiveItem(groupLoginForm);
+
+        // update buttons
+        nextButton.setText("Create");
+        backButton.setEnabled(true);
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(groupLoginForm);
+        formButtonBinding.addButton(nextButton);
+
+    }
+
+    private void showMemberRights() {
+
+        // update content
+        layout.setActiveItem(memberRightsForm);
+
+        // update buttons
+        nextButton.setText("Next");
+        backButton.setEnabled(true);
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(memberRightsForm);
+        formButtonBinding.addButton(nextButton);
+
+    }
+
+    private void showNameForm() {
+        // update layout
+        layout.setActiveItem(nameForm);
+
+        // update button
+        nextButton.setText("Next");
+        backButton.setEnabled(false);
+
+        // keep button updated
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(nameForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showPresets() {
+
+        // update layout
+        layout.setActiveItem(presetsForm);
+
+        // update button
+        Radio selected = presetsForm.getPresets().getValue();
+        if (selected instanceof GroupPresetsForm.CustomRadio) {
+            nextButton.setText("Next");
+        } else {
+            nextButton.setText("Create");
+        }
+        backButton.setEnabled(true);
+
+        // listen to selection to update the button
+        RadioGroup presets = presetsForm.getPresets();
+        presets.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                Radio selected = ((RadioGroup) be.getField()).getValue();
+                if (selected instanceof GroupPresetsForm.CustomRadio) {
+                    nextButton.setText("Next");
+                } else {
+                    nextButton.setText("Create");
+                }
+            }
+        });
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(presetsForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showReqMemberInfo() {
+
+        // update content
+        layout.setActiveItem(reqMemberInfoForm);
+
+        // update buttons
+        nextButton.setText("Next");
+        backButton.setEnabled(true);
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(reqMemberInfoForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showReqSharing() {
+
+        // update content
+        layout.setActiveItem(reqSharingForm);
+
+        // update buttons
+        nextButton.setText("Next");
+        backButton.setEnabled(true);
+
+        // button binding
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(reqSharingForm);
+        formButtonBinding.addButton(nextButton);
     }
 
 }
