@@ -17,12 +17,15 @@ public class GroupPresetsForm extends AbstractGroupForm {
     public class AnonymousRadio extends Radio {
 
     };
+
     public class PrivateRadio extends Radio {
 
     };
+
     public class CommunityRadio extends Radio {
 
     }
+
     public class CustomRadio extends Radio {
 
     }
@@ -41,7 +44,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
         initRadios();
         initTextFields();
 
-        LabelField mainLabel = new LabelField("<b>Pick a group preset:</b>");
+        LabelField mainLabel = new LabelField("<b>Group presets</b>");
         mainLabel.setHideLabel(true);
 
         LabelField anonyLabel = new LabelField(
@@ -60,29 +63,34 @@ public class GroupPresetsForm extends AbstractGroupForm {
         customLabel.setHideLabel(true);
 
         // init layout
-        FormPanel subForm = new FormPanel();
-        subForm.setLayout(new FormLayout(LabelAlign.LEFT));
-        subForm.setHeaderVisible(false);
-        subForm.setBodyBorder(false);
-        subForm.add(password, layoutData);
-        subForm.add(passwordConfirm, layoutData);
+        FormPanel pwForm = new FormPanel();
+        pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
+        pwForm.setHeaderVisible(false);
+        pwForm.setBodyBorder(false);
+        pwForm.add(password, layoutData);
+        pwForm.add(passwordConfirm, layoutData);
+
         setLayout(new FormLayout(LabelAlign.LEFT));
         add(mainLabel, layoutData);
-        add(anonymous, layoutData);
-        add(anonyLabel, layoutData);
         add(hidden, layoutData);
         add(hiddenLabel, layoutData);
-        add(subForm, layoutData);
+        add(pwForm, layoutData);
+        add(anonymous, layoutData);
+        add(anonyLabel, layoutData);
         add(community, layoutData);
         add(communityLabel, layoutData);
         add(custom, layoutData);
         add(customLabel, layoutData);
+
+        hidden.setValue(true);
+        onSelectionChange(hidden);
     }
 
     private void initTextFields() {
 
         password.setFieldLabel("Password");
         password.setPassword(true);
+        password.setEnabled(false);
         passwordConfirm.setFieldLabel("Confirm password");
         passwordConfirm.setPassword(true);
         passwordConfirm.setValidator(new Validator() {
@@ -100,14 +108,15 @@ public class GroupPresetsForm extends AbstractGroupForm {
                 }
             }
         });
+        passwordConfirm.setEnabled(false);
     }
 
     private void initRadios() {
 
-        anonymous.setBoxLabel("Anonymous");
-        anonymous.setHideLabel(true);
         hidden.setBoxLabel("Private");
         hidden.setHideLabel(true);
+        anonymous.setBoxLabel("Anonymous");
+        anonymous.setHideLabel(true);
         community.setBoxLabel("Community");
         community.setHideLabel(true);
         custom.setBoxLabel("Custom");
@@ -129,14 +138,12 @@ public class GroupPresetsForm extends AbstractGroupForm {
     }
 
     private void onSelectionChange(Object selection) {
-        boolean isPrivate = hidden.equals(selection);
-        password.setEnabled(isPrivate);
-        password.setAllowBlank(!isPrivate);
-        password.validate();
+        boolean usePasswords = hidden.equals(selection);
+        password.setEnabled(usePasswords);
+        password.setAllowBlank(!usePasswords);
 
-        passwordConfirm.setEnabled(isPrivate);
-        passwordConfirm.setAllowBlank(!isPrivate);
-        passwordConfirm.validate();
+        passwordConfirm.setEnabled(usePasswords);
+        passwordConfirm.setAllowBlank(!usePasswords);
     }
 
     public RadioGroup getPresets() {
@@ -144,8 +151,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
     }
 
     public String getPrivatePass() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
-                ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
                 : null;
     }
 }

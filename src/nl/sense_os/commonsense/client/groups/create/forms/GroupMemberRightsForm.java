@@ -15,7 +15,7 @@ public class GroupMemberRightsForm extends AbstractGroupForm {
     public GroupMemberRightsForm() {
         super();
 
-        final LabelField label = new LabelField("<b>Default group member rights:</b>");
+        final LabelField label = new LabelField("<b>Default group member rights</b>");
         label.setHideLabel(true);
 
         readUsers.setBoxLabel("Members may see the other group members");

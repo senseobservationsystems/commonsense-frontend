@@ -25,7 +25,7 @@ public class GroupLoginForm extends AbstractGroupForm {
 
     public GroupLoginForm() {
 
-        LabelField label = new LabelField("<b>Group login:</b>");
+        LabelField label = new LabelField("<b>Group login</b>");
         label.setHideLabel(true);
 
         initRadios();
@@ -75,9 +75,9 @@ public class GroupLoginForm extends AbstractGroupForm {
     }
 
     private void initRadios() {
-        useLogin.setBoxLabel("Create a user login for the new group");
+        useLogin.setBoxLabel("The group needs to be able to log in as a user");
         useLogin.setHideLabel(true);
-        doNotUseLogin.setBoxLabel("This group has no user login");
+        doNotUseLogin.setBoxLabel("The group needs no user login");
         doNotUseLogin.setHideLabel(true);
         radios.add(useLogin);
         radios.add(doNotUseLogin);

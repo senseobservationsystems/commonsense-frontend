@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.groups.create.forms;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -25,18 +28,11 @@ public class GroupReqMemberInfoForm extends AbstractGroupForm {
     public GroupReqMemberInfoForm() {
         super();
 
-        final LabelField label = new LabelField(
-                "<b>Requirements for shared member information:</b>");
+        final LabelField label = new LabelField("<b>Required member information</b>");
         label.setHideLabel(true);
 
         // radio buttons
-        showInfo.setBoxLabel("Members need to share some information with the group:");
-        showInfo.setHideLabel(true);
-        showInfo.setValue(true);
-        noInfo.setBoxLabel("Members are not visible to others");
-        noInfo.setHideLabel(true);
-        radios.add(showInfo);
-        radios.add(noInfo);
+        initRadios();
 
         // checkboxes
         userId.setBoxLabel("User ID");
@@ -46,27 +42,46 @@ public class GroupReqMemberInfoForm extends AbstractGroupForm {
         email.setBoxLabel("Email");
         phone.setBoxLabel("Phone");
 
-        TableLayout tableLayout = new TableLayout(3);
+        TableLayout tableLayout = new TableLayout(4);
         LayoutContainer checkBoxContainer = new LayoutContainer(tableLayout);
         TableData tableData = new TableData("75px", "20px");
         checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
         checkBoxContainer.add(userId, tableData);
+        checkBoxContainer.add(firstName, tableData);
         checkBoxContainer.add(email, tableData);
         checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
         checkBoxContainer.add(username, tableData);
-        checkBoxContainer.add(phone, tableData);
-        checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
-        checkBoxContainer.add(firstName, tableData);
-        checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
-        checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
         checkBoxContainer.add(surname, tableData);
-        checkBoxContainer.add(new HTML(), new TableData("20px", "10px"));
+        checkBoxContainer.add(phone, tableData);
 
         // layout
         add(label, layoutData);
         add(showInfo, layoutData);
         add(checkBoxContainer, layoutData);
         add(noInfo, layoutData);
+    }
+
+    private void initRadios() {
+        showInfo.setBoxLabel("Members need to share some information with the group:");
+        showInfo.setHideLabel(true);
+        showInfo.setValue(true);
+        noInfo.setBoxLabel("Members are not visible to others");
+        noInfo.setHideLabel(true);
+        radios.add(showInfo);
+        radios.add(noInfo);
+        radios.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                boolean enableChecks = showInfo.equals(be.getField().getValue());
+                userId.setEnabled(enableChecks);
+                username.setEnabled(enableChecks);
+                firstName.setEnabled(enableChecks);
+                surname.setEnabled(enableChecks);
+                email.setEnabled(enableChecks);
+                phone.setEnabled(enableChecks);
+            }
+        });
     }
 
 }

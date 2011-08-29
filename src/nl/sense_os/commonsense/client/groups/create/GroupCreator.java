@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.client.groups.create.forms.GroupLoginForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupMemberRightsForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupNameForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupPresetsForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupReqMemberInfoForm;
 import nl.sense_os.commonsense.client.groups.create.forms.GroupReqSharingForm;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -43,7 +42,6 @@ public class GroupCreator extends View {
     private GroupPresetsForm presetsForm;
     private GroupAccessMgtForm accessMgmtForm;
     private GroupReqSharingForm reqSharingForm;
-    private GroupReqMemberInfoForm reqMemberInfoForm;
     private FormButtonBinding formButtonBinding;
     private GroupMemberRightsForm memberRightsForm;
     private GroupLoginForm groupLoginForm;
@@ -62,8 +60,6 @@ public class GroupCreator extends View {
         } else if (active.equals(accessMgmtForm)) {
             showReqSharing();
         } else if (active.equals(reqSharingForm)) {
-            showReqMemberInfo();
-        } else if (active.equals(reqMemberInfoForm)) {
             showMemberRights();
         } else if (active.equals(memberRightsForm)) {
             showGroupLogin();
@@ -78,8 +74,6 @@ public class GroupCreator extends View {
         if (active.equals(groupLoginForm)) {
             showMemberRights();
         } else if (active.equals(memberRightsForm)) {
-            showReqMemberInfo();
-        } else if (active.equals(reqMemberInfoForm)) {
             showReqSharing();
         } else if (active.equals(reqSharingForm)) {
             showAccessMgmt();
@@ -153,7 +147,6 @@ public class GroupCreator extends View {
         presetsForm = new GroupPresetsForm();
         accessMgmtForm = new GroupAccessMgtForm();
         reqSharingForm = new GroupReqSharingForm();
-        reqMemberInfoForm = new GroupReqMemberInfoForm();
         memberRightsForm = new GroupMemberRightsForm();
         groupLoginForm = new GroupLoginForm();
 
@@ -161,7 +154,6 @@ public class GroupCreator extends View {
         window.add(presetsForm);
         window.add(accessMgmtForm);
         window.add(reqSharingForm);
-        window.add(reqMemberInfoForm);
         window.add(memberRightsForm);
         window.add(groupLoginForm);
     }
@@ -326,23 +318,6 @@ public class GroupCreator extends View {
             formButtonBinding.removeButton(nextButton);
         }
         formButtonBinding = new FormButtonBinding(presetsForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    private void showReqMemberInfo() {
-
-        // update content
-        layout.setActiveItem(reqMemberInfoForm);
-
-        // update buttons
-        nextButton.setText("Next");
-        backButton.setEnabled(true);
-
-        // button binding
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-        formButtonBinding = new FormButtonBinding(reqMemberInfoForm);
         formButtonBinding.addButton(nextButton);
     }
 
