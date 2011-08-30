@@ -13,7 +13,8 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
  * 
  */
 public class DateSlider extends Slider {
-
+	
+	
     private final DateTimeFormat format = DateTimeFormat
             .getFormat(PredefinedFormat.DATE_TIME_SHORT);
 
@@ -28,5 +29,6 @@ public class DateSlider extends Slider {
     protected String onFormatValue(int value) {
         return format.format(new Date(value * 1000l));
     }
+    
 
 }

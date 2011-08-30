@@ -25,4 +25,6 @@ public class DataPoint extends JavaScriptObject {
     public final Date getTimestamp() {
         return new Date(Math.round(this.getRawDate()));
     }
+
+	
 }

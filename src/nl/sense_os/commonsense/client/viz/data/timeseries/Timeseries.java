@@ -13,6 +13,7 @@ public class Timeseries extends JavaScriptObject {
     	
         return this.data;
     }-*/;
+    
 
     public final long getEnd() {
         return Math.round(getRawEnd());

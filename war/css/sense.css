@@ -47,6 +47,78 @@ div.graph-axis-text-vertical {
 	width: 25px;
 }
 
+.animatePanel {
+	width: "100%";
+	text-align: left;
+	margin-bottom: 5px;
+}
+
+.playPanel {
+	margin-top: 5px;
+	margin-left: 10px;
+	margin-bottom: 0px;
+}
+
+.playSlider {
+	
+	width: 100%;
+}
+
+.animateButton {
+	width: 50px;
+	height: 15px;
+	margin-bottom: 5px;
+	
+	text-align: center;
+	border: none;
+	outline: none;
+	font-size: 9pt;
+	
+}
+
+.pauseButton {
+	margin-right: 3px;	
+	margin-left: 3px;
+	border: none;
+	outline: none;
+}
+
+.replayButton {
+	margin-right: 5px;	
+	margin-left: 3px;
+	margin-bottom: 2px;
+	border: none;
+	outline: none;
+}
+
+
+.mediaButton {
+	
+	border: none;
+	outline: none;
+	margin-left: 0px;
+}
+
+.mediaButton :active {
+	
+	border: none;
+	outline: none;
+}
+
+.animateButton :focus {
+outline: none;
+border: none;
+
+}
+
+.timeLabel {
+	margin-top: 4px;
+	margin-left: 12px;
+	font-size: 8pt;
+	font-family: helvetica;
+	}
+
+
 /** #loading for the initial "Loading" div that is shown before the rootpanel is filled */
 #loading {
 	position: absolute;

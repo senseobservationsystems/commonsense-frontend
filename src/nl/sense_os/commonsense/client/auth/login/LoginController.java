@@ -323,6 +323,8 @@ public class LoginController extends Controller {
     private void onAuthenticationFailure() {
         forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
+    
+    
 
     private void onCurrentUser(UserModel user) {
         Registry.register(Constants.REG_USER, user);
