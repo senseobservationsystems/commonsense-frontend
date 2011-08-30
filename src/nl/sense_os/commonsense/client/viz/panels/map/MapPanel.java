@@ -51,7 +51,7 @@ import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.maps.client.overlay.PolylineOptions;
-import com.smartgwt.client.widgets.Slider;
+//import com.smartgwt.client.widgets.Slider;
 
 public class MapPanel extends VizPanel {
 
