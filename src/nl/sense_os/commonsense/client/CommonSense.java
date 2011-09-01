@@ -1,9 +1,5 @@
 package nl.sense_os.commonsense.client;
 
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
@@ -58,6 +54,10 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -70,9 +70,9 @@ public class CommonSense implements EntryPoint {
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
-    public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && true;
+    public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_TIMELINE = Constants.ALLOW_HACKS && false;
-    public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && true;
+    public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && false;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -297,6 +297,6 @@ public class CommonSense implements EntryPoint {
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[]{});
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[] {});
     }
 }
