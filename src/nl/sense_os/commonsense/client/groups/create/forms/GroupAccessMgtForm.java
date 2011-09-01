@@ -17,14 +17,34 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupAccessMgtForm extends AbstractGroupForm {
 
+    public class AdminEntranceRadio extends Radio {
+
+    }
+
+    public class FreeEntranceRadio extends Radio {
+
+    }
+
+    public class InvisibleRadio extends Radio {
+
+    }
+
+    public class PwEntranceRadio extends Radio {
+
+    }
+
+    public class VisibleRadio extends Radio {
+
+    }
+
     private final RadioGroup visibility = new RadioGroup();
-    private final Radio visible = new Radio();
-    private final Radio invisible = new Radio();
+    private final VisibleRadio visible = new VisibleRadio();
+    private final InvisibleRadio invisible = new InvisibleRadio();
 
     private final RadioGroup joinPolicy = new RadioGroup();
-    private final Radio freeEntrance = new Radio();
-    private final Radio passEntrance = new Radio();
-    private final Radio adminEntrance = new Radio();
+    private final FreeEntranceRadio freeEntrance = new FreeEntranceRadio();
+    private final PwEntranceRadio passEntrance = new PwEntranceRadio();
+    private final AdminEntranceRadio adminEntrance = new AdminEntranceRadio();
 
     private final TextField<String> password = new TextField<String>();
     private final TextField<String> passwordConfirm = new TextField<String>();
@@ -32,27 +52,37 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
     public GroupAccessMgtForm() {
         super();
 
-        LabelField visibleLabel = new LabelField("<b>Group visibility</b>");
-        visibleLabel.setHideLabel(true);
+        initVisibility();
+        initJoinPolicy();
+        initLayout();
 
-        visible.setBoxLabel("Everyone can see that this group exists");
-        visible.setHideLabel(true);
-        invisible.setBoxLabel("Group is hidden if you are not a member");
-        invisible.setHideLabel(true);
-        visibility.add(invisible);
-        visibility.add(visible);
-        visibility.setOrientation(Orientation.VERTICAL);
-        visibility.setSelectionRequired(true);
+        // set initial values
+        invisible.setValue(true);
+        passEntrance.setValue(true);
+        onSelectionChange(passEntrance);
+    }
 
-        LabelField policyLabel = new LabelField("<b>Policy for new members</b>");
-        policyLabel.setHideLabel(true);
+    public RadioGroup getJoinPolicy() {
+        return joinPolicy;
+    }
 
+    public String getPassword() {
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
+                : null;
+    }
+
+    public RadioGroup getVisibility() {
+        return visibility;
+    }
+
+    private void initJoinPolicy() {
         freeEntrance.setBoxLabel("New members do not need a password");
         freeEntrance.setHideLabel(true);
         passEntrance.setBoxLabel("There is an access password for new members");
         passEntrance.setHideLabel(true);
         adminEntrance.setBoxLabel("New members need to be accepted by an admin");
         adminEntrance.setHideLabel(true);
+        adminEntrance.setEnabled(false);
         joinPolicy.add(freeEntrance);
         joinPolicy.add(passEntrance);
         joinPolicy.add(adminEntrance);
@@ -65,17 +95,27 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
             }
         });
 
-        initTextFields();
+        initPasswordFields();
+    }
 
-        // init layout
+    private void initLayout() {
+
+        LabelField visibleLabel = new LabelField("<b>Group visibility</b>");
+        visibleLabel.setHideLabel(true);
+
+        LabelField policyLabel = new LabelField("<b>Policy for new members</b>");
+        policyLabel.setHideLabel(true);
+
         FormPanel pwForm = new FormPanel();
         pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
         pwForm.setHeaderVisible(false);
         pwForm.setBodyBorder(false);
         pwForm.add(password, layoutData);
         pwForm.add(passwordConfirm, layoutData);
+
         FormData extraSpace = new FormData("-10");
         extraSpace.setMargins(new Margins(20, 0, 0, 0));
+
         setLayout(new FormLayout(LabelAlign.LEFT));
         add(visibleLabel, layoutData);
         add(invisible, layoutData);
@@ -85,16 +125,13 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         add(pwForm, layoutData);
         add(adminEntrance, layoutData);
         add(freeEntrance, layoutData);
-
-        // set initial values
-        invisible.setValue(true);
-        passEntrance.setValue(true);
-        onSelectionChange(passEntrance);
     }
 
-    private void initTextFields() {
+    private void initPasswordFields() {
+
         password.setFieldLabel("Group password");
         password.setPassword(true);
+
         passwordConfirm.setFieldLabel("Confirm password");
         passwordConfirm.setPassword(true);
         passwordConfirm.setValidator(new Validator() {
@@ -114,8 +151,20 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         });
     }
 
+    private void initVisibility() {
+        visible.setBoxLabel("Everyone can see that this group exists");
+        visible.setHideLabel(true);
+        invisible.setBoxLabel("Group is hidden if you are not a member");
+        invisible.setHideLabel(true);
+        visibility.add(invisible);
+        visibility.add(visible);
+        visibility.setOrientation(Orientation.VERTICAL);
+        visibility.setSelectionRequired(true);
+    }
+
     private void onSelectionChange(Radio selection) {
         boolean isPassRequired = selection.equals(passEntrance);
+
         password.setEnabled(isPassRequired);
         password.setAllowBlank(!isPassRequired);
 

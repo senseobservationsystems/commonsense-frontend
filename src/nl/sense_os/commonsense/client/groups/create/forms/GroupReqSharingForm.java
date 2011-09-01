@@ -17,13 +17,20 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class GroupReqSharingForm extends AbstractGroupForm {
 
+    public class NoInfoRadio extends Radio {
+
+    };
+    public class ShowInfoRadio extends Radio {
+
+    }
+
     private final TextArea required = new TextArea();
     private final TextArea optional = new TextArea();
     private final CheckBox anonymous = new CheckBox();
 
-    private final RadioGroup radios = new RadioGroup();
-    private final Radio showInfo = new Radio();
-    private final Radio noInfo = new Radio();
+    private final RadioGroup infoRadios = new RadioGroup();
+    private final ShowInfoRadio showInfo = new ShowInfoRadio();
+    private final NoInfoRadio noInfo = new NoInfoRadio();
 
     private final CheckBox userId = new CheckBox();
     private final CheckBox username = new CheckBox();
@@ -35,18 +42,38 @@ public class GroupReqSharingForm extends AbstractGroupForm {
     public GroupReqSharingForm() {
         super();
 
-        LabelField shareLabel = new LabelField("<b>Sharing requirements for new members</b>");
-        shareLabel.setHideLabel(true);
+        initSharingFields();
+        initMemberInfoRadios();
+        initMemberInfoCheckBoxes();
+        initLayout();
 
-        required.setFieldLabel("Required shared sensors (comma-separated list)");
-        optional.setFieldLabel("Optional shared sensors (comma-separated list)");
-        anonymous.setBoxLabel("Sensors are shared anonymously");
-        anonymous.setHideLabel(true);
+        // initial values
+        showInfo.setValue(true);
+        onSelectionChange(showInfo);
+        username.setValue(true);
+        firstName.setValue(true);
+        surname.setValue(true);
+    }
+
+    public RadioGroup getInfoRadios() {
+        return infoRadios;
+    }
+
+    public String getOptSensors() {
+        return optional.getValue();
+    }
+
+    public String getReqSensors() {
+        return required.getValue();
+    }
+
+    private void initLayout() {
+
+        LabelField shareLabel = new LabelField("<b>Required shared sensors for new members</b>");
+        shareLabel.setHideLabel(true);
 
         final LabelField infoLabel = new LabelField("<b>Required member information</b>");
         infoLabel.setHideLabel(true);
-        initRadios();
-        initCheckBoxes();
 
         TableLayout tableLayout = new TableLayout(4);
         LayoutContainer checkBoxContainer = new LayoutContainer(tableLayout);
@@ -60,11 +87,10 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         checkBoxContainer.add(surname, tableData);
         checkBoxContainer.add(phone, tableData);
 
-        // init layout
         FormData extraSpace = new FormData("-10");
-        extraSpace.setMargins(new Margins(0, 0, 10, 0));
+        extraSpace.setMargins(new Margins(0, 10, 10, 0));
 
-        add(shareLabel, extraSpace);
+        add(shareLabel, layoutData);
         add(required, extraSpace);
         add(optional, extraSpace);
         add(anonymous, layoutData);
@@ -75,7 +101,7 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         add(noInfo, layoutData);
     }
 
-    private void initCheckBoxes() {
+    private void initMemberInfoCheckBoxes() {
         userId.setBoxLabel("User ID");
         username.setBoxLabel("Username");
         firstName.setBoxLabel("First name");
@@ -84,26 +110,64 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         phone.setBoxLabel("Phone");
     }
 
-    private void initRadios() {
+    private void initMemberInfoRadios() {
         showInfo.setBoxLabel("Members need to share some information with the group:");
         showInfo.setHideLabel(true);
-        showInfo.setValue(true);
         noInfo.setBoxLabel("Member details are not visible to others");
         noInfo.setHideLabel(true);
-        radios.add(showInfo);
-        radios.add(noInfo);
-        radios.addListener(Events.Change, new Listener<FieldEvent>() {
+        infoRadios.add(showInfo);
+        infoRadios.add(noInfo);
+        infoRadios.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
-                boolean enableChecks = showInfo.equals(be.getField().getValue());
-                userId.setEnabled(enableChecks);
-                username.setEnabled(enableChecks);
-                firstName.setEnabled(enableChecks);
-                surname.setEnabled(enableChecks);
-                email.setEnabled(enableChecks);
-                phone.setEnabled(enableChecks);
+                onSelectionChange(be.getField().getValue());
             }
         });
+    }
+
+    private void initSharingFields() {
+        required.setFieldLabel("Required shared sensors (comma-separated list)");
+        optional.setFieldLabel("Optional shared sensors (comma-separated list)");
+        anonymous.setBoxLabel("Sensors are shared anonymously");
+        anonymous.setHideLabel(true);
+    }
+
+    public boolean isAnonymous() {
+        return anonymous.getValue();
+    }
+
+    public boolean isEmail() {
+        return email.getValue();
+    }
+
+    public boolean isFirstName() {
+        return firstName.getValue();
+    }
+
+    public boolean isPhone() {
+        return phone.getValue();
+    }
+
+    public boolean isSurname() {
+        return surname.getValue();
+    }
+
+    public boolean isUserId() {
+        return userId.getValue();
+    }
+
+    public boolean isUsername() {
+        return username.getValue();
+    }
+
+    private void onSelectionChange(Object value) {
+        boolean enableChecks = showInfo.equals(value);
+        userId.setEnabled(enableChecks);
+        username.setEnabled(enableChecks);
+        firstName.setEnabled(enableChecks);
+        surname.setEnabled(enableChecks);
+        email.setEnabled(enableChecks);
+        phone.setEnabled(enableChecks);
     }
 }

@@ -43,6 +43,13 @@ public class GroupPresetsForm extends AbstractGroupForm {
 
         initRadios();
         initTextFields();
+        initLayout();
+
+        hidden.setValue(true);
+        onSelectionChange(hidden);
+    }
+
+    private void initLayout() {
 
         LabelField mainLabel = new LabelField("<b>Group presets</b>");
         mainLabel.setHideLabel(true);
@@ -51,14 +58,17 @@ public class GroupPresetsForm extends AbstractGroupForm {
                 "An anonymous group is visible for everyone and anyone can join the group."
                         + "<br>" + "Members share their sensor data anonymously.");
         anonyLabel.setHideLabel(true);
+
         LabelField hiddenLabel = new LabelField(
                 "A private group is hidden and the group has a password for new members." + "<br>"
                         + "Members can see eachother's shared sensors and all user details.");
         hiddenLabel.setHideLabel(true);
+
         LabelField communityLabel = new LabelField(
                 "A community group is visible for everyone and anyone can join the group." + "<br>"
                         + "Members can see eachother's shared sensors and some user details.");
         communityLabel.setHideLabel(true);
+
         LabelField customLabel = new LabelField("Only for true sensei with special needs.");
         customLabel.setHideLabel(true);
 
@@ -81,9 +91,6 @@ public class GroupPresetsForm extends AbstractGroupForm {
         add(communityLabel, layoutData);
         add(custom, layoutData);
         add(customLabel, layoutData);
-
-        hidden.setValue(true);
-        onSelectionChange(hidden);
     }
 
     private void initTextFields() {
@@ -91,6 +98,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
         password.setFieldLabel("Password");
         password.setPassword(true);
         password.setEnabled(false);
+
         passwordConfirm.setFieldLabel("Confirm password");
         passwordConfirm.setPassword(true);
         passwordConfirm.setValidator(new Validator() {
@@ -139,6 +147,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
 
     private void onSelectionChange(Object selection) {
         boolean usePasswords = hidden.equals(selection);
+
         password.setEnabled(usePasswords);
         password.setAllowBlank(!usePasswords);
 
@@ -151,7 +160,8 @@ public class GroupPresetsForm extends AbstractGroupForm {
     }
 
     public String getPrivatePass() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
                 : null;
     }
 }

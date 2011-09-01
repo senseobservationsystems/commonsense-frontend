@@ -13,23 +13,29 @@ public class GroupNameForm extends AbstractGroupForm {
     public GroupNameForm() {
         super();
 
+        initFields();
+        initLayout();
+    }
+
+    private void initLayout() {
+
         LabelField label = new LabelField("<b>Group name and description</b>");
         label.setHideLabel(true);
 
-        // init name field
-        name.setFieldLabel("Group name");
-        name.setValue("foo");
-        name.setAllowBlank(false);
-
-        // init description field
-        description.setFieldLabel("Group description (optional)");
-        description.setAllowBlank(true);
-
-        // init layout
+        // layout
         layoutData.setMargins(new Margins(0, 0, 10, 0));
         add(label, layoutData);
         add(name, layoutData);
         add(description, layoutData);
+    }
+
+    private void initFields() {
+
+        name.setFieldLabel("Group name");
+        name.setAllowBlank(false);
+
+        description.setFieldLabel("Group description (optional)");
+        description.setAllowBlank(true);
     }
 
     public TextField<String> getName() {

@@ -107,7 +107,7 @@ public class GroupCreateController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        creator = new GroupCreator(this);
+        creator = new GroupCreateView(this);
     }
 
     private void onCreateFailure() {
