@@ -76,6 +76,8 @@ public class MapPanel extends VizPanel {
     private int traceEndIndex;
     private int currentMinTime;
     private int currentMaxTime;
+    private int sliderMin;
+    private int sliderMax;
     
     
     // store all the id's that we get
@@ -117,7 +119,6 @@ public class MapPanel extends VizPanel {
     
     ArrayList<Marker> 	liveMarkerList = new ArrayList<Marker>();
     private ArrayList<Integer> 	indexList = new ArrayList<Integer>();
-    private ArrayList<LiveTimer> liveTimerList = new ArrayList<LiveTimer>();
     
     //private Timer liveTimer;
     private int animationsFinished;
@@ -128,6 +129,7 @@ public class MapPanel extends VizPanel {
     private boolean icon_drawn = false;
     private boolean replay_active = false;
     private GeneralTimer genTimer;
+    private boolean timer_one = false;
     
     
     private FormPanel slidersForm;
@@ -139,6 +141,8 @@ public class MapPanel extends VizPanel {
     private BorderLayoutData data;
     MapPanel mapPanel = this;
     private int biggestTimestampIndex;
+    private int startSliderValue;
+    private int endSliderValue;
     
     long lastRefreshTime = System.currentTimeMillis();
 
@@ -150,7 +154,7 @@ public class MapPanel extends VizPanel {
         setHeading("My map: " + title);
         setLayout(new BorderLayout());
         setId("viz-map-" + title);
-        LOG.setLevel(Level.WARNING);
+        LOG.setLevel(Level.ALL);
         initPlaySlider();
         initMediaButtons();     
         initSliders();      
@@ -272,6 +276,7 @@ public class MapPanel extends VizPanel {
 	        @Override
 	        public void handleEvent(SliderEvent be) {        	
 	        		if (animationPaused == true && ANIMATE == true) {
+	        			//LOG.fine ("animationPaused is true and slider is updating");
 	        			updateIconIndex();
 	        			if (replay_active == true) {			        			
 		        			playPanel.remove(replayButton);
@@ -283,11 +288,6 @@ public class MapPanel extends VizPanel {
 	        }
 	    };
 	    
-	    ClickHandler handler = new ClickHandler() {
-	    	public void onClick(ClickEvent event) { 
-	    		
-	    	}
-	    };
 	    
 	    playSlider = new DateSlider();
 	    playSlider.setMessage("{0}");	    
@@ -338,9 +338,6 @@ public class MapPanel extends VizPanel {
 	 	      }
 	 	      
 	 	      
-//	 	      if (!animateButton.isDown()) {
-//	 	    	  animateButton.setDown(true);
-//	 	      }
   
 	 	     playPanel.remove(playButton);
 	 	     playPanel.insert(pauseButton, 0); 
@@ -403,7 +400,8 @@ public class MapPanel extends VizPanel {
      	    	if (animateButton.isDown()) {
      	    		ANIMATE = true; 
      	    		animationPaused = false;
-     	    		
+     	    		startSlider.setValue(startSlider.getMinValue() -100000);
+ 		     	   	endSlider.setValue(endSlider.getMaxValue()+ 100000);
      	    		
      	    		slidersForm.remove(startField);
      	    		slidersForm.remove(endField);
@@ -420,17 +418,26 @@ public class MapPanel extends VizPanel {
 	     	    		map.removeOverlay(startMarker);
 	     	    		map.removeOverlay(endMarker);
      	    		 }
+     	    		
+     	    		
+     	    		
 	     	        drawIcon(); 
 	     	        icon_drawn = true;
 	     	        cancelTimers();
 	     	        createTimers();
 	     	        animationsFinished = 0;  
 	     	        
+//	     	       playSlider.setMinValue(startSlider.getValue());
+//	     	       playSlider.setMaxValue(endSlider.getValue());
+//	     	       playSlider.setValue(startSlider.getValue());
+	     	        
+	     	        slidersForm.layout();
+	     	        
 	     	        
      	    	}
      	    	
      	    	else {
-     	    		LOG.fine ("Animate button is off");
+     	    		//LOG.fine ("Animate button is off");
      	    		ANIMATE = false;
      	    		cancelTimers();
      	    		icon_drawn = false;
@@ -443,14 +450,15 @@ public class MapPanel extends VizPanel {
      	    		playPanel.remove(timeLabel);
      	    		
      	    		map.clearOverlays();
-     	    		
+   
      	    		slidersForm.remove(animateField);
      	    		slidersForm.add(startField, new FormData("-5"));
      	    		slidersForm.add(endField, new FormData("-5"));
      	    		
      	    		
   	     	       	
-  	     	       	LOG.fine ("ENd date is "+ calculDate(endSlider.getValue()*1000l));
+//  	     	       	LOG.fine ("End date is "+ calculDate(endSlider.getValue()*1000l));
+//  	     	       	LOG.fine ("Min value end slider is "+ calculDate(endSlider.getMinValue()*1000l));
      	    		   
 	     	        
     
@@ -463,15 +471,20 @@ public class MapPanel extends VizPanel {
 	     	        	map.addOverlay(trace);
 	     	        }	
 	     	        
+	     	       slidersForm.layout();
+	     	       
+	     	       playSlider.setValue(playSlider.getMinValue() - 100000);
+		     	   startSlider.setValue(startSlider.getMinValue() -100000);
+		     	   endSlider.setValue(endSlider.getMaxValue()+ 100000);
+	     	       
      	    	}
   	 
-     	    	
-     	    	slidersForm.layout();
-     	    	
-     	    	startSlider.setValue(startSlider.getMinValue() -100000);
-	     	    endSlider.setValue(endSlider.getMaxValue()+ 100000);
-	     	    playSlider.setValue(playSlider.getMinValue() - 100000);
 	     	    
+     	    	
+//	     		LOG.fine ("Setting End date at"+ calculDate(endSlider.getMaxValue()*1000l));
+//	     	   	LOG.fine ("Setting Min value end slider is "+ calculDate(endSlider.getMinValue()*1000l));
+  
+     	    	
      	     }
      	  	}); 
     	
@@ -495,21 +508,6 @@ public class MapPanel extends VizPanel {
 		}
 	}
 
-	/** Timer class for dot animation
-	 *
-	 */
-	private class LiveTimer extends Timer {
-		private int bigListIndex;
-		
-		public void setIndex (int bigListIndex) {
-			this.bigListIndex = bigListIndex;
-		}
-		
-	    public void run() {  
-	    	if (animationPointsAdded == true)
-	    	updateIconDist(bigListIndex); 
-	    }
-	}
 	
 	/** Timer class for dot animation
 	 *
@@ -527,23 +525,27 @@ public class MapPanel extends VizPanel {
 	    	}
 	    }
 	}
+	
+	
+
+	/** Timer class for dot animation
+	 *
+	 */
+	private class GeneralTimer1 extends Timer {
+		
+	    public void run() {  
+	    	
+	    	//LOG.fine ("genTimer running");
+	    	timer_one = true;
+	    }
+	}
 
 	/** Create animation timers for each trace  
 	 * 
 	 */
 
 	private void createTimers() {
-		liveTimerList.clear();
-
-
-	    for (int i = 0; i < bigList.size(); i++) {       	
-	    	LiveTimer liveTimer = new LiveTimer();
-	    	liveTimer.setIndex(i);
-	    	liveTimerList.add(liveTimer);
-	    	//int interval = getTimerIntervalDist(i,0);
-	    	//liveTimer.scheduleRepeating (ANIMATION_STEP);
-	    }
-	    
+		
 	    genTimer = new GeneralTimer();
 	    genTimer.scheduleRepeating(10);
 	}
@@ -555,20 +557,6 @@ public class MapPanel extends VizPanel {
 		
 		if (genTimer!= null) genTimer.cancel();
 		
-		if (!liveTimerList.isEmpty()) {
-		
-			for (int i = 0; i < bigList.size(); i++) {
-		        	if (bigList.size() > i) {
-		        		LiveTimer liveTimer = liveTimerList.get(i);
-		        		if (liveTimer!= null) liveTimer.cancel();
-			        	else LOG.fine ("liveTimer for " + i + " is null");
-		        	}
-		        	
-			}
-			
-			liveTimerList.clear();
-		
-		}
 			
 	}
 
@@ -627,7 +615,7 @@ public class MapPanel extends VizPanel {
 		
 		for (int i = 0; i < bigList.size(); i++ ) {
 			
-			int index = indexList.get(i); 
+			//int index = indexList.get(i); 
 			Marker liveMarker = liveMarkerList.get(i);  
 			long timestamp = playSlider.getValue() * 1000l;
 			
@@ -636,10 +624,16 @@ public class MapPanel extends VizPanel {
 			ArrayList<LatLng> points = longerAnimateLatLngList.get(i); 
 			//LOG.fine ("Points size is " + points.size() + " Timestamps size is " + timestamps.size());
 			
-			for (int j = 0; j < timestamps.size(); j++) {
-				
+			boolean done = false; 
+			int j = 0;
+			
+			while (done == false) {
+			
+				//for (int j = 0; j < timestamps.size(); j++) {
+				//LOG.fine("Entering done loop");
 				
 				long trialTimestamp = timestamps.get(j);
+				//LOG.fine ("J is " + j);
 				//LOG.fine ("Slider value is " + playSlider.getValue());
 				//LOG.fine("Loop interation " + j + "Timestamp is " + timestamp + " Trial timestamp is " +
 						//trialTimestamp);
@@ -647,28 +641,44 @@ public class MapPanel extends VizPanel {
 				if (trialTimestamp >= timestamp) {
 				
 					indexList.set(i, j);
-					//LOG.fine ("TrialTimestamp has index " + j);
+					//LOG.fine ("i is " + i + "Points size is "+ points.size() + "TrialTimestamp has index " + j);
 					LatLng newPoint = points.get(j);       			
 					liveMarker.setLatLng (newPoint);
 					timeLabel.setText (calculDate(trialTimestamp));
+					done = true;
+					
+//					if (j == timestamps.size() -1) {
+//						
+//						LOG.fine ("last TrialTimestamp has index " + j);
+//						animationsDone++;
+//						done = true;
+//						break;
+//					}
+					
+					
 					break;
+					
 				}
 				
 				else if (j == timestamps.size() -1) {
 					indexList.set(i, j);
-					//LOG.fine ("TrialTimestamp has index " + j);
+					LOG.fine ("last TrialTimestamp has index " + j);
 					LatLng newPoint = points.get(j);       			
 					liveMarker.setLatLng (newPoint);
 					timeLabel.setText (calculDate(trialTimestamp));
 					animationsDone++;
+					done = true;
 					break;
+					
 				}
+				
+				else j++;
 					
 			}
 			
 			if (animationsDone == bigList.size()) {
 				genTimer.cancel();
-				//
+				
 				LOG.fine("Animations are done");
 				break;
 			}
@@ -683,10 +693,11 @@ public class MapPanel extends VizPanel {
 		//LOG.fine ("Step is " + step);
 		if (playSlider.getValue() + step < max) {
 		playSlider.setValue(playSlider.getValue() + step);
+		//updateIconIndex();
 		//LOG.fine("setting playSlider value at " + playSlider.getValue() + step);
 		}
 		else {
-			//LOG.fine ("Trying to cancel timers");
+			LOG.fine ("Trying to cancel timers");
 			cancelTimers();
 			if (animationPaused == false) {
     			animationPaused = true;		    			
@@ -700,73 +711,6 @@ public class MapPanel extends VizPanel {
 	}
 
 
-	/** Moves the live Marker by one point forward and sets the next timer interval based on the distance
-	 * to the next point
-	 * 
-	 * @param bigListIndex
-	 */
-
-	private void updateIconDist(int bigListIndex) {
-		
-		if (!longerAnimateLatLngList.isEmpty()) {
-				
-			int j = bigListIndex;
-			LiveTimer liveTimer = liveTimerList.get(j);
-			
-			
-			int index = indexList.get(j); 
-			Marker liveMarker = liveMarkerList.get(j);   		
-			ArrayList<LatLng> points = longerAnimateLatLngList.get(j); 
-			LatLng newPoint = points.get(index);
-			
-			ArrayList<Long> timestamps = longerListAnimatedTimestamps.get(0);
-			ArrayList<Long> origTimestamps = allAnimatedTimestamps.get(0);
-			long origLastTimestamp = origTimestamps.get(origTimestamps.size()-1);
-			long firstTimestamp = longerListAnimatedTimestamps.get(0).get(0);
-			long lastTimestamp = longerListAnimatedTimestamps.get(0).get(timestamps.size()-1);
-			//LOG.fine (calculDate(firstTimestamp) + calculDate (lastTimestamp) + calculDate(origLastTimestamp));
-			
-	
-			if (index < points.size() - 1) {
-				index ++;
-				indexList.set(j, index);
-	   			newPoint = points.get(index);       			
-				liveMarker.setLatLng (newPoint);
-				double proportion = allAnimatedTimeProportions.get(j).get(index-1);
-				int timerInterval = (int)(ANIMATION_STEP* 10 * proportion);
-				if (timerInterval > 0) liveTimer.scheduleRepeating(timerInterval);
-				long timestamp = longerListAnimatedTimestamps.get(biggestTimestampIndex).get(index);
-				//LOG.fine ("Timer interval is " + timerInterval);
-				timeLabel.setText (calculDate(timestamp));
-				
-				 if (j == biggestTimestampIndex) {
-					 playSlider.setValue((int)(timestamp/1000l));
-					 int value = playSlider.getValue();
-					 //LOG.fine ("Setting playSlider at " + value);
-				 }
-				
-				
-			}
-		
-			if (index == points.size() - 1) {    			
-				animationsFinished++;
-				liveTimer.cancel();
-				//LOG.fine ("reached the end of the points array");  			
-			
-			}				    		
-		
-			if (animationsFinished == bigList.size()) {			
-				LOG.fine ("All traces are done animating");
-				animationPaused = true;
-				playPanel.remove(pauseButton);
-				playPanel.remove(timeLabel);
-				playPanel.add(replayButton);
-				playPanel.add(timeLabel);
-			
-			}
-			
-		}
-	}
 
 	@Override
     protected void onNewData(JsArray<Timeseries> data) {
@@ -852,7 +796,7 @@ public class MapPanel extends VizPanel {
 			}							
          }
          
-         add500AnimatedPoints();
+        // add500AnimatedPoints();
 		
         if (!allGoodLat.isEmpty()) {
             calcSliderRange();
@@ -1153,182 +1097,30 @@ public class MapPanel extends VizPanel {
 				animatedTimeranges.add(timeRange);
 			}
 			
-			
-			
-//			if (distance > 0) {
-//				if (distanceRange/distance < 500000) 	
-//				{	
-//					if (lastIndexAdded < i && i > 0) {
-//						double prevLatit = latValues.get(i-1);
-//						double prevLongit = lonValues.get(i-1);
-//						long prevTimestamp = timestamps.get(i-1);
-//						long prevTimeRange = timestamp - prevTimestamp;
-//						double prevDistance = calculateDistance (prevLatit, prevLongit, latit, longit);
-//						
-//						
-//						LatLng xtraPoint = LatLng.newInstance(latit, longit);
-//						animatePoints.add(xtraPoint);
-//						animatedDistances.add(prevDistance);
-//						animatedDistanceRange = animatedDistanceRange + distance;
-//						animatedTimestamps.add(timestamp);
-//						animatedTimeranges.add(prevTimeRange);
-//					}
-//					
-//					LatLng newPoint = LatLng.newInstance(newLatit, newLongit);
-//					animatePoints.add(newPoint);
-//					animatedDistances.add(distance);
-//					animatedDistanceRange = animatedDistanceRange + distance;
-//					animatedTimestamps.add(newTimestamp);
-//					animatedTimeranges.add(timeRange);
-//					lastIndexAdded = i+1;
-//					//LOG.fine ("Approved distance is " + distance);
-//				}
-//				
-//				else {
-//
-//					if (i == latValues.size()-2) {
-//				
-//					LatLng newPoint = LatLng.newInstance(newLatit, newLongit);
-//					animatePoints.add(newPoint);
-//					animatedDistances.add(distance);
-//					animatedDistanceRange = animatedDistanceRange + distance;
-//					animatedTimestamps.add(newTimestamp);
-//					animatedTimeranges.add(timeRange);
-//					}
-//					
-//					LOG.fine ("Discarding point " + newLongit + " " + newLatit + " " + calculDate(newTimestamp) + 
-//							"/n " + " distance is " + distance + " distance range/distance is " + (distanceRange/distance));
-//					
-//				}
-			//}		
 		}
 		
 		animateLatLngList.add(animatePoints);
 		allAnimatedDistances.add(animatedDistances);
 		allAnimatedTimestamps.add(animatedTimestamps);
+		
+		
+		longerAnimateLatLngList.add(animatePoints);
+		longerListAnimatedDistances.add(animatedDistances);
+		longerListAnimatedTimestamps.add(animatedTimestamps);
+		
+		
 		long lastTimestamp = animatedTimestamps.get(animatedTimestamps.size()-1);
 		LOG.fine("Last added timestamp is " + calculDate(lastTimestamp));
 		allAnimatedTimeranges.add(animatedTimeranges);
 		animatedDistanceRanges.add(animatedDistanceRange);
 		LOG.fine (	"Total distance for " + bigListIndex + " is " + animatedDistanceRange + 
 					" the animatePoints size for " + bigListIndex + " is " + animatePoints.size());
-	}
-	
-//	
-	
-	private void add500AnimatedPointsTime() {
 		
-		for (int i = 0; i < bigList.size(); i++ ) {
-			
-			ArrayList<LatLng> animatePoints = animateLatLngList.get(i);
-			ArrayList<Double> animatedDistances = allAnimatedDistances.get(i);
-			ArrayList<Long> animatedTimestamps = allAnimatedTimestamps.get(i);
-			ArrayList<Long> animatedTimeranges = allAnimatedTimeranges.get(i);
-			
-			ArrayList<LatLng> moreAnimatePoints = new ArrayList<LatLng>();
-			ArrayList<Double> moreAnimatedDistances = new ArrayList<Double>();
-			ArrayList<Long> moreAnimatedTimestamps = new ArrayList<Long>();
-			
-			double distanceRange = animatedDistanceRanges.get(i);
-			
-			//LOG.fine ("Ok the distance range for " + i + " is " + distanceRange);
-			double distanceRange500 = distanceRange/ (ANIMATION_DURATION/ANIMATION_STEP);
-			long totalTimeRange = animatedTimestamps.get(animatedTimestamps.size() -1) - animatedTimestamps.get(0);
-			long timeRange500 = totalTimeRange / (ANIMATION_DURATION/ANIMATION_STEP);
-			//double distanceRange500 = distanceRange* 0.002;
-			LOG.fine ("Distance range 500 is " + distanceRange500);
-			LOG.fine ("Time range 500 is " + timeRange500);
-
-			
-			for (int j = 1; j < animatePoints.size(); j++ ) {
-				
-				
-				LatLng point = animatePoints.get(j -1);
-				LatLng newPoint = animatePoints.get(j);
-				
-				double latit = point.getLatitude();
-				double longit = point.getLongitude();
-				double newLatit = newPoint.getLatitude();
-				double newLongit = newPoint.getLongitude();
-				
-				double distance = animatedDistances.get(j-1);
-				double distancePast = 0;
-				
-				long timeRange = animatedTimeranges.get(j-1);
-				long timePast = 0;
-				
-				LOG.fine ("Time range for point " + (j-1) + " is " + timeRange);
-				
-				moreAnimatePoints.add(point);
-				
-				long timestamp = animatedTimestamps.get(j-1);
-				long newTimestamp = animatedTimestamps.get(j);
-				moreAnimatedTimestamps.add(timestamp);
-				
-//				if (distance < distanceRange500) {
-//					distancePast = distancePast + distance;
-//					moreAnimatePoints.add(newPoint);
-//					moreAnimatedTimestamps.add(newTimestamp);
-//				}
-				
-				//timePast = timePast + timeRange;
-				
-				if (timeRange < timeRange500) {
-					
-					moreAnimatePoints.add(newPoint);
-					moreAnimatedTimestamps.add(newTimestamp);
-					LOG.fine ("Just adding a point with a small difference: " + j);
-				}	
-				
-				else {
-					
-					LOG.fine ("Now we have to add points");
-					boolean done = false; 					
-					int k = 1;	
-					double proportion = (double) timeRange500/ (double) timeRange;
-					LOG.fine ("Proportion is " + proportion);
-						
-					while (done == false) {	
-							
-						double addLatit = latit + k * (newLatit - latit)* proportion;
-						double addLongit = longit + k * (newLongit - longit) * proportion;
-						//LOG.fine ("addLatit is " + addLatit + "k is " + k);
-						long addTimestamp = timestamp + (long) (k * (newTimestamp - timestamp) * proportion);
-						LatLng addPoint = LatLng.newInstance(addLatit, addLongit);
-						timePast = timePast + timeRange500;
-							
-						if (timePast < timeRange) {
-							moreAnimatePoints.add(addPoint);
-							moreAnimatedTimestamps.add(addTimestamp);
-							k++;
-							LOG.fine ("Added a point at " + addTimestamp + " k is " + k);
-						}
-						
-						else {
-							done = true;
-							LOG.fine ("Time " + j + " is " + timeRange + " Done with point " + j + " added " + k + " points ");
-						}
-					}				
-				}
-				
-				if (j == animatePoints.size() -1 ) {
-					moreAnimatePoints.add(newPoint);
-					moreAnimatedTimestamps.add(newTimestamp);
-				}				
-			}
-			
-			longerAnimateLatLngList.add(moreAnimatePoints);
-			longerListAnimatedDistances.add(moreAnimatedDistances);
-			longerListAnimatedTimestamps.add(moreAnimatedTimestamps);
-			
-			LOG.fine ("The length of moreAnimatePoints for " + i + " is " + moreAnimatePoints.size() + 
-			" the length of moreAnimatedDistances for " + i + " is " + moreAnimatedDistances.size() + 
-			" the length of moreAnimatedTimestamps for " + i + " is " + moreAnimatedTimestamps.size());
-			
-		}
 		
 		animationPointsAdded = true;
 	}
+	
+//	
 	
 	
 	
@@ -1489,6 +1281,9 @@ public class MapPanel extends VizPanel {
                 biggestTimestampIndex = n;
         	}      
         }
+        
+        sliderMin = min;
+        sliderMax = max;
 
         int interval = (max - min) / 25;      
         int playInterval = (max - min) / 500;      
@@ -1723,7 +1518,7 @@ public class MapPanel extends VizPanel {
         		newTraceEndIndex = i - 1;
         		newTraceStartIndex = traceStartIndex;
         		done = true;
-        		//LOG.fine("Changing end index to " + (i - 1));    
+        		LOG.fine("Changing end index to " + (i - 1));    
         		break;          		       		
         	}
         	
@@ -1739,7 +1534,7 @@ public class MapPanel extends VizPanel {
         		newTraceEndIndex = latValues.size() -1;
         		newTraceStartIndex = traceStartIndex;  
         		done = true;
-        		//LOG.fine("Changing end index to " + i);
+        		LOG.fine("Changing end index to " + i);
         		break;		
         	} 	
         }
@@ -1765,13 +1560,19 @@ public class MapPanel extends VizPanel {
     }
     
     private void updateTrace() {
-
+    	
+    	
+    	LOG.fine("Trying to update trace");
         int minTime = startSlider.getValue();     
         int maxTime = endSlider.getValue();
         //LOG.fine("MinTime is " + minTime + " " + calculDate(minTime) + " maxTime is " + maxTime + " " + calculDate(maxTime));
         
         int whichSlider = determineSlider(minTime, maxTime); 
-        if (whichSlider == 0) return;
+        if (whichSlider == 0) {
+        	//startSlider.setValue(startSlider.getMinValue());
+        	//endSlider.setValue(endSlider.getMaxValue());
+        	return;
+        }
         
         // LOG.fine( "updateTrace ");
 
