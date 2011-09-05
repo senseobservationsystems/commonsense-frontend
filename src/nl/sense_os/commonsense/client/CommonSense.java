@@ -1,5 +1,11 @@
 package nl.sense_os.commonsense.client;
 
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import nl.sense_os.commonsense.client.alerts.create.AlertCreateController;
+import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
@@ -54,10 +60,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
@@ -73,6 +75,7 @@ public class CommonSense implements EntryPoint {
     public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_TIMELINE = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && false;
+    public static final boolean HACK_TEST_ALERTCREATOR = Constants.ALLOW_HACKS && true;
 
     /**
      * Dispatches initialization event to the controllers, and shows the UI after initialization.
@@ -125,6 +128,8 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new EnvController());
         dispatcher.addController(new EnvCreateController());
         dispatcher.addController(new EnvViewController());
+        
+        dispatcher.addController(new AlertCreateController());
     }
 
     @Override
@@ -147,6 +152,8 @@ public class CommonSense implements EntryPoint {
             testTimeline();
         } else if (HACK_TEST_GROUPCREATOR) {
             testGroupCreator();
+        } else if (HACK_TEST_ALERTCREATOR) {
+            testAlertCreator();
         } else {
             initControllers();
         }
@@ -158,8 +165,16 @@ public class CommonSense implements EntryPoint {
 
         initControllers();
 
-        AppEvent login = new AppEvent(GroupCreateEvents.ShowCreator);
-        Dispatcher.forwardEvent(login);
+        AppEvent show = new AppEvent(GroupCreateEvents.ShowCreator);
+        Dispatcher.forwardEvent(show);
+    }
+
+    private void testAlertCreator() {
+
+        initControllers();
+
+        AppEvent show = new AppEvent(AlertCreateEvents.ShowCreator);
+        Dispatcher.forwardEvent(show);
     }
 
     /**
@@ -297,6 +312,6 @@ public class CommonSense implements EntryPoint {
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[] {});
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[]{});
     }
 }

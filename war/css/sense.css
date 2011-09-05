@@ -118,6 +118,36 @@ border: none;
 	font-family: helvetica;
 	}
 
+.addStuffButton {
+	
+	
+	vertical-align: middle;
+}
+
+.plusButton {
+	margin-left: 2px;
+	vertical-align: middle;
+	outline: none;
+	border: none;
+	
+}
+
+.minButton {
+	margin-left: 0.5px;
+	vertical-align: middle;
+	text-align: right;
+	outline: none;
+	border: none;
+	
+}
+
+.comboPlusPanel {
+	margin-bottom: 10px;
+	
+	
+}
+
+
 
 /** #loading for the initial "Loading" div that is shown before the rootpanel is filled */
 #loading {
