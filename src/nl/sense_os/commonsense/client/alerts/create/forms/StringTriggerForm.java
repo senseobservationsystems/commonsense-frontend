@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.alerts.create.forms;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -11,16 +13,23 @@ import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 //import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.user.client.ui.CustomButton;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasAlignment;
@@ -97,6 +106,7 @@ public class StringTriggerForm extends AbstractAlertForm {
 		 
 	 private List<StringSensorValue> stringSensorValues;
 	 private ListStore<StringSensorValue> store;
+	 
 	 @SuppressWarnings("unchecked")
 	 private ArrayList<ComboBox> comboList;
 	 
@@ -110,6 +120,12 @@ public class StringTriggerForm extends AbstractAlertForm {
 	 private int numUnequalFields;
 	 private int parent_width;
 	 private static final int PLUSBUTTONSIZE = 72;
+	 
+	 private ComboBox<StringSensorValue> controlCombo; 
+	 private StringSensorValue controlValue;
+	 private ComboBox controlBox;
+	 private OuterStringTriggerForm parent;
+	 private StringTriggerForm th = this;
 	 	   
 	 //private JsArray<Timeseries> data;
 	 
@@ -125,6 +141,7 @@ public class StringTriggerForm extends AbstractAlertForm {
 			comboList = new ArrayList<ComboBox>();	
 			equalComboList = new ArrayList<ComboBox>();
 			unequalComboList = new ArrayList<ComboBox>();
+			controlCombo = new ComboBox<StringSensorValue>();
 			createSensorValues();		
 			createTitleLabel();      
 			createPlusCombo1();
@@ -136,6 +153,14 @@ public class StringTriggerForm extends AbstractAlertForm {
 			visualize(sensors, start, end, subsample);	
 		}
 	 
+	 	
+	 	public void setParent(OuterStringTriggerForm panel) {
+	 		this.parent = panel;
+	 	}
+	 	
+	 	public OuterStringTriggerForm getParent() {
+	 		return this.parent;
+	 	}
 	 
 	 	@Override
 	    protected void onNewData(JsArray<Timeseries> data) {
@@ -154,6 +179,7 @@ public class StringTriggerForm extends AbstractAlertForm {
 	    	}
 	    	
 	    	stringSensorValues.clear();
+	    	stringSensorValues.add(new StringSensorValue("(no selection)"));
 	    	
 	    	for (int i = 0; i < values.size(); i++ ) {
 	    		//LOG.fine ("Element " + i + " equals " + values.get(i));
@@ -174,14 +200,10 @@ public class StringTriggerForm extends AbstractAlertForm {
 	  */
 	 
 	 private void createSensorValues() {
-		 	stringSensorValues = new ArrayList<StringSensorValue>();	
-			stringSensorValues.add(new StringSensorValue("sitting"));
-			stringSensorValues.add(new StringSensorValue("standing"));
-			stringSensorValues.add(new StringSensorValue("calling"));
-			stringSensorValues.add(new StringSensorValue("eating"));
-			stringSensorValues.add(new StringSensorValue("sleeping"));
-			
+		 	stringSensorValues = new ArrayList<StringSensorValue>();				
 			store = new ListStore<StringSensorValue>();  
+			//store = new ListStore<String>();
+		
 	        store.add(stringSensorValues); 
 	 }
 	 
@@ -271,6 +293,57 @@ public class StringTriggerForm extends AbstractAlertForm {
 		 LabelField alertEqualLabel = new LabelField("Alert if value is equal to: ");
 		 combo1 = createComboBoxx(); 
 		 combo1.setWidth(420);
+		 combo1.setEditable(false);
+		 
+		 
+//		 combo1.addKeyListener(new KeyListener() {
+//			 public void componentKeyDown(ComponentEvent event) {
+		 
+		 
+		 combo1.addSelectionChangedListener(new SelectionChangedListener() {
+			public void selectionChanged (SelectionChangedEvent event) {		 
+				ComboBox comboBox = (ComboBox) event.getSource();
+				
+				//LOG.fine("Selected Item  = " + comboBox.getSelection());
+
+				boolean ok = false; 
+				
+				for (int i = 0; i < equalComboList.size(); i ++) {
+					ComboBox<StringSensorValue> box = equalComboList.get(i);
+					String name = box.getRawValue();
+					if (!name.equals(null) &&!name.equals("(no selection)")) {
+						ok = true;
+						OuterStringTriggerForm outerStr = th.getParent();
+						outerStr.getControlBox().setRawValue(name);
+						break;
+					}
+				}
+				
+				for (int i = 0; i < unequalComboList.size(); i ++) {
+					ComboBox<StringSensorValue> box = unequalComboList.get(i);
+					String name = box.getRawValue();
+					if (!name.equals(null) &&!name.equals("(no selection)")) {
+						ok = true;
+						OuterStringTriggerForm outerStr = th.getParent();
+						outerStr.getControlBox().setRawValue(name);
+						//controlBox.setRawValue(name);
+						break;
+					}
+				}
+				
+				LOG.fine ("OK is " + ok);
+				//if (!ok) controlBox.setRawValue(null);
+				if (!ok) {
+					OuterStringTriggerForm outerStr = th.getParent();
+					outerStr.getControlBox().setRawValue(null);
+				}
+				
+				LOG.fine ("The controlBox value is " + th.getParent().getControlBox().getRawValue());
+				
+			 }
+		 });
+		 
+		 
 		 equalComboList.add(combo1);
 		 plusButton1 = createPlusButton1();	 
 		 Grid plusButtonGrid = createPlusButtonGrid (plusButton1);     
@@ -278,16 +351,18 @@ public class StringTriggerForm extends AbstractAlertForm {
 		 HorizontalPanel panel = new HorizontalPanel();
 		 panel.add(combo1);
 		 panel.add(plusButtonGrid);
-	     //panel.setCellWidth(combo1, "100%");
 	     
 	     VerticalPanel vp = new VerticalPanel();
-	     //vp.setWidth("100%");
 	     vp.setStyleName ("comboPlusPanel");
 	     vp.add(alertEqualLabel);   
 	     vp.add(panel);
 	     add(vp);
 	     
-	     //add(vp, new FormData ("-8")); 
+	     controlBox = new ComboBox();
+	     controlBox.setStore(store);
+	     controlBox.setAllowBlank(false);
+	     controlBox.setVisible(false);
+	     this.add(controlBox);
 	     
 	    
 	 }
@@ -304,6 +379,7 @@ public class StringTriggerForm extends AbstractAlertForm {
 		 LabelField alertUnequalLabel = new LabelField("Alert if value is not equal to: ");	 
 		 combo2 = createComboBoxx();
 		 combo2.setWidth(420);
+		 combo2.setEditable(false);
 		 unequalComboList.add(combo2);
 		 plusButton2 = createPlusButton2();
 		 Grid plusButtonGrid = createPlusButtonGrid (plusButton2);
@@ -311,17 +387,13 @@ public class StringTriggerForm extends AbstractAlertForm {
 		 HorizontalPanel panel = new HorizontalPanel();
 		 panel.add(combo2);
 		 panel.add(plusButtonGrid);
-		 //panel.setCellWidth(combo2, "100%");
-		 //panel.setWidth("100%");
 		 
 		 VerticalPanel vp = new VerticalPanel();
 		 vp.setStyleName ("comboPlusPanel");
-	     vp.add(alertUnequalLabel);
-	     //vp.setWidth("100%");
-	     
+	     vp.add(alertUnequalLabel);  
 	     vp.add(panel);
-	     add(vp);
-	     //add(vp, new FormData ("-8"));  	
+	     
+	     add(vp);	
 		
 	 }
 
@@ -414,6 +486,7 @@ public class StringTriggerForm extends AbstractAlertForm {
 	public MyWidget createNewCombo (boolean equal) {
 		 
 		 final ComboBox<StringSensorValue> combo = createComboBoxx ();
+		 combo.setEditable(false);
 		 if (equal) equalComboList.add(combo);
 		 else unequalComboList.add(combo);
 		 
