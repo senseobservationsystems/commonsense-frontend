@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
-//import nl.sense_os.commonsense.client.alerts.create.forms.MapPan;
-import nl.sense_os.commonsense.client.alerts.create.forms.PosTriggerForm;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
@@ -42,13 +40,11 @@ import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
 import nl.sense_os.commonsense.client.viz.tabs.VizController;
-import com.google.gwt.maps.client.geom.Size;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
@@ -59,9 +55,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.maps.client.MapWidget;
 import com.google.gwt.maps.client.Maps;
-import com.google.gwt.maps.client.geom.Size;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -74,8 +68,8 @@ import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Thu Aug 11 11:15";
-    public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && true;
+    public static final String LAST_DEPLOYED = "Thu Oct 6 11:55";
+    public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
@@ -135,7 +129,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new EnvController());
         dispatcher.addController(new EnvCreateController());
         dispatcher.addController(new EnvViewController());
-        
+
         dispatcher.addController(new AlertCreateController());
     }
 
@@ -177,49 +171,44 @@ public class CommonSense implements EntryPoint {
     }
 
     private void testAlertCreator() {
-    	
-    	LOG.setLevel(Level.ALL);
-    	
-    	Dispatcher dispatcher = Dispatcher.get();
-    	
-    	
-    	Runnable onLoadCallback = new Runnable() {
+
+        LOG.setLevel(Level.ALL);
+
+        Dispatcher dispatcher = Dispatcher.get();
+
+        Runnable onLoadCallback = new Runnable() {
 
             public void run() {
-            	 Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+                Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
 
-                     @Override
-                     public void run() {
-                         
-                     	LOG.fine ("API loaded");
-                     	 SensorModel sensor = new SensorModel();
-                     	 sensor.setDataType("String");
-                     	 sensor.setName("Sensor");
-                     	 sensor.setId(4);
-                     	 //sensor.setDataType("String");
-                     	 //sensor.setDataType("json");
-                         AppEvent show = new AppEvent(AlertCreateEvents.ShowCreator);
-                         show.setData("sensor", sensor);
-                         Dispatcher.forwardEvent(show);
-                     }
-                 });
+                    @Override
+                    public void run() {
+
+                        LOG.fine("API loaded");
+                        SensorModel sensor = new SensorModel();
+                        sensor.setDataType("String");
+                        sensor.setName("Sensor");
+                        sensor.setId(4);
+                        // sensor.setDataType("String");
+                        // sensor.setDataType("json");
+                        AppEvent show = new AppEvent(AlertCreateEvents.ShowCreator);
+                        show.setData("sensor", sensor);
+                        Dispatcher.forwardEvent(show);
+                    }
+                });
             }
         };
         VisualizationUtils.loadVisualizationApi(onLoadCallback, AnnotatedTimeLine.PACKAGE);
-    	
-//
-//        // start initializing all views - if this one is on, map doesn show controls
-    	//dispatcher.dispatch(MainEvents.Init);
-//
-//        // notify the main controller that all views are ready
+
+        //
+        // // start initializing all views - if this one is on, map doesn show controls
+        // dispatcher.dispatch(MainEvents.Init);
+        //
+        // // notify the main controller that all views are ready
         dispatcher.dispatch(MainEvents.UiReady);
-        
-        
+
         LOG.config("Test map visualization...");
 
-       
-            
-       
     }
 
     /**
@@ -262,7 +251,6 @@ public class CommonSense implements EntryPoint {
                 window.setHeading("Maps test");
                 window.setSize("90%", "600px");
 
-                
                 MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, false, "title");
                 window.add(map);
                 window.show();
@@ -274,7 +262,7 @@ public class CommonSense implements EntryPoint {
                     data.push(data1.get(i));
                 }
                 map.addData(data);
-               
+
             }
         });
     }

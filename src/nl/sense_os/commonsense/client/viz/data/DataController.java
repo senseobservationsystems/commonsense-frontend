@@ -51,12 +51,14 @@ public class DataController extends Controller {
         long realEnd = end == -1 ? System.currentTimeMillis() : end;
         double interval = Math.ceil(((realEnd - start) / 1000000d));
         if (interval < 60) {
-            interval = 60;
+            interval = 0;
         } else if (interval < 300) {
-            interval = 300;
+            interval = 60;
         } else if (interval < 600) {
-            interval = 600;
+            interval = 300;
         } else if (interval < 1800) {
+            interval = 600;
+        } else if (interval < 3600) {
             interval = 1800;
         } else if (interval < 60 * 60 * 24 * 31 * 6 / 1000d) {
             // for requests for up to 6 months in range, set interval to one hour

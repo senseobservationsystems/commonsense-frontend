@@ -337,3 +337,17 @@ div.graph-axis-text-vertical {
 	font-size: 13px;
 	text-align: center;
 }
+
+.timeline-frame {
+  background-color: white;
+}
+.timeline-frame, .timeline-axis, .timeline-groups-axis {
+  border-color: #A6A6A6;
+}
+
+.graph-frame {
+  background-color: white;
+}
+.graph-legend, .graph-axis {
+  border-color: #A6A6A6;
+}

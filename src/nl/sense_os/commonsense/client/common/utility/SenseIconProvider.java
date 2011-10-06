@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.NewGroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 
@@ -67,7 +67,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     @Override
     public AbstractImagePrototype getIcon(M model) {
 
-        if (model instanceof GroupModel) {
+        if (model instanceof NewGroupModel) {
             return ICON_GROUP;
 
         } else if (model instanceof DeviceModel) {

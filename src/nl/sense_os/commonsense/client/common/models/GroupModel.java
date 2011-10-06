@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.data.TreeModel;
 /**
  * Model for a group (essentially a special user). GXT-style bean, used in various GXT components.
  */
+@Deprecated
 public class GroupModel extends UserModel {
 
     private static final long serialVersionUID = 1L;

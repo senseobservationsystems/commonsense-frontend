@@ -3,10 +3,9 @@ package nl.sense_os.commonsense.client.common.models;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
 
-public class NewGroupModel extends BaseTreeModel {
+public class NewGroupModel extends UserModel {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,7 +38,21 @@ public class NewGroupModel extends BaseTreeModel {
     }
 
     public NewGroupModel(GroupJso jso) {
-
+        setDescription(jso.getDescription());
+        setEmail(jso.getEmail());
+        setId(jso.getId());
+        setName(jso.getName());
+        setOptSensors(jso.getOptSensors());
+        setReqSensors(jso.getReqSensors());
+        setHasAccessPw(jso.hasAccessPassword());
+        setAnonymous(jso.isAnonymous());
+        setHidden(jso.isHidden());
+        setPublic(jso.isPublic());
+        setShowEmailReq(jso.isShowEmailReq());
+        setShowIdReq(jso.isShowIdReq());
+        setShowFirstNameReq(jso.isShowFirstNameReq());
+        setShowPhoneReq(jso.isShowPhoneReq());
+        setShowSurnameReq(jso.isShowSurnameReq());
     }
 
     public void setDescription(String description) {
@@ -50,24 +63,27 @@ public class NewGroupModel extends BaseTreeModel {
         return get(DESCRIPTION);
     };
 
-    public void setEmail(String email) {
+    public NewGroupModel setEmail(String email) {
         set(EMAIL, email);
+        return this;
     }
 
     public String getEmail() {
         return get(EMAIL);
     };
 
-    public void setId(int id) {
+    public NewGroupModel setId(int id) {
         set(ID, id);
+        return this;
     }
 
     public int getId() {
         return get(ID);
     };
 
-    public void setName(String name) {
+    public NewGroupModel setName(String name) {
         set(NAME, name);
+        return this;
     }
 
     public String getName() {

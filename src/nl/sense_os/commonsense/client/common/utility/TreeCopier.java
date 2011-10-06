@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.client.common.utility;
 
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.NewGroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -35,8 +35,8 @@ public class TreeCopier {
             copy = new SensorModel(sensor.getProperties());
         } else if (sensor instanceof DeviceModel) {
             copy = new DeviceModel(sensor.getProperties());
-        } else if (sensor instanceof GroupModel) {
-            copy = new GroupModel(sensor.getProperties());
+        } else if (sensor instanceof NewGroupModel) {
+            copy = new NewGroupModel(sensor.getProperties());
         } else if (sensor instanceof UserModel) {
             copy = new UserModel(sensor.getProperties());
         } else if (sensor instanceof ServiceModel) {

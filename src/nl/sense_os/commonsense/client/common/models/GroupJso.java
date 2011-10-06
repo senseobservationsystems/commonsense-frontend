@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.client.common.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 
@@ -28,7 +31,16 @@ public class GroupJso extends JavaScriptObject {
         return this.name;
     }-*/;
 
-    public native final JsArrayString getOptSensors() /*-{
+    public final List<String> getOptSensors() {
+        JsArrayString raw = getRawOptSensors();
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < raw.length(); i++) {
+            result.add(raw.get(i));
+        }
+        return result;
+    }
+
+    public native final JsArrayString getRawOptSensors() /*-{
         if (undefined != this.optional_sensors) {
             return this.optional_sensors;
         } else {
@@ -36,13 +48,22 @@ public class GroupJso extends JavaScriptObject {
         }
     }-*/;
 
-    public native final JsArrayString getReqSensors() /*-{
+    public native final JsArrayString getRawReqSensors() /*-{
         if (undefined != this.required_sensors) {
             return this.required_sensors;
         } else {
             return [];
         }
     }-*/;
+
+    public final List<String> getReqSensors() {
+        JsArrayString raw = getRawReqSensors();
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < raw.length(); i++) {
+            result.add(raw.get(i));
+        }
+        return result;
+    }
 
     public native final boolean hasAccessPassword() /*-{
         return this.has_access_password == true;

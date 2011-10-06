@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.NewGroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
@@ -67,7 +67,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupMembers(final GroupModel group,
+    private void getGroupMembers(final NewGroupModel group,
             final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
@@ -124,7 +124,7 @@ public class GroupController extends Controller {
     private void getGroups(final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
+        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).clear();
 
         // prepare request properties
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -212,14 +212,14 @@ public class GroupController extends Controller {
      * Clears the list of groups from the Registry.
      */
     private void onLogout() {
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
+        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).clear();
     }
 
     @Override
     protected void initialize() {
         super.initialize();
         this.tree = new GroupGrid(this);
-        Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
+        Registry.register(Constants.REG_GROUPS, new ArrayList<NewGroupModel>());
     }
 
     private void leaveGroup(int groupId) {
@@ -295,7 +295,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of groups is
      *            complete.
      */
-    private void onGroupMembersSuccess(String response, GroupModel group,
+    private void onGroupMembersSuccess(String response, NewGroupModel group,
             AsyncCallback<List<UserModel>> callback) {
 
         // parse list of users from the response
@@ -338,13 +338,13 @@ public class GroupController extends Controller {
     private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
 
         // parse list of groups from the response
-        List<GroupModel> groups = new ArrayList<GroupModel>();
+        List<NewGroupModel> groups = new ArrayList<NewGroupModel>();
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
             groups = jso.getGroups();
         }
 
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
+        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).addAll(groups);
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         callback.onSuccess(new ArrayList<UserModel>(groups));
@@ -355,8 +355,8 @@ public class GroupController extends Controller {
         if (null == loadConfig) {
             getGroups(callback);
 
-        } else if (loadConfig instanceof GroupModel) {
-            GroupModel group = (GroupModel) loadConfig;
+        } else if (loadConfig instanceof NewGroupModel) {
+            NewGroupModel group = (NewGroupModel) loadConfig;
             getGroupMembers(group, callback);
 
         } else {

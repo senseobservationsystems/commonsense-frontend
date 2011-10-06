@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.NewGroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
@@ -166,7 +166,7 @@ public class GroupGrid extends View {
 
             @Override
             public boolean hasChildren(UserModel parent) {
-                return parent instanceof GroupModel;
+                return parent instanceof NewGroupModel;
             };
         };
 
@@ -296,7 +296,7 @@ public class GroupGrid extends View {
 
     private void leaveGroup() {
         UserModel group = grid.getSelectionModel().getSelectedItem();
-        while (!(group instanceof GroupModel)) {
+        while (!(group instanceof NewGroupModel)) {
             group = (UserModel) group.getParent();
         }
         int groupId = group.getId();
@@ -305,11 +305,11 @@ public class GroupGrid extends View {
 
     private void onInviteClick() {
         UserModel selected = grid.getSelectionModel().getSelectedItem();
-        GroupModel group = null;
-        if (selected instanceof GroupModel) {
-            group = (GroupModel) selected;
-        } else if (selected.getParent() instanceof GroupModel) {
-            group = (GroupModel) selected.getParent();
+        NewGroupModel group = null;
+        if (selected instanceof NewGroupModel) {
+            group = (NewGroupModel) selected;
+        } else if (selected.getParent() instanceof NewGroupModel) {
+            group = (NewGroupModel) selected.getParent();
         } else {
             MessageBox.alert(null, "Cannot invite user to group: no group selected.", null);
             return;
