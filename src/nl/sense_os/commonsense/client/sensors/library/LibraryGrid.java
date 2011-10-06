@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
@@ -71,6 +72,7 @@ public class LibraryGrid extends View {
     private Button shareButton;
     private Button unshareButton;
     private Button removeButton;
+    private Button alertButton;
     private Button vizButton;
     private ToolBar filterBar;
     private boolean forceRefresh = true;
@@ -289,7 +291,10 @@ public class LibraryGrid extends View {
                     onUnshareClick();
                 } else if (source.equals(removeButton)) {
                     onRemoveClick();
-                } else {
+                } else if (source.equals(alertButton)) {
+                    onAlertClick();
+                }         
+                else {
                     LOG.warning("Unexpected button pressed");
                 }
             }
@@ -307,6 +312,9 @@ public class LibraryGrid extends View {
 
         removeButton = new Button("Remove", l);
         removeButton.disable();
+        
+        alertButton = new Button("Alert", l);
+        alertButton.disable();
 
         // listen to selection of tree items to enable/disable buttons
         GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
@@ -318,7 +326,10 @@ public class LibraryGrid extends View {
                 List<SensorModel> selection = se.getSelection();
                 if (selection != null && selection.size() > 0) {
                     vizButton.enable();
-                    shareButton.enable();
+                    shareButton.enable();              
+                    if (selection.size() == 1 && selection.get(0).getUsers()!= null) {
+        				alertButton.enable();
+        			}
                     if (selection.size() == 1 && selection.get(0).getUsers() != null
                             && selection.get(0).getUsers().size() > 0) {
                         unshareButton.enable();
@@ -342,6 +353,7 @@ public class LibraryGrid extends View {
         toolBar.add(shareButton);
         toolBar.add(unshareButton);
         toolBar.add(removeButton);
+        toolBar.add(alertButton);
     }
 
     private void onLibChanged() {
@@ -365,6 +377,20 @@ public class LibraryGrid extends View {
 
         } else {
             MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+        }
+    }
+    
+    private void onAlertClick() {
+        // get sensor models from the selection
+        final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+
+        if (sensors.size() > 0) {
+            AppEvent event = new AppEvent(AlertCreateEvents.ShowCreator);
+            event.setData("sensor", sensors.get(0));
+            Dispatcher.forwardEvent(event);
+
+        } else {
+            MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!", null);
         }
     }
 

@@ -54,8 +54,12 @@ public abstract class VizPanel extends ContentPanel {
      * Creates new VizPanel instance.
      */
     protected VizPanel() {
-        LOG.setLevel(Level.WARNING);
+        LOG.setLevel(Level.ALL);
         addToolButtons();
+    }
+    
+    public void onNewData() {
+    	
     }
 
     /**
@@ -304,6 +308,7 @@ public abstract class VizPanel extends ContentPanel {
      *            End time of the period to display.
      */
     protected void visualize(List<SensorModel> sensors, long start, long end, boolean subsample) {
+    	LOG.fine("visualize...");
         this.sensors = sensors;
         this.start = start;
         this.end = end;

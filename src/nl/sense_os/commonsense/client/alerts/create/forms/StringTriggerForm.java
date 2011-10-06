@@ -2,353 +2,458 @@ package nl.sense_os.commonsense.client.alerts.create.forms;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import nl.sense_os.commonsense.client.alerts.create.triggers.StringTrigger;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.extjs.gxt.ui.client.widget.form.ListField;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.dom.client.Style.Unit;
+//import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.maps.client.overlay.Marker;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CustomButton;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
-
-import nl.sense_os.commonsense.client.alerts.create.AlertCreator;
-import nl.sense_os.commonsense.client.groups.create.forms.AbstractGroupForm;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 
-class IndexPanel extends HorizontalPanel {
-	private int Id;
+@SuppressWarnings("serial")
+class StringSensorValue extends BaseModel {
+	  private String name;
 	
-	public IndexPanel() {
-		super();
-	}
-	
-	public void setId (int Id) {
-		this.Id = Id;
-	}
-	
-	public int getId() {
-		return this.Id;
-	}
+	  public StringSensorValue() {
+	  }
+
+	  public StringSensorValue(String name) {
+	    set("name", name);
+	    this.name = name;
+	  }
+	  
+	  public String getName() {
+		  return this.name;
+	  }
+	  
 }
+
+class MediaButton extends CustomButton {
+		public MediaButton(Image img, ClickHandler handler) {
+			super(img, handler);
+		}
+		
+		public MediaButton (Image img) {
+			super(img);
+		}	
+}
+
 
 class MyWidget extends HorizontalPanel {
-	private String Id;
-	private boolean equalFieldOrNot;
-	
-	public MyWidget() {
-		super();
+		private String Id;
+		private boolean equalFieldOrNot;
+		
+		public MyWidget() {
+			super();
+		}
+		
+		public void setId (String Id) {
+			this.Id = Id;
+		}
+		
+		public String getId() {
+			return this.Id;
+		}
+		
+		public void setEqual(boolean equal) {
+			this.equalFieldOrNot = equal;
+		}
+		
+		public boolean getEqual() {
+			return this.equalFieldOrNot;
+		}
 	}
-	
-	public void setId (String Id) {
-		this.Id = Id;
-	}
-	
-	public String getId() {
-		return this.Id;
-	}
-	
-	public void setEqual(boolean equal) {
-		this.equalFieldOrNot = equal;
-	}
-	
-	public boolean getEqual() {
-		return this.equalFieldOrNot;
-	}
-}
 
 
-public class StringTriggerForm extends AbstractGroupForm {
-	
-	 private ArrayList<String> values = new ArrayList<String>();
- 
-	 private MediaButton plusButton;
-	 private MediaButton plusButton1;
+public class StringTriggerForm extends AbstractAlertForm {
+	 
+	 private Logger LOG = Logger.getLogger(StringTriggerForm.class.getName());
 	 private LabelField titleLabel;
+	 private ComboBox<StringSensorValue> combo1;
+	 private ComboBox<StringSensorValue> combo2;
+	 private MediaButton plusButton1;
+	 private MediaButton plusButton2;
+	 StringTriggerForm form = this;
+		 
 	 private List<StringSensorValue> stringSensorValues;
 	 private ListStore<StringSensorValue> store;
-	 private StringTriggerForm stringForm;
-	 private Logger LOG = Logger.getLogger(AlertCreator.class.getName());
+	 @SuppressWarnings("unchecked")
+	 private ArrayList<ComboBox> comboList;
+	 
+	 @SuppressWarnings("unchecked")
+	 private ArrayList<ComboBox> equalComboList;
+	 @SuppressWarnings("unchecked")
+	 private ArrayList<ComboBox> unequalComboList;
+	 private ArrayList<String> originalIds;
+	 
 	 private int numEqualFields;
 	 private int numUnequalFields;
-	 StringTriggerForm form = this;
-	 private int currentId; 
+	 private int parent_width;
+	 private static final int PLUSBUTTONSIZE = 72;
+	 	   
+	 //private JsArray<Timeseries> data;
 	 
 	 
-	 public class StringSensorValue extends BaseModel {
-
-		  public StringSensorValue() {
-		  }
-
-		  public StringSensorValue(String name) {
-		    set("name", name);
-		  }
-	 }
-	 
-	 public class MediaButton extends CustomButton {
-			public MediaButton(Image img, ClickHandler handler) {
-				super(img, handler);
-			}
+	 @SuppressWarnings("unchecked")
+	 public StringTriggerForm (List<SensorModel> sensors, long start, long end, boolean subsample, String title) {
+			super();
+			LOG.setLevel(Level.ALL);
+			this.setLayoutOnChange(true);
+			layoutData.setMargins(new Margins(0, 0, 10, 0));	    
+			//FormData layoutData1 = new FormData("-10");  
+			        
+			comboList = new ArrayList<ComboBox>();	
+			equalComboList = new ArrayList<ComboBox>();
+			unequalComboList = new ArrayList<ComboBox>();
+			createSensorValues();		
+			createTitleLabel();      
+			createPlusCombo1();
+			createPlusCombo2();      
+			getOriginalIds();			
 			
-			public MediaButton (Image img) {
-				super(img);
-			}	
-	 }
+			this.setButtonAlign(HorizontalAlignment.RIGHT);
+		
+			visualize(sensors, start, end, subsample);	
+		}
 	 
+	 
+	 	@Override
+	    protected void onNewData(JsArray<Timeseries> data) {
+			LOG.fine ("Hey got data");
+			//LOG.fine ("Datatype is " + datatype);
+			int records = data.get(0).getData().length();
+			LOG.fine ("Number of records: " + records);
+			
+			ArrayList<String> values = new ArrayList<String>();
+	    	
+	    	for (int i = 0; i < records; i ++ ) {
+	    		String el = data.get(0).getData().get(i).getRawValue();
+	    		if (!values.contains(el)) {
+	    			values.add(el);
+	    		}   	
+	    	}
+	    	
+	    	stringSensorValues.clear();
+	    	
+	    	for (int i = 0; i < values.size(); i++ ) {
+	    		//LOG.fine ("Element " + i + " equals " + values.get(i));
+	    		stringSensorValues.add(new StringSensorValue(values.get(i)));
+	    		store.removeAll();
+	    		store.add(stringSensorValues); 
+	    		combo1.setStore(store);
+	    		combo2.setStore(store);
+	    		layout();
+	    		
+	    	}
+			
+	 	}
+	 	
 	
+	 /**
+	  * Initialize an arrayList of string sensor values
+	  */
 	 
 	 private void createSensorValues() {
-		 	stringSensorValues = new ArrayList<StringSensorValue>();
-	
-			stringSensorValues.add(new StringSensorValue("foo"));
-			stringSensorValues.add(new StringSensorValue("bar"));
-			stringSensorValues.add(new StringSensorValue("baz"));
-			stringSensorValues.add(new StringSensorValue("toto"));
-			stringSensorValues.add(new StringSensorValue("tintin"));
+		 	stringSensorValues = new ArrayList<StringSensorValue>();	
+			stringSensorValues.add(new StringSensorValue("sitting"));
+			stringSensorValues.add(new StringSensorValue("standing"));
+			stringSensorValues.add(new StringSensorValue("calling"));
+			stringSensorValues.add(new StringSensorValue("eating"));
+			stringSensorValues.add(new StringSensorValue("sleeping"));
 			
 			store = new ListStore<StringSensorValue>();  
 	        store.add(stringSensorValues); 
 	 }
-
-
-	private ComboBox createComboBox (String label, boolean hide) {
-		 ComboBox<StringSensorValue> combo = new ComboBox<StringSensorValue>();  
-	     combo.setFieldLabel(label);
-	     combo.setHideLabel(hide);
-	     combo.setDisplayField("name");  
-	     combo.setTriggerAction(TriggerAction.ALL);  
-	     combo.setStore(store); 
-	     //combo.setResizable(true);
-	     return combo;
-	 }
+	 
+	 
+	 /**
+	  * Create a ComboBox with a hidden label, and assign its Store
+	  */ 
+	
+	@SuppressWarnings("unchecked")
+	private ComboBox createComboBoxx() {
+		ComboBox<StringSensorValue> combo = new ComboBox<StringSensorValue>();  
+        combo.setDisplayField("name");  
+        combo.setWidth("100%"); 
+        combo.setHideLabel(true);
+        combo.setStore(store);  
+        combo.setTypeAhead(true); 
+        combo.setAllowBlank(true);
+        combo.setTriggerAction(TriggerAction.ALL);  
+        
+        comboList.add(combo);
+        
+        return combo;
+	}
+	
+	/**
+	  * Creates and adds a title label for the form
+	  */
 	
 	private void createTitleLabel() {
 		titleLabel = new LabelField("<b>Sensor with String Values</b>");
         titleLabel.setHideLabel(true);
+        add(titleLabel, layoutData);
+	}
+	
+	
+	/**
+	  * Gets the assigned Ids of layout elements and puts them in a new ArrayList
+	  */
+	
+	public void getOriginalIds() {
+		 originalIds = new ArrayList<String>(); 
+	        
+	     int count = form.getItemCount();
+	     //LOG.fine ("Item count is " + count);
+	
+	     for (int i = 0; i < count; i++ ) {
+	        Component c2 = getItem(i);
+	        String Id = c2.getId();		      
+	        originalIds.add(Id);
+	     }
+	 }
+
+	
+	/**
+	  * Creates and formats a grid to hold a plus Button a
+	  */
+	
+	public Grid createPlusButtonGrid(MediaButton button) {
+		 Grid buttonGrid = new Grid (1,1);
+		 buttonGrid.setWidget(0,0,button);
+		 buttonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_LEFT);
+		 buttonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+	     return buttonGrid;
+	}
+	
+	/**
+	  * Creates and formats a grid to hold the MinButton
+	  */
+	
+	public Grid createMinButtonGrid(MediaButton button) {
+		 Grid minButtonGrid = new Grid (1,1);
+		 minButtonGrid.setWidget(0,0, button);
+		 minButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_RIGHT);
+		 minButtonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);		 
+	     return minButtonGrid;
 	}
 
-
-	public IndexPanel createPlusCombo () {
-		 
-		 ComboBox<StringSensorValue> combo = createComboBox ("Alert if value is equal to ", true);
-		 plusButton = createPlusButton();
+	/**
+	  * Creates a combination of a label, comboBox, and Plus button for "Alert if value is equal", and 
+	  * adds it to the layout
+	  */
 	
-	     Grid plusButtonGrid = new Grid (1,1);
-	     plusButtonGrid.setWidget(0,0,plusButton);
-	     plusButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_LEFT);
-	     plusButtonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-	     
-		 IndexPanel panel = new IndexPanel();
+	@SuppressWarnings("unchecked")
+	public void createPlusCombo1 () {
 		 
-		 panel.add(combo);
-		 panel.add(plusButtonGrid);
-	     panel.setCellWidth(combo, "100%");
-	     panel.setStyleName ("comboPlusPanel");
-	     combo.setSize("98%", "100%"); 
-	     
-	     return panel;
-	 }
-
-
-	public HorizontalPanel createPlusCombo1 () {
 		 
-		 ComboBox<StringSensorValue> combo = createComboBox ("Alert if value is equal to ", true);
-		 plusButton1 = createPlusButton1();
-	     
-	     Grid plusButtonGrid = new Grid (1,1);
-	     plusButtonGrid.setWidget(0,0,plusButton1);
-	     plusButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_CENTER);
-	     plusButtonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-	    
-	     
+		 LabelField alertEqualLabel = new LabelField("Alert if value is equal to: ");
+		 combo1 = createComboBoxx(); 
+		 combo1.setWidth(420);
+		 equalComboList.add(combo1);
+		 plusButton1 = createPlusButton1();	 
+		 Grid plusButtonGrid = createPlusButtonGrid (plusButton1);     
+ 
 		 HorizontalPanel panel = new HorizontalPanel();
-		 panel.add(combo);
+		 panel.add(combo1);
 		 panel.add(plusButtonGrid);
-		 panel.setStyleName ("comboPlusPanel");
-	     panel.setCellWidth(combo, "100%");
-	     combo.setSize("98%", "100%"); 
+	     //panel.setCellWidth(combo1, "100%");
 	     
-	     return panel;
+	     VerticalPanel vp = new VerticalPanel();
+	     //vp.setWidth("100%");
+	     vp.setStyleName ("comboPlusPanel");
+	     vp.add(alertEqualLabel);   
+	     vp.add(panel);
+	     add(vp);
+	     
+	     //add(vp, new FormData ("-8")); 
+	     
+	    
 	 }
 
+	
+	/**
+	  * Creates a combination of a label, comboBox, and Plus button for "Alert if value is not equal", 
+	  * and adds it to the layout
+	  */
+	
+	@SuppressWarnings("unchecked")
+	public void createPlusCombo2 () {
+		 
+		 LabelField alertUnequalLabel = new LabelField("Alert if value is not equal to: ");	 
+		 combo2 = createComboBoxx();
+		 combo2.setWidth(420);
+		 unequalComboList.add(combo2);
+		 plusButton2 = createPlusButton2();
+		 Grid plusButtonGrid = createPlusButtonGrid (plusButton2);
+		 
+		 HorizontalPanel panel = new HorizontalPanel();
+		 panel.add(combo2);
+		 panel.add(plusButtonGrid);
+		 //panel.setCellWidth(combo2, "100%");
+		 //panel.setWidth("100%");
+		 
+		 VerticalPanel vp = new VerticalPanel();
+		 vp.setStyleName ("comboPlusPanel");
+	     vp.add(alertUnequalLabel);
+	     //vp.setWidth("100%");
+	     
+	     vp.add(panel);
+	     add(vp);
+	     //add(vp, new FormData ("-8"));  	
+		
+	 }
 
-	private MediaButton createPlusButton() {
+	/**
+	 * Creates a plus button and adds a clickListener
+	 * @return
+	 */
+	
+	private MediaButton createPlusButton1() {
 		 	 
 		 Image img = new Image("/images/plus.png");
 	     img.setHeight("15px");
 	     img.setWidth ("15px");
 	     
-	     MediaButton plusButton = new MediaButton(img);
-	     plusButton.setWidth("15px");
-	     plusButton.setHeight("15px");
-	     //plusButton.addStyleName("addStuffButton");
-	     plusButton.setStyleName("plusButton");
-	     
-	     plusButton.addClickHandler(new ClickHandler() {
-	    	    
-	    		public void onClick(ClickEvent event) {
-	    			
-	    			ArrayList<String> originalIds = new ArrayList<String>();  
-	    			
-	    			MyWidget panel = createNewCombo();  			
-	    			layout();	    							
-	    			int count = form.getItemCount();	
-	
-	    			for (int i = 0; i < count; i++ ) {
-		            	 Component c2 = getItem(i);
-		            	 String Id = c2.getId();		      
-		            	 originalIds.add(Id);
-		            }
-	    			
-	    			int insertIndex = count - (numUnequalFields + 2);
-	    			
-	    			insert(panel, insertIndex, layoutData);
-	    			layout();
-	    			count = form.getItemCount();
-	    			String newId = null;
-	    			 
-	    			for (int i = 0; i < count; i++ ) {
-		            	 Component c2 = getItem(i);
-		            	 String Id = c2.getId();	            	
-		            	 if (!originalIds.contains(Id)) newId = Id;
-		            }
-		        	
-	    			//LOG.fine ("Plus Button is clicked. New Id is " + newId);
-	    			panel.setId(newId);
-	    			panel.setEqual(true);
-	    			numEqualFields++;
-	    		   	       	      
-	   	      }
-	   	 });
-
-	     return plusButton;
-	 }
-	 
-	
-
-	private MediaButton createPlusButton1() {
-		 
-		 
-		 Image img = new Image("/images/plus.png");
-	     img.setHeight("15px");
-	     img.setWidth ("15px");
-	     
-	     MediaButton plusButton1 = new MediaButton (img);     
+	     MediaButton plusButton1 = new MediaButton(img);
 	     plusButton1.setWidth("15px");
 	     plusButton1.setHeight("15px");
 	     plusButton1.setStyleName("plusButton");
 	     
 	     plusButton1.addClickHandler(new ClickHandler() {
 	    	    
-	    	 public void onClick(ClickEvent event) {
-	    			
-	    			ArrayList<String> originalIds = new ArrayList<String>();  
-	    			
-	    			MyWidget panel = createNewCombo();  			
-	    			layout();	    							
-	    			int count = form.getItemCount();	
+	    		public void onClick(ClickEvent event) {
 	
-	    			for (int i = 0; i < count; i++ ) {
-		            	 Component c2 = getItem(i);
-		            	 String Id = c2.getId();		      
-		            	 originalIds.add(Id);
-		            }
+	    			MyWidget panel = createNewCombo(true); 
+	    			VerticalPanel vp = new VerticalPanel();	    	
+	    		    vp.setStyleName ("comboPlusPanel");
+	    		    vp.add(panel);
+	    			
+	    			int count = form.getItemCount();		
+	    			int insertIndex = count - (numUnequalFields + 1);    			
+	    			insert(vp, insertIndex, layoutData);
+	    			
+	    			String newId = getNewId();	        				
+	    			panel.setId(newId);
+	    			panel.setEqual(true);
+	    			numEqualFields++;    			
+	    			//LOG.fine ("Plus Button 1 is clicked. New Id is " + newId);
+	    		   	       	      
+	   	      }
+	   	 });
+	
+	     return plusButton1;
+	 }
 
-	    			add(panel, layoutData);
-	    			layout();
-	    			count = form.getItemCount();
-	    			String newId = null;
-	    			 
-	    			for (int i = 0; i < count; i++ ) {
-		            	 Component c2 = getItem(i);
-		            	 String Id = c2.getId();	            	
-		            	 if (!originalIds.contains(Id)) newId = Id;
-		            }
-		        	
-	    			//LOG.fine ("Plus Button1 is clicked. New Id is " + newId);
+
+	/**
+	 * Creates a second plusButton and adds a clickListener
+	 * @return
+	 */
+	
+	private MediaButton createPlusButton2() {
+		 	 
+		 Image img = new Image("/images/plus.png");
+	     img.setHeight("15px");
+	     img.setWidth ("15px");
+	     
+	     MediaButton plusButton2 = new MediaButton (img);     
+	     plusButton2.setWidth("15px");
+	     plusButton2.setHeight("15px");
+	     plusButton2.setStyleName("plusButton");
+	     
+	     plusButton2.addClickHandler(new ClickHandler() {
+	    	    
+	    	 public void onClick(ClickEvent event) {
+	
+	    			MyWidget panel = createNewCombo(false);  
+	    			VerticalPanel vp = new VerticalPanel();	    	
+	    		    vp.setStyleName ("comboPlusPanel");
+	    		    vp.add(panel);    			
+	    			add(vp, layoutData);
+	
+	    			String newId = getNewId();  			
 	    			panel.setId(newId);
 	    			panel.setEqual(false);
-	    			numUnequalFields++;
+	    			numUnequalFields++; 			
+	    			//LOG.fine ("Plus Button1 is clicked. New Id is " + newId);
 	    		   	       	      
 	   	      }
 	   	 });
 	      
-	     return plusButton1;
+	     return plusButton2;
 	 }
+
+
+	/**
+	 * Creates a combination of a comboBox and minButton 
+	 */
 	
-	
-	public MyWidget createNewCombo () {
-		 ComboBox<StringSensorValue> combo = createComboBox ("Alert if value is equal to ", true);
-		 MediaButton minButton = createMinButton();
-	
-		 Grid minButtonGrid = new Grid (1,1);
-		 minButtonGrid.setWidget(0,0,minButton);
-		 minButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_RIGHT);
-		 minButtonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+	@SuppressWarnings("unchecked")
+	public MyWidget createNewCombo (boolean equal) {
 		 
-	
+		 final ComboBox<StringSensorValue> combo = createComboBoxx ();
+		 if (equal) equalComboList.add(combo);
+		 else unequalComboList.add(combo);
+		 
+		 MediaButton minButton = createMinButton();
+		 Grid minButtonGrid = createMinButtonGrid(minButton);
+		
 		 final MyWidget panel = new MyWidget();
 		 panel.add(combo);
 		 panel.add(minButtonGrid);
-	     panel.setCellWidth(combo, "100%");
-	     combo.setSize("98%", "100%"); 
-	    
+		 combo.setWidth (combo2.getWidth());// parent_width - PLUSBUTTONSIZE); 
+	     	         
 	     minButton.addClickHandler(new ClickHandler() {
-	    	 
-	    	 
-	          public void onClick(ClickEvent event) {
-	             
-	             String panelId = panel.getId();
-	             
-	             boolean equalFieldOrNot = panel.getEqual();
-	             if (equalFieldOrNot == true) numEqualFields--;
-	             else numUnequalFields--;
-	             //LOG.fine ("The panel Id from createNewCombo is " + panelId);
 	
+	          public void onClick(ClickEvent event) {	             
 	             
-	             int count = form.getItemCount();
+	        	 String panelId = panel.getId();	             
+	             boolean equalField = panel.getEqual();
 	             
-	             for (int i = 0; i < count; i++ ) {
-	            	 Component c2 = getItem(i);
-	            	 String Id = c2.getId();
-	            	 //LOG.fine ("Getting component " + i + " id is " + Id);
-	            	 if (Id.equals(panelId)) {
-	            		 //LOG.fine ("Found!");
-	            		 form.remove(form.getWidget(i));
-	            		 layout();
-	            		 break;
-	            	 }
-	             }     
+	             if (equalField) {
+	            	 numEqualFields--;
+	            	 equalComboList.remove(combo);
+	             }
+	             else {
+	            	 numUnequalFields--;
+	            	 unequalComboList.remove(combo);
+	             }
 	             
+	             removeWidget (panelId);	                         
 	          }
 	      });
 	     
 	     return panel;
 	 }
-
-
+	
+	
+	/**
+	 * Creates a minButton
+	 * @return
+	 */
+	
 	private MediaButton createMinButton() {
 		 
 		 Image img = new Image("/images/minus.png");
@@ -362,56 +467,106 @@ public class StringTriggerForm extends AbstractGroupForm {
 	     
 	     return minButton;
 	 }
-	
-	
-	 public StringTriggerForm() {
+
+
+	/**
+	 * Gets the assigned Id of a newly created layout element
+	 */
+
+	private String getNewId() {
+		int count = form.getItemCount();	    			
+		String newId = null;
+		 
+		for (int i = 0; i < count; i++ ) {
+	    	 Component c2 = getItem(i);
+	    	 String Id = c2.getId();	            	
+	    	 if (!originalIds.contains(Id)) {
+	    		 newId = Id;
+	    		 originalIds.add(newId);
+	    	 }
+	    }
 		
-		super();		
-		createSensorValues();
-		createTitleLabel();
-        this.setLayoutOnChange(true);
-        
-        
-        // init layout
-        layoutData.setMargins(new Margins(0, 0, 10, 0));
-        FormData layoutData1 = new FormData("-10");  
-
-//        Grid plusButtonGrid = new Grid (1,1);
-//        plusButtonGrid.setWidget(0,0,plusButton);
-//        
-//        Grid plusButtonGrid1 = new Grid (1,1);
-//        plusButtonGrid1.setWidget(0,0,plusButton1);
-//        
-//        plusButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_CENTER);
-//        plusButtonGrid1.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_RIGHT);
-         
-        LabelField alertEqualLabel = new LabelField("Alert if value is equal to: ");
-        LabelField alertUnequalLabel = new LabelField("Alert if value is not equal to: ");
-        
-
-        IndexPanel panelEqual = createPlusCombo();
-        HorizontalPanel panelNotEqual = createPlusCombo1();
-      
-        add(titleLabel, layoutData);
-        
-        add(alertEqualLabel);
-        //add(panel1, new FormData ("-12"));  
-        add(panelEqual, new FormData ("-8")); 
-        //add(plusButtonGrid, new FormData ("-38"));    
-        
-        add(alertUnequalLabel);
-        //add(combo1, new FormData ("-38")); 
-        add(panelNotEqual, new FormData ("-8"));
-        //add(plusButtonGrid1, layoutData);
-       
-        int count = form.getItemCount();
-    	LOG.fine ("Item count is " + count);
-       
-
-        this.setButtonAlign(HorizontalAlignment.RIGHT);
-        //add(container, layoutData1);
-  
+		return newId;
 	}
+
+	/**
+	 * Removes the panel with a specified panelId from the layout
+	 * @param panelId
+	 */
+	
+	public void removeWidget(String panelId) {
+		 
+		int count = form.getItemCount();
+         
+         for (int i = 0; i < count; i++ ) {
+        	 Component c2 = getItem(i);
+        	 String Id = c2.getId();
+        	 //LOG.fine ("Getting component " + i + " id is " + Id);
+        	 
+        	 if (Id.equals(panelId)) {
+        		 //LOG.fine ("Found!");
+        		 form.remove(form.getWidget(i));
+        		 //layout();
+        		 break;
+        	 }
+         }
+         
+       //LOG.fine ("The panel Id from createNewCombo is " + panelId);	
+	}
+	
+	public StringTrigger getStringTrigger() {
+		 StringTrigger strTrigger = new StringTrigger();
+		 
+		 ArrayList<String> equalValues = getEqualValues();
+		 ArrayList<String> unequalValues = getUnequalValues();
+		 
+		 if (equalValues.size() == 0 && unequalValues.size()==0) return null;
+		 
+		 else {
+			 if (equalValues.size()> 0) strTrigger.setEqualValues(equalValues);
+			 if (unequalValues.size()> 0) strTrigger.setUnequalValues(unequalValues);
+			 return strTrigger;
+		 }	 		 
+	 }
+
+
+	public ArrayList<String> getEqualValues() {
+		 ArrayList<String> equalValues = new ArrayList<String>();
+		 for (int i = 0; i < equalComboList.size(); i++ ) {
+			 StringSensorValue str = (StringSensorValue)equalComboList.get(i).getValue();
+			 if (str!= null) equalValues.add(str.getName());
+		 }
+		 return equalValues;
+	 }
+
+
+	public ArrayList<String> getUnequalValues() {
+		 ArrayList<String> unequalValues = new ArrayList<String>();
+		 for (int i = 0; i < unequalComboList.size(); i++ ) {
+			 StringSensorValue str = (StringSensorValue)unequalComboList.get(i).getValue();
+			 if (str!= null) unequalValues.add(str.getName());
+		 }
+		 return unequalValues;
+	 }
+
+
+	/**
+	  * Resize all comboBoxes according to parent window size (from AlertCreator)
+	  */
+	
+	public void passParentWindowSize( int width, int height) {
+		 //LOG.fine ("Window width is " + width + " window height is " + height);		 
+		 parent_width = width;		
+		 
+		 int newWidth = parent_width - PLUSBUTTONSIZE;
+		 String newWidth1 = Integer.toString(newWidth);
+		 
+		 for (int i = 0; i < comboList.size(); i++) {
+			 comboList.get(i).setWidth(newWidth1);
+		 }
+		 		 
+		 layout();
+	 }
 
 
 }

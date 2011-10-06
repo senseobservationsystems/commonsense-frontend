@@ -51,6 +51,8 @@ public class GetSensorDataResponseJso extends JavaScriptObject {
             return [];
         }
     }-*/;
+    
+    
 
     /**
      * @return The 'total' property of the response. If 'total' is undefined, -1 is returned.

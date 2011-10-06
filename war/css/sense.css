@@ -64,6 +64,7 @@ div.graph-axis-text-vertical {
 	width: 100%;
 }
 
+
 .animateButton {
 	width: 50px;
 	height: 15px;
@@ -106,8 +107,8 @@ div.graph-axis-text-vertical {
 }
 
 .animateButton :focus {
-outline: none;
-border: none;
+	outline: none;
+	border: none;
 
 }
 
@@ -143,8 +144,52 @@ border: none;
 
 .comboPlusPanel {
 	margin-bottom: 10px;
+	margin-top: 20px;
 	
 	
+}
+.titleLabel {
+	margin-top: 5px;
+	margin-bottom: 10px;
+	margin-left: 10px;
+}
+
+.titleLabel2 {
+	margin-top: 5px;
+	margin-bottom: 0px;
+	margin-left: 10px;
+	font-size: 9pt;
+}
+
+.titleLabel3 {
+	margin-bottom: 20px;
+}
+
+
+.textBox1 {
+	font-size: 9pt;	
+	text-align: center;
+	vertical-align: middle;
+	
+}
+
+.radioGrid {
+	margin-left: 22px;
+}
+
+.formField {
+	margin-bottom: 15px;
+	margin-left: 0px;
+}
+
+.formButton {
+	border: none;
+	outline: none;
+}
+
+.alertPanel {
+	margin-top: 20px;
+	margin-left: 10px;
 }
 
 

@@ -40,7 +40,7 @@ public class DataController extends Controller {
 
     public DataController() {
 
-        LOG.setLevel(Level.WARNING);
+        LOG.setLevel(Level.FINE);
 
         registerEventTypes(DataEvents.DataRequest);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -242,6 +242,7 @@ public class DataController extends Controller {
     private void onReqSubsampledSuccess(String response, long start, long end,
             List<SensorModel> sensors, int sensorIndex, int pageIndex, boolean subsampled,
             boolean showProgress, VizPanel vizPanel) {
+    	LOG.fine("Data page success...");
 
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);

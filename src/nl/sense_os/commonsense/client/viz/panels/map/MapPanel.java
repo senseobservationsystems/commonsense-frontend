@@ -241,8 +241,7 @@ public class MapPanel extends VizPanel {
 	    
 	    animateField = new SliderField(playSlider);
 	    animateField.setHideLabel(true);
-	    
-	    
+	        
 	    playPanel = new HorizontalPanel();
 	    playPanel.addStyleName("playPanel");
 	    animatePanel = new VerticalPanel();
@@ -1386,6 +1385,8 @@ public class MapPanel extends VizPanel {
     	
     	map.setCenter(newBounds.getCenter());
 	    map.setZoomLevel(map.getBoundsZoomLevel(newBounds));
+	    int zoom = map.getBoundsZoomLevel(newBounds);
+	    LOG.fine ("the zoom level is " + zoom);
     }
 
     /**

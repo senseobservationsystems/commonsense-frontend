@@ -23,6 +23,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window.Location;
 
 public class LoginController extends Controller {
@@ -375,17 +376,26 @@ public class LoginController extends Controller {
     }
 
     private void onLoginSuccess(String response) {
+    	
+    	//LOG.setLevel (Level.ALL);
         if (response != null) {
-
+        	LOG.fine ("LOGIN Success...");
             // try to get "session_id" object
             String sessionId = null;
             if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
                 LoginResponseJso jso = JsonUtils.unsafeEval(response);
                 sessionId = jso.getSessionId();
             }
+            
+            //LOG.fine ("sessionId is " + sessionId);
 
             if (null != sessionId) {
                 Registry.register(Constants.REG_SESSION_ID, sessionId);
+                
+                /// mine!!!!
+                Cookies.setCookie(Constants.REG_SESSION_ID, sessionId);
+                
+                
                 getCurrentUser();
 
             } else {
