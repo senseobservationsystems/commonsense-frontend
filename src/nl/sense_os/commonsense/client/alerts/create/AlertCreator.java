@@ -261,7 +261,11 @@ public class AlertCreator extends View {
     
     
     private void showStringTriggerForm() {  
-    	layout.setActiveItem(outerStringTriggerForm);      
+    	layout.setActiveItem(outerStringTriggerForm); 
+    	//StringTriggerForm strForm = outerStringTriggerForm.getStringTriggerForm()
+     	formButtonBinding = new FormButtonBinding(outerStringTriggerForm);
+    	formButtonBinding.addButton(nextButton);
+
     }
     
     private void showNumTriggerForm() {  	
