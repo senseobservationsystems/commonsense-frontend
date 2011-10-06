@@ -1,0 +1,39 @@
+Options FollowSymLinks
+RewriteEngine On
+#
+# catch 'session_id' parameter
+#
+# rule for when session_id is the first of multiple parameters
+RewriteCond %{QUERY_STRING} ^session_id=(.*)&(.*)$
+RewriteRule ^(.*)$ /index.html?%2#session_id=%1 [R,NE]
+#
+#rule for when session_id is the middle query parameter
+RewriteCond %{QUERY_STRING} ^(.*)&session_id=(.*)&(.*)$
+RewriteRule ^(.*)$ /index.html?%1&%3#session_id=%2 [R,NE]
+#
+#rule for when session_id is the only parameter
+RewriteCond %{QUERY_STRING} ^session_id=(.*)$
+RewriteRule ^(.*)$ /index.html?#session_id=%1 [R,NE]
+#
+# rule for when session_id is the last parameter
+RewriteCond %{QUERY_STRING} ^(.*)&session_id=(.*)$
+RewriteRule ^(.*)$ /index.html?%1#session_id=%2 [R,NE]
+#
+# catch 'error' parameter
+#
+# rule for when error is the first of multiple parameters
+RewriteCond %{QUERY_STRING} ^error=(.*)&(.*)$
+RewriteRule ^(.*)$ /index.html?%2#error=%1 [R,NE]
+#
+#rule for when error is the middle query parameter
+RewriteCond %{QUERY_STRING} ^(.*)&error=(.*)&(.*)$
+RewriteRule ^(.*)$ /index.html?%1&%3#error=%2 [R,NE]
+#
+#rule for when error is the only parameter
+RewriteCond %{QUERY_STRING} ^error=(.*)$
+RewriteRule ^(.*)$ /index.html?#error=%1 [R,NE]
+#
+# rule for when error is the last parameter
+RewriteCond %{QUERY_STRING} ^(.*)&error=(.*)$
+RewriteRule ^(.*)$ /index.html?%1#error=%2 [R,NE]
+

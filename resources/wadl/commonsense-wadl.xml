@@ -1,0 +1,1431 @@
+<application
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:apigee="http://api.apigee.com/wadl/2010/07/"
+    xmlns="http://wadl.dev.java.net/2009/02"
+    xsi:schemaLocation="http://wadl.dev.java.net/2009/02 http://apigee.com/schemas/wadl-schema.xsd http://api.apigee.com/wadl/2010/07/ http://apigee.com/schemas/apigee-wadl-extensions.xsd">
+
+    <resources base="http://api.sense-os.nl">
+
+        <!-- SENSORS -->
+        <resource path="sensors">
+
+            <!-- CREATE SENSOR -->
+            <method
+                id="sensors_create"
+                name="POST"
+                apigee:displayName="Create sensor">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors?sensor[name]={STRING}&amp;sensor[data_type]={STRING}&amp;sensor[display_name]={OPT_STRING}&amp;sensor[device_type_name]={OPT_STRING}&amp;sensor[data_structure]={OPT_STRING}&amp;sensor[pager_type]={OPT_STRING}" />
+                <doc>Creates a new sensor.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL SENSORS -->
+            <method
+                id="sensors_list"
+                name="GET"
+                apigee:displayName="Read all sensors">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors?page=0&amp;details=full" />
+                <doc>Returns the list of all sensors the user has access to.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SENSOR -->
+            <method
+                id="sensor_read"
+                name="GET"
+                apigee:displayName="Read sensor description">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}" />
+                <doc>Reads the details of a specific sensor.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SENSOR DEVICE -->
+            <method
+                id="sensor_device_read"
+                name="GET"
+                apigee:displayName="Read sensor's device">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/device" />
+                <doc>Returns the details of the device to which the sensor is connected.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SENSOR ENVIRONMENT -->
+            <method
+                id="sensor_environment_read"
+                name="GET"
+                apigee:displayName="Read sensor's environment">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/environment" />
+                <doc>Returns the details of the environment to which the sensor is connected.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SENSOR USERS -->
+            <method
+                id="sensor_share_read"
+                name="GET"
+                apigee:displayName="Read sensor's users">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/users" />
+                <doc>Returns a list the users that have access to the sensor.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- UPDATE SENSOR -->
+            <method
+                id="sensor_update"
+                name="PUT"
+                apigee:displayName="Update sensor description">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}?sensor[name]={STRING}" />
+                <doc>Updates the details of a specific sensor.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- DELETE SENSOR -->
+            <method
+                id="sensor_delete"
+                name="DELETE"
+                apigee:displayName="Delete sensor">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensors</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}" />
+                <doc>This method will delete a sensor. If the current user is the owner of the
+                    sensor then the sensor will be removed from the current user and all other
+                    users. If the current user is not owner of the sensor then access to the sensor
+                    will be removed for this user.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- STATE SENSORS -->
+        <resource path="sensors">
+
+            <!-- READ AVAILABLE SERVICES -->
+            <method
+                id="service_avail_read"
+                name="GET"
+                apigee:displayName="Read available services for sensor">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SOURCE_SENSOR_ID}/services/available" />
+                <doc>Lists all the available services for a sensor based on its data fields.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL AVAILABLE SERVICES -->
+            <method
+                id="service_avail_read_all"
+                name="GET"
+                apigee:displayName="Read all available services">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/services/available" />
+                <doc>Lists the available services for all sensors.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- ACTIVATE SERVICE -->
+            <method
+                id="services_create"
+                name="POST"
+                apigee:displayName="Activate a service (create state sensor)">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SOURCE_SENSOR_ID}/services?service[id]={STRING}&amp;service[name]={STRING}&amp;service[data_fields][]={OPT_STRING}&amp;sensor[name]={OPT_STRING}&amp;sensor[device_type]={OPT_STRING}" />
+                <doc>Connects a sensor to a service. In the POST data a service object is posted
+                    with the name of the service that is used. If the ID of an existing service
+                    object is specified then this sensor will be connected to that service.
+                    Otherwise a new service will be created. In the optional array 'data_fields' the
+                    data fields of the sensor that should be used by this service can be specified.
+                    For every new service a virtual sensor is created. Data sent from this service
+                    is stored under that state sensor. Optionally a sensor object with the name and
+                    device_type for the state sensor can be posted along with the creation of the
+                    service.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ACTIVE SERVICES -->
+            <method
+                id="services_read"
+                name="GET"
+                apigee:displayName="Read active services">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SOURCE_SENSOR_ID}/services" />
+                <doc>Lists all the running services for a sensor. It also lists the data fields of
+                    the sensor that are used by each service.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- REMOVE SERVICE -->
+            <method
+                id="services_delete"
+                name="DELETE"
+                apigee:displayName="Remove a service">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SOURCE_SENSOR_ID}/services/{STATE_SENSOR_ID}" />
+                <doc>Disconnects the source sensor from the service. The service will be stopped if
+                    it is not used by other sensors.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SERVICE METHODS -->
+            <method
+                id="service_method_read"
+                name="GET"
+                apigee:displayName="Read service methods">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SOURCE_SENSOR_ID}/services/{STATE_SENSOR_ID}/methods" />
+                <doc>Lists all the available methods of the service associated with the state
+                    sensor. These methods can be accessed to set and retrieve the settings of a
+                    service.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ SERVICE SETTING -->
+            <method
+                id="service_method_get"
+                name="GET"
+                apigee:displayName="Read service setting (run GET method)">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SOURCE_SENSOR_ID}/services/{STATE_SENSOR_ID}/{METHOD_NAME}" />
+                <doc>Retrieves information about a service.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- SET SERVICE SETTING -->
+            <method
+                id="service_method_post"
+                name="POST"
+                apigee:displayName="Set service setting (run POST method)">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SOURCE_SENSOR_ID}/services/{STATE_SENSOR_ID}/{METHOD_NAME}?parameters[]={PARAM1}&amp;parameters[]={PARAM2}" />
+                <doc>Changes specific settings of a service. The parameters for the method are sent
+                    in an array. The response content is based on the method return type. If the
+                    method does not have a return value, it will return an object with result 'OK'
+                    if the method succeeds.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- MANUAL LEARN -->
+            <method
+                id="service_manual_learn"
+                name="POST"
+                apigee:displayName="Learn a pattern">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SOURCE_SENSOR_ID}/services/{STATE_SENSOR_ID}/manualLearn?start_date={SECS}&amp;end_date={SECS}&amp;class_label={STRING}" />
+                <doc>Learns patterns for a given state by using previously stored data. This method 
+                    is not available for all service types. By giving a class label, start and end 
+                    date, a state will be learned using the data from all the associated sensors 
+                    from within the given time range.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- CONNECT SENSOR -->
+            <method
+                id="state_sensor_create"
+                name="POST"
+                apigee:displayName="Connect sensor">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{STATE_SENSOR_ID}/sensors?sensor[id]={SOURCE_SENSOR_ID}" />
+                <doc>Connects a sensor to the sensor selected with {SENSOR_ID}. The selected sensor
+                    will be automatically updated to sensor type 2 (state sensor). Nota bene: this
+                    operation does not activate any services!
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ CONNECTED SENSORS -->
+            <method
+                id="state_sensor_read"
+                name="GET"
+                apigee:displayName="Read connected sensors">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{STATE_SENSOR_ID}/sensors" />
+                <doc>Returns a list of sensors that the state sensor uses.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- REMOVE CONNECTED SENSORS -->
+            <method
+                id="state_sensor_delete"
+                name="DELETE"
+                apigee:displayName="Remove connected sensor">
+                <apigee:tags>
+                    <apigee:tag primary="true">State Sensors &amp; Services</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{STATE_SENSOR_ID}/sensors/{SOURCE_SENSOR_ID}" />
+                <doc>Removes a sensor from the parent state sensor. If the state sensor does not
+                    have any sensors that it uses, its sensor type will automatically be set to 0.
+                    If this parent sensor is also a service, then the connected sensor will also be
+                    disconnected from the service.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- DEVICES -->
+        <resource path="devices">
+
+            <!-- CREATE DEVICE -->
+            <method
+                id="device_create"
+                name="POST"
+                apigee:displayName="Create device (add to sensor)">
+                <apigee:tags>
+                    <apigee:tag primary="true">Devices</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}/device?device[type]={STRING}&amp;device[uuid]={STRING}" />
+                <doc>Adds the sensor to a device, creating a new entry for the device if it does not
+                    exist.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL DEVICES -->
+            <method
+                id="devices_list"
+                name="GET"
+                apigee:displayName="Read all devices">
+                <apigee:tags>
+                    <apigee:tag primary="true">Devices</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/devices" />
+                <doc>Returns the list of all devices the user has.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ DEVICE -->
+            <method
+                id="device_read"
+                name="GET"
+                apigee:displayName="Read device details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Devices</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/devices/{DEVICE_ID}" />
+                <doc>Returns the details of a device that has sensors.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ DEVICE SENSORS -->
+            <method
+                id="device_sensors_read"
+                name="GET"
+                apigee:displayName="Read device sensors">
+                <apigee:tags>
+                    <apigee:tag primary="true">Devices</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/devices/{DEVICE_ID}/sensors" />
+                <doc>Returns the sensors that are physically connected to the device.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- REMOVE DEVICE SENSORS -->
+            <method
+                id="device_sensors_remove"
+                name="DELETE"
+                apigee:displayName="Remove sensors from device">
+                <apigee:tags>
+                    <apigee:tag primary="true">Devices</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/device" />
+                <doc>Removes a sensor from a device. The type of the sensor will then automatically
+                    be set to 0.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- ENVIRONMENTS -->
+        <resource path="environments">
+
+            <!-- CREATE ENVIRONMENT -->
+            <method
+                id="environment_create"
+                name="POST"
+                apigee:displayName="Create environment">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/environments?environment[name]={STRING}&amp;environment[floors]={INT}&amp;environment[gps_outline]={LATLNGS}&amp;environment[position]={LATLNG}" />
+                <doc>Creates a new environment.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL ENVIRONMENTS -->
+            <method
+                id="environment_list"
+                name="GET"
+                apigee:displayName="Read all environments">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments" />
+                <doc>Returns a list of all environments the user has access to.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ENVIRONMENT -->
+            <method
+                id="environment_read"
+                name="GET"
+                apigee:displayName="Read environment details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments/{ENV_ID}" />
+                <doc>Returns the details of an environment.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- UPDATE ENVIRONMENT -->
+            <method
+                id="environment_update"
+                name="PUT"
+                apigee:displayName="Update environment details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments/{ENV_ID}?environment[name]={STRING}" />
+                <doc>Updates the details of an environment.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- DELETE ENVIRONMENT -->
+            <method
+                id="environment_delete"
+                name="DELETE"
+                apigee:displayName="Delete environment">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments/{ENV_ID}" />
+                <doc>Deletes an environment, without deleting the sensors.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- ADD SENSORS TO ENVIRONMENT -->
+            <method
+                id="environment_add_sensor"
+                name="POST"
+                apigee:displayName="Add sensors to environment">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/environments/sensors?sensor[id][]={SENSOR_ID}&amp;sensor[id][]={SENSOR_ID}" />
+                <doc>Adds a sensor to an environment. To connect an individual sensor a sensor
+                    object with only the sensor id can be given and to connect a list of sensors a
+                    sensors object with an array of sensor ids can be given.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ENVIRONMENT SENSORS -->
+            <method
+                id="environment_sensors"
+                name="GET"
+                apigee:displayName="Read environment sensors">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments/{ENV_ID}/sensors" />
+                <doc>Returns the sensors that are present in this environment.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- REMOVE ENVIRONMENT SENSOR -->
+            <method
+                id="environment_delete_sensor"
+                name="DELETE"
+                apigee:displayName="Remove sensor from environment">
+                <apigee:tags>
+                    <apigee:tag primary="true">Environments</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/environments/{ENV_ID}/sensors/{SENSOR_ID}" />
+                <doc>Removes the selected sensor from the selected environment.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- GROUPS -->
+        <resource path="groups">
+
+            <!-- CREATE GROUP -->
+            <method
+                id="group_create"
+                name="POST"
+                apigee:displayName="Create group">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/groups?group[email]={STRING}&amp;group[name]={STRING}&amp;group[username]={OPT_STRING}&amp;group[password]={OPT_STRING}" />
+                <doc>Creates a new environment.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL GROUPS -->
+            <method
+                id="group_list"
+                name="GET"
+                apigee:displayName="Read all groups">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups" />
+                <doc>Returns a list of all groups the user is a member of.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- ADD USERS TO GROUP -->
+            <method
+                id="group_add_user"
+                name="POST"
+                apigee:displayName="Add user to group">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups?user[id]={OPT_ID}&amp;user[username]={OPT_NAME}" />
+                <doc>Adds a user to the group. To add a user at least a username or user ID must be
+                    specified. Only members of the group can add a user to the group.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ GROUP -->
+            <method
+                id="group_read"
+                name="GET"
+                apigee:displayName="Read group details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups/{GRP_ID}" />
+                <doc>Returns the details of a group.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ GROUP USERS -->
+            <method
+                id="group_users"
+                name="GET"
+                apigee:displayName="Read group users">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups/{GRP_ID}/users" />
+                <doc>Returns the members of the group as a list of users. Only group members can
+                    perform this action.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- UPDATE GROUP -->
+            <method
+                id="group_update"
+                name="PUT"
+                apigee:displayName="Update group details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups/{GRP_ID}?group[name]={STRING}" />
+                <doc>Updates the details of a group.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- DELETE GROUP -->
+            <method
+                id="group_delete"
+                name="DELETE"
+                apigee:displayName="Delete group">
+                <apigee:tags>
+                    <apigee:tag primary="true">Groups</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/groups/{GRP_ID}" />
+                <doc>Deletes the group if the group has no other members. If the group has other
+                    members then the current user will be removed from the group.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- USERS -->
+        <resource path="users">
+
+            <!-- CREATE USER -->
+            <method
+                id="users_create"
+                name="POST"
+                apigee:displayName="Create user">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="false" />
+                <apigee:example
+                    url="/users?user[username]={STRING}&amp;user[password]={MD5HASH}&amp;user[email]={OPT_STRING}&amp;user[name]={OPT_STRING}&amp;user[surname]={OPT_STRING}&amp;user[mobile]={OPT_STRING}" />
+                <doc>Creates a user in the database. The username must be unique and the password
+                    must be an MD5-hashed password. The response content will be contain the created
+                    user information. The UUID can be used to retrieve data without logging in.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ ALL USERS -->
+            <method
+                id="users_list"
+                name="GET"
+                apigee:displayName="Read all users">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/users?page=0" />
+                <doc>Returns a lists all the users in the database with only their user ID, name and
+                    surname.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ USER -->
+            <method
+                id="users_read"
+                name="GET"
+                apigee:displayName="Read user details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/users/{USR_ID}" />
+                <doc>Returns the details of the selected user. Only the current user can be
+                    selected. This method gives the same output as /users/current.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ CURRENT USER -->
+            <method
+                id="users_current"
+                name="GET"
+                apigee:displayName="Read current user">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/users/current" />
+                <doc>This method returns the details of the current user.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- UPDATE USER -->
+            <method
+                id="user_update"
+                name="PUT"
+                apigee:displayName="Update user details">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/users/{USER_ID}?user[name]={STRING}" />
+                <doc>Updates the details of a user.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- DELETE USER -->
+            <method
+                id="user_delete"
+                name="DELETE"
+                apigee:displayName="Delete user">
+                <apigee:tags>
+                    <apigee:tag primary="true">Users</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/users/{USR_ID}" />
+                <doc>Deletes removes the user from the database together with his external services.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- SENSOR SHARING -->
+        <resource path="users">
+
+            <!-- SHARE SENSOR -->
+            <method
+                id="share_create"
+                name="POST"
+                apigee:displayName="Share sensor access">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Sharing</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}/users?user[username]={OPT_STRING}&amp;user[id]={OPT_STRING}" />
+                <doc>Adds a user to a sensor, giving the user access to the sensor and data. Only
+                    the owner of the sensor is able to upload data, mutate sensors and add users to
+                    their sensor. To add a user at least a user name or user ID must be specified.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- UNSHARE SENSOR -->
+            <method
+                id="share_delete"
+                name="DELETE"
+                apigee:displayName="Remove sensor access">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Sharing</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/users/{USER_ID}" />
+                <doc>Removes a user from a sensor, which removes the access to the sensor for this
+                    user.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- SENSOR DATA -->
+        <resource path="data">
+
+            <!-- CREATE DATA POINT -->
+            <method
+                id="data_create"
+                name="POST"
+                apigee:displayName="Create data point">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Data</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}/data?data[value]={STRING}&amp;data[date]={SECS}" />
+                <doc>Adds a data point to a sensor.</doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ DATA (TIME RANGE) -->
+            <method
+                id="data_read"
+                name="GET"
+                apigee:displayName="Read data in timerange">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Data</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}/data?start_date={SECS}&amp;end_date={SECS}&amp;page=0" />
+                <doc>Returns a list of data points. The maximum amount of data points that can be
+                    retrieved per page are 1000 items.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ DATA (INTERVAL) -->
+            <method
+                id="data_read_interval"
+                name="GET"
+                apigee:displayName="Read data with interval">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Data</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example
+                    url="/sensors/{SENSOR_ID}/data?start_date={SECS}&amp;end_date={SECS}&amp;interval={SECS}&amp;page=0" />
+                <doc>Returns a list of data points. The data will be subsampled to the given
+                    interval.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- READ DATA (LAST) -->
+            <method
+                id="data_read_last"
+                name="GET"
+                apigee:displayName="Read latest data">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Data</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/data?last=1" />
+                <doc>Returns the last data points, based on the item date.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- DELETE DATA -->
+            <method
+                id="data_delete"
+                name="DELETE"
+                apigee:displayName="Delete data">
+                <apigee:tags>
+                    <apigee:tag primary="true">Sensor Data</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/sensors/{SENSOR_ID}/data/{DATA_ID}" />
+                <doc>Deletes a data point.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- LOGIN -->
+        <resource path="login">
+
+            <!-- NORMAL LOGIN -->
+            <method
+                id="login"
+                name="POST"
+                apigee:displayName="Normal Login">
+                <apigee:tags>
+                    <apigee:tag primary="true">Authentication</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="false" />
+                <apigee:example url="/login?username={STRING}&amp;password={MD5HASH}" />
+                <doc>Logs the user in. The response header will contain a X-SESSION_ID header and a
+                    cookie with a session ID. This session_id can be used for authentication. A user
+                    can be logged in on multiple locations. Sessions older than a week become
+                    invalid when a user logs in on a new location.
+                </doc>
+                <request>
+                    <param
+                        name="Content-Type"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="application/x-www-form-urlencoded" />
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+            <!-- GOOGLE OPENID LOGIN -->
+            <method
+                id="google_login"
+                name="GET"
+                apigee:displayName="Google OpenID Login">
+                <apigee:tags>
+                    <apigee:tag primary="true">Authentication</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="false" />
+                <apigee:example url="/login/openID/google?callback_url={URL}" />
+                <doc>Logs the user in using Google OpenID. The user will be redirected to Google for
+                    authentication and approval. Afterwards the callback URL will be called with the
+                    session ID.
+                </doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+        <!-- LOGOUT -->
+        <resource path="logout">
+
+            <method
+                id="logout"
+                name="GET"
+                apigee:displayName="Logout">
+                <apigee:tags>
+                    <apigee:tag primary="true">Authentication</apigee:tag>
+                </apigee:tags>
+                <apigee:authentication required="true" />
+                <apigee:example url="/logout" />
+                <doc>Logout the user by destroying its cookie and session.</doc>
+                <request>
+                    <param
+                        name="Accept"
+                        required="true"
+                        type="xsd:string"
+                        style="header"
+                        default="*" />
+                </request>
+            </method>
+
+        </resource>
+
+    </resources>
+</application>
