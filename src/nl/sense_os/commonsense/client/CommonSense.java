@@ -334,7 +334,6 @@ public class CommonSense implements EntryPoint {
                 Timeline.Options options = Timeline.Options.create();
                 options.setWidth("100%");
                 options.setHeight("200px");
-                options.setLayout(Timeline.Options.LAYOUT.BOX);
                 options.setEditable(true);
 
                 // create the timeline, with data and options
