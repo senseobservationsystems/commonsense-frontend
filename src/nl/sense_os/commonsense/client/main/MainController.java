@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.main;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -16,7 +17,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
@@ -32,6 +32,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
         registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
+        LOG.setLevel(Level.ALL);
     }
 
     @Override
@@ -81,14 +82,16 @@ public class MainController extends Controller implements ValueChangeHandler<Str
             String errorMsg = token.substring("error=".length());
             onError(errorMsg);
 
-        } else if (!GWT.isProdMode() && Location.getParameter("session_id") != null) {
+            // } else if (!GWT.isProdMode() && Location.getParameter("session_id") != null) {
+        } else if (Location.getParameter("session_id") != null) {
             LOG.fine("Google authentication landing");
             String newUrl = urlParameterToFragment(Location.getHref(), "session_id");
 
             // reload the app at the hacked URL
             Location.replace(newUrl);
 
-        } else if (!GWT.isProdMode() && Location.getParameter("error") != null) {
+            // } else if (Location.getParameter("error") != null) {
+        } else if (Location.getParameter("error") != null) {
             LOG.warning("Google authentication error landing");
             String newUrl = urlParameterToFragment(Location.getHref(), "error");
 
