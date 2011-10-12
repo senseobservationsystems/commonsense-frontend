@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.AlertCreator;
 import nl.sense_os.commonsense.client.alerts.create.triggers.StringTrigger;
+import nl.sense_os.commonsense.client.alerts.create.utils.StringSensorValue;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
