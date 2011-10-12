@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.main;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.CommonSense;
+import nl.sense_os.commonsense.client.LastDeployed;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -158,7 +158,7 @@ public class MainView extends View {
         String copyright = "&copy;2011 Sense";
         String bullet = "&nbsp;&nbsp;&#8226;&nbsp;&nbsp;";
         Anchor website = new Anchor("Sense Home", "http://www.sense-os.nl", "_blank");
-        String update = "Last update: " + CommonSense.LAST_DEPLOYED;
+        String update = "Last update: " + LastDeployed.getPrettyString();
         HTML footerLink = new HTML(copyright + bullet + website.toString() + bullet + update);
         footer.add(footerLink);
         footer.setId("footer-bar");
