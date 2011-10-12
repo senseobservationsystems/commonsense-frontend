@@ -10,6 +10,8 @@ import nl.sense_os.commonsense.client.alerts.create.forms.NumTriggerForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.OuterNumTriggerForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.OuterStringTriggerForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.PosTriggerForm;
+import nl.sense_os.commonsense.client.alerts.create.forms.TrialNumForm;
+import nl.sense_os.commonsense.client.alerts.create.forms.TrialStringForm;
 import nl.sense_os.commonsense.client.alerts.create.triggers.AlertType;
 import nl.sense_os.commonsense.client.alerts.create.triggers.NumericTrigger;
 import nl.sense_os.commonsense.client.alerts.create.triggers.PositionTrigger;
@@ -60,6 +62,8 @@ public class AlertCreator extends View {
 	private String name;
 	private OuterStringTriggerForm outerStringTriggerForm;
 	private OuterNumTriggerForm outerNumTriggerForm;
+	private TrialStringForm trialStringForm;
+	private TrialNumForm trialNumForm;
 	private StringTrigger strTrigger; 
 	private NumericTrigger numTrigger;
 	private PositionTrigger posTrigger;
@@ -177,11 +181,11 @@ public class AlertCreator extends View {
 	    Component active = layout.getActiveItem();
 	    if (active.equals(alertTypesForm) || active.equals(doneForm)) {
 	        
-	    	if (prevComponent.equals(outerStringTriggerForm)) 
+	    	if (prevComponent.equals(trialStringForm)) 
 	    		showStringTriggerForm();
 	    	else if (prevComponent.equals(posTriggerForm))
 	    		showPosTriggerForm();
-	    	else if (prevComponent.equals(numTriggerForm) || prevComponent.equals(outerNumTriggerForm)) {
+	    	else if (prevComponent.equals(trialNumForm) || prevComponent.equals(outerNumTriggerForm)) {
 	    		showNumTriggerForm();		
 	    	}
 	    	
@@ -198,18 +202,18 @@ public class AlertCreator extends View {
 	    prevComponent = active;
 	    boolean validTrigger = false; 
 	    
-	    if (active.equals(posTriggerForm) || active.equals(outerStringTriggerForm) || active.equals(outerNumTriggerForm)) {
+	    if (active.equals(posTriggerForm) || active.equals(trialStringForm) || active.equals(trialNumForm)) {
 	    	    	
 	    	if (active.equals(posTriggerForm)) {
 	    		posTrigger = posTriggerForm.getPositionTrigger();
 	    		if (posTrigger!= null) validTrigger = true;
 	    	
-	    	} else if (active.equals(outerStringTriggerForm)) {	    		
-	    		strTrigger = outerStringTriggerForm.getStringTrigger();
+	    	} else if (active.equals(trialStringForm)) {	    		
+	    		strTrigger = trialStringForm.getStringTrigger();
 	    		if (strTrigger!= null) validTrigger = true;
 	    		
-	    	} else if (active.equals(outerNumTriggerForm)) {
-	    		numTrigger = outerNumTriggerForm.getNumericTrigger();
+	    	} else if (active.equals(trialNumForm)) {
+	    		numTrigger = trialNumForm.getNumericTrigger();
 	    		if (numTrigger!= null) validTrigger = true;	    		
 	    	}
 	    	
@@ -261,11 +265,16 @@ public class AlertCreator extends View {
     
     
     private void showStringTriggerForm() {  
-    	layout.setActiveItem(outerStringTriggerForm);      
+     	layout.setActiveItem(trialStringForm); 
+     	formButtonBinding = new FormButtonBinding(trialStringForm);    	
+    	formButtonBinding.addButton(nextButton);
+
     }
     
     private void showNumTriggerForm() {  	
-        layout.setActiveItem(outerNumTriggerForm);
+    	layout.setActiveItem(trialNumForm);
+     	formButtonBinding = new FormButtonBinding(trialNumForm);    	
+    	formButtonBinding.addButton(nextButton);
 	}
     
     private void showPosTriggerForm() {  
@@ -307,16 +316,20 @@ public class AlertCreator extends View {
 		//visualize(sensors, start, end, true); 
 		
 		if (datatype.equals("string")) {		
-			 outerStringTriggerForm = new OuterStringTriggerForm(sensors, start, end, true, "String form");
-			 window.add(outerStringTriggerForm);
-			 showStringTriggerForm();
-			 showButtons();
+//			outerStringTriggerForm = new OuterStringTriggerForm(sensors, start, end, true, "String form");
+//			window.add(outerStringTriggerForm);
+			trialStringForm = new TrialStringForm(sensors, start, end, true, "String form");
+			window.add(trialStringForm);
+			showStringTriggerForm();
+			showButtons();
 		}
 		
 		
 		else if (datatype.equals("float")) {
-			outerNumTriggerForm = new OuterNumTriggerForm(sensors, start, end, true, "Numeric form");		
-			window.add(outerNumTriggerForm);
+			trialNumForm = new TrialNumForm(sensors, start, end, true, "Numeric form");	
+			window.add(trialNumForm);
+			//outerNumTriggerForm = new OuterNumTriggerForm(sensors, start, end, true, "Numeric form");		
+			//window.add(outerNumTriggerForm);
 			showNumTriggerForm();
 			showButtons();
 		}
@@ -334,9 +347,9 @@ public class AlertCreator extends View {
 			
 			            @Override
 			            public void handleEvent( WindowEvent we) {
-			               //we.getWidth();
-			               //height = we.getHeight();
-			               if (layout.getActiveItem().equals(outerStringTriggerForm)) outerStringTriggerForm.passParentWindowSize(we.getWidth(), we.getHeight());
+			            	
+			               //if (layout.getActiveItem().equals(outerStringTriggerForm)) outerStringTriggerForm.passParentWindowSize(we.getWidth(), we.getHeight());
+			               if (layout.getActiveItem().equals(trialStringForm)) trialStringForm.passParentWindowSize(we.getWidth(), we.getHeight());
 			               else if (layout.getActiveItem().equals(outerNumTriggerForm)) outerNumTriggerForm.passParentWindowSize(we.getWidth(), we.getHeight());
 			               alertTypesForm.passParentWindowSize(we.getWidth(), we.getHeight());
 			            }

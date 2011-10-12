@@ -15,19 +15,12 @@ public class OuterNumTriggerForm extends FormPanel{
 	private NumTriggerForm numForm;
 	private Logger LOG = Logger.getLogger(AlertCreator.class.getName());
 	
-	public OuterNumTriggerForm (List<SensorModel> sensors, long start, long end, 
-			boolean subsample, String title) {
+	public OuterNumTriggerForm (List<SensorModel> sensors, long start, long end, boolean subsample, String title) {
 		super();
 		LOG.setLevel(Level.ALL);
 		setHeaderVisible(false);
         setBodyBorder(false);
         numForm = new NumTriggerForm(sensors, start, end, subsample,title); 
-		//numForm = new NumTriggerForm(sensors, start, end, subsample,title);
-
-//        setWidth("100%");
-//        setHeight("100%");
-//        numForm.setHeight("100%");
-//        numForm.setWidth("50%");
 		add(numForm);
 		LOG.fine ("numForm added by outerNumForm");
 	}

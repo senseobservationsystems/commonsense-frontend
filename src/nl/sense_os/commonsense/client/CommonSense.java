@@ -68,7 +68,7 @@ import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
 public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
-    public static final String LAST_DEPLOYED = "Thu Oct 6 11:55";
+    public static final String LAST_DEPLOYED = "Thu Oct 12 13:44";
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
@@ -334,7 +334,6 @@ public class CommonSense implements EntryPoint {
                 Timeline.Options options = Timeline.Options.create();
                 options.setWidth("100%");
                 options.setHeight("200px");
-                options.setLayout(Timeline.Options.LAYOUT.BOX);
                 options.setEditable(true);
 
                 // create the timeline, with data and options
