@@ -267,7 +267,9 @@ public class AlertCreator extends View {
         formButtonBinding.addButton(nextButton);
     }
 
-    private void showPosTriggerForm() {
+    
+    private void showPosTriggerForm() {  
+
         layout.setActiveItem(posTriggerForm);
     }
 
@@ -314,6 +316,7 @@ public class AlertCreator extends View {
             showStringTriggerForm();
             showButtons();
         }
+
 
         else if (datatype.equals("float")) {
             trialNumForm = new TrialNumForm(sensors, start, end, true, "Numeric form");
