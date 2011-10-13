@@ -211,9 +211,11 @@ public class NumTriggerForm extends AbstractAlertForm{
 	
 	@Override
     protected void onNewData(JsArray<Timeseries> data) {
-    	//LOG.fine ("Hey got data. Length is " + data.get(0).getData().length());
+    	LOG.fine ("Hey got data. Length is " + data.get(0).getData().length());
     	this.data = data;
     	
+    	if (data.length()>0 ) {
+    		
     	
     	int length = data.length();
 		start = Long.MAX_VALUE;
@@ -259,6 +261,7 @@ public class NumTriggerForm extends AbstractAlertForm{
 
     	alertGraph.draw(data,graphOpts);
     	//LOG.fine ("Tried to draw graph");
+    	}
 	
     }
 	

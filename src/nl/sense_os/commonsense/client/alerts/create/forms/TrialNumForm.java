@@ -789,6 +789,8 @@ public class TrialNumForm extends FormPanel {
 		vstart = Double.MAX_VALUE;
 		vend = -Double.MAX_VALUE;
 		
+	
+		
 		for (int i = 0; i < length; i++ ) {
 			
 			Timeseries ts = data.get(i);
@@ -801,6 +803,7 @@ public class TrialNumForm extends FormPanel {
 			orig_vend = vend;
 						
 			JsArray<DataPoint> data1 = ts.getData();
+			
 			
 			startDate = data1.get(0).getTimestamp();
 			endDate = data1.get(data1.length()-1).getTimestamp();
