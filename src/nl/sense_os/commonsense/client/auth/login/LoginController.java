@@ -179,7 +179,7 @@ public class LoginController extends Controller {
         final String callback = Location.getProtocol() + "//" + Location.getHost()
                 + Location.getPath() + Location.getQueryString();
 
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost("api.sense-os.nl");
         urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
         urlBuilder.setParameter("callback_url", callback);
 
@@ -324,8 +324,6 @@ public class LoginController extends Controller {
     private void onAuthenticationFailure() {
         forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
-    
-    
 
     private void onCurrentUser(UserModel user) {
         Registry.register(Constants.REG_USER, user);
@@ -376,26 +374,25 @@ public class LoginController extends Controller {
     }
 
     private void onLoginSuccess(String response) {
-    	
-    	//LOG.setLevel (Level.ALL);
+
+        // LOG.setLevel (Level.ALL);
         if (response != null) {
-        	LOG.fine ("LOGIN Success...");
+            LOG.fine("LOGIN Success...");
             // try to get "session_id" object
             String sessionId = null;
             if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
                 LoginResponseJso jso = JsonUtils.unsafeEval(response);
                 sessionId = jso.getSessionId();
             }
-            
-            //LOG.fine ("sessionId is " + sessionId);
+
+            // LOG.fine ("sessionId is " + sessionId);
 
             if (null != sessionId) {
                 Registry.register(Constants.REG_SESSION_ID, sessionId);
-                
-                /// mine!!!!
+
+                // / mine!!!!
                 Cookies.setCookie(Constants.REG_SESSION_ID, sessionId);
-                
-                
+
                 getCurrentUser();
 
             } else {

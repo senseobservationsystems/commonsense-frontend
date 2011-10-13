@@ -38,8 +38,12 @@ public class Constants {
     /**
      * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
      */
-    public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl")
-            || (!STABLE_MODE && !TED_MODE && !DEV_MODE && !APIGEE_MODE);
+    public static final boolean RC_MODE = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
+
+    /**
+     * Flag for local mode. <code>true</code> if the app is deployed to an unknown location.
+     */
+    public static final boolean GENERIC_MODE = !STABLE_MODE && !TED_MODE && !DEV_MODE && !APIGEE_MODE && !RC_MODE;
 
     /**
      * true if shortcut 'hacks' for easy developing are allowed

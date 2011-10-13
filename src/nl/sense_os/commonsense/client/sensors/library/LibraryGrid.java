@@ -293,8 +293,7 @@ public class LibraryGrid extends View {
                     onRemoveClick();
                 } else if (source.equals(alertButton)) {
                     onAlertClick();
-                }         
-                else {
+                } else {
                     LOG.warning("Unexpected button pressed");
                 }
             }
@@ -312,7 +311,7 @@ public class LibraryGrid extends View {
 
         removeButton = new Button("Remove", l);
         removeButton.disable();
-        
+
         alertButton = new Button("Alert", l);
         alertButton.disable();
 
@@ -326,10 +325,10 @@ public class LibraryGrid extends View {
                 List<SensorModel> selection = se.getSelection();
                 if (selection != null && selection.size() > 0) {
                     vizButton.enable();
-                    shareButton.enable();              
-                    if (selection.size() == 1 && selection.get(0).getUsers()!= null) {
-        				alertButton.enable();
-        			}
+                    shareButton.enable();
+                    if (selection.size() == 1 && selection.get(0).getUsers() != null) {
+                        // alertButton.enable();
+                    }
                     if (selection.size() == 1 && selection.get(0).getUsers() != null
                             && selection.get(0).getUsers().size() > 0) {
                         unshareButton.enable();
@@ -379,7 +378,7 @@ public class LibraryGrid extends View {
             MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
         }
     }
-    
+
     private void onAlertClick() {
         // get sensor models from the selection
         final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
@@ -390,7 +389,8 @@ public class LibraryGrid extends View {
             Dispatcher.forwardEvent(event);
 
         } else {
-            MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!", null);
+            MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!",
+                    null);
         }
     }
 
