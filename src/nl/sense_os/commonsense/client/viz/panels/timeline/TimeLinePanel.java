@@ -335,7 +335,7 @@ public class TimeLinePanel extends VizPanel {
                 createTimeline(dataTable);
             } else {
                 LOG.fine("Draw on existing time line");
-                timeline.draw(dataTable);
+                timeline.setData(dataTable);
             }
         } else {
             LOG.warning("No data for time line visualization!");
