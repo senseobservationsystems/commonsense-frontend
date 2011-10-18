@@ -10,9 +10,8 @@ import nl.sense_os.commonsense.client.alerts.create.utils.MediaButton;
 import nl.sense_os.commonsense.client.alerts.create.utils.MyWidget;
 import nl.sense_os.commonsense.client.alerts.create.utils.StringSensorValue;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -20,8 +19,10 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.google.gwt.core.client.JsArray;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
@@ -31,69 +32,15 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-//@SuppressWarnings("serial")
-//class StringSensorValue extends BaseModel {
-//	  private String name;
-//	
-//	  public StringSensorValue() {
-//	  }
-//
-//	  public StringSensorValue(String name) {
-//	    set("name", name);
-//	    this.name = name;
-//	  }
-//	  
-//	  public String getName() {
-//		  return this.name;
-//	  }
-//	  
-//}
-//
-//class MediaButton extends CustomButton {
-//		public MediaButton(Image img, ClickHandler handler) {
-//			super(img, handler);
-//		}
-//		
-//		public MediaButton (Image img) {
-//			super(img);
-//		}	
-//}
-//
-//
-//class MyWidget extends HorizontalPanel {
-//		private String Id;
-//		private boolean equalFieldOrNot;
-//		
-//		public MyWidget() {
-//			super();
-//		}
-//		
-//		public void setId (String Id) {
-//			this.Id = Id;
-//		}
-//		
-//		public String getId() {
-//			return this.Id;
-//		}
-//		
-//		public void setEqual(boolean equal) {
-//			this.equalFieldOrNot = equal;
-//		}
-//		
-//		public boolean getEqual() {
-//			return this.equalFieldOrNot;
-//		}
-//	}
+public class StringTriggerForm extends FormPanel {
 
-public class StringTriggerForm extends AbstractAlertForm {
-
+    private InnerStringForm stringForm;
     private Logger LOG = Logger.getLogger(StringTriggerForm.class.getName());
     private LabelField titleLabel;
     private ComboBox<StringSensorValue> combo1;
     private ComboBox<StringSensorValue> combo2;
     private MediaButton plusButton1;
     private MediaButton plusButton2;
-    StringTriggerForm form = this;
 
     private List<StringSensorValue> stringSensorValues;
     private ListStore<StringSensorValue> store;
@@ -110,77 +57,47 @@ public class StringTriggerForm extends AbstractAlertForm {
     private int numUnequalFields;
     private int parent_width;
     private static final int PLUSBUTTONSIZE = 72;
-
-    private ComboBox<StringSensorValue> controlCombo;
-    private StringSensorValue controlValue;
+    protected final FormData layoutData = new FormData("-10");
+    private StringTriggerForm form = this;
+    @SuppressWarnings("unchecked")
+	private SelectionChangedListener listener;
     private ComboBox controlBox;
-    private OuterStringTriggerForm parent;
-    private StringTriggerForm th = this;
-
-    // private JsArray<Timeseries> data;
+    private TextField controlBox1;
 
     @SuppressWarnings("unchecked")
-    public StringTriggerForm(List<SensorModel> sensors, long start, long end, boolean subsample,
+	public StringTriggerForm(List<SensorModel> sensors, long start, long end, boolean subsample,
             String title) {
         super();
         LOG.setLevel(Level.ALL);
+        setHeaderVisible(false);
+        setBodyBorder(false);
+        setScrollMode(Scroll.AUTOY);
         this.setLayoutOnChange(true);
         layoutData.setMargins(new Margins(0, 0, 10, 0));
-        // FormData layoutData1 = new FormData("-10");
 
         comboList = new ArrayList<ComboBox>();
         equalComboList = new ArrayList<ComboBox>();
         unequalComboList = new ArrayList<ComboBox>();
-        controlCombo = new ComboBox<StringSensorValue>();
+        stringForm = new InnerStringForm(sensors, start, end, subsample, title);
+        stringForm.setParent(this);
+
         createSensorValues();
         createTitleLabel();
+        createSelectionListener();
+        createControlBox();
+        createControlField();
         createPlusCombo1();
         createPlusCombo2();
         getOriginalIds();
+        // LOG.fine ("TrialInnerStringForm added by TrialStringForm");
 
-        this.setButtonAlign(HorizontalAlignment.RIGHT);
-
-        visualize(sensors, start, end, subsample);
     }
 
-    public void setParent(OuterStringTriggerForm panel) {
-        this.parent = panel;
-    }
-
-    public OuterStringTriggerForm getParent() {
-        return this.parent;
-    }
-
-    @Override
-    protected void onNewData(JsArray<Timeseries> data) {
-        LOG.fine("Hey got data");
-        // LOG.fine ("Datatype is " + datatype);
-        int records = data.get(0).getData().length();
-        LOG.fine("Number of records: " + records);
-
-        ArrayList<String> values = new ArrayList<String>();
-
-        for (int i = 0; i < records; i++) {
-            String el = data.get(0).getData().get(i).getRawValue();
-            if (!values.contains(el)) {
-                values.add(el);
-            }
-        }
-
-        stringSensorValues.clear();
-        stringSensorValues.add(new StringSensorValue("(no selection)"));
-
-        for (int i = 0; i < values.size(); i++) {
-            // LOG.fine ("Element " + i + " equals " + values.get(i));
-            stringSensorValues.add(new StringSensorValue(values.get(i)));
-            store.removeAll();
-            store.add(stringSensorValues);
-            combo1.setStore(store);
-            combo2.setStore(store);
-            layout();
-
-        }
-
+    public void passSensorValues(List<StringSensorValue> stringSensorValues) {
+        store.removeAll();
+        store.add(stringSensorValues);
+        combo1.setStore(store);
+        combo2.setStore(store);
     }
 
     /**
@@ -189,10 +106,10 @@ public class StringTriggerForm extends AbstractAlertForm {
 
     private void createSensorValues() {
         stringSensorValues = new ArrayList<StringSensorValue>();
+        stringSensorValues = stringForm.getStringSensorValues();
         store = new ListStore<StringSensorValue>();
-        // store = new ListStore<String>();
-
         store.add(stringSensorValues);
+
     }
 
     /**
@@ -225,6 +142,24 @@ public class StringTriggerForm extends AbstractAlertForm {
         add(titleLabel, layoutData);
     }
 
+    @SuppressWarnings("unchecked")
+	private void createControlBox() {
+        controlBox = new ComboBox();
+        controlBox.setStore(store);
+        //controlBox.setAllowBlank(false);
+        controlBox.setVisible(false);
+        this.add(controlBox);
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void createControlField() {
+        controlBox1 = new TextField();      
+        controlBox1.setAllowBlank(false);
+        controlBox1.setVisible(false);
+        controlBox1.setValue(null);
+        this.add(controlBox1);
+    }
+
     /**
      * Gets the assigned Ids of layout elements and puts them in a new ArrayList
      */
@@ -242,29 +177,51 @@ public class StringTriggerForm extends AbstractAlertForm {
         }
     }
 
-    /**
-     * Creates and formats a grid to hold a plus Button a
-     */
+    @SuppressWarnings("unchecked")
+    private void createSelectionListener() {
 
-    public Grid createPlusButtonGrid(MediaButton button) {
-        Grid buttonGrid = new Grid(1, 1);
-        buttonGrid.setWidget(0, 0, button);
-        buttonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_LEFT);
-        buttonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-        return buttonGrid;
-    }
+        listener = new SelectionChangedListener() {
 
-    /**
-     * Creates and formats a grid to hold the MinButton
-     */
+            public void selectionChanged(SelectionChangedEvent event) {
+                boolean ok = false;
 
-    public Grid createMinButtonGrid(MediaButton button) {
-        Grid minButtonGrid = new Grid(1, 1);
-        minButtonGrid.setWidget(0, 0, button);
-        minButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_RIGHT);
-        minButtonGrid.getCellFormatter().setVerticalAlignment(0, 0,
-                HasVerticalAlignment.ALIGN_MIDDLE);
-        return minButtonGrid;
+                for (int i = 0; i < equalComboList.size(); i++) {
+                    ComboBox<StringSensorValue> box = equalComboList.get(i);
+                    String name = box.getRawValue();
+                    if (!name.equals(null) && !name.equals("(no selection)") && !name.equals("")) {
+                        ok = true;
+                        // LOG.fine("Good name is " + name);
+                        controlBox.setRawValue(name);
+                        controlBox1.setValue(1);
+                        break;
+                    }
+                }
+
+                for (int i = 0; i < unequalComboList.size(); i++) {
+                    ComboBox<StringSensorValue> box = unequalComboList.get(i);
+                    String name = box.getRawValue();
+                    if (!name.equals(null) && !name.equals("(no selection)") && !name.equals("")) {
+                        ok = true;
+                        // LOG.fine ("Good name2 is " + name);
+                        controlBox.setRawValue(name);
+                        controlBox1.setValue(1);
+                        break;
+                    }
+                }
+
+                //LOG.fine ("OK is " + ok);
+                
+                if (!ok) {
+                	controlBox.setRawValue(null);
+                	controlBox1.setValue(null);
+                	//LOG.fine ("OK is " + ok);
+                }
+                    
+                // LOG.fine ("ControlBox value is " + controlBox.getRawValue());
+
+            }
+        };
+
     }
 
     /**
@@ -276,57 +233,13 @@ public class StringTriggerForm extends AbstractAlertForm {
     public void createPlusCombo1() {
 
         LabelField alertEqualLabel = new LabelField("Alert if value is equal to: ");
+
         combo1 = createComboBoxx();
         combo1.setWidth(420);
         combo1.setEditable(false);
-
-        // combo1.addKeyListener(new KeyListener() {
-        // public void componentKeyDown(ComponentEvent event) {
-
-        combo1.addSelectionChangedListener(new SelectionChangedListener() {
-            public void selectionChanged(SelectionChangedEvent event) {
-                ComboBox comboBox = (ComboBox) event.getSource();
-
-                // LOG.fine("Selected Item  = " + comboBox.getSelection());
-
-                boolean ok = false;
-
-                for (int i = 0; i < equalComboList.size(); i++) {
-                    ComboBox<StringSensorValue> box = equalComboList.get(i);
-                    String name = box.getRawValue();
-                    if (!name.equals(null) && !name.equals("(no selection)")) {
-                        ok = true;
-                        OuterStringTriggerForm outerStr = th.getParent();
-                        outerStr.getControlBox().setRawValue(name);
-                        break;
-                    }
-                }
-
-                for (int i = 0; i < unequalComboList.size(); i++) {
-                    ComboBox<StringSensorValue> box = unequalComboList.get(i);
-                    String name = box.getRawValue();
-                    if (!name.equals(null) && !name.equals("(no selection)")) {
-                        ok = true;
-                        OuterStringTriggerForm outerStr = th.getParent();
-                        outerStr.getControlBox().setRawValue(name);
-                        // controlBox.setRawValue(name);
-                        break;
-                    }
-                }
-
-                LOG.fine("OK is " + ok);
-                // if (!ok) controlBox.setRawValue(null);
-                if (!ok) {
-                    OuterStringTriggerForm outerStr = th.getParent();
-                    outerStr.getControlBox().setRawValue(null);
-                }
-
-                LOG.fine("The controlBox value is " + th.getParent().getControlBox().getRawValue());
-
-            }
-        });
-
+        combo1.addSelectionChangedListener(listener);
         equalComboList.add(combo1);
+
         plusButton1 = createPlusButton1();
         Grid plusButtonGrid = createPlusButtonGrid(plusButton1);
 
@@ -339,12 +252,6 @@ public class StringTriggerForm extends AbstractAlertForm {
         vp.add(alertEqualLabel);
         vp.add(panel);
         add(vp);
-
-        controlBox = new ComboBox();
-        controlBox.setStore(store);
-        controlBox.setAllowBlank(false);
-        controlBox.setVisible(false);
-        this.add(controlBox);
 
     }
 
@@ -360,6 +267,7 @@ public class StringTriggerForm extends AbstractAlertForm {
         combo2 = createComboBoxx();
         combo2.setWidth(420);
         combo2.setEditable(false);
+        combo2.addSelectionChangedListener(listener);
         unequalComboList.add(combo2);
         plusButton2 = createPlusButton2();
         Grid plusButtonGrid = createPlusButtonGrid(plusButton2);
@@ -375,6 +283,50 @@ public class StringTriggerForm extends AbstractAlertForm {
 
         add(vp);
 
+    }
+
+    /**
+     * Creates a combination of a comboBox and minButton
+     */
+
+    @SuppressWarnings("unchecked")
+    public MyWidget createNewCombo(boolean equal) {
+
+        final ComboBox<StringSensorValue> combo = createComboBoxx();
+        combo.setEditable(false);
+        if (equal)
+            equalComboList.add(combo);
+        else
+            unequalComboList.add(combo);
+
+        MediaButton minButton = createMinButton();
+        Grid minButtonGrid = createMinButtonGrid(minButton);
+
+        final MyWidget panel = new MyWidget();
+        panel.add(combo);
+        panel.add(minButtonGrid);
+        combo.setWidth(combo2.getWidth());// parent_width - PLUSBUTTONSIZE);
+
+        minButton.addClickHandler(new ClickHandler() {
+
+            public void onClick(ClickEvent event) {
+
+                String panelId = panel.getId();
+                boolean equalField = panel.getEqual();
+
+                if (equalField) {
+                    numEqualFields--;
+                    equalComboList.remove(combo);
+                } else {
+                    numUnequalFields--;
+                    unequalComboList.remove(combo);
+                }
+
+                removeWidget(panelId);
+            }
+        });
+
+        return panel;
     }
 
     /**
@@ -459,47 +411,28 @@ public class StringTriggerForm extends AbstractAlertForm {
     }
 
     /**
-     * Creates a combination of a comboBox and minButton
+     * Creates and formats a grid to hold a plus Button a
      */
 
-    @SuppressWarnings("unchecked")
-    public MyWidget createNewCombo(boolean equal) {
+    public Grid createPlusButtonGrid(MediaButton button) {
+        Grid buttonGrid = new Grid(1, 1);
+        buttonGrid.setWidget(0, 0, button);
+        buttonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_LEFT);
+        buttonGrid.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+        return buttonGrid;
+    }
 
-        final ComboBox<StringSensorValue> combo = createComboBoxx();
-        combo.setEditable(false);
-        if (equal)
-            equalComboList.add(combo);
-        else
-            unequalComboList.add(combo);
+    /**
+     * Creates and formats a grid to hold the MinButton
+     */
 
-        MediaButton minButton = createMinButton();
-        Grid minButtonGrid = createMinButtonGrid(minButton);
-
-        final MyWidget panel = new MyWidget();
-        panel.add(combo);
-        panel.add(minButtonGrid);
-        combo.setWidth(combo2.getWidth());// parent_width - PLUSBUTTONSIZE);
-
-        minButton.addClickHandler(new ClickHandler() {
-
-            public void onClick(ClickEvent event) {
-
-                String panelId = panel.getId();
-                boolean equalField = panel.getEqual();
-
-                if (equalField) {
-                    numEqualFields--;
-                    equalComboList.remove(combo);
-                } else {
-                    numUnequalFields--;
-                    unequalComboList.remove(combo);
-                }
-
-                removeWidget(panelId);
-            }
-        });
-
-        return panel;
+    public Grid createMinButtonGrid(MediaButton button) {
+        Grid minButtonGrid = new Grid(1, 1);
+        minButtonGrid.setWidget(0, 0, button);
+        minButtonGrid.getCellFormatter().setHorizontalAlignment(0, 0, HasAlignment.ALIGN_RIGHT);
+        minButtonGrid.getCellFormatter().setVerticalAlignment(0, 0,
+                HasVerticalAlignment.ALIGN_MIDDLE);
+        return minButtonGrid;
     }
 
     /**
@@ -568,24 +501,6 @@ public class StringTriggerForm extends AbstractAlertForm {
         // LOG.fine ("The panel Id from createNewCombo is " + panelId);
     }
 
-    public StringTrigger getStringTrigger() {
-        StringTrigger strTrigger = new StringTrigger();
-
-        ArrayList<String> equalValues = getEqualValues();
-        ArrayList<String> unequalValues = getUnequalValues();
-
-        if (equalValues.size() == 0 && unequalValues.size() == 0)
-            return null;
-
-        else {
-            if (equalValues.size() > 0)
-                strTrigger.setEqualValues(equalValues);
-            if (unequalValues.size() > 0)
-                strTrigger.setUnequalValues(unequalValues);
-            return strTrigger;
-        }
-    }
-
     public ArrayList<String> getEqualValues() {
         ArrayList<String> equalValues = new ArrayList<String>();
         for (int i = 0; i < equalComboList.size(); i++) {
@@ -604,6 +519,24 @@ public class StringTriggerForm extends AbstractAlertForm {
                 unequalValues.add(str.getName());
         }
         return unequalValues;
+    }
+
+    public StringTrigger getStringTrigger() {
+        StringTrigger strTrigger = new StringTrigger();
+
+        ArrayList<String> equalValues = getEqualValues();
+        ArrayList<String> unequalValues = getUnequalValues();
+
+        if (equalValues.size() == 0 && unequalValues.size() == 0)
+            return null;
+
+        else {
+            if (equalValues.size() > 0)
+                strTrigger.setEqualValues(equalValues);
+            if (unequalValues.size() > 0)
+                strTrigger.setUnequalValues(unequalValues);
+            return strTrigger;
+        }
     }
 
     /**

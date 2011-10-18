@@ -185,6 +185,7 @@ div.graph-axis-text-vertical {
 .formButton {
 	border: none;
 	outline: none;
+	font-size: 9px;
 }
 
 .alertPanel {

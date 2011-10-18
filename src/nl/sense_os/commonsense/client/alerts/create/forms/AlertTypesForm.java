@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -60,7 +61,12 @@ public class AlertTypesForm extends FormPanel {
         super();
         setHeaderVisible(false);
         setBodyBorder(false);
+
+
         // setScrollMode(Scroll.AUTOY);
+        
+        //setLayout(new AccordionLayout());  
+        //setIcon(Resources.ICONS.accordion());  
 
         formData = new FormData("-20");
 

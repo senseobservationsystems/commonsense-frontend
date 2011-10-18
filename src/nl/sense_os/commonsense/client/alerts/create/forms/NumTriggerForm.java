@@ -8,49 +8,52 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.triggers.NumericTrigger;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.viz.data.DataRequestEvent;
 import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.chap.links.client.Graph;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
-public class NumTriggerForm extends AbstractAlertForm{
+public class NumTriggerForm extends FormPanel {
 	
 	private static final Logger LOG = Logger.getLogger(NumTriggerForm.class.getName());	
 	
 	private LabelField titleLabel;
 	private ArrayList<TextBox> boxList;
+	private ArrayList<TextField> fieldList;
     private Radio radio1;
     private  Radio radio2;
     private  Radio radio3;
     private  Radio radio4;
     private RadioGroup group;
     
-    private TextBox box1;
-    private TextBox box2;
-    private TextBox box3;
-    private TextBox box4;
-    private TextBox box5;
-    private TextBox box6;
+    private TextField box11;
+    private TextField box21;
+    private TextField box31;
+    private TextField box41;
+    private TextField box51;
+    private TextField box61;
     
     //private JsArray<Timeseries> datan3;
     private JsArray<Timeseries> data;
@@ -78,27 +81,24 @@ public class NumTriggerForm extends AbstractAlertForm{
 	private int parent_width;
 	private int parent_height;
 	
+	private InnerNumForm numForm;
+	private TextField controlBox;
+	
 	
 	public NumTriggerForm (List<SensorModel> sensors, long start, long end, boolean subsample, String title) {
 	    	super();
-	        LOG.setLevel(Level.ALL);	        
+	        LOG.setLevel(Level.ALL);	
+	        setHeaderVisible(false);
+	        setBodyBorder(false);
+	        numForm = new InnerNumForm(sensors, start, end, subsample,title);
+	        numForm.setParent(this);
+	        
 	        createTitleLabel();	        
 	        initGraphPanel();
 	        initControls(); 
-	        
-	        visualize(sensors, start, end, subsample);	
+	        createControlBox();
 	 }
-	
-	
-	protected void visualize(List<SensorModel> sensors, long start, long end, boolean subsample) {
-    	LOG.fine("visualize...");
-        this.sensors = sensors;
-        this.start = start;
-        this.end = end;
 
-        DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true, this);
-        Dispatcher.forwardEvent(dataRequest);
-    }
 	
 	/**
      * A class to create and distinguish between min, max etc. graph lines
@@ -209,61 +209,6 @@ public class NumTriggerForm extends AbstractAlertForm{
         
 	}
 	
-	@Override
-    protected void onNewData(JsArray<Timeseries> data) {
-    	LOG.fine ("Hey got data. Length is " + data.get(0).getData().length());
-    	this.data = data;
-    	
-    	if (data.length()>0 ) {
-    		
-    	
-    	int length = data.length();
-		start = Long.MAX_VALUE;
-		end = 0;
-		vstart = Double.MAX_VALUE;
-		vend = -Double.MAX_VALUE;
-		
-		for (int i = 0; i < length; i++ ) {
-			
-			Timeseries ts = data.get(i);
-			
-			double current_vstart = ts.findMin();
-			if (current_vstart < vstart) vstart = current_vstart;
-			double current_vend = ts.findMax();
-			if (current_vend > vend) vend = current_vend;
-			orig_vstart = vstart;
-			orig_vend = vend;
-						
-			JsArray<DataPoint> data1 = ts.getData();
-			
-			startDate = data1.get(0).getTimestamp();
-			endDate = data1.get(data1.length()-1).getTimestamp();
-						
-			for (int j = 0; j < data1.length(); j++) {								
-				long timestamp = (long)(data1.get(j).getTime());				
-				if (timestamp < start) start = timestamp;
-				if (timestamp > end) end = timestamp;					
-				//LOG.fine ("Raw date is " + timestamp);
-				
-				
-			}
-		}
-		
-		graphOpts.setVerticalStart(vstart);
-		graphOpts.setVerticalEnd(vend);
-		graphOpts.setStart(startDate);
-		graphOpts.setEnd(endDate);
-		
-	
-		//LOG.fine ("Ts vstart is " + vstart + " Ts vend is " + vend);
-		//LOG.fine ("Start is " + start + " end is " + end);
-
-
-    	alertGraph.draw(data,graphOpts);
-    	//LOG.fine ("Tried to draw graph");
-    	}
-	
-    }
 	
 	/**
 	 * Create a set of controls on the bottom
@@ -271,25 +216,25 @@ public class NumTriggerForm extends AbstractAlertForm{
 	
 	private void initControls() {
 	
-	    createRadios();
-	    createTextBoxes();	    
-	    addBoxListeners();
+	    createRadios();	 
+	    createTextFields();
+	    addTextListeners();
 	    addRadioListeners();		            
 	    createLines();
 	    
 	    Grid g1 = new Grid (2, 2);
 	    g1.setWidget (0,0, radio1); 
 	    g1.setWidget (1,0, radio2); 
-	    g1.setWidget (0,1, box1); 
-	    g1.setWidget (1,1, box2);
+	    g1.setWidget (0,1, box11); 
+	    g1.setWidget (1,1, box21);
 	    
 	    Grid g2 = new Grid (2,3);
 	    g2.setWidget (0,0, radio3); 
 	    g2.setWidget (1,0, radio4); 
-	    g2.setWidget (0,1, box3); 
-	    g2.setWidget (1,1, box5); 
-	    g2.setWidget (0,2, box4); 
-	    g2.setWidget (1,2, box6); 
+	    g2.setWidget (0,1, box31); 
+	    g2.setWidget (1,1, box51); 
+	    g2.setWidget (0,2, box41); 
+	    g2.setWidget (1,2, box61); 
 	    
 	    HorizontalPanel outerPanel = new HorizontalPanel();
 	    outerPanel.setSpacing(10);
@@ -359,45 +304,50 @@ public class NumTriggerForm extends AbstractAlertForm{
 	    
 	}
     
-
-    /**
-     * Creates a set of textBoxes
-     */
-
-	private void createTextBoxes() {
-		
-		box1 = new TextBox(); 
-	    box2 = new TextBox();  
-	    box3 = new TextBox();   
-	    box4 = new TextBox();  
-	    box5 = new TextBox();   
-	    box6 = new TextBox(); 
+    @SuppressWarnings("unchecked")
+	private void createTextFields() {
+    	box11 = new TextField(); 
+	    box21 = new TextField();  
+	    box31 = new TextField();   
+	    box41 = new TextField();  
+	    box51 = new TextField();   
+	    box61 = new TextField(); 
 	    
-	    boxList = new ArrayList<TextBox>();
-	    boxList.add(box1);
-	    boxList.add(box2);
-	    boxList.add(box3);
-	    boxList.add(box4);
-	    boxList.add(box5);
-	    boxList.add(box6);
+	    fieldList = new ArrayList<TextField>();	    
+	    fieldList.add(box11);
+	    fieldList.add(box21);
+	    fieldList.add(box31);
+	    fieldList.add(box41);
+	    fieldList.add(box51);
+	    fieldList.add(box61);
 	    
-	    setEnabled(box1);
+	    setEnabled(box11);
 	    
-	    for (int i = 0; i < boxList.size(); i++ ) {
-	    	TextBox box = boxList.get(i);
-	    	formatTextBox(box);
+	    for (int i = 0; i < fieldList.size(); i++ ) {
+	    	TextField field = fieldList.get(i);
+	    	formatTextField(field);
 	    }
-	}
+    }
+    
+    private void createControlBox() {
+        controlBox = new TextField();
+        controlBox.setAllowBlank(false);
+        controlBox.setVisible(false);
+        controlBox.setValue(null);
+        this.add(controlBox);
+    }
 
+	
 	/**
-	 * Formats the textBox
+	 * Formats the textField
 	 * @param box
 	 */
 
-	private void formatTextBox(TextBox box) {
-		box.setWidth("42px");
-	    box.setHeight("15px");
-	    box.setStyleName("textBox1");
+	@SuppressWarnings("unchecked")
+	private void formatTextField(TextField field) {
+		field.setWidth("42px");
+		field.setHeight("20px");
+		//field.setStyleName("textBox1");
 	}
 
 
@@ -427,132 +377,141 @@ public class NumTriggerForm extends AbstractAlertForm{
 	}
 	
 	/**
-	 * Adds keyDown listeners to the textBoxes
+	 * Sets all TextBoxes to ReadOnly, EXCEPT the ones in the parameters
+	 * @param boxes
 	 */
 	
-	private void addBoxListeners() {
-		box1.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) {
-	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box1.getText(); 
-	    			if (isNumber(text)) {		    				
-	        			double value = getValue(text);
-	        			drawThresholdLine (value, maxLine);	        				        			        			
-	    			}
-	    		}
+	@SuppressWarnings("unchecked")
+	private void setEnabled(TextField... fields) {
+		
+		ArrayList<TextField> specialFields = new ArrayList<TextField>();
+		for (TextField field: fields) {
+			specialFields.add(field);
+		}
+		
+		for (int i = 0; i < fieldList.size(); i++ ) {
+			TextField field = fieldList.get(i);
+	    	if (specialFields.contains(field)) {
+	    		field.setEnabled(true);
+	    		//field.setAllowBlank(false);
 	    	}
-	    });
-	    
-	    
-	    box2.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) { 
+	    	
+	    	else {
+	    		field.setEnabled(false);
+	    		//field.setAllowBlank(true);
+	    		field.setRawValue("");
 	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box2.getText(); 
-	    			if (isNumber(text)) {		    				
-	        			double value = getValue(text);
-	        			drawThresholdLine (value, minLine);	        			
-	        				        			
-	    			}
-	    		}
 	    	}
-	    });
-	    
-	    box3.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) { 
-	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box3.getText(); 
-	    			
-	    			if (isNumber(text)) {
-	    				double value1 = getValue(text);
-	    				String text1 = box4.getText(); 
-	    				
-		    			if (isNumber(text1)) {		    				
-		        			double value2 = getValue(text1);
-		        			drawThresholdLines (value1, value2, insideRangeLine1, insideRangeLine2);	        						        				        			
-		    			}
-	        			
-		    			else drawThresholdLine (value1, insideRangeLine1);	        			
-	        				        			
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    
-	    box4.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) { 
-	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box4.getText(); 
-	    			if (isNumber(text)) {		    				
-	        			double value2 = getValue(text);	
-	        			String text1 = box3.getText(); 	    				
-	    				
-		    			if (isNumber(text1)) {		    				
-		        			double value1 = getValue(text1);
-		        			drawThresholdLines (value1, value2, insideRangeLine1, insideRangeLine2);	        						        				        			
-		    			}	        			
-	        			
-		    			else drawThresholdLine (value2, insideRangeLine2);	        			
-	        				        			
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    box5.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) { 
-	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box5.getText(); 
-	    			
-	    			if (isNumber(text)) {		    				
-	        			double value1 = getValue(text);
-	        			String text1 = box6.getText(); 
-	        			
-	        			if (isNumber(text1)) {		    				
-		        			double value2 = getValue(text1);
-		        			drawThresholdLines (value1, value2, outsideRangeLine1, outsideRangeLine2);	        						        				        			
-		    			}	        
-	        				        			
-	        			else drawThresholdLine (value1, outsideRangeLine1);	        			
-	        				        			
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    box6.addKeyDownHandler(new KeyDownHandler() {
-	    	public void onKeyDown (KeyDownEvent event) { 
-	    		
-	    		if (keyEnterOrTab(event)) {
-	    			//LOG.fine ("Enter or tab pressed. CharCode is " + keyCode);
-	    			String text = box6.getText(); 		    			
-	    			
-	    			if (isNumber(text)) {
-	        			double value2 = getValue(text);
-	        			String text1 = box5.getText();
-	        			
-	        			if (isNumber(text1)) {		    				
-		        			double value1 = getValue(text1);
-		        			drawThresholdLines (value1, value2, outsideRangeLine1, outsideRangeLine2);	        						        				        			
-		    			}	
-	        					        			
-	        			else drawThresholdLine (value2, outsideRangeLine2);	        				        			
-	    			}
-	    		}
-	    	}
-	    });
+	    }
 	}
+	
+	@SuppressWarnings("unchecked")
+	private Double getFieldValue(ComponentEvent event) {
+		String text = null;
+		Double value = null;
+		
+		if (keyEnterOrTab(event)) {	
+			TextField sender = (TextField)event.getSource();
+			text = sender.getRawValue(); 
+			
+			if (isNumber(text)) {		    				
+    			value = getValue(text);
+    			//LOG.fine ("Got text " + text + " got value " + value);
+			}
+		}
+		//LOG.fine ("Got text " + text);
+		return value;
 
+	}
+	
+	
+	private void addTextListeners() {
+		box11.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);
+					 if (value != null) {
+						 drawThresholdLine (value, maxLine);
+						 controlBox.setValue(1);
+					 }
+		    } 
+		});	
+		
+		box21.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);
+					 if (value != null) {
+						 drawThresholdLine (value, minLine);
+						 controlBox.setValue(1);
+					 }
+		    } 
+		});	
+		
+		box31.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);					  
+					 String text2 = "";
+					 text2 = box41.getRawValue();
+					 
+		    		 if (isNumber(text2)) {		    				
+		        			double value2 = getValue(text2);
+		        			if (value!= null) {
+		        				drawThresholdLines (value, value2, insideRangeLine1, insideRangeLine2);
+		        				controlBox.setValue(1);
+		        			}
+		    		 }	        			
+		    		 else if (value!= null) drawThresholdLine (value, insideRangeLine1);	  	        			        			
+		    } 
+		});	
+		
+		box41.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);					 
+					 String text2 = box31.getRawValue();     				
+		    		 if (isNumber(text2)) {		    				
+		        			double value2 = getValue(text2);
+		        			if (value!= null) {
+		        				drawThresholdLines (value, value2, insideRangeLine2, insideRangeLine1);	 
+		        				controlBox.setValue(1);
+		        			}
+		    		 }	        			
+		    		 else if (value != null) drawThresholdLine (value, insideRangeLine2);	  	        			        			
+		    } 
+		});	
+		
+		box51.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);					  
+					 String text2 = box61.getRawValue();
+					 
+		    		 if (isNumber(text2)) {		    				
+		        			double value2 = getValue(text2);
+		        			if (value!= null) {
+		        				drawThresholdLines (value, value2, outsideRangeLine1, outsideRangeLine2);
+		        				controlBox.setValue(1);
+		        			}
+		    		 }	        			
+		    		 else if (value!= null) drawThresholdLine (value, outsideRangeLine1);	  	        			        			
+		    } 
+		});	
+		
+		box61.addKeyListener(new KeyListener() {
+			 public void componentKeyDown (ComponentEvent event) {				 							 
+					 Double value = getFieldValue(event);					 
+					 String text2 = box51.getRawValue();     				
+		    		 if (isNumber(text2)) {		    				
+		        			double value2 = getValue(text2);
+		        			if (value!= null) {
+		        				drawThresholdLines (value, value2, outsideRangeLine2, outsideRangeLine1);	
+		        				controlBox.setValue(1);
+		        			}
+		    		 }	        			
+		    		 else if (value != null) drawThresholdLine (value, outsideRangeLine2);	  	        			        			
+		    } 
+		});		
+	}
+	
+	
+	   
 	/**
 	 * Determines if the key down is an enter or tab
 	 * @param event
@@ -561,6 +520,21 @@ public class NumTriggerForm extends AbstractAlertForm{
 
 	public boolean keyEnterOrTab (KeyDownEvent event) {
 		int keyCode = event.getNativeKeyCode();
+		if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_TAB) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Determines if the key down is an enter or tab
+	 * @param event
+	 * @return
+	 */
+
+	public boolean keyEnterOrTab (ComponentEvent event) {
+		int keyCode = event.getKeyCode();
 		if (keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_TAB) {
 			return true;
 		}
@@ -613,8 +587,9 @@ public class NumTriggerForm extends AbstractAlertForm{
 	    	@Override
 	    	public void handleEvent(BaseEvent be) {
 	    	    
-	    	    if (radio1.getValue()== true) {	    	    	
-	    	    	setEnabled(box1);	    	    	
+	    	    if (radio1.getValue()== true) {	  
+	    	    	controlBox.setValue(null);
+	    	    	setEnabled(box11);
 	    	    	removeLines();	    	    	
 	    	    }	    	
 	    	}});
@@ -625,8 +600,9 @@ public class NumTriggerForm extends AbstractAlertForm{
 	    	@Override
 	    	public void handleEvent(BaseEvent be) {
 	    	  
-	    	    if (radio2.getValue()== true) {		    	    			    	    	    	    	
-	    	    	setEnabled(box2);
+	    	    if (radio2.getValue()== true) {		
+	    	    	controlBox.setValue(null);
+	    	    	setEnabled(box21);
 	    	    	removeLines();	    	    	
 	    	    }		    	   	    	
 	    	}});
@@ -637,8 +613,9 @@ public class NumTriggerForm extends AbstractAlertForm{
 	    	@Override
 	    	public void handleEvent(BaseEvent be) {
 	    	  
-	    	    if (radio3.getValue()== true) {	    	
-	    	    	setEnabled(box3, box4); 	
+	    	    if (radio3.getValue()== true) {	 
+	    	    	controlBox.setValue(null);
+	    	    	setEnabled(box31, box41);
 	    	    	removeLines();
 	    	    }		    	   		    	
 	    	}});
@@ -649,8 +626,9 @@ public class NumTriggerForm extends AbstractAlertForm{
 	    	@Override
 	    	public void handleEvent(BaseEvent be) {
 	    	    
-	    	    if (radio4.getValue()== true) {	    	    	
-	    	    	setEnabled(box5, box6);	
+	    	    if (radio4.getValue()== true) {	
+	    	    	controlBox.setValue(null);
+	    	    	setEnabled(box51,box61);
 	    	    	removeLines();
 	    	    }		    	   		    	
 	    	}});
@@ -835,6 +813,56 @@ public class NumTriggerForm extends AbstractAlertForm{
 		 layout();
 	 }
 	
+	public void passData (JsArray<Timeseries> data) {
+		int length = data.length();
+		this.data = data;
+		LOG.fine ("Data length passData is " + length);
+		start = Long.MAX_VALUE;
+		end = 0;
+		vstart = Double.MAX_VALUE;
+		vend = -Double.MAX_VALUE;
+		
 	
+		
+		for (int i = 0; i < length; i++ ) {
+			
+			Timeseries ts = data.get(i);
+			
+			double current_vstart = ts.findMin();
+			if (current_vstart < vstart) vstart = current_vstart;
+			double current_vend = ts.findMax();
+			if (current_vend > vend) vend = current_vend;
+			orig_vstart = vstart;
+			orig_vend = vend;
+						
+			JsArray<DataPoint> data1 = ts.getData();
+			
+			
+			startDate = data1.get(0).getTimestamp();
+			endDate = data1.get(data1.length()-1).getTimestamp();
+						
+			for (int j = 0; j < data1.length(); j++) {								
+				long timestamp = (long)(data1.get(j).getTime());				
+				if (timestamp < start) start = timestamp;
+				if (timestamp > end) end = timestamp;					
+				//LOG.fine ("Raw date is " + timestamp);
+				
+				
+			}
+		}
+		
+		graphOpts.setVerticalStart(vstart);
+		graphOpts.setVerticalEnd(vend);
+		graphOpts.setStart(startDate);
+		graphOpts.setEnd(endDate);
+		
+	
+		//LOG.fine ("Ts vstart is " + vstart + " Ts vend is " + vend);
+		//LOG.fine ("Start is " + start + " end is " + end);
+
+
+    	alertGraph.draw(data,graphOpts);
+    	//LOG.fine ("Tried to draw graph");
+	}
 	
 }

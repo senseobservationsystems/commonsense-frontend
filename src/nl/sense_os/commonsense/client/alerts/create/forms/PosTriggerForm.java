@@ -6,19 +6,21 @@ import java.util.ArrayList;
 
 import nl.sense_os.commonsense.client.alerts.create.triggers.PositionTrigger;
 import nl.sense_os.commonsense.client.alerts.create.utils.IndexPolygon;
-import nl.sense_os.commonsense.client.groups.create.forms.AbstractGroupForm;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.maps.client.MapWidget;
@@ -32,7 +34,7 @@ import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.PolyStyleOptions;
 
-public class PosTriggerForm extends AbstractGroupForm{
+public class PosTriggerForm extends FormPanel{
 
 	    private static final Logger LOG = Logger.getLogger(PosTriggerForm.class.getName());	
 		private MapWidget map;
@@ -58,6 +60,8 @@ public class PosTriggerForm extends AbstractGroupForm{
 		private PolyStyleOptions normalFill;
 		private PolyStyleOptions invertedStroke;
 		private PolyStyleOptions invertedFill;
+		@SuppressWarnings("unchecked")
+		private TextField controlBox2;
 		
    
 	    public PosTriggerForm() {
@@ -65,10 +69,15 @@ public class PosTriggerForm extends AbstractGroupForm{
 	        super();
 	        LOG.setLevel(Level.ALL);   
 	        setLayout(new BorderLayout());
+	        setHeaderVisible(false);
+	        setBodyBorder(false);
 	        this.setLayoutOnChange(true);
-	        createTitleLabel();      
+	        createTitleLabel(); 
+	        
 	        initControls();
 	        initMapWidget();
+	        createControlField();
+	       
 	      
   
 	    }
@@ -88,7 +97,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 	     Marker for which you can set or get an index
 	     */
 	    
-	    public class IndexMarker extends Marker {
+	    class IndexMarker extends Marker {
 	    	@SuppressWarnings("unused")
 			private int index;
 	    	
@@ -143,6 +152,26 @@ public class PosTriggerForm extends AbstractGroupForm{
 	        
 		}
 	    
+	    @SuppressWarnings({ "unused", "unchecked" })
+		private void createControlField() {
+	        controlBox2 = new TextField();      
+	        controlBox2.setAllowBlank(false);
+	        controlBox2.setVisible(false);
+	        controlBox2.setValue(null);
+	        //controlBox2.setSize(0,0);
+	        BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 35);
+	        this.add(controlBox2, data);
+	        
+	        
+	    }
+	    
+	    @SuppressWarnings({"unchecked" })
+		private void checkControlBox() {
+	    	if (circleList.size()==0) controlBox2.setValue(null);
+	    	else controlBox2.setValue(1);
+	    	LOG.fine("Control box value is " + controlBox2.getValue());
+	    }
+	    
 	    /**
 	     Create first radio button with "Radius, km", and add a clickListener
 	     */
@@ -164,6 +193,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 		    	    currentMarkerIndex = 0;
 		    	    circleList = new ArrayList<IndexPolygon>();
 		    	    markerList = new ArrayList<IndexMarker>();
+		    	    checkControlBox();
 		    	    
 		    	}});
 		
@@ -189,6 +219,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 		    	    if (circleList!= null) circleList.clear();
 		    	    if (markerList!= null) markerList.clear();
 		    	    currentMarkerIndex = 0;
+		    	    checkControlBox();
 		    	    
 		    	}});
 	    }
@@ -315,11 +346,13 @@ public class PosTriggerForm extends AbstractGroupForm{
 		    		
 		        	if (customMode) {	             		
 		    			createPolygon (point);
+		    			checkControlBox();
 		    		}		                
 		            
 		        	if (radiusMode && point!= null) {   
 		        		double rad = getRadius(radiusBox);
 		        			createCircle(point,rad); 
+		        			checkControlBox();
 		            	                 
 		    		} 	            	
 		    	}
@@ -346,6 +379,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 		          		  map.removeOverlay(circleList.get(i));
 		          		  circleList.remove(i);
 		          		  markerList.remove(i);
+		          		  checkControlBox();
 		          		  break;
 		          	  }
 		            }
@@ -359,6 +393,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 					if (radiusMode && point!= null) {
 						double rad = getRadius(radiusBox);
 		            	createCircle(point, rad);
+		            	
 					}
 				}
 			};	
@@ -527,8 +562,7 @@ public class PosTriggerForm extends AbstractGroupForm{
 			LatLngBounds bounds = LatLngBounds.newInstance(sw1, ne);
 			map.setCenter(bounds.getCenter());
 			map.setZoomLevel (map.getBoundsZoomLevel(bounds));	    	
-	    	map.setUIToDefault();			
-
+	    	map.setUIToDefault();	
 	    }
 
 }
