@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.client.alerts.create.utils.IndexPolygon;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -122,7 +121,10 @@ public class PosTriggerForm extends FormPanel{
 	    	}
 	    	
 	    }
-	    
+	    /**
+	     * Returns a positionTrigger with the circle or list of circles defined by the user
+	     * @return
+	     */
 	    
 	    public PositionTrigger getPositionTrigger() {
 	    	
@@ -152,24 +154,31 @@ public class PosTriggerForm extends FormPanel{
 	        
 		}
 	    
-	    @SuppressWarnings({ "unused", "unchecked" })
+	    /**
+	     * Creates a control field to check whether the form has been filled, for the FormBinding
+	     */
+	    
+	    @SuppressWarnings({"unchecked" })
 		private void createControlField() {
 	        controlBox2 = new TextField();      
 	        controlBox2.setAllowBlank(false);
 	        controlBox2.setVisible(false);
 	        controlBox2.setValue(null);
-	        //controlBox2.setSize(0,0);
 	        BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 35);
 	        this.add(controlBox2, data);
 	        
 	        
 	    }
 	    
+	    /**
+	     * Checks whether the control box is filled (if it is, the user has created one or more valid polygons)
+	     */
+	    
 	    @SuppressWarnings({"unchecked" })
 		private void checkControlBox() {
 	    	if (circleList.size()==0) controlBox2.setValue(null);
 	    	else controlBox2.setValue(1);
-	    	LOG.fine("Control box value is " + controlBox2.getValue());
+	    	//LOG.fine("Control box value is " + controlBox2.getValue());
 	    }
 	    
 	    /**
@@ -358,7 +367,10 @@ public class PosTriggerForm extends FormPanel{
 		    	}
 		    });       
 		}
-
+		/**
+		 * Create click and drag handlers for markers and polygons
+		 */
+		
 		public void initClickDragHandlers() {
 		
 			markerDragHandler = new MarkerDragHandler() {
@@ -409,6 +421,10 @@ public class PosTriggerForm extends FormPanel{
 	        options.setBouncy(false);
 	        options.setBounceGravity(4);
 		}
+		
+		/**
+		 * Sets polygon options
+		 */
 		
 		private void initPolygonOptions() {
 			normalStroke = PolyStyleOptions.getInstance();
@@ -512,7 +528,13 @@ public class PosTriggerForm extends FormPanel{
 		     }		        
 		}
 		
-		
+		/**
+		 * Draws a circle with a given center, radius and number of points
+		 * @param center
+		 * @param radius
+		 * @param nbOfPoints
+		 * @return
+		 */
 		
 		public IndexPolygon drawCircleFromRadius(LatLng center, double radius, int nbOfPoints) {
 	
