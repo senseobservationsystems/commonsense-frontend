@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.env.list;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -36,7 +35,7 @@ public class EnvController extends Controller {
 
     public EnvController() {
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         // events to update the list of groups
         registerEventTypes(MainEvents.Init);

@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -19,56 +20,49 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 
-public class InviteController extends Controller {
+public class GroupInviteController extends Controller {
 
-    private static final Logger LOG = Logger.getLogger(InviteController.class.getName());
-    private View inviter;
+    private static final Logger LOG = Logger.getLogger(GroupInviteController.class.getName());
 
-    public InviteController() {
-        registerEventTypes(InviteEvents.ShowInviter, InviteEvents.InviteComplete,
-                InviteEvents.InviteRequested);
+    public GroupInviteController() {
+        registerEventTypes(GroupInviteEvents.ShowInviter, GroupInviteEvents.InviteRequested);
     }
 
     @Override
     public void handleEvent(AppEvent event) {
         final EventType type = event.getType();
 
-        if (type.equals(InviteEvents.InviteRequested)) {
+        if (type.equals(GroupInviteEvents.InviteRequested)) {
             // LOG.fine( "InviteRequested");
-            final int groupId = event.getData("groupId");
+            final GroupModel group = event.getData("group");
             final String email = event.getData("username");
-            inviteUser(groupId, email);
+            View source = (View) event.getSource();
+            inviteUser(group, email, source);
 
-        } else
+        } else if (type.equals(GroupInviteEvents.ShowInviter)) {
+            GroupInviter inviter = new GroupInviter(this);
+            forwardToView(inviter, event);
 
-        /*
-         * Pass through to view
-         */
-        {
-            forwardToView(this.inviter, event);
+        } else {
+            LOG.warning("Unexpected event: " + event);
         }
     }
 
-    private void onInviteSuccess() {
-        Dispatcher.forwardEvent(InviteEvents.InviteComplete);
+    private void onInviteSuccess(View source) {
+        forwardToView(source, new AppEvent(GroupInviteEvents.InviteComplete));
+        Dispatcher.forwardEvent(GroupInviteEvents.InviteComplete);
     }
 
-    private void onInviteFailure() {
-        forwardToView(this.inviter, new AppEvent(InviteEvents.InviteFailed));
+    private void onInviteFailure(View source) {
+        forwardToView(source, new AppEvent(GroupInviteEvents.InviteFailed));
     }
 
-    @Override
-    protected void initialize() {
-        super.initialize();
-        this.inviter = new GroupInviter(this);
-    }
-
-    private void inviteUser(int groupId, String username) {
+    private void inviteUser(GroupModel group, String username, final View source) {
 
         // prepare request properties
         final Method method = RequestBuilder.POST;
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + groupId + "/users.json");
+        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
         final String url = urlBuilder.buildString();
         final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
@@ -81,7 +75,7 @@ public class InviteController extends Controller {
             @Override
             public void onError(Request request, Throwable exception) {
                 LOG.warning("POST group user onError callback: " + exception.getMessage());
-                onInviteFailure();
+                onInviteFailure(source);
             }
 
             @Override
@@ -89,10 +83,10 @@ public class InviteController extends Controller {
                 LOG.finest("POST group user response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_CREATED == statusCode) {
-                    onInviteSuccess();
+                    onInviteSuccess(source);
                 } else {
                     LOG.warning("POST group user returned incorrect status: " + statusCode);
-                    onInviteFailure();
+                    onInviteFailure(source);
                 }
             }
         };
@@ -105,7 +99,7 @@ public class InviteController extends Controller {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
             LOG.warning("POST group user request threw exception: " + e.getMessage());
-            onInviteFailure();
+            onInviteFailure(source);
         }
     }
 

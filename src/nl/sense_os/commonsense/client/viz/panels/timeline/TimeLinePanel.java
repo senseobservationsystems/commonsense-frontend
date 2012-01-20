@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -41,7 +40,7 @@ public class TimeLinePanel extends VizPanel {
             String title) {
         super();
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         // set up layout
         setHeading("Time line: " + title);

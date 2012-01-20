@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -99,14 +98,13 @@ public class StateEditor extends View {
                 }
             }
         };
-        submitButton = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("SubmitRequest", SenseIconProvider.ICON_BUTTON_GO, l);
 
         cancelButton = new Button("Cancel", l);
 
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(submitButton);
 
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.addButton(submitButton);
         form.addButton(cancelButton);
     }

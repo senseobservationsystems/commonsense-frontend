@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.sensors.unshare;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -29,7 +28,7 @@ public class UnshareController extends Controller {
     private View dialog;
 
     public UnshareController() {
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
         registerEventTypes(UnshareEvents.ShowUnshareDialog);
         registerEventTypes(UnshareEvents.UnshareRequest, UnshareEvents.UnshareComplete);
     }

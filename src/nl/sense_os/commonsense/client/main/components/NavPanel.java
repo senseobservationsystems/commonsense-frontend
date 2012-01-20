@@ -30,6 +30,7 @@ public class NavPanel extends LayoutContainer {
     public static final String SETTINGS = "settings";
     public static final String SIGN_OUT = "signout";
     public static final String VISUALIZATION = "viz";
+    public static final String RESET_PASSWORD = "resetPassword";
     public static final int HEIGHT = 30;
     private boolean isLoggedIn = false;
     private final Text userName = new Text();
@@ -154,10 +155,15 @@ public class NavPanel extends LayoutContainer {
             this.current = this.help;
         } else if (highlight.equals(SIGN_OUT)) {
             this.current = this.logout;
+        } else if (highlight.equals(RESET_PASSWORD)) {
+            // nothing to highlight
         } else {
             LOG.warning("Unexpected highlight: " + highlight);
         }
-        this.current.addStyleName("sense-nav-item-selected");
+
+        if (null != current) {
+            this.current.addStyleName("sense-nav-item-selected");
+        }
 
         relayout();
     }

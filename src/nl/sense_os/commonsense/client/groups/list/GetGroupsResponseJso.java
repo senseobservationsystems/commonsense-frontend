@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.models.GroupJso;
-import nl.sense_os.commonsense.client.common.models.NewGroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
@@ -23,14 +23,14 @@ public class GetGroupsResponseJso extends JavaScriptObject {
         }
     }-*/;
 
-    public final List<NewGroupModel> getGroups() {
-        List<NewGroupModel> list = new ArrayList<NewGroupModel>();
+    public final List<GroupModel> getGroups() {
+        List<GroupModel> list = new ArrayList<GroupModel>();
 
         JsArray<GroupJso> groups = getRawGroups();
 
         if (null != groups) {
             for (int i = 0; i < groups.length(); i++) {
-                list.add(new NewGroupModel(groups.get(i)));
+                list.add(new GroupModel(groups.get(i)));
             }
         }
 

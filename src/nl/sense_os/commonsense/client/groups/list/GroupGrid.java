@@ -4,13 +4,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.NewGroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.common.utility.SensorComparator;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
-import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
+import nl.sense_os.commonsense.client.groups.invite.GroupInviteEvents;
+import nl.sense_os.commonsense.client.groups.join.GroupJoinEvents;
+import nl.sense_os.commonsense.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
@@ -26,7 +28,6 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -60,7 +61,7 @@ public class GroupGrid extends View {
     private static final Logger LOG = Logger.getLogger(GroupGrid.class.getName());
     private Button createButton;
     private TreeGrid<UserModel> grid;
-    private Button inviteButton;
+    private Button addUserButton;
     private Button joinButton;
     private Button leaveButton;
     private ContentPanel panel;
@@ -98,14 +99,11 @@ public class GroupGrid extends View {
             setBusy(true);
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)
-                || type.equals(GroupEvents.LeaveComplete)
-                || type.equals(InviteEvents.InviteComplete)) {
+                || type.equals(GroupLeaveEvents.LeaveComplete)
+                || type.equals(GroupInviteEvents.InviteComplete)
+                || type.equals(GroupJoinEvents.JoinSuccess)) {
             // LOG.fine( "InviteComplete");
             onListDirty();
-
-        } else if (type.equals(GroupEvents.LeaveFailed)) {
-            LOG.warning("LeaveFailed");
-            onLeaveFailed(event);
 
         } else {
             LOG.severe("Unexpected event type: " + type);
@@ -166,7 +164,7 @@ public class GroupGrid extends View {
 
             @Override
             public boolean hasChildren(UserModel parent) {
-                return parent instanceof NewGroupModel;
+                return parent instanceof GroupModel;
             };
         };
 
@@ -180,15 +178,19 @@ public class GroupGrid extends View {
         ColumnConfig name = new ColumnConfig(UserModel.NAME, "Name", 125);
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
         ColumnConfig surname = new ColumnConfig(UserModel.SURNAME, "Surname", 125);
-        ColumnConfig username = new ColumnConfig(UserModel.USERNAME, "Username", 100);
-        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, username));
+        ColumnConfig description = new ColumnConfig(GroupModel.DESCRIPTION, "Description", 125);
+        ColumnConfig isPublic = new ColumnConfig(GroupModel.PUBLIC, "Public", 75);
+        ColumnConfig isHidden = new ColumnConfig(GroupModel.HIDDEN, "Hidden", 75);
+        ColumnConfig isAnon = new ColumnConfig(GroupModel.ANONYMOUS, "Anonymous", 75);
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, description, isPublic,
+                isHidden, isAnon));
 
         grid = new TreeGrid<UserModel>(store, cm);
         grid.setAutoLoad(true);
         grid.setLoadMask(true);
         grid.setId("groupGrid");
         grid.setStateful(true);
-        grid.setAutoExpandColumn(UserModel.USERNAME);
+        grid.setAutoExpandColumn(UserModel.SURNAME);
         grid.setIconProvider(new SenseIconProvider<UserModel>());
     }
 
@@ -249,9 +251,11 @@ public class GroupGrid extends View {
                 } else if (source.equals(leaveButton)) {
                     onLeaveClick();
                 } else if (source.equals(joinButton)) {
-                    LOG.fine("Join group");
-                } else if (source.equals(inviteButton)) {
-                    onInviteClick();
+                    Dispatcher.forwardEvent(GroupJoinEvents.Show);
+                } else if (source.equals(addUserButton)) {
+                    onAddUserClick();
+                } else {
+                    LOG.warning("Unexpected button pressed: " + source);
                 }
             }
         };
@@ -259,13 +263,12 @@ public class GroupGrid extends View {
         createButton = new Button("Create", l);
 
         joinButton = new Button("Join", l);
-        joinButton.disable();
 
         leaveButton = new Button("Leave", l);
         leaveButton.disable();
 
-        inviteButton = new Button("Invite", l);
-        inviteButton.disable();
+        addUserButton = new Button("Add User", l);
+        addUserButton.disable();
 
         // handle selections
         TreeGridSelectionModel<UserModel> selectionModel = new TreeGridSelectionModel<UserModel>();
@@ -277,10 +280,10 @@ public class GroupGrid extends View {
                 UserModel selection = se.getSelectedItem();
                 if (null != selection) {
                     leaveButton.enable();
-                    inviteButton.enable();
+                    addUserButton.enable();
                 } else {
                     leaveButton.disable();
-                    inviteButton.disable();
+                    addUserButton.disable();
                 }
             }
         });
@@ -290,61 +293,35 @@ public class GroupGrid extends View {
         toolBar = new ToolBar();
         toolBar.add(joinButton);
         toolBar.add(createButton);
-        toolBar.add(inviteButton);
+        toolBar.add(addUserButton);
         toolBar.add(leaveButton);
     }
 
-    private void leaveGroup() {
-        UserModel group = grid.getSelectionModel().getSelectedItem();
-        while (!(group instanceof NewGroupModel)) {
-            group = (UserModel) group.getParent();
-        }
-        int groupId = group.getId();
-        fireEvent(new AppEvent(GroupEvents.LeaveRequested, groupId));
-    }
-
-    private void onInviteClick() {
+    private void onAddUserClick() {
         UserModel selected = grid.getSelectionModel().getSelectedItem();
-        NewGroupModel group = null;
-        if (selected instanceof NewGroupModel) {
-            group = (NewGroupModel) selected;
-        } else if (selected.getParent() instanceof NewGroupModel) {
-            group = (NewGroupModel) selected.getParent();
+        GroupModel group = null;
+        if (selected instanceof GroupModel) {
+            group = (GroupModel) selected;
+        } else if (selected.getParent() instanceof GroupModel) {
+            group = (GroupModel) selected.getParent();
         } else {
-            MessageBox.alert(null, "Cannot invite user to group: no group selected.", null);
+            MessageBox.alert(null, "Cannot add user to group: no group selected.", null);
             return;
         }
 
-        AppEvent invite = new AppEvent(InviteEvents.ShowInviter);
+        AppEvent invite = new AppEvent(GroupInviteEvents.ShowInviter);
         invite.setData("group", group);
         Dispatcher.forwardEvent(invite);
     }
 
     private void onLeaveClick() {
-        MessageBox.confirm(null, "Are you sure you want to leave this group?",
-                new Listener<MessageBoxEvent>() {
-
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        Button clicked = be.getButtonClicked();
-                        if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            leaveGroup();
-                        }
-                    }
-                });
-    }
-
-    private void onLeaveFailed(AppEvent event) {
-        MessageBox.confirm(null, "Failed to leave group, retry?", new Listener<MessageBoxEvent>() {
-
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                Button clicked = be.getButtonClicked();
-                if ("yes".equalsIgnoreCase(clicked.getText())) {
-                    leaveGroup();
-                }
-            }
-        });
+        UserModel group = grid.getSelectionModel().getSelectedItem();
+        while (!(group instanceof GroupModel)) {
+            group = (UserModel) group.getParent();
+        }
+        AppEvent event = new AppEvent(GroupLeaveEvents.LeaveRequest);
+        event.setData("group", group);
+        Dispatcher.forwardEvent(event);
     }
 
     private void onListDirty() {

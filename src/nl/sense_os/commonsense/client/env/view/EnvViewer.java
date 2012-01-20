@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.env.view;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
@@ -19,7 +18,7 @@ public class EnvViewer extends View {
 
     public EnvViewer(Controller c) {
         super(c);
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
     }
 
     @Override

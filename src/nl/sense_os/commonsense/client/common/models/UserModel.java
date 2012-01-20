@@ -89,7 +89,7 @@ public class UserModel extends BaseTreeModel {
     }
 
     public String getUsername() {
-        return get(USERNAME, "USERNAME MISSING");
+        return get(USERNAME);
     }
 
     public UserModel setEmail(String email) {

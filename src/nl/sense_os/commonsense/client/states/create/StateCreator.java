@@ -15,7 +15,6 @@ import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -144,7 +143,6 @@ public class StateCreator extends View {
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(createButton);
 
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.addButton(createButton);
         form.addButton(cancelButton);
     }

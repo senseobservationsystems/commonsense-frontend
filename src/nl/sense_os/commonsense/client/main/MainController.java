@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.main;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -32,7 +31,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     public MainController() {
         registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
         registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
     }
 
     @Override
@@ -98,6 +97,11 @@ public class MainController extends Controller implements ValueChangeHandler<Str
             // reload the app at the hacked URL
             Location.replace(newUrl);
 
+        } else if (token != null && token.equals("resetPassword")) {
+            LOG.warning("Reset password landing");
+
+            History.fireCurrentHistoryState();
+
         } else {
             navigateHome();
         }
@@ -125,6 +129,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
         valid = valid || token.equals(NavPanel.HELP);
         valid = valid || token.equals(NavPanel.SETTINGS);
         valid = valid || token.equals(NavPanel.VISUALIZATION);
+        valid = valid || token.equals(NavPanel.RESET_PASSWORD);
         return valid;
     }
 

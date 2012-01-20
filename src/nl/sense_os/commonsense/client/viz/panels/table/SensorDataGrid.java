@@ -10,6 +10,7 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -37,10 +38,11 @@ import com.google.gwt.json.client.JSONValue;
 
 public class SensorDataGrid extends LayoutContainer {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("SensorDataGrid");
+    private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
     public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
+
+        LOG.setLevel(Level.ALL);
 
         // grid panel parameters
         ModelType model = createModelType();
@@ -142,7 +144,7 @@ public class SensorDataGrid extends LayoutContainer {
 
     private ModelType createModelType() {
         ModelType model = new ModelType();
-        model.setTotalName("total");
+        // model.setTotalName("total");
         model.setRoot("data");
         model.addField("id");
         model.addField("sensor_id");
@@ -175,12 +177,14 @@ public class SensorDataGrid extends LayoutContainer {
                     NumberFormat.getFormat("#.000").format(endTime / 1000d));
         }
 
-        urlBuilder.setParameter("total", "1");
+        // urlBuilder.setParameter("total", "1");
 
         return urlBuilder.buildString();
     }
 
     private String renderJsonValue(JSONObject json) {
+        LOG.finest("Render JSON value: " + json.toString());
+
         StringBuilder sb = new StringBuilder();
         for (String key : json.keySet()) {
             // first print the field label

@@ -100,4 +100,8 @@ public class GroupJso extends JavaScriptObject {
     public native final boolean isShowSurnameReq() /*-{
         return this.required_show_surname == true;
     }-*/;
+
+    public native final boolean isShowUsernameReq() /*-{
+        return this.required_show_username == true;
+    }-*/;
 }

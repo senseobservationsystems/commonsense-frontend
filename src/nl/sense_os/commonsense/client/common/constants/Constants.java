@@ -25,8 +25,8 @@ public class Constants {
     /**
      * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
      */
-    public static final boolean DEV_MODE = false || GWT.getModuleBaseURL().contains(
-            "common.dev.sense-os.nl");
+    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
+            .contains("common.dev.sense-os.nl");
 
     /**
      * Flag for Apigee test mode. <code>true</code> if the app is deployed to
@@ -43,7 +43,8 @@ public class Constants {
     /**
      * Flag for local mode. <code>true</code> if the app is deployed to an unknown location.
      */
-    public static final boolean GENERIC_MODE = !STABLE_MODE && !TED_MODE && !DEV_MODE && !APIGEE_MODE && !RC_MODE;
+    public static final boolean GENERIC_MODE = !STABLE_MODE && !TED_MODE && !DEV_MODE
+            && !APIGEE_MODE && !RC_MODE;
 
     /**
      * true if shortcut 'hacks' for easy developing are allowed
