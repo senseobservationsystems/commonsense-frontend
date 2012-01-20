@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -135,7 +134,6 @@ public class RegisterForm extends FormPanel {
         submit = new Button("Register", SenseIconProvider.ICON_BUTTON_GO, l);
         submit.setType("submit");
 
-        setButtonAlign(HorizontalAlignment.CENTER);
         addButton(submit);
 
         final FormButtonBinding binding = new FormButtonBinding(this);
@@ -162,12 +160,12 @@ public class RegisterForm extends FormPanel {
         // name field
         name = new TextField<String>();
         name.setFieldLabel("First name:");
-        name.setAllowBlank(false);
+        name.setAllowBlank(true);
 
         // surname field
         surname = new TextField<String>();
         surname.setFieldLabel("Surname:");
-        surname.setAllowBlank(false);
+        surname.setAllowBlank(true);
 
         // email field
         email = new TextField<String>();
@@ -182,13 +180,13 @@ public class RegisterForm extends FormPanel {
         country.setFieldLabel("Country:");
         country.setStore(countries);
         country.setTriggerAction(TriggerAction.ALL);
-        country.setAllowBlank(false);
+        country.setAllowBlank(true);
         country.setEmptyText("Select a country...");
 
         // phone field
         mobile = new TextField<String>();
         mobile.setFieldLabel("Phone:");
-        mobile.setAllowBlank(false);
+        mobile.setAllowBlank(true);
         mobile.setValidator(new PhoneValidator());
 
         this.add(username, formData);
