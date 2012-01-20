@@ -92,7 +92,7 @@ public class LoginForm extends FormPanel {
 
         // submit button
         submit = new Button("Log in", SenseIconProvider.ICON_BUTTON_GO, l);
-        submit.setType("submit");
+        // submit.setType("submit"); // "submit" type makes the button always clickable!
 
         LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
         submitWrapper.setSize("100%", "22px");
