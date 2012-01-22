@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -144,7 +142,7 @@ public class SensorDataGrid extends LayoutContainer {
 
     private ModelType createModelType() {
         ModelType model = new ModelType();
-        // model.setTotalName("total");
+        model.setTotalName("total");
         model.setRoot("data");
         model.addField("id");
         model.addField("sensor_id");
@@ -159,11 +157,9 @@ public class SensorDataGrid extends LayoutContainer {
     private String createUrl(List<SensorModel> sensors, long startTime, long endTime) {
 
         int id = sensors.get(0).getId();
-        String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
         urlBuilder.setPath(Urls.PATH_SENSORS + "/" + id + "/data.json");
-        urlBuilder.setParameter("session_id", sessionId);
 
         final int alias = sensors.get(0).getAlias();
         if (alias != -1) {

@@ -2,11 +2,15 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.client.common.constants.Constants;
+
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.HttpProxy;
 import com.extjs.gxt.ui.client.data.JsonPagingLoadResultReader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.Loader;
@@ -14,7 +18,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.ScriptTagProxy;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -22,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.google.gwt.http.client.RequestBuilder;
 
 /**
  * An object of this class renders a grid and a tool bar in a content panel.
@@ -98,8 +102,13 @@ public class PaginationGridPanel extends ContentPanel {
     }
 
     private void initGrid(String url, ModelType mt, List<ColumnConfig> colConf) {
-        // Cross site HTTP proxy.
-        DataProxy<String> proxy = new ScriptTagProxy<String>(url);
+
+        String sessionId = Registry.get(Constants.REG_SESSION_ID);
+
+        // Cross site HTTP proxy
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        HttpProxy<String> proxy = new HttpProxy<String>(builder);
 
         // Reader
         DataReader<PagingLoadResult<ModelData>> reader = new JsonPagingLoadResultReader<PagingLoadResult<ModelData>>(
