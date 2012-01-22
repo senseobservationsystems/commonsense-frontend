@@ -95,7 +95,7 @@ public class LoginForm extends FormPanel {
         // submit.setType("submit"); // "submit" type makes the button always clickable!
 
         LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
-        submitWrapper.setSize("100%", "22px");
+        submitWrapper.setSize("100%", "24px");
         submitWrapper.add(submit, new RowData(-1, 1));
         submitWrapper.add(forgotPassword, new RowData(1, 1, new Margins(3, 0, 0, 10)));
 
