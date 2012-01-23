@@ -6,11 +6,10 @@
   <inherits name="com.google.gwt.logging.Logging"/>  
 
   <!-- Inherit the default GWT style sheet.                       -->
-  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+  <inherits name='com.google.gwt.user.theme.clean.Clean'/>
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/> 
-  <!--inherits name="com.smartgwt.SmartGwt" /--> 
   <inherits name='com.chap.links.Graph'/>
   <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.google.gwt.visualization.Visualization'/>  
