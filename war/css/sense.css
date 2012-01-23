@@ -352,3 +352,13 @@ div.graph-axis-text-vertical {
 .graph-legend, .graph-axis {
   border-color: #A6A6A6;
 }
+.pw-reset-form {
+	margin: 5px;
+}
+.pw-reset-label {
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+.pw-reset-field {
+	margin-bottom: 5px;
+}
