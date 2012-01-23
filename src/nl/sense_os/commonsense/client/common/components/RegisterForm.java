@@ -55,20 +55,20 @@ public class RegisterForm extends FormPanel {
     private static final String EMAIL_REGEX = "^[\\w\\-]+(\\.[\\w\\-]+)*@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
 
     private static native final String validatePhoneNumber(String phoneNumber, String regionCode) /*-{
-        try {
-            var phoneUtil = $wnd.i18n.phonenumbers.PhoneNumberUtil.getInstance();
-            var number = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode);
-            var isValid = phoneUtil.isValidNumber(number);
-            if (isValid) {
-                var PNF = $wnd.i18n.phonenumbers.PhoneNumberFormat;
-                return phoneUtil.format(number, PNF.E164);
-            } else {
-                return "not valid";
-            }
-        } catch (e) {
-            return "error";
-        }
-    }-*/;
+                                                                                                  try {
+                                                                                                  var phoneUtil = $wnd.i18n.phonenumbers.PhoneNumberUtil.getInstance();
+                                                                                                  var number = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode);
+                                                                                                  var isValid = phoneUtil.isValidNumber(number);
+                                                                                                  if (isValid) {
+                                                                                                  var PNF = $wnd.i18n.phonenumbers.PhoneNumberFormat;
+                                                                                                  return phoneUtil.format(number, PNF.E164);
+                                                                                                  } else {
+                                                                                                  return "not valid";
+                                                                                                  }
+                                                                                                  } catch (e) {
+                                                                                                  return "error";
+                                                                                                  }
+                                                                                                  }-*/;
 
     private TextField<String> username;
     private TextField<String> password;
@@ -132,7 +132,7 @@ public class RegisterForm extends FormPanel {
 
         // submit button
         submit = new Button("Register", SenseIconProvider.ICON_BUTTON_GO, l);
-        submit.setType("submit");
+        // submit.setType("submit");
 
         addButton(submit);
 
@@ -143,8 +143,6 @@ public class RegisterForm extends FormPanel {
     }
 
     private void initFields() {
-
-        final FormData formData = new FormData("-10");
 
         // username field
         username = new TextField<String>();
@@ -189,14 +187,14 @@ public class RegisterForm extends FormPanel {
         mobile.setAllowBlank(true);
         mobile.setValidator(new PhoneValidator());
 
-        this.add(username, formData);
-        this.add(password, formData);
-        this.add(password, formData);
-        this.add(name, formData);
-        this.add(surname, formData);
-        this.add(email, formData);
-        this.add(country, formData);
-        this.add(mobile, formData);
+        this.add(username, new FormData("-20"));
+        this.add(password, new FormData("-20"));
+        this.add(password, new FormData("-20"));
+        this.add(name, new FormData("-20"));
+        this.add(surname, new FormData("-20"));
+        this.add(email, new FormData("-20"));
+        this.add(country, new FormData("-20"));
+        this.add(mobile, new FormData("-20"));
     }
 
     @Override

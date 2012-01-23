@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -24,7 +23,9 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.KeyCodes;
 
@@ -44,7 +45,7 @@ public class LoginForm extends FormPanel {
         setBodyBorder(false);
         setHeaderVisible(false);
         setScrollMode(Scroll.AUTOY);
-        this.setHeight(225);
+        this.setHeight(230);
         setLabelAlign(LabelAlign.TOP);
 
         initFields();
@@ -95,14 +96,17 @@ public class LoginForm extends FormPanel {
         // submit.setType("submit"); // "submit" type makes the button always clickable!
 
         LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
-        submitWrapper.setSize("100%", "24px");
-        submitWrapper.add(submit, new RowData(-1, 1));
-        submitWrapper.add(forgotPassword, new RowData(1, 1, new Margins(3, 0, 0, 10)));
+        submitWrapper.setSize("100%", "34px");
+        HBoxLayout wrapperLayout = new HBoxLayout();
+        wrapperLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
+        submitWrapper.setLayout(wrapperLayout);
+        submitWrapper.add(submit, new HBoxLayoutData());
+        submitWrapper.add(forgotPassword, new HBoxLayoutData(0, 0, 0, 15));
 
         // google login button
         google = new Button("Log in with Google", SenseIconProvider.ICON_GOOGLE, l);
 
-        this.add(submitWrapper, new FormData(""));
+        this.add(submitWrapper, new FormData("-10"));
 
         LabelField alternative = new LabelField(
                 "Alternatively, you can use your Google Account to log in:");
@@ -126,8 +130,6 @@ public class LoginForm extends FormPanel {
 
     private void initFields() {
 
-        final FormData formData = new FormData("-10");
-
         // username field
         username = new TextField<String>();
         username.setFieldLabel("Username");
@@ -145,9 +147,9 @@ public class LoginForm extends FormPanel {
         rememberMe.setBoxLabel("Remember username");
         rememberMe.setValue(true);
 
-        this.add(username, formData);
-        this.add(password, formData);
-        this.add(rememberMe, formData);
+        this.add(username, new FormData("-20"));
+        this.add(password, new FormData("-20"));
+        this.add(rememberMe, new FormData("-20"));
     }
 
     public void setBusy(boolean busy) {
