@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!doctype html>
 <html>
   <head>    
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -12,7 +12,7 @@
     <link rel="icon" href="favicon.ico" />
     
     <!-- load the GWT script -->
-    <script type="text/javascript" language="javascript" src="commonsense/commonsense.nocache.js"></script>
+    <script language="javascript" src="commonsense/commonsense.nocache.js"></script>
 
   </head>
 
@@ -21,7 +21,7 @@
     <div id="gwt" style="background: url('img/bg/right_top_pre-light.png') no-repeat right top; ">
       <div id="loading">
         <div class="loading-indicator">
-          <img src="gxt/images/default/shared/large-loading.gif" width="32" height="32"/>CommonSense<br />
+          <img src="ExtGWT/images/default/shared/large-loading.gif" width="32" height="32"/>CommonSense<br />
           <span id="loading-msg">Loading...</span>
         </div>
       </div>  
@@ -39,8 +39,9 @@
     <script src="js/libphonenumber/metadata.js"></script>
     <script src="js/libphonenumber/phonenumberutil.js"></script>
     
-    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' 
-        style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
+        
     <noscript>
       <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">Your web browser must have JavaScript enabled in order for this application to display correctly.</div>
     </noscript>
