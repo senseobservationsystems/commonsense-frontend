@@ -49,7 +49,8 @@ public class SensorDataGrid extends LayoutContainer {
         final int pageSize = 25;
 
         // Grid.
-        PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize);
+        PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize,
+                startTime, endTime);
 
         // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
 

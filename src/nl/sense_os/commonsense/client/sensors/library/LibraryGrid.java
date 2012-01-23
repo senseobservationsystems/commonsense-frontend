@@ -328,7 +328,7 @@ public class LibraryGrid extends View {
                     shareButton.enable();
                     if (selection.size() == 1 && selection.get(0).getUsers() != null) {
                         // TODO re-enable alert button
-                        // alertButton.enable();
+                        alertButton.enable();
                     }
                     if (selection.size() == 1 && selection.get(0).getUsers() != null
                             && selection.get(0).getUsers().size() > 0) {
