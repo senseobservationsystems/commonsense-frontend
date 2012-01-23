@@ -180,6 +180,6 @@ public class PwResetController extends Controller {
     protected void initialize() {
         super.initialize();
         requestDialog = new PwResetDialog(this);
-        newPasswordForm = new NewPwForm(this);
+        newPasswordForm = new NewPwView(this);
     }
 }

@@ -7,6 +7,7 @@ import nl.sense_os.commonsense.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.pwreset.NewPwDialog;
 import nl.sense_os.commonsense.client.auth.pwreset.PwResetController;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -165,6 +166,10 @@ public class CommonSense implements EntryPoint {
         }
 
         GXT.hideLoadingPanel("loading");
+
+        NewPwDialog dialog = new NewPwDialog();
+        dialog.center();
+        dialog.show();
     }
 
     private void testGroupCreator() {
@@ -347,6 +352,6 @@ public class CommonSense implements EntryPoint {
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[]{});
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[] {});
     }
 }
