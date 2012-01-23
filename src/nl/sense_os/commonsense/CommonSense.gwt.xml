@@ -6,7 +6,7 @@
   <inherits name="com.google.gwt.logging.Logging"/>  
 
   <!-- Inherit the default GWT style sheet.                       -->
-  <inherits name='com.google.gwt.user.theme.clean.Clean'/>
+  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/> 
