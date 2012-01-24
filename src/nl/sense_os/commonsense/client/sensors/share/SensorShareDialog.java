@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -103,7 +102,6 @@ public class SensorShareDialog extends View {
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(createButton);
 
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.addButton(createButton);
         form.addButton(cancelButton);
     }

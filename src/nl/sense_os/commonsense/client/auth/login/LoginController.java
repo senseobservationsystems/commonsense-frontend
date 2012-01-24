@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.auth.login;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -33,7 +32,7 @@ public class LoginController extends Controller {
 
     public LoginController() {
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         registerEventTypes(MainEvents.Init);
 

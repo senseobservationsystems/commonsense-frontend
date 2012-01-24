@@ -149,8 +149,6 @@ public class TimeRangeForm extends FormPanel {
 
     private void initTimeRangeFields() {
 
-        final FormData formData = new FormData("-10");
-
         mainLabel = new LabelField("Select the time range");
         mainLabel.setHideLabel(true);
 
@@ -216,19 +214,19 @@ public class TimeRangeForm extends FormPanel {
         // start date and time layout
         LayoutContainer startField = new LayoutContainer(new ColumnLayout());
         LayoutContainer startDateWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
-        startDateWrapper.add(startDateField, formData);
+        startDateWrapper.add(startDateField, new FormData("-10"));
         startField.add(startDateWrapper, new ColumnData(.5));
         LayoutContainer startTimeWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
-        startTimeWrapper.add(startTimeField, formData);
+        startTimeWrapper.add(startTimeField, new FormData("-10"));
         startField.add(startTimeWrapper, new ColumnData(.5));
 
         // end date and time layout
         LayoutContainer endField = new LayoutContainer(new ColumnLayout());
         LayoutContainer endDateWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
-        endDateWrapper.add(endDateField, formData);
+        endDateWrapper.add(endDateField, new FormData("-10"));
         endField.add(endDateWrapper, new ColumnData(.5));
         LayoutContainer endTimeWrapper = new LayoutContainer(new FormLayout(LabelAlign.TOP));
-        endTimeWrapper.add(endTimeField, formData);
+        endTimeWrapper.add(endTimeField, new FormData("-10"));
         endField.add(endTimeWrapper, new ColumnData(.5));
 
         // enable or disable specific date chooser
@@ -272,25 +270,25 @@ public class TimeRangeForm extends FormPanel {
             }
         });
 
-        advancedRangeSet.add(startField, formData);
-        advancedRangeSet.add(endField, formData);
+        advancedRangeSet.add(startField, new FormData("-10"));
+        advancedRangeSet.add(endField, new FormData("-10"));
 
         LayoutContainer left = new LayoutContainer(new FormLayout());
         left.setStyleAttribute("paddingRight", "10px");
-        left.add(hourRadio, formData);
-        left.add(otherTimeRadio, formData);
+        left.add(hourRadio, new FormData("-10"));
+        left.add(otherTimeRadio, new FormData("-10"));
 
         LayoutContainer center1 = new LayoutContainer(new FormLayout());
         center1.setStyleAttribute("paddingRight", "10px");
-        center1.add(dayRadio, formData);
+        center1.add(dayRadio, new FormData("-10"));
 
         LayoutContainer center2 = new LayoutContainer(new FormLayout());
         center2.setStyleAttribute("paddingRight", "10px");
-        center2.add(weekRadio, formData);
+        center2.add(weekRadio, new FormData("-10"));
 
         LayoutContainer right = new LayoutContainer(new FormLayout());
         right.setStyleAttribute("paddingLeft", "10px");
-        right.add(monthRadio, formData);
+        right.add(monthRadio, new FormData("-10"));
 
         LayoutContainer main = new LayoutContainer(new ColumnLayout());
         main.add(left, new ColumnData(.25));

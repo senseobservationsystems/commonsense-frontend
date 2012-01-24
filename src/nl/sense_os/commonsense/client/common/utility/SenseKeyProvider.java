@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.common.utility;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.NewGroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 
@@ -33,8 +33,8 @@ public class SenseKeyProvider<M extends TreeModel> implements ModelKeyProvider<M
         if (model instanceof DeviceModel) {
             DeviceModel device = (DeviceModel) model;
             return "D_" + device.getId() + ": " + device.getUuid() + "; ";
-        } else if (model instanceof NewGroupModel) {
-            NewGroupModel group = (NewGroupModel) model;
+        } else if (model instanceof GroupModel) {
+            GroupModel group = (GroupModel) model;
             return "G_" + group.getId() + ": " + group.getName() + "; ";
         } else if (model instanceof SensorModel) {
             SensorModel sensor = (SensorModel) model;

@@ -57,9 +57,9 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         initLayout();
 
         // set initial values
-        invisible.setValue(true);
-        passEntrance.setValue(true);
-        onSelectionChange(passEntrance);
+        visible.setValue(true);
+        adminEntrance.setValue(true);
+        onSelectionChange(adminEntrance);
     }
 
     public RadioGroup getJoinPolicy() {
@@ -67,7 +67,8 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
     }
 
     public String getPassword() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
                 : null;
     }
 
@@ -82,7 +83,6 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         passEntrance.setHideLabel(true);
         adminEntrance.setBoxLabel("New members need to be accepted by an admin");
         adminEntrance.setHideLabel(true);
-        adminEntrance.setEnabled(false);
         joinPolicy.add(freeEntrance);
         joinPolicy.add(passEntrance);
         joinPolicy.add(adminEntrance);
@@ -121,9 +121,9 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         add(invisible, layoutData);
         add(visible, layoutData);
         add(policyLabel, extraSpace);
+        add(adminEntrance, layoutData);
         add(passEntrance, layoutData);
         add(pwForm, layoutData);
-        add(adminEntrance, layoutData);
         add(freeEntrance, layoutData);
     }
 
@@ -156,8 +156,8 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         visible.setHideLabel(true);
         invisible.setBoxLabel("Group is hidden if you are not a member");
         invisible.setHideLabel(true);
-        visibility.add(invisible);
         visibility.add(visible);
+        visibility.add(invisible);
         visibility.setOrientation(Orientation.VERTICAL);
         visibility.setSelectionRequired(true);
     }

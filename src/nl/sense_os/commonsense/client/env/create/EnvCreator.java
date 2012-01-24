@@ -139,7 +139,7 @@ public class EnvCreator extends View {
     private void initButtons() {
 
         // forward button
-        submitButton = new Button("Submit", new SelectionListener<ButtonEvent>() {
+        submitButton = new Button("SubmitRequest", new SelectionListener<ButtonEvent>() {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
@@ -490,7 +490,7 @@ public class EnvCreator extends View {
     }
 
     private void submit() {
-        LOGGER.finest("Submit...");
+        LOGGER.finest("SubmitRequest...");
 
         AppEvent create = new AppEvent(EnvCreateEvents.CreateRequest);
         create.setData("name", name.getValue());

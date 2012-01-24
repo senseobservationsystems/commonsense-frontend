@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.viz.data;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -40,7 +39,7 @@ public class DataController extends Controller {
 
     public DataController() {
 
-        LOG.setLevel(Level.FINE);
+        // LOG.setLevel(Level.FINE);
 
         registerEventTypes(DataEvents.DataRequest);
         registerEventTypes(LoginEvents.LoggedOut);
@@ -244,7 +243,7 @@ public class DataController extends Controller {
     private void onReqSubsampledSuccess(String response, long start, long end,
             List<SensorModel> sensors, int sensorIndex, int pageIndex, boolean subsampled,
             boolean showProgress, VizPanel vizPanel) {
-    	LOG.fine("Data page success...");
+        LOG.fine("Data page success...");
 
         // parse the incoming data
         GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);

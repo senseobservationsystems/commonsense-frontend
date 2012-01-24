@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -67,7 +66,7 @@ public class EnvMap extends VizPanel {
 
     public EnvMap() {
         this(null);
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
     }
 
     public EnvMap(EnvironmentModel environment) {

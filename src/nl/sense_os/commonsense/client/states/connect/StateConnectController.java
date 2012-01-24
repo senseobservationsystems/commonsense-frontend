@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.states.connect;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -34,7 +33,7 @@ public class StateConnectController extends Controller {
 
     public StateConnectController() {
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         registerEventTypes(StateConnectEvents.ShowSensorConnecter);
         registerEventTypes(StateConnectEvents.ServiceNameRequest);

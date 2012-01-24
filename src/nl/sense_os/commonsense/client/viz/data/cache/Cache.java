@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.viz.data.cache;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -90,7 +89,7 @@ public class Cache {
      */
     public static void store(SensorModel sensor, long start, long end,
             JsArray<BackEndDataPoint> data) {
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
         LOG.fine("Caching " + data.length() + " data points for " + sensor.getDisplayName());
 
         if (null == cache) {

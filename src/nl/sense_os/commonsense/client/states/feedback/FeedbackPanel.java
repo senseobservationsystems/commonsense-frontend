@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.states.feedback;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
@@ -77,7 +76,7 @@ public class FeedbackPanel extends VizPanel {
             boolean subsample, String title, List<String> labels) {
         super();
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         this.stateSensor = stateSensor;
         this.labels = labels;
@@ -156,7 +155,7 @@ public class FeedbackPanel extends VizPanel {
             }
         };
 
-        submitButton = new Button("Submit Feedback", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("SubmitRequest Feedback", SenseIconProvider.ICON_BUTTON_GO, l);
         submitButton.setMinWidth(75);
         cancelButton = new Button("Cancel", l);
         cancelButton.setMinWidth(75);

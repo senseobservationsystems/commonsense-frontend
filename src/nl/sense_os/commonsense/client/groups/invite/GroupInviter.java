@@ -6,7 +6,7 @@ import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -18,9 +18,13 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupInviter extends View {
 
@@ -39,14 +43,14 @@ public class GroupInviter extends View {
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
-        if (type.equals(InviteEvents.ShowInviter)) {
+        if (type.equals(GroupInviteEvents.ShowInviter)) {
             onShow(event);
 
-        } else if (type.equals(InviteEvents.InviteComplete)) {
+        } else if (type.equals(GroupInviteEvents.InviteComplete)) {
             // LOG.fine( "InviteComplete");
             hideWindow();
 
-        } else if (type.equals(InviteEvents.InviteFailed)) {
+        } else if (type.equals(GroupInviteEvents.InviteFailed)) {
             LOG.warning("InviteFailed");
             onFailed(event);
 
@@ -78,15 +82,12 @@ public class GroupInviter extends View {
             }
         };
 
-        inviteButton = new Button("Invite", SenseIconProvider.ICON_BUTTON_GO, l);
-
+        inviteButton = new Button("Add", SenseIconProvider.ICON_BUTTON_GO, l);
         cancelButton = new Button("Cancel", l);
-        setBusy(false);
 
         final FormButtonBinding binding = new FormButtonBinding(form);
         binding.addButton(inviteButton);
 
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.addButton(inviteButton);
         form.addButton(cancelButton);
     }
@@ -95,51 +96,62 @@ public class GroupInviter extends View {
         form = new FormPanel();
         form.setHeaderVisible(false);
         form.setBodyBorder(false);
+        form.setLayout(new FormLayout());
+        form.setLayout(new FormLayout(LabelAlign.TOP));
+        form.setScrollMode(Scroll.AUTOY);
 
-        final FormData formData = new FormData("-10");
+        final FormData formData = new FormData("-20");
+
+        LabelField explanation = new LabelField(
+                "Please enter the username of the person that you want to add to the group.");
+        explanation.setHideLabel(true);
+
+        LabelField notice = new LabelField(
+                "Please note: you can only add users to the group if they have already requested to join it.");
+        notice.setHideLabel(true);
 
         username = new TextField<String>();
         username.setFieldLabel("Username");
         username.setAllowBlank(false);
+
+        form.add(explanation, new FormData(""));
         form.add(username, formData);
+        form.add(notice, new FormData(""));
 
         initButtons();
 
-        window.add(form);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-
-        window = new CenteredWindow();
-        window.setHeading("Invite user to group");
-        window.setSize(323, 200);
-        window.setLayout(new FitLayout());
-
-        initForm();
+        window.add(form, new FitData());
     }
 
     private void onFailed(AppEvent event) {
-        MessageBox.alert("CommonSense", "Failed to invite user. Please check the username.", null);
+        MessageBox.alert("CommonSense",
+                "Failed to add user! Make sure the user has requested to join the group first.",
+                null);
         setBusy(false);
     }
 
     private void onShow(AppEvent event) {
+
         group = event.<GroupModel> getData("group");
-        LOG.fine("Invite users for group " + group.getId());
-        form.reset();
+        LOG.fine("Add user for group " + group.getId() + "(" + group.getName() + ")");
+
+        window = new CenteredWindow();
+        window.setHeading("Add user to " + group.getName());
+        window.setSize(323, 210);
+        window.setLayout(new FitLayout());
+
+        initForm();
 
         window.show();
-        window.center();
     }
 
     private void onSubmit() {
         setBusy(true);
 
-        AppEvent event = new AppEvent(InviteEvents.InviteRequested);
-        event.setData("groupId", group.getId());
+        AppEvent event = new AppEvent(GroupInviteEvents.InviteRequested);
+        event.setData("group", group);
         event.setData("username", username.getValue());
+        event.setSource(this);
         fireEvent(event);
     }
 

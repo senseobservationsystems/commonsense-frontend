@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.env.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -22,7 +21,7 @@ public class EnvViewController extends Controller {
     private View viewer;
 
     public EnvViewController() {
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         registerEventTypes(EnvViewEvents.Show);
         registerEventTypes(EnvViewEvents.RequestSensors);

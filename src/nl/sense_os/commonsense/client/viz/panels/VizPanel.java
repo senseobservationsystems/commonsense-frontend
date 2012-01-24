@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.viz.panels;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -54,12 +53,12 @@ public abstract class VizPanel extends ContentPanel {
      * Creates new VizPanel instance.
      */
     protected VizPanel() {
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
         addToolButtons();
     }
-    
+
     public void onNewData() {
-    	
+
     }
 
     /**
@@ -308,7 +307,7 @@ public abstract class VizPanel extends ContentPanel {
      *            End time of the period to display.
      */
     protected void visualize(List<SensorModel> sensors, long start, long end, boolean subsample) {
-    	LOG.fine("visualize...");
+        LOG.fine("visualize...");
         this.sensors = sensors;
         this.start = start;
         this.end = end;

@@ -10,7 +10,7 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.models.NewGroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.ServiceModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -257,7 +257,7 @@ public class LibraryController extends Controller {
         }
     }
 
-    private void getGroupSensors(final List<NewGroupModel> groups, final int index, final int page,
+    private void getGroupSensors(final List<GroupModel> groups, final int index, final int page,
             final List<SensorModel> library,
             final AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
@@ -410,7 +410,7 @@ public class LibraryController extends Controller {
         onLoadFailure(callback);
     }
 
-    private void onGroupSensorsSuccess(String response, List<NewGroupModel> groups, int index,
+    private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
             int page, List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
         LOG.fine("Received group sensors response...");
 
@@ -425,7 +425,7 @@ public class LibraryController extends Controller {
 
         LOG.finest("Parsed group sensors...");
 
-        NewGroupModel group = groups.get(index);
+        GroupModel group = groups.get(index);
         for (SensorModel groupSensor : groupSensors) {
             if (!library.contains(groupSensor)) {
                 // set SensorModel.ALIAS property
@@ -460,7 +460,7 @@ public class LibraryController extends Controller {
             AsyncCallback<ListLoadResult<SensorModel>> callback) {
 
         // parse list of groups from the response
-        List<NewGroupModel> groups = new ArrayList<NewGroupModel>();
+        List<GroupModel> groups = new ArrayList<GroupModel>();
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
             groups = jso.getGroups();

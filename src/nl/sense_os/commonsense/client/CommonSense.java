@@ -1,13 +1,13 @@
 package nl.sense_os.commonsense.client;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.pwreset.PwResetController;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
@@ -21,7 +21,9 @@ import nl.sense_os.commonsense.client.env.list.EnvController;
 import nl.sense_os.commonsense.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
-import nl.sense_os.commonsense.client.groups.invite.InviteController;
+import nl.sense_os.commonsense.client.groups.invite.GroupInviteController;
+import nl.sense_os.commonsense.client.groups.join.GroupJoinController;
+import nl.sense_os.commonsense.client.groups.leave.GroupLeaveController;
 import nl.sense_os.commonsense.client.groups.list.GroupController;
 import nl.sense_os.commonsense.client.main.MainController;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -45,7 +47,6 @@ import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -69,7 +70,7 @@ public class CommonSense implements EntryPoint {
 
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
 
-    public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && true;
+    public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
@@ -102,6 +103,7 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new MainController());
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
+        dispatcher.addController(new PwResetController());
         dispatcher.addController(new VizController());
         dispatcher.addController(new DemoController());
         dispatcher.addController(new DataController());
@@ -115,7 +117,9 @@ public class CommonSense implements EntryPoint {
         // group controllers
         dispatcher.addController(new GroupController());
         dispatcher.addController(new GroupCreateController());
-        dispatcher.addController(new InviteController());
+        dispatcher.addController(new GroupJoinController());
+        dispatcher.addController(new GroupLeaveController());
+        dispatcher.addController(new GroupInviteController());
 
         // state controllers
         dispatcher.addController(new StateListController());
@@ -135,8 +139,6 @@ public class CommonSense implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
-
-        GXT.setDefaultTheme(Theme.GRAY, true);
 
         /* initialize */
         initDispatcher();
@@ -172,8 +174,6 @@ public class CommonSense implements EntryPoint {
 
     private void testAlertCreator() {
 
-        LOG.setLevel(Level.ALL);
-
         Dispatcher dispatcher = Dispatcher.get();
 
         Runnable onLoadCallback = new Runnable() {
@@ -208,7 +208,6 @@ public class CommonSense implements EntryPoint {
         dispatcher.dispatch(MainEvents.UiReady);
 
         LOG.config("Test map visualization...");
-
     }
 
     /**
@@ -291,8 +290,6 @@ public class CommonSense implements EntryPoint {
 
     private void testTimeline() {
         LOG.config("Test timeline...");
-
-        LOG.setLevel(Level.ALL);
 
         // Create a callback to be called when the visualization API has been loaded.
         Runnable onLoadCallback = new Runnable() {

@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.states.feedback;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.TimeRangeForm;
@@ -25,7 +24,7 @@ public class FeedbackChooser extends View {
 
     public FeedbackChooser(Controller c) {
         super(c);
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
     }
 
     @Override

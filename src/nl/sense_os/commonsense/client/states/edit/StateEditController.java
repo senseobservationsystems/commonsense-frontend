@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.states.edit;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -28,7 +27,7 @@ public class StateEditController extends Controller {
     private View editor;
 
     public StateEditController() {
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
         registerEventTypes(StateEditEvents.ShowEditor);
         registerEventTypes(StateEditEvents.InvokeMethodRequested);
     }

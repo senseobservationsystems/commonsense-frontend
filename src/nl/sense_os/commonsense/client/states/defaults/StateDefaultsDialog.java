@@ -91,7 +91,7 @@ public class StateDefaultsDialog extends View {
                     }
                 });
 
-        submitButton = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO,
+        submitButton = new Button("SubmitRequest", SenseIconProvider.ICON_BUTTON_GO,
                 new SelectionListener<ButtonEvent>() {
 
                     @Override

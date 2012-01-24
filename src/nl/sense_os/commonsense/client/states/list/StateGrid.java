@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.states.list;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
@@ -89,7 +88,7 @@ public class StateGrid extends View {
 
     public StateGrid(Controller controller) {
         super(controller);
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
     }
 
     private void checkDefaultStates() {

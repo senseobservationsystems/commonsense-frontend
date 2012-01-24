@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.states.feedback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -40,7 +39,7 @@ public class FeedbackController extends Controller {
 
     public FeedbackController() {
 
-        LOG.setLevel(Level.WARNING);
+        // LOG.setLevel(Level.ALL);
 
         registerEventTypes(FeedbackEvents.FeedbackInit);
         registerEventTypes(FeedbackEvents.ShowChooser, FeedbackEvents.FeedbackChosen);
@@ -172,7 +171,7 @@ public class FeedbackController extends Controller {
         EventType type = event.getType();
 
         /*
-         * Submit feedback data.
+         * SubmitRequest feedback data.
          */
         if (type.equals(FeedbackEvents.FeedbackSubmit)) {
             // LOG.fine( "FeedbackSubmit");
