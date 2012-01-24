@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client;
 
 public class LastDeployed {
 
-    private static final String deployed = "Thu Oct 13 17:42";
+    private static final String deployed = "Jan 24 14:43";
 
     private LastDeployed() {
         // do not instantiate

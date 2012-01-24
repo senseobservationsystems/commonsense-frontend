@@ -26,7 +26,6 @@ public class GroupReqSharingForm extends AbstractGroupForm {
 
     private final TextArea required = new TextArea();
     private final TextArea optional = new TextArea();
-    private final CheckBox anonymous = new CheckBox();
 
     private final RadioGroup infoRadios = new RadioGroup();
     private final ShowInfoRadio showInfo = new ShowInfoRadio();
@@ -93,7 +92,6 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         add(shareLabel, layoutData);
         add(required, extraSpace);
         add(optional, extraSpace);
-        add(anonymous, layoutData);
 
         add(infoLabel, layoutData);
         add(showInfo, layoutData);
@@ -113,7 +111,7 @@ public class GroupReqSharingForm extends AbstractGroupForm {
     private void initMemberInfoRadios() {
         showInfo.setBoxLabel("Members need to share some information with the group:");
         showInfo.setHideLabel(true);
-        noInfo.setBoxLabel("Member details are not visible to others");
+        noInfo.setBoxLabel("Members are not required to share information about themselves");
         noInfo.setHideLabel(true);
         infoRadios.add(showInfo);
         infoRadios.add(noInfo);
@@ -129,36 +127,30 @@ public class GroupReqSharingForm extends AbstractGroupForm {
     private void initSharingFields() {
         required.setFieldLabel("Required shared sensors (comma-separated list)");
         optional.setFieldLabel("Optional shared sensors (comma-separated list)");
-        anonymous.setBoxLabel("Sensors are shared anonymously");
-        anonymous.setHideLabel(true);
     }
 
-    public boolean isAnonymous() {
-        return anonymous.getValue();
+    public boolean isEmailRequired() {
+        return email.isEnabled() && email.getValue();
     }
 
-    public boolean isEmail() {
-        return email.getValue();
+    public boolean isFirstNameRequired() {
+        return firstName.isEnabled() && firstName.getValue();
     }
 
-    public boolean isFirstName() {
-        return firstName.getValue();
+    public boolean isPhoneRequired() {
+        return phone.isEnabled() && phone.getValue();
     }
 
-    public boolean isPhone() {
-        return phone.getValue();
+    public boolean isSurnameRequired() {
+        return surname.isEnabled() && surname.getValue();
     }
 
-    public boolean isSurname() {
-        return surname.getValue();
+    public boolean isUserIdRequired() {
+        return userId.isEnabled() && userId.getValue();
     }
 
-    public boolean isUserId() {
-        return userId.getValue();
-    }
-
-    public boolean isUsername() {
-        return username.getValue();
+    public boolean isUsernameRequired() {
+        return username.isEnabled() && username.getValue();
     }
 
     private void onSelectionChange(Object value) {

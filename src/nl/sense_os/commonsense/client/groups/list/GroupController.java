@@ -7,10 +7,12 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.NewGroupModel;
+import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
-import nl.sense_os.commonsense.client.groups.invite.InviteEvents;
+import nl.sense_os.commonsense.client.groups.invite.GroupInviteEvents;
+import nl.sense_os.commonsense.client.groups.join.GroupJoinEvents;
+import nl.sense_os.commonsense.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
@@ -41,15 +43,13 @@ public class GroupController extends Controller {
         // events to update the list of groups
         registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working);
 
-        // events to leave a group
-        registerEventTypes(GroupEvents.LeaveComplete, GroupEvents.LeaveFailed,
-                GroupEvents.LeaveRequested);
-
         registerEventTypes(VizEvents.Show);
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
-        registerEventTypes(InviteEvents.InviteComplete);
+        registerEventTypes(GroupInviteEvents.InviteComplete);
         registerEventTypes(GroupCreateEvents.CreateComplete);
+        registerEventTypes(GroupLeaveEvents.LeaveComplete);
+        registerEventTypes(GroupJoinEvents.JoinSuccess);
     }
 
     /**
@@ -67,7 +67,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of sensors is
      *            complete.
      */
-    private void getGroupMembers(final NewGroupModel group,
+    private void getGroupMembers(final GroupModel group,
             final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
@@ -124,7 +124,7 @@ public class GroupController extends Controller {
     private void getGroups(final AsyncCallback<List<UserModel>> callback) {
 
         forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).clear();
+        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
 
         // prepare request properties
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -182,16 +182,6 @@ public class GroupController extends Controller {
         } else
 
         /*
-         * Leave a group
-         */
-        if (type.equals(GroupEvents.LeaveRequested)) {
-            // LOG.fine( "LeaveRequested");
-            final int groupId = event.getData();
-            leaveGroup(groupId);
-
-        } else
-
-        /*
          * Clear data after logout
          */
         if (type.equals(LoginEvents.LoggedOut)) {
@@ -212,63 +202,14 @@ public class GroupController extends Controller {
      * Clears the list of groups from the Registry.
      */
     private void onLogout() {
-        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).clear();
+        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
     }
 
     @Override
     protected void initialize() {
         super.initialize();
         this.tree = new GroupGrid(this);
-        Registry.register(Constants.REG_GROUPS, new ArrayList<NewGroupModel>());
-    }
-
-    private void leaveGroup(int groupId) {
-
-        // prepare request property
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + groupId + ".json");
-        final String url = urlBuilder.buildString();
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
-
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("DELETE group onError callback: " + exception.getMessage());
-                onLeaveFailure();
-            }
-
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("DELETE group response received: " + response.getStatusText());
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    onLeaveSuccess();
-                } else {
-                    LOG.warning("DELETE group returned incorrect status: " + statusCode);
-                    onLeaveFailure();
-                }
-            }
-        };
-
-        // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        try {
-            builder.sendRequest(null, reqCallback);
-        } catch (RequestException e) {
-            LOG.warning("DELETE group request threw exception: " + e.getMessage());
-            onLeaveFailure();
-        }
-    }
-
-    private void onLeaveFailure() {
-        forwardToView(tree, new AppEvent(GroupEvents.LeaveFailed));
-    }
-
-    private void onLeaveSuccess() {
-        Dispatcher.forwardEvent(new AppEvent(GroupEvents.LeaveComplete));
+        Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
     }
 
     private void onGroupMembersFailure(AsyncCallback<List<UserModel>> callback) {
@@ -295,7 +236,7 @@ public class GroupController extends Controller {
      *            Optional callback for a DataProxy. Will be called when the list of groups is
      *            complete.
      */
-    private void onGroupMembersSuccess(String response, NewGroupModel group,
+    private void onGroupMembersSuccess(String response, GroupModel group,
             AsyncCallback<List<UserModel>> callback) {
 
         // parse list of users from the response
@@ -338,13 +279,13 @@ public class GroupController extends Controller {
     private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
 
         // parse list of groups from the response
-        List<NewGroupModel> groups = new ArrayList<NewGroupModel>();
+        List<GroupModel> groups = new ArrayList<GroupModel>();
         if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
             GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
             groups = jso.getGroups();
         }
 
-        Registry.<List<NewGroupModel>> get(Constants.REG_GROUPS).addAll(groups);
+        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
         Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
         callback.onSuccess(new ArrayList<UserModel>(groups));
@@ -355,8 +296,8 @@ public class GroupController extends Controller {
         if (null == loadConfig) {
             getGroups(callback);
 
-        } else if (loadConfig instanceof NewGroupModel) {
-            NewGroupModel group = (NewGroupModel) loadConfig;
+        } else if (loadConfig instanceof GroupModel) {
+            GroupModel group = (GroupModel) loadConfig;
             getGroupMembers(group, callback);
 
         } else {

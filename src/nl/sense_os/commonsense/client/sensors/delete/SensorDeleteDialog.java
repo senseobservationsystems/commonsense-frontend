@@ -7,7 +7,6 @@ import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -78,7 +77,6 @@ public class SensorDeleteDialog extends View {
 
         removeButton = new Button("Yes", SenseIconProvider.ICON_BUTTON_GO, l);
         cancelButton = new Button("No", l);
-        window.setButtonAlign(HorizontalAlignment.CENTER);
         window.addButton(removeButton);
         window.addButton(cancelButton);
     }

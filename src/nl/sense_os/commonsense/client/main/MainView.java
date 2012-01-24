@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.LastDeployed;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.pwreset.PwResetEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.demo.DemoEvents;
@@ -308,6 +309,19 @@ public class MainView extends View {
                 this.westContent.removeAll();
                 this.westContent.hide();
 
+            } else if (location.equals(NavPanel.RESET_PASSWORD)) {
+
+                this.centerContent.removeAll();
+
+                // set up west panel layout
+                this.westContent.removeAll();
+                this.westContent.hide();
+
+                // demo panel
+                AppEvent displayForm = new AppEvent(PwResetEvents.ShowNewPasswordForm);
+                displayForm.setData("parent", this.centerContent);
+                Dispatcher.forwardEvent(displayForm);
+
             } else if (location.equals(NavPanel.SIGN_OUT)) {
                 newContent = null;
                 Dispatcher.forwardEvent(LoginEvents.RequestLogout);
@@ -334,6 +348,7 @@ public class MainView extends View {
         // update navigation panel
         this.navPanel.setHighlight(location);
     }
+
     private void onUiReady(AppEvent event) {
         RootPanel.get("gwt").add(this.viewport);
     }

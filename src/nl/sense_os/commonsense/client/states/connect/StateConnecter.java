@@ -12,7 +12,6 @@ import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.DataProxy;
@@ -127,7 +126,6 @@ public class StateConnecter extends View {
         submitButton = new Button("Connect", SenseIconProvider.ICON_BUTTON_GO, l);
         cancelButton = new Button("Cancel", l);
 
-        form.setButtonAlign(HorizontalAlignment.CENTER);
         form.addButton(submitButton);
         form.addButton(cancelButton);
 
@@ -228,7 +226,7 @@ public class StateConnecter extends View {
                     AsyncCallback<ListLoadResult<SensorModel>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
-                    // LOG.fine( "Load library... Renew cache: " + force);
+                    LOG.finest("Load library...");
                     AppEvent loadRequest = new AppEvent(
                             StateConnectEvents.AvailableSensorsRequested);
                     loadRequest.setData("name", serviceName);

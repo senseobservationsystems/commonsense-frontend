@@ -7,7 +7,6 @@ import nl.sense_os.commonsense.client.common.components.LoginForm;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -210,7 +209,6 @@ public class LoginPanel extends View {
         window.add(connectForm);
         window.addButton(submit);
         window.addButton(cancel);
-        window.setButtonAlign(HorizontalAlignment.CENTER);
 
         // show window
         window.show();
@@ -256,12 +254,13 @@ public class LoginPanel extends View {
 
     private void resetFormValues() {
 
-        this.form.setUsername(null);
+        if (form.getUsername() == null || "".equals(form.getUsername())) {
 
-        // auto-fill username field from cookie
-        final String cookieName = Cookies.getCookie("username");
-        if (null != cookieName) {
-            this.form.setUsername(cookieName);
+            // auto-fill username field from cookie
+            final String cookieName = Cookies.getCookie("username");
+            if (null != cookieName) {
+                this.form.setUsername(cookieName);
+            }
         }
 
         // clear password field

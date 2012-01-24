@@ -3,21 +3,30 @@ package nl.sense_os.commonsense.client.common.components;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
+import nl.sense_os.commonsense.client.auth.pwreset.PwResetEvents;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout.HBoxLayoutAlign;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 public class LoginForm extends FormPanel {
@@ -27,6 +36,7 @@ public class LoginForm extends FormPanel {
     private TextField<String> password;
     private CheckBox rememberMe;
     private Button submit;
+    private LabelField forgotPassword;
     private Button google;
 
     public LoginForm() {
@@ -35,7 +45,7 @@ public class LoginForm extends FormPanel {
         setBodyBorder(false);
         setHeaderVisible(false);
         setScrollMode(Scroll.AUTOY);
-        this.setHeight(175);
+        setSize("", "auto");
         setLabelAlign(LabelAlign.TOP);
 
         initFields();
@@ -56,6 +66,17 @@ public class LoginForm extends FormPanel {
 
     private void initButtons() {
 
+        forgotPassword = new LabelField("Forgot your password?");
+        forgotPassword.setHideLabel(true);
+        forgotPassword.setStyleAttribute("cursor", "pointer");
+        forgotPassword.addListener(Events.OnClick, new Listener<ComponentEvent>() {
+
+            @Override
+            public void handleEvent(ComponentEvent be) {
+                onForgotPassword();
+            }
+        });
+
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent be) {
@@ -71,15 +92,27 @@ public class LoginForm extends FormPanel {
         };
 
         // submit button
-        submit = new Button("Sign in", SenseIconProvider.ICON_BUTTON_GO, l);
-        submit.setType("submit");
+        submit = new Button("Log in", SenseIconProvider.ICON_BUTTON_GO, l);
+        // submit.setType("submit"); // "submit" type makes the button always clickable!
+
+        LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
+        submitWrapper.setSize("100%", "34px");
+        HBoxLayout wrapperLayout = new HBoxLayout();
+        wrapperLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
+        submitWrapper.setLayout(wrapperLayout);
+        submitWrapper.add(submit, new HBoxLayoutData());
+        submitWrapper.add(forgotPassword, new HBoxLayoutData(0, 0, 0, 15));
 
         // google login button
-        google = new Button("Use Google account", SenseIconProvider.ICON_GOOGLE, l);
+        google = new Button("Log in with Google", SenseIconProvider.ICON_GOOGLE, l);
 
-        setButtonAlign(HorizontalAlignment.CENTER);
-        addButton(submit);
-        addButton(google);
+        this.add(submitWrapper, new FormData("-10"));
+
+        LabelField alternative = new LabelField(
+                "Alternatively, you can use your Google Account to log in:");
+        // alternative.setHideLabel(true);
+        this.add(alternative, new FormData("-10"));
+        add(google);
 
         final FormButtonBinding binding = new FormButtonBinding(this);
         binding.addButton(submit);
@@ -87,13 +120,15 @@ public class LoginForm extends FormPanel {
         setupSubmit();
     }
 
+    private void onForgotPassword() {
+        Dispatcher.forwardEvent(PwResetEvents.ShowDialog);
+    }
+
     private void onGoogleClick() {
         Dispatcher.forwardEvent(LoginEvents.GoogleAuthRequest);
     }
 
     private void initFields() {
-
-        final FormData formData = new FormData("-10");
 
         // username field
         username = new TextField<String>();
@@ -112,9 +147,9 @@ public class LoginForm extends FormPanel {
         rememberMe.setBoxLabel("Remember username");
         rememberMe.setValue(true);
 
-        this.add(username, formData);
-        this.add(password, formData);
-        this.add(rememberMe, formData);
+        this.add(username, new FormData("-20"));
+        this.add(password, new FormData("-20"));
+        this.add(rememberMe, new FormData("-20"));
     }
 
     public void setBusy(boolean busy) {

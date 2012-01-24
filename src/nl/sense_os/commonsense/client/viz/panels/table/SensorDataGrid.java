@@ -10,13 +10,12 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -37,10 +36,11 @@ import com.google.gwt.json.client.JSONValue;
 
 public class SensorDataGrid extends LayoutContainer {
 
-    @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger("SensorDataGrid");
+    private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
     public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
+
+        LOG.setLevel(Level.ALL);
 
         // grid panel parameters
         ModelType model = createModelType();
@@ -49,7 +49,8 @@ public class SensorDataGrid extends LayoutContainer {
         final int pageSize = 25;
 
         // Grid.
-        PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize);
+        PaginationGridPanel gridPanel = new PaginationGridPanel(url, model, colConf, pageSize,
+                startTime, endTime);
 
         // new Draggable(gridPanel); // disabled for now, nothing is draggable (yet)
 
@@ -157,11 +158,9 @@ public class SensorDataGrid extends LayoutContainer {
     private String createUrl(List<SensorModel> sensors, long startTime, long endTime) {
 
         int id = sensors.get(0).getId();
-        String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
 
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
         urlBuilder.setPath(Urls.PATH_SENSORS + "/" + id + "/data.json");
-        urlBuilder.setParameter("session_id", sessionId);
 
         final int alias = sensors.get(0).getAlias();
         if (alias != -1) {
@@ -175,12 +174,14 @@ public class SensorDataGrid extends LayoutContainer {
                     NumberFormat.getFormat("#.000").format(endTime / 1000d));
         }
 
-        urlBuilder.setParameter("total", "1");
+        // urlBuilder.setParameter("total", "1");
 
         return urlBuilder.buildString();
     }
 
     private String renderJsonValue(JSONObject json) {
+        LOG.finest("Render JSON value: " + json.toString());
+
         StringBuilder sb = new StringBuilder();
         for (String key : json.keySet()) {
             // first print the field label

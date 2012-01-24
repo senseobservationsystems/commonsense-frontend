@@ -10,7 +10,6 @@
 
   <!-- Other module inherits                                      -->
   <inherits name='com.extjs.gxt.ui.GXT'/> 
-  <!--inherits name="com.smartgwt.SmartGwt" /--> 
   <inherits name='com.chap.links.Graph'/>
   <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.google.gwt.visualization.Visualization'/>  

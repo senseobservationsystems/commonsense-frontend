@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.alerts.create.forms.AccordionForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.AlertTypesForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.DoneForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.NumTriggerForm;
-import nl.sense_os.commonsense.client.alerts.create.forms.OuterNumTriggerForm;
-import nl.sense_os.commonsense.client.alerts.create.forms.OuterStringTriggerForm;
 import nl.sense_os.commonsense.client.alerts.create.forms.PosTriggerForm;
-import nl.sense_os.commonsense.client.alerts.create.forms.TrialNumForm;
-import nl.sense_os.commonsense.client.alerts.create.forms.TrialStringForm;
+import nl.sense_os.commonsense.client.alerts.create.forms.StringTriggerForm;
 import nl.sense_os.commonsense.client.alerts.create.triggers.AlertType;
 import nl.sense_os.commonsense.client.alerts.create.triggers.NumericTrigger;
 import nl.sense_os.commonsense.client.alerts.create.triggers.PositionTrigger;
@@ -44,8 +42,8 @@ public class AlertCreator extends View {
     private Button doneButton;
     private CardLayout layout;
     private PosTriggerForm posTriggerForm;
-    private NumTriggerForm numTriggerForm;
     private AlertTypesForm alertTypesForm;
+    private AccordionForm accordionForm;
     private DoneForm doneForm;
     private Component prevComponent;
     private Logger LOG = Logger.getLogger(AlertCreator.class.getName());
@@ -53,14 +51,11 @@ public class AlertCreator extends View {
     private SensorModel sens;
     private String datatype;
     private String name;
-    private OuterStringTriggerForm outerStringTriggerForm;
-    private OuterNumTriggerForm outerNumTriggerForm;
-    private TrialStringForm trialStringForm;
-    private TrialNumForm trialNumForm;
+    private StringTriggerForm trialStringForm;
+    private NumTriggerForm trialNumForm;
     private StringTrigger strTrigger;
     private NumericTrigger numTrigger;
     private PositionTrigger posTrigger;
-    private ArrayList<AlertType> alertTypeList;
     private FormButtonBinding formButtonBinding;
 
     public AlertCreator(Controller c) {
@@ -105,16 +100,18 @@ public class AlertCreator extends View {
     private void initForms() {
 
         alertTypesForm = new AlertTypesForm();
+        accordionForm = new AccordionForm();
+        accordionForm.setView(this);
         doneForm = new DoneForm();
 
         window.add(alertTypesForm);
+        window.add(accordionForm);
         window.add(doneForm);
 
     }
 
     private void initButtons() {
 
-        LOG.fine("InitButtons");
         // listener for clicks on the buttons
         SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
@@ -159,25 +156,17 @@ public class AlertCreator extends View {
 
     }
 
-    private void showButtons() {
-        backButton.hide();
-        moreButton.hide();
-        doneButton.hide();
-        nextButton.show();
-    }
-
     private void goToPrev() {
         Component active = layout.getActiveItem();
-        if (active.equals(alertTypesForm) || active.equals(doneForm)) {
+        if (active.equals(alertTypesForm) || active.equals(doneForm)
+                || active.equals(accordionForm)) {
 
             if (prevComponent.equals(trialStringForm))
                 showStringTriggerForm();
             else if (prevComponent.equals(posTriggerForm))
                 showPosTriggerForm();
-            else if (prevComponent.equals(trialNumForm)
-                    || prevComponent.equals(outerNumTriggerForm)) {
+            else if (prevComponent.equals(trialNumForm))
                 showNumTriggerForm();
-            }
 
             moreButton.hide();
             doneButton.hide();
@@ -212,25 +201,22 @@ public class AlertCreator extends View {
             }
 
             if (validTrigger) {
-
-                // moreButton.show();
-                // doneButton.show();
-                // nextButton.hide();
-                // backButton.show();
                 showAlertTypesForm();
             }
         }
     }
 
     private void goToMore() {
-        AlertType alertType = alertTypesForm.getAlertType();
 
-        if (alertType != null) {
-            alertTypeList.add(alertType);
+        boolean valid = accordionForm.checkValidFields();
 
-            String description = alertType.getDescription();
-            alertTypesForm.setFieldsBlank();
-            alertTypesForm.setDescription(description);
+        if (valid) {
+            // String description = alertType.getDescription();
+            accordionForm.createFormPanel();
+            accordionForm.collapseFormPanels();
+
+            // accordionForm.setDescription(description);
+
             showAlertTypesForm();
             moreButton.show();
             doneButton.show();
@@ -239,12 +225,10 @@ public class AlertCreator extends View {
     }
 
     private void goToDone() {
-        AlertType alertType = alertTypesForm.getAlertType();
-        if (alertType != null) {
-            alertTypeList.add(alertType);
-        }
+        boolean valid = accordionForm.checkValidFields();
 
-        if (alertTypeList.size() > 0) {
+        if (valid) {
+            ArrayList<AlertType> alertTypeList = accordionForm.getAlertTypes();
             LOG.fine("So many alertTypes found: " + alertTypeList.size());
             showDoneForm();
             moreButton.hide();
@@ -256,6 +240,10 @@ public class AlertCreator extends View {
 
     private void showStringTriggerForm() {
         layout.setActiveItem(trialStringForm);
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+
         formButtonBinding = new FormButtonBinding(trialStringForm);
         formButtonBinding.addButton(nextButton);
 
@@ -263,20 +251,45 @@ public class AlertCreator extends View {
 
     private void showNumTriggerForm() {
         layout.setActiveItem(trialNumForm);
+
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
         formButtonBinding = new FormButtonBinding(trialNumForm);
         formButtonBinding.addButton(nextButton);
     }
 
-    
-    private void showPosTriggerForm() {  
-
+    private void showPosTriggerForm() {
         layout.setActiveItem(posTriggerForm);
+
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(posTriggerForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    public void changeBinding() {
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(moreButton);
+            formButtonBinding.removeButton(doneButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
+        formButtonBinding.addButton(moreButton);
+        formButtonBinding.addButton(doneButton);
     }
 
     private void showAlertTypesForm() {
-        layout.setActiveItem(alertTypesForm);
+        layout.setActiveItem(accordionForm);
 
-        formButtonBinding = new FormButtonBinding(alertTypesForm);
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(moreButton);
+            formButtonBinding.removeButton(doneButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
         formButtonBinding.addButton(moreButton);
         formButtonBinding.addButton(doneButton);
 
@@ -284,7 +297,13 @@ public class AlertCreator extends View {
         doneButton.show();
         nextButton.hide();
         backButton.show();
-        // moreButton.setEnabled(false);
+    }
+
+    private void showButtons() {
+        moreButton.hide();
+        doneButton.hide();
+        nextButton.show();
+        backButton.hide();
     }
 
     private void showDoneForm() {
@@ -303,27 +322,18 @@ public class AlertCreator extends View {
 
         long start = defaultStart;
         long end = System.currentTimeMillis();
-        alertTypeList = new ArrayList<AlertType>();
-
-        // visualize(sensors, start, end, true);
+        showAlertTypesForm();
 
         if (datatype.equals("string")) {
-            // outerStringTriggerForm = new OuterStringTriggerForm(sensors, start, end, true,
-            // "String form");
-            // window.add(outerStringTriggerForm);
-            trialStringForm = new TrialStringForm(sensors, start, end, true, "String form");
+            trialStringForm = new StringTriggerForm(sensors, start, end, true, "String form");
             window.add(trialStringForm);
             showStringTriggerForm();
             showButtons();
         }
 
-
         else if (datatype.equals("float")) {
-            trialNumForm = new TrialNumForm(sensors, start, end, true, "Numeric form");
+            trialNumForm = new NumTriggerForm(sensors, start, end, true, "Numeric form");
             window.add(trialNumForm);
-            // outerNumTriggerForm = new OuterNumTriggerForm(sensors, start, end, true,
-            // "Numeric form");
-            // window.add(outerNumTriggerForm);
             showNumTriggerForm();
             showButtons();
         }
@@ -342,13 +352,11 @@ public class AlertCreator extends View {
             @Override
             public void handleEvent(WindowEvent we) {
 
-                // if (layout.getActiveItem().equals(outerStringTriggerForm))
-                // outerStringTriggerForm.passParentWindowSize(we.getWidth(), we.getHeight());
                 if (layout.getActiveItem().equals(trialStringForm))
                     trialStringForm.passParentWindowSize(we.getWidth(), we.getHeight());
-                else if (layout.getActiveItem().equals(outerNumTriggerForm))
-                    outerNumTriggerForm.passParentWindowSize(we.getWidth(), we.getHeight());
-                alertTypesForm.passParentWindowSize(we.getWidth(), we.getHeight());
+                else if (layout.getActiveItem().equals(trialNumForm))
+                    trialNumForm.passParentWindowSize(we.getWidth(), we.getHeight());
+                accordionForm.passParentWindowSize(we.getWidth(), we.getHeight());
             }
 
         });
