@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.client.viz.panels.table;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -56,7 +55,7 @@ public class PaginationGridPanel extends ContentPanel {
     public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize,
             long startDate, long endDate) {
 
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
 
         this.pageSize = pageSize;
         this.startDate = startDate;
