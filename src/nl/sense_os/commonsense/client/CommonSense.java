@@ -7,7 +7,6 @@ import nl.sense_os.commonsense.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.auth.pwreset.NewPwDialog;
 import nl.sense_os.commonsense.client.auth.pwreset.PwResetController;
 import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -48,7 +47,6 @@ import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -73,7 +71,7 @@ public class CommonSense implements EntryPoint {
     private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
 
     public static final boolean HACK_QUICK_LOGIN = Constants.ALLOW_HACKS && false;
-    public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && true;
+    public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
@@ -142,8 +140,6 @@ public class CommonSense implements EntryPoint {
     @Override
     public void onModuleLoad() {
 
-        GXT.setDefaultTheme(Theme.GRAY, true);
-
         /* initialize */
         initDispatcher();
 
@@ -166,10 +162,6 @@ public class CommonSense implements EntryPoint {
         }
 
         GXT.hideLoadingPanel("loading");
-
-        NewPwDialog dialog = new NewPwDialog();
-        dialog.center();
-        dialog.show();
     }
 
     private void testGroupCreator() {
@@ -216,7 +208,6 @@ public class CommonSense implements EntryPoint {
         dispatcher.dispatch(MainEvents.UiReady);
 
         LOG.config("Test map visualization...");
-
     }
 
     /**
@@ -352,6 +343,6 @@ public class CommonSense implements EntryPoint {
         };
 
         // Load the visualization API, passing the onLoadCallback to be called when loading is done.
-        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[] {});
+        VisualizationUtils.loadVisualizationApi(onLoadCallback, new String[]{});
     }
 }
