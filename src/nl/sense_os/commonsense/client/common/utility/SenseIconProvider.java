@@ -19,7 +19,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
 
     private static final Logger LOGGER = Logger.getLogger(SenseIconProvider.class.getName());
 
-    public static final String GXT_ICONS_PATH = "gxt/images/gxt/icons/";
+    public static final String GXT_ICONS_PATH = "ExtGWT/images/gxt/icons/";
     public static final String SENSE_ICONS_PATH = "img/icons/16/";
 
     public static final AbstractImagePrototype ICON_DEVICE = IconHelper.create(SENSE_ICONS_PATH
@@ -60,9 +60,9 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
             + "user_zorro.png");
 
     public static final AbstractImagePrototype ICON_LOADING = IconHelper
-            .create("gxt/images/gxt/icons/loading.gif");
+            .create("ExtGWT/images/gxt/icons/loading.gif");
     public static final AbstractImagePrototype ICON_BUTTON_GO = IconHelper
-            .create("gxt/images/gxt/icons/page-next.gif");
+            .create("ExtGWT/images/gxt/icons/page-next.gif");
 
     @Override
     public AbstractImagePrototype getIcon(M model) {
