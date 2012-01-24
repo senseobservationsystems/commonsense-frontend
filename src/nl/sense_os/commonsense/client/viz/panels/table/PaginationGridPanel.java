@@ -44,7 +44,6 @@ public class PaginationGridPanel extends ContentPanel {
     private PagingLoader<PagingLoadResult<ModelData>> loader;
     private final int pageSize;
     private final long startDate;
-    private final long endDate;
 
     /**
      * @param url
@@ -61,7 +60,6 @@ public class PaginationGridPanel extends ContentPanel {
 
         this.pageSize = pageSize;
         this.startDate = startDate;
-        this.endDate = endDate;
 
         initGrid(url, mt, colConf);
 
@@ -145,7 +143,7 @@ public class PaginationGridPanel extends ContentPanel {
 
                 } else if (!totalLengthKnown) {
                     // we do not know the length yet
-                    LOG.finest("Guesstimate total data size...");
+                    LOG.finest("Freaktimate total data size...");
                     List<ModelData> sensorData = result.getData();
                     double pageNewest = Double.parseDouble(sensorData.get(0).<String> get("date"));
                     double pageOldest = Double.parseDouble(sensorData.get(sensorData.size() - 1)
