@@ -45,7 +45,7 @@ public class LoginForm extends FormPanel {
         setBodyBorder(false);
         setHeaderVisible(false);
         setScrollMode(Scroll.AUTOY);
-        this.setHeight(230);
+        setSize("", "auto");
         setLabelAlign(LabelAlign.TOP);
 
         initFields();
