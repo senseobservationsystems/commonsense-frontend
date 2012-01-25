@@ -81,6 +81,7 @@ public class GroupJoinDialog extends Window {
 
         btnSubmit = new Button("Join");
         btnSubmit.setIconStyle("sense-btn-icon-go");
+        btnSubmit.setEnabled(false);
         btnCancel = new Button("Cancel");
 
         form.addButton(btnSubmit);

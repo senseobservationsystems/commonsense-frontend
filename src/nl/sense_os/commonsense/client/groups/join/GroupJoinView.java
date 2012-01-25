@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.groups.join;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
@@ -32,7 +31,6 @@ public class GroupJoinView extends View {
 
     public GroupJoinView(Controller c) {
         super(c);
-        LOG.setLevel(Level.ALL);
     }
 
     @Override
