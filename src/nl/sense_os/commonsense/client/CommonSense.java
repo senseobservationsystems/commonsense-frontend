@@ -76,7 +76,7 @@ public class CommonSense implements EntryPoint {
     public static final boolean HACK_TEST_ENVCREATOR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_MAPVIZ = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_TIMELINE = Constants.ALLOW_HACKS && false;
-    public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && true;
+    public static final boolean HACK_TEST_GROUPCREATOR = Constants.ALLOW_HACKS && false;
     public static final boolean HACK_TEST_ALERTCREATOR = Constants.ALLOW_HACKS && false;
 
     /**
