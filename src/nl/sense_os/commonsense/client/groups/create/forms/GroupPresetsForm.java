@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.client.groups.create.forms;
 
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
+
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -10,9 +12,10 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupPresetsForm extends AbstractGroupForm {
+public class GroupPresetsForm extends WizardFormPanel {
 
     private final Radio anonymous = new Radio();
     private final Radio hidden = new Radio();
@@ -24,6 +27,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
     private final TextField<String> passwordConfirm = new TextField<String>();
 
     public GroupPresetsForm() {
+        super();
 
         initRadios();
         initTextFields();
@@ -34,8 +38,7 @@ public class GroupPresetsForm extends AbstractGroupForm {
     }
 
     public String getAccessPassword() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
-                ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
                 : null;
     }
 
@@ -75,20 +78,20 @@ public class GroupPresetsForm extends AbstractGroupForm {
         pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
         pwForm.setHeaderVisible(false);
         pwForm.setBodyBorder(false);
-        pwForm.add(password, layoutData);
-        pwForm.add(passwordConfirm, layoutData);
+        pwForm.add(password, new FormData(anchorSpec));
+        pwForm.add(passwordConfirm, new FormData(anchorSpec));
 
         setLayout(new FormLayout(LabelAlign.LEFT));
-        add(mainLabel, layoutData);
-        add(hidden, layoutData);
-        add(hiddenLabel, layoutData);
-        add(pwForm, layoutData);
-        add(anonymous, layoutData);
-        add(anonyLabel, layoutData);
-        add(community, layoutData);
-        add(communityLabel, layoutData);
-        add(custom, layoutData);
-        add(customLabel, layoutData);
+        add(mainLabel, new FormData(anchorSpec));
+        add(hidden, new FormData(anchorSpec));
+        add(hiddenLabel, new FormData(anchorSpec));
+        add(pwForm, new FormData(anchorSpec));
+        add(anonymous, new FormData(anchorSpec));
+        add(anonyLabel, new FormData(anchorSpec));
+        add(community, new FormData(anchorSpec));
+        add(communityLabel, new FormData(anchorSpec));
+        add(custom, new FormData(anchorSpec));
+        add(customLabel, new FormData(anchorSpec));
     }
 
     private void initRadios() {

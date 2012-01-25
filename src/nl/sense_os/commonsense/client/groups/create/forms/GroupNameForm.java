@@ -1,11 +1,14 @@
 package nl.sense_os.commonsense.client.groups.create.forms;
 
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
+
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
-public class GroupNameForm extends AbstractGroupForm {
+public class GroupNameForm extends WizardFormPanel {
 
     private final TextField<String> name = new TextField<String>();
     private final TextArea description = new TextArea();
@@ -23,6 +26,7 @@ public class GroupNameForm extends AbstractGroupForm {
         label.setHideLabel(true);
 
         // layout
+        FormData layoutData = new FormData(anchorSpec);
         layoutData.setMargins(new Margins(0, 0, 10, 0));
         add(label, layoutData);
         add(name, layoutData);

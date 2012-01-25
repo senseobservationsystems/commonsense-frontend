@@ -1,38 +1,42 @@
 package nl.sense_os.commonsense.client.groups.join.forms;
 
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
+
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
-public class GroupTypeForm extends FormPanel {
+public class GroupTypeForm extends WizardFormPanel {
 
     private RadioGroup typeChoice;
 
     public GroupTypeForm() {
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        setLabelAlign(LabelAlign.TOP);
+        super();
+
+        LabelField explanation = new LabelField(
+                "Do you know the name of the group, or do you want to list all groups you can join?");
+        explanation.setHideLabel(true);
 
         typeChoice = new RadioGroup("group type");
         typeChoice.setOrientation(Orientation.VERTICAL);
-        typeChoice
-                .setFieldLabel("Do you know the name of the group, or do you want to search the public groups?");
-
-        Radio publicGroup = new Radio();
-        publicGroup.setBoxLabel("Search public groups");
-        publicGroup.setValueAttribute("public");
-        typeChoice.add(publicGroup);
+        typeChoice.setFieldLabel("Make a choice");
 
         Radio privateGroup = new Radio();
-        privateGroup.setBoxLabel("Enter a private group");
-        privateGroup.setValueAttribute("private");
+        privateGroup.setBoxLabel("Enter the group name");
+        privateGroup.setValueAttribute("hidden");
         typeChoice.add(privateGroup);
 
-        typeChoice.setValue(publicGroup);
+        Radio publicGroup = new Radio();
+        publicGroup.setBoxLabel("Browse all groups");
+        publicGroup.setValueAttribute("visible");
+        typeChoice.add(publicGroup);
 
-        add(typeChoice, new FormData("-20"));
+        typeChoice.setValue(privateGroup);
+
+        add(explanation, new FormData("-5"));
+        add(typeChoice, new FormData(anchorSpec));
     }
 
     public String getType() {

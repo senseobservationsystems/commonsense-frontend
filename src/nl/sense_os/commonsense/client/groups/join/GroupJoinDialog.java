@@ -6,11 +6,12 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.groups.join.forms.AllVisibleGroupsForm;
+import nl.sense_os.commonsense.client.groups.join.forms.GroupNameForm;
 import nl.sense_os.commonsense.client.groups.join.forms.GroupTypeForm;
-import nl.sense_os.commonsense.client.groups.join.forms.PublicGroupSelectionForm;
 
-import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -24,28 +25,34 @@ public class GroupJoinDialog extends Window {
     private static final Logger LOG = Logger.getLogger(GroupJoinDialog.class.getName());
 
     private CardLayout layout;
-    private GroupTypeForm frmGroupType;
-    private PublicGroupSelectionForm frmGroupSelection;
+    private final GroupTypeForm frmGroupType;
+    private final AllVisibleGroupsForm frmPublicGroups;
+    private final GroupNameForm frmPrivateGroup;
     private Button btnNext;
     private Button btnBack;
     private Button btnCancel;
     private FormButtonBinding buttonBinding;
 
-    public GroupJoinDialog(ListLoader<ListLoadResult<GroupModel>> groupLoader,
+    public GroupJoinDialog(PagingLoader<PagingLoadResult<GroupModel>> groupLoader,
             List<SensorModel> sensorLibrary) {
         LOG.setLevel(Level.ALL);
 
+        // main window properties
         setHeading("Join a public group");
         setClosable(false);
         setSize(540, 480);
 
+        // set card layout
         layout = new CardLayout();
         setLayout(layout);
 
+        // init individual subforms
         frmGroupType = new GroupTypeForm();
         add(frmGroupType);
-        frmGroupSelection = new PublicGroupSelectionForm(groupLoader);
-        add(frmGroupSelection);
+        frmPublicGroups = new AllVisibleGroupsForm(groupLoader);
+        add(frmPublicGroups);
+        frmPrivateGroup = new GroupNameForm();
+        add(frmPrivateGroup);
 
         initButtons();
 
@@ -71,7 +78,37 @@ public class GroupJoinDialog extends Window {
     }
 
     public GroupModel getGroup() {
-        return frmGroupSelection.getGroup();
+        return frmPublicGroups.getGroup();
+    }
+
+    public void goToNext() {
+        Component active = layout.getActiveItem();
+        if (active.equals(frmGroupType)) {
+            if (frmGroupType.getType().equals("visible")) {
+                showAllGroupsList();
+            } else {
+                showHiddenGroupForm();
+            }
+        } else if (active.equals(frmPublicGroups)) {
+            // TODO
+        } else if (active.equals(frmPrivateGroup)) {
+            // TODO
+        } else {
+            LOG.warning("Unable to go to next card!");
+        }
+    }
+
+    public void goToPrev() {
+        Component active = layout.getActiveItem();
+        if (active.equals(frmGroupType)) {
+            // should never happen
+        } else if (active.equals(frmPublicGroups)) {
+            showGroupTypeChoice();
+        } else if (active.equals(frmPrivateGroup)) {
+            showGroupTypeChoice();
+        } else {
+            LOG.warning("Unable to go to previous card!");
+        }
     }
 
     private void initButtons() {
@@ -99,29 +136,7 @@ public class GroupJoinDialog extends Window {
         }
     }
 
-    public void goToNext() {
-        Component active = layout.getActiveItem();
-        if (active.equals(frmGroupType)) {
-            showGroupSelection();
-        } else if (active.equals(frmGroupSelection)) {
-            // TODO
-        } else {
-            LOG.warning("Unable to go to next card!");
-        }
-    }
-
-    public void goToPrev() {
-        Component active = layout.getActiveItem();
-        if (active.equals(frmGroupType)) {
-            // should never happen
-        } else if (active.equals(frmGroupSelection)) {
-            showGroupTypeSelection();
-        } else {
-            LOG.warning("Unable to go to previous card!");
-        }
-    }
-
-    private void showGroupTypeSelection() {
+    private void showGroupTypeChoice() {
         // update active item
         layout.setActiveItem(frmGroupType);
 
@@ -136,9 +151,9 @@ public class GroupJoinDialog extends Window {
         buttonBinding.addButton(btnNext);
     }
 
-    private void showGroupSelection() {
+    private void showHiddenGroupForm() {
         // update active item
-        layout.setActiveItem(frmGroupSelection);
+        layout.setActiveItem(frmPrivateGroup);
 
         // update buttons
         btnNext.setText("Next");
@@ -147,7 +162,22 @@ public class GroupJoinDialog extends Window {
         if (null != buttonBinding) {
             buttonBinding.removeButton(btnNext);
         }
-        buttonBinding = new FormButtonBinding(frmGroupSelection);
+        buttonBinding = new FormButtonBinding(frmPrivateGroup);
+        buttonBinding.addButton(btnNext);
+    }
+
+    private void showAllGroupsList() {
+        // update active item
+        layout.setActiveItem(frmPublicGroups);
+
+        // update buttons
+        btnNext.setText("Next");
+        btnBack.setEnabled(true);
+
+        if (null != buttonBinding) {
+            buttonBinding.removeButton(btnNext);
+        }
+        buttonBinding = new FormButtonBinding(frmPublicGroups);
         buttonBinding.addButton(btnNext);
     }
 }

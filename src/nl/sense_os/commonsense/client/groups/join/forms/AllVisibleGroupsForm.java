@@ -3,20 +3,20 @@ package nl.sense_os.commonsense.client.groups.join.forms;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -26,25 +26,25 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-public class PublicGroupSelectionForm extends FormPanel {
+public class AllVisibleGroupsForm extends WizardFormPanel {
 
-    private static final Logger LOG = Logger.getLogger(PublicGroupSelectionForm.class.getName());
+    private static final Logger LOG = Logger.getLogger(AllVisibleGroupsForm.class.getName());
 
     private Grid<GroupModel> grid;
     private ToolBar filterBar;
+    private PagingToolBar pagingBar;
     private ListStore<GroupModel> store;
-    private ListLoader<ListLoadResult<GroupModel>> loader;
+    private PagingLoader<PagingLoadResult<GroupModel>> loader;
     private TextField<String> hiddenField;
     private GroupModel selected;
 
-    public PublicGroupSelectionForm(ListLoader<ListLoadResult<GroupModel>> loader) {
-        this.loader = loader;
+    public AllVisibleGroupsForm(PagingLoader<PagingLoadResult<GroupModel>> loader) {
+        super();
 
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        setLabelAlign(LabelAlign.TOP);
+        this.loader = loader;
 
         initGrid();
         initFilters();
@@ -72,6 +72,7 @@ public class PublicGroupSelectionForm extends FormPanel {
         panel.setHeaderVisible(false);
         panel.setStyleAttribute("backgroundColor", "white");
         panel.setTopComponent(filterBar);
+        panel.setBottomComponent(pagingBar);
         panel.add(grid);
 
         AdapterField field = new AdapterField(panel);
@@ -117,6 +118,9 @@ public class PublicGroupSelectionForm extends FormPanel {
         store = new ListStore<GroupModel>(loader);
         store.setKeyProvider(new SenseKeyProvider<GroupModel>());
         store.setMonitorChanges(true);
+
+        pagingBar = new PagingToolBar(10);
+        pagingBar.bind(loader);
 
         // Column model
         ColumnConfig id = new ColumnConfig(UserModel.ID, "ID", 50);

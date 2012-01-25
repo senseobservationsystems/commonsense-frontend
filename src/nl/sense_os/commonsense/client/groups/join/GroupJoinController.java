@@ -12,8 +12,6 @@ import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -29,7 +27,6 @@ import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GroupJoinController extends Controller {
 
@@ -39,11 +36,10 @@ public class GroupJoinController extends Controller {
     public GroupJoinController() {
         LOG.setLevel(Level.ALL);
         registerEventTypes(GroupJoinEvents.Show, GroupJoinEvents.JoinRequest,
-                GroupJoinEvents.PublicGroupsRequested);
+                GroupJoinEvents.AllGroupsRequest);
     }
 
-    private void getPublicGroups(final List<GroupModel> groups, final int page,
-            final AsyncCallback<ListLoadResult<GroupModel>> callback) {
+    private void getAllGroups(final List<GroupModel> groups, final int page, final View source) {
 
         // prepare request properties
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -57,19 +53,19 @@ public class GroupJoinController extends Controller {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                LOG.warning("GET public groups onError callback: " + exception.getMessage());
-                onPublicGroupsFailure(callback);
+                LOG.warning("GET all groups onError callback: " + exception.getMessage());
+                onAllGroupsFailure(source);
             }
 
             @Override
             public void onResponseReceived(Request request, Response response) {
-                LOG.finest("GET public groups response received: " + response.getStatusText());
+                LOG.finest("GET all groups response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onPublicGroupsSuccess(response.getText(), groups, page, callback);
+                    onAllGroupsSuccess(response.getText(), groups, page, source);
                 } else {
-                    LOG.warning("GET group users returned incorrect status: " + statusCode);
-                    onPublicGroupsFailure(callback);
+                    LOG.warning("GET all groups returned incorrect status: " + statusCode);
+                    onAllGroupsFailure(source);
                 }
             }
         };
@@ -80,8 +76,8 @@ public class GroupJoinController extends Controller {
         try {
             builder.sendRequest(null, reqCallback);
         } catch (RequestException e) {
-            LOG.warning("GET public groups request threw exception: " + e.getMessage());
-            onPublicGroupsFailure(callback);
+            LOG.warning("GET all groups request threw exception: " + e.getMessage());
+            onAllGroupsFailure(source);
         }
     }
 
@@ -90,18 +86,20 @@ public class GroupJoinController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(GroupJoinEvents.Show)) {
+            LOG.finest("Create new group join view");
             View view = new GroupJoinView(this);
             forwardToView(view, event);
 
         } else if (type.equals(GroupJoinEvents.JoinRequest)) {
+            LOG.finest("JoinRequest");
             GroupModel group = event.getData("group");
             View source = (View) event.getSource();
             join(group, source);
 
-        } else if (type.equals(GroupJoinEvents.PublicGroupsRequested)) {
-            LOG.finest("PublicGroupsRequested");
-            AsyncCallback<ListLoadResult<GroupModel>> callback = event.getData("callback");
-            onPublicGroupsRequest(callback);
+        } else if (type.equals(GroupJoinEvents.AllGroupsRequest)) {
+            LOG.finest("AllGroupsRequest");
+            View source = (View) event.getSource();
+            onAllGroupsRequest(source);
 
         } else {
             LOG.warning("Unexpected event: " + event);
@@ -167,18 +165,17 @@ public class GroupJoinController extends Controller {
         Dispatcher.forwardEvent(GroupJoinEvents.JoinSuccess);
     }
 
-    private void onPublicGroupsFailure(AsyncCallback<ListLoadResult<GroupModel>> callback) {
-        callback.onFailure(new Throwable(""));
+    private void onAllGroupsFailure(View source) {
+        forwardToView(source, new AppEvent(GroupJoinEvents.AllGroupsFailure));
     }
 
-    private void onPublicGroupsRequest(AsyncCallback<ListLoadResult<GroupModel>> callback) {
+    private void onAllGroupsRequest(View source) {
         List<GroupModel> groups = new ArrayList<GroupModel>();
         int page = 0;
-        getPublicGroups(groups, page, callback);
+        getAllGroups(groups, page, source);
     }
 
-    private void onPublicGroupsSuccess(String response, List<GroupModel> groups, int page,
-            AsyncCallback<ListLoadResult<GroupModel>> callback) {
+    private void onAllGroupsSuccess(String response, List<GroupModel> groups, int page, View source) {
 
         // parse list of groups from the response
         int total = -1;
@@ -191,9 +188,11 @@ public class GroupJoinController extends Controller {
         // check if there are more pages left
         if (total == PER_PAGE) {
             page++;
-            getPublicGroups(groups, page, callback);
+            getAllGroups(groups, page, source);
         } else {
-            callback.onSuccess(new BaseListLoadResult<GroupModel>(groups));
+            AppEvent event = new AppEvent(GroupJoinEvents.AllGroupsSuccess);
+            event.setData("groups", groups);
+            forwardToView(source, event);
         }
     }
 }
