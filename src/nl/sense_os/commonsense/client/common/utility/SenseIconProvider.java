@@ -59,11 +59,6 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     public static final AbstractImagePrototype ICON_USER_ME = IconHelper.create(SENSE_ICONS_PATH
             + "user_zorro.png");
 
-    public static final AbstractImagePrototype ICON_LOADING = IconHelper
-            .create("ExtGWT/images/gxt/icons/loading.gif");
-    public static final AbstractImagePrototype ICON_BUTTON_GO = IconHelper
-            .create("ExtGWT/images/gxt/icons/page-next.gif");
-
     @Override
     public AbstractImagePrototype getIcon(M model) {
 

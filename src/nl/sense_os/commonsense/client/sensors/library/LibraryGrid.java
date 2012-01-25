@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
 import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
@@ -44,7 +43,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.GroupingStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -328,7 +326,7 @@ public class LibraryGrid extends View {
                     shareButton.enable();
                     if (selection.size() == 1 && selection.get(0).getUsers() != null) {
                         // TODO re-enable alert button
-                        // alertButton.enable();
+                        alertButton.enable();
                     }
                     if (selection.size() == 1 && selection.get(0).getUsers() != null
                             && selection.get(0).getUsers().size() > 0) {
@@ -420,11 +418,9 @@ public class LibraryGrid extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            if (!SenseIconProvider.ICON_LOADING.equals(panel.getHeader().getIcon())) {
-                panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
-            }
+            panel.getHeader().setIconStyle("sense-btn-icon-loading");
         } else {
-            panel.getHeader().setIcon(IconHelper.create(""));
+            panel.getHeader().setIconStyle("");
         }
     }
 

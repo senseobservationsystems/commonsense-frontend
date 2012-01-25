@@ -2,8 +2,6 @@ package nl.sense_os.commonsense.client.auth.registration;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.RegisterForm;
-
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -12,20 +10,18 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.http.client.Response;
 
-public class RegisterPanel extends View {
+public class RegisterView extends View {
 
-    private static final Logger LOG = Logger.getLogger(RegisterPanel.class.getName());
-    private ContentPanel panel;
+    private static final Logger LOG = Logger.getLogger(RegisterView.class.getName());
+    // private ContentPanel panel;
     private RegisterForm form;
 
-    public RegisterPanel(Controller c) {
+    public RegisterView(Controller c) {
         super(c);
     }
 
@@ -56,9 +52,9 @@ public class RegisterPanel extends View {
     protected void initialize() {
         super.initialize();
 
-        this.panel = new ContentPanel();
-        this.panel.setLayout(new FitLayout());
-        this.panel.setHeading("Register");
+        // this.panel = new ContentPanel();
+        // this.panel.setLayout(new FitLayout());
+        // this.panel.setHeading("Register");
 
         this.form = new RegisterForm();
         this.form.addListener(Events.BeforeSubmit, new Listener<FormEvent>() {
@@ -67,14 +63,13 @@ public class RegisterPanel extends View {
             public void handleEvent(FormEvent be) {
                 register();
             }
-
         });
-        this.panel.add(form);
+        // this.panel.add(form);
     }
 
     private void onSuccess() {
         setBusy(false);
-        this.form.reset();
+        form.reset();
     }
 
     private void onFailure(int code) {
@@ -124,12 +119,12 @@ public class RegisterPanel extends View {
     }
 
     private void setBusy(boolean busy) {
-        this.form.setBusy(busy);
+        form.setBusy(busy);
     }
 
     private void showPanel(LayoutContainer parent) {
-        this.form.reset();
-        parent.add(this.panel);
+        form.reset();
+        parent.add(form);
         parent.layout();
     }
 }

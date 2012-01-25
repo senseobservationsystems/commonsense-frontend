@@ -9,7 +9,6 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -21,8 +20,6 @@ import com.google.gwt.http.client.UrlBuilder;
 public class PwResetController extends Controller {
 
     private static final Logger LOG = Logger.getLogger(PwResetController.class.getName());
-    private View requestDialog;
-    private View newPasswordForm;
 
     public PwResetController() {
         registerEventTypes(PwResetEvents.ShowDialog, PwResetEvents.SubmitRequest);
@@ -38,25 +35,27 @@ public class PwResetController extends Controller {
             LOG.finest("SubmitRequest");
             String email = event.getData("email");
             String username = event.getData("username");
-            FormPanel form = event.getData("form");
-            requestReset(email, username, form);
+            View source = (View) event.getSource();
+            requestReset(email, username, source);
 
         } else if (PwResetEvents.NewPasswordRequest.equals(type)) {
             LOG.finest("NewPasswordRequest");
             String password = event.getData("password");
             String token = event.getData("token");
-            resetPassword(password, token);
+            View source = (View) event.getSource();
+            resetPassword(password, token, source);
 
         } else if (PwResetEvents.ShowNewPasswordForm.equals(type)) {
-            forwardToView(newPasswordForm, event);
+            LOG.finest("Create NewPwView...");
+            forwardToView(new NewPwView(this), event);
 
         } else {
-            LOG.finest("Forward to requestDialog...");
-            forwardToView(requestDialog, event);
+            LOG.finest("Create ForgotPwView...");
+            forwardToView(new ForgotPwView(this), event);
         }
     }
 
-    private void resetPassword(String password, String token) {
+    private void resetPassword(String password, String token, final View source) {
 
         // prepare request details
         final Method method = RequestBuilder.POST;
@@ -72,7 +71,7 @@ public class PwResetController extends Controller {
             @Override
             public void onError(Request request, Throwable exception) {
                 LOG.warning("POST password reset onError callback: " + exception.getMessage());
-                onPasswordResetFailure(0);
+                onPasswordResetFailure(0, source);
             }
 
             @Override
@@ -80,10 +79,10 @@ public class PwResetController extends Controller {
                 LOG.finest("POST password reset response received: " + response.getStatusText());
                 final int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onPasswordResetSuccess(response.getText());
+                    onPasswordResetSuccess(response.getText(), source);
                 } else {
                     LOG.warning("POST password reset returned incorrect status: " + statusCode);
-                    onPasswordResetFailure(statusCode);
+                    onPasswordResetFailure(statusCode, source);
                 }
             }
         };
@@ -95,19 +94,19 @@ public class PwResetController extends Controller {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {
             LOG.warning("POST password reset request threw exception: " + e.getMessage());
-            onPasswordResetFailure(0);
+            onPasswordResetFailure(0, source);
         }
     }
 
-    private void onPasswordResetFailure(int status) {
-        forwardToView(newPasswordForm, new AppEvent(PwResetEvents.NewPasswordFailure));
+    private void onPasswordResetFailure(int status, View source) {
+        forwardToView(source, new AppEvent(PwResetEvents.NewPasswordFailure));
     }
 
-    private void onPasswordResetSuccess(String response) {
-        forwardToView(newPasswordForm, new AppEvent(PwResetEvents.NewPasswordSuccess));
+    private void onPasswordResetSuccess(String response, View source) {
+        forwardToView(source, new AppEvent(PwResetEvents.NewPasswordSuccess));
     }
 
-    private void requestReset(String email, String username, final FormPanel form) {
+    private void requestReset(String email, String username, final View source) {
 
         // prepare request details
         final Method method = RequestBuilder.POST;
@@ -128,7 +127,7 @@ public class PwResetController extends Controller {
             public void onError(Request request, Throwable exception) {
                 LOG.warning("POST password reset request onError callback: "
                         + exception.getMessage());
-                onResetRequestFailure(0, form);
+                onResetRequestFailure(0, source);
             }
 
             @Override
@@ -136,13 +135,13 @@ public class PwResetController extends Controller {
                 LOG.finest("POST password reset response received: " + response.getStatusText());
                 final int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onResetRequestSuccess(response.getText(), form);
+                    onResetRequestSuccess(response.getText(), source);
                 } else if (Response.SC_NOT_FOUND == statusCode) {
-                    onUserNotFound(form);
+                    onUserNotFound(source);
                 } else {
                     LOG.warning("POST password reset request returned incorrect status: "
                             + statusCode);
-                    onResetRequestFailure(statusCode, form);
+                    onResetRequestFailure(statusCode, source);
                 }
             }
         };
@@ -154,32 +153,19 @@ public class PwResetController extends Controller {
             builder.sendRequest(body, callback);
         } catch (RequestException e) {
             LOG.warning("POST password reset request threw exception: " + e.getMessage());
-            onResetRequestFailure(0, form);
+            onResetRequestFailure(0, source);
         }
     }
 
-    private void onUserNotFound(FormPanel form) {
-        AppEvent event = new AppEvent(PwResetEvents.PwRemindNotFound);
-        event.setData("form", form);
-        forwardToView(requestDialog, event);
+    private void onUserNotFound(View source) {
+        forwardToView(source, new AppEvent(PwResetEvents.PwRemindNotFound));
     }
 
-    private void onResetRequestSuccess(String response, FormPanel form) {
-        AppEvent event = new AppEvent(PwResetEvents.PwRemindSuccess);
-        event.setData("form", form);
-        forwardToView(requestDialog, event);
+    private void onResetRequestSuccess(String response, View source) {
+        forwardToView(source, new AppEvent(PwResetEvents.PwRemindSuccess));
     }
 
-    private void onResetRequestFailure(int statusCode, FormPanel form) {
-        AppEvent event = new AppEvent(PwResetEvents.PwRemindFailure);
-        event.setData("form", form);
-        forwardToView(requestDialog, event);
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-        requestDialog = new PwResetDialog(this);
-        newPasswordForm = new NewPwView(this);
+    private void onResetRequestFailure(int statusCode, View source) {
+        forwardToView(source, new AppEvent(PwResetEvents.PwRemindFailure));
     }
 }

@@ -90,7 +90,7 @@ public class GroupJoinController extends Controller {
         EventType type = event.getType();
 
         if (type.equals(GroupJoinEvents.Show)) {
-            View view = new GroupJoinDialog(this);
+            View view = new GroupJoinView(this);
             forwardToView(view, event);
 
         } else if (type.equals(GroupJoinEvents.JoinRequest)) {

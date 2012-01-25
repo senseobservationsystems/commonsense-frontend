@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -75,7 +74,8 @@ public class SensorDeleteDialog extends View {
             }
         };
 
-        removeButton = new Button("Yes", SenseIconProvider.ICON_BUTTON_GO, l);
+        removeButton = new Button("Yes", l);
+        removeButton.setIconStyle("sense-btn-icon-go");
         cancelButton = new Button("No", l);
         window.addButton(removeButton);
         window.addButton(cancelButton);
@@ -138,10 +138,10 @@ public class SensorDeleteDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            removeButton.setIcon(SenseIconProvider.ICON_LOADING);
+            removeButton.setIconStyle("sense-btn-icon-loading");
             cancelButton.setEnabled(false);
         } else {
-            removeButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            removeButton.setIconStyle("sense-btn-icon-go");
             cancelButton.setEnabled(true);
         }
     }

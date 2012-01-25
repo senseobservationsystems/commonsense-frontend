@@ -52,7 +52,7 @@ public class RegisterController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        form = new RegisterPanel(this);
+        form = new RegisterView(this);
     }
 
     private void onRegisterFailure(int code) {

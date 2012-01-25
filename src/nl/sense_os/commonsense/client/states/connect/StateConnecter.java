@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
 import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
@@ -123,7 +122,8 @@ public class StateConnecter extends View {
                 }
             }
         };
-        submitButton = new Button("Connect", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("Connect", l);
+        submitButton.setIconStyle("sense-btn-icon-go");
         cancelButton = new Button("Cancel", l);
 
         form.addButton(submitButton);
@@ -344,10 +344,10 @@ public class StateConnecter extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            submitButton.setIconStyle("sense-btn-icon-loading");
             cancelButton.disable();
         } else {
-            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submitButton.setIconStyle("sense-btn-icon-go");
             cancelButton.enable();
         }
     }

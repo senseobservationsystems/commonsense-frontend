@@ -4,28 +4,15 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.DataProxy;
-import com.extjs.gxt.ui.client.data.DataReader;
-import com.extjs.gxt.ui.client.data.ListLoadConfig;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -43,80 +30,62 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 
-public class GroupJoinDialog extends View {
+public class GroupJoinDialog extends Window {
 
-    private static final Logger LOG = Logger.getLogger(GroupJoinController.class.getName());
-    private Window window;
+    private static final Logger LOG = Logger.getLogger(GroupJoinDialog.class.getName());
+
     private Grid<GroupModel> grid;
     private FormPanel form;
     private ToolBar filterBar;
     private ListStore<GroupModel> store;
     private ListLoader<ListLoadResult<GroupModel>> loader;
-    private Button submitButton;
-    private Button cancelButton;
+    private Button btnSubmit;
+    private Button btnCancel;
 
-    public GroupJoinDialog(Controller c) {
-        super(c);
+    public GroupJoinDialog(ListLoader<ListLoadResult<GroupModel>> loader) {
         LOG.setLevel(Level.ALL);
+
+        this.loader = loader;
+
+        setHeading("Join a public group");
+        setSize(540, 480);
+        setLayout(new FitLayout());
+
+        initForm();
+
+        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
+
+            @Override
+            public void onResize(ResizeEvent event) {
+                center();
+            }
+        });
     }
 
-    @Override
-    protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type.equals(GroupJoinEvents.Show)) {
-            LOG.finest("Show");
-            show();
-
-        } else if (type.equals(GroupJoinEvents.JoinSuccess)) {
-            LOG.finest("JoinSuccess");
-            onSuccess();
-
-        } else if (type.equals(GroupJoinEvents.JoinFailure)) {
-            LOG.finest("JoinFailure");
-            onFailure();
-
-        } else {
-            LOG.warning("Unexpected event: " + event);
-        }
+    public Button getBtnCancel() {
+        return btnCancel;
     }
 
-    private void onFailure() {
-        setBusy(false);
-
+    public Button getBtnSubmit() {
+        return btnSubmit;
     }
 
-    private void onSuccess() {
-        setBusy(false);
-    }
-
-    private void hideWindow() {
-        window.hide();
+    public Grid<GroupModel> getGrid() {
+        return grid;
     }
 
     private void initButtons() {
-        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                final Button pressed = ce.getButton();
-                if (pressed.equals(submitButton)) {
-                    if (form.isValid()) {
-                        submitForm();
-                    }
-                } else if (pressed.equals(cancelButton)) {
-                    hideWindow();
-                } else {
-                    LOG.warning("Unexpected button pressed: " + pressed);
-                }
-            }
-        };
-        submitButton = new Button("Join", SenseIconProvider.ICON_BUTTON_GO, l);
-        cancelButton = new Button("Cancel", l);
+        btnSubmit = new Button("Join");
+        btnSubmit.setIconStyle("sense-btn-icon-go");
+        btnSubmit.setEnabled(false);
+        btnCancel = new Button("Cancel");
 
-        form.addButton(submitButton);
-        form.addButton(cancelButton);
+        form.addButton(btnSubmit);
+        form.addButton(btnCancel);
 
         // handle selections
         GridSelectionModel<GroupModel> selectionModel = new GridSelectionModel<GroupModel>();
@@ -127,9 +96,9 @@ public class GroupJoinDialog extends View {
             public void selectionChanged(SelectionChangedEvent<GroupModel> se) {
                 GroupModel selection = se.getSelectedItem();
                 if (null != selection) {
-                    submitButton.enable();
+                    btnSubmit.enable();
                 } else {
-                    submitButton.disable();
+                    btnSubmit.disable();
                 }
             }
         });
@@ -180,6 +149,7 @@ public class GroupJoinDialog extends View {
         filterBar.add(new LabelToolItem("Filter: "));
         filterBar.add(textFilter);
     }
+
     private void initForm() {
         form = new FormPanel();
         form.setHeaderVisible(false);
@@ -190,32 +160,10 @@ public class GroupJoinDialog extends View {
         initFields();
         initButtons();
 
-        window.add(form);
+        add(form);
     }
 
     private void initGrid() {
-
-        // proxy
-        DataProxy<ListLoadResult<GroupModel>> proxy = new DataProxy<ListLoadResult<GroupModel>>() {
-
-            @Override
-            public void load(DataReader<ListLoadResult<GroupModel>> reader, Object loadConfig,
-                    AsyncCallback<ListLoadResult<GroupModel>> callback) {
-                // only load when the panel is not collapsed
-                if (loadConfig instanceof ListLoadConfig) {
-                    LOG.finest("Load library...");
-                    AppEvent loadRequest = new AppEvent(GroupJoinEvents.PublicGroupsRequested);
-                    loadRequest.setData("callback", callback);
-                    fireEvent(loadRequest);
-                } else {
-                    LOG.warning("Unexpected load config: " + loadConfig);
-                    callback.onFailure(null);
-                }
-            }
-        };
-
-        // list loader
-        loader = new BaseListLoader<ListLoadResult<GroupModel>>(proxy);
 
         // list store
         store = new ListStore<GroupModel>(loader);
@@ -241,37 +189,13 @@ public class GroupJoinDialog extends View {
         grid.setLoadMask(true);
     }
 
-    private void show() {
-        window = new CenteredWindow();
-        window.setHeading("Join a public group");
-        window.setSize(540, 480);
-        window.setLayout(new FitLayout());
-
-        initForm();
-
-        window.show();
-
-        loader.load();
-    }
-
-    private void submitForm() {
-
-        GroupModel group = grid.getSelectionModel().getSelectedItem();
-        AppEvent event = new AppEvent(GroupJoinEvents.JoinRequest);
-        event.setData("group", group);
-        event.setSource(this);
-        Dispatcher.forwardEvent(event);
-
-        setBusy(true);
-    }
-
-    private void setBusy(boolean busy) {
+    public void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
-            cancelButton.disable();
+            btnSubmit.setIconStyle("sense-btn-icon-loading");
+            btnCancel.disable();
         } else {
-            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
-            cancelButton.enable();
+            btnSubmit.setIconStyle("sense-btn-icon-go");
+            btnCancel.enable();
         }
     }
 }
