@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.common.components;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -131,7 +130,8 @@ public class RegisterForm extends FormPanel {
         };
 
         // submit button
-        submit = new Button("Register", SenseIconProvider.ICON_BUTTON_GO, l);
+        submit = new Button("Register", l);
+        submit.setIconStyle("sense-btn-icon-go");
         // submit.setType("submit");
 
         addButton(submit);
@@ -210,9 +210,9 @@ public class RegisterForm extends FormPanel {
 
     public void setBusy(boolean busy) {
         if (busy) {
-            submit.setIcon(SenseIconProvider.ICON_LOADING);
+            submit.setIconStyle("sense-btn-icon-loading");
         } else {
-            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submit.setIconStyle("sense-btn-icon-go");
         }
     }
 

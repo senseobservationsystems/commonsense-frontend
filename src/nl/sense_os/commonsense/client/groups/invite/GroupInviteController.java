@@ -40,7 +40,7 @@ public class GroupInviteController extends Controller {
             inviteUser(group, email, source);
 
         } else if (type.equals(GroupInviteEvents.ShowInviter)) {
-            GroupInviter inviter = new GroupInviter(this);
+            GroupInviteView inviter = new GroupInviteView(this);
             forwardToView(inviter, event);
 
         } else {

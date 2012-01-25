@@ -17,19 +17,12 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class GroupReqSharingForm extends AbstractGroupForm {
 
-    public class NoInfoRadio extends Radio {
-
-    };
-    public class ShowInfoRadio extends Radio {
-
-    }
-
     private final TextArea required = new TextArea();
     private final TextArea optional = new TextArea();
 
-    private final RadioGroup infoRadios = new RadioGroup();
-    private final ShowInfoRadio showInfo = new ShowInfoRadio();
-    private final NoInfoRadio noInfo = new NoInfoRadio();
+    private final RadioGroup anonymous = new RadioGroup();
+    private final Radio radioNotAnonymous = new Radio();
+    private final Radio radioAnonymous = new Radio();
 
     private final CheckBox userId = new CheckBox();
     private final CheckBox username = new CheckBox();
@@ -42,20 +35,20 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         super();
 
         initSharingFields();
-        initMemberInfoRadios();
+        initAnonymousRadios();
         initMemberInfoCheckBoxes();
         initLayout();
 
         // initial values
-        showInfo.setValue(true);
-        onSelectionChange(showInfo);
+        radioNotAnonymous.setValue(true);
+        onSelectionChange(radioNotAnonymous);
         username.setValue(true);
         firstName.setValue(true);
         surname.setValue(true);
     }
 
     public RadioGroup getInfoRadios() {
-        return infoRadios;
+        return anonymous;
     }
 
     public String getOptSensors() {
@@ -94,9 +87,9 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         add(optional, extraSpace);
 
         add(infoLabel, layoutData);
-        add(showInfo, layoutData);
+        add(radioNotAnonymous, layoutData);
         add(checkBoxContainer, layoutData);
-        add(noInfo, layoutData);
+        add(radioAnonymous, layoutData);
     }
 
     private void initMemberInfoCheckBoxes() {
@@ -108,20 +101,26 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         phone.setBoxLabel("Phone");
     }
 
-    private void initMemberInfoRadios() {
-        showInfo.setBoxLabel("Members need to share some information with the group:");
-        showInfo.setHideLabel(true);
-        noInfo.setBoxLabel("Members are not required to share information about themselves");
-        noInfo.setHideLabel(true);
-        infoRadios.add(showInfo);
-        infoRadios.add(noInfo);
-        infoRadios.addListener(Events.Change, new Listener<FieldEvent>() {
+    private void initAnonymousRadios() {
+
+        anonymous.setName("anonymous");
+        anonymous.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
                 onSelectionChange(be.getField().getValue());
             }
         });
+
+        radioNotAnonymous.setBoxLabel("Members need to share some information with the group:");
+        radioNotAnonymous.setValueAttribute("false");
+        radioNotAnonymous.setHideLabel(true);
+        anonymous.add(radioNotAnonymous);
+
+        radioAnonymous.setBoxLabel("Members are not required to share information about themselves");
+        radioAnonymous.setValueAttribute("true");
+        radioAnonymous.setHideLabel(true);
+        anonymous.add(radioAnonymous);
     }
 
     private void initSharingFields() {
@@ -153,8 +152,12 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         return username.isEnabled() && username.getValue();
     }
 
+    public boolean isGroupAnonymous() {
+        return "true".equals(anonymous.getValue().getValueAttribute());
+    }
+
     private void onSelectionChange(Object value) {
-        boolean enableChecks = showInfo.equals(value);
+        boolean enableChecks = radioNotAnonymous.equals(value);
         userId.setEnabled(enableChecks);
         username.setEnabled(enableChecks);
         firstName.setEnabled(enableChecks);

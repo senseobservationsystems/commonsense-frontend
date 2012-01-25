@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -33,7 +32,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -330,12 +328,11 @@ public class EnvGrid extends View {
 
     private void setBusyIcon(boolean busy) {
         if (busy) {
-            panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            panel.getHeader().setIconStyle("sense-btn-icon-loading");
         } else {
-            panel.getHeader().setIcon(IconHelper.create(""));
+            panel.getHeader().setIconStyle("");
         }
     }
-
     private void showPanel(LayoutContainer parent) {
         if (null != parent) {
             parent.add(panel);

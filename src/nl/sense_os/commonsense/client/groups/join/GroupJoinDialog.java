@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -112,7 +111,8 @@ public class GroupJoinDialog extends View {
                 }
             }
         };
-        submitButton = new Button("Join", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("Join", l);
+        submitButton.setIconStyle("sense-btn-icon-go");
         cancelButton = new Button("Cancel", l);
 
         form.addButton(submitButton);
@@ -267,10 +267,10 @@ public class GroupJoinDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            submitButton.setIconStyle("sense-btn-icon-loading");
             cancelButton.disable();
         } else {
-            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submitButton.setIconStyle("sense-btn-icon-go");
             cancelButton.enable();
         }
     }

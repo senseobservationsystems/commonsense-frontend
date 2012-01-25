@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.auth.pwreset;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -70,7 +69,7 @@ public class PwResetDialog extends View {
     private void onNotFound(final FormPanel form) {
 
         Button submitBtn = (Button) form.getButtonBar().getItemByItemId("pwreset-submit");
-        submitBtn.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+        submitBtn.setIconStyle("sense-btn-icon-go");
 
         MessageBox.alert("Reset password",
                 "Sorry, we could not find any users with the details you entered...",
@@ -86,7 +85,7 @@ public class PwResetDialog extends View {
     private void onFailure(final FormPanel form) {
 
         Button submitBtn = (Button) form.getButtonBar().getItemByItemId("pwreset-submit");
-        submitBtn.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+        submitBtn.setIconStyle("sense-btn-icon-go");
 
         MessageBox.confirm("Reset password",
                 "Sorry, an error occurred during communication! Retry?",
@@ -106,7 +105,7 @@ public class PwResetDialog extends View {
     private void onSuccess(final FormPanel form) {
 
         Button submitBtn = (Button) form.getButtonBar().getItemByItemId("pwreset-submit");
-        submitBtn.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+        submitBtn.setIconStyle("sense-btn-icon-go");
 
         MessageBox.info("Reset password",
                 "We sent you an email with a link to reset your password.",
@@ -181,14 +180,14 @@ public class PwResetDialog extends View {
         });
         radios.setValue(emailRadio);
 
-        final Button submit = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO,
-                new SelectionListener<ButtonEvent>() {
+        final Button submit = new Button("Submit", new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        form.submit();
-                    }
-                });
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                form.submit();
+            }
+        });
+        submit.setIconStyle("sense-btn-icon-go");
         submit.setItemId("pwreset-submit");
         submit.setType("submit");
         new FormButtonBinding(form).addButton(submit);
@@ -200,7 +199,7 @@ public class PwResetDialog extends View {
             @Override
             public void handleEvent(FormEvent be) {
                 Button submitBtn = (Button) form.getButtonBar().getItemByItemId("pwreset-submit");
-                submitBtn.setIcon(SenseIconProvider.ICON_LOADING);
+                submitBtn.setIconStyle("sense-btn-icon-loading");
 
                 String emailStr = email.getValue();
                 String usernameStr = username.getValue();
@@ -214,7 +213,6 @@ public class PwResetDialog extends View {
 
         return form;
     }
-
     private void resetPassword(String email, String username, FormPanel form) {
         AppEvent event = new AppEvent(PwResetEvents.SubmitRequest);
         event.setData("email", email);

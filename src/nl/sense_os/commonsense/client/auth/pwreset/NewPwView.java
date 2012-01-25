@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.auth.pwreset;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -97,14 +96,14 @@ public class NewPwView extends View {
             }
         });
 
-        submit = new Button("Submit", SenseIconProvider.ICON_BUTTON_GO,
-                new SelectionListener<ButtonEvent>() {
+        submit = new Button("Submit", new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        form.submit();
-                    }
-                });
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                form.submit();
+            }
+        });
+        submit.setIconStyle("sense-btn-icon-loading");
         submit.setType("submit");
 
         form = new FormPanel();
@@ -146,10 +145,10 @@ public class NewPwView extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submit.setIcon(SenseIconProvider.ICON_LOADING);
+            submit.setIconStyle("sense-btn-icon-loading");
             submit.setEnabled(false);
         } else {
-            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submit.setIconStyle("sense-btn-icon-go");
             submit.setEnabled(true);
         }
     }

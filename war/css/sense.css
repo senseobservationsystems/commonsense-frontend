@@ -362,3 +362,9 @@ div.graph-axis-text-vertical {
 .pw-reset-field {
 	margin-bottom: 5px;
 }
+.sense-btn-icon-go {
+	background-image: url('../ExtGWT/images/gxt/icons/page-next.gif');
+}
+.sense-btn-icon-loading {
+	background-image: url('../ExtGWT/images/gxt/icons/loading.gif');
+}

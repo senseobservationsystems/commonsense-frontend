@@ -92,7 +92,8 @@ public class LoginForm extends FormPanel {
         };
 
         // submit button
-        submit = new Button("Log in", SenseIconProvider.ICON_BUTTON_GO, l);
+        submit = new Button("Log in", l);
+        submit.setIconStyle("sense-btn-icon-go");
         // submit.setType("submit"); // "submit" type makes the button always clickable!
 
         LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
@@ -154,9 +155,9 @@ public class LoginForm extends FormPanel {
 
     public void setBusy(boolean busy) {
         if (busy) {
-            submit.setIcon(SenseIconProvider.ICON_LOADING);
+            submit.setIconStyle("sense-btn-icon-loading");
         } else {
-            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submit.setIconStyle("sense-btn-icon-go");
         }
     }
 

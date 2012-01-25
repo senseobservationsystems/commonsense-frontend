@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.groups.create;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -25,7 +24,7 @@ public class GroupCreateController extends Controller {
     private static final Logger LOG = Logger.getLogger(GroupCreateController.class.getName());
 
     public GroupCreateController() {
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
         registerEventTypes(GroupCreateEvents.ShowCreator, GroupCreateEvents.CreateRequested);
     }
 
