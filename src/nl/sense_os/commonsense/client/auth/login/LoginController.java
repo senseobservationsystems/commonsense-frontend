@@ -222,7 +222,7 @@ public class LoginController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        loginView = new LoginPanel(this);
+        loginView = new LoginView(this);
     }
 
     /**
