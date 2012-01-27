@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.groups.join.forms;
 
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
@@ -43,6 +44,8 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 
     public AllVisibleGroupsForm(PagingLoader<PagingLoadResult<GroupModel>> loader) {
         super();
+
+        LOG.setLevel(Level.ALL);
 
         this.loader = loader;
 

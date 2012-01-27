@@ -1,11 +1,13 @@
 package nl.sense_os.commonsense.client.groups.join;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.groups.join.GroupJoinDialog.States;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -32,6 +34,7 @@ public class GroupJoinView extends View {
 
     public GroupJoinView(Controller c) {
         super(c);
+        LOG.setLevel(Level.ALL);
     }
 
     private void getAllGroups() {
@@ -57,6 +60,15 @@ public class GroupJoinView extends View {
             LOG.finest("AllGroupsSuccess");
             onAllGroupsFailure();
 
+        } else if (type.equals(GroupJoinEvents.GroupDetailsSuccess)) {
+            LOG.finest("GroupDetailsSuccess");
+            GroupModel group = event.getData("group");
+            onGroupDetailsSuccess(group);
+
+        } else if (type.equals(GroupJoinEvents.GroupDetailsFailure)) {
+            LOG.warning("GroupDetailsFailure");
+            onGroupDetailsFailure();
+
         } else if (type.equals(GroupJoinEvents.JoinSuccess)) {
             LOG.finest("JoinSuccess");
             onSuccess();
@@ -70,12 +82,24 @@ public class GroupJoinView extends View {
         }
     }
 
+    private void onGroupDetailsFailure() {
+        window.setBusy(false);
+        MessageBox.alert("CommonSense", "Failed to get group details!", null);
+    }
+
+    private void onGroupDetailsSuccess(GroupModel group) {
+        window.setBusy(false);
+        window.setReqSensors(group.getReqSensors());
+        window.setWizardState(States.SHARE_SENSORS);
+    }
+
     private void hideWindow() {
         window.hide();
     }
 
     private void onAllGroupsFailure() {
         progress.close();
+        MessageBox.alert("CommonSense", "Failed to get list of groups to join!", null);
     }
 
     private void onAllGroupsSuccess(List<GroupModel> groups) {
@@ -97,7 +121,7 @@ public class GroupJoinView extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().getText().equalsIgnoreCase("next")) {
-                    window.goToNext();
+                    goToNext();
                 } else {
                     submitForm();
                 }
@@ -106,7 +130,7 @@ public class GroupJoinView extends View {
         window.getBtnBack().addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                window.goToPrev();
+                goToPrev();
             }
         });
         window.getBtnCancel().addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -137,6 +161,63 @@ public class GroupJoinView extends View {
                 }
             }
         });
+    }
+
+    public void goToNext() {
+        int state = window.getWizardState();
+        switch (state) {
+            case States.GROUP_TYPE_CHOICE :
+                if (window.getGroupType().equals("visible")) {
+                    window.setWizardState(States.ALL_VISIBLE_GROUPS);
+                } else {
+                    window.setWizardState(States.GROUP_NAME);
+                }
+                break;
+            case States.ALL_VISIBLE_GROUPS :
+                getGroupDetails(window.getGroup());
+                break;
+            case States.SHARE_SENSORS :
+                // TODO
+                break;
+            case States.GROUP_NAME :
+                // TODO
+                break;
+            default :
+                LOG.warning("Unable to go to next state!");
+        }
+    }
+
+    private void getGroupDetails(GroupModel group) {
+        AppEvent event = new AppEvent(GroupJoinEvents.GroupDetailsRequest);
+        event.setData("group", group);
+        event.setSource(this);
+        fireEvent(event);
+
+        window.setBusy(true);
+    }
+
+    public void goToPrev() {
+        int state = window.getWizardState();
+        switch (state) {
+            case States.GROUP_TYPE_CHOICE :
+                // should never happen
+                break;
+            case States.ALL_VISIBLE_GROUPS :
+                window.setWizardState(States.GROUP_TYPE_CHOICE);
+                break;
+            case States.SHARE_SENSORS :
+                if (window.getGroupType().equals("visible")) {
+                    window.setWizardState(States.ALL_VISIBLE_GROUPS);
+                } else {
+                    window.setWizardState(States.GROUP_NAME);
+                }
+                break;
+            case States.GROUP_NAME :
+                window.setWizardState(States.GROUP_TYPE_CHOICE);
+                break;
+            default :
+                LOG.warning("Unable to go to previous state!");
+        }
     }
 
     private void onSuccess() {

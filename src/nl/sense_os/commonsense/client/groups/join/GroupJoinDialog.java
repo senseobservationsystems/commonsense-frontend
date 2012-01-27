@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.groups.join;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,10 +10,10 @@ import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.groups.join.forms.AllVisibleGroupsForm;
 import nl.sense_os.commonsense.client.groups.join.forms.GroupNameForm;
 import nl.sense_os.commonsense.client.groups.join.forms.GroupTypeForm;
+import nl.sense_os.commonsense.client.groups.join.forms.ShareSensorsForm;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
@@ -22,16 +23,25 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 
 public class GroupJoinDialog extends Window {
 
+    class States {
+        public static final int GROUP_TYPE_CHOICE = 0;
+        public static final int ALL_VISIBLE_GROUPS = 1;
+        public static final int GROUP_NAME = 2;
+        public static final int SHARE_SENSORS = 3;
+    }
+
     private static final Logger LOG = Logger.getLogger(GroupJoinDialog.class.getName());
 
     private CardLayout layout;
-    private final GroupTypeForm frmGroupType;
-    private final AllVisibleGroupsForm frmPublicGroups;
-    private final GroupNameForm frmPrivateGroup;
+    private GroupTypeForm frmGroupType;
+    private AllVisibleGroupsForm frmAllVisibleGroups;
+    private GroupNameForm frmGroupName;
+    private ShareSensorsForm frmShareSensors;
     private Button btnNext;
     private Button btnBack;
     private Button btnCancel;
     private FormButtonBinding buttonBinding;
+    private int state;
 
     public GroupJoinDialog(PagingLoader<PagingLoadResult<GroupModel>> groupLoader,
             List<SensorModel> sensorLibrary) {
@@ -49,10 +59,12 @@ public class GroupJoinDialog extends Window {
         // init individual subforms
         frmGroupType = new GroupTypeForm();
         add(frmGroupType);
-        frmPublicGroups = new AllVisibleGroupsForm(groupLoader);
-        add(frmPublicGroups);
-        frmPrivateGroup = new GroupNameForm();
-        add(frmPrivateGroup);
+        frmAllVisibleGroups = new AllVisibleGroupsForm(groupLoader);
+        add(frmAllVisibleGroups);
+        frmGroupName = new GroupNameForm();
+        add(frmGroupName);
+        frmShareSensors = new ShareSensorsForm(new ArrayList<String>(), new ArrayList<String>());
+        add(frmShareSensors);
 
         initButtons();
 
@@ -78,37 +90,15 @@ public class GroupJoinDialog extends Window {
     }
 
     public GroupModel getGroup() {
-        return frmPublicGroups.getGroup();
+        return frmAllVisibleGroups.getGroup();
     }
 
-    public void goToNext() {
-        Component active = layout.getActiveItem();
-        if (active.equals(frmGroupType)) {
-            if (frmGroupType.getType().equals("visible")) {
-                showAllGroupsList();
-            } else {
-                showHiddenGroupForm();
-            }
-        } else if (active.equals(frmPublicGroups)) {
-            // TODO
-        } else if (active.equals(frmPrivateGroup)) {
-            // TODO
-        } else {
-            LOG.warning("Unable to go to next card!");
-        }
+    public String getGroupType() {
+        return frmGroupType.getType();
     }
 
-    public void goToPrev() {
-        Component active = layout.getActiveItem();
-        if (active.equals(frmGroupType)) {
-            // should never happen
-        } else if (active.equals(frmPublicGroups)) {
-            showGroupTypeChoice();
-        } else if (active.equals(frmPrivateGroup)) {
-            showGroupTypeChoice();
-        } else {
-            LOG.warning("Unable to go to previous card!");
-        }
+    public int getWizardState() {
+        return state;
     }
 
     private void initButtons() {
@@ -136,6 +126,61 @@ public class GroupJoinDialog extends Window {
         }
     }
 
+    public void setReqSensors(List<String> sensorNames) {
+        frmShareSensors.setReqSensors(sensorNames);
+    }
+
+    public void setWizardState(int state) {
+        this.state = state;
+
+        switch (state) {
+            case States.GROUP_NAME :
+                showGroupNameForm();
+                break;
+            case States.GROUP_TYPE_CHOICE :
+                showGroupTypeChoice();
+                break;
+            case States.ALL_VISIBLE_GROUPS :
+                showAllGroupsList();
+                break;
+            case States.SHARE_SENSORS :
+                showShareSensors();
+                break;
+            default :
+                LOG.warning("Unexpected new state: " + state);
+        }
+    }
+
+    private void showAllGroupsList() {
+        // update active item
+        layout.setActiveItem(frmAllVisibleGroups);
+
+        // update buttons
+        btnNext.setText("Next");
+        btnBack.setEnabled(true);
+
+        if (null != buttonBinding) {
+            buttonBinding.removeButton(btnNext);
+        }
+        buttonBinding = new FormButtonBinding(frmAllVisibleGroups);
+        buttonBinding.addButton(btnNext);
+    }
+
+    private void showGroupNameForm() {
+        // update active item
+        layout.setActiveItem(frmGroupName);
+
+        // update buttons
+        btnNext.setText("Next");
+        btnBack.setEnabled(true);
+
+        if (null != buttonBinding) {
+            buttonBinding.removeButton(btnNext);
+        }
+        buttonBinding = new FormButtonBinding(frmGroupName);
+        buttonBinding.addButton(btnNext);
+    }
+
     private void showGroupTypeChoice() {
         // update active item
         layout.setActiveItem(frmGroupType);
@@ -151,9 +196,9 @@ public class GroupJoinDialog extends Window {
         buttonBinding.addButton(btnNext);
     }
 
-    private void showHiddenGroupForm() {
+    private void showShareSensors() {
         // update active item
-        layout.setActiveItem(frmPrivateGroup);
+        layout.setActiveItem(frmShareSensors);
 
         // update buttons
         btnNext.setText("Next");
@@ -162,22 +207,7 @@ public class GroupJoinDialog extends Window {
         if (null != buttonBinding) {
             buttonBinding.removeButton(btnNext);
         }
-        buttonBinding = new FormButtonBinding(frmPrivateGroup);
-        buttonBinding.addButton(btnNext);
-    }
-
-    private void showAllGroupsList() {
-        // update active item
-        layout.setActiveItem(frmPublicGroups);
-
-        // update buttons
-        btnNext.setText("Next");
-        btnBack.setEnabled(true);
-
-        if (null != buttonBinding) {
-            buttonBinding.removeButton(btnNext);
-        }
-        buttonBinding = new FormButtonBinding(frmPublicGroups);
+        buttonBinding = new FormButtonBinding(frmShareSensors);
         buttonBinding.addButton(btnNext);
     }
 }

@@ -9,6 +9,7 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.client.groups.list.GetGroupDetailsResponseJso;
 import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -36,7 +37,7 @@ public class GroupJoinController extends Controller {
     public GroupJoinController() {
         LOG.setLevel(Level.ALL);
         registerEventTypes(GroupJoinEvents.Show, GroupJoinEvents.JoinRequest,
-                GroupJoinEvents.AllGroupsRequest);
+                GroupJoinEvents.AllGroupsRequest, GroupJoinEvents.GroupDetailsRequest);
     }
 
     private void getAllGroups(final List<GroupModel> groups, final int page, final View source) {
@@ -101,9 +102,73 @@ public class GroupJoinController extends Controller {
             View source = (View) event.getSource();
             onAllGroupsRequest(source);
 
+        } else if (type.equals(GroupJoinEvents.GroupDetailsRequest)) {
+            LOG.finest("GroupDetailsRequest");
+            GroupModel group = event.getData("group");
+            View source = (View) event.getSource();
+            onGroupsDetailsRequest(group, source);
+
         } else {
             LOG.warning("Unexpected event: " + event);
         }
+    }
+
+    private void onGroupsDetailsRequest(GroupModel group, final View source) {
+
+        // prepare request properties
+        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + ".json");
+        final String url = urlBuilder.buildString();
+        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+
+        // prepare request callback
+        RequestCallback reqCallback = new RequestCallback() {
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                LOG.warning("GET group details onError callback: " + exception.getMessage());
+                onGroupDetailsFailure(source);
+            }
+
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                LOG.finest("GET group details response received: " + response.getStatusText());
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onGroupDetailsSuccess(response.getText(), source);
+                } else {
+                    LOG.warning("GET group details returned incorrect status: " + statusCode);
+                    onGroupDetailsFailure(source);
+                }
+            }
+
+        };
+
+        // send request
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        builder.setHeader("X-SESSION_ID", sessionId);
+        try {
+            builder.sendRequest(null, reqCallback);
+        } catch (RequestException e) {
+            LOG.warning("GET group details request threw exception: " + e.getMessage());
+            onJoinFailure(source);
+        }
+    }
+
+    private void onGroupDetailsSuccess(String response, View source) {
+        GroupModel group = null;
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            GetGroupDetailsResponseJso jso = JsonUtils.unsafeEval(response);
+            group = jso.getGroup();
+        }
+
+        AppEvent event = new AppEvent(GroupJoinEvents.GroupDetailsSuccess);
+        event.setData("group", group);
+        forwardToView(source, event);
+    }
+
+    private void onGroupDetailsFailure(View source) {
+        forwardToView(source, new AppEvent(GroupJoinEvents.GroupDetailsFailure));
     }
 
     private void join(GroupModel group, final View source) {
