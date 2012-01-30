@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.components.TimeRangeForm;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -111,7 +112,7 @@ public class VizTypeChooser extends View {
     protected void initialize() {
         super.initialize();
 
-        submitEvent = new AppEvent(VizEvents.ShowTimeLine);
+        submitEvent = new AppEvent(VizPanelEvents.ShowTimeLine);
 
         window = new CenteredWindow();
         window.setHeading("Visualization wizard");
@@ -312,25 +313,25 @@ public class VizTypeChooser extends View {
 
         Radio selected = typesField.getValue();
         if (timeLineRadio.equals(selected)) {
-            submitEvent = new AppEvent(VizEvents.ShowTimeLine);
+            submitEvent = new AppEvent(VizPanelEvents.ShowTimeLine);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Next");
 
         } else if (tableRadio.equals(selected)) {
-            submitEvent = new AppEvent(VizEvents.ShowTable);
+            submitEvent = new AppEvent(VizPanelEvents.ShowTable);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Next");
 
         } else if (mapRadio.equals(selected)) {
-            submitEvent = new AppEvent(VizEvents.ShowMap);
+            submitEvent = new AppEvent(VizPanelEvents.ShowMap);
             submitEvent.setData("sensors", locationSensors);
 
             buttonToTimeRange.setText("Next");
 
         } else if (networkRadio.equals(selected)) {
-            submitEvent = new AppEvent(VizEvents.ShowNetwork);
+            submitEvent = new AppEvent(VizPanelEvents.ShowNetwork);
             submitEvent.setData("sensors", sensors);
 
             buttonToTimeRange.setText("Next");

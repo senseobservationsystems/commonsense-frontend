@@ -173,8 +173,7 @@ public class MapPanel extends VizPanel {
         initSliders();
         initMapWidget();
 
-        visualize(sensors, start, end, subsample);
-
+        showToolButtons();
     }
 
     private void calcSliderRange() {

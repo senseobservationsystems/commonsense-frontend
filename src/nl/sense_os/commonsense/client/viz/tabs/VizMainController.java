@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.main.MainEvents;
-import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.viz.choice.VizTypeChooser;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -20,22 +19,20 @@ import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
-public class VizController extends Controller {
+public class VizMainController extends Controller {
 
-    private static final Logger LOGGER = Logger.getLogger(VizController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(VizMainController.class.getName());
 
     private View vizView;
     private View typeChooser;
     private boolean isVizApiLoaded;
 
-    public VizController() {
+    public VizMainController() {
         registerEventTypes(MainEvents.Init);
         registerEventTypes(LoginEvents.LoggedOut);
 
         registerEventTypes(VizEvents.Show);
         registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
-        registerEventTypes(VizEvents.ShowTimeLine, VizEvents.ShowTable, VizEvents.ShowMap,
-                VizEvents.ShowNetwork, FeedbackEvents.ShowFeedback);
     }
 
     @Override
@@ -53,7 +50,7 @@ public class VizController extends Controller {
     @Override
     protected void initialize() {
         super.initialize();
-        this.vizView = new VizView(this);
+        this.vizView = new VizMainView(this);
         this.typeChooser = new VizTypeChooser(this);
 
         loadMapsApi();

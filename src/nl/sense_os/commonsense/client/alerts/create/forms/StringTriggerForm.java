@@ -33,7 +33,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class StringTriggerForm extends FormPanel {
 
-    private InnerStringForm stringForm;
     private Logger LOG = Logger.getLogger(StringTriggerForm.class.getName());
     private LabelField titleLabel;
     private SimpleComboBox<String> combo1;
@@ -71,8 +70,6 @@ public class StringTriggerForm extends FormPanel {
         comboList = new ArrayList<SimpleComboBox<String>>();
         equalComboList = new ArrayList<SimpleComboBox<String>>();
         unequalComboList = new ArrayList<SimpleComboBox<String>>();
-        stringForm = new InnerStringForm(sensors, start, end, subsample, title);
-        stringForm.setParent(this);
 
         createSensorValues();
         createTitleLabel();
@@ -386,7 +383,6 @@ public class StringTriggerForm extends FormPanel {
      */
     private void createSensorValues() {
         sensorValues = new ArrayList<String>();
-        sensorValues = stringForm.getStringSensorValues();
     }
 
     /**

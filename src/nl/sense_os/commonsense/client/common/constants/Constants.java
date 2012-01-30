@@ -85,6 +85,11 @@ public class Constants {
      */
     public static final String REG_USER = "User";
 
+    /**
+     * Registry key for the visualization panel
+     */
+    public static final String REG_VIZPANEL = "VizPanel";
+
     private Constants() {
         // Private constructor to make sure this class is not instantiated.
     }

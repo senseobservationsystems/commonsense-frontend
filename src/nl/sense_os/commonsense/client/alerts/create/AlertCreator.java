@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.client.alerts.create;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import nl.sense_os.commonsense.client.alerts.create.triggers.PositionTrigger;
 import nl.sense_os.commonsense.client.alerts.create.triggers.StringTrigger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -32,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
+import com.google.gwt.core.client.JsArray;
 
 public class AlertCreator extends View {
 
@@ -64,6 +67,99 @@ public class AlertCreator extends View {
 
     }
 
+    public void changeBinding() {
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(moreButton);
+            formButtonBinding.removeButton(doneButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
+        formButtonBinding.addButton(moreButton);
+        formButtonBinding.addButton(doneButton);
+    }
+
+    private void goToDone() {
+        boolean valid = accordionForm.checkValidFields();
+
+        if (valid) {
+            ArrayList<AlertType> alertTypeList = accordionForm.getAlertTypes();
+            LOG.fine("So many alertTypes found: " + alertTypeList.size());
+            showDoneForm();
+            moreButton.hide();
+            doneButton.hide();
+            nextButton.hide();
+            backButton.hide();
+        }
+    }
+
+    private void goToMore() {
+
+        boolean valid = accordionForm.checkValidFields();
+
+        if (valid) {
+            // String description = alertType.getDescription();
+            accordionForm.createFormPanel();
+            accordionForm.collapseFormPanels();
+
+            // accordionForm.setDescription(description);
+
+            showAlertTypesForm();
+            moreButton.show();
+            doneButton.show();
+            nextButton.hide();
+        }
+    }
+
+    private void goToNext() {
+        Component active = layout.getActiveItem();
+        prevComponent = active;
+        boolean validTrigger = false;
+
+        if (active.equals(posTriggerForm) || active.equals(trialStringForm)
+                || active.equals(trialNumForm)) {
+
+            if (active.equals(posTriggerForm)) {
+                posTrigger = posTriggerForm.getPositionTrigger();
+                if (posTrigger != null)
+                    validTrigger = true;
+
+            } else if (active.equals(trialStringForm)) {
+                strTrigger = trialStringForm.getStringTrigger();
+                if (strTrigger != null)
+                    validTrigger = true;
+
+            } else if (active.equals(trialNumForm)) {
+                numTrigger = trialNumForm.getNumericTrigger();
+                if (numTrigger != null)
+                    validTrigger = true;
+            }
+
+            if (validTrigger) {
+                showAlertTypesForm();
+            }
+        }
+    }
+
+    private void goToPrev() {
+        Component active = layout.getActiveItem();
+        if (active.equals(alertTypesForm) || active.equals(doneForm)
+                || active.equals(accordionForm)) {
+
+            if (prevComponent.equals(trialStringForm))
+                showStringTriggerForm();
+            else if (prevComponent.equals(posTriggerForm))
+                showPosTriggerForm();
+            else if (prevComponent.equals(trialNumForm))
+                showNumTriggerForm();
+
+            moreButton.hide();
+            doneButton.hide();
+            nextButton.show();
+            backButton.hide();
+
+        }
+    }
+
     @Override
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
@@ -76,37 +172,6 @@ public class AlertCreator extends View {
 
         else
             LOG.fine("NO ShowCreator event received");
-
-    }
-
-    @Override
-    protected void initialize() {
-
-        super.initialize();
-
-        window = new CenteredWindow();
-        window.setHeading("Create new alert");
-        window.setSize(500, 450);
-        window.setResizable(true);
-
-        layout = new CardLayout();
-        window.setLayout(layout);
-
-        initForms();
-        initButtons();
-
-    }
-
-    private void initForms() {
-
-        alertTypesForm = new AlertTypesForm();
-        accordionForm = new AccordionForm();
-        accordionForm.setView(this);
-        doneForm = new DoneForm();
-
-        window.add(alertTypesForm);
-        window.add(accordionForm);
-        window.add(doneForm);
 
     }
 
@@ -156,158 +221,79 @@ public class AlertCreator extends View {
 
     }
 
-    private void goToPrev() {
-        Component active = layout.getActiveItem();
-        if (active.equals(alertTypesForm) || active.equals(doneForm)
-                || active.equals(accordionForm)) {
+    private void initForms() {
 
-            if (prevComponent.equals(trialStringForm))
-                showStringTriggerForm();
-            else if (prevComponent.equals(posTriggerForm))
-                showPosTriggerForm();
-            else if (prevComponent.equals(trialNumForm))
-                showNumTriggerForm();
+        alertTypesForm = new AlertTypesForm();
+        accordionForm = new AccordionForm();
+        accordionForm.setView(this);
+        doneForm = new DoneForm();
 
-            moreButton.hide();
-            doneButton.hide();
-            nextButton.show();
-            backButton.hide();
+        window.add(alertTypesForm);
+        window.add(accordionForm);
+        window.add(doneForm);
 
+    }
+
+    @Override
+    protected void initialize() {
+
+        super.initialize();
+
+        window = new CenteredWindow();
+        window.setHeading("Create new alert");
+        window.setSize(500, 450);
+        window.setResizable(true);
+
+        layout = new CardLayout();
+        window.setLayout(layout);
+
+        initForms();
+        initButtons();
+
+    }
+
+    // TODO use this
+    public void onNewNumData(JsArray<Timeseries> data) {
+        LOG.fine("Hey got data. Length is " + data.get(0).getData().length());
+        if (data.length() > 0)
+            trialNumForm.passData(data);
+        else {
+            // NewRangeRequest request = new NewRangeRequest(sensors, subsample, this);
         }
     }
 
-    private void goToNext() {
-        Component active = layout.getActiveItem();
-        prevComponent = active;
-        boolean validTrigger = false;
+    // TODO use this
+    public void onNewStringData(JsArray<Timeseries> data) {
+        LOG.fine("Hey got data");
+        // LOG.fine ("Datatype is " + datatype);
+        int records = data.get(0).getData().length();
+        LOG.fine("Number of records: " + records);
 
-        if (active.equals(posTriggerForm) || active.equals(trialStringForm)
-                || active.equals(trialNumForm)) {
+        if (records > 0) {
+            ArrayList<String> values = new ArrayList<String>();
 
-            if (active.equals(posTriggerForm)) {
-                posTrigger = posTriggerForm.getPositionTrigger();
-                if (posTrigger != null)
-                    validTrigger = true;
-
-            } else if (active.equals(trialStringForm)) {
-                strTrigger = trialStringForm.getStringTrigger();
-                if (strTrigger != null)
-                    validTrigger = true;
-
-            } else if (active.equals(trialNumForm)) {
-                numTrigger = trialNumForm.getNumericTrigger();
-                if (numTrigger != null)
-                    validTrigger = true;
+            for (int i = 0; i < records; i++) {
+                String el = data.get(0).getData().get(i).getRawValue();
+                if (!values.contains(el)) {
+                    values.add(el);
+                }
             }
 
-            if (validTrigger) {
-                showAlertTypesForm();
+            List<String> stringSensorValues = new ArrayList<String>();
+            stringSensorValues.add("(no selection)");
+
+            for (int i = 0; i < values.size(); i++) {
+                // LOG.fine ("Element " + i + " equals " + values.get(i));
+                stringSensorValues.add(values.get(i));
+
             }
-        }
-    }
+            trialStringForm.passSensorValues(stringSensorValues);
 
-    private void goToMore() {
-
-        boolean valid = accordionForm.checkValidFields();
-
-        if (valid) {
-            // String description = alertType.getDescription();
-            accordionForm.createFormPanel();
-            accordionForm.collapseFormPanels();
-
-            // accordionForm.setDescription(description);
-
-            showAlertTypesForm();
-            moreButton.show();
-            doneButton.show();
-            nextButton.hide();
-        }
-    }
-
-    private void goToDone() {
-        boolean valid = accordionForm.checkValidFields();
-
-        if (valid) {
-            ArrayList<AlertType> alertTypeList = accordionForm.getAlertTypes();
-            LOG.fine("So many alertTypes found: " + alertTypeList.size());
-            showDoneForm();
-            moreButton.hide();
-            doneButton.hide();
-            nextButton.hide();
-            backButton.hide();
-        }
-    }
-
-    private void showStringTriggerForm() {
-        layout.setActiveItem(trialStringForm);
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
         }
 
-        formButtonBinding = new FormButtonBinding(trialStringForm);
-        formButtonBinding.addButton(nextButton);
-
-    }
-
-    private void showNumTriggerForm() {
-        layout.setActiveItem(trialNumForm);
-
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
+        else {
+            // NewRangeRequest request = new NewRangeRequest(sensors, subsample, this);
         }
-        formButtonBinding = new FormButtonBinding(trialNumForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    private void showPosTriggerForm() {
-        layout.setActiveItem(posTriggerForm);
-
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(nextButton);
-        }
-
-        formButtonBinding = new FormButtonBinding(posTriggerForm);
-        formButtonBinding.addButton(nextButton);
-    }
-
-    public void changeBinding() {
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(moreButton);
-            formButtonBinding.removeButton(doneButton);
-        }
-
-        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
-        formButtonBinding.addButton(moreButton);
-        formButtonBinding.addButton(doneButton);
-    }
-
-    private void showAlertTypesForm() {
-        layout.setActiveItem(accordionForm);
-
-        if (null != formButtonBinding) {
-            formButtonBinding.removeButton(moreButton);
-            formButtonBinding.removeButton(doneButton);
-        }
-
-        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
-        formButtonBinding.addButton(moreButton);
-        formButtonBinding.addButton(doneButton);
-
-        moreButton.show();
-        doneButton.show();
-        nextButton.hide();
-        backButton.show();
-    }
-
-    private void showButtons() {
-        moreButton.hide();
-        doneButton.hide();
-        nextButton.show();
-        backButton.hide();
-    }
-
-    private void showDoneForm() {
-        layout.setActiveItem(doneForm);
     }
 
     private void show(SensorModel sens) {
@@ -363,5 +349,66 @@ public class AlertCreator extends View {
 
         if (layout.getActiveItem().equals(posTriggerForm))
             posTriggerForm.afterShow();
+    }
+
+    private void showAlertTypesForm() {
+        layout.setActiveItem(accordionForm);
+
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(moreButton);
+            formButtonBinding.removeButton(doneButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(accordionForm.getFormPanel());
+        formButtonBinding.addButton(moreButton);
+        formButtonBinding.addButton(doneButton);
+
+        moreButton.show();
+        doneButton.show();
+        nextButton.hide();
+        backButton.show();
+    }
+
+    private void showButtons() {
+        moreButton.hide();
+        doneButton.hide();
+        nextButton.show();
+        backButton.hide();
+    }
+
+    private void showDoneForm() {
+        layout.setActiveItem(doneForm);
+    }
+
+    private void showNumTriggerForm() {
+        layout.setActiveItem(trialNumForm);
+
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+        formButtonBinding = new FormButtonBinding(trialNumForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showPosTriggerForm() {
+        layout.setActiveItem(posTriggerForm);
+
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(posTriggerForm);
+        formButtonBinding.addButton(nextButton);
+    }
+
+    private void showStringTriggerForm() {
+        layout.setActiveItem(trialStringForm);
+        if (null != formButtonBinding) {
+            formButtonBinding.removeButton(nextButton);
+        }
+
+        formButtonBinding = new FormButtonBinding(trialStringForm);
+        formButtonBinding.addButton(nextButton);
+
     }
 }

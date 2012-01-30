@@ -15,16 +15,18 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
+import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -34,7 +36,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-public class SensorDataGrid extends LayoutContainer {
+public class SensorDataGrid extends VizPanel {
 
     private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
@@ -177,6 +179,12 @@ public class SensorDataGrid extends LayoutContainer {
         // urlBuilder.setParameter("total", "1");
 
         return urlBuilder.buildString();
+    }
+
+    @Override
+    protected void onNewData(JsArray<Timeseries> data) {
+        // TODO Auto-generated method stub
+
     }
 
     private String renderJsonValue(JSONObject json) {

@@ -76,7 +76,6 @@ public class NumTriggerForm extends FormPanel {
     private int parent_width;
     private int parent_height;
 
-    private InnerNumForm numForm;
     private TextField<String> controlBox;
 
     public NumTriggerForm(List<SensorModel> sensors, long start, long end, boolean subsample,
@@ -85,8 +84,6 @@ public class NumTriggerForm extends FormPanel {
         // LOG.setLevel(Level.ALL);
         setHeaderVisible(false);
         setBodyBorder(false);
-        numForm = new InnerNumForm(sensors, start, end, subsample, title);
-        numForm.setParent(this);
 
         createTitleLabel();
         initGraphPanel();
