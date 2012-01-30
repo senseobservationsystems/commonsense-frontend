@@ -10,7 +10,6 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Urls;
@@ -41,8 +40,6 @@ public class SensorDataGrid extends VizPanel {
     private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
     public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
-
-        LOG.setLevel(Level.ALL);
 
         // grid panel parameters
         ModelType model = createModelType();
@@ -80,7 +77,7 @@ public class SensorDataGrid extends VizPanel {
             @Override
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                String id = model.<String> get(property);
+                String id = "" + model.get(property);
                 for (SensorModel sensor : sensors) {
                     if (id.equals("" + sensor.getId())) {
                         String name = sensor.getName();
@@ -132,7 +129,12 @@ public class SensorDataGrid extends VizPanel {
             @Override
             public String render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                double timeInSecs = Double.parseDouble(model.<String> get("date"));
+                double timeInSecs = -1;
+                try {
+                    timeInSecs = Double.parseDouble(model.<String> get("date"));
+                } catch (ClassCastException e) {
+                    timeInSecs = model.get("date");
+                }
                 long timeInMSecs = (long) (1000 * timeInSecs);
                 DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
                 return format.format(new Date(timeInMSecs));
@@ -183,8 +185,7 @@ public class SensorDataGrid extends VizPanel {
 
     @Override
     protected void onNewData(JsArray<Timeseries> data) {
-        // TODO Auto-generated method stub
-
+        // nothing to do
     }
 
     private String renderJsonValue(JSONObject json) {
