@@ -154,7 +154,7 @@ public class FeedbackPanel extends VizPanel {
             }
         };
 
-        submitButton = new Button("SubmitRequest Feedback", l);
+        submitButton = new Button("Submit Feedback", l);
         submitButton.setIconStyle("sense-btn-icon-go");
         submitButton.setMinWidth(75);
         cancelButton = new Button("Cancel", l);
