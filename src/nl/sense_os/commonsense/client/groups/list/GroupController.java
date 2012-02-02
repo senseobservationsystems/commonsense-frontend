@@ -84,7 +84,7 @@ public class GroupController extends Controller {
             @Override
             public void onError(Request request, Throwable exception) {
                 LOG.warning("GET group users onError callback: " + exception.getMessage());
-                onGroupMembersFailure(callback);
+                onGroupMembersFailure(-1, group, callback);
             }
 
             @Override
@@ -95,7 +95,7 @@ public class GroupController extends Controller {
                     onGroupMembersSuccess(response.getText(), group, callback);
                 } else {
                     LOG.warning("GET group users returned incorrect status: " + statusCode);
-                    onGroupMembersFailure(callback);
+                    onGroupMembersFailure(statusCode, group, callback);
                 }
             }
         };
@@ -107,7 +107,7 @@ public class GroupController extends Controller {
             builder.sendRequest(null, reqCallback);
         } catch (RequestException e) {
             LOG.warning("GET group users request threw exception: " + e.getMessage());
-            onGroupMembersFailure(callback);
+            onGroupMembersFailure(-1, group, callback);
         }
     }
 
@@ -212,11 +212,23 @@ public class GroupController extends Controller {
         Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
     }
 
-    private void onGroupMembersFailure(AsyncCallback<List<UserModel>> callback) {
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+    private void onGroupMembersFailure(int code, GroupModel group,
+            AsyncCallback<List<UserModel>> callback) {
 
-        if (null != callback) {
-            callback.onFailure(null);
+        if (code == Response.SC_FORBIDDEN) {
+            // user is not allowed to view the group members
+            Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+            if (null != callback) {
+                callback.onSuccess(new ArrayList<UserModel>());
+            }
+
+        } else {
+            Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+            if (null != callback) {
+                callback.onFailure(null);
+            }
         }
     }
 
