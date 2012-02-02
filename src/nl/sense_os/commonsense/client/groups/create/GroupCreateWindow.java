@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.client.groups.create;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.groups.create.forms.GroupAccessMgtForm;
@@ -44,7 +43,7 @@ public class GroupCreateWindow extends Window {
 
     public GroupCreateWindow() {
 
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
 
         // basic stuff
         setHeading("Create new group");
