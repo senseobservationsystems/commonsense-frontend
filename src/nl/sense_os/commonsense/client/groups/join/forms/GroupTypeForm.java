@@ -23,17 +23,18 @@ public class GroupTypeForm extends WizardFormPanel {
         typeChoice.setOrientation(Orientation.VERTICAL);
         typeChoice.setFieldLabel("Make a choice");
 
-        Radio privateGroup = new Radio();
-        privateGroup.setBoxLabel("Enter the group name");
-        privateGroup.setValueAttribute("hidden");
-        typeChoice.add(privateGroup);
-
         Radio publicGroup = new Radio();
         publicGroup.setBoxLabel("Browse all groups");
         publicGroup.setValueAttribute("visible");
         typeChoice.add(publicGroup);
 
-        typeChoice.setValue(privateGroup);
+        Radio privateGroup = new Radio();
+        privateGroup.setBoxLabel("Enter the group name");
+        privateGroup.setValueAttribute("hidden");
+        privateGroup.setEnabled(false);
+        typeChoice.add(privateGroup);
+
+        typeChoice.setValue(publicGroup);
 
         add(explanation, new FormData("-5"));
         add(typeChoice, new FormData(anchorSpec));

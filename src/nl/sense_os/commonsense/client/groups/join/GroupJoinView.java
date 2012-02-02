@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.client.groups.join;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -7,6 +8,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.join.GroupJoinDialog.States;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -29,7 +31,7 @@ public class GroupJoinView extends View {
 
     private static final Logger LOG = Logger.getLogger(GroupJoinView.class.getName());
     private GroupJoinDialog window;
-    private PagingLoader<PagingLoadResult<GroupModel>> loader;
+    private PagingLoader<PagingLoadResult<GroupModel>> groupLoader;
     private MessageBox progress;
 
     public GroupJoinView(Controller c) {
@@ -105,17 +107,26 @@ public class GroupJoinView extends View {
     private void onAllGroupsSuccess(List<GroupModel> groups) {
         progress.close();
 
-        // data proxy
-        PagingModelMemoryProxy proxy = new PagingModelMemoryProxy(groups);
+        PagingModelMemoryProxy groupProxy = new PagingModelMemoryProxy(groups);
+        groupLoader = new BasePagingLoader<PagingLoadResult<GroupModel>>(groupProxy);
 
-        // group list loader
-        loader = new BasePagingLoader<PagingLoadResult<GroupModel>>(proxy);
+        showWizard();
 
-        // list of sensors
+        groupLoader.load();
+    }
+
+    private void showWizard() {
+
+        // sensor list loader
         List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-
-        // create dialog
-        window = new GroupJoinDialog(loader, sensors);
+        List<SensorModel> ownedSensors = new ArrayList<SensorModel>();
+        UserModel user = Registry.get(Constants.REG_USER);
+        for (SensorModel sensor : sensors) {
+            if (sensor.getOwner().equals(user)) {
+                ownedSensors.add(sensor);
+            }
+        }
+        window = new GroupJoinDialog(groupLoader, ownedSensors);
 
         window.getBtnSubmit().addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
@@ -141,8 +152,6 @@ public class GroupJoinView extends View {
         });
 
         window.show();
-
-        loader.load();
     }
 
     private void onFailure() {

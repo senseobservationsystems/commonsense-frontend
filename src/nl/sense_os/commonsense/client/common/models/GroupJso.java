@@ -35,7 +35,10 @@ public class GroupJso extends JavaScriptObject {
         String[] split = raw.split(",");
         ArrayList<String> result = new ArrayList<String>(split.length);
         for (String s : split) {
-            result.add(s.trim());
+            String name = s.trim();
+            if (name.length() > 0) {
+                result.add(name);
+            }
         }
         return result;
     }
@@ -61,7 +64,10 @@ public class GroupJso extends JavaScriptObject {
         String[] split = raw.split(",");
         ArrayList<String> result = new ArrayList<String>(split.length);
         for (String s : split) {
-            result.add(s.trim());
+            String name = s.trim();
+            if (name.length() > 0) {
+                result.add(name);
+            }
         }
         return result;
     }

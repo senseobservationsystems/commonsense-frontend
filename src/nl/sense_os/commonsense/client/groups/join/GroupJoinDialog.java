@@ -44,7 +44,7 @@ public class GroupJoinDialog extends Window {
     private int state;
 
     public GroupJoinDialog(PagingLoader<PagingLoadResult<GroupModel>> groupLoader,
-            List<SensorModel> sensorLibrary) {
+            List<SensorModel> sensors) {
         LOG.setLevel(Level.ALL);
 
         // main window properties
@@ -63,7 +63,8 @@ public class GroupJoinDialog extends Window {
         add(frmAllVisibleGroups);
         frmGroupName = new GroupNameForm();
         add(frmGroupName);
-        frmShareSensors = new ShareSensorsForm(new ArrayList<String>(), new ArrayList<String>());
+        frmShareSensors = new ShareSensorsForm(new ArrayList<String>(), new ArrayList<String>(),
+                sensors);
         add(frmShareSensors);
 
         initButtons();
