@@ -107,6 +107,26 @@ public class ShareSensorsForm extends WizardFormPanel {
         return grid;
     }
 
+    public List<SensorModel> getSharedSensors() {
+        return grid.getSelectionModel().getSelection();
+    }
+
+    /**
+     * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
+     * owner filter.
+     */
+    private void initFilters() {
+
+        // text filter
+        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        textFilter.bind(store);
+
+        // add filters to filter bar
+        filterBar = new ToolBar();
+        filterBar.add(new LabelToolItem("Filter: "));
+        filterBar.add(textFilter);
+    }
+
     private void initGrid(List<SensorModel> sensors) {
 
         // list store
@@ -140,20 +160,27 @@ public class ShareSensorsForm extends WizardFormPanel {
         grid.setSelectionModel(selectionModel);
     }
 
-    /**
-     * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
-     * owner filter.
-     */
-    private void initFilters() {
+    private void selectRequiredSensors() {
+        LOG.finest("select required sensors");
 
-        // text filter
-        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
-        textFilter.bind(store);
+        List<SensorModel> sensors = store.getModels();
+        List<SensorModel> requiredSensors = new ArrayList<SensorModel>();
+        for (SensorModel sensor : sensors) {
+            boolean required = false;
+            for (String reqName : reqSensorNames) {
+                if (sensor.getName().equals(reqName)) {
+                    required = true;
+                    break;
+                }
+            }
+            if (required) {
+                requiredSensors.add(sensor);
+            }
+        }
 
-        // add filters to filter bar
-        filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        filterBar.add(textFilter);
+        // select the sensors in the grid
+        grid.getSelectionModel().select(true,
+                requiredSensors.toArray(new SensorModel[requiredSensors.size()]));
     }
 
     public void setReqSensors(List<String> sensorNames) {
@@ -182,28 +209,5 @@ public class ShareSensorsForm extends WizardFormPanel {
         lblReqSensors.setVisible(visible);
 
         selectRequiredSensors();
-    }
-
-    private void selectRequiredSensors() {
-        LOG.finest("select required sensors");
-
-        List<SensorModel> sensors = store.getModels();
-        List<SensorModel> requiredSensors = new ArrayList<SensorModel>();
-        for (SensorModel sensor : sensors) {
-            boolean required = false;
-            for (String reqName : reqSensorNames) {
-                if (sensor.getName().equals(reqName)) {
-                    required = true;
-                    break;
-                }
-            }
-            if (required) {
-                requiredSensors.add(sensor);
-            }
-        }
-
-        // select the sensors in the grid
-        grid.getSelectionModel().select(true,
-                requiredSensors.toArray(new SensorModel[requiredSensors.size()]));
     }
 }

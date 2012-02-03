@@ -33,12 +33,12 @@ public class GroupModel extends UserModel {
     public static final String SHOW_SURNAME_REQ = "required_show_surname";
     public static final String SHOW_PHONE_REQ = "required_show_phone_number";
     public static final String SHOW_USERNAME_REQ = "required_show_username";
-    private static final String ALLOW_LIST_USERS = "default_list_users";
-    private static final String ALLOW_ADD_USERS = "default_add_users";
-    private static final String ALLOW_REMOVE_USERS = "default_remove_users";
-    private static final String ALLOW_LIST_SENSORS = "default_list_sensors";
-    private static final String ALLOW_ADD_SENSORS = "default_add_sensors";
-    private static final String ALLOW_REMOVE_SENSORS = "default_remove_sensors";
+    public static final String ALLOW_LIST_USERS = "default_list_users";
+    public static final String ALLOW_ADD_USERS = "default_add_users";
+    public static final String ALLOW_REMOVE_USERS = "default_remove_users";
+    public static final String ALLOW_LIST_SENSORS = "default_list_sensors";
+    public static final String ALLOW_ADD_SENSORS = "default_add_sensors";
+    public static final String ALLOW_REMOVE_SENSORS = "default_remove_sensors";
 
     public GroupModel() {
         super();
@@ -61,6 +61,12 @@ public class GroupModel extends UserModel {
         setShowPhoneReq(jso.isShowPhoneReq());
         setShowSurnameReq(jso.isShowSurnameReq());
         setShowUsernameReq(jso.isShowUsernameReq());
+        setAllowAddSensors(jso.isAllowCreateSensors());
+        setAllowAddUsers(jso.isAllowCreateUsers());
+        setAllowListSensors(jso.isAllowReadSensors());
+        setAllowListUsers(jso.isAllowReadUsers());
+        setAllowRemoveSensors(jso.isAllowDeleteSensors());
+        setAllowRemoveUsers(jso.isAllowDeleteUsers());
     }
 
     public GroupModel(Map<String, Object> properties) {
@@ -75,10 +81,6 @@ public class GroupModel extends UserModel {
         return get(ACCESS_PASSWORD);
     }
 
-    public String getPassword() {
-        return get(PASSWORD);
-    }
-
     public String getDescription() {
         return get(DESCRIPTION);
     }
@@ -89,14 +91,18 @@ public class GroupModel extends UserModel {
 
     public int getId() {
         return get(ID, -1);
-    };
+    }
 
     public String getName() {
         return get(NAME);
-    }
+    };
 
     public List<String> getOptSensors() {
         return get(OPT_SENSORS, new ArrayList<String>());
+    }
+
+    public String getPassword() {
+        return get(PASSWORD);
     };
 
     public List<String> getReqSensors() {
@@ -105,6 +111,30 @@ public class GroupModel extends UserModel {
 
     public Boolean hasAccessPassword() {
         return get(HAS_ACCESS_PW);
+    };
+
+    public Boolean isAllowAddSensors() {
+        return get(ALLOW_ADD_SENSORS);
+    }
+
+    public Boolean isAllowAddUsers() {
+        return get(ALLOW_ADD_USERS);
+    };
+
+    public Boolean isAllowListSensors() {
+        return get(ALLOW_LIST_SENSORS);
+    }
+
+    public Boolean isAllowListUsers() {
+        return get(ALLOW_LIST_USERS);
+    };
+
+    public Boolean isAllowRemoveSensors() {
+        return get(ALLOW_REMOVE_SENSORS);
+    }
+
+    public Boolean isAllowRemoveUsers() {
+        return get(ALLOW_REMOVE_USERS);
     };
 
     public Boolean isAnonymous() {
@@ -117,11 +147,11 @@ public class GroupModel extends UserModel {
 
     public Boolean isPublic() {
         return get(PUBLIC);
-    }
+    };
 
     public Boolean isShowEmailReq() {
         return get(SHOW_EMAIL_REQ);
-    };
+    }
 
     public Boolean isShowFirstNameReq() {
         return get(SHOW_FIRST_NAME_REQ);
@@ -129,7 +159,7 @@ public class GroupModel extends UserModel {
 
     public Boolean isShowIdReq() {
         return get(SHOW_ID_REQ);
-    };
+    }
 
     public Boolean isShowPhoneReq() {
         return get(SHOW_PHONE_REQ);
@@ -137,38 +167,38 @@ public class GroupModel extends UserModel {
 
     public Boolean isShowSurnameReq() {
         return get(SHOW_SURNAME_REQ);
-    };
+    }
 
     public Boolean isShowUsernameReq() {
         return get(SHOW_USERNAME_REQ);
-    };
-
-    public Boolean isAllowListUsers() {
-        return get(ALLOW_LIST_USERS);
-    }
-
-    public Boolean isAllowAddUsers() {
-        return get(ALLOW_ADD_USERS);
-    }
-
-    public Boolean isAllowRemoveUsers() {
-        return get(ALLOW_REMOVE_USERS);
-    }
-
-    public Boolean isAllowListSensors() {
-        return get(ALLOW_LIST_SENSORS);
-    }
-
-    public Boolean isAllowAddSensors() {
-        return get(ALLOW_ADD_SENSORS);
-    }
-
-    public Boolean isAllowRemoveSensors() {
-        return get(ALLOW_REMOVE_SENSORS);
     }
 
     public void setAccessPassword(String password) {
         set(ACCESS_PASSWORD, password);
+    }
+
+    public void setAllowAddSensors(boolean b) {
+        set(ALLOW_ADD_SENSORS, b);
+    };
+
+    public void setAllowAddUsers(boolean b) {
+        set(ALLOW_ADD_USERS, b);
+    }
+
+    public void setAllowListSensors(boolean b) {
+        set(ALLOW_LIST_SENSORS, b);
+    };
+
+    public void setAllowListUsers(boolean b) {
+        set(ALLOW_LIST_USERS, b);
+    }
+
+    public void setAllowRemoveSensors(boolean b) {
+        set(ALLOW_REMOVE_SENSORS, b);
+    };
+
+    public void setAllowRemoveUsers(boolean b) {
+        set(ALLOW_REMOVE_USERS, b);
     }
 
     public void setAnonymous(boolean anonymous) {
@@ -182,29 +212,29 @@ public class GroupModel extends UserModel {
     public GroupModel setEmail(String email) {
         set(EMAIL, email);
         return this;
-    };
+    }
 
     public void setHasAccessPw(boolean hasAccessPw) {
         set(HAS_ACCESS_PW, hasAccessPw);
-    }
+    };
 
     public void setHidden(boolean hidden) {
         set(HIDDEN, hidden);
-    };
+    }
 
     public GroupModel setId(int id) {
         set(ID, id);
         return this;
-    }
+    };
 
     public GroupModel setName(String name) {
         set(NAME, name);
         return this;
-    };
+    }
 
     public void setOptSensors(List<String> sensors) {
         set(OPT_SENSORS, sensors);
-    }
+    };
 
     public void setPassword(String password) {
         set(PASSWORD, password);
@@ -216,11 +246,11 @@ public class GroupModel extends UserModel {
 
     public void setReqSensors(List<String> sensors) {
         set(REQ_SENSORS, sensors);
-    }
+    };
 
     public void setShowEmailReq(boolean b) {
         set(SHOW_EMAIL_REQ, b);
-    };
+    }
 
     public void setShowFirstNameReq(boolean b) {
         set(SHOW_FIRST_NAME_REQ, b);
@@ -228,7 +258,7 @@ public class GroupModel extends UserModel {
 
     public void setShowIdReq(boolean b) {
         set(SHOW_ID_REQ, b);
-    };
+    }
 
     public void setShowPhoneReq(boolean b) {
         set(SHOW_PHONE_REQ, b);
@@ -236,34 +266,10 @@ public class GroupModel extends UserModel {
 
     public void setShowSurnameReq(boolean b) {
         set(SHOW_SURNAME_REQ, b);
-    };
+    }
 
     public void setShowUsernameReq(boolean b) {
         set(SHOW_USERNAME_REQ, b);
-    };
-
-    public void setAllowListUsers(boolean b) {
-        set(ALLOW_LIST_USERS, b);
-    }
-
-    public void setAllowAddUsers(boolean b) {
-        set(ALLOW_ADD_USERS, b);
-    }
-
-    public void setAllowRemoveUsers(boolean b) {
-        set(ALLOW_REMOVE_USERS, b);
-    }
-
-    public void setAllowListSensors(boolean b) {
-        set(ALLOW_LIST_SENSORS, b);
-    }
-
-    public void setAllowAddSensors(boolean b) {
-        set(ALLOW_ADD_SENSORS, b);
-    }
-
-    public void setAllowRemoveSensors(boolean b) {
-        set(ALLOW_REMOVE_SENSORS, b);
     }
 
     public JSONObject toJson() {

@@ -142,6 +142,7 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
         grid.setId("group-join-grid");
         grid.setStateful(true);
         grid.setLoadMask(true);
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
     public GroupModel getGroup() {

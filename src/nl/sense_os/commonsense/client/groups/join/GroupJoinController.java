@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.list.GetGroupDetailsResponseJso;
 import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
@@ -25,6 +26,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -94,8 +96,9 @@ public class GroupJoinController extends Controller {
         } else if (type.equals(GroupJoinEvents.JoinRequest)) {
             LOG.finest("JoinRequest");
             GroupModel group = event.getData("group");
+            List<SensorModel> sensors = event.getData("sensors");
             View source = (View) event.getSource();
-            join(group, source);
+            join(group, sensors, source);
 
         } else if (type.equals(GroupJoinEvents.AllGroupsRequest)) {
             LOG.finest("AllGroupsRequest");
@@ -171,7 +174,7 @@ public class GroupJoinController extends Controller {
         forwardToView(source, new AppEvent(GroupJoinEvents.GroupDetailsFailure));
     }
 
-    private void join(GroupModel group, final View source) {
+    private void join(GroupModel group, List<SensorModel> sensors, final View source) {
 
         // prepare request properties
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -184,8 +187,14 @@ public class GroupJoinController extends Controller {
         JSONObject userJson = new JSONObject();
         userJson.put("id", new JSONNumber(user.getId()));
         userJson.put("username", new JSONString(user.getUsername()));
+        JSONArray sensorsJson = new JSONArray();
+        for (int i = 0; i < sensors.size(); i++) {
+            SensorModel sensor = sensors.get(i);
+            sensorsJson.set(i, new JSONNumber(sensor.getId()));
+        }
         JSONObject bodyJson = new JSONObject();
         bodyJson.put("user", userJson);
+        bodyJson.put("sensors", sensorsJson);
         String body = bodyJson.toString();
 
         // prepare request callback

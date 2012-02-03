@@ -111,4 +111,28 @@ public class GroupJso extends JavaScriptObject {
     public native final boolean isShowUsernameReq() /*-{
         return this.required_show_username == true;
     }-*/;
+
+    public native final boolean isAllowReadUsers() /*-{
+        return this.default_list_users == true;
+    }-*/;
+
+    public native final boolean isAllowCreateUsers() /*-{
+        return this.default_add_users == true;
+    }-*/;
+
+    public native final boolean isAllowDeleteUsers() /*-{
+        return this.default_remove_users == true;
+    }-*/;
+
+    public native final boolean isAllowReadSensors() /*-{
+        return this.default_list_sensors == true;
+    }-*/;
+
+    public native final boolean isAllowCreateSensors() /*-{
+        return this.default_add_sensors == true;
+    }-*/;
+
+    public native final boolean isAllowDeleteSensors() /*-{
+        return this.default_remove_sensors == true;
+    }-*/;
 }

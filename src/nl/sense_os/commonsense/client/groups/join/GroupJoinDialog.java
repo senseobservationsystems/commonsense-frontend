@@ -10,6 +10,7 @@ import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.groups.join.forms.AllVisibleGroupsForm;
 import nl.sense_os.commonsense.client.groups.join.forms.GroupNameForm;
 import nl.sense_os.commonsense.client.groups.join.forms.GroupTypeForm;
+import nl.sense_os.commonsense.client.groups.join.forms.MemberRightsForm;
 import nl.sense_os.commonsense.client.groups.join.forms.ShareSensorsForm;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -28,6 +29,7 @@ public class GroupJoinDialog extends Window {
         public static final int ALL_VISIBLE_GROUPS = 1;
         public static final int GROUP_NAME = 2;
         public static final int SHARE_SENSORS = 3;
+        public static final int MEMBER_RIGHTS = 4;
     }
 
     private static final Logger LOG = Logger.getLogger(GroupJoinDialog.class.getName());
@@ -37,6 +39,7 @@ public class GroupJoinDialog extends Window {
     private AllVisibleGroupsForm frmAllVisibleGroups;
     private GroupNameForm frmGroupName;
     private ShareSensorsForm frmShareSensors;
+    private MemberRightsForm frmMemberRights;
     private Button btnNext;
     private Button btnBack;
     private Button btnCancel;
@@ -66,6 +69,8 @@ public class GroupJoinDialog extends Window {
         frmShareSensors = new ShareSensorsForm(new ArrayList<String>(), new ArrayList<String>(),
                 sensors);
         add(frmShareSensors);
+        frmMemberRights = new MemberRightsForm();
+        add(frmMemberRights);
 
         initButtons();
 
@@ -98,6 +103,10 @@ public class GroupJoinDialog extends Window {
         return frmGroupType.getType();
     }
 
+    public List<SensorModel> getSharedSensors() {
+        return frmShareSensors.getSharedSensors();
+    }
+
     public int getWizardState() {
         return state;
     }
@@ -127,6 +136,12 @@ public class GroupJoinDialog extends Window {
         }
     }
 
+    public void setMemberRights(boolean createMembers, boolean createSensors, boolean readMembers,
+            boolean readSensors, boolean deleteMembers, boolean deleteSensors) {
+        frmMemberRights.setMemberRights(createMembers, createSensors, readMembers, readSensors,
+                deleteMembers, deleteSensors);
+    }
+
     public void setReqSensors(List<String> sensorNames) {
         frmShareSensors.setReqSensors(sensorNames);
     }
@@ -146,6 +161,9 @@ public class GroupJoinDialog extends Window {
                 break;
             case States.SHARE_SENSORS :
                 showShareSensors();
+                break;
+            case States.MEMBER_RIGHTS :
+                showMemberRights();
                 break;
             default :
                 LOG.warning("Unexpected new state: " + state);
@@ -194,6 +212,21 @@ public class GroupJoinDialog extends Window {
             buttonBinding.removeButton(btnNext);
         }
         buttonBinding = new FormButtonBinding(frmGroupType);
+        buttonBinding.addButton(btnNext);
+    }
+
+    private void showMemberRights() {
+        // update active item
+        layout.setActiveItem(frmMemberRights);
+
+        // update buttons
+        btnNext.setText("Finish");
+        btnBack.setEnabled(true);
+
+        if (null != buttonBinding) {
+            buttonBinding.removeButton(btnNext);
+        }
+        buttonBinding = new FormButtonBinding(frmMemberRights);
         buttonBinding.addButton(btnNext);
     }
 

@@ -92,6 +92,9 @@ public class GroupJoinView extends View {
     private void onGroupDetailsSuccess(GroupModel group) {
         window.setBusy(false);
         window.setReqSensors(group.getReqSensors());
+        window.setMemberRights(group.isAllowAddUsers(), group.isAllowAddSensors(),
+                group.isAllowListUsers(), group.isAllowListSensors(), group.isAllowRemoveUsers(),
+                group.isAllowRemoveSensors());
         window.setWizardState(States.SHARE_SENSORS);
     }
 
@@ -186,7 +189,8 @@ public class GroupJoinView extends View {
                 getGroupDetails(window.getGroup());
                 break;
             case States.SHARE_SENSORS :
-                // TODO
+
+                window.setWizardState(States.MEMBER_RIGHTS);
                 break;
             case States.GROUP_NAME :
                 // TODO
@@ -233,7 +237,15 @@ public class GroupJoinView extends View {
         window.setBusy(false);
 
         GroupModel group = window.getGroup();
-        MessageBox.info("CommonSense", "You have joined the group " + group.getName() + ".", null);
+        MessageBox.info("CommonSense", "You have joined the group " + group.getName()
+                + ". Any sensors you selected were automatically shared with the group.",
+                new Listener<MessageBoxEvent>() {
+
+                    @Override
+                    public void handleEvent(MessageBoxEvent be) {
+                        hideWindow();
+                    }
+                });
     }
 
     private void submitForm() {
@@ -242,6 +254,7 @@ public class GroupJoinView extends View {
 
         AppEvent event = new AppEvent(GroupJoinEvents.JoinRequest);
         event.setData("group", group);
+        event.setData("sensors", window.getSharedSensors());
         event.setSource(this);
         Dispatcher.forwardEvent(event);
 
