@@ -29,7 +29,7 @@ public class NavPanel extends LayoutContainer {
     public static final String HOME = "home";
     public static final String SETTINGS = "settings";
     public static final String SIGN_OUT = "signout";
-    public static final String VISUALIZATION = "viz";
+    public static final String VISUALIZATION = "sensors";
     public static final String RESET_PASSWORD = "resetPassword";
     public static final int HEIGHT = 30;
     private boolean isLoggedIn = false;
@@ -40,7 +40,7 @@ public class NavPanel extends LayoutContainer {
     private final Hyperlink home = new Hyperlink("home", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
     private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
-    private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
+    private final Hyperlink viz = new Hyperlink("my sensors", VISUALIZATION);
     private final LayoutContainer spacer = new LayoutContainer();
     private Image logo;
 
@@ -96,7 +96,7 @@ public class NavPanel extends LayoutContainer {
         removeAll();
         if (isLoggedIn) {
             add(logo, new RowData(-1, -1, rightMargin));
-            add(viz, new RowData(100.0, 1, rightMargin));
+            add(viz, new RowData(90.0, 1, rightMargin));
             add(demo, new RowData(50.0, 1, rightMargin));
             add(settings, new RowData(60.0, 1, rightMargin));
             add(help, new RowData(50.0, 1, rightMargin));
