@@ -1,12 +1,11 @@
-package nl.sense_os.commonsense.client.alerts.create.forms;
+package nl.sense_os.commonsense.client.alerts.create.components;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.alerts.create.AlertCreator;
-import nl.sense_os.commonsense.client.alerts.create.triggers.AlertType;
+import nl.sense_os.commonsense.client.alerts.create.triggers.Notification;
 import nl.sense_os.commonsense.client.alerts.create.utils.IndexContentPanel;
 import nl.sense_os.commonsense.client.alerts.create.utils.IndexFormPanel;
 
@@ -24,9 +23,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 
-public class AccordionForm extends ContentPanel {
+public class NotificationsForm extends ContentPanel {
 
-    private static final Logger LOG = Logger.getLogger(AccordionForm.class.getName());
+    private static final Logger LOG = Logger.getLogger(NotificationsForm.class.getName());
     private IndexContentPanel cp;
     private FormData formData;
     private LabelField titleLabel;
@@ -35,9 +34,8 @@ public class AccordionForm extends ContentPanel {
     private ArrayList<IndexFormPanel> formList;
     private ArrayList<IndexContentPanel> contentList;
     private int currentIndex;
-    private AlertCreator view;
 
-    public AccordionForm() {
+    public NotificationsForm() {
         super();
         LOG.setLevel(Level.ALL);
         setHeaderVisible(false);
@@ -137,7 +135,6 @@ public class AccordionForm extends ContentPanel {
                         contentList.remove(cp);
                         formList.remove(fp);
                         remove(cp);
-                        view.changeBinding();
                         checkDeleteButtons();
                         break;
                     }
@@ -236,7 +233,7 @@ public class AccordionForm extends ContentPanel {
     }
 
     /**
-     * Resizes the graph according to parent window size (from AlertCreator)
+     * Resizes the graph according to parent window size (from AlertCreatorView)
      */
     public void passParentWindowSize(int width, int height) {
         // LOG.fine ("Window width is " + width + " window height is " + height);
@@ -254,11 +251,11 @@ public class AccordionForm extends ContentPanel {
         }
     }
 
-    public ArrayList<AlertType> getAlertTypes() {
-        ArrayList<AlertType> alertList = new ArrayList<AlertType>();
+    public ArrayList<Notification> getAlertTypes() {
+        ArrayList<Notification> alertList = new ArrayList<Notification>();
 
         for (int i = 0; i < formList.size(); i++) {
-            AlertType alertType = new AlertType();
+            Notification alertType = new Notification();
             alertType.setType(formList.get(i).getType());
             alertType.setAddress(formList.get(i).getAddress());
             alertType.setDescription(formList.get(i).getDescription());
@@ -266,9 +263,5 @@ public class AccordionForm extends ContentPanel {
         }
 
         return alertList;
-    }
-
-    public void setView(AlertCreator alertCreator) {
-        this.view = alertCreator;
     }
 }

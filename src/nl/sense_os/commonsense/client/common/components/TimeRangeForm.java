@@ -173,14 +173,14 @@ public class TimeRangeForm extends FormPanel {
         otherTimeRadio.setBoxLabel("Other:");
         otherTimeRadio.setHideLabel(true);
 
-        timeRangeField = new RadioGroup();
-        timeRangeField.add(hourRadio);
-        timeRangeField.add(dayRadio);
-        timeRangeField.add(weekRadio);
-        timeRangeField.add(monthRadio);
-        timeRangeField.add(otherTimeRadio);
-        timeRangeField.setOriginalValue(dayRadio);
-        timeRangeField.setSelectionRequired(true);
+        // timeRangeField = new RadioGroup();
+        // timeRangeField.add(hourRadio);
+        // timeRangeField.add(dayRadio);
+        // timeRangeField.add(weekRadio);
+        // timeRangeField.add(monthRadio);
+        // timeRangeField.add(otherTimeRadio);
+        // timeRangeField.setOriginalValue(dayRadio);
+        // timeRangeField.setSelectionRequired(true);
 
         // defaultRangeSet.add(timeRangeField, formData);
 

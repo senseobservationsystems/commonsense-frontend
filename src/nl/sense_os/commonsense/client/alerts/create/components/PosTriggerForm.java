@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.alerts.create.forms;
+package nl.sense_os.commonsense.client.alerts.create.components;
 
 import java.util.ArrayList;
 import java.util.logging.Level;

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.alerts.create.forms;
+package nl.sense_os.commonsense.client.alerts.create.components;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.alerts.create.triggers.StringTrigger;
 import nl.sense_os.commonsense.client.alerts.create.utils.MediaButton;
 import nl.sense_os.commonsense.client.alerts.create.utils.MyWidget;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -57,8 +56,7 @@ public class StringTriggerForm extends FormPanel {
     private SimpleComboBox<String> controlBox;
     private TextField<String> controlBox1;
 
-    public StringTriggerForm(List<SensorModel> sensors, long start, long end, boolean subsample,
-            String title) {
+    public StringTriggerForm() {
         super();
         LOG.setLevel(Level.ALL);
         setHeaderVisible(false);
@@ -468,7 +466,7 @@ public class StringTriggerForm extends FormPanel {
     }
 
     /**
-     * Resize all comboBoxes according to parent window size (from AlertCreator)
+     * Resize all comboBoxes according to parent window size (from AlertCreatorView)
      */
     public void passParentWindowSize(int width, int height) {
         // LOG.fine ("Window width is " + width + " window height is " + height);

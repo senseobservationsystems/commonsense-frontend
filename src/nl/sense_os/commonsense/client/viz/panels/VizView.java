@@ -165,7 +165,7 @@ public abstract class VizView extends View {
                 for (int j = 0; j < oldData.length(); j++) {
                     Timeseries original = oldData.get(j);
                     if (toAppend.getLabel().equals(original.getLabel())
-                            && toAppend.getIdd() == original.getIdd()) {
+                            && toAppend.getId() == original.getId()) {
                         LOG.fine("Append data to " + original.getLabel());
                         original.append(toAppend);
                         appended = true;

@@ -738,7 +738,7 @@ public class MapPanel extends VizPanel {
         // that ID, and include that arraylist into the Big Arraylist
 
         for (int i = 0; i < data.length(); i++) {
-            int newId = data.get(i).getIdd();
+            int newId = data.get(i).getId();
             if (!Id_names.contains(newId)) { // && newId!= null) {
                 // LOG.fine ("New Id found " + newId);
                 Id_names.add(newId);
@@ -754,7 +754,7 @@ public class MapPanel extends VizPanel {
                 for (int j = 0; j < bigList.size(); j++) {
                     ArrayList<Timeseries> currentArray = new ArrayList<Timeseries>();
                     currentArray = bigList.get(j);
-                    if (currentArray.get(0).getIdd() == newId) {
+                    if (currentArray.get(0).getId() == newId) {
                         currentArray.add(data.get(i));
                     }
                 }
