@@ -15,18 +15,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupLoginForm extends AbstractGroupForm {
 
-    public class UseLoginRadio extends Radio {
-
-    };
-    public class DoNotUseLoginRadio extends Radio {
-
-    };
-
-    private final RadioGroup radios = new RadioGroup();
-    private final UseLoginRadio useLogin = new UseLoginRadio();
-    private final DoNotUseLoginRadio doNotUseLogin = new DoNotUseLoginRadio();
-
-    private final TextField<String> login = new TextField<String>();
+    private final RadioGroup loginChoice = new RadioGroup();
+    private Radio useLogin;
+    private Radio doNotUseLogin;
+    private final TextField<String> username = new TextField<String>();
     private final TextField<String> password = new TextField<String>();
     private final TextField<String> passConfirm = new TextField<String>();
 
@@ -41,12 +33,8 @@ public class GroupLoginForm extends AbstractGroupForm {
         onSelectionChange(useLogin);
     }
 
-    public RadioGroup getRadios() {
-        return radios;
-    }
-
     public String getLogin() {
-        return login.isEnabled() && login.isValid() ? login.getValue() : null;
+        return username.isEnabled() && username.isValid() ? username.getValue() : null;
     }
 
     public String getPassword() {
@@ -55,14 +43,14 @@ public class GroupLoginForm extends AbstractGroupForm {
 
     private void initLayout() {
 
-        LabelField label = new LabelField("<b>Group login</b>");
+        LabelField label = new LabelField("<b>Group username</b>");
         label.setHideLabel(true);
 
         FormPanel pwForm = new FormPanel();
         pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
         pwForm.setHeaderVisible(false);
         pwForm.setBodyBorder(false);
-        pwForm.add(login, new FormData("-10"));
+        pwForm.add(username, new FormData("-10"));
         pwForm.add(password, new FormData("-10"));
         pwForm.add(passConfirm, new FormData("-10"));
 
@@ -74,9 +62,32 @@ public class GroupLoginForm extends AbstractGroupForm {
         add(doNotUseLogin, layoutData);
     }
 
+    private void initRadios() {
+
+        loginChoice.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                onSelectionChange(be.getField().getValue());
+            }
+        });
+
+        useLogin = new Radio();
+        useLogin.setValueAttribute("true");
+        useLogin.setBoxLabel("The group needs to be able to log in as a user");
+        useLogin.setHideLabel(true);
+        loginChoice.add(useLogin);
+
+        doNotUseLogin = new Radio();
+        doNotUseLogin.setValueAttribute("false");
+        doNotUseLogin.setBoxLabel("The group needs no user username");
+        doNotUseLogin.setHideLabel(true);
+        loginChoice.add(doNotUseLogin);
+    }
+
     private void initTextFields() {
 
-        login.setFieldLabel("Group username");
+        username.setFieldLabel("Group username");
 
         password.setFieldLabel("Group password");
         password.setPassword(true);
@@ -100,27 +111,15 @@ public class GroupLoginForm extends AbstractGroupForm {
         });
     }
 
-    private void initRadios() {
-        useLogin.setBoxLabel("The group needs to be able to log in as a user");
-        useLogin.setHideLabel(true);
-        doNotUseLogin.setBoxLabel("The group needs no user login");
-        doNotUseLogin.setHideLabel(true);
-        radios.add(useLogin);
-        radios.add(doNotUseLogin);
-        radios.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                onSelectionChange(be.getField().getValue());
-            }
-        });
+    public boolean isGroupLogin() {
+        return "true".equals(loginChoice.getValue().getValueAttribute());
     }
 
     private void onSelectionChange(Object selected) {
-        boolean isUseLogin = useLogin.equals(selected);
+        boolean isUseLogin = isGroupLogin();
 
-        login.setAllowBlank(!isUseLogin);
-        login.setEnabled(isUseLogin);
+        username.setAllowBlank(!isUseLogin);
+        username.setEnabled(isUseLogin);
 
         password.setAllowBlank(!isUseLogin);
         password.setEnabled(isUseLogin);

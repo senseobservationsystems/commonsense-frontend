@@ -1,20 +1,15 @@
-package nl.sense_os.commonsense.client.common.components;
+package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.auth.pwreset.PwResetEvents;
 import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -34,16 +29,15 @@ public class LoginForm extends FormPanel {
     private static final Logger LOG = Logger.getLogger(LoginForm.class.getName());
     private TextField<String> username;
     private TextField<String> password;
-    private CheckBox rememberMe;
-    private Button submit;
-    private LabelField forgotPassword;
-    private Button google;
+    private CheckBox chkRememberMe;
+    private Button btnSubmit;
+    private Button btnGoogle;
+    private LabelField btnForgotPassword;
 
     public LoginForm() {
         super();
 
-        setBodyBorder(false);
-        setHeaderVisible(false);
+        setHeading("Login");
         setScrollMode(Scroll.AUTOY);
         setSize("", "auto");
         setLabelAlign(LabelAlign.TOP);
@@ -52,12 +46,20 @@ public class LoginForm extends FormPanel {
         initButtons();
     }
 
-    public String getPassword() {
-        return password.getValue();
+    public LabelField getBtnForgotPassword() {
+        return btnForgotPassword;
     }
 
-    public boolean getRememberMe() {
-        return rememberMe.getValue();
+    public Button getBtnGoogle() {
+        return btnGoogle;
+    }
+
+    public Button getBtnSubmit() {
+        return btnSubmit;
+    }
+
+    public String getPassword() {
+        return password.getValue();
     }
 
     public String getUsername() {
@@ -66,45 +68,35 @@ public class LoginForm extends FormPanel {
 
     private void initButtons() {
 
-        forgotPassword = new LabelField("Forgot your password?");
-        forgotPassword.setHideLabel(true);
-        forgotPassword.setStyleAttribute("cursor", "pointer");
-        forgotPassword.addListener(Events.OnClick, new Listener<ComponentEvent>() {
+        btnForgotPassword = new LabelField("Forgot your password?");
+        btnForgotPassword.setHideLabel(true);
+        btnForgotPassword.setStyleAttribute("cursor", "pointer");
+
+        // btnSubmit button
+        btnSubmit = new Button("Log in");
+        btnSubmit.setIconStyle("sense-btn-icon-go");
+        // btnSubmit.setType("submit"); // "submit" type makes the button always clickable!
+        new FormButtonBinding(this).addButton(btnSubmit);
+        btnSubmit.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void handleEvent(ComponentEvent be) {
-                onForgotPassword();
-            }
-        });
-
-        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
-            @Override
-            public void componentSelected(ButtonEvent be) {
-                final Button b = be.getButton();
-                if (b.equals(submit)) {
+            public void componentSelected(ButtonEvent ce) {
+                if (isValid()) {
                     submit();
-                } else if (b.equals(google)) {
-                    onGoogleClick();
-                } else {
-                    LOG.severe("Unknown button pressed!");
                 }
             }
-        };
-
-        // submit button
-        submit = new Button("Log in", SenseIconProvider.ICON_BUTTON_GO, l);
-        // submit.setType("submit"); // "submit" type makes the button always clickable!
+        });
 
         LayoutContainer submitWrapper = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
         submitWrapper.setSize("100%", "34px");
         HBoxLayout wrapperLayout = new HBoxLayout();
         wrapperLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
         submitWrapper.setLayout(wrapperLayout);
-        submitWrapper.add(submit, new HBoxLayoutData());
-        submitWrapper.add(forgotPassword, new HBoxLayoutData(0, 0, 0, 15));
+        submitWrapper.add(btnSubmit, new HBoxLayoutData());
+        submitWrapper.add(btnForgotPassword, new HBoxLayoutData(0, 0, 0, 10));
 
-        // google login button
-        google = new Button("Log in with Google", SenseIconProvider.ICON_GOOGLE, l);
+        // btnGoogle login button
+        btnGoogle = new Button("Log in with Google", SenseIconProvider.ICON_GOOGLE);
 
         this.add(submitWrapper, new FormData("-10"));
 
@@ -112,20 +104,9 @@ public class LoginForm extends FormPanel {
                 "Alternatively, you can use your Google Account to log in:");
         // alternative.setHideLabel(true);
         this.add(alternative, new FormData("-10"));
-        add(google);
-
-        final FormButtonBinding binding = new FormButtonBinding(this);
-        binding.addButton(submit);
+        add(btnGoogle);
 
         setupSubmit();
-    }
-
-    private void onForgotPassword() {
-        Dispatcher.forwardEvent(PwResetEvents.ShowDialog);
-    }
-
-    private void onGoogleClick() {
-        Dispatcher.forwardEvent(LoginEvents.GoogleAuthRequest);
     }
 
     private void initFields() {
@@ -142,21 +123,25 @@ public class LoginForm extends FormPanel {
         password.setPassword(true);
 
         // remember me check box
-        rememberMe = new CheckBox();
-        rememberMe.setHideLabel(true);
-        rememberMe.setBoxLabel("Remember username");
-        rememberMe.setValue(true);
+        chkRememberMe = new CheckBox();
+        chkRememberMe.setHideLabel(true);
+        chkRememberMe.setBoxLabel("Remember username");
+        chkRememberMe.setValue(true);
 
         this.add(username, new FormData("-20"));
         this.add(password, new FormData("-20"));
-        this.add(rememberMe, new FormData("-20"));
+        this.add(chkRememberMe, new FormData("-20"));
+    }
+
+    public boolean isRememberMe() {
+        return chkRememberMe.getValue();
     }
 
     public void setBusy(boolean busy) {
         if (busy) {
-            submit.setIcon(SenseIconProvider.ICON_LOADING);
+            btnSubmit.setIconStyle("sense-btn-icon-loading");
         } else {
-            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            btnSubmit.setIconStyle("sense-btn-icon-go");
         }
     }
 
@@ -169,19 +154,20 @@ public class LoginForm extends FormPanel {
     }
 
     public void setRememberMe(boolean rememberMe) {
-        this.rememberMe.setValue(rememberMe);
+        chkRememberMe.setValue(rememberMe);
     }
 
     /**
-     * Defines how to submit the form, and the actions to take when the form is submitted.
+     * Defines how to btnSubmit the form, and the actions to take when the form is submitted.
      */
     private void setupSubmit() {
 
-        // ENTER-key listener to submit the form using the keyboard
+        // ENTER-key listener to btnSubmit the form using the keyboard
         final KeyListener submitListener = new KeyListener() {
             @Override
             public void componentKeyDown(ComponentEvent event) {
                 if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    LOG.finest("Pressed enter to submit form");
                     if (isValid()) {
                         submit();
                     }
@@ -191,7 +177,7 @@ public class LoginForm extends FormPanel {
         username.addKeyListener(submitListener);
         password.addKeyListener(submitListener);
 
-        // form action is not a regular URL, but we listen for the submit event instead
+        // form action is not a regular URL, but we listen for the btnSubmit event instead
         setAction("javascript:;");
     }
 

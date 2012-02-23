@@ -14,26 +14,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupPresetsForm extends AbstractGroupForm {
 
-    public class AnonymousRadio extends Radio {
-
-    };
-
-    public class PrivateRadio extends Radio {
-
-    };
-
-    public class CommunityRadio extends Radio {
-
-    }
-
-    public class CustomRadio extends Radio {
-
-    }
-
-    private final AnonymousRadio anonymous = new AnonymousRadio();
-    private final PrivateRadio hidden = new PrivateRadio();
-    private final CommunityRadio community = new CommunityRadio();
-    private final CustomRadio custom = new CustomRadio();
+    private final Radio anonymous = new Radio();
+    private final Radio hidden = new Radio();
+    private final Radio community = new Radio();
+    private final Radio custom = new Radio();
     private final RadioGroup presets = new RadioGroup();
 
     private final TextField<String> password = new TextField<String>();
@@ -47,6 +31,20 @@ public class GroupPresetsForm extends AbstractGroupForm {
 
         hidden.setValue(true);
         onSelectionChange(hidden);
+    }
+
+    public String getAccessPassword() {
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
+                : null;
+    }
+
+    public String getPresetChoice() {
+        return presets.getValue().getValueAttribute();
+    }
+
+    public RadioGroup getPresets() {
+        return presets;
     }
 
     private void initLayout() {
@@ -93,6 +91,39 @@ public class GroupPresetsForm extends AbstractGroupForm {
         add(customLabel, layoutData);
     }
 
+    private void initRadios() {
+
+        // radio presets manages selection
+        presets.setSelectionRequired(true);
+        presets.addListener(Events.Change, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                onSelectionChange(be.getField().getValue());
+            }
+        });
+
+        hidden.setBoxLabel("Private");
+        hidden.setValueAttribute("private");
+        hidden.setHideLabel(true);
+        presets.add(hidden);
+
+        anonymous.setBoxLabel("Anonymous");
+        anonymous.setValueAttribute("anonymous");
+        anonymous.setHideLabel(true);
+        presets.add(anonymous);
+
+        community.setBoxLabel("Community");
+        community.setValueAttribute("community");
+        community.setHideLabel(true);
+        presets.add(community);
+
+        custom.setBoxLabel("Custom");
+        custom.setValueAttribute("custom");
+        custom.setHideLabel(true);
+        presets.add(custom);
+    }
+
     private void initTextFields() {
 
         password.setFieldLabel("Password");
@@ -119,32 +150,6 @@ public class GroupPresetsForm extends AbstractGroupForm {
         passwordConfirm.setEnabled(false);
     }
 
-    private void initRadios() {
-
-        hidden.setBoxLabel("Private");
-        hidden.setHideLabel(true);
-        anonymous.setBoxLabel("Anonymous");
-        anonymous.setHideLabel(true);
-        community.setBoxLabel("Community");
-        community.setHideLabel(true);
-        custom.setBoxLabel("Custom");
-        custom.setHideLabel(true);
-
-        // radio presets manages selection
-        presets.add(anonymous);
-        presets.add(hidden);
-        presets.add(community);
-        presets.add(custom);
-        presets.setSelectionRequired(true);
-        presets.addListener(Events.Change, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                onSelectionChange(be.getField().getValue());
-            }
-        });
-    }
-
     private void onSelectionChange(Object selection) {
         boolean usePasswords = hidden.equals(selection);
 
@@ -153,15 +158,5 @@ public class GroupPresetsForm extends AbstractGroupForm {
 
         passwordConfirm.setEnabled(usePasswords);
         passwordConfirm.setAllowBlank(!usePasswords);
-    }
-
-    public RadioGroup getPresets() {
-        return presets;
-    }
-
-    public String getPrivatePass() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
-                ? password.getValue()
-                : null;
     }
 }

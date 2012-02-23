@@ -1,9 +1,8 @@
-package nl.sense_os.commonsense.client.common.components;
+package nl.sense_os.commonsense.client.auth.registration;
 
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -18,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -82,16 +82,14 @@ public class RegisterForm extends FormPanel {
     public RegisterForm() {
         super();
 
-        setLabelSeparator("");
-        setBodyBorder(false);
-        setHeaderVisible(false);
+        setHeading("Register");
+        setSize("", "auto");
         setScrollMode(Scroll.AUTOY);
         setLabelAlign(LabelAlign.TOP);
 
         initFields();
         initButtons();
     }
-
     public String getEmail() {
         return email.getValue();
     }
@@ -131,13 +129,13 @@ public class RegisterForm extends FormPanel {
         };
 
         // submit button
-        submit = new Button("Register", SenseIconProvider.ICON_BUTTON_GO, l);
-        // submit.setType("submit");
+        submit = new Button("Register", l);
+        submit.setIconStyle("sense-btn-icon-go");
+        submit.setType("submit");
 
         addButton(submit);
 
-        final FormButtonBinding binding = new FormButtonBinding(this);
-        binding.addButton(submit);
+        new FormButtonBinding(this).addButton(submit);
 
         setupSubmit();
     }
@@ -146,36 +144,37 @@ public class RegisterForm extends FormPanel {
 
         // username field
         username = new TextField<String>();
-        username.setFieldLabel("Username:");
+        username.setFieldLabel("Username*");
         username.setAllowBlank(false);
 
         // password field
         password = new TextField<String>();
-        password.setFieldLabel("Password:");
+        password.setFieldLabel("Password*");
         password.setMinLength(4);
         password.setPassword(true);
 
+        // email field
+        email = new TextField<String>();
+        email.setFieldLabel("Email*");
+        email.setRegex(EMAIL_REGEX);
+        email.setAllowBlank(false);
+        email.getMessages().setRegexText("Invalid email address");
+
         // name field
         name = new TextField<String>();
-        name.setFieldLabel("First name:");
+        name.setFieldLabel("First name");
         name.setAllowBlank(true);
 
         // surname field
         surname = new TextField<String>();
-        surname.setFieldLabel("Surname:");
+        surname.setFieldLabel("Surname");
         surname.setAllowBlank(true);
-
-        // email field
-        email = new TextField<String>();
-        email.setFieldLabel("Email:");
-        email.setRegex(EMAIL_REGEX);
-        email.getMessages().setRegexText("Invalid email address");
 
         // country field
         ListStore<ModelData> countries = new ListStore<ModelData>();
         countries.add(Constants.getCountries());
         country = new ComboBox<ModelData>();
-        country.setFieldLabel("Country:");
+        country.setFieldLabel("Country");
         country.setStore(countries);
         country.setTriggerAction(TriggerAction.ALL);
         country.setAllowBlank(true);
@@ -183,18 +182,21 @@ public class RegisterForm extends FormPanel {
 
         // phone field
         mobile = new TextField<String>();
-        mobile.setFieldLabel("Phone:");
+        mobile.setFieldLabel("Phone");
         mobile.setAllowBlank(true);
         mobile.setValidator(new PhoneValidator());
 
+        LabelField footnote = new LabelField("* Required fields");
+        footnote.setHideLabel(true);
+
         this.add(username, new FormData("-20"));
         this.add(password, new FormData("-20"));
-        this.add(password, new FormData("-20"));
+        this.add(email, new FormData("-20"));
         this.add(name, new FormData("-20"));
         this.add(surname, new FormData("-20"));
-        this.add(email, new FormData("-20"));
         this.add(country, new FormData("-20"));
         this.add(mobile, new FormData("-20"));
+        add(footnote, new FormData("-5"));
     }
 
     @Override
@@ -210,9 +212,9 @@ public class RegisterForm extends FormPanel {
 
     public void setBusy(boolean busy) {
         if (busy) {
-            submit.setIcon(SenseIconProvider.ICON_LOADING);
+            submit.setIconStyle("sense-btn-icon-loading");
         } else {
-            submit.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submit.setIconStyle("sense-btn-icon-go");
         }
     }
 

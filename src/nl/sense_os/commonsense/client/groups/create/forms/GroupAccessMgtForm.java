@@ -17,34 +17,14 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class GroupAccessMgtForm extends AbstractGroupForm {
 
-    public class AdminEntranceRadio extends Radio {
+    private final RadioGroup hidden = new RadioGroup();
+    private final Radio radioNotHidden = new Radio();
+    private final Radio radioHidden = new Radio();
 
-    }
-
-    public class FreeEntranceRadio extends Radio {
-
-    }
-
-    public class InvisibleRadio extends Radio {
-
-    }
-
-    public class PwEntranceRadio extends Radio {
-
-    }
-
-    public class VisibleRadio extends Radio {
-
-    }
-
-    private final RadioGroup visibility = new RadioGroup();
-    private final VisibleRadio visible = new VisibleRadio();
-    private final InvisibleRadio invisible = new InvisibleRadio();
-
-    private final RadioGroup joinPolicy = new RadioGroup();
-    private final FreeEntranceRadio freeEntrance = new FreeEntranceRadio();
-    private final PwEntranceRadio passEntrance = new PwEntranceRadio();
-    private final AdminEntranceRadio adminEntrance = new AdminEntranceRadio();
+    private final RadioGroup groupPublic = new RadioGroup();
+    private final Radio radioPublic = new Radio();
+    private final Radio radioNotPublicPass = new Radio();
+    private final Radio radioNotPublic = new Radio();
 
     private final TextField<String> password = new TextField<String>();
     private final TextField<String> passwordConfirm = new TextField<String>();
@@ -52,18 +32,18 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
     public GroupAccessMgtForm() {
         super();
 
-        initVisibility();
-        initJoinPolicy();
+        initHidden();
+        initPublic();
         initLayout();
 
         // set initial values
-        visible.setValue(true);
-        adminEntrance.setValue(true);
-        onSelectionChange(adminEntrance);
+        radioNotHidden.setValue(true);
+        radioPublic.setValue(true);
+        onSelectionChange(radioNotPublic);
     }
 
     public RadioGroup getJoinPolicy() {
-        return joinPolicy;
+        return groupPublic;
     }
 
     public String getPassword() {
@@ -72,22 +52,11 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
                 : null;
     }
 
-    public RadioGroup getVisibility() {
-        return visibility;
-    }
+    private void initPublic() {
 
-    private void initJoinPolicy() {
-        freeEntrance.setBoxLabel("New members do not need a password");
-        freeEntrance.setHideLabel(true);
-        passEntrance.setBoxLabel("There is an access password for new members");
-        passEntrance.setHideLabel(true);
-        adminEntrance.setBoxLabel("New members need to be accepted by an admin");
-        adminEntrance.setHideLabel(true);
-        joinPolicy.add(freeEntrance);
-        joinPolicy.add(passEntrance);
-        joinPolicy.add(adminEntrance);
-        joinPolicy.setSelectionRequired(true);
-        joinPolicy.addListener(Events.Change, new Listener<FieldEvent>() {
+        groupPublic.setName("public");
+        groupPublic.setSelectionRequired(true);
+        groupPublic.addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
@@ -95,12 +64,27 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
             }
         });
 
+        radioPublic.setBoxLabel("Everyone can freely join the group");
+        radioPublic.setValueAttribute("true");
+        radioPublic.setHideLabel(true);
+        groupPublic.add(radioPublic);
+
+        radioNotPublicPass.setBoxLabel("There is an access password for new members");
+        radioNotPublicPass.setValueAttribute("pass");
+        radioNotPublicPass.setHideLabel(true);
+        groupPublic.add(radioNotPublicPass);
+
+        radioNotPublic.setBoxLabel("New members need to be accepted by an admin");
+        radioNotPublic.setValueAttribute("false");
+        radioNotPublic.setHideLabel(true);
+        groupPublic.add(radioNotPublic);
+
         initPasswordFields();
     }
 
     private void initLayout() {
 
-        LabelField visibleLabel = new LabelField("<b>Group visibility</b>");
+        LabelField visibleLabel = new LabelField("<b>Group hidden</b>");
         visibleLabel.setHideLabel(true);
 
         LabelField policyLabel = new LabelField("<b>Policy for new members</b>");
@@ -118,13 +102,13 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
 
         setLayout(new FormLayout(LabelAlign.LEFT));
         add(visibleLabel, layoutData);
-        add(invisible, layoutData);
-        add(visible, layoutData);
+        add(radioNotHidden, layoutData);
+        add(radioHidden, layoutData);
         add(policyLabel, extraSpace);
-        add(adminEntrance, layoutData);
-        add(passEntrance, layoutData);
+        add(radioPublic, layoutData);
+        add(radioNotPublic, layoutData);
+        add(radioNotPublicPass, layoutData);
         add(pwForm, layoutData);
-        add(freeEntrance, layoutData);
     }
 
     private void initPasswordFields() {
@@ -151,19 +135,33 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         });
     }
 
-    private void initVisibility() {
-        visible.setBoxLabel("Everyone can see that this group exists");
-        visible.setHideLabel(true);
-        invisible.setBoxLabel("Group is hidden if you are not a member");
-        invisible.setHideLabel(true);
-        visibility.add(visible);
-        visibility.add(invisible);
-        visibility.setOrientation(Orientation.VERTICAL);
-        visibility.setSelectionRequired(true);
+    private void initHidden() {
+
+        hidden.setName("hidden");
+        hidden.setOrientation(Orientation.VERTICAL);
+        hidden.setSelectionRequired(true);
+
+        radioNotHidden.setBoxLabel("Everyone can see that this group exists");
+        radioNotHidden.setValueAttribute("false");
+        radioNotHidden.setHideLabel(true);
+        hidden.add(radioNotHidden);
+
+        radioHidden.setBoxLabel("Group is hidden if you are not a member");
+        radioHidden.setValueAttribute("true");
+        radioHidden.setHideLabel(true);
+        hidden.add(radioHidden);
+    }
+
+    public boolean isGroupHidden() {
+        return "true".equals(hidden.getValue().getValueAttribute());
+    }
+
+    public boolean isGroupPublic() {
+        return "true".equals(groupPublic.getValue().getValueAttribute());
     }
 
     private void onSelectionChange(Radio selection) {
-        boolean isPassRequired = selection.equals(passEntrance);
+        boolean isPassRequired = selection.equals(radioNotPublicPass);
 
         password.setEnabled(isPassRequired);
         password.setAllowBlank(!isPassRequired);

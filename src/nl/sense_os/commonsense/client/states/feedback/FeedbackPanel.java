@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
@@ -155,7 +154,8 @@ public class FeedbackPanel extends VizPanel {
             }
         };
 
-        submitButton = new Button("SubmitRequest Feedback", SenseIconProvider.ICON_BUTTON_GO, l);
+        submitButton = new Button("SubmitRequest Feedback", l);
+        submitButton.setIconStyle("sense-btn-icon-go");
         submitButton.setMinWidth(75);
         cancelButton = new Button("Cancel", l);
         cancelButton.setMinWidth(75);
@@ -656,9 +656,9 @@ public class FeedbackPanel extends VizPanel {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            submitButton.setIconStyle("sense-btn-icon-loading");
         } else {
-            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submitButton.setIconStyle("sense-btn-icon-go");
         }
     }
 

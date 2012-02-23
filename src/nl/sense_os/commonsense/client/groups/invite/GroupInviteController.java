@@ -33,14 +33,15 @@ public class GroupInviteController extends Controller {
         final EventType type = event.getType();
 
         if (type.equals(GroupInviteEvents.InviteRequested)) {
-            // LOG.fine( "InviteRequested");
+            LOG.finest("InviteRequested");
             final GroupModel group = event.getData("group");
             final String email = event.getData("username");
             View source = (View) event.getSource();
             inviteUser(group, email, source);
 
         } else if (type.equals(GroupInviteEvents.ShowInviter)) {
-            GroupInviter inviter = new GroupInviter(this);
+            LOG.finest("ShowInviter");
+            GroupInviteView inviter = new GroupInviteView(this);
             forwardToView(inviter, event);
 
         } else {

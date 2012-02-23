@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -91,14 +90,14 @@ public class StateDefaultsDialog extends View {
                     }
                 });
 
-        submitButton = new Button("SubmitRequest", SenseIconProvider.ICON_BUTTON_GO,
-                new SelectionListener<ButtonEvent>() {
+        submitButton = new Button("SubmitRequest", new SelectionListener<ButtonEvent>() {
 
-                    @Override
-                    public void componentSelected(ButtonEvent ce) {
-                        submit();
-                    }
-                });
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                submit();
+            }
+        });
+        submitButton.setIconStyle("sense-btn-icon-go");
         submitButton.setEnabled(false);
         submitButton.setMinWidth(75);
 
@@ -209,9 +208,9 @@ public class StateDefaultsDialog extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            submitButton.setIcon(SenseIconProvider.ICON_LOADING);
+            submitButton.setIconStyle("sense-btn-icon-loading");
         } else {
-            submitButton.setIcon(SenseIconProvider.ICON_BUTTON_GO);
+            submitButton.setIconStyle("sense-btn-icon-go");
         }
     }
 

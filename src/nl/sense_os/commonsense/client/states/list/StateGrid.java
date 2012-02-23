@@ -44,7 +44,6 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -499,9 +498,9 @@ public class StateGrid extends View {
 
     private void setBusy(boolean busy) {
         if (busy) {
-            panel.getHeader().setIcon(SenseIconProvider.ICON_LOADING);
+            panel.getHeader().setIconStyle("sense-btn-icon-loading");
         } else {
-            panel.getHeader().setIcon(IconHelper.create(""));
+            panel.getHeader().setIconStyle("");
         }
     }
 
