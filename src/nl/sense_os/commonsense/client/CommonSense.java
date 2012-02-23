@@ -40,8 +40,9 @@ import nl.sense_os.commonsense.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.client.states.list.StateListController;
 import nl.sense_os.commonsense.client.viz.data.DataController;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
+import nl.sense_os.commonsense.client.viz.panels.VizPanelsController;
 import nl.sense_os.commonsense.client.viz.panels.map.MapPanel;
-import nl.sense_os.commonsense.client.viz.tabs.VizController;
+import nl.sense_os.commonsense.client.viz.tabs.VizMainController;
 
 import com.chap.links.client.Timeline;
 import com.extjs.gxt.ui.client.GXT;
@@ -104,7 +105,8 @@ public class CommonSense implements EntryPoint {
         dispatcher.addController(new LoginController());
         dispatcher.addController(new RegisterController());
         dispatcher.addController(new PwResetController());
-        dispatcher.addController(new VizController());
+        dispatcher.addController(new VizMainController());
+        dispatcher.addController(new VizPanelsController());
         dispatcher.addController(new DemoController());
         dispatcher.addController(new DataController());
 
@@ -260,7 +262,8 @@ public class CommonSense implements EntryPoint {
                 for (int i = 0; i < data1.length(); i++) {
                     data.push(data1.get(i));
                 }
-                map.addData(data);
+                // map.onDataReceived(data);
+                // TODO fix this test
 
             }
         });

@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.viz.data.timeseries;
 
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
@@ -11,24 +10,17 @@ public class Timeseries extends JavaScriptObject {
     }
 
     public final native JsArray<DataPoint> getData() /*-{
-    	
+
         return this.data;
     }-*/;
-    
 
     public final long getEnd() {
         return Math.round(getRawEnd());
     }
-    
-    
+
     public final native int getId() /*-{
         return this.id;
     }-*/;
-    
-    public final native int getIdd() /*-{
-    	return this.id;
-    }-*/;
-    
 
     public final native String getLabel() /*-{
         return this.label;
@@ -44,30 +36,6 @@ public class Timeseries extends JavaScriptObject {
 
     public final long getStart() {
         return Math.round(getRawStart());
-    }
-    
-    public final double findMax() {
-        double max = Integer.MIN_VALUE;
-        JsArray<DataPoint> data = this.getData();
-
-        for (int i = 0; i < data.length(); i++) {
-            if (data.get(i).getOurValue() > max)
-                max = data.get(i).getOurValue();
-        }
-
-        return max;
-    }
-
-    public final double findMin() {
-        double min = Integer.MAX_VALUE;
-        JsArray<DataPoint> data = this.getData();
-
-        for (int i = 0; i < data.length(); i++) {
-            if (data.get(i).getOurValue() < min)
-                min = data.get(i).getOurValue();
-        }
-
-        return min;
     }
 
     public final native String getType() /*-{

@@ -1,4 +1,6 @@
-package nl.sense_os.commonsense.client.groups.create.forms;
+package nl.sense_os.commonsense.client.groups.create.components;
+
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -15,7 +17,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.HTML;
 
-public class GroupReqSharingForm extends AbstractGroupForm {
+public class GroupReqSharingForm extends WizardFormPanel {
 
     private final TextArea required = new TextArea();
     private final TextArea optional = new TextArea();
@@ -82,14 +84,14 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         FormData extraSpace = new FormData("-10");
         extraSpace.setMargins(new Margins(0, 10, 10, 0));
 
-        add(shareLabel, layoutData);
+        add(shareLabel, new FormData(anchorSpec));
         add(required, extraSpace);
         add(optional, extraSpace);
 
-        add(infoLabel, layoutData);
-        add(radioNotAnonymous, layoutData);
-        add(checkBoxContainer, layoutData);
-        add(radioAnonymous, layoutData);
+        add(infoLabel, new FormData(anchorSpec));
+        add(radioNotAnonymous, new FormData(anchorSpec));
+        add(checkBoxContainer, new FormData(anchorSpec));
+        add(radioAnonymous, new FormData(anchorSpec));
     }
 
     private void initMemberInfoCheckBoxes() {
@@ -117,7 +119,8 @@ public class GroupReqSharingForm extends AbstractGroupForm {
         radioNotAnonymous.setHideLabel(true);
         anonymous.add(radioNotAnonymous);
 
-        radioAnonymous.setBoxLabel("Members are not required to share information about themselves");
+        radioAnonymous
+                .setBoxLabel("Members are not required to share information about themselves");
         radioAnonymous.setValueAttribute("true");
         radioAnonymous.setHideLabel(true);
         anonymous.add(radioAnonymous);

@@ -30,6 +30,7 @@ public class NewPwDialog extends Window {
         setSize(300, 200);
         setHeading("Choose new password");
         setLayout(new FitLayout());
+        setClosable(false);
 
         form = new FormPanel();
         form.setHeaderVisible(false);

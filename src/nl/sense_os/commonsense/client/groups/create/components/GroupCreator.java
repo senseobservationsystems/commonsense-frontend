@@ -1,16 +1,9 @@
-package nl.sense_os.commonsense.client.groups.create;
+package nl.sense_os.commonsense.client.groups.create.components;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.groups.create.forms.GroupAccessMgtForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupLoginForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupMemberRightsForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupNameForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupPresetsForm;
-import nl.sense_os.commonsense.client.groups.create.forms.GroupReqSharingForm;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -24,9 +17,9 @@ import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 
-public class GroupCreateWindow extends Window {
+public class GroupCreator extends Window {
 
-    private static final Logger LOG = Logger.getLogger(GroupCreateWindow.class.getName());
+    private static final Logger LOG = Logger.getLogger(GroupCreator.class.getName());
 
     private CardLayout layout;
 
@@ -42,9 +35,9 @@ public class GroupCreateWindow extends Window {
     private Button btnCancel;
     private FormButtonBinding formButtonBinding;
 
-    public GroupCreateWindow() {
+    public GroupCreator() {
 
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
 
         // basic stuff
         setHeading("Create new group");

@@ -1,4 +1,6 @@
-package nl.sense_os.commonsense.client.groups.create.forms;
+package nl.sense_os.commonsense.client.groups.create.components;
+
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -13,7 +15,7 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupLoginForm extends AbstractGroupForm {
+public class GroupLoginForm extends WizardFormPanel {
 
     private final RadioGroup loginChoice = new RadioGroup();
     private Radio useLogin;
@@ -23,6 +25,7 @@ public class GroupLoginForm extends AbstractGroupForm {
     private final TextField<String> passConfirm = new TextField<String>();
 
     public GroupLoginForm() {
+        super();
 
         initRadios();
         initTextFields();
@@ -50,16 +53,16 @@ public class GroupLoginForm extends AbstractGroupForm {
         pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
         pwForm.setHeaderVisible(false);
         pwForm.setBodyBorder(false);
-        pwForm.add(username, new FormData("-10"));
-        pwForm.add(password, new FormData("-10"));
-        pwForm.add(passConfirm, new FormData("-10"));
+        pwForm.add(username, new FormData(anchorSpec));
+        pwForm.add(password, new FormData(anchorSpec));
+        pwForm.add(passConfirm, new FormData(anchorSpec));
 
         // layout
         setLayout(new FormLayout(LabelAlign.LEFT));
-        add(label, layoutData);
-        add(useLogin, layoutData);
-        add(pwForm, layoutData);
-        add(doNotUseLogin, layoutData);
+        add(label, new FormData("-5"));
+        add(useLogin, new FormData(anchorSpec));
+        add(pwForm, new FormData(anchorSpec));
+        add(doNotUseLogin, new FormData(anchorSpec));
     }
 
     private void initRadios() {

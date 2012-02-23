@@ -92,7 +92,8 @@ public class LoginForm extends FormPanel {
         HBoxLayout wrapperLayout = new HBoxLayout();
         wrapperLayout.setHBoxLayoutAlign(HBoxLayoutAlign.MIDDLE);
         submitWrapper.setLayout(wrapperLayout);
-        submitWrapper.add(btnSubmit, new HBoxLayoutData());
+        submitWrapper.add(btnSubmit);
+        btnSubmit.setWidth("75px");
         submitWrapper.add(btnForgotPassword, new HBoxLayoutData(0, 0, 0, 10));
 
         // btnGoogle login button

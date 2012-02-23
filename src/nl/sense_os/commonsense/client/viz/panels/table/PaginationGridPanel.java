@@ -55,8 +55,6 @@ public class PaginationGridPanel extends ContentPanel {
     public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize,
             long startDate, long endDate) {
 
-        // LOG.setLevel(Level.ALL);
-
         this.pageSize = pageSize;
         this.startDate = startDate;
 
@@ -144,9 +142,16 @@ public class PaginationGridPanel extends ContentPanel {
                     // we do not know the length yet
                     LOG.finest("Freaktimate total data size...");
                     List<ModelData> sensorData = result.getData();
-                    double pageNewest = Double.parseDouble(sensorData.get(0).<String> get("date"));
-                    double pageOldest = Double.parseDouble(sensorData.get(sensorData.size() - 1)
-                            .<String> get("date"));
+                    double pageNewest = -1;
+                    double pageOldest = -1;
+                    try {
+                        pageNewest = Double.parseDouble(sensorData.get(0).<String> get("date"));
+                        pageNewest = Double.parseDouble(sensorData.get(sensorData.size() - 1)
+                                .<String> get("date"));
+                    } catch (ClassCastException e) {
+                        pageNewest = sensorData.get(0).get("date");
+                        pageNewest = sensorData.get(sensorData.size() - 1).get("date");
+                    }
                     double pageRange = pageNewest - pageOldest;
                     double queryStart = startDate / 1000d;
                     double queryRange = pageOldest - queryStart;
@@ -182,6 +187,7 @@ public class PaginationGridPanel extends ContentPanel {
         this.grid.setAutoExpandMax(1000);
         this.grid.setLoadMask(true);
     }
+
     @Override
     protected void onResize(int width, int height) {
         super.onResize(width, height);

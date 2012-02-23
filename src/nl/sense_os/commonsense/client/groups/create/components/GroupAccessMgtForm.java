@@ -1,4 +1,6 @@
-package nl.sense_os.commonsense.client.groups.create.forms;
+package nl.sense_os.commonsense.client.groups.create.components;
+
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.Events;
@@ -15,7 +17,7 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class GroupAccessMgtForm extends AbstractGroupForm {
+public class GroupAccessMgtForm extends WizardFormPanel {
 
     private final RadioGroup hidden = new RadioGroup();
     private final Radio radioNotHidden = new Radio();
@@ -47,8 +49,7 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
     }
 
     public String getPassword() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
-                ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
                 : null;
     }
 
@@ -94,21 +95,21 @@ public class GroupAccessMgtForm extends AbstractGroupForm {
         pwForm.setLayout(new FormLayout(LabelAlign.LEFT));
         pwForm.setHeaderVisible(false);
         pwForm.setBodyBorder(false);
-        pwForm.add(password, layoutData);
-        pwForm.add(passwordConfirm, layoutData);
+        pwForm.add(password, new FormData(anchorSpec));
+        pwForm.add(passwordConfirm, new FormData(anchorSpec));
 
-        FormData extraSpace = new FormData("-10");
+        FormData extraSpace = new FormData("-5");
         extraSpace.setMargins(new Margins(20, 0, 0, 0));
 
         setLayout(new FormLayout(LabelAlign.LEFT));
-        add(visibleLabel, layoutData);
-        add(radioNotHidden, layoutData);
-        add(radioHidden, layoutData);
+        add(visibleLabel, new FormData("-5"));
+        add(radioNotHidden, new FormData(anchorSpec));
+        add(radioHidden, new FormData(anchorSpec));
         add(policyLabel, extraSpace);
-        add(radioPublic, layoutData);
-        add(radioNotPublic, layoutData);
-        add(radioNotPublicPass, layoutData);
-        add(pwForm, layoutData);
+        add(radioPublic, new FormData(anchorSpec));
+        add(radioNotPublic, new FormData(anchorSpec));
+        add(radioNotPublicPass, new FormData(anchorSpec));
+        add(pwForm, new FormData(anchorSpec));
     }
 
     private void initPasswordFields() {

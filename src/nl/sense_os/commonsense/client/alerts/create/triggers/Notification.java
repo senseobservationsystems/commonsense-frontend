@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.alerts.create.triggers;
 
-public class AlertType {
+public class Notification {
 	 private String type;
 	 private String address;
 	 private String description;

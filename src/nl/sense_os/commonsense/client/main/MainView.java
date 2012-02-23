@@ -18,7 +18,6 @@ import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -35,8 +34,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -136,21 +133,11 @@ public class MainView extends View {
 
     private void initNorth() {
 
-        LayoutContainer north = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
-        north.setId("sense-header");
-
-        // spacer with same width as west panel
-        LayoutContainer spacer = new LayoutContainer();
-        spacer.setStyleName("sense-header-spacer");
-        north.add(spacer, new RowData(.33, 1));
-
-        this.navPanel = new NavPanel();
-        // north.add(this.navPanel, new RowData(.67, 1));
+        navPanel = new NavPanel();
 
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, NavPanel.HEIGHT);
         northData.setMargins(new Margins(0));
         northData.setSplit(false);
-        // this.viewport.add(this.navPanel, northData);
         this.viewport.add(navPanel, northData);
     }
 

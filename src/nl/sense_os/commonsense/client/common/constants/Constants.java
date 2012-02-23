@@ -25,8 +25,8 @@ public class Constants {
     /**
      * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
      */
-    public static final boolean DEV_MODE = GWT.getModuleBaseURL()
-            .contains("common.dev.sense-os.nl");
+    public static final boolean DEV_MODE = !GWT.isProdMode()
+            || GWT.getModuleBaseURL().contains("common.dev.sense-os.nl");
 
     /**
      * Flag for Apigee test mode. <code>true</code> if the app is deployed to
@@ -84,6 +84,11 @@ public class Constants {
      * Registry key for the current User
      */
     public static final String REG_USER = "User";
+
+    /**
+     * Registry key for the visualization panel
+     */
+    public static final String REG_VIZPANEL = "VizPanel";
 
     private Constants() {
         // Private constructor to make sure this class is not instantiated.

@@ -65,6 +65,8 @@ public class FeedbackPanel extends VizPanel {
     private final Timeline.Options tlineOpts = Timeline.Options.create();
     private Timeline stateTline;
     private DataTable initialStates;
+    private long start;
+    private long end;
 
     private Button submitButton;
     private Button cancelButton;
@@ -74,6 +76,9 @@ public class FeedbackPanel extends VizPanel {
     public FeedbackPanel(SensorModel stateSensor, List<SensorModel> sensors, long start, long end,
             boolean subsample, String title, List<String> labels) {
         super();
+
+        this.start = start;
+        this.end = end;
 
         // LOG.setLevel(Level.ALL);
 
@@ -110,9 +115,9 @@ public class FeedbackPanel extends VizPanel {
         add(vizContainer, new RowData(1, 1));
         createButtons();
 
-        // request sensor data
         sensors.add(stateSensor);
-        visualize(sensors, start, end, subsample);
+
+        showToolButtons();
 
         DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
         LOG.finest("Start time: " + dtf.format(new Date(start)) + ", end time: "
@@ -154,7 +159,7 @@ public class FeedbackPanel extends VizPanel {
             }
         };
 
-        submitButton = new Button("SubmitRequest Feedback", l);
+        submitButton = new Button("Submit Feedback", l);
         submitButton.setIconStyle("sense-btn-icon-go");
         submitButton.setMinWidth(75);
         cancelButton = new Button("Cancel", l);

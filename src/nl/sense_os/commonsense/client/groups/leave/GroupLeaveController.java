@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.groups.leave;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
@@ -25,7 +24,7 @@ public class GroupLeaveController extends Controller {
     private static final Logger LOG = Logger.getLogger(GroupLeaveController.class.getName());
 
     public GroupLeaveController() {
-        LOG.setLevel(Level.ALL);
+        // LOG.setLevel(Level.ALL);
         registerEventTypes(GroupLeaveEvents.LeaveRequest, GroupLeaveEvents.Leave);
     }
 

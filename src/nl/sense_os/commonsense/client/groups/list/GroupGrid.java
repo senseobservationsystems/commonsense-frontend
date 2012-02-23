@@ -179,8 +179,11 @@ public class GroupGrid extends View {
         ColumnConfig surname = new ColumnConfig(UserModel.SURNAME, "Surname", 125);
         ColumnConfig description = new ColumnConfig(GroupModel.DESCRIPTION, "Description", 125);
         ColumnConfig isPublic = new ColumnConfig(GroupModel.PUBLIC, "Public", 75);
+        isPublic.setHidden(true);
         ColumnConfig isHidden = new ColumnConfig(GroupModel.HIDDEN, "Hidden", 75);
+        isHidden.setHidden(true);
         ColumnConfig isAnon = new ColumnConfig(GroupModel.ANONYMOUS, "Anonymous", 75);
+        isAnon.setHidden(true);
         ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, description, isPublic,
                 isHidden, isAnon));
 
@@ -189,7 +192,7 @@ public class GroupGrid extends View {
         grid.setLoadMask(true);
         grid.setId("groupGrid");
         grid.setStateful(true);
-        grid.setAutoExpandColumn(UserModel.SURNAME);
+        grid.setAutoExpandColumn(GroupModel.DESCRIPTION);
         grid.setIconProvider(new SenseIconProvider<UserModel>());
     }
 

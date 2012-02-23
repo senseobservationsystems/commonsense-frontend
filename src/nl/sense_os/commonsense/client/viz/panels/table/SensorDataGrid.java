@@ -10,21 +10,22 @@ package nl.sense_os.commonsense.client.viz.panels.table;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
+import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
@@ -34,13 +35,11 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-public class SensorDataGrid extends LayoutContainer {
+public class SensorDataGrid extends VizPanel {
 
     private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
     public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
-
-        LOG.setLevel(Level.ALL);
 
         // grid panel parameters
         ModelType model = createModelType();
@@ -78,7 +77,7 @@ public class SensorDataGrid extends LayoutContainer {
             @Override
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                String id = model.<String> get(property);
+                String id = "" + model.get(property);
                 for (SensorModel sensor : sensors) {
                     if (id.equals("" + sensor.getId())) {
                         String name = sensor.getName();
@@ -130,7 +129,12 @@ public class SensorDataGrid extends LayoutContainer {
             @Override
             public String render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                double timeInSecs = Double.parseDouble(model.<String> get("date"));
+                double timeInSecs = -1;
+                try {
+                    timeInSecs = Double.parseDouble(model.<String> get("date"));
+                } catch (ClassCastException e) {
+                    timeInSecs = model.get("date");
+                }
                 long timeInMSecs = (long) (1000 * timeInSecs);
                 DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
                 return format.format(new Date(timeInMSecs));
@@ -177,6 +181,11 @@ public class SensorDataGrid extends LayoutContainer {
         // urlBuilder.setParameter("total", "1");
 
         return urlBuilder.buildString();
+    }
+
+    @Override
+    protected void onNewData(JsArray<Timeseries> data) {
+        // nothing to do
     }
 
     private String renderJsonValue(JSONObject json) {

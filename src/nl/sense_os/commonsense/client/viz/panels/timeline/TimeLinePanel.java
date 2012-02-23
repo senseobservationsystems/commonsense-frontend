@@ -65,7 +65,7 @@ public class TimeLinePanel extends VizPanel {
         tlineOpts.setGroupsOnRight(true);
         tlineOpts.setGroupsWidth(135);
 
-        visualize(sensors, start, end, subsample);
+        showToolButtons();
     }
 
     /**

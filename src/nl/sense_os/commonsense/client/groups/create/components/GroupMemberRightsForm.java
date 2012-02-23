@@ -1,9 +1,12 @@
-package nl.sense_os.commonsense.client.groups.create.forms;
+package nl.sense_os.commonsense.client.groups.create.components;
+
+import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
-public class GroupMemberRightsForm extends AbstractGroupForm {
+public class GroupMemberRightsForm extends WizardFormPanel {
 
     private final CheckBox readUsers = new CheckBox();
     private final CheckBox createUsers = new CheckBox();
@@ -44,13 +47,13 @@ public class GroupMemberRightsForm extends AbstractGroupForm {
         label.setHideLabel(true);
 
         // layout
-        add(label, layoutData);
-        add(readUsers, layoutData);
-        add(createUsers, layoutData);
-        add(deleteUsers, layoutData);
-        add(readSensors, layoutData);
-        add(createSensors, layoutData);
-        add(deleteSensors, layoutData);
+        add(label, new FormData(anchorSpec));
+        add(readUsers, new FormData(anchorSpec));
+        add(createUsers, new FormData(anchorSpec));
+        add(deleteUsers, new FormData(anchorSpec));
+        add(readSensors, new FormData(anchorSpec));
+        add(createSensors, new FormData(anchorSpec));
+        add(deleteSensors, new FormData(anchorSpec));
     }
 
     public boolean isCreateMembers() {
