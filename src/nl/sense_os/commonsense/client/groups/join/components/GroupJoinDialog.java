@@ -1,30 +1,23 @@
-package nl.sense_os.commonsense.client.groups.join;
+package nl.sense_os.commonsense.client.groups.join.components;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.groups.join.forms.AllVisibleGroupsForm;
-import nl.sense_os.commonsense.client.groups.join.forms.GroupNameForm;
-import nl.sense_os.commonsense.client.groups.join.forms.GroupTypeForm;
-import nl.sense_os.commonsense.client.groups.join.forms.MemberRightsForm;
-import nl.sense_os.commonsense.client.groups.join.forms.ShareSensorsForm;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 
-public class GroupJoinDialog extends Window {
+public class GroupJoinDialog extends CenteredWindow {
 
-    class States {
+    public class States {
         public static final int GROUP_TYPE_CHOICE = 0;
         public static final int ALL_VISIBLE_GROUPS = 1;
         public static final int GROUP_NAME = 2;
@@ -48,6 +41,7 @@ public class GroupJoinDialog extends Window {
 
     public GroupJoinDialog(PagingLoader<PagingLoadResult<GroupModel>> groupLoader,
             List<SensorModel> sensors) {
+        super();
         LOG.setLevel(Level.ALL);
 
         // main window properties
@@ -74,13 +68,8 @@ public class GroupJoinDialog extends Window {
 
         initButtons();
 
-        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
-
-            @Override
-            public void onResize(ResizeEvent event) {
-                center();
-            }
-        });
+        // initialize
+        setWizardState(States.GROUP_TYPE_CHOICE);
     }
 
     public Button getBtnBack() {

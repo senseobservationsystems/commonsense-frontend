@@ -4,11 +4,11 @@ public class LastDeployed {
 
     private static final String deployed = "Jan 24 13:58";
 
-    private LastDeployed() {
-        // do not instantiate
-    }
-
     public static String getPrettyString() {
         return deployed;
+    }
+
+    private LastDeployed() {
+        // do not instantiate
     }
 }

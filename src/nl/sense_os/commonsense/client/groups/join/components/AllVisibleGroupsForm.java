@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.groups.join.forms;
+package nl.sense_os.commonsense.client.groups.join.components;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -79,7 +79,7 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
         panel.add(grid);
 
         AdapterField field = new AdapterField(panel);
-        field.setHeight(380);
+        field.setHeight(370);
         field.setResizeWidget(true);
         field.setFieldLabel("Select the group you want to join");
 
@@ -122,7 +122,7 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
         store.setKeyProvider(new SenseKeyProvider<GroupModel>());
         store.setMonitorChanges(true);
 
-        pagingBar = new PagingToolBar(10);
+        pagingBar = new PagingToolBar(15);
         pagingBar.bind(loader);
 
         // Column model
@@ -131,10 +131,8 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
         ColumnConfig name = new ColumnConfig(GroupModel.NAME, "Name", 125);
         ColumnConfig description = new ColumnConfig(GroupModel.DESCRIPTION, "Description", 125);
         ColumnConfig isPublic = new ColumnConfig(GroupModel.PUBLIC, "Public", 75);
-        ColumnConfig isHidden = new ColumnConfig(GroupModel.HIDDEN, "Hidden", 75);
         ColumnConfig isAnon = new ColumnConfig(GroupModel.ANONYMOUS, "Anonymous", 75);
-        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, description, isPublic, isHidden,
-                isAnon));
+        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, description, isPublic, isAnon));
 
         grid = new Grid<GroupModel>(store, cm);
         grid.setAutoExpandColumn(GroupModel.NAME);
