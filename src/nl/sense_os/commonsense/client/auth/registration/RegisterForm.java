@@ -54,21 +54,22 @@ public class RegisterForm extends FormPanel {
     private static final Logger LOG = Logger.getLogger(RegisterForm.class.getName());
     private static final String EMAIL_REGEX = "^[\\w\\-]+(\\.[\\w\\-]+)*@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
 
-    private static native final String validatePhoneNumber(String phoneNumber, String regionCode) /*-{
-                                                                                                  try {
-                                                                                                  var phoneUtil = $wnd.i18n.phonenumbers.PhoneNumberUtil.getInstance();
-                                                                                                  var number = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode);
-                                                                                                  var isValid = phoneUtil.isValidNumber(number);
-                                                                                                  if (isValid) {
-                                                                                                  var PNF = $wnd.i18n.phonenumbers.PhoneNumberFormat;
-                                                                                                  return phoneUtil.format(number, PNF.E164);
-                                                                                                  } else {
-                                                                                                  return "not valid";
-                                                                                                  }
-                                                                                                  } catch (e) {
-                                                                                                  return "error";
-                                                                                                  }
-                                                                                                  }-*/;
+    private static native final String validatePhoneNumber(String phoneNumber, String regionCode)
+    /*-{
+        try {
+            var phoneUtil = $wnd.i18n.phonenumbers.PhoneNumberUtil.getInstance();
+            var number = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode);
+            var isValid = phoneUtil.isValidNumber(number);
+            if (isValid) {
+                var PNF = $wnd.i18n.phonenumbers.PhoneNumberFormat;
+                return phoneUtil.format(number, PNF.E164);
+            } else {
+                return "not valid";
+            }
+        } catch (e) {
+            return "error";
+        }
+    }-*/;
 
     private TextField<String> username;
     private TextField<String> password;
