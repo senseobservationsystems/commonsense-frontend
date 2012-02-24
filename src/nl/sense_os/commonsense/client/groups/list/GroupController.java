@@ -93,6 +93,8 @@ public class GroupController extends Controller {
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
                     onGroupMembersSuccess(response.getText(), group, callback);
+                } else if (Response.SC_FORBIDDEN == statusCode) {
+                    onGroupMembersForbidden(group, callback);
                 } else {
                     LOG.warning("GET group users returned incorrect status: " + statusCode);
                     onGroupMembersFailure(statusCode, group, callback);
@@ -108,6 +110,15 @@ public class GroupController extends Controller {
         } catch (RequestException e) {
             LOG.warning("GET group users request threw exception: " + e.getMessage());
             onGroupMembersFailure(-1, group, callback);
+        }
+    }
+
+    private void onGroupMembersForbidden(GroupModel group, AsyncCallback<List<UserModel>> callback) {
+        // user is not allowed to view the group members
+        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+        if (null != callback) {
+            callback.onSuccess(new ArrayList<UserModel>());
         }
     }
 
@@ -215,20 +226,10 @@ public class GroupController extends Controller {
     private void onGroupMembersFailure(int code, GroupModel group,
             AsyncCallback<List<UserModel>> callback) {
 
-        if (code == Response.SC_FORBIDDEN) {
-            // user is not allowed to view the group members
-            Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-            if (null != callback) {
-                callback.onSuccess(new ArrayList<UserModel>());
-            }
-
-        } else {
-            Dispatcher.forwardEvent(GroupEvents.ListUpdated);
-
-            if (null != callback) {
-                callback.onFailure(null);
-            }
+        if (null != callback) {
+            callback.onFailure(null);
         }
     }
 
