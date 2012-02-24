@@ -4,20 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.common.components.CenteredWindow;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 
-public class GroupCreator extends Window {
+public class GroupCreator extends CenteredWindow {
 
     private static final Logger LOG = Logger.getLogger(GroupCreator.class.getName());
 
@@ -36,6 +34,7 @@ public class GroupCreator extends Window {
     private FormButtonBinding formButtonBinding;
 
     public GroupCreator() {
+        super();
 
         // LOG.setLevel(Level.ALL);
 
@@ -64,7 +63,6 @@ public class GroupCreator extends Window {
 
         // buttons
         btnBack = new Button("Back");
-        btnBack.setEnabled(false);
         btnNext = new Button("Next");
         btnNext.setIconStyle("sense-btn-icon-go");
         btnCancel = new Button("Cancel");
@@ -72,13 +70,8 @@ public class GroupCreator extends Window {
         addButton(btnNext);
         addButton(btnCancel);
 
-        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
-
-            @Override
-            public void onResize(ResizeEvent event) {
-                center();
-            }
-        });
+        // initialize
+        showNameForm();
     }
 
     public String getAccessPassword() {

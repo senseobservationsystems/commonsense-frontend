@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.groups.join.forms;
+package nl.sense_os.commonsense.client.groups.join.components;
 
 import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 

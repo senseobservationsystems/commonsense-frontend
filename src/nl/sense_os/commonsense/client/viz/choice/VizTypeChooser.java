@@ -118,6 +118,7 @@ public class VizTypeChooser extends View {
         window.setHeading("Visualization wizard");
         window.setMinWidth(425);
         window.setMinHeight(305);
+        window.setClosable(false);
 
         layout = new CardLayout();
         window.setLayout(layout);

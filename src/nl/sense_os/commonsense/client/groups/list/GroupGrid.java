@@ -262,12 +262,9 @@ public class GroupGrid extends View {
             }
         };
 
-        // TODO re-enable create/join buttons
         createButton = new Button("Create", l);
-        // createButton.setEnabled(false);
 
         joinButton = new Button("Join", l);
-        // joinButton.setEnabled(false);
 
         leaveButton = new Button("Leave", l);
         leaveButton.disable();
@@ -285,7 +282,6 @@ public class GroupGrid extends View {
                 UserModel selection = se.getSelectedItem();
                 if (null != selection) {
                     leaveButton.enable();
-                    // TODO re-enable add user button
                     addUserButton.enable();
                 } else {
                     leaveButton.disable();

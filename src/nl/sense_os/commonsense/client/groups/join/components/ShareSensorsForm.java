@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.client.groups.join.forms;
+package nl.sense_os.commonsense.client.groups.join.components;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +103,7 @@ public class ShareSensorsForm extends WizardFormPanel {
         setReqSensors(reqSensors);
         add(lblReqSensors, new FormData("-5"));
     }
+
     public Grid<SensorModel> getGrid() {
         return grid;
     }
@@ -161,7 +162,6 @@ public class ShareSensorsForm extends WizardFormPanel {
     }
 
     private void selectRequiredSensors() {
-        LOG.finest("select required sensors");
 
         List<SensorModel> sensors = store.getModels();
         List<SensorModel> requiredSensors = new ArrayList<SensorModel>();

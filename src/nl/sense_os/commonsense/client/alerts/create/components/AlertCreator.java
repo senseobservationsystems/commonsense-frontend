@@ -74,7 +74,6 @@ public class AlertCreator extends CenteredWindow {
     }
 
     public void onNewNumData(JsArray<Timeseries> data) {
-        LOG.fine("Hey got data. Length is " + data.get(0).getData().length());
         if (data.length() > 0) {
             numTriggerPanel.addData(data);
         } else {
@@ -82,8 +81,12 @@ public class AlertCreator extends CenteredWindow {
         }
     }
 
+    public void onNewPosData(JsArray<Timeseries> data) {
+        // nothing to do
+
+    }
+
     public void onNewStringData(JsArray<Timeseries> data) {
-        LOG.fine("Hey got data");
         // LOG.fine ("Datatype is " + datatype);
         int records = data.get(0).getData().length();
         LOG.fine("Number of records: " + records);

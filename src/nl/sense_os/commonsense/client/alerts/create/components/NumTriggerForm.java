@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.alerts.create.components;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
@@ -43,12 +42,16 @@ public class NumTriggerForm extends WizardFormPanel {
 
     public NumTriggerForm() {
         super();
+
+        // LOG.setLevel(Level.ALL);
+
         FormLayout formLayout = (FormLayout) getLayout();
         formLayout.setLabelAlign(LabelAlign.LEFT);
-        LOG.setLevel(Level.ALL);
 
         createControls();
         addListeners();
+
+        rdAboveThresh.setValue(true);
     }
 
     private void addListeners() {
@@ -62,6 +65,7 @@ public class NumTriggerForm extends WizardFormPanel {
 
             @Override
             public void handleEvent(FieldEvent be) {
+                LOG.fine("Radio selection changed");
                 Radio selected = (Radio) be.getField().getValue();
                 aboveThreshField.setEnabled(selected == rdAboveThresh);
                 aboveThreshField.setAllowBlank(selected != rdAboveThresh);
@@ -77,18 +81,6 @@ public class NumTriggerForm extends WizardFormPanel {
                 outRangeMax.setAllowBlank(selected != rdOutsideRange);
             }
         });
-    }
-
-    /**
-     * Gets the numeric value from a string
-     * 
-     * @param text
-     * @return
-     */
-    public double getValue(String text) {
-        double value = Double.parseDouble(text);
-        // LOG.fine ("The value is " + value);
-        return value;
     }
 
     /**

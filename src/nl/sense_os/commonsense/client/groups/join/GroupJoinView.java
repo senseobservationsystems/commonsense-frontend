@@ -9,7 +9,8 @@ import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.groups.join.GroupJoinDialog.States;
+import nl.sense_os.commonsense.client.groups.join.components.GroupJoinDialog;
+import nl.sense_os.commonsense.client.groups.join.components.GroupJoinDialog.States;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -227,6 +228,9 @@ public class GroupJoinView extends View {
                 break;
             case States.GROUP_NAME :
                 window.setWizardState(States.GROUP_TYPE_CHOICE);
+                break;
+            case States.MEMBER_RIGHTS :
+                window.setWizardState(States.SHARE_SENSORS);
                 break;
             default :
                 LOG.warning("Unable to go to previous state!");
