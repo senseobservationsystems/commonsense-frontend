@@ -27,17 +27,17 @@ public class GroupMemberRightsForm extends WizardFormPanel {
     }
 
     private void initCheckBoxes() {
-        readUsers.setBoxLabel("Members may see the other group members");
+        readUsers.setBoxLabel("Members can see other group members");
         readUsers.setHideLabel(true);
-        createUsers.setBoxLabel("Members may add new group members");
+        createUsers.setBoxLabel("Members can add new group members");
         createUsers.setHideLabel(true);
-        deleteUsers.setBoxLabel("Members may remove the other group members");
+        deleteUsers.setBoxLabel("Members can remove other group members");
         deleteUsers.setHideLabel(true);
-        readSensors.setBoxLabel("Members may see the group sensors");
+        readSensors.setBoxLabel("Members can see the group sensors");
         readSensors.setHideLabel(true);
-        createSensors.setBoxLabel("Members may add new group sensors");
+        createSensors.setBoxLabel("Members can share sensors with the group");
         createSensors.setHideLabel(true);
-        deleteSensors.setBoxLabel("Members may remove group sensors");
+        deleteSensors.setBoxLabel("Members can remove group sensors");
         deleteSensors.setHideLabel(true);
     }
 

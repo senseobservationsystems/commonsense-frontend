@@ -49,7 +49,8 @@ public class GroupAccessMgtForm extends WizardFormPanel {
     }
 
     public String getPassword() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
                 : null;
     }
 
@@ -150,6 +151,7 @@ public class GroupAccessMgtForm extends WizardFormPanel {
         radioHidden.setBoxLabel("Group is hidden if you are not a member");
         radioHidden.setValueAttribute("true");
         radioHidden.setHideLabel(true);
+        radioHidden.setEnabled(false);
         hidden.add(radioHidden);
     }
 

@@ -25,7 +25,7 @@ public class MemberRightsForm extends WizardFormPanel {
         readSensors = new CheckBox();
         memberRights.add(readSensors);
         readSensors.setHideLabel(true);
-        readSensors.setBoxLabel("See the group sensors");
+        readSensors.setBoxLabel("See the group's sensors");
         readSensors.setReadOnly(true);
 
         readMembers = new CheckBox();
@@ -43,7 +43,7 @@ public class MemberRightsForm extends WizardFormPanel {
         createSensors = new CheckBox();
         memberRights.add(createSensors);
         createSensors.setHideLabel(true);
-        createSensors.setBoxLabel("Add new group sensors");
+        createSensors.setBoxLabel("Share sensors with the group");
         createSensors.setReadOnly(true);
 
         deleteMembers = new CheckBox();
