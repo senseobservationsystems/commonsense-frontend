@@ -25,14 +25,13 @@ import com.google.gwt.http.client.UrlBuilder;
 public class StateDefaultsController extends Controller {
 
     private static final Logger LOG = Logger.getLogger(StateDefaultsController.class.getName());
-    private View dialog;
 
     public StateDefaultsController() {
         registerEventTypes(StateDefaultsEvents.CheckDefaults,
                 StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
     }
 
-    private void checkDefaults(List<DeviceModel> devices, boolean overwrite) {
+    private void checkDefaults(List<DeviceModel> devices, boolean overwrite, final View source) {
 
         // prepare request properties
         final Method method = RequestBuilder.POST;
@@ -63,7 +62,7 @@ public class StateDefaultsController extends Controller {
             @Override
             public void onError(Request request, Throwable exception) {
                 LOG.warning("POST default services onError callback: " + exception.getMessage());
-                onCheckDefaultsFailure();
+                onCheckDefaultsFailure(source);
             }
 
             @Override
@@ -71,10 +70,10 @@ public class StateDefaultsController extends Controller {
                 LOG.finest("POST default services response received: " + response.getStatusText());
                 int statusCode = response.getStatusCode();
                 if (Response.SC_OK == statusCode) {
-                    onCheckDefaultsSuccess(response.getText());
+                    onCheckDefaultsSuccess(response.getText(), source);
                 } else {
                     LOG.warning("POST default services returned incorrect status: " + statusCode);
-                    onCheckDefaultsFailure();
+                    onCheckDefaultsFailure(source);
                 }
             }
         };
@@ -87,7 +86,7 @@ public class StateDefaultsController extends Controller {
             builder.sendRequest(body, reqCallback);
         } catch (RequestException e) {
             LOG.warning("POST default services request threw exception: " + e.getMessage());
-            onCheckDefaultsFailure();
+            onCheckDefaultsFailure(source);
         }
     }
 
@@ -99,31 +98,22 @@ public class StateDefaultsController extends Controller {
             LOG.fine("CheckDefaultsRequest");
             List<DeviceModel> devices = event.getData("devices");
             boolean overwrite = event.getData("overwrite");
-            checkDefaults(devices, overwrite);
+            View source = (View) event.getSource();
+            checkDefaults(devices, overwrite, source);
 
-        } else
-
-        /*
-         * Pass on to view
-         */
-        {
-            forwardToView(this.dialog, event);
+        } else if (type.equals(StateDefaultsEvents.CheckDefaults)) {
+            StateDefaultsView view = new StateDefaultsView(this);
+            forwardToView(view, event);
         }
-
     }
 
-    @Override
-    protected void initialize() {
-        super.initialize();
-        this.dialog = new StateDefaultsDialog(this);
+    private void onCheckDefaultsFailure(View source) {
+        forwardToView(source, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
     }
 
-    private void onCheckDefaultsFailure() {
-        forwardToView(this.dialog, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
+    private void onCheckDefaultsSuccess(String response, View source) {
+        AppEvent event = new AppEvent(StateDefaultsEvents.CheckDefaultsSuccess);
+        Dispatcher.forwardEvent(event);
+        forwardToView(source, event);
     }
-
-    private void onCheckDefaultsSuccess(String response) {
-        Dispatcher.forwardEvent(StateDefaultsEvents.CheckDefaultsSuccess);
-    }
-
 }
