@@ -23,7 +23,7 @@ public class BackEndDataPoint extends JavaScriptObject {
      * @return the date (in seconds!), formatted as String by CommonSense back end
      */
     public final native String getDate() /*-{
-        return this.date;
+        return '' + this.date;
     }-*/;
 
     public final native String getValue() /*-{

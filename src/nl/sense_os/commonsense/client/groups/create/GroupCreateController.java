@@ -84,7 +84,7 @@ public class GroupCreateController extends Controller {
             createGroup(group, source);
 
         } else if (type.equals(GroupCreateEvents.ShowCreator)) {
-            LOG.finest("ShowCreator");
+            LOG.finest("NewCreator");
             // create new view
             GroupCreateView view = new GroupCreateView(this);
             forwardToView(view, event);

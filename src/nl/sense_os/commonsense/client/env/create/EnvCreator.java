@@ -105,7 +105,7 @@ public class EnvCreator extends View {
         final EventType type = event.getType();
 
         if (type.equals(EnvCreateEvents.ShowCreator)) {
-            LOGGER.finest("ShowCreator");
+            LOGGER.finest("NewCreator");
             showPanel();
 
         } else if (type.equals(EnvCreateEvents.CreateSuccess)) {

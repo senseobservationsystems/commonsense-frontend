@@ -21,16 +21,19 @@ import com.google.gwt.i18n.client.NumberFormat;
 public class NumTriggerForm extends WizardFormPanel {
 
     private static final Logger LOG = Logger.getLogger(NumTriggerForm.class.getName());
+
     private SpinnerField aboveThreshField;
     private SpinnerField belowThreshField;
     private SpinnerField inRangeMin;
     private SpinnerField inRangeMax;
     private SpinnerField outRangeMin;
     private SpinnerField outRangeMax;
+
     private Radio rdAboveThresh;
     private Radio rdBelowThresh;
     private Radio rdInsideRange;
     private Radio rdOutsideRange;
+
     private LayoutContainer inRangePanel;
     private LayoutContainer inRangeMinContainer;
     private LayoutContainer inRangeMaxContainer;
@@ -39,6 +42,8 @@ public class NumTriggerForm extends WizardFormPanel {
     private LayoutContainer outRangeMaxContainer;
     private LayoutContainer belowThreshPanel;
     private LayoutContainer aboveThreshPanel;
+
+    private RadioGroup radios;
 
     public NumTriggerForm() {
         super();
@@ -56,12 +61,12 @@ public class NumTriggerForm extends WizardFormPanel {
 
     private void addListeners() {
 
-        RadioGroup group = new RadioGroup("numtriggertype");
-        group.add(rdAboveThresh);
-        group.add(rdBelowThresh);
-        group.add(rdInsideRange);
-        group.add(rdOutsideRange);
-        group.addListener(Events.Change, new Listener<FieldEvent>() {
+        radios = new RadioGroup("numtriggertype");
+        getRadios().add(rdAboveThresh);
+        getRadios().add(rdBelowThresh);
+        getRadios().add(rdInsideRange);
+        getRadios().add(rdOutsideRange);
+        getRadios().addListener(Events.Change, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
@@ -107,11 +112,11 @@ public class NumTriggerForm extends WizardFormPanel {
         rdOutsideRange.setName("numtriggertype");
         rdOutsideRange.setBoxLabel("Outside range:");
         rdOutsideRange.setHideLabel(true);
-        add(rdAboveThresh, new FormData("100%"));
 
+        // above threshold
+        add(rdAboveThresh, new FormData("100%"));
         aboveThreshPanel = new LayoutContainer();
         aboveThreshPanel.setLayout(new FormLayout());
-
         aboveThreshField = new SpinnerField();
         aboveThreshPanel.add(aboveThreshField, new FormData("-15"));
         aboveThreshField.setIncrement(.1d);
@@ -124,11 +129,11 @@ public class NumTriggerForm extends WizardFormPanel {
         add(aboveThreshPanel, fd_aboveThreshPanel);
         FormData fd_rdBelowThresh = new FormData("100%");
         fd_rdBelowThresh.setMargins(new Margins(10, 0, 0, 0));
-        add(rdBelowThresh, fd_rdBelowThresh);
 
+        // below threshold layout
+        add(rdBelowThresh, fd_rdBelowThresh);
         belowThreshPanel = new LayoutContainer();
         belowThreshPanel.setLayout(new FormLayout());
-
         belowThreshField = new SpinnerField();
         belowThreshPanel.add(belowThreshField, new FormData("-15"));
         belowThreshField.setIncrement(.1d);
@@ -141,13 +146,12 @@ public class NumTriggerForm extends WizardFormPanel {
         add(belowThreshPanel, fd_belowThreshPanel);
         FormData fd_rdInsideRange = new FormData("100%");
         fd_rdInsideRange.setMargins(new Margins(10, 0, 0, 0));
+
+        // inside range layout
         add(rdInsideRange, fd_rdInsideRange);
-
         inRangePanel = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
-
         inRangeMinContainer = new LayoutContainer();
         inRangeMinContainer.setLayout(new FormLayout());
-
         inRangeMin = new SpinnerField();
         inRangeMinContainer.add(inRangeMin, new FormData("-15"));
         inRangeMin.setIncrement(.1d);
@@ -155,13 +159,10 @@ public class NumTriggerForm extends WizardFormPanel {
         inRangeMin.getPropertyEditor().setFormat(NumberFormat.getFormat("00.0"));
         inRangeMin.setEnabled(false);
         inRangeMin.setFieldLabel("Range minimum");
-
         inRangePanel.add(inRangeMinContainer);
         inRangeMinContainer.setHeight("");
-
         inRangeMaxContainer = new LayoutContainer();
         inRangeMaxContainer.setLayout(new FormLayout());
-
         inRangeMax = new SpinnerField();
         inRangeMaxContainer.add(inRangeMax, new FormData("-15"));
         inRangeMax.setIncrement(.1d);
@@ -170,8 +171,8 @@ public class NumTriggerForm extends WizardFormPanel {
         inRangeMax.setEnabled(false);
         inRangeMax.setFieldLabel("Range maximum");
 
+        // outside range layout
         inRangePanel.add(inRangeMaxContainer);
-
         FormData fd_inRangePanel = new FormData("\"0\"");
         fd_inRangePanel.setMargins(new Margins(0, 0, 0, 18));
         add(inRangePanel, fd_inRangePanel);
@@ -179,13 +180,10 @@ public class NumTriggerForm extends WizardFormPanel {
         FormData fd_rdOutsideRange = new FormData("100%");
         fd_rdOutsideRange.setMargins(new Margins(10, 0, 0, 0));
         add(rdOutsideRange, fd_rdOutsideRange);
-
         outRangePanel = new LayoutContainer();
         outRangePanel.setLayout(new FillLayout(Orientation.HORIZONTAL));
-
         outRangeMinContainer = new LayoutContainer();
         outRangeMinContainer.setLayout(new FormLayout());
-
         outRangeMin = new SpinnerField();
         outRangeMinContainer.add(outRangeMin, new FormData("-15"));
         outRangeMin.setIncrement(.1d);
@@ -195,10 +193,8 @@ public class NumTriggerForm extends WizardFormPanel {
         outRangeMin.setFieldLabel("Range minimum");
         outRangePanel.add(outRangeMinContainer);
         outRangeMinContainer.setHeight("");
-
         outRangeMaxContainer = new LayoutContainer();
         outRangeMaxContainer.setLayout(new FormLayout());
-
         outRangeMax = new SpinnerField();
         outRangeMaxContainer.add(outRangeMax, new FormData("-15"));
         outRangeMax.setIncrement(.1d);
@@ -211,5 +207,49 @@ public class NumTriggerForm extends WizardFormPanel {
         fd_outRangePanel.setMargins(new Margins(0, 0, 0, 18));
         add(outRangePanel, fd_outRangePanel);
         outRangePanel.setHeight("24");
+    }
+
+    public SpinnerField getAboveThreshField() {
+        return aboveThreshField;
+    }
+
+    public SpinnerField getBelowThreshField() {
+        return belowThreshField;
+    }
+
+    public SpinnerField getInRangeMax() {
+        return inRangeMax;
+    }
+
+    public SpinnerField getInRangeMin() {
+        return inRangeMin;
+    }
+
+    public SpinnerField getOutRangeMax() {
+        return outRangeMax;
+    }
+
+    public SpinnerField getOutRangeMin() {
+        return outRangeMin;
+    }
+
+    public Radio getRdAboveThresh() {
+        return rdAboveThresh;
+    }
+
+    public Radio getRdBelowThresh() {
+        return rdBelowThresh;
+    }
+
+    public Radio getRdInsideRange() {
+        return rdInsideRange;
+    }
+
+    public Radio getRdOutsideRange() {
+        return rdOutsideRange;
+    }
+
+    public RadioGroup getRadios() {
+        return radios;
     }
 }

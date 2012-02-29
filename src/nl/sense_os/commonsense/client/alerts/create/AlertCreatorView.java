@@ -118,9 +118,10 @@ public class AlertCreatorView extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(AlertCreateEvents.ShowCreator)) {
-            LOG.finest("ShowCreator");
+            LOG.finest("NewCreator");
             SensorModel sensor = event.getData("sensor");
-            onShowRequest(sensor);
+            long timestamp = event.getData("timestamp");
+            onShowRequest(sensor, timestamp);
 
         } else if (type.equals(DataEvents.DataReceived)) {
             LOG.finest("DataReceived");
@@ -167,20 +168,27 @@ public class AlertCreatorView extends View {
         showCreator();
     }
 
-    private void onShowRequest(SensorModel sensor) {
+    private void onShowRequest(SensorModel sensor, long timestamp) {
         this.sensor = sensor;
 
-        // send request for sensor data
-        long end = System.currentTimeMillis();
-        long start = System.currentTimeMillis() - 1000l * 60 * 60 * 24 * 7;
-        List<SensorModel> sensors = Arrays.asList(sensor);
-        boolean subsample = false;
-        boolean showProgress = true;
-        DataRequestEvent event = new DataRequestEvent(start, end, sensors, subsample, showProgress);
-        event.setSource(this);
-        Dispatcher.forwardEvent(event);
-    }
+        if (-1 != timestamp) {
+            // send request for sensor data
+            long end = timestamp;
+            long start = timestamp - 1000l * 60 * 60 * 24 * 2;
+            List<SensorModel> sensors = Arrays.asList(sensor);
+            boolean subsample = false;
+            boolean showProgress = true;
+            DataRequestEvent event = new DataRequestEvent(start, end, sensors, subsample,
+                    showProgress);
+            event.setSource(this);
+            Dispatcher.forwardEvent(event);
 
+        } else {
+            String alertTxt = "You cannot use the alert creator for this sensor: "
+                    + "it has not collected any data yet!";
+            MessageBox.alert("Alert creator", alertTxt, null);
+        }
+    }
     private void showCreator() {
 
         switch (triggerType) {
@@ -203,8 +211,9 @@ public class AlertCreatorView extends View {
                 // fall through
             default :
                 LOG.warning("Unexpected trigger type: " + triggerType);
-                MessageBox.alert("Alert creator",
-                        "Cannot create alerts for this sensor: incompatible data type.", null);
+                String alertTxt = "Cannot use the alert creator for this sensor: "
+                        + "it has an incompatible data type!";
+                MessageBox.alert("Alert creator", alertTxt, null);
                 return;
         }
     }

@@ -383,7 +383,7 @@ public class LibraryGrid extends View {
         final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
 
         if (sensors.size() > 0) {
-            AppEvent event = new AppEvent(AlertCreateEvents.ShowCreator);
+            AppEvent event = new AppEvent(AlertCreateEvents.NewCreator);
             event.setData("sensor", sensors.get(0));
             Dispatcher.forwardEvent(event);
 

@@ -193,7 +193,7 @@ public class CommonSense implements EntryPoint {
                         sensor.setId(4);
                         // sensor.setDataType("String");
                         // sensor.setDataType("json");
-                        AppEvent show = new AppEvent(AlertCreateEvents.ShowCreator);
+                        AppEvent show = new AppEvent(AlertCreateEvents.NewCreator);
                         show.setData("sensor", sensor);
                         Dispatcher.forwardEvent(show);
                     }
