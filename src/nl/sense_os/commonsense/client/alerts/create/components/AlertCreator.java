@@ -25,7 +25,7 @@ public class AlertCreator extends CenteredWindow {
     private Button btnCancel;
     private Button btnNext;
 
-    private NotificationsForm notificationForm;
+    private NotificationsForm notificationsPanel;
 
     private StringTriggerForm stringTriggerForm;
     private NumTriggerPanel numTriggerPanel;
@@ -120,14 +120,14 @@ public class AlertCreator extends CenteredWindow {
 
     public void showNotificationsForm() {
 
-        if (null == notificationForm) {
-            notificationForm = new NotificationsForm();
-            add(notificationForm);
+        if (null == notificationsPanel) {
+            notificationsPanel = new NotificationsForm();
+            add(notificationsPanel);
         }
 
-        layout.setActiveItem(notificationForm);
+        layout.setActiveItem(notificationsPanel);
 
-        formButtonBinding = new FormButtonBinding(notificationForm.getFormPanel());
+        formButtonBinding = new FormButtonBinding(notificationsPanel);
 
         btnNext.setText("Submit");
         btnBack.setEnabled(true);
