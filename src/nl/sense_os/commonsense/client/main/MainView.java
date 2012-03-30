@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.client.main;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.LastDeployed;
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.pwreset.PwResetEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.demo.DemoEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
@@ -18,7 +18,6 @@ import nl.sense_os.commonsense.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -313,7 +312,7 @@ public class MainView extends View {
 		Dispatcher.forwardEvent(displayForm);
 
 	    } else if (location.equals(NavPanel.ACCOUNT)) {
-		String sessionId = Registry.get(Constants.REG_SESSION_ID);
+		String sessionId = SessionManager.getSessionId();
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost("sense.dev.rotterdamcs.com");
 		urlBuilder.setParameter("session_id", sessionId);
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -19,7 +20,6 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
@@ -103,7 +103,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	    History.fireCurrentHistoryState();
 
 	} else {
-	    navigateHome();
+	    History.fireCurrentHistoryState();
 	}
     }
 
@@ -171,9 +171,8 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private void onLoggedOut() {
-	// History.newItem(NavPanel.HOME);
-	// History.fireCurrentHistoryState();
-	Window.Location.reload();
+	History.newItem(NavPanel.HOME);
+	History.fireCurrentHistoryState();
     }
 
     @Override
@@ -186,8 +185,17 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	}
 
 	if (isLoginRequired(token)) {
+	    String sessionId = SessionManager.getSessionId();
 	    UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-	    if (null == user) {
+	    if (null != sessionId) {
+		if (null == user) {
+		    AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
+		    authenticated.setData("sessionId", sessionId);
+		    Dispatcher.forwardEvent(authenticated);
+		    return;
+		}
+
+	    } else {
 		LOG.warning("Not signed in: refusing new history token " + token);
 		History.newItem(NavPanel.HOME);
 		History.fireCurrentHistoryState();

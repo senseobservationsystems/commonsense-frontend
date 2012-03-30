@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.client.alerts.create.components;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.components.CenteredWindow;
@@ -82,39 +80,14 @@ public class AlertCreator extends CenteredWindow {
     }
 
     public void onNewPosData(JsArray<Timeseries> data) {
-        // nothing to do
-
+        // TODO make the position panel center on the last position
     }
 
     public void onNewStringData(JsArray<Timeseries> data) {
-        // LOG.fine ("Datatype is " + datatype);
-        int records = data.get(0).getData().length();
-        LOG.fine("Number of records: " + records);
-
-        if (records > 0) {
-            ArrayList<String> values = new ArrayList<String>();
-
-            for (int i = 0; i < records; i++) {
-                String el = data.get(0).getData().get(i).getRawValue();
-                if (!values.contains(el)) {
-                    values.add(el);
-                }
-            }
-
-            List<String> stringSensorValues = new ArrayList<String>();
-            stringSensorValues.add("(no selection)");
-
-            for (int i = 0; i < values.size(); i++) {
-                // LOG.fine ("Element " + i + " equals " + values.get(i));
-                stringSensorValues.add(values.get(i));
-
-            }
-            stringTriggerForm.passSensorValues(stringSensorValues);
-
-        }
-
-        else {
-            // NewRangeRequest request = new NewRangeRequest(sensors, subsample, this);
+        if (data.length() > 0) {
+            stringTriggerForm.addData(data);
+        } else {
+            LOG.fine("No data received");
         }
     }
 
