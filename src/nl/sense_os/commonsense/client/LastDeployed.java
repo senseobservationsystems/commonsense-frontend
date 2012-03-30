@@ -2,13 +2,13 @@ package nl.sense_os.commonsense.client;
 
 public class LastDeployed {
 
-    private static final String deployed = "Jan 24 13:58";
+    private static final String deployed = "Mar 30 12:04";
 
     public static String getPrettyString() {
-        return deployed;
+	return deployed;
     }
 
     private LastDeployed() {
-        // do not instantiate
+	// do not instantiate
     }
 }
