@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -313,11 +314,10 @@ public class MainView extends View {
 
 	    } else if (location.equals(NavPanel.ACCOUNT)) {
 		String sessionId = SessionManager.getSessionId();
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost("sense.dev.rotterdamcs.com");
+		final UrlBuilder urlBuilder = new UrlBuilder().setHost("accounts.sense-os.nl");
 		urlBuilder.setParameter("session_id", sessionId);
 
-		com.google.gwt.user.client.Window.Location.replace(urlBuilder.buildString());
-		// Window.open(urlBuilder.buildString(), "_blank", null);
+		Location.replace(urlBuilder.buildString());
 
 	    } else if (location.equals(NavPanel.SIGN_OUT)) {
 		newContent = null;

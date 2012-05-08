@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client;
 
 public class LastDeployed {
 
-    private static final String deployed = "Mar 30 12:04";
+    private static final String deployed = "May 8 17:21";
 
     public static String getPrettyString() {
 	return deployed;
