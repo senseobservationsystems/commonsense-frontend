@@ -76,56 +76,56 @@ public class LibraryGrid extends View {
     private boolean forceRefresh = true;
 
     public LibraryGrid(Controller controller) {
-        super(controller);
-        // LOG.setLevel(Level.ALL);
+	super(controller);
+	// LOG.setLevel(Level.ALL);
     }
 
     @Override
     protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
+	EventType type = event.getType();
 
-        if (type.equals(MainEvents.Init)) {
-            // do nothing, initialization is done in initialize()
+	if (type.equals(MainEvents.Init)) {
+	    // do nothing, initialization is done in initialize()
 
-        } else if (type.equals(LibraryEvents.ShowLibrary)) {
-            LOG.finest("ShowLibrary");
-            final LayoutContainer parent = event.getData("parent");
-            showPanel(parent);
+	} else if (type.equals(LibraryEvents.ShowLibrary)) {
+	    LOG.finest("ShowLibrary");
+	    final LayoutContainer parent = event.getData("parent");
+	    showPanel(parent);
 
-        } else if (type.equals(StateListEvents.RemoveComplete)
-                || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
-                || type.equals(SensorDeleteEvents.DeleteSuccess)
-                || type.equals(SensorDeleteEvents.DeleteFailure)
-                || type.equals(EnvCreateEvents.CreateSuccess)
-                || type.equals(EnvEvents.DeleteSuccess)
-                || type.equals(UnshareEvents.UnshareComplete)
-                || type.equals(SensorShareEvents.ShareComplete)) {
-            LOG.finest("Library changed");
-            onLibChanged();
+	} else if (type.equals(StateListEvents.RemoveComplete)
+		|| type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
+		|| type.equals(SensorDeleteEvents.DeleteSuccess)
+		|| type.equals(SensorDeleteEvents.DeleteFailure)
+		|| type.equals(EnvCreateEvents.CreateSuccess)
+		|| type.equals(EnvEvents.DeleteSuccess)
+		|| type.equals(UnshareEvents.UnshareComplete)
+		|| type.equals(SensorShareEvents.ShareComplete)) {
+	    LOG.finest("Library changed");
+	    onLibChanged();
 
-        } else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
-            LOG.finest("CreateServiceComplete");
-            refreshLoader(true);
+	} else if (type.equals(StateCreateEvents.CreateServiceComplete)) {
+	    LOG.finest("CreateServiceComplete");
+	    refreshLoader(true);
 
-        } else if (type.equals(LibraryEvents.Done)) {
-            LOG.finest("Done");
-            setBusy(false);
+	} else if (type.equals(LibraryEvents.Done)) {
+	    LOG.finest("Done");
+	    setBusy(false);
 
-        } else if (type.equals(LibraryEvents.Working)) {
-            LOG.finest("Working");
-            setBusy(true);
+	} else if (type.equals(LibraryEvents.Working)) {
+	    LOG.finest("Working");
+	    setBusy(true);
 
-        } else if (type.equals(LibraryEvents.ListUpdated)) {
-            LOG.finest("ListUpdated");
-            onListUpdate();
+	} else if (type.equals(LibraryEvents.ListUpdated)) {
+	    LOG.finest("ListUpdated");
+	    onListUpdate();
 
-        } else if (type.equals(VizEvents.Show)) {
-            LOG.finest("Show Visualization");
-            refreshLoader(true);
+	} else if (type.equals(VizEvents.Show)) {
+	    LOG.finest("Show Visualization");
+	    refreshLoader(true);
 
-        } else {
-            LOG.severe("Unexpected event: " + event);
-        }
+	} else {
+	    LOG.severe("Unexpected event: " + event);
+	}
     }
 
     /**
@@ -134,189 +134,189 @@ public class LibraryGrid extends View {
      */
     private void initFilters() {
 
-        // text filter
-        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
-        textFilter.bind(store);
+	// text filter
+	SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+	textFilter.bind(store);
 
-        // filter to show only my own sensors
-        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
-        store.addFilter(ownerFilter);
+	// filter to show only my own sensors
+	final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+	store.addFilter(ownerFilter);
 
-        // checkbox to toggle filter
-        final CheckBox filterOnlyMe = new CheckBox();
-        filterOnlyMe.setBoxLabel("Only my own sensors");
-        filterOnlyMe.setHideLabel(true);
-        filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
+	// checkbox to toggle filter
+	final CheckBox filterOnlyMe = new CheckBox();
+	filterOnlyMe.setBoxLabel("Only my own sensors");
+	filterOnlyMe.setHideLabel(true);
+	filterOnlyMe.addListener(Events.Change, new Listener<FieldEvent>() {
 
-            @Override
-            public void handleEvent(FieldEvent be) {
+	    @Override
+	    public void handleEvent(FieldEvent be) {
 
-                ownerFilter.setEnabled(filterOnlyMe.getValue());
-                store.applyFilters(null);
-            }
-        });
+		ownerFilter.setEnabled(filterOnlyMe.getValue());
+		store.applyFilters(null);
+	    }
+	});
 
-        // add filters to filter bar
-        filterBar = new ToolBar();
-        filterBar.add(new LabelToolItem("Filter: "));
-        filterBar.add(textFilter);
-        filterBar.add(new SeparatorToolItem());
-        filterBar.add(filterOnlyMe);
+	// add filters to filter bar
+	filterBar = new ToolBar();
+	filterBar.add(new LabelToolItem("Filter: "));
+	filterBar.add(textFilter);
+	filterBar.add(new SeparatorToolItem());
+	filterBar.add(filterOnlyMe);
     }
 
     private void initGrid() {
 
-        // proxy
-        DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
+	// proxy
+	DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
 
-            @Override
-            public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
-                    AsyncCallback<ListLoadResult<SensorModel>> callback) {
-                // only load when the panel is not collapsed
-                if (panel.isExpanded()) {
-                    if (loadConfig instanceof ListLoadConfig) {
-                        // LOG.fine( "Load library... Renew cache: " + forceRefresh);
-                        AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
-                        loadRequest.setData("callback", callback);
-                        loadRequest.setData("renewCache", forceRefresh);
-                        fireEvent(loadRequest);
-                        forceRefresh = false;
-                    } else {
-                        LOG.warning("Unexpected load config: " + loadConfig);
-                        callback.onFailure(null);
-                    }
-                } else {
-                    LOG.warning("failed to load data: panel is not expanded...");
-                    callback.onFailure(null);
-                }
-            }
-        };
+	    @Override
+	    public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
+		    AsyncCallback<ListLoadResult<SensorModel>> callback) {
+		// only load when the panel is not collapsed
+		if (panel.isExpanded()) {
+		    if (loadConfig instanceof ListLoadConfig) {
+			// LOG.fine( "Load library... Renew cache: " + forceRefresh);
+			AppEvent loadRequest = new AppEvent(LibraryEvents.LoadRequest);
+			loadRequest.setData("callback", callback);
+			loadRequest.setData("renewCache", forceRefresh);
+			fireEvent(loadRequest);
+			forceRefresh = false;
+		    } else {
+			LOG.warning("Unexpected load config: " + loadConfig);
+			callback.onFailure(null);
+		    }
+		} else {
+		    LOG.warning("failed to load data: panel is not expanded...");
+		    callback.onFailure(null);
+		}
+	    }
+	};
 
-        // list loader
-        loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
+	// list loader
+	loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
 
-        // list store
-        store = new GroupingStore<SensorModel>(loader);
-        store.setKeyProvider(new SenseKeyProvider<SensorModel>());
-        store.setMonitorChanges(true);
+	// list store
+	store = new GroupingStore<SensorModel>(loader);
+	store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+	store.setMonitorChanges(true);
 
-        // this.store.groupBy(SensorModel.DEVICE_TYPE, true);
-        store.sort(SensorModel.DISPLAY_NAME, SortDir.ASC);
-        store.setDefaultSort(SensorModel.DISPLAY_NAME, SortDir.ASC);
+	// this.store.groupBy(SensorModel.DEVICE_TYPE, true);
+	store.sort(SensorModel.DISPLAY_NAME, SortDir.ASC);
+	store.setDefaultSort(SensorModel.DISPLAY_NAME, SortDir.ASC);
 
-        // Column model
-        ColumnModel cm = LibraryColumnsFactory.create();
+	// Column model
+	ColumnModel cm = LibraryColumnsFactory.create();
 
-        // grouping view for the grid
-        GroupingView view = new GroupingView();
-        view.setShowGroupedColumn(true);
-        view.setForceFit(true);
-        view.setGroupRenderer(new SensorGroupRenderer(cm));
-        view.setStartCollapsed(true);
+	// grouping view for the grid
+	GroupingView view = new GroupingView();
+	view.setShowGroupedColumn(true);
+	view.setForceFit(true);
+	view.setGroupRenderer(new SensorGroupRenderer(cm));
+	view.setStartCollapsed(true);
 
-        grid = new Grid<SensorModel>(store, cm);
-        grid.setModelProcessor(new SensorProcessor<SensorModel>());
-        grid.setView(view);
-        grid.setBorders(false);
-        grid.setId("library-grid");
-        grid.setStateful(true);
-        grid.setLoadMask(true);
+	grid = new Grid<SensorModel>(store, cm);
+	grid.setModelProcessor(new SensorProcessor<SensorModel>());
+	grid.setView(view);
+	grid.setBorders(false);
+	grid.setId("library-grid");
+	grid.setStateful(true);
+	grid.setLoadMask(true);
     }
 
     private void initHeaderTool() {
-        ToolButton refresh = new ToolButton("x-tool-refresh");
-        refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+	ToolButton refresh = new ToolButton("x-tool-refresh");
+	refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                refreshLoader(true);
-            }
-        });
-        panel.getHeader().addTool(refresh);
+	    @Override
+	    public void componentSelected(IconButtonEvent ce) {
+		refreshLoader(true);
+	    }
+	});
+	panel.getHeader().addTool(refresh);
     }
 
     @Override
     protected void initialize() {
-        LOG.finest("Initialize...");
+	LOG.finest("Initialize...");
 
-        panel = new ContentPanel(new FitLayout());
-        panel.setHeading("Sensor library");
-        panel.setAnimCollapse(false);
+	panel = new ContentPanel(new FitLayout());
+	panel.setHeading("Sensor library");
+	panel.setAnimCollapse(false);
 
-        // track whether the panel is expanded
-        panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
+	// track whether the panel is expanded
+	panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
-            @Override
-            public void handleEvent(ComponentEvent be) {
-                refreshLoader(false);
-            }
-        });
+	    @Override
+	    public void handleEvent(ComponentEvent be) {
+		refreshLoader(false);
+	    }
+	});
 
-        forceRefresh = true;
+	forceRefresh = true;
 
-        initGrid();
-        initFilters();
-        initToolBar();
-        initHeaderTool();
+	initGrid();
+	initFilters();
+	initToolBar();
+	initHeaderTool();
 
-        // do layout
-        panel.setTopComponent(toolBar);
-        ContentPanel content = new ContentPanel(new FitLayout());
-        content.setBodyBorder(false);
-        content.setHeaderVisible(false);
-        content.setTopComponent(filterBar);
-        content.add(grid);
-        panel.add(content);
+	// do layout
+	panel.setTopComponent(toolBar);
+	ContentPanel content = new ContentPanel(new FitLayout());
+	content.setBodyBorder(false);
+	content.setHeaderVisible(false);
+	content.setTopComponent(filterBar);
+	content.add(grid);
+	panel.add(content);
 
-        setupDragDrop();
+	setupDragDrop();
 
-        super.initialize();
+	super.initialize();
     }
 
     private void initToolBar() {
 
-        // listen to toolbar button clicks
-        final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+	// listen to toolbar button clicks
+	final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                Button source = ce.getButton();
-                if (source.equals(vizButton)) {
-                    onVizClick();
-                } else if (source.equals(shareButton)) {
-                    onShareClick();
-                } else if (source.equals(unshareButton)) {
-                    onUnshareClick();
-                } else if (source.equals(removeButton)) {
-                    onRemoveClick();
-                } else if (source.equals(alertButton)) {
-                    onAlertClick();
-                } else {
-                    LOG.warning("Unexpected button pressed");
-                }
-            }
-        };
+	    @Override
+	    public void componentSelected(ButtonEvent ce) {
+		Button source = ce.getButton();
+		if (source.equals(vizButton)) {
+		    onVizClick();
+		} else if (source.equals(shareButton)) {
+		    onShareClick();
+		} else if (source.equals(unshareButton)) {
+		    onUnshareClick();
+		} else if (source.equals(removeButton)) {
+		    onRemoveClick();
+		} else if (source.equals(alertButton)) {
+		    onAlertClick();
+		} else {
+		    LOG.warning("Unexpected button pressed");
+		}
+	    }
+	};
 
-        // initialize the buttons
-        vizButton = new Button("Visualize", l);
-        vizButton.disable();
+	// initialize the buttons
+	vizButton = new Button("Visualize", l);
+	vizButton.disable();
 
-        shareButton = new Button("Share", l);
-        shareButton.disable();
+	shareButton = new Button("Share", l);
+	shareButton.disable();
 
-        unshareButton = new Button("Unshare", l);
-        unshareButton.disable();
+	unshareButton = new Button("Unshare", l);
+	unshareButton.disable();
 
-        removeButton = new Button("Remove", l);
-        removeButton.disable();
+	removeButton = new Button("Remove", l);
+	removeButton.disable();
 
-        alertButton = new Button("Alert", l);
-        alertButton.disable();
+	alertButton = new Button("Alert", l);
+	alertButton.disable();
 
-        // listen to selection of tree items to enable/disable buttons
-        GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
-        selectionModel.setSelectionMode(SelectionMode.MULTI);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
+	// listen to selection of tree items to enable/disable buttons
+	GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
+	selectionModel.setSelectionMode(SelectionMode.MULTI);
+	selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
@@ -345,98 +345,98 @@ public class LibraryGrid extends View {
         });
         grid.setSelectionModel(selectionModel);
 
-        // create tool bar
-        toolBar = new ToolBar();
-        toolBar.add(vizButton);
-        toolBar.add(shareButton);
-        toolBar.add(unshareButton);
-        toolBar.add(removeButton);
-        toolBar.add(alertButton);
+	// create tool bar
+	toolBar = new ToolBar();
+	toolBar.add(vizButton);
+	toolBar.add(shareButton);
+	toolBar.add(unshareButton);
+	toolBar.add(removeButton);
+	toolBar.add(alertButton);
     }
 
     private void onLibChanged() {
-        refreshLoader(false);
+	refreshLoader(false);
     }
 
     private void onListUpdate() {
-        // re-filter the sensors store
-        store.clearFilters();
-        store.applyFilters(null);
+	// re-filter the sensors store
+	store.clearFilters();
+	store.applyFilters(null);
     }
 
     private void onRemoveClick() {
-        // get sensor models from the selection
-        final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+	// get sensor models from the selection
+	final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
 
-        if (sensors.size() > 0) {
-            AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
-            event.setData("sensors", sensors);
-            Dispatcher.forwardEvent(event);
+	if (sensors.size() > 0) {
+	    AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
+	    event.setData("sensors", sensors);
+	    Dispatcher.forwardEvent(event);
 
-        } else {
-            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
-        }
+	} else {
+	    MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+	}
     }
 
     private void onAlertClick() {
-        // get sensor models from the selection
-        final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+	// get sensor models from the selection
+	final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
 
-        if (sensors.size() > 0) {
-            AppEvent event = new AppEvent(AlertCreateEvents.ShowCreator);
-            event.setData("sensor", sensors.get(0));
-            Dispatcher.forwardEvent(event);
+	if (sensors.size() > 0) {
+	    AppEvent event = new AppEvent(AlertCreateEvents.NewCreator);
+	    event.setData("sensor", sensors.get(0));
+	    Dispatcher.forwardEvent(event);
 
-        } else {
-            MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!",
-                    null);
-        }
+	} else {
+	    MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!",
+		    null);
+	}
     }
 
     private void onShareClick() {
-        List<SensorModel> sensors = grid.getSelectionModel().getSelection();
-        AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
-        shareEvent.setData("sensors", sensors);
-        Dispatcher.forwardEvent(shareEvent);
+	List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+	AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
+	shareEvent.setData("sensors", sensors);
+	Dispatcher.forwardEvent(shareEvent);
     }
 
     private void onUnshareClick() {
-        AppEvent shareEvent = new AppEvent(UnshareEvents.ShowUnshareDialog);
-        shareEvent.setData("sensor", grid.getSelectionModel().getSelectedItem());
-        Dispatcher.forwardEvent(shareEvent);
+	AppEvent shareEvent = new AppEvent(UnshareEvents.ShowUnshareDialog);
+	shareEvent.setData("sensor", grid.getSelectionModel().getSelectedItem());
+	Dispatcher.forwardEvent(shareEvent);
     }
 
     private void onVizClick() {
-        List<SensorModel> selection = grid.getSelectionModel().getSelection();
-        Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+	List<SensorModel> selection = grid.getSelectionModel().getSelection();
+	Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
     }
 
     private void refreshLoader(boolean force) {
-        this.forceRefresh = this.forceRefresh || force;
-        loader.load();
+	this.forceRefresh = this.forceRefresh || force;
+	loader.load();
     }
 
     private void setBusy(boolean busy) {
-        if (busy) {
-            panel.getHeader().setIconStyle("sense-btn-icon-loading");
-        } else {
-            panel.getHeader().setIconStyle("");
-        }
+	if (busy) {
+	    panel.getHeader().setIconStyle("sense-btn-icon-loading");
+	} else {
+	    panel.getHeader().setIconStyle("");
+	}
     }
 
     /**
      * Sets up the grid for drag and drop of the sensors.
      */
     private void setupDragDrop() {
-        new GridDragSource(grid);
+	new GridDragSource(grid);
     }
 
     private void showPanel(LayoutContainer parent) {
-        if (null != parent) {
-            parent.add(panel);
-            parent.layout();
-        } else {
-            LOG.severe("Failed to show my sensors panel: parent=null");
-        }
+	if (null != parent) {
+	    parent.add(panel);
+	    parent.layout();
+	} else {
+	    LOG.severe("Failed to show my sensors panel: parent=null");
+	}
     }
 }

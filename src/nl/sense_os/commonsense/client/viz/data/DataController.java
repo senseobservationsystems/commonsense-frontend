@@ -4,15 +4,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
 import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -38,144 +37,144 @@ public class DataController extends Controller {
 
     public DataController() {
 
-        // LOG.setLevel(Level.FINE);
+	// LOG.setLevel(Level.FINE);
 
-        registerEventTypes(DataEvents.DataRequest);
-        registerEventTypes(LoginEvents.LoggedOut);
-        registerEventTypes(DataEvents.LatestValuesRequest);
+	registerEventTypes(DataEvents.DataRequest);
+	registerEventTypes(LoginEvents.LoggedOut);
+	registerEventTypes(DataEvents.LatestValuesRequest);
     }
 
     private int calcInterval(long start, long end) {
-        long realEnd = end == -1 ? System.currentTimeMillis() : end;
-        double interval = Math.ceil(((realEnd - start) / 1000000d));
-        if (interval < 60) {
-            interval = 0;
-        } else if (interval < 300) {
-            interval = 60;
-        } else if (interval < 600) {
-            interval = 300;
-        } else if (interval < 1800) {
-            interval = 600;
-        } else if (interval < 3600) {
-            interval = 1800;
-        } else if (interval < 60 * 60 * 24 * 31 * 6 / 1000d) {
-            // for requests for up to 6 months in range, set interval to one hour
-            interval = 3600;
-        } else if (interval < 60 * 60 * 24 * 365 * 2 / 1000d) {
-            // for requests for up to 2 years in range, set interval to one day
-            interval = 86400;
-        } else {
-            // crazy large interval for crazy large requests
-            interval = 604800;
-        }
-        return Double.valueOf(interval).intValue();
+	long realEnd = end == -1 ? System.currentTimeMillis() : end;
+	double interval = Math.ceil(((realEnd - start) / 1000000d));
+	if (interval < 60) {
+	    interval = 0;
+	} else if (interval < 300) {
+	    interval = 60;
+	} else if (interval < 600) {
+	    interval = 300;
+	} else if (interval < 1800) {
+	    interval = 600;
+	} else if (interval < 3600) {
+	    interval = 1800;
+	} else if (interval < 60 * 60 * 24 * 31 * 6 / 1000d) {
+	    // for requests for up to 6 months in range, set interval to one hour
+	    interval = 3600;
+	} else if (interval < 60 * 60 * 24 * 365 * 2 / 1000d) {
+	    // for requests for up to 2 years in range, set interval to one day
+	    interval = 86400;
+	} else {
+	    // crazy large interval for crazy large requests
+	    interval = 604800;
+	}
+	return Double.valueOf(interval).intValue();
     }
 
     private void getLatestValues(final List<SensorModel> sensors, final int index, final View source) {
-        if (index < sensors.size()) {
+	if (index < sensors.size()) {
 
-            SensorModel sensor = sensors.get(index);
+	    SensorModel sensor = sensors.get(index);
 
-            final Method method = RequestBuilder.GET;
-            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-            urlBuilder.setParameter("last", "1");
-            if (-1 != sensor.getAlias()) {
-                urlBuilder.setParameter("alias", "" + sensor.getAlias());
-            }
-            final String url = urlBuilder.buildString();
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	    final Method method = RequestBuilder.GET;
+	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	    urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+	    urlBuilder.setParameter("last", "1");
+	    if (-1 != sensor.getAlias()) {
+		urlBuilder.setParameter("alias", "" + sensor.getAlias());
+	    }
+	    final String url = urlBuilder.buildString();
+	    final String sessionId = SessionManager.getSessionId();
 
-            // prepare request callback
-            RequestCallback reqCallback = new RequestCallback() {
+	    // prepare request callback
+	    RequestCallback reqCallback = new RequestCallback() {
 
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    LOG.warning("GET last data onError callback: " + exception.getMessage());
-                    onLatestValueFailure(0, source);
-                }
+		@Override
+		public void onError(Request request, Throwable exception) {
+		    LOG.warning("GET last data onError callback: " + exception.getMessage());
+		    onLatestValueFailure(0, source);
+		}
 
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    LOG.finest("GET last data response received: " + response.getStatusText());
-                    int statusCode = response.getStatusCode();
-                    if (Response.SC_OK == statusCode) {
-                        onLatestValueSuccess(response.getText(), sensors, index, source);
-                    } else {
-                        LOG.warning("GET last data returned incorrect status: " + statusCode);
-                        onLatestValueFailure(statusCode, source);
-                    }
-                }
-            };
+		@Override
+		public void onResponseReceived(Request request, Response response) {
+		    LOG.finest("GET last data response received: " + response.getStatusText());
+		    int statusCode = response.getStatusCode();
+		    if (Response.SC_OK == statusCode) {
+			onLatestValueSuccess(response.getText(), sensors, index, source);
+		    } else {
+			LOG.warning("GET last data returned incorrect status: " + statusCode);
+			onLatestValueFailure(statusCode, source);
+		    }
+		}
+	    };
 
-            // send request
-            RequestBuilder builder = new RequestBuilder(method, url);
-            builder.setHeader("X-SESSION_ID", sessionId);
-            try {
-                builder.sendRequest(null, reqCallback);
-            } catch (RequestException e) {
-                LOG.warning("GET slast data request threw exception: " + e.getMessage());
-                onLatestValueFailure(0, source);
-            }
+	    // send request
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    try {
+		builder.sendRequest(null, reqCallback);
+	    } catch (RequestException e) {
+		LOG.warning("GET slast data request threw exception: " + e.getMessage());
+		onLatestValueFailure(0, source);
+	    }
 
-        } else {
-            // hoooray we're done!
-            onLatestValuesComplete(sensors, source);
-        }
+	} else {
+	    // hoooray we're done!
+	    onLatestValuesComplete(sensors, source);
+	}
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        final EventType type = event.getType();
+	final EventType type = event.getType();
 
-        if (type.equals(DataEvents.DataRequest)) {
-            LOG.finest("DataRequest");
-            DataRequestEvent dataRequest = (DataRequestEvent) event;
-            final List<SensorModel> sensors = dataRequest.getSensors();
-            final long start = dataRequest.getStart();
-            final long end = dataRequest.getEnd();
-            final boolean showProgress = dataRequest.isShowProgress();
-            final boolean subsample = dataRequest.isSubsample();
-            final View source = (View) dataRequest.getSource();
+	if (type.equals(DataEvents.DataRequest)) {
+	    LOG.finest("DataRequest");
+	    DataRequestEvent dataRequest = (DataRequestEvent) event;
+	    final List<SensorModel> sensors = dataRequest.getSensors();
+	    final long start = dataRequest.getStart();
+	    final long end = dataRequest.getEnd();
+	    final boolean showProgress = dataRequest.isShowProgress();
+	    final boolean subsample = dataRequest.isSubsample();
+	    final View source = (View) dataRequest.getSource();
 
-            onDataRequest(start, end, sensors, subsample, showProgress, source);
+	    onDataRequest(start, end, sensors, subsample, showProgress, source);
 
-        } else
+	} else
 
-        /*
-         * Request for latest sensor value
-         */
-        if (type.equals(DataEvents.LatestValuesRequest)) {
-            LOG.finest("LatestValuesRequest");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            final View source = (View) event.getSource();
-            onLatestValuesRequest(sensors, source);
+	/*
+	 * Request for latest sensor value
+	 */
+	if (type.equals(DataEvents.LatestValuesRequest)) {
+	    LOG.finest("LatestValuesRequest");
+	    final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+	    final View source = (View) event.getSource();
+	    onLatestValuesRequest(sensors, source);
 
-        } else
+	} else
 
-        if (type.equals(LoginEvents.LoggedOut)) {
-            Cache.clear();
-        } else
+	if (type.equals(LoginEvents.LoggedOut)) {
+	    Cache.clear();
+	} else
 
-        /*
-         * Something is wrong
-         */
-        {
-            LOG.warning("Unexpected event received!");
-        }
+	/*
+	 * Something is wrong
+	 */
+	{
+	    LOG.warning("Unexpected event received!");
+	}
     }
 
     /**
      * Hides the progress bar View.
      */
     private void hideProgress() {
-        forwardToView(this.progressDialog, new AppEvent(DataEvents.HideProgress));
+	forwardToView(this.progressDialog, new AppEvent(DataEvents.HideProgress));
     }
 
     @Override
     protected void initialize() {
-        super.initialize();
-        this.progressDialog = new ProgressDialog(this);
+	super.initialize();
+	this.progressDialog = new ProgressDialog(this);
     }
 
     /**
@@ -192,15 +191,15 @@ public class DataController extends Controller {
      *            View that requested the data.
      */
     private void onDataComplete(long start, long end, List<SensorModel> sensors, View source) {
-        LOG.fine("onDataComplete...");
+	LOG.fine("onDataComplete...");
 
-        hideProgress();
+	hideProgress();
 
-        // pass data on to view
-        JsArray<Timeseries> data = Cache.request(sensors, start, end);
-        AppEvent event = new AppEvent(DataEvents.DataReceived);
-        event.setData("data", data);
-        forwardToView(source, event);
+	// pass data on to view
+	JsArray<Timeseries> data = Cache.request(sensors, start, end);
+	AppEvent event = new AppEvent(DataEvents.DataReceived);
+	event.setData("data", data);
+	forwardToView(source, event);
     }
 
     /**
@@ -213,10 +212,10 @@ public class DataController extends Controller {
      *            boolean to indicate whether to notify the user.
      */
     private void onDataFailed(int code, boolean showProgress) {
-        if (showProgress) {
-            hideProgress();
-            MessageBox.alert(null, "Data request failed! Please try again.", null);
-        }
+	if (showProgress) {
+	    hideProgress();
+	    MessageBox.alert(null, "Data request failed! Please try again.", null);
+	}
     }
 
     /**
@@ -243,33 +242,33 @@ public class DataController extends Controller {
      *            View that requested the data.
      */
     private void onReqSubsampledSuccess(String response, long start, long end,
-            List<SensorModel> sensors, int sensorIndex, int pageIndex, boolean subsampled,
-            boolean showProgress, View source) {
-        LOG.fine("Data page success...");
+	    List<SensorModel> sensors, int sensorIndex, int pageIndex, boolean subsampled,
+	    boolean showProgress, View source) {
+	LOG.fine("Data page success...");
 
-        // parse the incoming data
-        GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
+	// parse the incoming data
+	GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
-        // store data in cache
-        SensorModel sensor = sensors.get(sensorIndex);
-        Cache.store(sensor, start, end, jsoResponse.getData());
+	// store data in cache
+	SensorModel sensor = sensors.get(sensorIndex);
+	Cache.store(sensor, start, end, jsoResponse.getData());
 
-        if (jsoResponse.getData().length() == PER_PAGE) {
-            // get next page
-            pageIndex++;
-            reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsampled,
-                    showProgress, source);
-        } else if (sensorIndex < sensors.size()) {
-            // next sensor
-            sensorIndex++;
-            if (showProgress) {
-                updateProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
-            }
-            reqDataSubsampled(start, end, sensors, sensorIndex, 0, subsampled, showProgress, source);
-        } else {
-            // completed all pages for all sensors
-            onDataComplete(start, end, sensors, source);
-        }
+	if (jsoResponse.getData().length() == PER_PAGE) {
+	    // get next page
+	    pageIndex++;
+	    reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsampled,
+		    showProgress, source);
+	} else if (sensorIndex < sensors.size()) {
+	    // next sensor
+	    sensorIndex++;
+	    if (showProgress) {
+		updateProgress(Math.min(sensorIndex, sensors.size()), sensors.size());
+	    }
+	    reqDataSubsampled(start, end, sensors, sensorIndex, 0, subsampled, showProgress, source);
+	} else {
+	    // completed all pages for all sensors
+	    onDataComplete(start, end, sensors, source);
+	}
     }
 
     /**
@@ -297,28 +296,28 @@ public class DataController extends Controller {
      *            Boolean to indicate whether to update the user of the progress.
      */
     private void onReqRawSuccess(String response, long start, long end, List<SensorModel> sensors,
-            int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
+	    int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
 
-        // parse the incoming data
-        GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
+	// parse the incoming data
+	GetSensorDataResponseJso jsoResponse = GetSensorDataResponseJso.create(response);
 
-        // store data in cache
-        SensorModel sensor = sensors.get(sensorIndex);
-        JsArray<BackEndDataPoint> data = jsoResponse.getData();
-        Cache.store(sensor, start, end, data);
+	// store data in cache
+	SensorModel sensor = sensors.get(sensorIndex);
+	JsArray<BackEndDataPoint> data = jsoResponse.getData();
+	Cache.store(sensor, start, end, data);
 
-        // the first page also contains a total count, otherwise reuse the total from earlier pages
-        if (pageIndex == 0) {
-            total = jsoResponse.getTotal();
-        }
+	// the first page also contains a total count, otherwise reuse the total from earlier pages
+	if (pageIndex == 0) {
+	    total = jsoResponse.getTotal();
+	}
 
-        // check if we need to fetch additional pages
-        if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
-            reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, source, showProgress);
-        } else {
-            updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
-            reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, source, showProgress);
-        }
+	// check if we need to fetch additional pages
+	if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
+	    reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, source, showProgress);
+	} else {
+	    updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
+	    reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, source, showProgress);
+	}
     }
 
     /**
@@ -339,19 +338,19 @@ public class DataController extends Controller {
      *            View that the request originated from.
      */
     private void onDataRequest(long start, long end, List<SensorModel> sensors, boolean subsample,
-            boolean showProgress, View source) {
-        final int sensorIndex = 0;
-        final int pageIndex = 0;
+	    boolean showProgress, View source) {
+	final int sensorIndex = 0;
+	final int pageIndex = 0;
 
-        if (showProgress) {
-            showProgress(sensors.size());
-        }
+	if (showProgress) {
+	    showProgress(sensors.size());
+	}
 
-        LOG.fine("request start: "
-                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
+	LOG.fine("request start: "
+		+ DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
 
-        reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
-                source);
+	reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
+		source);
     }
 
     /**
@@ -363,34 +362,34 @@ public class DataController extends Controller {
      *            View that requested the data.
      */
     private void onLatestValueFailure(int code, View source) {
-        // does nothing
+	// does nothing
     }
 
     private void onLatestValuesComplete(List<SensorModel> sensors, View source) {
-        LOG.finest("Latest values complete...");
-        JsArray<Timeseries> data = Cache.request(sensors, 0, System.currentTimeMillis());
-        AppEvent event = new AppEvent(DataEvents.DataReceived);
-        event.setData("data", data);
-        forwardToView(source, event);
+	LOG.finest("Latest values complete...");
+	JsArray<Timeseries> data = Cache.request(sensors, 0, System.currentTimeMillis());
+	AppEvent event = new AppEvent(DataEvents.DataReceived);
+	event.setData("data", data);
+	forwardToView(source, event);
     }
 
     private void onLatestValuesRequest(List<SensorModel> sensors, View source) {
 
-        for (SensorModel sensor : sensors) {
-            Cache.remove(sensor);
-        }
-        int index = 0;
-        getLatestValues(sensors, index, source);
+	for (SensorModel sensor : sensors) {
+	    Cache.remove(sensor);
+	}
+	int index = 0;
+	getLatestValues(sensors, index, source);
     }
 
     private void onLatestValueSuccess(String response, List<SensorModel> sensors, int index,
-            View source) {
+	    View source) {
 
-        GetSensorDataResponseJso jso = GetSensorDataResponseJso.create(response);
-        Cache.store(sensors.get(index), 0, 0, jso.getData());
+	GetSensorDataResponseJso jso = GetSensorDataResponseJso.create(response);
+	Cache.store(sensors.get(index), 0, 0, jso.getData());
 
-        index++;
-        getLatestValues(sensors, index, source);
+	index++;
+	getLatestValues(sensors, index, source);
     }
 
     /**
@@ -417,80 +416,80 @@ public class DataController extends Controller {
      *            Set to true to display a progress dialog.
      */
     private void reqDataRaw(final long start, final long end, final List<SensorModel> sensors,
-            final int sensorIndex, final int pageIndex, final int sensorTotal, final View source,
-            final boolean showProgress) {
-        LOG.fine("Request paged data...");
+	    final int sensorIndex, final int pageIndex, final int sensorTotal, final View source,
+	    final boolean showProgress) {
+	LOG.fine("Request paged data...");
 
-        if (sensorIndex < sensors.size()) {
+	if (sensorIndex < sensors.size()) {
 
-            final SensorModel sensor = sensors.get(sensorIndex);
+	    final SensorModel sensor = sensors.get(sensorIndex);
 
-            // remove preexisting data from the cache, because reusing it is too complicated
-            if (pageIndex == 0) {
-                Cache.remove(sensor);
-            }
+	    // remove preexisting data from the cache, because reusing it is too complicated
+	    if (pageIndex == 0) {
+		Cache.remove(sensor);
+	    }
 
-            final Method method = RequestBuilder.GET;
-            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+	    final Method method = RequestBuilder.GET;
+	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	    urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
 
-            // paging parameters
-            urlBuilder.setParameter("per_page", "" + PER_PAGE);
-            urlBuilder.setParameter("page", "" + pageIndex);
+	    // paging parameters
+	    urlBuilder.setParameter("per_page", "" + PER_PAGE);
+	    urlBuilder.setParameter("page", "" + pageIndex);
 
-            // only need a total count for the first page request
-            if (0 == pageIndex) {
-                urlBuilder.setParameter("total", "1");
-            }
+	    // only need a total count for the first page request
+	    if (0 == pageIndex) {
+		urlBuilder.setParameter("total", "1");
+	    }
 
-            // start date parameter
-            final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-            urlBuilder.setParameter("start_date", startDate);
+	    // start date parameter
+	    final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
+	    urlBuilder.setParameter("start_date", startDate);
 
-            // end date is optional
-            if (end != -1) {
-                final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
-                urlBuilder.setParameter("end_date", endDate);
-            }
+	    // end date is optional
+	    if (end != -1) {
+		final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
+		urlBuilder.setParameter("end_date", endDate);
+	    }
 
-            // prepare request callback
-            RequestCallback reqCallback = new RequestCallback() {
+	    // prepare request callback
+	    RequestCallback reqCallback = new RequestCallback() {
 
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    LOG.warning("GET data (paged) onError callback: " + exception.getMessage());
-                    onDataFailed(0, showProgress);
-                }
+		@Override
+		public void onError(Request request, Throwable exception) {
+		    LOG.warning("GET data (paged) onError callback: " + exception.getMessage());
+		    onDataFailed(0, showProgress);
+		}
 
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    LOG.finest("GET data (paged) response received: " + response.getStatusText());
-                    int statusCode = response.getStatusCode();
-                    if (Response.SC_OK == statusCode) {
-                        onReqRawSuccess(response.getText(), start, end, sensors, sensorIndex,
-                                pageIndex, sensorTotal, source, showProgress);
-                    } else {
-                        LOG.warning("GET data (paged) returned incorrect status: " + statusCode);
-                        onDataFailed(statusCode, showProgress);
-                    }
-                }
-            };
+		@Override
+		public void onResponseReceived(Request request, Response response) {
+		    LOG.finest("GET data (paged) response received: " + response.getStatusText());
+		    int statusCode = response.getStatusCode();
+		    if (Response.SC_OK == statusCode) {
+			onReqRawSuccess(response.getText(), start, end, sensors, sensorIndex,
+				pageIndex, sensorTotal, source, showProgress);
+		    } else {
+			LOG.warning("GET data (paged) returned incorrect status: " + statusCode);
+			onDataFailed(statusCode, showProgress);
+		    }
+		}
+	    };
 
-            // send request
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
-            RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-            builder.setHeader("X-SESSION_ID", sessionId);
-            try {
-                builder.sendRequest(null, reqCallback);
-            } catch (RequestException e) {
-                LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
-                onDataFailed(0, showProgress);
-            }
+	    // send request
+	    final String sessionId = SessionManager.getSessionId();
+	    RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    try {
+		builder.sendRequest(null, reqCallback);
+	    } catch (RequestException e) {
+		LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
+		onDataFailed(0, showProgress);
+	    }
 
-        } else {
-            // should not happen, but just in case...
-            onDataComplete(start, end, sensors, source);
-        }
+	} else {
+	    // should not happen, but just in case...
+	    onDataComplete(start, end, sensors, source);
+	}
     }
 
     /**
@@ -517,86 +516,86 @@ public class DataController extends Controller {
      *            View that requested the data.
      */
     private void reqDataSubsampled(final long start, final long end,
-            final List<SensorModel> sensors, final int sensorIndex, final int pageIndex,
-            final boolean subsample, final boolean showProgress, final View source) {
-        LOG.fine("Request data...");
+	    final List<SensorModel> sensors, final int sensorIndex, final int pageIndex,
+	    final boolean subsample, final boolean showProgress, final View source) {
+	LOG.fine("Request data...");
 
-        if (sensorIndex < sensors.size()) {
+	if (sensorIndex < sensors.size()) {
 
-            final SensorModel sensor = sensors.get(sensorIndex);
+	    final SensorModel sensor = sensors.get(sensorIndex);
 
-            // remove preexisting data from the cache, because reusing it is too complicated
-            if (pageIndex == 0) {
-                Cache.remove(sensor);
-            }
+	    // remove preexisting data from the cache, because reusing it is too complicated
+	    if (pageIndex == 0) {
+		Cache.remove(sensor);
+	    }
 
-            final Method method = RequestBuilder.GET;
-            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-            urlBuilder.setParameter("per_page", "" + PER_PAGE);
-            urlBuilder.setParameter("page", "" + pageIndex);
+	    final Method method = RequestBuilder.GET;
+	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	    urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+	    urlBuilder.setParameter("per_page", "" + PER_PAGE);
+	    urlBuilder.setParameter("page", "" + pageIndex);
 
-            // start date parameter
-            final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-            urlBuilder.setParameter("start_date", startDate);
+	    // start date parameter
+	    final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
+	    urlBuilder.setParameter("start_date", startDate);
 
-            // end date is optional
-            if (end != -1) {
-                final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
-                urlBuilder.setParameter("end_date", endDate);
-            }
+	    // end date is optional
+	    if (end != -1) {
+		final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
+		urlBuilder.setParameter("end_date", endDate);
+	    }
 
-            // set subsample interval
-            if (subsample) {
-                urlBuilder.setParameter("interval", "" + calcInterval(start, end));
-            }
+	    // set subsample interval
+	    if (subsample) {
+		urlBuilder.setParameter("interval", "" + calcInterval(start, end));
+	    }
 
-            // use alias if necessary
-            if (-1 != sensor.getAlias()) {
-                urlBuilder.setParameter("alias", "" + sensor.getAlias());
-            }
+	    // use alias if necessary
+	    if (-1 != sensor.getAlias()) {
+		urlBuilder.setParameter("alias", "" + sensor.getAlias());
+	    }
 
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	    final String sessionId = SessionManager.getSessionId();
 
-            // prepare request callback
-            RequestCallback reqCallback = new RequestCallback() {
+	    // prepare request callback
+	    RequestCallback reqCallback = new RequestCallback() {
 
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    LOG.warning("GET subsampled data onError callback: " + exception.getMessage());
-                    onDataFailed(0, showProgress);
-                }
+		@Override
+		public void onError(Request request, Throwable exception) {
+		    LOG.warning("GET subsampled data onError callback: " + exception.getMessage());
+		    onDataFailed(0, showProgress);
+		}
 
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    LOG.finest("GET data (subsampled) response received: "
-                            + response.getStatusText());
-                    int statusCode = response.getStatusCode();
-                    if (Response.SC_OK == statusCode) {
-                        onReqSubsampledSuccess(response.getText(), start, end, sensors,
-                                sensorIndex, pageIndex, subsample, showProgress, source);
-                    } else {
-                        LOG.warning("GET data (subsampled) returned incorrect status: "
-                                + statusCode);
-                        onDataFailed(statusCode, showProgress);
-                    }
-                }
-            };
+		@Override
+		public void onResponseReceived(Request request, Response response) {
+		    LOG.finest("GET data (subsampled) response received: "
+			    + response.getStatusText());
+		    int statusCode = response.getStatusCode();
+		    if (Response.SC_OK == statusCode) {
+			onReqSubsampledSuccess(response.getText(), start, end, sensors,
+				sensorIndex, pageIndex, subsample, showProgress, source);
+		    } else {
+			LOG.warning("GET data (subsampled) returned incorrect status: "
+				+ statusCode);
+			onDataFailed(statusCode, showProgress);
+		    }
+		}
+	    };
 
-            // send request
-            RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-            builder.setHeader("X-SESSION_ID", sessionId);
-            try {
-                builder.sendRequest(null, reqCallback);
-            } catch (RequestException e) {
-                LOG.warning("GET data (subsampled) request threw exception: " + e.getMessage());
-                onDataFailed(0, showProgress);
-            }
+	    // send request
+	    RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    try {
+		builder.sendRequest(null, reqCallback);
+	    } catch (RequestException e) {
+		LOG.warning("GET data (subsampled) request threw exception: " + e.getMessage());
+		onDataFailed(0, showProgress);
+	    }
 
-        } else {
-            // should not happen, but just in case...
-            onDataComplete(start, end, sensors, source);
-        }
+	} else {
+	    // should not happen, but just in case...
+	    onDataComplete(start, end, sensors, source);
+	}
     }
 
     /**
@@ -606,9 +605,9 @@ public class DataController extends Controller {
      *            The total number of data requests that will have to be done.
      */
     private void showProgress(int tasks) {
-        AppEvent showProgress = new AppEvent(DataEvents.ShowProgress);
-        showProgress.setData("tasks", tasks);
-        forwardToView(progressDialog, showProgress);
+	AppEvent showProgress = new AppEvent(DataEvents.ShowProgress);
+	showProgress.setData("tasks", tasks);
+	forwardToView(progressDialog, showProgress);
     }
 
     /**
@@ -621,10 +620,10 @@ public class DataController extends Controller {
      * @see #showProgress(int)
      */
     private void updateProgress(int progress, int total) {
-        LOG.finest("Update progress...");
-        AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
-        update.setData("progress", progress);
-        update.setData("total", total);
-        forwardToView(progressDialog, update);
+	LOG.finest("Update progress...");
+	AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
+	update.setData("progress", progress);
+	update.setData("total", total);
+	forwardToView(progressDialog, update);
     }
 }

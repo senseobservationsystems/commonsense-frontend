@@ -34,7 +34,7 @@ public class GroupCreateView extends View {
         final EventType type = event.getType();
 
         if (type.equals(GroupCreateEvents.ShowCreator)) {
-            LOG.finest("ShowCreator");
+            LOG.finest("NewCreator");
             onShow();
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)) {

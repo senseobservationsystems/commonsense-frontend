@@ -80,7 +80,7 @@ public class StateCreator extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(StateCreateEvents.ShowCreator)) {
-            LOG.fine("ShowCreator");
+            LOG.fine("NewCreator");
             showWindow();
 
         } else if (type.equals(StateCreateEvents.CreateServiceCancelled)) {

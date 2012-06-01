@@ -33,12 +33,13 @@ public class GroupPresetsForm extends WizardFormPanel {
         initTextFields();
         initLayout();
 
-        hidden.setValue(true);
-        onSelectionChange(hidden);
+        anonymous.setValue(true);
+        onSelectionChange(anonymous);
     }
 
     public String getAccessPassword() {
-        return passwordConfirm.isEnabled() && passwordConfirm.isValid() ? password.getValue()
+        return passwordConfirm.isEnabled() && passwordConfirm.isValid()
+                ? password.getValue()
                 : null;
     }
 
@@ -64,6 +65,7 @@ public class GroupPresetsForm extends WizardFormPanel {
                 "A private group is hidden and the group has a password for new members." + "<br>"
                         + "Members can see eachother's shared sensors and all user details.");
         hiddenLabel.setHideLabel(true);
+        hiddenLabel.setEnabled(false);
 
         LabelField communityLabel = new LabelField(
                 "A community group is visible for everyone and anyone can join the group." + "<br>"
@@ -106,11 +108,6 @@ public class GroupPresetsForm extends WizardFormPanel {
             }
         });
 
-        hidden.setBoxLabel("Private");
-        hidden.setValueAttribute("private");
-        hidden.setHideLabel(true);
-        presets.add(hidden);
-
         anonymous.setBoxLabel("Anonymous");
         anonymous.setValueAttribute("anonymous");
         anonymous.setHideLabel(true);
@@ -120,6 +117,12 @@ public class GroupPresetsForm extends WizardFormPanel {
         community.setValueAttribute("community");
         community.setHideLabel(true);
         presets.add(community);
+
+        hidden.setBoxLabel("Private");
+        hidden.setValueAttribute("private");
+        hidden.setHideLabel(true);
+        hidden.setEnabled(false);
+        presets.add(hidden);
 
         custom.setBoxLabel("Custom");
         custom.setValueAttribute("custom");

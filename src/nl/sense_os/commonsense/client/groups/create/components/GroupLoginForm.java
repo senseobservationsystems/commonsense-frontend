@@ -32,8 +32,8 @@ public class GroupLoginForm extends WizardFormPanel {
         initLayout();
 
         // initial values
-        useLogin.setValue(true);
-        onSelectionChange(useLogin);
+        doNotUseLogin.setValue(true);
+        onSelectionChange(doNotUseLogin);
     }
 
     public String getLogin() {
@@ -60,9 +60,9 @@ public class GroupLoginForm extends WizardFormPanel {
         // layout
         setLayout(new FormLayout(LabelAlign.LEFT));
         add(label, new FormData("-5"));
+        add(doNotUseLogin, new FormData(anchorSpec));
         add(useLogin, new FormData(anchorSpec));
         add(pwForm, new FormData(anchorSpec));
-        add(doNotUseLogin, new FormData(anchorSpec));
     }
 
     private void initRadios() {

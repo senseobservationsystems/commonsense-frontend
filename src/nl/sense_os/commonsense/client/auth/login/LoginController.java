@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.UserModel;
@@ -22,7 +23,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window.Location;
 
 public class LoginController extends Controller {
@@ -32,22 +32,22 @@ public class LoginController extends Controller {
 
     public LoginController() {
 
-        // LOG.setLevel(Level.ALL);
+	// LOG.setLevel(Level.ALL);
 
-        registerEventTypes(MainEvents.Init);
+	registerEventTypes(MainEvents.Init);
 
-        // general login events
-        registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut,
-                LoginEvents.LoginRequest, LoginEvents.RequestLogout);
-        registerEventTypes(LoginEvents.GoogleAuthRequest, LoginEvents.GoogleAuthResult,
-                LoginEvents.GoogleAuthConflict, LoginEvents.GoogleAuthError,
-                LoginEvents.GoogleConnectRequest);
+	// general login events
+	registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut,
+		LoginEvents.LoginRequest, LoginEvents.RequestLogout);
+	registerEventTypes(LoginEvents.GoogleAuthRequest, LoginEvents.GoogleAuthResult,
+		LoginEvents.GoogleAuthConflict, LoginEvents.GoogleAuthError,
+		LoginEvents.GoogleConnectRequest);
 
-        // local events
-        registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
+	// local events
+	registerEventTypes(LoginEvents.LoginFailure, LoginEvents.AuthenticationFailure);
 
-        // layout events
-        registerEventTypes(LoginEvents.Show);
+	// layout events
+	registerEventTypes(LoginEvents.Show);
     }
 
     /**
@@ -56,44 +56,44 @@ public class LoginController extends Controller {
      */
     private void getCurrentUser() {
 
-        // prepare request details
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        final String url = urlBuilder.setPath(Urls.PATH_USERS + "/current.json").buildString();
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+	// prepare request details
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	final String url = urlBuilder.setPath(Urls.PATH_USERS + "/current.json").buildString();
+	final String sessionId = SessionManager.getSessionId();
 
-        // prepare request callback
-        RequestCallback callback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback callback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("GET current user onError callback: " + exception.getMessage());
-                onLoginFailure(0);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("GET current user onError callback: " + exception.getMessage());
+		onLoginFailure(0);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("GET current user response received: " + response.getStatusText());
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    parseUserReponse(response.getText());
-                } else if (Response.SC_FORBIDDEN == statusCode) {
-                    onAuthenticationFailure();
-                } else {
-                    LOG.warning("GET current user returned incorrect status: " + statusCode);
-                    onLoginFailure(statusCode);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("GET current user response received: " + response.getStatusText());
+		int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    parseUserReponse(response.getText());
+		} else if (Response.SC_FORBIDDEN == statusCode) {
+		    onAuthenticationFailure();
+		} else {
+		    LOG.warning("GET current user returned incorrect status: " + statusCode);
+		    onLoginFailure(statusCode);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        try {
-            builder.sendRequest(null, callback);
-        } catch (RequestException e) {
-            LOG.warning("GET current user request threw exception: " + e.getMessage());
-            onLoginFailure(0);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	try {
+	    builder.sendRequest(null, callback);
+	} catch (RequestException e) {
+	    LOG.warning("GET current user request threw exception: " + e.getMessage());
+	    onLoginFailure(0);
+	}
     }
 
     /**
@@ -105,15 +105,15 @@ public class LoginController extends Controller {
      */
     private void googleConnect(String sessionId) {
 
-        final String callback = Location.getProtocol() + "//" + Location.getHost()
-                + Location.getPath() + Location.getQueryString();
+	final String callback = Location.getProtocol() + "//" + Location.getHost()
+		+ Location.getPath() + Location.getQueryString();
 
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
-        urlBuilder.setParameter("callback_url", callback);
-        urlBuilder.setParameter("session_id", sessionId);
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
+	urlBuilder.setParameter("callback_url", callback);
+	urlBuilder.setParameter("session_id", sessionId);
 
-        Location.replace(urlBuilder.buildString());
+	Location.replace(urlBuilder.buildString());
     }
 
     /**
@@ -128,101 +128,102 @@ public class LoginController extends Controller {
      */
     private void googleConnectConfirm(String username, String password) {
 
-        // prepare request details
-        final Method method = RequestBuilder.POST;
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
-        final String url = urlBuilder.buildString();
-        final String body = "{\"username\":\"" + username + "\",\"password\":\""
-                + Md5Hasher.hash(password) + "\"}";
+	// prepare request details
+	final Method method = RequestBuilder.POST;
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
+	final String url = urlBuilder.buildString();
+	final String body = "{\"username\":\"" + username + "\",\"password\":\""
+		+ Md5Hasher.hash(password) + "\"}";
 
-        // prepare request callback
-        RequestCallback callback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback callback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("POST login onError callback: " + exception.getMessage());
-                onLoginFailure(0);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("POST login onError callback: " + exception.getMessage());
+		onLoginFailure(0);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("POST login response received: " + response.getStatusText());
-                final int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    onGoogleConnectConfirmSuccess(response.getText());
-                } else if (Response.SC_FORBIDDEN == statusCode) {
-                    onAuthenticationFailure();
-                } else {
-                    LOG.warning("POST login returned incorrect status: " + statusCode);
-                    onLoginFailure(statusCode);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("POST login response received: " + response.getStatusText());
+		final int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    onGoogleConnectConfirmSuccess(response.getText());
+		} else if (Response.SC_FORBIDDEN == statusCode) {
+		    onAuthenticationFailure();
+		} else {
+		    LOG.warning("POST login returned incorrect status: " + statusCode);
+		    onLoginFailure(statusCode);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(method, url);
-        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
-        try {
-            builder.sendRequest(body, callback);
-        } catch (RequestException e) {
-            LOG.warning("POST login request threw exception: " + e.getMessage());
-            onLoginFailure(0);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(method, url);
+	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+	try {
+	    builder.sendRequest(body, callback);
+	} catch (RequestException e) {
+	    LOG.warning("POST login request threw exception: " + e.getMessage());
+	    onLoginFailure(0);
+	}
     }
+
     /**
      * Requests a session ID by authentication through Google's OpenID server.
      */
     private void googleLogin() {
 
-        final String callback = Location.getProtocol() + "//" + Location.getHost()
-                + Location.getPath() + Location.getQueryString();
+	final String callback = Location.getProtocol() + "//" + Location.getHost()
+		+ Location.getPath() + Location.getQueryString();
 
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost("api.sense-os.nl");
-        urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
-        urlBuilder.setParameter("callback_url", callback);
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost("api.sense-os.nl");
+	urlBuilder.setPath(Urls.PATH_LOGIN_GOOGLE + ".json");
+	urlBuilder.setParameter("callback_url", callback);
 
-        Location.replace(urlBuilder.buildString());
+	Location.replace(urlBuilder.buildString());
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        EventType eventType = event.getType();
+	EventType eventType = event.getType();
 
-        if (eventType.equals(LoginEvents.LoginRequest)) {
-            LOG.finest("LoginRequest");
-            final String username = event.<String> getData("username");
-            final String password = event.<String> getData("password");
-            login(username, password);
+	if (eventType.equals(LoginEvents.LoginRequest)) {
+	    LOG.finest("LoginRequest");
+	    final String username = event.<String> getData("username");
+	    final String password = event.<String> getData("password");
+	    login(username, password);
 
-        } else if (eventType.equals(LoginEvents.GoogleAuthRequest)) {
-            LOG.finest("GoogleAuthRequest");
-            googleLogin();
+	} else if (eventType.equals(LoginEvents.GoogleAuthRequest)) {
+	    LOG.finest("GoogleAuthRequest");
+	    googleLogin();
 
-        } else if (eventType.equals(LoginEvents.GoogleAuthResult)) {
-            LOG.finest("GoogleAuthResult");
-            final String sessionId = event.getData("sessionId");
-            onGoogleAuthResult(sessionId);
+	} else if (eventType.equals(LoginEvents.GoogleAuthResult)) {
+	    LOG.finest("GoogleAuthResult");
+	    final String sessionId = event.getData("sessionId");
+	    onGoogleAuthResult(sessionId);
 
-        } else if (eventType.equals(LoginEvents.GoogleConnectRequest)) {
-            LOG.finest("GoogleConnectRequest");
-            final String username = event.getData("username");
-            final String password = event.getData("password");
-            googleConnectConfirm(username, password);
+	} else if (eventType.equals(LoginEvents.GoogleConnectRequest)) {
+	    LOG.finest("GoogleConnectRequest");
+	    final String username = event.getData("username");
+	    final String password = event.getData("password");
+	    googleConnectConfirm(username, password);
 
-        } else if (eventType.equals(LoginEvents.RequestLogout)) {
-            LOG.finest("RequestLogout");
-            logout();
+	} else if (eventType.equals(LoginEvents.RequestLogout)) {
+	    LOG.finest("RequestLogout");
+	    logout();
 
-        } else {
-            forwardToView(loginView, event);
-        }
+	} else {
+	    forwardToView(loginView, event);
+	}
     }
 
     @Override
     protected void initialize() {
-        super.initialize();
-        loginView = new LoginView(this);
+	super.initialize();
+	loginView = new LoginView(this);
     }
 
     /**
@@ -235,47 +236,47 @@ public class LoginController extends Controller {
      */
     private void login(String username, String password) {
 
-        // prepare request details
-        final Method method = RequestBuilder.POST;
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
-        final String url = urlBuilder.buildString();
-        String body = "{\"username\":\"" + username + "\",\"password\":\""
-                + Md5Hasher.hash(password) + "\"}";
+	// prepare request details
+	final Method method = RequestBuilder.POST;
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_LOGIN + ".json");
+	final String url = urlBuilder.buildString();
+	String body = "{\"username\":\"" + username + "\",\"password\":\""
+		+ Md5Hasher.hash(password) + "\"}";
 
-        // prepare request callback
-        RequestCallback callback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback callback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("POST login onError callback: " + exception.getMessage());
-                onLoginFailure(0);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("POST login onError callback: " + exception.getMessage());
+		onLoginFailure(0);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("POST login response received: " + response.getStatusText());
-                final int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    onLoginSuccess(response.getText());
-                } else if (Response.SC_FORBIDDEN == statusCode) {
-                    onAuthenticationFailure();
-                } else {
-                    LOG.warning("POST login returned incorrect status: " + statusCode);
-                    onLoginFailure(statusCode);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("POST login response received: " + response.getStatusText());
+		final int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    onLoginSuccess(response.getText());
+		} else if (Response.SC_FORBIDDEN == statusCode) {
+		    onAuthenticationFailure();
+		} else {
+		    LOG.warning("POST login returned incorrect status: " + statusCode);
+		    onLoginFailure(statusCode);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(method, url);
-        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
-        try {
-            builder.sendRequest(body, callback);
-        } catch (RequestException e) {
-            LOG.warning("POST login request threw exception: " + e.getMessage());
-            onLoginFailure(0);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(method, url);
+	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+	try {
+	    builder.sendRequest(body, callback);
+	} catch (RequestException e) {
+	    LOG.warning("POST login request threw exception: " + e.getMessage());
+	    onLoginFailure(0);
+	}
     }
 
     /**
@@ -283,153 +284,149 @@ public class LoginController extends Controller {
      */
     private void logout() {
 
-        // prepare request properties
-        final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_LOGOUT + ".json")
-                .buildString();
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	// prepare request properties
+	final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_LOGOUT + ".json")
+		.buildString();
+	final String sessionId = SessionManager.getSessionId();
 
-        // prepare callback
-        RequestCallback callback = new RequestCallback() {
+	// prepare callback
+	RequestCallback callback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("GET logout onError callback: " + exception.getMessage());
-                onLogoutFailure(0);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("GET logout onError callback: " + exception.getMessage());
+		onLogoutFailure(0);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("GET logout response received: " + response.getStatusText());
-                if (Response.SC_OK == response.getStatusCode()) {
-                    onLoggedOut(response.getText());
-                } else {
-                    LOG.warning("GET logout returned incorrect status: " + response.getStatusCode());
-                    onLogoutFailure(0);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("GET logout response received: " + response.getStatusText());
+		if (Response.SC_OK == response.getStatusCode()) {
+		    onLoggedOut(response.getText());
+		} else {
+		    LOG.warning("GET logout returned incorrect status: " + response.getStatusCode());
+		    onLogoutFailure(0);
+		}
+	    }
+	};
 
-        // perform request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        try {
-            builder.sendRequest(null, callback);
-        } catch (RequestException e) {
-            LOG.warning("GET logout request threw exception: " + e.getMessage());
-            onLogoutFailure(0);
-        }
+	// perform request
+	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	try {
+	    builder.sendRequest(null, callback);
+	} catch (RequestException e) {
+	    LOG.warning("GET logout request threw exception: " + e.getMessage());
+	    onLogoutFailure(0);
+	}
     }
 
     private void onAuthenticationFailure() {
-        forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
+	forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
 
     private void onCurrentUser(UserModel user) {
-        Registry.register(Constants.REG_USER, user);
-        Dispatcher.forwardEvent(LoginEvents.LoginSuccess, user);
+	Registry.register(Constants.REG_USER, user);
+	Dispatcher.forwardEvent(LoginEvents.LoginSuccess, user);
     }
 
     private void onGoogleAuthResult(String sessionId) {
-        LOG.fine("Session ID: " + sessionId);
-        Registry.register(Constants.REG_SESSION_ID, sessionId);
-        getCurrentUser();
+	LOG.fine("Session ID: " + sessionId);
+	SessionManager.setSessionId(sessionId);
+	getCurrentUser();
     }
 
     private void onGoogleConnectConfirmSuccess(String response) {
-        if (response != null) {
+	if (response != null) {
 
-            // try to get "session_id" object
-            String sessionId = null;
-            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-                LoginResponseJso jso = JsonUtils.unsafeEval(response);
-                sessionId = jso.getSessionId();
-            }
+	    // try to get "session_id" object
+	    String sessionId = null;
+	    if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+		LoginResponseJso jso = JsonUtils.unsafeEval(response);
+		sessionId = jso.getSessionId();
+	    }
 
-            if (null != sessionId) {
-                Registry.register(Constants.REG_SESSION_ID, sessionId);
-                googleConnect(sessionId);
+	    if (null != sessionId) {
+		SessionManager.setSessionId(sessionId);
+		googleConnect(sessionId);
 
-            } else {
-                onLoginFailure(0);
-            }
+	    } else {
+		onLoginFailure(0);
+	    }
 
-        } else {
-            LOG.severe("Error parsing login response: response=null");
-            onLoginFailure(0);
-        }
+	} else {
+	    LOG.severe("Error parsing login response: response=null");
+	    onLoginFailure(0);
+	}
     }
 
     private void onLoggedOut(String response) {
-        Registry.unregister(Constants.REG_SESSION_ID);
-        Registry.unregister(Constants.REG_USER);
-        Registry.unregister(Constants.REG_SERVICES);
-        Dispatcher.forwardEvent(LoginEvents.LoggedOut);
+	SessionManager.removeSessionId();
+	Registry.unregister(Constants.REG_USER);
+	Registry.unregister(Constants.REG_SERVICES);
+	Dispatcher.forwardEvent(LoginEvents.LoggedOut);
     }
 
     private void onLoginFailure(int code) {
-        AppEvent errorEvent = new AppEvent(LoginEvents.LoginFailure);
-        errorEvent.setData("code", code);
-        forwardToView(loginView, errorEvent);
+	AppEvent errorEvent = new AppEvent(LoginEvents.LoginFailure);
+	errorEvent.setData("code", code);
+	forwardToView(loginView, errorEvent);
     }
 
     private void onLoginSuccess(String response) {
 
-        // LOG.setLevel (Level.ALL);
-        if (response != null) {
-            LOG.fine("LOGIN Success...");
-            // try to get "session_id" object
-            String sessionId = null;
-            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-                LoginResponseJso jso = JsonUtils.unsafeEval(response);
-                sessionId = jso.getSessionId();
-            }
+	// LOG.setLevel (Level.ALL);
+	if (response != null) {
+	    LOG.fine("LOGIN Success...");
+	    // try to get "session_id" object
+	    String sessionId = null;
+	    if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+		LoginResponseJso jso = JsonUtils.unsafeEval(response);
+		sessionId = jso.getSessionId();
+	    }
 
-            // LOG.fine ("sessionId is " + sessionId);
+	    // LOG.fine ("sessionId is " + sessionId);
 
-            if (null != sessionId) {
-                Registry.register(Constants.REG_SESSION_ID, sessionId);
+	    if (null != sessionId) {
+		SessionManager.setSessionId(sessionId);
+		getCurrentUser();
 
-                // / mine!!!!
-                Cookies.setCookie(Constants.REG_SESSION_ID, sessionId);
+	    } else {
+		onLoginFailure(0);
+	    }
 
-                getCurrentUser();
-
-            } else {
-                onLoginFailure(0);
-            }
-
-        } else {
-            LOG.severe("Error parsing login response: response=null");
-            onLoginFailure(0);
-        }
+	} else {
+	    LOG.severe("Error parsing login response: response=null");
+	    onLoginFailure(0);
+	}
     }
 
     private void onLogoutFailure(int code) {
-        // TODO handle logout error events
-        onLoggedOut("Status code: " + code);
+	// TODO handle logout error events
+	onLoggedOut("Status code: " + code);
     }
 
     private void parseUserReponse(String response) {
-        if (response != null) {
+	if (response != null) {
 
-            // try to get "user" object
-            UserModel user = null;
-            if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-                CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
-                user = jso.getUser();
-            }
+	    // try to get "user" object
+	    UserModel user = null;
+	    if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+		CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
+		user = jso.getUser();
+	    }
 
-            if (null != user) {
-                onCurrentUser(user);
-            } else {
-                LOG.severe("Unexpected current user response");
-                onLoginFailure(0);
-            }
+	    if (null != user) {
+		onCurrentUser(user);
+	    } else {
+		LOG.severe("Unexpected current user response");
+		onLoginFailure(0);
+	    }
 
-        } else {
-            LOG.severe("Error parsing current user response: response=null");
-            onLoginFailure(0);
-        }
+	} else {
+	    LOG.severe("Error parsing current user response: response=null");
+	    onLoginFailure(0);
+	}
     }
 
     // private void xhrGetCurrentUser() {
