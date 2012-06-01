@@ -319,6 +319,11 @@ public class MainView extends View {
 
 		Location.replace(urlBuilder.buildString());
 
+	    } else if (location.equals(NavPanel.REGISTER)) {
+		final UrlBuilder urlBuilder = new UrlBuilder().setHost("accounts.sense-os.nl");
+
+		Location.replace(urlBuilder.buildString());
+
 	    } else if (location.equals(NavPanel.SIGN_OUT)) {
 		newContent = null;
 		Dispatcher.forwardEvent(LoginEvents.RequestLogout);

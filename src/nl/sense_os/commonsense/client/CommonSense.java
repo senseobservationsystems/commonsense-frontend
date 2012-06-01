@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.client.auth.login.LoginController;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.pwreset.PwResetController;
-import nl.sense_os.commonsense.client.auth.registration.RegisterController;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -103,7 +102,7 @@ public class CommonSense implements EntryPoint {
 
 	dispatcher.addController(new MainController());
 	dispatcher.addController(new LoginController());
-	dispatcher.addController(new RegisterController());
+	// dispatcher.addController(new RegisterController());
 	dispatcher.addController(new PwResetController());
 	dispatcher.addController(new VizMainController());
 	dispatcher.addController(new VizPanelsController());

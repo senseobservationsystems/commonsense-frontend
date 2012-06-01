@@ -25,6 +25,7 @@ public class NavPanel extends LayoutContainer {
 
     private static final Logger LOG = Logger.getLogger(NavPanel.class.getName());
     public static final String DEMO = "demo";
+    public static final String REGISTER = "register";
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SIGN_OUT = "signout";
@@ -36,8 +37,9 @@ public class NavPanel extends LayoutContainer {
     private final Text userName = new Text();
     private Widget current;
     private final Hyperlink demo = new Hyperlink("demos", DEMO);
+    private final Hyperlink register = new Hyperlink("register", REGISTER);
     private final Hyperlink help = new Hyperlink("help", HELP);
-    private final Hyperlink home = new Hyperlink("home", HOME);
+    private final Hyperlink home = new Hyperlink("login", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
     private final Hyperlink account = new Hyperlink("my account", ACCOUNT);
     private final Hyperlink viz = new Hyperlink("my sensors", VISUALIZATION);
@@ -57,6 +59,7 @@ public class NavPanel extends LayoutContainer {
 
     private void initLinks() {
 	home.setStyleName("sense-nav-item");
+	register.setStyleName("sense-nav-item");
 	viz.setStyleName("sense-nav-item");
 	demo.setStyleName("sense-nav-item");
 	account.setStyleName("sense-nav-item");
@@ -96,8 +99,8 @@ public class NavPanel extends LayoutContainer {
 	removeAll();
 	if (isLoggedIn) {
 	    add(logo, new RowData(-1, -1, rightMargin));
-	    add(viz, new RowData(90.0, 1, rightMargin));
-	    add(account, new RowData(90.0, 1, rightMargin));
+	    add(viz, new RowData(85.0, 1, rightMargin));
+	    add(account, new RowData(85.0, 1, rightMargin));
 	    add(demo, new RowData(50.0, 1, rightMargin));
 	    add(help, new RowData(50.0, 1, rightMargin));
 	    add(userName, new RowData(1, 1, rightMargin));
@@ -106,6 +109,7 @@ public class NavPanel extends LayoutContainer {
 	} else {
 	    add(logo, new RowData(-1, -1, rightMargin));
 	    add(home, new RowData(50.0, 1, rightMargin));
+	    add(register, new RowData(60.0, 1, rightMargin));
 	    add(demo, new RowData(50.0, 1, rightMargin));
 	    add(help, new RowData(50.0, 1, rightMargin));
 	    add(spacer, new RowData(1, 1, noMargins));
