@@ -2,11 +2,10 @@ package nl.sense_os.commonsense.client.groups.create;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -24,84 +23,84 @@ public class GroupCreateController extends Controller {
     private static final Logger LOG = Logger.getLogger(GroupCreateController.class.getName());
 
     public GroupCreateController() {
-        // LOG.setLevel(Level.ALL);
-        registerEventTypes(GroupCreateEvents.ShowCreator, GroupCreateEvents.CreateRequested);
+	// LOG.setLevel(Level.ALL);
+	registerEventTypes(GroupCreateEvents.ShowCreator, GroupCreateEvents.CreateRequested);
     }
 
     private void createGroup(GroupModel group, final GroupCreateView source) {
 
-        // prepare request properties
-        final Method method = RequestBuilder.POST;
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
-        final String url = urlBuilder.buildString();
-        final String sessionId = Registry.<String> get(Constants.REG_SESSION_ID);
+	// prepare request properties
+	final Method method = RequestBuilder.POST;
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
+	final String url = urlBuilder.buildString();
+	final String sessionId = SessionManager.getSessionId();
 
-        String body = "{\"group\":" + group.toJson() + "}";
+	String body = "{\"group\":" + group.toJson() + "}";
 
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback reqCallback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("POST group onError callback: " + exception.getMessage());
-                onCreateFailure(source);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("POST group onError callback: " + exception.getMessage());
+		onCreateFailure(source);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("POST group response received: " + response.getStatusText());
-                int statusCode = response.getStatusCode();
-                if (Response.SC_CREATED == statusCode) {
-                    onCreateSuccess(source);
-                } else {
-                    LOG.warning("POST group returned incorrect status: " + statusCode);
-                    onCreateFailure(source);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("POST group response received: " + response.getStatusText());
+		int statusCode = response.getStatusCode();
+		if (Response.SC_CREATED == statusCode) {
+		    onCreateSuccess(source);
+		} else {
+		    LOG.warning("POST group returned incorrect status: " + statusCode);
+		    onCreateFailure(source);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(method, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
-        try {
-            builder.sendRequest(body, reqCallback);
-        } catch (RequestException e) {
-            LOG.warning("POST group request threw exception: " + e.getMessage());
-            onCreateFailure(source);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(method, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+	try {
+	    builder.sendRequest(body, reqCallback);
+	} catch (RequestException e) {
+	    LOG.warning("POST group request threw exception: " + e.getMessage());
+	    onCreateFailure(source);
+	}
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        final EventType type = event.getType();
+	final EventType type = event.getType();
 
-        if (type.equals(GroupCreateEvents.CreateRequested)) {
-            LOG.finest("CreateRequested");
-            final GroupModel group = event.getData("group");
-            GroupCreateView source = (GroupCreateView) event.getSource();
-            createGroup(group, source);
+	if (type.equals(GroupCreateEvents.CreateRequested)) {
+	    LOG.finest("CreateRequested");
+	    final GroupModel group = event.getData("group");
+	    GroupCreateView source = (GroupCreateView) event.getSource();
+	    createGroup(group, source);
 
-        } else if (type.equals(GroupCreateEvents.ShowCreator)) {
-            LOG.finest("ShowCreator");
-            // create new view
-            GroupCreateView view = new GroupCreateView(this);
-            forwardToView(view, event);
+	} else if (type.equals(GroupCreateEvents.ShowCreator)) {
+	    LOG.finest("NewCreator");
+	    // create new view
+	    GroupCreateView view = new GroupCreateView(this);
+	    forwardToView(view, event);
 
-        } else {
-            LOG.warning("Unxpected event: " + event);
-        }
+	} else {
+	    LOG.warning("Unxpected event: " + event);
+	}
     }
 
     private void onCreateFailure(GroupCreateView source) {
-        AppEvent event = new AppEvent(GroupCreateEvents.CreateFailed);
-        forwardToView(source, event);
+	AppEvent event = new AppEvent(GroupCreateEvents.CreateFailed);
+	forwardToView(source, event);
     }
 
     private void onCreateSuccess(GroupCreateView source) {
-        AppEvent event = new AppEvent(GroupCreateEvents.CreateComplete);
-        forwardToView(source, event);
-        Dispatcher.forwardEvent(event);
+	AppEvent event = new AppEvent(GroupCreateEvents.CreateComplete);
+	forwardToView(source, event);
+	Dispatcher.forwardEvent(event);
     }
 }

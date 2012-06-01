@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.sensors.delete;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
 import nl.sense_os.commonsense.client.common.models.SensorModel;
@@ -27,8 +28,8 @@ public class SensorDeleteController extends Controller {
     private View deleteDialog;
 
     public SensorDeleteController() {
-        registerEventTypes(SensorDeleteEvents.ShowDeleteDialog, SensorDeleteEvents.DeleteRequest,
-                SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
+	registerEventTypes(SensorDeleteEvents.ShowDeleteDialog, SensorDeleteEvents.DeleteRequest,
+		SensorDeleteEvents.DeleteSuccess, SensorDeleteEvents.DeleteFailure);
     }
 
     /**
@@ -43,77 +44,77 @@ public class SensorDeleteController extends Controller {
      */
     private void delete(final List<SensorModel> sensors, final int index, final int retryCount) {
 
-        if (index < sensors.size()) {
-            SensorModel sensor = sensors.get(index);
+	if (index < sensors.size()) {
+	    SensorModel sensor = sensors.get(index);
 
-            // prepare request properties
-            final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-            urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + ".json");
-            final String url = urlBuilder.buildString();
-            final Method method = RequestBuilder.DELETE;
-            final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	    // prepare request properties
+	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	    urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + ".json");
+	    final String url = urlBuilder.buildString();
+	    final Method method = RequestBuilder.DELETE;
+	    final String sessionId = SessionManager.getSessionId();
 
-            // prepare request callback
-            RequestCallback reqCallback = new RequestCallback() {
+	    // prepare request callback
+	    RequestCallback reqCallback = new RequestCallback() {
 
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    LOG.warning("DELETE sensor onError callback: " + exception.getMessage());
-                    onDeleteFailure(sensors, index, retryCount);
-                }
+		@Override
+		public void onError(Request request, Throwable exception) {
+		    LOG.warning("DELETE sensor onError callback: " + exception.getMessage());
+		    onDeleteFailure(sensors, index, retryCount);
+		}
 
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    LOG.finest("DELETE sensor response received: " + response.getStatusText());
-                    int statusCode = response.getStatusCode();
-                    if (Response.SC_OK == statusCode) {
-                        onDeleteSuccess(sensors, index);
-                    } else {
-                        LOG.warning("DELETE sensor returned incorrect status: " + statusCode);
-                        onDeleteFailure(sensors, index, retryCount);
-                    }
-                }
-            };
+		@Override
+		public void onResponseReceived(Request request, Response response) {
+		    LOG.finest("DELETE sensor response received: " + response.getStatusText());
+		    int statusCode = response.getStatusCode();
+		    if (Response.SC_OK == statusCode) {
+			onDeleteSuccess(sensors, index);
+		    } else {
+			LOG.warning("DELETE sensor returned incorrect status: " + statusCode);
+			onDeleteFailure(sensors, index, retryCount);
+		    }
+		}
+	    };
 
-            // send request
-            RequestBuilder builder = new RequestBuilder(method, url);
-            builder.setHeader("X-SESSION_ID", sessionId);
-            try {
-                builder.sendRequest(null, reqCallback);
-            } catch (RequestException e) {
-                LOG.warning("DELETE sensor request threw exception: " + e.getMessage());
-                onDeleteFailure(sensors, index, retryCount);
-            }
+	    // send request
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    try {
+		builder.sendRequest(null, reqCallback);
+	    } catch (RequestException e) {
+		LOG.warning("DELETE sensor request threw exception: " + e.getMessage());
+		onDeleteFailure(sensors, index, retryCount);
+	    }
 
-        } else {
-            // done!
-            onDeleteComplete();
-        }
+	} else {
+	    // done!
+	    onDeleteComplete();
+	}
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        final EventType type = event.getType();
+	final EventType type = event.getType();
 
-        if (type.equals(SensorDeleteEvents.DeleteRequest)) {
-            LOG.fine("DeleteRequest");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
-            delete(sensors, 0, 0);
+	if (type.equals(SensorDeleteEvents.DeleteRequest)) {
+	    LOG.fine("DeleteRequest");
+	    final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+	    delete(sensors, 0, 0);
 
-        } else
+	} else
 
-        /*
-         * Pass through to View
-         */
-        {
-            forwardToView(this.deleteDialog, event);
-        }
+	/*
+	 * Pass through to View
+	 */
+	{
+	    forwardToView(this.deleteDialog, event);
+	}
     }
 
     @Override
     protected void initialize() {
-        super.initialize();
-        this.deleteDialog = new SensorDeleteDialog(this);
+	super.initialize();
+	this.deleteDialog = new SensorDeleteDialog(this);
     }
 
     /**
@@ -127,14 +128,14 @@ public class SensorDeleteController extends Controller {
      */
     private void onDeleteFailure(List<SensorModel> sensors, int index, int retryCount) {
 
-        if (retryCount < 3) {
-            // retry
-            retryCount++;
-            delete(sensors, index, retryCount);
-        } else {
-            // give up
-            Dispatcher.forwardEvent(SensorDeleteEvents.DeleteFailure);
-        }
+	if (retryCount < 3) {
+	    // retry
+	    retryCount++;
+	    delete(sensors, index, retryCount);
+	} else {
+	    // give up
+	    Dispatcher.forwardEvent(SensorDeleteEvents.DeleteFailure);
+	}
     }
 
     /**
@@ -146,19 +147,19 @@ public class SensorDeleteController extends Controller {
      */
     private void onDeleteSuccess(List<SensorModel> sensors, int index) {
 
-        // remove the sensor from the cached library
-        boolean removed = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(
-                sensors.get(index));
-        if (!removed) {
-            LOG.warning("Failed to remove the sensor from the library!");
-        }
+	// remove the sensor from the cached library
+	boolean removed = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(
+		sensors.get(index));
+	if (!removed) {
+	    LOG.warning("Failed to remove the sensor from the library!");
+	}
 
-        // continue with the rest of the list
-        index++;
-        delete(sensors, index, 0);
+	// continue with the rest of the list
+	index++;
+	delete(sensors, index, 0);
     }
 
     private void onDeleteComplete() {
-        Dispatcher.forwardEvent(SensorDeleteEvents.DeleteSuccess);
+	Dispatcher.forwardEvent(SensorDeleteEvents.DeleteSuccess);
     }
 }

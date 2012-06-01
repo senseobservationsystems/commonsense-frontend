@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.common.constants.Constants;
 import nl.sense_os.commonsense.client.common.constants.Urls;
@@ -38,18 +39,18 @@ public class GroupController extends Controller {
 
     public GroupController() {
 
-        registerEventTypes(GroupEvents.ShowGrid);
+	registerEventTypes(GroupEvents.ShowGrid);
 
-        // events to update the list of groups
-        registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working);
+	// events to update the list of groups
+	registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working);
 
-        registerEventTypes(VizEvents.Show);
-        registerEventTypes(MainEvents.Init);
-        registerEventTypes(LoginEvents.LoggedOut);
-        registerEventTypes(GroupInviteEvents.InviteComplete);
-        registerEventTypes(GroupCreateEvents.CreateComplete);
-        registerEventTypes(GroupLeaveEvents.LeaveComplete);
-        registerEventTypes(GroupJoinEvents.JoinSuccess);
+	registerEventTypes(VizEvents.Show);
+	registerEventTypes(MainEvents.Init);
+	registerEventTypes(LoginEvents.LoggedOut);
+	registerEventTypes(GroupInviteEvents.InviteComplete);
+	registerEventTypes(GroupCreateEvents.CreateComplete);
+	registerEventTypes(GroupLeaveEvents.LeaveComplete);
+	registerEventTypes(GroupJoinEvents.JoinSuccess);
     }
 
     /**
@@ -68,47 +69,58 @@ public class GroupController extends Controller {
      *            complete.
      */
     private void getGroupMembers(final GroupModel group,
-            final AsyncCallback<List<UserModel>> callback) {
+	    final AsyncCallback<List<UserModel>> callback) {
 
-        forwardToView(this.tree, new AppEvent(GroupEvents.Working));
+	forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
-        // prepare request properties
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
-        final String url = urlBuilder.buildString();
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	// prepare request properties
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
+	final String url = urlBuilder.buildString();
+	final String sessionId = SessionManager.getSessionId();
 
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback reqCallback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("GET group users onError callback: " + exception.getMessage());
-                onGroupMembersFailure(callback);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("GET group users onError callback: " + exception.getMessage());
+		onGroupMembersFailure(-1, group, callback);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("GET group users response received: " + response.getStatusText());
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    onGroupMembersSuccess(response.getText(), group, callback);
-                } else {
-                    LOG.warning("GET group users returned incorrect status: " + statusCode);
-                    onGroupMembersFailure(callback);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("GET group users response received: " + response.getStatusText());
+		int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    onGroupMembersSuccess(response.getText(), group, callback);
+		} else if (Response.SC_FORBIDDEN == statusCode) {
+		    onGroupMembersForbidden(group, callback);
+		} else {
+		    LOG.warning("GET group users returned incorrect status: " + statusCode);
+		    onGroupMembersFailure(statusCode, group, callback);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        try {
-            builder.sendRequest(null, reqCallback);
-        } catch (RequestException e) {
-            LOG.warning("GET group users request threw exception: " + e.getMessage());
-            onGroupMembersFailure(callback);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	try {
+	    builder.sendRequest(null, reqCallback);
+	} catch (RequestException e) {
+	    LOG.warning("GET group users request threw exception: " + e.getMessage());
+	    onGroupMembersFailure(-1, group, callback);
+	}
+    }
+
+    private void onGroupMembersForbidden(GroupModel group, AsyncCallback<List<UserModel>> callback) {
+	// user is not allowed to view the group members
+	Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+	if (null != callback) {
+	    callback.onSuccess(new ArrayList<UserModel>());
+	}
     }
 
     /**
@@ -123,101 +135,103 @@ public class GroupController extends Controller {
      */
     private void getGroups(final AsyncCallback<List<UserModel>> callback) {
 
-        forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
+	forwardToView(this.tree, new AppEvent(GroupEvents.Working));
+	Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
 
-        // prepare request properties
-        final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
-        final String url = urlBuilder.buildString();
-        final String sessionId = Registry.get(Constants.REG_SESSION_ID);
+	// prepare request properties
+	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
+	final String url = urlBuilder.buildString();
+	final String sessionId = SessionManager.getSessionId();
 
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
+	// prepare request callback
+	RequestCallback reqCallback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
-                LOG.warning("GET groups onError callback: " + exception.getMessage());
-                onGroupsFailure(callback);
-            }
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("GET groups onError callback: " + exception.getMessage());
+		onGroupsFailure(callback);
+	    }
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                LOG.finest("GET groups response received: " + response.getStatusText());
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
-                    onGroupsSuccess(response.getText(), callback);
-                } else {
-                    LOG.warning("GET groups returned incorrect status: " + statusCode);
-                    onGroupsFailure(callback);
-                }
-            }
-        };
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("GET groups response received: " + response.getStatusText());
+		int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    onGroupsSuccess(response.getText(), callback);
+		} else {
+		    LOG.warning("GET groups returned incorrect status: " + statusCode);
+		    onGroupsFailure(callback);
+		}
+	    }
+	};
 
-        // send request
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("X-SESSION_ID", sessionId);
-        try {
-            builder.sendRequest(null, reqCallback);
-        } catch (RequestException e) {
-            LOG.warning("GET groups request threw exception: " + e.getMessage());
-            onGroupsFailure(callback);
-        }
+	// send request
+	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	try {
+	    builder.sendRequest(null, reqCallback);
+	} catch (RequestException e) {
+	    LOG.warning("GET groups request threw exception: " + e.getMessage());
+	    onGroupsFailure(callback);
+	}
     }
 
     @Override
     public void handleEvent(AppEvent event) {
-        final EventType type = event.getType();
+	final EventType type = event.getType();
 
-        /*
-         * Load list of groups
-         */
-        if (type.equals(GroupEvents.LoadRequest)) {
-            // LOG.fine( "LoadRequest");
-            final Object loadConfig = event.getData("loadConfig");
-            final AsyncCallback<List<UserModel>> callback = event
-                    .<AsyncCallback<List<UserModel>>> getData("callback");
-            onLoadRequest(loadConfig, callback);
+	/*
+	 * Load list of groups
+	 */
+	if (type.equals(GroupEvents.LoadRequest)) {
+	    // LOG.fine( "LoadRequest");
+	    final Object loadConfig = event.getData("loadConfig");
+	    final AsyncCallback<List<UserModel>> callback = event
+		    .<AsyncCallback<List<UserModel>>> getData("callback");
+	    onLoadRequest(loadConfig, callback);
 
-        } else
+	} else
 
-        /*
-         * Clear data after logout
-         */
-        if (type.equals(LoginEvents.LoggedOut)) {
-            // LOG.fine( "LoggedOut");
-            onLogout();
+	/*
+	 * Clear data after logout
+	 */
+	if (type.equals(LoginEvents.LoggedOut)) {
+	    // LOG.fine( "LoggedOut");
+	    onLogout();
 
-        } else
+	} else
 
-        /*
-         * Pass through to view
-         */
-        {
-            forwardToView(this.tree, event);
-        }
+	/*
+	 * Pass through to view
+	 */
+	{
+	    forwardToView(this.tree, event);
+	}
     }
 
     /**
      * Clears the list of groups from the Registry.
      */
     private void onLogout() {
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
+	Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
     }
 
     @Override
     protected void initialize() {
-        super.initialize();
-        this.tree = new GroupGrid(this);
-        Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
+	super.initialize();
+	this.tree = new GroupGrid(this);
+	Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
     }
 
-    private void onGroupMembersFailure(AsyncCallback<List<UserModel>> callback) {
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+    private void onGroupMembersFailure(int code, GroupModel group,
+	    AsyncCallback<List<UserModel>> callback) {
 
-        if (null != callback) {
-            callback.onFailure(null);
-        }
+	Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+	if (null != callback) {
+	    callback.onFailure(null);
+	}
     }
 
     /**
@@ -237,33 +251,33 @@ public class GroupController extends Controller {
      *            complete.
      */
     private void onGroupMembersSuccess(String response, GroupModel group,
-            AsyncCallback<List<UserModel>> callback) {
+	    AsyncCallback<List<UserModel>> callback) {
 
-        // parse list of users from the response
-        List<UserModel> users = new ArrayList<UserModel>();
-        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-            GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
-            users = jso.getUsers();
-        }
+	// parse list of users from the response
+	List<UserModel> users = new ArrayList<UserModel>();
+	if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+	    GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+	    users = jso.getUsers();
+	}
 
-        // add users to the group
-        for (UserModel user : users) {
-            group.add(user);
-        }
+	// add users to the group
+	for (UserModel user : users) {
+	    group.add(user);
+	}
 
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+	Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-        if (null != callback) {
-            callback.onSuccess(new ArrayList<UserModel>(users));
-        }
+	if (null != callback) {
+	    callback.onSuccess(new ArrayList<UserModel>(users));
+	}
     }
 
     private void onGroupsFailure(AsyncCallback<List<UserModel>> callback) {
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+	Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-        if (null != callback) {
-            callback.onFailure(null);
-        }
+	if (null != callback) {
+	    callback.onFailure(null);
+	}
     }
 
     /**
@@ -278,30 +292,30 @@ public class GroupController extends Controller {
      */
     private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
 
-        // parse list of groups from the response
-        List<GroupModel> groups = new ArrayList<GroupModel>();
-        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-            GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
-            groups = jso.getGroups();
-        }
+	// parse list of groups from the response
+	List<GroupModel> groups = new ArrayList<GroupModel>();
+	if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+	    GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+	    groups = jso.getGroups();
+	}
 
-        Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
-        Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+	Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
+	Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-        callback.onSuccess(new ArrayList<UserModel>(groups));
+	callback.onSuccess(new ArrayList<UserModel>(groups));
     }
 
     private void onLoadRequest(Object loadConfig, AsyncCallback<List<UserModel>> callback) {
 
-        if (null == loadConfig) {
-            getGroups(callback);
+	if (null == loadConfig) {
+	    getGroups(callback);
 
-        } else if (loadConfig instanceof GroupModel) {
-            GroupModel group = (GroupModel) loadConfig;
-            getGroupMembers(group, callback);
+	} else if (loadConfig instanceof GroupModel) {
+	    GroupModel group = (GroupModel) loadConfig;
+	    getGroupMembers(group, callback);
 
-        } else {
-            callback.onSuccess(new ArrayList<UserModel>());
-        }
+	} else {
+	    callback.onSuccess(new ArrayList<UserModel>());
+	}
     }
 }

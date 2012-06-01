@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
 import nl.sense_os.commonsense.client.common.utility.Md5Hasher;
+import nl.sense_os.commonsense.client.groups.create.components.GroupCreator;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -21,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 public class GroupCreateView extends View {
 
     private static final Logger LOG = Logger.getLogger(GroupCreateView.class.getName());
-    private GroupCreateWindow window;
+    private GroupCreator window;
 
     public GroupCreateView(Controller c) {
         super(c);
@@ -33,7 +34,7 @@ public class GroupCreateView extends View {
         final EventType type = event.getType();
 
         if (type.equals(GroupCreateEvents.ShowCreator)) {
-            LOG.finest("ShowCreator");
+            LOG.finest("NewCreator");
             onShow();
 
         } else if (type.equals(GroupCreateEvents.CreateComplete)) {
@@ -81,7 +82,7 @@ public class GroupCreateView extends View {
     }
 
     private void onShow() {
-        window = new GroupCreateWindow();
+        window = new GroupCreator();
         window.show();
 
         window.getBtnNext().addSelectionListener(new SelectionListener<ButtonEvent>() {

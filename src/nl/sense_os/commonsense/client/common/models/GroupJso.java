@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayString;
 
 /**
  * Overlay for group objects that are sent from CommonSense back end using JSON.
@@ -32,35 +31,43 @@ public class GroupJso extends JavaScriptObject {
     }-*/;
 
     public final List<String> getOptSensors() {
-        JsArrayString raw = getRawOptSensors();
-        ArrayList<String> result = new ArrayList<String>();
-        for (int i = 0; i < raw.length(); i++) {
-            result.add(raw.get(i));
+        String raw = getRawOptSensors();
+        String[] split = raw.split(",");
+        ArrayList<String> result = new ArrayList<String>(split.length);
+        for (String s : split) {
+            String name = s.trim();
+            if (name.length() > 0) {
+                result.add(name);
+            }
         }
         return result;
     }
 
-    public native final JsArrayString getRawOptSensors() /*-{
+    public native final String getRawOptSensors() /*-{
         if (undefined != this.optional_sensors) {
             return this.optional_sensors;
         } else {
-            return [];
+            return '';
         }
     }-*/;
 
-    public native final JsArrayString getRawReqSensors() /*-{
+    public native final String getRawReqSensors() /*-{
         if (undefined != this.required_sensors) {
             return this.required_sensors;
         } else {
-            return [];
+            return '';
         }
     }-*/;
 
     public final List<String> getReqSensors() {
-        JsArrayString raw = getRawReqSensors();
-        ArrayList<String> result = new ArrayList<String>();
-        for (int i = 0; i < raw.length(); i++) {
-            result.add(raw.get(i));
+        String raw = getRawReqSensors();
+        String[] split = raw.split(",");
+        ArrayList<String> result = new ArrayList<String>(split.length);
+        for (String s : split) {
+            String name = s.trim();
+            if (name.length() > 0) {
+                result.add(name);
+            }
         }
         return result;
     }
@@ -103,5 +110,29 @@ public class GroupJso extends JavaScriptObject {
 
     public native final boolean isShowUsernameReq() /*-{
         return this.required_show_username == true;
+    }-*/;
+
+    public native final boolean isAllowReadUsers() /*-{
+        return this.default_list_users == true;
+    }-*/;
+
+    public native final boolean isAllowCreateUsers() /*-{
+        return this.default_add_users == true;
+    }-*/;
+
+    public native final boolean isAllowDeleteUsers() /*-{
+        return this.default_remove_users == true;
+    }-*/;
+
+    public native final boolean isAllowReadSensors() /*-{
+        return this.default_list_sensors == true;
+    }-*/;
+
+    public native final boolean isAllowCreateSensors() /*-{
+        return this.default_add_sensors == true;
+    }-*/;
+
+    public native final boolean isAllowDeleteSensors() /*-{
+        return this.default_remove_sensors == true;
     }-*/;
 }

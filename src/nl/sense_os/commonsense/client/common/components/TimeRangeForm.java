@@ -182,8 +182,6 @@ public class TimeRangeForm extends FormPanel {
         timeRangeField.setOriginalValue(dayRadio);
         timeRangeField.setSelectionRequired(true);
 
-        // defaultRangeSet.add(timeRangeField, formData);
-
         // advanced date chooser
         final FieldSet advancedRangeSet = new FieldSet();
         advancedRangeSet.setLayout(new FormLayout(LabelAlign.TOP));

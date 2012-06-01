@@ -25,72 +25,63 @@ public class NavPanel extends LayoutContainer {
 
     private static final Logger LOG = Logger.getLogger(NavPanel.class.getName());
     public static final String DEMO = "demo";
+    public static final String REGISTER = "register";
     public static final String HELP = "help";
     public static final String HOME = "home";
-    public static final String SETTINGS = "settings";
     public static final String SIGN_OUT = "signout";
-    public static final String VISUALIZATION = "viz";
+    public static final String ACCOUNT = "account";
+    public static final String VISUALIZATION = "sensors";
     public static final String RESET_PASSWORD = "resetPassword";
     public static final int HEIGHT = 30;
     private boolean isLoggedIn = false;
     private final Text userName = new Text();
     private Widget current;
     private final Hyperlink demo = new Hyperlink("demos", DEMO);
+    private final Hyperlink register = new Hyperlink("register", REGISTER);
     private final Hyperlink help = new Hyperlink("help", HELP);
-    private final Hyperlink home = new Hyperlink("home", HOME);
+    private final Hyperlink home = new Hyperlink("login", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
-    private final Hyperlink settings = new Hyperlink("settings", SETTINGS);
-    private final Hyperlink viz = new Hyperlink("visualizations", VISUALIZATION);
+    private final Hyperlink account = new Hyperlink("my account", ACCOUNT);
+    private final Hyperlink viz = new Hyperlink("my sensors", VISUALIZATION);
     private final LayoutContainer spacer = new LayoutContainer();
     private Image logo;
 
     public NavPanel() {
+	setSize("800px", "30px");
 
-        this.setLayout(new RowLayout(Orientation.HORIZONTAL));
-        this.setId("sense-nav-bar");
+	setLayout(new RowLayout(Orientation.HORIZONTAL));
+	setId("sense-nav-bar");
 
-        initLogo();
-        initLinks();
-        initUsername();
-    }
-
-    private void initLogo() {
-        if (Constants.DEV_MODE) {
-            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_dev-header.png");
-        } else if (Constants.RC_MODE) {
-            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_test-header.png");
-        } else {
-            logo = new Image(GWT.getHostPageBaseURL() + "img/logo_sense-header.png");
-        }
-        logo.setPixelSize(100, 30);
-        logo.setStyleName("sense-header-logo");
+	initLogo();
+	initLinks();
+	initUsername();
     }
 
     private void initLinks() {
+	home.setStyleName("sense-nav-item");
+	register.setStyleName("sense-nav-item");
+	viz.setStyleName("sense-nav-item");
+	demo.setStyleName("sense-nav-item");
+	account.setStyleName("sense-nav-item");
+	help.setStyleName("sense-nav-item");
+	logout.setStyleName("sense-nav-item");
+	spacer.setStyleName("sense-header-spacer");
+    }
 
-        this.home.setStyleName("sense-nav-item");
-        this.home.setSize("40px", "25px");
-
-        this.viz.setStyleName("sense-nav-item");
-        this.viz.setSize("90px", "25px");
-
-        this.demo.setStyleName("sense-nav-item");
-        this.demo.setSize("40px", "25px");
-
-        this.settings.setStyleName("sense-nav-item");
-        this.settings.setSize("50px", "25px");
-
-        this.help.setStyleName("sense-nav-item");
-        this.help.setSize("40px", "25px");
-
-        this.logout.setStyleName("sense-nav-item");
-        this.logout.setSize("50px", "25px");
-
-        this.spacer.setStyleName("sense-header-spacer");
+    private void initLogo() {
+	if (Constants.DEV_MODE) {
+	    logo = new Image(GWT.getHostPageBaseURL() + "img/logo_dev-header.png");
+	} else if (Constants.RC_MODE) {
+	    logo = new Image(GWT.getHostPageBaseURL() + "img/logo_test-header.png");
+	} else {
+	    logo = new Image(GWT.getHostPageBaseURL() + "img/logo_sense-header.png");
+	}
+	logo.setPixelSize(100, 30);
+	logo.setStyleName("sense-header-logo");
     }
 
     private void initUsername() {
-        this.userName.setStyleName("sense-header-username");
+	userName.setStyleName("sense-header-username");
     }
 
     /**
@@ -98,34 +89,33 @@ public class NavPanel extends LayoutContainer {
      */
     private void relayout() {
 
-        LayoutContainer endItem = new LayoutContainer();
-        endItem.setStyleName("sense-header-spacer");
+	LayoutContainer endItem = new LayoutContainer();
+	endItem.setStyleName("sense-header-spacer");
 
-        RowData endItemData = new RowData(16, 1, new Margins(0, 0, 0, 4));
-        RowData logoData = new RowData(-1, -1, new Margins(0, -2, 0, 0));
-        RowData itemData = new RowData(-1, 1, new Margins(0, 2, 0, 4));
-        RowData usernameData = new RowData(1, 1, new Margins(0, -2, 0, 2));
-        RowData spacerData = new RowData(1, 1, new Margins(0, 0, 0, 4));
+	// reusable margins
+	Margins rightMargin = new Margins(0, 3, 0, 0);
+	Margins noMargins = new Margins(0, 0, 0, 0);
 
-        removeAll();
-        if (this.isLoggedIn) {
-            this.add(logo, logoData);
-            this.add(this.viz, itemData);
-            this.add(this.demo, itemData);
-            this.add(this.settings, itemData);
-            this.add(this.help, itemData);
-            this.add(userName, usernameData);
-            this.add(this.logout, itemData);
-            this.add(endItem, endItemData);
-        } else {
-            this.add(logo, logoData);
-            this.add(this.home, itemData);
-            this.add(this.demo, itemData);
-            this.add(this.help, itemData);
-            this.add(this.spacer, spacerData);
-        }
+	removeAll();
+	if (isLoggedIn) {
+	    add(logo, new RowData(-1, -1, rightMargin));
+	    add(viz, new RowData(85.0, 1, rightMargin));
+	    add(account, new RowData(85.0, 1, rightMargin));
+	    add(demo, new RowData(50.0, 1, rightMargin));
+	    add(help, new RowData(50.0, 1, rightMargin));
+	    add(userName, new RowData(1, 1, rightMargin));
+	    add(logout, new RowData(66.6, 1, rightMargin));
+	    add(endItem, new RowData(16, 1, noMargins));
+	} else {
+	    add(logo, new RowData(-1, -1, rightMargin));
+	    add(home, new RowData(50.0, 1, rightMargin));
+	    add(register, new RowData(60.0, 1, rightMargin));
+	    add(demo, new RowData(50.0, 1, rightMargin));
+	    add(help, new RowData(50.0, 1, rightMargin));
+	    add(spacer, new RowData(1, 1, noMargins));
+	}
 
-        this.layout();
+	layout();
     }
 
     /**
@@ -137,55 +127,55 @@ public class NavPanel extends LayoutContainer {
      */
     public void setHighlight(String highlight) {
 
-        // reset style of previously selected navigation label
-        if (null != this.current) {
-            this.current.removeStyleName("sense-nav-item-selected");
-        }
+	// reset style of previously selected navigation label
+	if (null != current) {
+	    current.removeStyleName("sense-nav-item-selected");
+	}
 
-        // set new navigation label selected
-        if (highlight.equals(HOME)) {
-            this.current = this.home;
-        } else if (highlight.equals(VISUALIZATION)) {
-            this.current = this.viz;
-        } else if (highlight.equals(DEMO)) {
-            this.current = this.demo;
-        } else if (highlight.equals(SETTINGS)) {
-            this.current = this.settings;
-        } else if (highlight.equals(HELP)) {
-            this.current = this.help;
-        } else if (highlight.equals(SIGN_OUT)) {
-            this.current = this.logout;
-        } else if (highlight.equals(RESET_PASSWORD)) {
-            // nothing to highlight
-        } else {
-            LOG.warning("Unexpected highlight: " + highlight);
-        }
+	// set new navigation label selected
+	if (highlight.equals(HOME)) {
+	    current = home;
+	} else if (highlight.equals(VISUALIZATION)) {
+	    current = viz;
+	} else if (highlight.equals(DEMO)) {
+	    current = demo;
+	} else if (highlight.equals(ACCOUNT)) {
+	    current = account;
+	} else if (highlight.equals(HELP)) {
+	    current = help;
+	} else if (highlight.equals(SIGN_OUT)) {
+	    current = logout;
+	} else if (highlight.equals(RESET_PASSWORD)) {
+	    // nothing to highlight
+	} else {
+	    LOG.warning("Unexpected highlight: " + highlight);
+	}
 
-        if (null != current) {
-            this.current.addStyleName("sense-nav-item-selected");
-        }
+	if (null != current) {
+	    current.addStyleName("sense-nav-item-selected");
+	}
 
-        relayout();
+	relayout();
     }
 
     /**
      * Shows or hides some navigation options based on login status
      */
     public void setLoggedIn(boolean isLoggedIn) {
-        this.isLoggedIn = isLoggedIn;
-        relayout();
+	this.isLoggedIn = isLoggedIn;
+	relayout();
     }
 
     /**
      * Changes the displayed user name
      */
     public void setUser(UserModel user) {
-        if (null != user) {
-            this.userName.setText(user.toString());
-        } else {
-            // should never be visible
-            LOG.severe("Something is wrong: user=null");
-            this.userName.setText("NULL");
-        }
+	if (null != user) {
+	    userName.setText(user.toString());
+	} else {
+	    // should never be visible
+	    LOG.severe("Something is wrong: user=null");
+	    userName.setText("NULL");
+	}
     }
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
@@ -12,7 +11,6 @@ public class DataRequestEvent extends AppEvent {
 
     private long start, end;
     private List<SensorModel> sensors;
-    private VizPanel panel;
     private boolean showProgress, subsample;
 
     public DataRequestEvent() {
@@ -21,22 +19,17 @@ public class DataRequestEvent extends AppEvent {
     }
 
     public DataRequestEvent(long start, long end, List<SensorModel> sensors, boolean subsample,
-            boolean showProgress, VizPanel panel) {
+            boolean showProgress) {
         this();
         setStart(start);
         setEnd(end);
         setSensors(sensors);
-        setPanel(panel);
         setShowProgress(showProgress);
         setSubsample(subsample);
     }
 
     public long getEnd() {
         return end;
-    }
-
-    public VizPanel getPanel() {
-        return panel;
     }
 
     public List<SensorModel> getSensors() {
@@ -57,10 +50,6 @@ public class DataRequestEvent extends AppEvent {
 
     public void setEnd(long end) {
         this.end = end;
-    }
-
-    public void setPanel(VizPanel panel) {
-        this.panel = panel;
     }
 
     public void setSensors(List<SensorModel> sensors) {
