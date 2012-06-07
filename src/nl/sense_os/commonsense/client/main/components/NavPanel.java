@@ -24,8 +24,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class NavPanel extends LayoutContainer {
 
     private static final Logger LOG = Logger.getLogger(NavPanel.class.getName());
-    public static final String DEMO = "demo";
     public static final String REGISTER = "register";
+    public static final String DASHBOARD = "dashboard";
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SIGN_OUT = "signout";
@@ -36,13 +36,13 @@ public class NavPanel extends LayoutContainer {
     private boolean isLoggedIn = false;
     private final Text userName = new Text();
     private Widget current;
-    private final Hyperlink demo = new Hyperlink("demos", DEMO);
     private final Hyperlink register = new Hyperlink("register", REGISTER);
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("login", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
     private final Hyperlink account = new Hyperlink("my account", ACCOUNT);
     private final Hyperlink viz = new Hyperlink("my sensors", VISUALIZATION);
+    private final Hyperlink dashboard = new Hyperlink("my dashboard", DASHBOARD);
     private final LayoutContainer spacer = new LayoutContainer();
     private Image logo;
 
@@ -61,7 +61,7 @@ public class NavPanel extends LayoutContainer {
 	home.setStyleName("sense-nav-item");
 	register.setStyleName("sense-nav-item");
 	viz.setStyleName("sense-nav-item");
-	demo.setStyleName("sense-nav-item");
+	dashboard.setStyleName("sense-nav-item");
 	account.setStyleName("sense-nav-item");
 	help.setStyleName("sense-nav-item");
 	logout.setStyleName("sense-nav-item");
@@ -100,8 +100,8 @@ public class NavPanel extends LayoutContainer {
 	if (isLoggedIn) {
 	    add(logo, new RowData(-1, -1, rightMargin));
 	    add(viz, new RowData(85.0, 1, rightMargin));
+	    add(dashboard, new RowData(85.0, 1, rightMargin));
 	    add(account, new RowData(85.0, 1, rightMargin));
-	    add(demo, new RowData(50.0, 1, rightMargin));
 	    add(help, new RowData(50.0, 1, rightMargin));
 	    add(userName, new RowData(1, 1, rightMargin));
 	    add(logout, new RowData(66.6, 1, rightMargin));
@@ -110,7 +110,6 @@ public class NavPanel extends LayoutContainer {
 	    add(logo, new RowData(-1, -1, rightMargin));
 	    add(home, new RowData(50.0, 1, rightMargin));
 	    add(register, new RowData(60.0, 1, rightMargin));
-	    add(demo, new RowData(50.0, 1, rightMargin));
 	    add(help, new RowData(50.0, 1, rightMargin));
 	    add(spacer, new RowData(1, 1, noMargins));
 	}
@@ -137,8 +136,10 @@ public class NavPanel extends LayoutContainer {
 	    current = home;
 	} else if (highlight.equals(VISUALIZATION)) {
 	    current = viz;
-	} else if (highlight.equals(DEMO)) {
-	    current = demo;
+	} else if (highlight.equals(REGISTER)) {
+	    current = register;
+	} else if (highlight.equals(DASHBOARD)) {
+	    current = dashboard;
 	} else if (highlight.equals(ACCOUNT)) {
 	    current = account;
 	} else if (highlight.equals(HELP)) {

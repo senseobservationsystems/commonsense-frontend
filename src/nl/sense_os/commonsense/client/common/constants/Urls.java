@@ -11,15 +11,12 @@ public class Urls {
 
     // find out which base URL to use
     private static final String _INTERMED_BASE_1 = Constants.RC_MODE ? _RC_BASE : _STABLE_BASE;
-    private static final String _INTERMED_BASE_2 = Constants.APIGEE_MODE
-            ? _APIGEE_BASE
-            : _INTERMED_BASE_1;
-    private static final String _INTERMED_BASE_3 = Constants.DEV_MODE
-            ? _DEV_BASE
-            : _INTERMED_BASE_2;
-    private static final String _INTERMED_BASE_4 = Constants.GENERIC_MODE
-            ? _GENERIC_BASE
-            : _INTERMED_BASE_3;
+    private static final String _INTERMED_BASE_2 = Constants.APIGEE_MODE ? _APIGEE_BASE
+	    : _INTERMED_BASE_1;
+    private static final String _INTERMED_BASE_3 = Constants.DEV_MODE ? _DEV_BASE
+	    : _INTERMED_BASE_2;
+    private static final String _INTERMED_BASE_4 = Constants.GENERIC_MODE ? _GENERIC_BASE
+	    : _INTERMED_BASE_3;
     public static final String HOST = Constants.TED_MODE ? _TED_BASE : _INTERMED_BASE_4;
 
     public static final String PATH_ENV = "environments";
@@ -37,6 +34,6 @@ public class Urls {
     public static final String HEADER_JSON_TYPE = "application/json";
 
     private Urls() {
-        // empty constructor to make sure this class is not instantiated
+	// empty constructor to make sure this class is not instantiated
     }
 }
