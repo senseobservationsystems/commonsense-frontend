@@ -209,8 +209,8 @@ public class LibraryController extends Controller {
 	    // prepare request properties
 	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
 	    urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
-	    urlBuilder.setParameter("per_page", "" + PER_PAGE);
-	    urlBuilder.setParameter("page", "" + page);
+	    urlBuilder.setParameter("per_page", Integer.toString(PER_PAGE));
+	    urlBuilder.setParameter("page", Integer.toString(page));
 	    urlBuilder.setParameter("details", "full");
 	    urlBuilder.setParameter("group_id", Integer.toString(groupId));
 	    final String url = urlBuilder.buildString();
@@ -228,15 +228,20 @@ public class LibraryController extends Controller {
 		@Override
 		public void onResponseReceived(Request request, Response response) {
 		    LOG.finest("GET group sensors response received: " + response.getStatusText());
-		    int statusCode = response.getStatusCode();
-		    if (Response.SC_OK == statusCode) {
+		    switch (response.getStatusCode()) {
+		    case Response.SC_OK:
 			onGroupSensorsSuccess(response.getText(), groups, index, page, library,
 				callback);
-		    } else if (Response.SC_NO_CONTENT == statusCode) {
+			break;
+		    case Response.SC_NO_CONTENT:
+			// fall through
+		    case Response.SC_FORBIDDEN:
 			// no content
 			onGroupSensorsSuccess(null, groups, index, page, library, callback);
-		    } else {
-			LOG.warning("GET group sensors returned incorrect status: " + statusCode);
+			break;
+		    default:
+			LOG.warning("GET group sensors returned incorrect status: "
+				+ response.getStatusCode());
 			onGroupSensorsFailure(callback);
 		    }
 		}
