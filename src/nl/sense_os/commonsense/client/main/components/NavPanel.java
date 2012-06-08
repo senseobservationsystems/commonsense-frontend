@@ -13,6 +13,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -36,13 +38,15 @@ public class NavPanel extends LayoutContainer {
     private boolean isLoggedIn = false;
     private final Text userName = new Text();
     private Widget current;
-    private final Hyperlink register = new Hyperlink("register", REGISTER);
     private final Hyperlink help = new Hyperlink("help", HELP);
     private final Hyperlink home = new Hyperlink("login", HOME);
     private final Hyperlink logout = new Hyperlink("sign out", SIGN_OUT);
-    private final Hyperlink account = new Hyperlink("my account", ACCOUNT);
     private final Hyperlink viz = new Hyperlink("my sensors", VISUALIZATION);
-    private final Hyperlink dashboard = new Hyperlink("my dashboard", DASHBOARD);
+
+    private final HTMLPanel register = new HTMLPanel("");
+    private final HTMLPanel dashboard = new HTMLPanel("");
+    private final HTMLPanel account = new HTMLPanel("");
+
     private final LayoutContainer spacer = new LayoutContainer();
     private Image logo;
 
@@ -58,6 +62,11 @@ public class NavPanel extends LayoutContainer {
     }
 
     private void initLinks() {
+
+	register.add(new Anchor("register", "http://accounts.sense-os.nl", "_blank"));
+	dashboard.add(new Anchor("my dashboard", "http://my.sense-os.nl", "_blank"));
+	account.add(new Anchor("my account", "http://accounts.sense-os.nl", "_blank"));
+
 	home.setStyleName("sense-nav-item");
 	register.setStyleName("sense-nav-item");
 	viz.setStyleName("sense-nav-item");
@@ -100,7 +109,7 @@ public class NavPanel extends LayoutContainer {
 	if (isLoggedIn) {
 	    add(logo, new RowData(-1, -1, rightMargin));
 	    add(viz, new RowData(85.0, 1, rightMargin));
-	    add(dashboard, new RowData(85.0, 1, rightMargin));
+	    add(dashboard, new RowData(95.0, 1, rightMargin));
 	    add(account, new RowData(85.0, 1, rightMargin));
 	    add(help, new RowData(50.0, 1, rightMargin));
 	    add(userName, new RowData(1, 1, rightMargin));
