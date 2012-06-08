@@ -1,32 +1,26 @@
 package nl.sense_os.commonsense.client.auth;
 
-import com.google.gwt.storage.client.Storage;
+import java.util.Date;
+
+import nl.sense_os.commonsense.client.common.constants.Constants;
+
 import com.google.gwt.user.client.Cookies;
 
 public class SessionManager {
 
+    private static final Date expires = new Date(System.currentTimeMillis() + 3600000l * 24 * 365);
+
     public static void setSessionId(String sessionId) {
-	if (Storage.isSessionStorageSupported()) {
-	    Storage.getSessionStorageIfSupported().setItem("sessionId", sessionId);
-	} else {
-	    Cookies.setCookie("session_id", sessionId);
-	}
+	String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
+	Cookies.setCookie("session_id", sessionId, expires, domain, null, false);
     }
 
     public static String getSessionId() {
-	if (Storage.isSessionStorageSupported()) {
-	    return Storage.getSessionStorageIfSupported().getItem("sessionId");
-	} else {
-	    return Cookies.getCookie("session_id");
-	}
+	return Cookies.getCookie("session_id");
     }
 
     public static void removeSessionId() {
-	if (Storage.isSessionStorageSupported()) {
-	    Storage.getSessionStorageIfSupported().removeItem("sessionId");
-	} else {
-	    Cookies.removeCookie("session_id");
-	}
+	Cookies.removeCookie("session_id");
     }
 
     private SessionManager() {
