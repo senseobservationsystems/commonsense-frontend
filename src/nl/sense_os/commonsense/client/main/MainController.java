@@ -39,7 +39,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	EventType type = event.getType();
 	if (type.equals(MainEvents.UiReady)) {
 	    forwardToView(mainView, event);
-	    handleStartLocation();
+	    onUiReady();
 
 	} else if (type.equals(LoginEvents.LoginSuccess)) {
 	    onLoggedIn();
@@ -51,6 +51,16 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
 	} else {
 	    forwardToView(mainView, event);
+	}
+    }
+
+    private void onUiReady() {
+	String sessionId = SessionManager.getSessionId();
+	if (null != sessionId && sessionId.length() > 0) {
+	    // go straight to visualization
+	    History.newItem(NavPanel.VISUALIZATION);
+	} else {
+	    handleStartLocation();
 	}
     }
 
@@ -117,18 +127,14 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private boolean isLoginRequired(String token) {
-	boolean loginRequired = token.equals(NavPanel.ACCOUNT)
-		|| token.equals(NavPanel.VISUALIZATION);
+	boolean loginRequired = token.equals(NavPanel.VISUALIZATION);
 	return loginRequired;
     }
 
     private boolean isValidLocation(String token) {
 	boolean valid = token.equals(NavPanel.SIGN_OUT);
-	valid = valid || token.equals(NavPanel.DASHBOARD);
 	valid = valid || token.equals(NavPanel.HOME);
-	valid = valid || token.equals(NavPanel.REGISTER);
 	valid = valid || token.equals(NavPanel.HELP);
-	valid = valid || token.equals(NavPanel.ACCOUNT);
 	valid = valid || token.equals(NavPanel.VISUALIZATION);
 	valid = valid || token.equals(NavPanel.RESET_PASSWORD);
 	return valid;

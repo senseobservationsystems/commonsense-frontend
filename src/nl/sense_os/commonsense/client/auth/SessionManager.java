@@ -4,23 +4,45 @@ import java.util.Date;
 
 import nl.sense_os.commonsense.client.common.constants.Constants;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 
 public class SessionManager {
 
-    private static final Date expires = new Date(System.currentTimeMillis() + 3600000l * 24 * 365);
+    private static final Date EXPIRES = new Date(System.currentTimeMillis() + 3600000l * 24 * 365);
+    private static final String KEY = "session_id";
 
-    public static void setSessionId(String sessionId) {
-	String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
-	Cookies.setCookie("session_id", sessionId, expires, domain, null, false);
-    }
-
+    /**
+     * @return The session ID from the sense-os.nl cookie
+     */
     public static String getSessionId() {
-	return Cookies.getCookie("session_id");
+	return Cookies.getCookie(KEY);
     }
 
+    /**
+     * Removes the session ID from the sense-os.nl cookie
+     */
     public static void removeSessionId() {
-	Cookies.removeCookie("session_id");
+	if (GWT.isProdMode()) {
+	    String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
+	    Cookies.setCookie(KEY, "", new Date(0), domain, null, false);
+	} else {
+	    Cookies.removeCookie(KEY);
+	}
+    }
+
+    /**
+     * Stores the session ID in the sense-os.nl cookie
+     * 
+     * @param sessionId
+     */
+    public static void setSessionId(String sessionId) {
+	if (GWT.isProdMode()) {
+	    String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
+	    Cookies.setCookie(KEY, sessionId, EXPIRES, domain, "", false);
+	} else {
+	    Cookies.setCookie(KEY, sessionId);
+	}
     }
 
     private SessionManager() {

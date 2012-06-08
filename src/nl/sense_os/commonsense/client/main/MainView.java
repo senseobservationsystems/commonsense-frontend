@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.client.main;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.LastDeployed;
-import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.client.auth.pwreset.PwResetEvents;
 import nl.sense_os.commonsense.client.auth.registration.RegisterEvents;
@@ -34,8 +33,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -275,14 +272,6 @@ public class MainView extends View {
 		displayVisualization.setData("parent", this.centerContent);
 		Dispatcher.forwardEvent(displayVisualization);
 
-	    } else if (location.equals(NavPanel.DASHBOARD)) {
-
-		String sessionId = SessionManager.getSessionId();
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost("my.sense-os.nl");
-		urlBuilder.setParameter("session_id", sessionId);
-
-		Window.open(urlBuilder.buildString(), "_blank", "");
-
 	    } else if (location.equals(NavPanel.HELP)) {
 		if (null == this.helpComponent) {
 		    this.helpComponent = new HelpScreen();
@@ -305,18 +294,6 @@ public class MainView extends View {
 		AppEvent displayForm = new AppEvent(PwResetEvents.ShowNewPasswordForm);
 		displayForm.setData("parent", this.centerContent);
 		Dispatcher.forwardEvent(displayForm);
-
-	    } else if (location.equals(NavPanel.ACCOUNT)) {
-		String sessionId = SessionManager.getSessionId();
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost("accounts.sense-os.nl");
-		urlBuilder.setParameter("session_id", sessionId);
-
-		Window.open(urlBuilder.buildString(), "_blank", "");
-
-	    } else if (location.equals(NavPanel.REGISTER)) {
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost("accounts.sense-os.nl");
-
-		Window.open(urlBuilder.buildString(), "_blank", "");
 
 	    } else if (location.equals(NavPanel.SIGN_OUT)) {
 		newContent = null;
