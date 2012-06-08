@@ -95,11 +95,11 @@ public class LibraryController extends Controller {
     /**
      * Requests a list of all available services for all sensors the user owns.
      * 
-     * @param alias
+     * @param groupId
      *            Optional parameter to get the available services for sensors that are not shared
      *            directly with the user but with a group.
      */
-    private void getAvailableServices(final int page, final String alias) {
+    private void getAvailableServices(final int page, final String groupId) {
 
 	isLoadingServices = true;
 	notifyState();
@@ -107,12 +107,13 @@ public class LibraryController extends Controller {
 	// prepare request properties
 	final Method method = RequestBuilder.GET;
 	final UrlBuilder urlBuilder = new UrlBuilder();
-	urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + "/services/available.json");
+	urlBuilder.setHost(Urls.HOST);
+	urlBuilder.setPath(Urls.PATH_SENSORS + "/services/available.json");
+	if (groupId != null && groupId.length() > 0) {
+	    urlBuilder.setParameter("group_id", groupId);
+	}
 	urlBuilder.setParameter("per_page", "" + PER_PAGE);
 	urlBuilder.setParameter("page", "" + page);
-	if (alias != null && alias.length() > 0) {
-	    urlBuilder.setParameter("alias", alias);
-	}
 	final String url = urlBuilder.buildString();
 	final String sessionId = SessionManager.getSessionId();
 
@@ -130,9 +131,9 @@ public class LibraryController extends Controller {
 		LOG.finest("GET available services response received: " + response.getStatusText());
 		int statusCode = response.getStatusCode();
 		if (Response.SC_OK == statusCode) {
-		    onAvailServicesSuccess(response.getText(), page, alias);
+		    onAvailServicesSuccess(response.getText(), page, groupId);
 		} else if (Response.SC_NO_CONTENT == statusCode) {
-		    onAvailServicesSuccess(null, page, alias);
+		    onAvailServicesSuccess(null, page, groupId);
 		} else {
 		    LOG.warning("GET available services returned incorrect status: " + statusCode);
 		    onAvailServicesFailure();
@@ -148,67 +149,6 @@ public class LibraryController extends Controller {
 	} catch (RequestException e) {
 	    LOG.warning("GET  available services request threw exception: " + e.getMessage());
 	    onAvailServicesFailure();
-	}
-    }
-
-    private void getFullDetails(final List<SensorModel> library, final int page,
-	    final boolean shared, final AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-	// prepare request properties
-	final UrlBuilder urlBuilder = new UrlBuilder();
-	urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + ".json");
-	urlBuilder.setParameter("per_page", "" + PER_PAGE);
-	urlBuilder.setParameter("page", "" + page);
-	urlBuilder.setParameter("details", "full");
-	if (shared) {
-	    urlBuilder.setParameter("shared", "1");
-	}
-	final String url = urlBuilder.buildString();
-	final String sessionId = SessionManager.getSessionId();
-
-	// prepare request callback
-	RequestCallback reqCallback = new RequestCallback() {
-
-	    @Override
-	    public void onError(Request request, Throwable exception) {
-		LOG.warning("GET sensors error callback: " + exception.getMessage());
-		onFullDetailsFailure(callback);
-	    }
-
-	    @Override
-	    public void onResponseReceived(Request request, Response response) {
-		LOG.finest("GET sensors response received: " + response.getStatusText());
-		int statusCode = response.getStatusCode();
-		if (Response.SC_OK == statusCode) {
-		    onFullDetailsSuccess(response.getText(), library, page, shared, callback);
-		} else if (Response.SC_NO_CONTENT == statusCode) {
-		    onFullDetailsSuccess(null, library, page, shared, callback);
-		} else {
-		    LOG.warning("GET sensors returned incorrect status: " + statusCode);
-		    onFullDetailsFailure(callback);
-		}
-	    }
-	};
-
-	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	try {
-	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
-	    LOG.warning("GET sensors request threw exception: " + e.getMessage());
-	    onFullDetailsFailure(callback);
-	}
-    }
-
-    private void onFullDetailsSuccess(String response, List<SensorModel> library, int page,
-	    boolean shared, AsyncCallback<ListLoadResult<SensorModel>> callback) {
-
-	// different callbacks for shared or unshared requests
-	if (shared) {
-	    onSharedSensorsSuccess(response, library, page, callback);
-	} else {
-	    onUnsharedSensorsSuccess(response, library, page, callback);
 	}
     }
 
@@ -269,10 +209,10 @@ public class LibraryController extends Controller {
 	    // prepare request properties
 	    final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
 	    urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
-	    urlBuilder.setParameter("per_page", "" + PER_PAGE);
-	    urlBuilder.setParameter("page", "" + page);
+	    urlBuilder.setParameter("per_page", Integer.toString(PER_PAGE));
+	    urlBuilder.setParameter("page", Integer.toString(page));
 	    urlBuilder.setParameter("details", "full");
-	    urlBuilder.setParameter("alias", "" + groupId);
+	    urlBuilder.setParameter("group_id", Integer.toString(groupId));
 	    final String url = urlBuilder.buildString();
 	    final String sessionId = SessionManager.getSessionId();
 
@@ -288,15 +228,20 @@ public class LibraryController extends Controller {
 		@Override
 		public void onResponseReceived(Request request, Response response) {
 		    LOG.finest("GET group sensors response received: " + response.getStatusText());
-		    int statusCode = response.getStatusCode();
-		    if (Response.SC_OK == statusCode) {
+		    switch (response.getStatusCode()) {
+		    case Response.SC_OK:
 			onGroupSensorsSuccess(response.getText(), groups, index, page, library,
 				callback);
-		    } else if (Response.SC_NO_CONTENT == statusCode) {
+			break;
+		    case Response.SC_NO_CONTENT:
+			// fall through
+		    case Response.SC_FORBIDDEN:
 			// no content
 			onGroupSensorsSuccess(null, groups, index, page, library, callback);
-		    } else {
-			LOG.warning("GET group sensors returned incorrect status: " + statusCode);
+			break;
+		    default:
+			LOG.warning("GET group sensors returned incorrect status: "
+				+ response.getStatusCode());
 			onGroupSensorsFailure(callback);
 		    }
 		}
@@ -309,13 +254,63 @@ public class LibraryController extends Controller {
 		builder.sendRequest(null, reqCallback);
 	    } catch (RequestException e) {
 		LOG.warning("GET group sensors request threw exception: " + e.getMessage());
-		onGroupSensorsFailure(callback);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
 
 	    // notify the view that the list is complete
 	    onLoadComplete(library, callback);
+	}
+    }
+
+    private void getSensors(final List<SensorModel> library, final int page, final boolean shared,
+	    final AsyncCallback<ListLoadResult<SensorModel>> callback) {
+
+	// prepare request properties
+	final UrlBuilder urlBuilder = new UrlBuilder();
+	urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + ".json");
+	urlBuilder.setParameter("per_page", "" + PER_PAGE);
+	urlBuilder.setParameter("page", "" + page);
+	urlBuilder.setParameter("details", "full");
+	if (shared) {
+	    urlBuilder.setParameter("shared", "1");
+	}
+	final String url = urlBuilder.buildString();
+	final String sessionId = SessionManager.getSessionId();
+
+	// prepare request callback
+	RequestCallback reqCallback = new RequestCallback() {
+
+	    @Override
+	    public void onError(Request request, Throwable exception) {
+		LOG.warning("GET sensors error callback: " + exception.getMessage());
+		onSensorsFailure(callback);
+	    }
+
+	    @Override
+	    public void onResponseReceived(Request request, Response response) {
+		LOG.finest("GET sensors response received: " + response.getStatusText());
+		int statusCode = response.getStatusCode();
+		if (Response.SC_OK == statusCode) {
+		    onSensorsResponse(response.getText(), library, page, shared, callback);
+		} else if (Response.SC_NO_CONTENT == statusCode) {
+		    onSensorsResponse(null, library, page, shared, callback);
+		} else {
+		    LOG.warning("GET sensors returned incorrect status: " + statusCode);
+		    onSensorsFailure(callback);
+		}
+	    }
+	};
+
+	// send request
+	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	builder.setHeader("X-SESSION_ID", sessionId);
+	try {
+	    builder.sendRequest(null, reqCallback);
+	} catch (RequestException e) {
+	    LOG.warning("GET sensors request threw exception: " + e.getMessage());
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -374,7 +369,7 @@ public class LibraryController extends Controller {
 	notifyState();
     }
 
-    private void onAvailServicesSuccess(String response, int page, String alias) {
+    private void onAvailServicesSuccess(String response, int page, String groupId) {
 
 	List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
 
@@ -394,17 +389,13 @@ public class LibraryController extends Controller {
 
 	    if (entries.length() < jso.getTotal()) {
 		page++;
-		getAvailableServices(page, alias);
+		getAvailableServices(page, groupId);
 		return;
 	    }
 	}
 
 	isLoadingServices = false;
 	notifyState();
-    }
-
-    private void onFullDetailsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-	onLoadFailure(callback);
     }
 
     private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
@@ -517,7 +508,7 @@ public class LibraryController extends Controller {
 	    isLoadingList = true;
 	    notifyState();
 
-	    getFullDetails(library, 0, false, callback);
+	    getSensors(library, 0, false, callback);
 	} else {
 	    onLoadComplete(library, callback);
 	}
@@ -532,6 +523,21 @@ public class LibraryController extends Controller {
 
 	List<DeviceModel> devices = Registry.get(Constants.REG_DEVICE_LIST);
 	devices.clear();
+    }
+
+    private void onSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	onLoadFailure(callback);
+    }
+
+    private void onSensorsResponse(String response, List<SensorModel> library, int page,
+	    boolean shared, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+
+	// different callbacks for shared or unshared requests
+	if (shared) {
+	    onSharedSensorsSuccess(response, library, page, callback);
+	} else {
+	    onUnsharedSensorsSuccess(response, library, page, callback);
+	}
     }
 
     private void onSharedSensorsSuccess(String response, List<SensorModel> library, int page,
@@ -557,7 +563,7 @@ public class LibraryController extends Controller {
 	if (total > library.size()) {
 	    // get the next page with sensors
 	    page++;
-	    getFullDetails(library, page, true, callback);
+	    getSensors(library, page, true, callback);
 
 	} else {
 	    // request full details for my own sensors
@@ -586,11 +592,11 @@ public class LibraryController extends Controller {
 	if (total > library.size()) {
 	    // get the next page with sensors
 	    page++;
-	    getFullDetails(library, page, false, callback);
+	    getSensors(library, page, false, callback);
 
 	} else {
 	    // continue by getting the shared sensors
-	    getFullDetails(library, page, true, callback);
+	    getSensors(library, page, true, callback);
 	}
     }
 }
