@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.client.main;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.SessionManager;
@@ -31,7 +32,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     public MainController() {
 	registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
 	registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
-	// LOG.setLevel(Level.ALL);
+	LOG.setLevel(Level.ALL);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	EventType type = event.getType();
 	if (type.equals(MainEvents.UiReady)) {
 	    forwardToView(mainView, event);
-	    handleStartLocation();
+	    onUiReady();
 
 	} else if (type.equals(LoginEvents.LoginSuccess)) {
 	    onLoggedIn();
@@ -51,6 +52,17 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
 	} else {
 	    forwardToView(mainView, event);
+	}
+    }
+
+    private void onUiReady() {
+	String sessionId = SessionManager.getSessionId();
+	if (null != sessionId && sessionId.length() > 0) {
+	    // go straight to visualization
+	    History.newItem(NavPanel.VISUALIZATION);
+	    History.fireCurrentHistoryState();
+	} else {
+	    handleStartLocation();
 	}
     }
 
@@ -117,18 +129,14 @@ public class MainController extends Controller implements ValueChangeHandler<Str
     }
 
     private boolean isLoginRequired(String token) {
-	boolean loginRequired = token.equals(NavPanel.ACCOUNT)
-		|| token.equals(NavPanel.VISUALIZATION);
+	boolean loginRequired = token.equals(NavPanel.VISUALIZATION);
 	return loginRequired;
     }
 
     private boolean isValidLocation(String token) {
 	boolean valid = token.equals(NavPanel.SIGN_OUT);
-	valid = valid || token.equals(NavPanel.DASHBOARD);
 	valid = valid || token.equals(NavPanel.HOME);
-	valid = valid || token.equals(NavPanel.REGISTER);
 	valid = valid || token.equals(NavPanel.HELP);
-	valid = valid || token.equals(NavPanel.ACCOUNT);
 	valid = valid || token.equals(NavPanel.VISUALIZATION);
 	valid = valid || token.equals(NavPanel.RESET_PASSWORD);
 	return valid;
@@ -178,6 +186,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
     @Override
     public void onValueChange(ValueChangeEvent<String> event) {
+	LOG.info("History value change");
 	String token = event.getValue();
 	if (token.equals("") || false == isValidLocation(token)) {
 	    History.newItem(NavPanel.HOME);
@@ -190,6 +199,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	    UserModel user = Registry.<UserModel> get(Constants.REG_USER);
 	    if (null != sessionId) {
 		if (null == user) {
+		    LOG.info("Try to re-use session ID from cookie");
 		    AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
 		    authenticated.setData("sessionId", sessionId);
 		    Dispatcher.forwardEvent(authenticated);
