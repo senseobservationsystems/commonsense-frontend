@@ -24,7 +24,6 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -80,13 +79,13 @@ public class EnvController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.DELETE, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, callback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("DELETE environment request threw exception: " + e.getMessage());
-	    onDeleteFailure();
+	    callback.onError(null, e);
 	}
     }
 
@@ -204,13 +203,13 @@ public class EnvController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET environments request threw exception: " + e.getMessage());
-	    onListFailure(callback);
+	    reqCallback.onError(null, e);
 	}
     }
 

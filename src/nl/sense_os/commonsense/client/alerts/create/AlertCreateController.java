@@ -16,7 +16,6 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 
@@ -78,13 +77,13 @@ public class AlertCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET data request threw exception: " + e.getMessage());
-	    onLastDataPointFailure(sensor);
+	    reqCallback.onError(null, e);
 	}
     }
 

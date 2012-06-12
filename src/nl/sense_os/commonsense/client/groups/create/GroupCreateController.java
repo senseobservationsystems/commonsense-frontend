@@ -14,7 +14,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 
@@ -61,14 +60,14 @@ public class GroupCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST group request threw exception: " + e.getMessage());
-	    onCreateFailure(source);
+	    reqCallback.onError(null, e);
 	}
     }
 

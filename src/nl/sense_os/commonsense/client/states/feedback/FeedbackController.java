@@ -19,7 +19,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -88,13 +87,13 @@ public class FeedbackController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET manual input mode request threw exception: " + e.getMessage());
-		onCheckProcessedFailed(panel);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -150,13 +149,13 @@ public class FeedbackController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET class labels request threw exception: " + e.getMessage());
-		onLabelsFailure(0);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -282,13 +281,13 @@ public class FeedbackController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(body, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("POST feedback request threw exception: " + e.getMessage());
-		onFeedbackFailed(0, panel);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {

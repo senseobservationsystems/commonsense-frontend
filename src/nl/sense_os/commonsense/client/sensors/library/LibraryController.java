@@ -41,7 +41,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -142,13 +141,13 @@ public class LibraryController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET  available services request threw exception: " + e.getMessage());
-	    onAvailServicesFailure();
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -188,13 +187,13 @@ public class LibraryController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET groups request threw exception: " + e.getMessage());
-	    onGroupsFailure(callback);
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -248,11 +247,11 @@ public class LibraryController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET group sensors request threw exception: " + e.getMessage());
 		reqCallback.onError(null, e);
 	    }
@@ -304,11 +303,11 @@ public class LibraryController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET sensors request threw exception: " + e.getMessage());
 	    reqCallback.onError(null, e);
 	}

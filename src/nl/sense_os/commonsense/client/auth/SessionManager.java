@@ -9,14 +9,18 @@ import com.google.gwt.user.client.Cookies;
 
 public class SessionManager {
 
-    private static final Date EXPIRES = new Date(System.currentTimeMillis() + 3600000l * 24 * 365);
+    private static final Date EXPIRES = new Date(System.currentTimeMillis() + 3600000l * 24 * 14);
     private static final String KEY = "session_id";
 
     /**
      * @return The session ID from the sense-os.nl cookie
      */
     public static String getSessionId() {
-	return Cookies.getCookie(KEY);
+	String sessionId = Cookies.getCookie(KEY);
+	if ("".equals(sessionId)) {
+	    sessionId = null;
+	}
+	return sessionId;
     }
 
     /**
@@ -25,7 +29,7 @@ public class SessionManager {
     public static void removeSessionId() {
 	if (GWT.isProdMode()) {
 	    String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
-	    Cookies.setCookie(KEY, "", new Date(0), domain, null, false);
+	    Cookies.setCookie(KEY, "", new Date(), domain, null, false);
 	} else {
 	    Cookies.removeCookie(KEY);
 	}
@@ -39,7 +43,7 @@ public class SessionManager {
     public static void setSessionId(String sessionId) {
 	if (GWT.isProdMode()) {
 	    String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
-	    Cookies.setCookie(KEY, sessionId, EXPIRES, domain, "", false);
+	    Cookies.setCookie(KEY, sessionId, null, domain, "", false);
 	} else {
 	    Cookies.setCookie(KEY, sessionId);
 	}
