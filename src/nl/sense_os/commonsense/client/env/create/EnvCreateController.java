@@ -22,7 +22,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -87,14 +86,14 @@ public class EnvCreateController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
-	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
+		builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 		builder.sendRequest(body, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("POST environment sensors request threw exception: " + e.getMessage());
-		onAddSensorsFailure(environment);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -146,14 +145,14 @@ public class EnvCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST sensor device request threw exception: " + e.getMessage());
-	    onSensorToDeviceFailure();
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -208,14 +207,14 @@ public class EnvCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST environments request threw exception: " + e.getMessage());
-	    onCreateEnvironmentFailure();
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -264,14 +263,14 @@ public class EnvCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST sensor request threw exception: " + e.getMessage());
-	    onCreateEnvironmentFailure();
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -503,14 +502,14 @@ public class EnvCreateController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
+	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST position request threw exception: " + e.getMessage());
-	    onSetPositionFailure();
+	    reqCallback.onError(null, e);
 	}
     }
 

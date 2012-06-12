@@ -22,7 +22,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -108,13 +107,13 @@ public class DataController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET slast data request threw exception: " + e.getMessage());
-		onLatestValueFailure(0, source);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -476,14 +475,14 @@ public class DataController extends Controller {
 	    };
 
 	    // send request
-	    final String sessionId = SessionManager.getSessionId();
-	    RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		final String sessionId = SessionManager.getSessionId();
+		RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
-		onDataFailed(0, showProgress);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -583,13 +582,13 @@ public class DataController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET data (subsampled) request threw exception: " + e.getMessage());
-		onDataFailed(0, showProgress);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {

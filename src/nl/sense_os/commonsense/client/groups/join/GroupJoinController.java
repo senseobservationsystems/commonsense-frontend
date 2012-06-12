@@ -24,7 +24,6 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.json.client.JSONArray;
@@ -75,13 +74,13 @@ public class GroupJoinController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET all groups request threw exception: " + e.getMessage());
-	    onAllGroupsFailure(source);
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -149,13 +148,13 @@ public class GroupJoinController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET group details request threw exception: " + e.getMessage());
-	    onJoinFailure(source);
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -221,13 +220,13 @@ public class GroupJoinController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(body, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("POST group user request threw exception: " + e.getMessage());
-	    onJoinFailure(source);
+	    reqCallback.onError(null, e);
 	}
     }
 

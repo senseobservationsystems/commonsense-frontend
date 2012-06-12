@@ -26,12 +26,12 @@ import com.google.gwt.user.client.ui.Widget;
 public class NavPanel extends LayoutContainer {
 
     private static final Logger LOG = Logger.getLogger(NavPanel.class.getName());
-    public static final String REGISTER = "register";
-    public static final String DASHBOARD = "dashboard";
+    private static final String REGISTER = "register";
+    private static final String DASHBOARD = "dashboard";
     public static final String HELP = "help";
     public static final String HOME = "home";
     public static final String SIGN_OUT = "signout";
-    public static final String ACCOUNT = "account";
+    private static final String ACCOUNT = "account";
     public static final String VISUALIZATION = "sensors";
     public static final String RESET_PASSWORD = "resetPassword";
     public static final int HEIGHT = 30;

@@ -31,7 +31,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -91,13 +90,13 @@ public class StateListController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("DELETE service request threw exception: " + e.getMessage());
-	    onDisconnectFailure(0);
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -134,13 +133,13 @@ public class StateListController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET service sensors request threw exception: " + e.getMessage());
-	    onConnectedFailure(callback);
+	    reqCallback.onError(null, e);
 	}
     }
 
@@ -178,13 +177,13 @@ public class StateListController extends Controller {
 	    };
 
 	    // send request
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
 	    try {
+		RequestBuilder builder = new RequestBuilder(method, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
 		builder.sendRequest(null, reqCallback);
-	    } catch (RequestException e) {
+	    } catch (Exception e) {
 		LOG.warning("GET service methods request threw exception: " + e.getMessage());
-		onMethodsFailure(0);
+		reqCallback.onError(null, e);
 	    }
 
 	} else {
@@ -226,13 +225,13 @@ public class StateListController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(method, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(method, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, reqCallback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET sensors request threw exception: " + e.getMessage());
-	    onStateSensorsFailure(callback);
+	    reqCallback.onError(null, e);
 	}
     }
 

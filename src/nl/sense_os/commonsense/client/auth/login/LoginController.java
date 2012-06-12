@@ -86,13 +86,13 @@ public class LoginController extends Controller {
 	};
 
 	// send request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, callback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET current user request threw exception: " + e.getMessage());
-	    onLoginFailure(0);
+	    callback.onError(null, e);
 	}
     }
 
@@ -311,17 +311,20 @@ public class LoginController extends Controller {
 	};
 
 	// perform request
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
 	try {
+	    RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+	    builder.setHeader("X-SESSION_ID", sessionId);
 	    builder.sendRequest(null, callback);
-	} catch (RequestException e) {
+	} catch (Exception e) {
 	    LOG.warning("GET logout request threw exception: " + e.getMessage());
-	    onLogoutFailure(0);
+	    callback.onError(null, e);
 	}
     }
 
     private void onAuthenticationFailure() {
+	SessionManager.removeSessionId();
+	Registry.unregister(Constants.REG_USER);
+	Registry.unregister(Constants.REG_SERVICES);
 	forwardToView(loginView, new AppEvent(LoginEvents.AuthenticationFailure));
     }
 

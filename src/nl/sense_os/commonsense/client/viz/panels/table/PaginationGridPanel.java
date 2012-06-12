@@ -112,6 +112,9 @@ public class PaginationGridPanel extends ContentPanel {
     private void initGrid(String url, ModelType mt, List<ColumnConfig> colConf) {
 
 	String sessionId = SessionManager.getSessionId();
+	if (null == sessionId || "".equals(sessionId)) {
+	    return;
+	}
 
 	// Cross site HTTP proxy
 	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
