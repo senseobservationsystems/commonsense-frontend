@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.client.groups.leave;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.common.models.GroupModel;
@@ -17,74 +16,73 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 
 public class GroupLeaveDialog extends View {
 
-    private static final Logger LOG = Logger.getLogger(GroupLeaveController.class.getName());
-    private GroupModel group;
+	private static final Logger LOG = Logger.getLogger(GroupLeaveController.class.getName());
+	private GroupModel group;
 
-    public GroupLeaveDialog(Controller c) {
-        super(c);
-        LOG.setLevel(Level.ALL);
-    }
+	public GroupLeaveDialog(Controller c) {
+		super(c);
+	}
 
-    @Override
-    protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type.equals(GroupLeaveEvents.LeaveRequest)) {
-            LOG.finest("LeaveRequest");
-            GroupModel group = event.getData("group");
-            show(group);
+	@Override
+	protected void handleEvent(AppEvent event) {
+		EventType type = event.getType();
+		if (type.equals(GroupLeaveEvents.LeaveRequest)) {
+			LOG.finest("LeaveRequest");
+			GroupModel group = event.getData("group");
+			show(group);
 
-        } else if (type.equals(GroupLeaveEvents.LeaveComplete)) {
-            LOG.finest("LeaveComplete");
-            onLeaveComplete();
+		} else if (type.equals(GroupLeaveEvents.LeaveComplete)) {
+			LOG.finest("LeaveComplete");
+			onLeaveComplete();
 
-        } else if (type.equals(GroupLeaveEvents.LeaveFailed)) {
-            LOG.finest("LeaveFailed");
-            onLeaveFailed();
+		} else if (type.equals(GroupLeaveEvents.LeaveFailed)) {
+			LOG.finest("LeaveFailed");
+			onLeaveFailed();
 
-        } else {
-            LOG.warning("Unexpected event: " + event);
-        }
-    }
+		} else {
+			LOG.warning("Unexpected event: " + event);
+		}
+	}
 
-    private void leave() {
-        AppEvent event = new AppEvent(GroupLeaveEvents.Leave);
-        event.setData("group", group);
-        event.setSource(this);
-        Dispatcher.forwardEvent(event);
-    }
+	private void leave() {
+		AppEvent event = new AppEvent(GroupLeaveEvents.Leave);
+		event.setData("group", group);
+		event.setSource(this);
+		Dispatcher.forwardEvent(event);
+	}
 
-    private void onLeaveComplete() {
-        // nothing to do
-    }
+	private void onLeaveComplete() {
+		// nothing to do
+	}
 
-    private void onLeaveFailed() {
-        MessageBox.confirm(null, "Failed to leave the group, retry?",
-                new Listener<MessageBoxEvent>() {
+	private void onLeaveFailed() {
+		MessageBox.confirm(null, "Failed to leave the group, retry?",
+				new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        Button clicked = be.getButtonClicked();
-                        if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            leave();
-                        }
-                    }
-                });
-    }
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+						Button clicked = be.getButtonClicked();
+						if ("yes".equalsIgnoreCase(clicked.getText())) {
+							leave();
+						}
+					}
+				});
+	}
 
-    private void show(GroupModel group) {
+	private void show(GroupModel group) {
 
-        this.group = group;
+		this.group = group;
 
-        MessageBox.confirm(null, "Are you sure you want to leave the group '" + group.getName()
-                + "'?", new Listener<MessageBoxEvent>() {
+		MessageBox.confirm(null, "Are you sure you want to leave the group '" + group.getName()
+				+ "'?", new Listener<MessageBoxEvent>() {
 
-            @Override
-            public void handleEvent(MessageBoxEvent be) {
-                Button clicked = be.getButtonClicked();
-                if ("yes".equalsIgnoreCase(clicked.getText())) {
-                    leave();
-                }
-            }
-        });
-    }
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				Button clicked = be.getButtonClicked();
+				if ("yes".equalsIgnoreCase(clicked.getText())) {
+					leave();
+				}
+			}
+		});
+	}
 }
