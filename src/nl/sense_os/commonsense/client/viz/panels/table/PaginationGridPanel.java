@@ -36,167 +36,172 @@ import com.google.gwt.i18n.client.NumberFormat;
  */
 public class PaginationGridPanel extends ContentPanel {
 
-    private static final Logger LOG = Logger.getLogger(PaginationGridPanel.class.getName());
-    private Grid<ModelData> grid;
-    private PagingToolBar toolBar;
-    private PagingLoader<PagingLoadResult<ModelData>> loader;
-    private final int pageSize;
-    private final long startDate;
+	private class MyDataReader extends JsonPagingLoadResultReader<PagingLoadResult<ModelData>> {
 
-    /**
-     * @param url
-     *            action to be executed
-     * @param mt
-     *            data store structure
-     * @param colConf
-     *            column config
-     */
-    public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize,
-	    long startDate, long endDate) {
+		private int totalLength = -1;
+		private boolean totalLengthKnown = false;
 
-	this.pageSize = pageSize;
-	this.startDate = startDate;
+		public MyDataReader(ModelType modelType) {
+			super(modelType);
+		}
 
-	initGrid(url, mt, colConf);
+		@Override
+		public PagingLoadResult<ModelData> read(Object loadConfig, Object data) {
+			PagingLoadResult<ModelData> result = super.read(loadConfig, data);
+			int offset = result.getOffset();
+			int size = result.getData().size();
 
-	// Adds the tool bar to the top of the content panel.
-	toolBar = new PagingToolBar(pageSize);
-	toolBar.bind(loader);
-	setTopComponent(toolBar);
+			if (size < pageSize) {
+				// we reached the last page
+				LOG.finest("Found total data size!");
+				totalLength = offset + size;
+				totalLengthKnown = true;
 
-	setHeaderVisible(false);
-	setBodyBorder(false);
+			} else if (!totalLengthKnown) {
+				// we do not know the length yet
+				LOG.finest("Freaktimate total data size...");
+				List<ModelData> sensorData = result.getData();
+				double pageNewest = -1;
+				double pageOldest = -1;
+				try {
+					pageNewest = Double.parseDouble(sensorData.get(0).<String> get("date"));
+					pageOldest = Double.parseDouble(sensorData.get(sensorData.size() - 1)
+							.<String> get("date"));
+				} catch (ClassCastException e) {
+					pageNewest = sensorData.get(0).get("date");
+					pageOldest = sensorData.get(sensorData.size() - 1).get("date");
+				}
+				double pageRange = pageNewest - pageOldest;
+				double queryStart = startDate / 1000d;
+				double queryRange = pageOldest - queryStart;
+				NumberFormat f = NumberFormat.getFormat("#.000");
+				LOG.finest("Page oldest: " + f.format(pageOldest) + ", page newest: "
+						+ f.format(pageNewest) + ", page range: " + f.format(pageRange));
+				LOG.finest("Query start: " + f.format(startDate / 1000d) + ", query end: "
+						+ f.format(queryStart) + ", query range: " + f.format(queryRange));
 
-	// Adds the grid to the content panel.
-	add(grid);
+				int remaining = (int) Math.round((queryRange / pageRange) * pageSize);
+				LOG.finest("Remaining points: " + remaining);
 
-	// Loads the data store by getting the data from the URL
-	loader.load();
-    }
+				totalLength = offset + size + remaining;
 
-    private PagingLoader<PagingLoadResult<ModelData>> createLoader(DataProxy<String> proxy,
-	    DataReader<PagingLoadResult<ModelData>> reader) {
-	PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(
-		proxy, reader);
-	loader.setRemoteSort(true);
-	loader.setSortDir(SortDir.DESC);
-	loader.setSortField("date");
-	loader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {
-
-	    /* sets the parameters names correctly for CommonSense API */
-	    @Override
-	    public void handleEvent(LoadEvent be) {
-
-		BasePagingLoadConfig m = be.<BasePagingLoadConfig> getConfig();
-		int offset = m.get("offset");
-		int limit = m.get("limit");
-
-		// page size
-		m.set("per_page", limit);
-		// m.remove("limit");
-
-		// page number
-		m.set("page", offset / limit);
-		// m.remove("offset");
-
-		// sort dir
-		m.set("sort", be.<ModelData> getConfig().get("sortDir"));
-		// m.remove("sortDir");
-		// m.remove("sortField");
-	    }
-	});
-
-	return loader;
-    }
-
-    private void initGrid(String url, ModelType mt, List<ColumnConfig> colConf) {
-
-	String sessionId = SessionManager.getSessionId();
-	if (null == sessionId || "".equals(sessionId)) {
-	    return;
+			}
+			result.setTotalLength(totalLength);
+			return result;
+		}
 	}
 
-	// Cross site HTTP proxy
-	RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-	builder.setHeader("X-SESSION_ID", sessionId);
-	HttpProxy<String> proxy = new HttpProxy<String>(builder);
+	private static final Logger LOG = Logger.getLogger(PaginationGridPanel.class.getName());
+	private Grid<ModelData> grid;
+	private PagingToolBar toolBar;
+	private PagingLoader<PagingLoadResult<ModelData>> loader;
+	private final int pageSize;
+	private final long startDate;
 
-	// Reader
-	DataReader<PagingLoadResult<ModelData>> reader = new JsonPagingLoadResultReader<PagingLoadResult<ModelData>>(
-		mt) {
+	/**
+	 * @param url
+	 *            action to be executed
+	 * @param mt
+	 *            data store structure
+	 * @param colConf
+	 *            column config
+	 */
+	public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize,
+			long startDate, long endDate) {
 
-	    private int totalLength = -1;
-	    private boolean totalLengthKnown = false;
+		this.pageSize = pageSize;
+		this.startDate = startDate;
 
-	    @Override
-	    public PagingLoadResult<ModelData> read(Object loadConfig, Object data) {
-		PagingLoadResult<ModelData> result = super.read(loadConfig, data);
-		int offset = result.getOffset();
-		int size = result.getData().size();
+		initGrid(url, mt, colConf);
 
-		if (size < pageSize) {
-		    // we reached the last page
-		    LOG.finest("Found total data size!");
-		    totalLength = offset + size;
-		    totalLengthKnown = true;
+		// Adds the tool bar to the top of the content panel.
+		toolBar = new PagingToolBar(pageSize);
+		toolBar.bind(loader);
+		setTopComponent(toolBar);
 
-		} else if (!totalLengthKnown) {
-		    // we do not know the length yet
-		    LOG.finest("Freaktimate total data size...");
-		    List<ModelData> sensorData = result.getData();
-		    double pageNewest = -1;
-		    double pageOldest = -1;
-		    try {
-			pageNewest = Double.parseDouble(sensorData.get(0).<String> get("date"));
-			pageNewest = Double.parseDouble(sensorData.get(sensorData.size() - 1)
-				.<String> get("date"));
-		    } catch (ClassCastException e) {
-			pageNewest = sensorData.get(0).get("date");
-			pageNewest = sensorData.get(sensorData.size() - 1).get("date");
-		    }
-		    double pageRange = pageNewest - pageOldest;
-		    double queryStart = startDate / 1000d;
-		    double queryRange = pageOldest - queryStart;
-		    NumberFormat f = NumberFormat.getFormat("#.000");
-		    LOG.finest("Page oldest: " + f.format(pageOldest) + ", page newest: "
-			    + f.format(pageNewest) + ", page range: " + f.format(pageRange));
-		    LOG.finest("Query start: " + f.format(startDate / 1000d) + ", query end: "
-			    + f.format(queryStart) + ", query range: " + f.format(queryRange));
+		setHeaderVisible(false);
+		setBodyBorder(false);
 
-		    int remaining = (int) Math.round((queryRange / pageRange) * pageSize);
-		    LOG.finest("Remaining points: " + remaining);
+		// Adds the grid to the content panel.
+		add(grid);
 
-		    totalLength = offset + size + remaining;
+		// Loads the data store by getting the data from the URL
+		loader.load();
+	}
 
+	private PagingLoader<PagingLoadResult<ModelData>> createLoader(DataProxy<String> proxy,
+			DataReader<PagingLoadResult<ModelData>> reader) {
+		PagingLoader<PagingLoadResult<ModelData>> loader = new BasePagingLoader<PagingLoadResult<ModelData>>(
+				proxy, reader);
+		loader.setRemoteSort(true);
+		loader.setSortDir(SortDir.DESC);
+		loader.setSortField("date");
+		loader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {
+
+			/* sets the parameters names correctly for CommonSense API */
+			@Override
+			public void handleEvent(LoadEvent be) {
+
+				BasePagingLoadConfig m = be.<BasePagingLoadConfig> getConfig();
+				int offset = m.get("offset");
+				int limit = m.get("limit");
+
+				// page size
+				m.set("per_page", limit);
+				// m.remove("limit");
+
+				// page number
+				m.set("page", offset / limit);
+				// m.remove("offset");
+
+				// sort dir
+				m.set("sort", be.<ModelData> getConfig().get("sortDir"));
+				// m.remove("sortDir");
+				// m.remove("sortField");
+			}
+		});
+
+		return loader;
+	}
+
+	private void initGrid(String url, ModelType modelType, List<ColumnConfig> colConf) {
+
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId || "".equals(sessionId)) {
+			return;
 		}
-		result.setTotalLength(totalLength);
-		return result;
-	    }
-	};
 
-	// Loader
-	this.loader = createLoader(proxy, reader);
+		// Cross site HTTP proxy
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+		builder.setHeader("X-SESSION_ID", sessionId);
+		HttpProxy<String> proxy = new HttpProxy<String>(builder);
 
-	// Data store
-	ListStore<ModelData> store = new ListStore<ModelData>(this.loader);
+		// Reader
+		DataReader<PagingLoadResult<ModelData>> reader = new MyDataReader(modelType);
 
-	// Column model
-	ColumnModel cm = new ColumnModel(colConf);
+		// Loader
+		this.loader = createLoader(proxy, reader);
 
-	// Grid
-	this.grid = new Grid<ModelData>(store, cm);
-	this.grid.setAutoExpandColumn("value");
-	this.grid.setAutoExpandMax(1000);
-	this.grid.setLoadMask(true);
-    }
+		// Data store
+		ListStore<ModelData> store = new ListStore<ModelData>(this.loader);
 
-    @Override
-    protected void onResize(int width, int height) {
-	super.onResize(width, height);
+		// Column model
+		ColumnModel cm = new ColumnModel(colConf);
 
-	// grid is not resized automatically
-	final int toolBarHeight = toolBar.getHeight();
-	grid.setWidth(width);
-	grid.setHeight(height - toolBarHeight);
-    }
+		// Grid
+		this.grid = new Grid<ModelData>(store, cm);
+		this.grid.setAutoExpandColumn("value");
+		this.grid.setAutoExpandMax(1000);
+		this.grid.setLoadMask(true);
+	}
+
+	@Override
+	protected void onResize(int width, int height) {
+		super.onResize(width, height);
+
+		// grid is not resized automatically
+		final int toolBarHeight = toolBar.getHeight();
+		grid.setWidth(width);
+		grid.setHeight(height - toolBarHeight);
+	}
 }

@@ -2,8 +2,6 @@ package nl.sense_os.commonsense.client.alerts.create.components;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.alerts.create.triggers.Notification;
 import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
@@ -15,51 +13,45 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class NotificationsForm extends WizardFormPanel {
 
-    private static final Logger LOG = Logger.getLogger(NotificationsForm.class.getName());
+	private final List<NotificationFields> forms = new ArrayList<NotificationFields>();
 
-    private final List<NotificationFields> forms = new ArrayList<NotificationFields>();
+	public NotificationsForm() {
+		addFieldSet();
+	}
 
-    public NotificationsForm() {
-        super();
+	private void addFieldSet() {
 
-        LOG.setLevel(Level.ALL);
+		final NotificationFields fields = new NotificationFields();
 
-        addFieldSet();
-    }
+		forms.add(fields);
 
-    private void addFieldSet() {
+		fields.getBtnAdd().addListener(Events.Select, new Listener<ButtonEvent>() {
 
-        final NotificationFields fields = new NotificationFields();
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				addFieldSet();
+				layout();
+			}
+		});
+		fields.getBtnRemove().addListener(Events.Select, new Listener<ButtonEvent>() {
 
-        forms.add(fields);
+			@Override
+			public void handleEvent(ButtonEvent be) {
+				removeFieldSet(fields);
+				layout();
+			}
+		});
 
-        fields.getBtnAdd().addListener(Events.Select, new Listener<ButtonEvent>() {
+		add(fields, new FormData("-10"));
+	}
 
-            @Override
-            public void handleEvent(ButtonEvent be) {
-                addFieldSet();
-                layout();
-            }
-        });
-        fields.getBtnRemove().addListener(Events.Select, new Listener<ButtonEvent>() {
+	private void removeFieldSet(NotificationFields fieldSet) {
+		forms.remove(fieldSet);
+		remove(fieldSet);
+	}
 
-            @Override
-            public void handleEvent(ButtonEvent be) {
-                removeFieldSet(fields);
-                layout();
-            }
-        });
-
-        add(fields, new FormData("-10"));
-    }
-
-    private void removeFieldSet(NotificationFields fieldSet) {
-        forms.remove(fieldSet);
-        remove(fieldSet);
-    }
-
-    public ArrayList<Notification> getNotifications() {
-        // TODO
-        return null;
-    }
+	public ArrayList<Notification> getNotifications() {
+		// TODO
+		return null;
+	}
 }
