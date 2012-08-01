@@ -1,0 +1,12 @@
+/build
+/classes
+*.jar
+*.class
+*~
+war/commonsense
+war/WEB-INF/classes
+war/WEB-INF/deploy
+target
+.gwt
+gwt-unitCache
+www-test
