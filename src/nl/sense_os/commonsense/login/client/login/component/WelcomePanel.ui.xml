@@ -1,0 +1,84 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder
+	xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+		.centerContent {
+			height: 100%;
+			max-height: 550px;
+			border: 1px #ff7f00 solid;
+			border-radius: 4px;
+			overflow-y: auto;
+			background-color: rgba(255, 255, 255, 0.7);
+		}
+		
+		.welcome {
+			padding: 15px;
+			max-width: 500px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		
+		.welcome h1 {
+			margin-top: .5em;
+			margin-bottom: .5em;
+			font-size: large;
+			color: #ff7f00;
+		}
+		
+		.welcome h2 {
+			margin-top: .5em;
+			margin-bottom: .25em;
+			color: #ff7f00;
+		}
+		
+		.welcome hr {
+			margin: 1em 0;
+		}
+		
+		.welcome ul {
+			list-style-type: disc;
+		}
+		
+		.welcome p,li {
+			margin-bottom: .75em;
+		}
+	</ui:style>
+	<g:HTML styleName="{style.centerContent}">
+		<div class="{style.welcome}">
+			<h1>Welcome to CommonSense</h1>
+			<p>
+				Your smartphone may be called a “smart” phone, but we at Sense still think that your phone is
+				very stupid. Your phone is packed full of sensors, but still
+				<i>knows</i>
+				very little about you.
+			</p>
+			<p>CommonSense is meant to change that.</p>
+			<p>The Sense Platform app is gathering sensor data from your smartphone. Here, in CommonSense,
+				you can access this data. Just log in with your Sense account, and drag the sensors you like to
+				view into this main panel. For further explanation, read the Tutorials.</p>
+			<hr />
+			<h2>Possible applications</h2>
+			<p> All this might just seem like a funny gimmick, but we plan to incorporate some intelligent
+				and helpful features into CommonSense, by having the system get to know you and your network.
+				Just some examples: 
+			</p>
+			<ul>
+				<li>Why does your phone even bother to ring, when it can sense that you are driving at 120
+					kilometers per hour on a motorway? What if it would automatically send out a text message,
+					telling people you will call back when you have arrived at your destination? 
+				</li>
+				<li>You may think you will never see that guy you met on holiday again. What if your smartphones
+					would give you both a heads up when you are in the same city? 
+				</li>
+				<li>Sometimes it is very practical that your phone reminds you of an appointment. But what is
+					the use of a reminder to go to the dentist when you are already sitting in the waiting room?
+					Your phone knows where you are, and if it would only use the calendar function, it could know
+					where you have to be. It would only have to warn you if you are going to be late. 
+				</li>
+				<li>And why do we have to keep telling social media like Facebook and Twitter where we are, when
+					our phone knows already?</li>
+			</ul>
+		</div>
+	</g:HTML>
+</ui:UiBinder>

@@ -1,18 +1,18 @@
-<module>
-	<!-- Core GWT inherits -->
+<module rename-to='login'>
 	<inherits name="com.google.gwt.user.User" />
-	<inherits name="com.google.gwt.http.HTTP" />
-	<inherits name="com.google.gwt.json.JSON" />
+	<inherits name="com.google.gwt.user.theme.standard.Standard" />
+	<inherits name="com.google.gwt.activity.Activity" />
+	<inherits name="com.google.gwt.place.Place" />
 	<inherits name="com.google.gwt.logging.Logging" />
 	<inherits name="com.google.gwt.resources.Resources" />
-	
 	<!-- Other modules -->
-	<inherits name='com.extjs.gxt.ui.GXT'/>  
-	<inherits name='com.google.gwt.maps.GoogleMaps' />
-
-	<!-- External style sheets -->
-	<stylesheet src="css/sense.css" />
-	<stylesheet src="gwt/commonsense/commonsense.css" />
+	<inherits name="nl.sense_os.commonsense.common.Common" />
+	<!-- Entry point -->
+	<entry-point class="nl.sense_os.commonsense.login.client.CommonSenseLogin" />
+	<!-- Define binding for ClientFactory -->
+	<replace-with class="nl.sense_os.commonsense.login.client.ClientFactoryImpl">
+		<when-type-is class="nl.sense_os.commonsense.login.client.ClientFactory" />
+	</replace-with>
 	<!-- Logging properties -->
 	<set-property
 		name="gwt.logging.enabled"

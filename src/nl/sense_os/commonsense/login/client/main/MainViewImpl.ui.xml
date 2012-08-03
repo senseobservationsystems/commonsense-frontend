@@ -1,0 +1,32 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder
+	xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:my="urn:import:nl.sense_os.commonsense.login.client.main.component"
+	xmlns:common="urn:import:nl.sense_os.commonsense.common.client.component">
+	<ui:style>
+		.outer {
+			background: url('login/images/bgLeftBottom.png') no-repeat left bottom;
+		}
+		
+		.inner {
+			background: url('login/images/bgRightTop.png') no-repeat right top;
+		}
+	</ui:style>
+	<g:SimplePanel styleName="{style.outer}">
+		<g:DockLayoutPanel
+			height="100%"
+			unit="PX"
+			styleName="{style.inner}">
+			<g:north size="30">
+				<my:LoginNavigationBar />
+			</g:north>
+			<g:south size="23">
+				<common:FooterBar />
+			</g:south>
+			<g:center>
+				<g:SimplePanel ui:field="appWidget" />
+			</g:center>
+		</g:DockLayoutPanel>
+	</g:SimplePanel>
+</ui:UiBinder>

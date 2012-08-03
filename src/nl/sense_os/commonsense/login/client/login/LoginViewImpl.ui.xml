@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder
+	xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:login="urn:import:nl.sense_os.commonsense.login.client.login.component"
+	xmlns:common="urn:import:nl.sense_os.commonsense.common.client.component">
+	<ui:style>
+		.centerContent {
+			margin: 10px 10px 10px 5px;
+		}
+		
+		.westContent {
+			margin: 10px 5px 10px 10px;
+		}
+		
+		.loginForm {
+			padding: 15px;
+			border: 1px #ff7f00 solid;
+			border-radius: 4px;
+			background-color: rgba(255, 255, 255, 0.7);
+		}
+		
+		.rememberMe {
+			display: block;
+		}
+		
+		.forgotPassword {
+			display: inline;
+			margin-left: 5px;
+		}
+		
+		.forgotPassword:hover {
+			cursor: pointer;
+			text-decoration: underline;
+		}
+		
+		.googleLoginLabel {
+			margin-top: 20px;
+			margin-botton: 3px;
+		}
+		
+		.btn {
+			padding-left: 5px;
+			margin-right: 5px;
+		}
+		
+		.input {
+			margin-bottom: 10px;
+		}
+	</ui:style>
+	<ui:with
+		type="nl.sense_os.commonsense.common.client.resource.CSResources"
+		field="resources" />
+	<g:DockLayoutPanel
+		height="100%"
+		unit="PX">
+		<g:west size="350">
+			<g:SimplePanel styleName="{style.westContent}">
+				<g:FormPanel
+					ui:field="form"
+					action="javascript:;">
+					<g:FlowPanel styleName="{style.loginForm}">
+						<g:Label text="Username:" />
+						<g:TextBox
+							ui:field="username"
+							addStyleNames="{style.input}"
+							name="username"
+							width="250px" />
+						<g:Label text="Password:" />
+						<g:PasswordTextBox
+							ui:field="password"
+							addStyleNames="{style.input}"
+							name="password"
+							width="250px" />
+						<g:CheckBox
+							ui:field="rememberMe"
+							addStyleNames="{style.rememberMe} {style.input}"
+							text="Remember username"
+							name="rememberMe"
+							checked="true" />
+						<common:IconButton
+							ui:field="loginBtn"
+							resource="{resources.iconNext}"
+							text="Log in"
+							addStyleNames="{style.btn}"
+							width="90px" />
+						<g:Hyperlink
+							addStyleNames="{style.forgotPassword}"
+							targetHistoryToken="forgotpassword:"
+							text="Forgot your password?" />
+						<g:Label
+							addStyleNames="{style.googleLoginLabel}"
+							text="You can also use your Google Account to log in:" />
+						<common:IconButton
+							ui:field="googleBtn"
+							resource="{resources.iconGoogle}"
+							text="Log in with Google"
+							addStyleNames="{style.btn}" />
+					</g:FlowPanel>
+				</g:FormPanel>
+			</g:SimplePanel>
+		</g:west>
+		<g:center>
+			<g:SimplePanel styleName="{style.centerContent}">
+				<login:WelcomePanel />
+			</g:SimplePanel>
+		</g:center>
+	</g:DockLayoutPanel>
+</ui:UiBinder>
