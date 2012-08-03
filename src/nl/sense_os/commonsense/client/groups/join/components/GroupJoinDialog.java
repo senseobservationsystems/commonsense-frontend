@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.common.client.component.CenteredWindow;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;

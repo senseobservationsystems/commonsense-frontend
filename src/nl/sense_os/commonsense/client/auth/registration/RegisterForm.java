@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.auth.registration;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.common.client.constant.Constants;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;

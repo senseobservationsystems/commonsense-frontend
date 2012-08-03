@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.SessionManager;
-import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.states.edit.ServiceMethodResponseJso;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.ServiceMethodResponseJso;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;

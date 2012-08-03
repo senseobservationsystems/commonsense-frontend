@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.client.viz.tabs;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Keys;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.choice.VizTypeChooser;
+import nl.sense_os.commonsense.common.client.constant.Keys;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;

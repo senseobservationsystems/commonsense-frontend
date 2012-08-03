@@ -3,12 +3,12 @@ package nl.sense_os.commonsense.client.viz.panels.timeline;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.client.viz.panels.VizView;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;

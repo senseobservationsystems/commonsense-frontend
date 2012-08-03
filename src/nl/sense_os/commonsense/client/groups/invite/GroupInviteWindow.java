@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.groups.invite;
 
-import nl.sense_os.commonsense.client.common.models.GroupModel;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Window;

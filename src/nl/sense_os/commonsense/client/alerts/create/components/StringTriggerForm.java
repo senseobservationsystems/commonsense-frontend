@@ -7,9 +7,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.alerts.create.triggers.StringTrigger;
 import nl.sense_os.commonsense.client.alerts.create.utils.MediaButton;
 import nl.sense_os.commonsense.client.alerts.create.utils.MyWidget;
-import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
 import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
+import nl.sense_os.commonsense.common.client.component.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;

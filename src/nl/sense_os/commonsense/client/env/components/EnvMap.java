@@ -8,10 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.client.viz.data.DataEvents;
@@ -19,6 +15,10 @@ import nl.sense_os.commonsense.client.viz.data.timeseries.DataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.FloatDataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 import nl.sense_os.commonsense.client.viz.panels.VizPanel;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.model.DeviceModel;
+import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

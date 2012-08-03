@@ -6,11 +6,12 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.data.cache.Cache;
 import nl.sense_os.commonsense.client.viz.data.timeseries.BackEndDataPoint;
 import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.GetSensorDataResponseJso;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;

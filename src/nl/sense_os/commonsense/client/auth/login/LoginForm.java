@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.auth.login;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;

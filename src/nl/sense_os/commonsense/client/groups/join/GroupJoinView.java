@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.join.components.GroupJoinDialog;
 import nl.sense_os.commonsense.client.groups.join.components.GroupJoinDialog.States;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;

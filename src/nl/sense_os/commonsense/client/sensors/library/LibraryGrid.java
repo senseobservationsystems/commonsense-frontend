@@ -3,11 +3,6 @@ package nl.sense_os.commonsense.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
-import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
-import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
@@ -18,6 +13,11 @@ import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
+import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.common.client.util.SensorProcessor;
+import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;

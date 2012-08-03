@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.auth;
 
 import java.util.Date;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
+import nl.sense_os.commonsense.common.client.constant.Constants;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;

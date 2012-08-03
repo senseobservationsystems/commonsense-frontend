@@ -4,17 +4,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.common.utility.SensorComparator;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.client.groups.join.GroupJoinEvents;
 import nl.sense_os.commonsense.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
+import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
+import nl.sense_os.commonsense.common.client.util.SensorComparator;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;

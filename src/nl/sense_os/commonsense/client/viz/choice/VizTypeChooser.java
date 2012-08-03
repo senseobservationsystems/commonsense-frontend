@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.components.TimeRangeForm;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.component.CenteredWindow;
+import nl.sense_os.commonsense.common.client.component.TimeRangeForm;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
 import nl.sense_os.commonsense.client.env.components.EnvMap;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoader;

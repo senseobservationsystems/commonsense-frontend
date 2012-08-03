@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.main.components;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.models.UserModel;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.model.UserModel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;

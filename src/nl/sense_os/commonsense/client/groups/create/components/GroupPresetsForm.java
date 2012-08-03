@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.groups.create.components;
 
-import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
+import nl.sense_os.commonsense.common.client.component.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;

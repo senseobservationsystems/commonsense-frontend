@@ -2,14 +2,14 @@ package nl.sense_os.commonsense.client.states.connect;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
-import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
-import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
-import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.client.sensors.library.SensorGroupRenderer;
+import nl.sense_os.commonsense.common.client.component.CenteredWindow;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
+import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.common.client.util.SensorProcessor;
+import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoader;

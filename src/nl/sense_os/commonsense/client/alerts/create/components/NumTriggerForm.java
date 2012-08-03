@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.client.alerts.create.components;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
+import nl.sense_os.commonsense.common.client.component.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.Events;

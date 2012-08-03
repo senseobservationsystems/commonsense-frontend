@@ -6,16 +6,18 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.client.groups.join.GroupJoinEvents;
 import nl.sense_os.commonsense.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.GetGroupUsersResponseJso;
+import nl.sense_os.commonsense.common.client.httpresponse.GetGroupsResponseJso;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

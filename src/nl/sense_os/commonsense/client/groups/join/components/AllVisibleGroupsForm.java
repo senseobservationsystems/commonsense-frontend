@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.client.groups.join.components;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.WizardFormPanel;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.common.utility.SenseKeyProvider;
+import nl.sense_os.commonsense.common.client.component.WizardFormPanel;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;

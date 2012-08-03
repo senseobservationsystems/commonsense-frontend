@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
-import nl.sense_os.commonsense.client.common.utility.SensorComparator;
-import nl.sense_os.commonsense.client.common.utility.SensorProcessor;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
@@ -18,6 +14,10 @@ import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.edit.StateEditEvents;
 import nl.sense_os.commonsense.client.states.feedback.FeedbackEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
+import nl.sense_os.commonsense.common.client.util.SensorComparator;
+import nl.sense_os.commonsense.common.client.util.SensorProcessor;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;

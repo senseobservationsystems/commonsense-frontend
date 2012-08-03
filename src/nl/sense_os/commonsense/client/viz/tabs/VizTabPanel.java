@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.client.viz.tabs;
 
-import nl.sense_os.commonsense.client.common.utility.SenseIconProvider;
+import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;

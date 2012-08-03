@@ -3,13 +3,13 @@ package nl.sense_os.commonsense.client.env.create;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.components.CenteredWindow;
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.utility.SensorOwnerFilter;
-import nl.sense_os.commonsense.client.common.utility.SensorTextFilter;
 import nl.sense_os.commonsense.client.env.components.EnvMap;
 import nl.sense_os.commonsense.client.sensors.library.LibraryColumnsFactory;
+import nl.sense_os.commonsense.common.client.component.CenteredWindow;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;

@@ -7,17 +7,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.client.CommonSense;
 import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.DeviceModel;
-import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
-import nl.sense_os.commonsense.client.common.models.GroupModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.ServiceModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
 import nl.sense_os.commonsense.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.client.env.list.EnvEvents;
-import nl.sense_os.commonsense.client.groups.list.GetGroupsResponseJso;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.client.sensors.share.SensorShareEvents;
@@ -26,6 +17,18 @@ import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.AvailServicesResponseEntryJso;
+import nl.sense_os.commonsense.common.client.httpresponse.BatchAvailServicesResponseJso;
+import nl.sense_os.commonsense.common.client.httpresponse.GetGroupsResponseJso;
+import nl.sense_os.commonsense.common.client.httpresponse.GetSensorsResponseJso;
+import nl.sense_os.commonsense.common.client.model.DeviceModel;
+import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
+import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ServiceModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -374,7 +377,7 @@ public class LibraryController extends Controller {
 
 	// parse list of services from response
 	if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-	    AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
+	    BatchAvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
 	    JsArray<AvailServicesResponseEntryJso> entries = jso.getEntries();
 	    for (int i = 0; i < entries.length(); i++) {
 		int id = entries.get(i).getSensorId();

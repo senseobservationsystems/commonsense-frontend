@@ -6,19 +6,20 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.client.auth.SessionManager;
 import nl.sense_os.commonsense.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.client.common.constants.Constants;
-import nl.sense_os.commonsense.client.common.constants.Urls;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.ServiceMethodModel;
-import nl.sense_os.commonsense.client.common.models.UserModel;
-import nl.sense_os.commonsense.client.common.utility.TreeCopier;
 import nl.sense_os.commonsense.client.main.MainEvents;
 import nl.sense_os.commonsense.client.sensors.delete.SensorDeleteEvents;
-import nl.sense_os.commonsense.client.sensors.library.GetSensorsResponseJso;
 import nl.sense_os.commonsense.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.client.viz.tabs.VizEvents;
+import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.GetMethodsResponseJso;
+import nl.sense_os.commonsense.common.client.httpresponse.GetSensorsResponseJso;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ServiceMethodModel;
+import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.util.TreeCopier;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

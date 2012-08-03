@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.client.env.view;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.client.common.models.EnvironmentModel;
 import nl.sense_os.commonsense.client.env.components.EnvMap;
+import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;

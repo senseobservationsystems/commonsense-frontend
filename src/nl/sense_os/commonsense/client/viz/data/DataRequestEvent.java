@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.client.viz.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.models.SensorModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 

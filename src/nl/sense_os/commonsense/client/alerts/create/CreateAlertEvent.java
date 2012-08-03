@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.client.alerts.create;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.client.common.models.NotificationModel;
-import nl.sense_os.commonsense.client.common.models.SensorModel;
-import nl.sense_os.commonsense.client.common.models.TriggerModel;
+import nl.sense_os.commonsense.common.client.model.NotificationModel;
+import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.TriggerModel;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
