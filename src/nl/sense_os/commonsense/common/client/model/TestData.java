@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.common.client.model;
 
-import nl.sense_os.commonsense.client.viz.data.timeseries.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
 
