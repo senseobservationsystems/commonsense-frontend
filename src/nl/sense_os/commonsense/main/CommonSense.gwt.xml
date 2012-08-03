@@ -22,7 +22,7 @@
   <stylesheet src="links-graph.css"></stylesheet>
 
   <!-- Specify the app entry point class.                         -->
-  <entry-point class='nl.sense_os.commonsense.client.CommonSense'/>
+  <entry-point class='nl.sense_os.commonsense.main.client.CommonSense'/>
   
   <!-- Logging properties -->
   <set-property name="gwt.logging.enabled" value="TRUE"/> 
