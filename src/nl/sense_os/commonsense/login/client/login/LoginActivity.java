@@ -92,7 +92,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 				builder.setParameter(entry.getKey(), entry.getValue().toArray(new String[0]));
 			}
 		}
-		Location.replace(builder.buildString());
+		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
 	}
 
 	/**
