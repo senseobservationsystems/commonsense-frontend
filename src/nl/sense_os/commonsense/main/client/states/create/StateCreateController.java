@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.httpresponse.AvailServicesResponseJso;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.model.ServiceModel;
-import nl.sense_os.commonsense.main.client.auth.SessionManager;
+import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 
 import com.extjs.gxt.ui.client.Registry;

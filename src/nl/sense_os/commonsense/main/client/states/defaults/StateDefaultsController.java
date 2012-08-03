@@ -7,7 +7,7 @@ import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.DeviceModel;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.main.client.auth.SessionManager;
+import nl.sense_os.commonsense.common.client.util.SessionManager;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -24,96 +24,96 @@ import com.google.gwt.http.client.UrlBuilder;
 
 public class StateDefaultsController extends Controller {
 
-    private static final Logger LOG = Logger.getLogger(StateDefaultsController.class.getName());
+	private static final Logger LOG = Logger.getLogger(StateDefaultsController.class.getName());
 
-    public StateDefaultsController() {
-	registerEventTypes(StateDefaultsEvents.CheckDefaults,
-		StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
-    }
-
-    private void checkDefaults(List<DeviceModel> devices, boolean overwrite, final View source) {
-
-	// prepare request properties
-	final Method method = RequestBuilder.POST;
-	final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-	urlBuilder.setPath(Urls.PATH_STATES + "/default/check.json");
-	final String url = urlBuilder.buildString();
-	final String sessionId = SessionManager.getSessionId();
-
-	// prepare body
-	String body = "{\"sensors\":[";
-	List<SensorModel> sensors = Registry.get(Constants.REG_SENSOR_LIST);
-	for (SensorModel sensor : sensors) {
-	    DeviceModel sensorDevice = sensor.getDevice();
-	    if (sensorDevice != null && devices.contains(sensorDevice)) {
-		body += "\"" + sensor.getId() + "\",";
-	    }
+	public StateDefaultsController() {
+		registerEventTypes(StateDefaultsEvents.CheckDefaults,
+				StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
 	}
-	if (body.length() > 1) {
-	    body = body.substring(0, body.length() - 1);
-	}
-	body += "],";
-	body += "\"update\":\"" + (overwrite ? 1 : 0) + "\"";
-	body += "}";
 
-	// prepare request callback
-	RequestCallback reqCallback = new RequestCallback() {
+	private void checkDefaults(List<DeviceModel> devices, boolean overwrite, final View source) {
 
-	    @Override
-	    public void onError(Request request, Throwable exception) {
-		LOG.warning("POST default services onError callback: " + exception.getMessage());
-		onCheckDefaultsFailure(source);
-	    }
+		// prepare request properties
+		final Method method = RequestBuilder.POST;
+		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		urlBuilder.setPath(Urls.PATH_STATES + "/default/check.json");
+		final String url = urlBuilder.buildString();
+		final String sessionId = SessionManager.getSessionId();
 
-	    @Override
-	    public void onResponseReceived(Request request, Response response) {
-		LOG.finest("POST default services response received: " + response.getStatusText());
-		int statusCode = response.getStatusCode();
-		if (Response.SC_OK == statusCode) {
-		    onCheckDefaultsSuccess(response.getText(), source);
-		} else {
-		    LOG.warning("POST default services returned incorrect status: " + statusCode);
-		    onCheckDefaultsFailure(source);
+		// prepare body
+		String body = "{\"sensors\":[";
+		List<SensorModel> sensors = Registry.get(Constants.REG_SENSOR_LIST);
+		for (SensorModel sensor : sensors) {
+			DeviceModel sensorDevice = sensor.getDevice();
+			if (sensorDevice != null && devices.contains(sensorDevice)) {
+				body += "\"" + sensor.getId() + "\",";
+			}
 		}
-	    }
-	};
+		if (body.length() > 1) {
+			body = body.substring(0, body.length() - 1);
+		}
+		body += "],";
+		body += "\"update\":\"" + (overwrite ? 1 : 0) + "\"";
+		body += "}";
 
-	// send request
-	try {
-	    RequestBuilder builder = new RequestBuilder(method, url);
-	    builder.setHeader("X-SESSION_ID", sessionId);
-	    builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
-	    builder.sendRequest(body, reqCallback);
-	} catch (Exception e) {
-	    LOG.warning("POST default services request threw exception: " + e.getMessage());
-	    reqCallback.onError(null, e);
+		// prepare request callback
+		RequestCallback reqCallback = new RequestCallback() {
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				LOG.warning("POST default services onError callback: " + exception.getMessage());
+				onCheckDefaultsFailure(source);
+			}
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				LOG.finest("POST default services response received: " + response.getStatusText());
+				int statusCode = response.getStatusCode();
+				if (Response.SC_OK == statusCode) {
+					onCheckDefaultsSuccess(response.getText(), source);
+				} else {
+					LOG.warning("POST default services returned incorrect status: " + statusCode);
+					onCheckDefaultsFailure(source);
+				}
+			}
+		};
+
+		// send request
+		try {
+			RequestBuilder builder = new RequestBuilder(method, url);
+			builder.setHeader("X-SESSION_ID", sessionId);
+			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.sendRequest(body, reqCallback);
+		} catch (Exception e) {
+			LOG.warning("POST default services request threw exception: " + e.getMessage());
+			reqCallback.onError(null, e);
+		}
 	}
-    }
 
-    @Override
-    public void handleEvent(AppEvent event) {
-	final EventType type = event.getType();
+	@Override
+	public void handleEvent(AppEvent event) {
+		final EventType type = event.getType();
 
-	if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
-	    LOG.fine("CheckDefaultsRequest");
-	    List<DeviceModel> devices = event.getData("devices");
-	    boolean overwrite = event.getData("overwrite");
-	    View source = (View) event.getSource();
-	    checkDefaults(devices, overwrite, source);
+		if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
+			LOG.fine("CheckDefaultsRequest");
+			List<DeviceModel> devices = event.getData("devices");
+			boolean overwrite = event.getData("overwrite");
+			View source = (View) event.getSource();
+			checkDefaults(devices, overwrite, source);
 
-	} else if (type.equals(StateDefaultsEvents.CheckDefaults)) {
-	    StateDefaultsView view = new StateDefaultsView(this);
-	    forwardToView(view, event);
+		} else if (type.equals(StateDefaultsEvents.CheckDefaults)) {
+			StateDefaultsView view = new StateDefaultsView(this);
+			forwardToView(view, event);
+		}
 	}
-    }
 
-    private void onCheckDefaultsFailure(View source) {
-	forwardToView(source, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
-    }
+	private void onCheckDefaultsFailure(View source) {
+		forwardToView(source, new AppEvent(StateDefaultsEvents.CheckDefaultsFailure));
+	}
 
-    private void onCheckDefaultsSuccess(String response, View source) {
-	AppEvent event = new AppEvent(StateDefaultsEvents.CheckDefaultsSuccess);
-	Dispatcher.forwardEvent(event);
-	forwardToView(source, event);
-    }
+	private void onCheckDefaultsSuccess(String response, View source) {
+		AppEvent event = new AppEvent(StateDefaultsEvents.CheckDefaultsSuccess);
+		Dispatcher.forwardEvent(event);
+		forwardToView(source, event);
+	}
 }

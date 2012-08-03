@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.model.UserModel;
-import nl.sense_os.commonsense.main.client.auth.SessionManager;
+import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 

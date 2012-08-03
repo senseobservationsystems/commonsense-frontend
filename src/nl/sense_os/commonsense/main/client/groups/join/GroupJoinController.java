@@ -11,7 +11,7 @@ import nl.sense_os.commonsense.common.client.httpresponse.GetGroupsResponseJso;
 import nl.sense_os.commonsense.common.client.model.GroupModel;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.model.UserModel;
-import nl.sense_os.commonsense.main.client.auth.SessionManager;
+import nl.sense_os.commonsense.common.client.util.SessionManager;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

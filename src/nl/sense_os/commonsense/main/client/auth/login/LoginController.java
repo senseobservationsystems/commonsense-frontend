@@ -8,7 +8,7 @@ import nl.sense_os.commonsense.common.client.httpresponse.CurrentUserResponseJso
 import nl.sense_os.commonsense.common.client.httpresponse.LoginResponseJso;
 import nl.sense_os.commonsense.common.client.model.UserModel;
 import nl.sense_os.commonsense.common.client.util.Md5Hasher;
-import nl.sense_os.commonsense.main.client.auth.SessionManager;
+import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 
 import com.extjs.gxt.ui.client.Registry;
