@@ -13,7 +13,6 @@ import nl.sense_os.commonsense.common.client.model.ServiceMethodModel;
 import nl.sense_os.commonsense.common.client.model.UserModel;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.common.client.util.TreeCopier;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
@@ -44,7 +43,6 @@ public class StateListController extends Controller {
 	public StateListController() {
 		registerEventTypes(MainEvents.Init);
 		registerEventTypes(VizEvents.Show);
-		registerEventTypes(LoginEvents.LoggedOut);
 		registerEventTypes(StateListEvents.ShowGrid);
 
 		// external triggers to initiate a list update

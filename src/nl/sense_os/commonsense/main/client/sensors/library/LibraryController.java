@@ -18,7 +18,6 @@ import nl.sense_os.commonsense.common.client.model.ServiceModel;
 import nl.sense_os.commonsense.common.client.model.UserModel;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.CommonSense;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
@@ -62,7 +61,6 @@ public class LibraryController extends Controller {
 		// LOG.setLevel(Level.WARNING);
 
 		registerEventTypes(MainEvents.Init);
-		registerEventTypes(LoginEvents.LoggedOut);
 		registerEventTypes(VizEvents.Show);
 
 		registerEventTypes(LibraryEvents.ShowLibrary, LibraryEvents.LoadRequest,
@@ -329,15 +327,6 @@ public class LibraryController extends Controller {
 		} else
 
 		/*
-		 * Clear data after logout
-		 */
-		if (type.equals(LoginEvents.LoggedOut)) {
-			LOG.finest("LoggedOut");
-			onLogout();
-
-		} else
-
-		/*
 		 * Pass through to view
 		 */
 		{
@@ -514,17 +503,6 @@ public class LibraryController extends Controller {
 		} else {
 			onLoadComplete(library, callback);
 		}
-	}
-
-	/**
-	 * Clears the library and lists of devices.
-	 */
-	private void onLogout() {
-		List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
-		library.clear();
-
-		List<DeviceModel> devices = Registry.get(Constants.REG_DEVICE_LIST);
-		devices.clear();
 	}
 
 	private void onSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {

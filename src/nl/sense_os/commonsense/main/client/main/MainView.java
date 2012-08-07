@@ -4,13 +4,9 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.UserModel;
 import nl.sense_os.commonsense.main.client.LastDeployed;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
-import nl.sense_os.commonsense.main.client.auth.pwreset.PwResetEvents;
-import nl.sense_os.commonsense.main.client.auth.registration.RegisterEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
 import nl.sense_os.commonsense.main.client.main.components.HelpScreen;
-import nl.sense_os.commonsense.main.client.main.components.HomeScreen;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.main.client.states.list.StateListEvents;
@@ -42,7 +38,6 @@ public class MainView extends View {
 	private static final Logger LOGGER = Logger.getLogger(MainView.class.getName());
 	private LayoutContainer centerContent;
 	private Component helpComponent;
-	private Component homeComponent;
 	private NavPanel navPanel;
 	private Viewport viewport;
 	private LayoutContainer westContent;
@@ -71,13 +66,9 @@ public class MainView extends View {
 			LOGGER.finest("Navigate: \'" + event.<String> getData() + "\'");
 			onNavigate(event);
 
-		} else if (type.equals(LoginEvents.LoginSuccess)) {
-			LOGGER.finest("LoginSuccess");
+		} else if (type.equals(MainEvents.LoggedIn)) {
+			LOGGER.finest("LoggedIn");
 			onLoggedIn(event);
-
-		} else if (type.equals(LoginEvents.LoggedOut)) {
-			LOGGER.finest("LoggedOut");
-			onLoggedOut(event);
 
 		} else {
 			LOGGER.severe("Unexpected event: " + event);
@@ -201,10 +192,6 @@ public class MainView extends View {
 		this.navPanel.setLoggedIn(true);
 	}
 
-	private void onLoggedOut(AppEvent event) {
-		this.navPanel.setLoggedIn(false);
-	}
-
 	private void onNavigate(AppEvent event) {
 		String location = event.<String> getData("new");
 		String oldLocation = event.<String> getData("old");
@@ -215,30 +202,7 @@ public class MainView extends View {
 		// select the new center content
 		Component newContent = null;
 		if (null != location) {
-			if (location.equals(NavPanel.HOME)) {
-				if (null == this.homeComponent) {
-					this.homeComponent = new HomeScreen();
-				}
-				newContent = this.homeComponent;
-
-				// set up west panel layout
-				westContent.removeAll();
-				AccordionLayout layout = new AccordionLayout();
-				layout.setFill(false);
-				westContent.setLayout(layout);
-				this.westContent.show();
-
-				// login panel
-				AppEvent displayLogin = new AppEvent(LoginEvents.Show);
-				displayLogin.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displayLogin);
-
-				// register panel
-				AppEvent displayRegister = new AppEvent(RegisterEvents.Show);
-				displayRegister.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displayRegister);
-
-			} else if (location.equals(NavPanel.VISUALIZATION)) {
+			if (location.equals(NavPanel.VISUALIZATION)) {
 
 				this.centerContent.removeAll();
 
@@ -282,22 +246,9 @@ public class MainView extends View {
 				this.westContent.removeAll();
 				this.westContent.hide();
 
-			} else if (location.equals(NavPanel.RESET_PASSWORD)) {
-
-				this.centerContent.removeAll();
-
-				// set up west panel layout
-				this.westContent.removeAll();
-				this.westContent.hide();
-
-				// demo panel
-				AppEvent displayForm = new AppEvent(PwResetEvents.ShowNewPasswordForm);
-				displayForm.setData("parent", this.centerContent);
-				Dispatcher.forwardEvent(displayForm);
-
 			} else if (location.equals(NavPanel.SIGN_OUT)) {
 				newContent = null;
-				Dispatcher.forwardEvent(LoginEvents.RequestLogout);
+				Dispatcher.forwardEvent(MainEvents.RequestLogout);
 
 			} else {
 

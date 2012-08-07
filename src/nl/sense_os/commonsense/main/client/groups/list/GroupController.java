@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.common.client.httpresponse.GetGroupsResponseJso;
 import nl.sense_os.commonsense.common.client.model.GroupModel;
 import nl.sense_os.commonsense.common.client.model.UserModel;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
@@ -47,7 +46,6 @@ public class GroupController extends Controller {
 
 		registerEventTypes(VizEvents.Show);
 		registerEventTypes(MainEvents.Init);
-		registerEventTypes(LoginEvents.LoggedOut);
 		registerEventTypes(GroupInviteEvents.InviteComplete);
 		registerEventTypes(GroupCreateEvents.CreateComplete);
 		registerEventTypes(GroupLeaveEvents.LeaveComplete);
@@ -195,27 +193,11 @@ public class GroupController extends Controller {
 		} else
 
 		/*
-		 * Clear data after logout
-		 */
-		if (type.equals(LoginEvents.LoggedOut)) {
-			// LOG.fine( "LoggedOut");
-			onLogout();
-
-		} else
-
-		/*
 		 * Pass through to view
 		 */
 		{
 			forwardToView(this.tree, event);
 		}
-	}
-
-	/**
-	 * Clears the list of groups from the Registry.
-	 */
-	private void onLogout() {
-		Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
 	}
 
 	@Override

@@ -3,12 +3,15 @@ package nl.sense_os.commonsense.main.client.main;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
+import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.common.client.httpresponse.CurrentUserResponseJso;
 import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.util.CommonSense;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -17,20 +20,97 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window.Location;
 
 public class MainController extends Controller implements ValueChangeHandler<String> {
 
 	private static final Logger LOG = Logger.getLogger(MainController.class.getName());
+
+	/**
+	 * Redirects the user to the login page
+	 */
+	public static void goToLoginPage() {
+		UrlBuilder builder = new UrlBuilder();
+		builder.setProtocol(Location.getProtocol());
+		builder.setHost(Location.getHost());
+		String path = Location.getPath().contains("index.html") ? Location.getPath().replace(
+				"index.html", "login.html") : Location.getPath() + "login.html";
+		builder.setPath(path);
+		for (Entry<String, List<String>> entry : Location.getParameterMap().entrySet()) {
+			if ("session_id".equals(entry.getKey()) || "error".equals(entry.getKey())) {
+				// do not copy the session id parameter
+			} else {
+				builder.setParameter(entry.getKey(), entry.getValue().toArray(new String[0]));
+			}
+		}
+		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
+	}
+
 	private View mainView;
+
 	private String currentToken;
 
 	public MainController() {
-		registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady);
-		registerEventTypes(LoginEvents.LoginSuccess, LoginEvents.LoggedOut);
+		LOG.setLevel(Level.ALL);
+		registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady,
+				MainEvents.RequestLogout, MainEvents.LoggedIn);
+	}
+
+	/**
+	 * Requests the current user's details from CommonSense. Only used to check if the login was
+	 * successful.
+	 */
+	private void getCurrentUser() {
+		LOG.finest("Get current user");
+
+		// prepare request details
+		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final String url = urlBuilder.setPath(Urls.PATH_USERS + "/current.json").buildString();
+		final String sessionId = SessionManager.getSessionId();
+
+		// prepare request callback
+		RequestCallback callback = new RequestCallback() {
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				LOG.warning("GET current user onError callback: " + exception.getMessage());
+				SessionManager.removeSessionId();
+				goToLoginPage();
+			}
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				LOG.finest("GET current user response received: " + response.getStatusText());
+				int statusCode = response.getStatusCode();
+				if (Response.SC_OK == statusCode) {
+					parseUserReponse(response.getText());
+				} else if (Response.SC_FORBIDDEN == statusCode) {
+					onLoginFailure(statusCode);
+				} else {
+					LOG.warning("GET current user returned incorrect status: " + statusCode);
+					onLoginFailure(statusCode);
+				}
+			}
+		};
+
+		// send request
+		try {
+			RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+			builder.setHeader("X-SESSION_ID", sessionId);
+			builder.sendRequest(null, callback);
+		} catch (Exception e) {
+			LOG.warning("GET current user request threw exception: " + e.getMessage());
+			callback.onError(null, e);
+		}
 	}
 
 	@Override
@@ -40,27 +120,14 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 			forwardToView(mainView, event);
 			onUiReady();
 
-		} else if (type.equals(LoginEvents.LoginSuccess)) {
-			onLoggedIn();
-			forwardToView(mainView, event);
+		} else if (type.equals(MainEvents.RequestLogout)) {
+			logout();
 
-		} else if (type.equals(LoginEvents.LoggedOut)) {
-			onLoggedOut();
+		} else if (type.equals(MainEvents.LoggedIn)) {
 			forwardToView(mainView, event);
 
 		} else {
 			forwardToView(mainView, event);
-		}
-	}
-
-	private void onUiReady() {
-		String sessionId = SessionManager.getSessionId();
-		if (null != sessionId && sessionId.length() > 0) {
-			// go straight to visualization
-			History.newItem(NavPanel.VISUALIZATION);
-			History.fireCurrentHistoryState();
-		} else {
-			handleStartLocation();
 		}
 	}
 
@@ -72,45 +139,24 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	private void handleStartLocation() {
 
 		String token = History.getToken();
-		if (token != null && token.contains("session_id=")) {
-			LOG.fine("Google authentication landing");
-
+		if (token.contains("session_id")) {
 			String sessionId = token.substring("session_id=".length());
 
 			if (null != sessionId && sessionId.length() > 0) {
-				AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
-				authenticated.setData("sessionId", sessionId);
-				Dispatcher.forwardEvent(authenticated);
+				SessionManager.setSessionId(sessionId);
+				getCurrentUser();
+
 			} else {
 				LOG.warning("Did not find Session ID after google authentication");
-				navigateHome();
+				onLoginFailure(-1);
 			}
 
-		} else if (token != null && token.contains("error=")) {
-			LOG.warning("Google authentication error landing");
-			String errorMsg = token.substring("error=".length());
-			onError(errorMsg);
-
-			// } else if (!GWT.isProdMode() && Location.getParameter("session_id") != null) {
 		} else if (Location.getParameter("session_id") != null) {
 			LOG.fine("Google authentication landing");
 			String newUrl = urlParameterToFragment(Location.getHref(), "session_id");
 
 			// reload the app at the hacked URL
 			Location.replace(newUrl);
-
-			// } else if (Location.getParameter("error") != null) {
-		} else if (Location.getParameter("error") != null) {
-			LOG.warning("Google authentication error landing");
-			String newUrl = urlParameterToFragment(Location.getHref(), "error");
-
-			// reload the app at the hacked URL
-			Location.replace(newUrl);
-
-		} else if (token != null && token.equals("resetPassword")) {
-			LOG.warning("Reset password landing");
-
-			History.fireCurrentHistoryState();
 
 		} else {
 			History.fireCurrentHistoryState();
@@ -133,91 +179,111 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
 	private boolean isValidLocation(String token) {
 		boolean valid = token.equals(NavPanel.SIGN_OUT);
-		valid = valid || token.equals(NavPanel.HOME);
 		valid = valid || token.equals(NavPanel.HELP);
 		valid = valid || token.equals(NavPanel.VISUALIZATION);
-		valid = valid || token.equals(NavPanel.RESET_PASSWORD);
 		return valid;
 	}
 
-	/**
-	 * Navigates the application to the home view
-	 */
-	private void navigateHome() {
-		String startLocation = NavPanel.HOME;
-		History.newItem(startLocation);
-		History.fireCurrentHistoryState();
+	private void logout() {
+		LOG.finest("Log out");
+		RequestCallback callback = new RequestCallback() {
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				onLogoutError(-1, exception);
+			}
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				if (response.getStatusCode() == Response.SC_OK) {
+					onLoggedOut();
+				} else {
+					onLogoutError(response.getStatusCode(), new Throwable(response.getStatusText()));
+				}
+			}
+		};
+		CommonSense.logout(callback);
 	}
 
-	private void onError(String errorMsg) {
+	private void onCurrentUser(UserModel user) {
 
-		if (errorMsg.contains("e-mail address:") && errorMsg.contains("is already registered")) {
+		Registry.register(Constants.REG_USER, user);
+		Dispatcher.forwardEvent(new AppEvent(MainEvents.LoggedIn, user));
 
-			// parse email address
-			int startIndex = errorMsg.indexOf("e-mail address: ") + "e-mail address: ".length();
-			int endIndex = errorMsg.indexOf(" is already registered");
-			String email = errorMsg.substring(startIndex, endIndex);
-
-			// dispatch event
-			AppEvent connect = new AppEvent(LoginEvents.GoogleAuthConflict);
-			connect.setData("email", email);
-			Dispatcher.forwardEvent(connect);
-
-		} else {
-
-			// dispatch event
-			AppEvent error = new AppEvent(LoginEvents.GoogleAuthError);
-			error.setData("msg", errorMsg);
-			Dispatcher.forwardEvent(error);
-		}
-	}
-
-	private void onLoggedIn() {
 		History.newItem(NavPanel.VISUALIZATION);
 		History.fireCurrentHistoryState();
 	}
 
 	private void onLoggedOut() {
-		History.newItem(NavPanel.HOME);
-		History.fireCurrentHistoryState();
+		SessionManager.removeSessionId();
+		goToLoginPage();
+	}
+
+	private void onLoginFailure(int i) {
+		LOG.warning("Login failure: " + i);
+		goToLoginPage();
+	}
+
+	private void onLogoutError(int code, Throwable error) {
+		// TODO Auto-generated method stub
+		LOG.warning("Logout failure! Code: " + code + " " + error);
+		onLoggedOut();
+	}
+
+	private void onUiReady() {
+		LOG.finest("UI ready");
+		String sessionId = SessionManager.getSessionId();
+		if (null != sessionId && sessionId.length() > 0) {
+			getCurrentUser();
+		} else {
+			handleStartLocation();
+		}
 	}
 
 	@Override
 	public void onValueChange(ValueChangeEvent<String> event) {
-		LOG.info("History value change");
 		String token = event.getValue();
+		LOG.info("History value change: " + token);
 		if (token.equals("") || false == isValidLocation(token)) {
-			History.newItem(NavPanel.HOME);
+			History.newItem(NavPanel.VISUALIZATION);
 			History.fireCurrentHistoryState();
 			return;
 		}
 
-		if (isLoginRequired(token)) {
-			String sessionId = SessionManager.getSessionId();
-			UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-			if (null != sessionId) {
-				if (null == user) {
-					LOG.info("Try to re-use session ID from cookie");
-					AppEvent authenticated = new AppEvent(LoginEvents.GoogleAuthResult);
-					authenticated.setData("sessionId", sessionId);
-					Dispatcher.forwardEvent(authenticated);
-					return;
-				}
-
-			} else {
-				LOG.warning("Not signed in: refusing new history token " + token);
-				History.newItem(NavPanel.HOME);
-				History.fireCurrentHistoryState();
-				return;
-			}
+		if (isLoginRequired(token) && null == SessionManager.getSessionId()) {
+			LOG.warning("Not signed in: refusing new history token " + token);
+			goToLoginPage();
+			return;
 		}
 
 		AppEvent navEvent = new AppEvent(MainEvents.Navigate);
 		navEvent.setData("old", currentToken);
 		navEvent.setData("new", token);
 		currentToken = token;
-
 		forwardToView(mainView, navEvent);
+	}
+
+	private void parseUserReponse(String response) {
+		if (response != null) {
+
+			// try to get "user" object
+			UserModel user = null;
+			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+				CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
+				user = jso.getUser();
+			}
+
+			if (null != user) {
+				onCurrentUser(user);
+			} else {
+				LOG.severe("Unexpected current user response");
+				onLoginFailure(-1);
+			}
+
+		} else {
+			LOG.severe("Error parsing current user response: response=null");
+			onLoginFailure(-1);
+		}
 	}
 
 	private String urlParameterToFragment(String url, String parameterToFragment) {

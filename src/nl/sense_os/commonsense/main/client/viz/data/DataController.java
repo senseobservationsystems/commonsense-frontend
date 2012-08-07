@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.viz.data.cache.Cache;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -40,7 +39,6 @@ public class DataController extends Controller {
 		// LOG.setLevel(Level.FINE);
 
 		registerEventTypes(DataEvents.DataRequest);
-		registerEventTypes(LoginEvents.LoggedOut);
 		registerEventTypes(DataEvents.LatestValuesRequest);
 	}
 
@@ -150,10 +148,6 @@ public class DataController extends Controller {
 			final View source = (View) event.getSource();
 			onLatestValuesRequest(sensors, source);
 
-		} else
-
-		if (type.equals(LoginEvents.LoggedOut)) {
-			Cache.clear();
 		} else
 
 		/*

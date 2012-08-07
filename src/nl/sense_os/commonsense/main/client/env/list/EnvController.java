@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.common.client.httpresponse.GetEnvironmentsRespons
 import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.util.SessionManager;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
@@ -41,7 +40,6 @@ public class EnvController extends Controller {
 		// events to update the list of groups
 		registerEventTypes(MainEvents.Init);
 		registerEventTypes(VizEvents.Show);
-		registerEventTypes(LoginEvents.LoggedOut);
 		registerEventTypes(EnvEvents.ShowGrid);
 
 		registerEventTypes(EnvEvents.ListRequested, EnvEvents.ListUpdated);

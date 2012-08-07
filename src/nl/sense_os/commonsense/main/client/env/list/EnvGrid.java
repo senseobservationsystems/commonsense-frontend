@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
-import nl.sense_os.commonsense.main.client.auth.login.LoginEvents;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
@@ -51,294 +50,287 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class EnvGrid extends View {
 
-    private static final Logger LOG = Logger.getLogger(EnvGrid.class.getName());
-    private Button createButton;
-    private Button deleteButton;
-    private Button editButton;
-    private Button viewButton;
-    private Grid<EnvironmentModel> grid;
-    private ContentPanel panel;
-    private ListStore<EnvironmentModel> store;
-    private ListLoader<ListLoadResult<EnvironmentModel>> loader;
-    private boolean isListDirty;
-    private ToolButton refreshTool;
-    private ToolBar toolBar;
+	private static final Logger LOG = Logger.getLogger(EnvGrid.class.getName());
+	private Button createButton;
+	private Button deleteButton;
+	private Button editButton;
+	private Button viewButton;
+	private Grid<EnvironmentModel> grid;
+	private ContentPanel panel;
+	private ListStore<EnvironmentModel> store;
+	private ListLoader<ListLoadResult<EnvironmentModel>> loader;
+	private boolean isListDirty;
+	private ToolButton refreshTool;
+	private ToolBar toolBar;
 
-    public EnvGrid(Controller controller) {
-        super(controller);
-    }
+	public EnvGrid(Controller controller) {
+		super(controller);
+	}
 
-    private void createEnvironment() {
-        Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
-    }
+	private void createEnvironment() {
+		Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+	}
 
-    private void deleteEnvironment() {
-        AppEvent delete = new AppEvent(EnvEvents.DeleteRequest);
-        delete.setData("environment", grid.getSelectionModel().getSelectedItem());
-        fireEvent(delete);
-    }
+	private void deleteEnvironment() {
+		AppEvent delete = new AppEvent(EnvEvents.DeleteRequest);
+		delete.setData("environment", grid.getSelectionModel().getSelectedItem());
+		fireEvent(delete);
+	}
 
-    @Override
-    protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
+	@Override
+	protected void handleEvent(AppEvent event) {
+		EventType type = event.getType();
 
-        if (type.equals(MainEvents.Init)) {
-            // do nothing, initialization is done in initialize()
+		if (type.equals(MainEvents.Init)) {
+			// do nothing, initialization is done in initialize()
 
-        } else if (type.equals(EnvEvents.ShowGrid)) {
-            // LOG.fine( "ShowGrid");
-            final LayoutContainer parent = event.getData("parent");
-            showPanel(parent);
+		} else if (type.equals(EnvEvents.ShowGrid)) {
+			// LOG.fine( "ShowGrid");
+			final LayoutContainer parent = event.getData("parent");
+			showPanel(parent);
 
-        } else if (type.equals(EnvEvents.ListUpdated)) {
-            // LOG.fine( "ListUpdated");
-            onListUpdated(event);
+		} else if (type.equals(EnvEvents.ListUpdated)) {
+			// LOG.fine( "ListUpdated");
+			onListUpdated(event);
 
-        } else if (type.equals(VizEvents.Show)) {
-            // LOG.fine( "Show Visualization");
-            refreshLoader(false);
+		} else if (type.equals(VizEvents.Show)) {
+			// LOG.fine( "Show Visualization");
+			refreshLoader(false);
 
-        } else if (type.equals(LoginEvents.LoggedOut)) {
-            // LOG.fine( "LoggedOut");
-            onLoggedOut(event);
+		} else if (type.equals(EnvEvents.Working)) {
+			// LOG.fine( "Working");
+			setBusyIcon(true);
 
-        } else if (type.equals(EnvEvents.Working)) {
-            // LOG.fine( "Working");
-            setBusyIcon(true);
+		} else if (type.equals(EnvEvents.Done)) {
+			// LOG.fine( "Working");
+			setBusyIcon(false);
 
-        } else if (type.equals(EnvEvents.Done)) {
-            // LOG.fine( "Working");
-            setBusyIcon(false);
+		} else if (type.equals(EnvCreateEvents.CreateSuccess)
+				|| type.equals(EnvEvents.DeleteSuccess)) {
+			// LOG.fine( "Done");
+			isListDirty = true;
+			refreshLoader(false);
 
-        } else if (type.equals(EnvCreateEvents.CreateSuccess)
-                || type.equals(EnvEvents.DeleteSuccess)) {
-            // LOG.fine( "Done");
-            isListDirty = true;
-            refreshLoader(false);
+		} else {
+			LOG.severe("Unexpected event type: " + type);
+		}
+	}
 
-        } else {
-            LOG.severe("Unexpected event type: " + type);
-        }
-    }
+	private void initGrid() {
+		// tree store
+		DataProxy<ListLoadResult<EnvironmentModel>> proxy = new DataProxy<ListLoadResult<EnvironmentModel>>() {
 
-    private void initGrid() {
-        // tree store
-        DataProxy<ListLoadResult<EnvironmentModel>> proxy = new DataProxy<ListLoadResult<EnvironmentModel>>() {
+			@Override
+			public void load(DataReader<ListLoadResult<EnvironmentModel>> reader,
+					Object loadConfig, AsyncCallback<ListLoadResult<EnvironmentModel>> callback) {
 
-            @Override
-            public void load(DataReader<ListLoadResult<EnvironmentModel>> reader,
-                    Object loadConfig, AsyncCallback<ListLoadResult<EnvironmentModel>> callback) {
+				// only load when the panel is not collapsed
+				if (loadConfig instanceof ListLoadConfig) {
+					fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
+				} else {
+					LOG.warning("Unexpected loadconfig: " + loadConfig);
+					callback.onFailure(null);
+				}
+			}
+		};
+		loader = new BaseListLoader<ListLoadResult<EnvironmentModel>>(proxy);
+		store = new ListStore<EnvironmentModel>(loader);
 
-                // only load when the panel is not collapsed
-                if (loadConfig instanceof ListLoadConfig) {
-                    fireEvent(new AppEvent(EnvEvents.ListRequested, callback));
-                } else {
-                    LOG.warning("Unexpected loadconfig: " + loadConfig);
-                    callback.onFailure(null);
-                }
-            }
-        };
-        loader = new BaseListLoader<ListLoadResult<EnvironmentModel>>(proxy);
-        store = new ListStore<EnvironmentModel>(loader);
+		ColumnConfig name = new ColumnConfig(EnvironmentModel.NAME, "Name", 100);
+		ColumnConfig floors = new ColumnConfig(EnvironmentModel.FLOORS, "Floors", 100);
+		ColumnConfig id = new ColumnConfig(EnvironmentModel.ID, "ID", 50);
+		id.setHidden(true);
+		ColumnConfig outline = new ColumnConfig(EnvironmentModel.OUTLINE, "Outline", 200);
+		outline.setRenderer(new GridCellRenderer<EnvironmentModel>() {
 
-        ColumnConfig name = new ColumnConfig(EnvironmentModel.NAME, "Name", 100);
-        ColumnConfig floors = new ColumnConfig(EnvironmentModel.FLOORS, "Floors", 100);
-        ColumnConfig id = new ColumnConfig(EnvironmentModel.ID, "ID", 50);
-        id.setHidden(true);
-        ColumnConfig outline = new ColumnConfig(EnvironmentModel.OUTLINE, "Outline", 200);
-        outline.setRenderer(new GridCellRenderer<EnvironmentModel>() {
+			@Override
+			public Object render(EnvironmentModel model, String property, ColumnData config,
+					int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
+					Grid<EnvironmentModel> grid) {
+				Polygon outline = model.getOutline();
+				String outString = "";
+				if (outline != null) {
+					for (int i = 0; i < outline.getVertexCount(); i++) {
+						outString += outline.getVertex(i).toUrlValue() + "; ";
+					}
+				}
+				return outString;
+			}
+		});
+		outline.setHidden(true);
+		ColumnConfig position = new ColumnConfig(EnvironmentModel.POSITION, "Position", 100);
+		position.setRenderer(new GridCellRenderer<EnvironmentModel>() {
 
-            @Override
-            public Object render(EnvironmentModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
-                    Grid<EnvironmentModel> grid) {
-                Polygon outline = model.getOutline();
-                String outString = "";
-                if (outline != null) {
-                    for (int i = 0; i < outline.getVertexCount(); i++) {
-                        outString += outline.getVertex(i).toUrlValue() + "; ";
-                    }
-                }
-                return outString;
-            }
-        });
-        outline.setHidden(true);
-        ColumnConfig position = new ColumnConfig(EnvironmentModel.POSITION, "Position", 100);
-        position.setRenderer(new GridCellRenderer<EnvironmentModel>() {
+			@Override
+			public Object render(EnvironmentModel model, String property, ColumnData config,
+					int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
+					Grid<EnvironmentModel> grid) {
+				LatLng position = model.getPosition();
+				if (null != position) {
+					return model.getPosition().toUrlValue();
+				} else {
+					return "";
+				}
+			}
+		});
+		position.setHidden(true);
 
-            @Override
-            public Object render(EnvironmentModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<EnvironmentModel> store,
-                    Grid<EnvironmentModel> grid) {
-                LatLng position = model.getPosition();
-                if (null != position) {
-                    return model.getPosition().toUrlValue();
-                } else {
-                    return "";
-                }
-            }
-        });
-        position.setHidden(true);
+		ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
 
-        ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
+		grid = new Grid<EnvironmentModel>(store, cm);
+		grid.setId("buildingGrid");
+		grid.setStateful(true);
+		grid.setLoadMask(true);
+		grid.setAutoExpandColumn(EnvironmentModel.NAME);
+	}
 
-        grid = new Grid<EnvironmentModel>(store, cm);
-        grid.setId("buildingGrid");
-        grid.setStateful(true);
-        grid.setLoadMask(true);
-        grid.setAutoExpandColumn(EnvironmentModel.NAME);
-    }
+	private void initHeaderTool() {
+		refreshTool = new ToolButton("x-tool-refresh");
+		refreshTool.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
-    private void initHeaderTool() {
-        refreshTool = new ToolButton("x-tool-refresh");
-        refreshTool.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			@Override
+			public void componentSelected(IconButtonEvent ce) {
+				refreshLoader(true);
+			}
+		});
+	}
 
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                refreshLoader(true);
-            }
-        });
-    }
+	@Override
+	protected void initialize() {
+		super.initialize();
 
-    @Override
-    protected void initialize() {
-        super.initialize();
+		panel = new ContentPanel(new FitLayout());
+		panel.setHeading("Manage environments");
+		panel.setAnimCollapse(false);
 
-        panel = new ContentPanel(new FitLayout());
-        panel.setHeading("Manage environments");
-        panel.setAnimCollapse(false);
+		// track whether the panel is expanded
+		panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
-        // track whether the panel is expanded
-        panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
+			@Override
+			public void handleEvent(ComponentEvent be) {
+				refreshLoader(false);
+			}
+		});
 
-            @Override
-            public void handleEvent(ComponentEvent be) {
-                refreshLoader(false);
-            }
-        });
+		initGrid();
+		initHeaderTool();
+		initToolBar();
 
-        initGrid();
-        initHeaderTool();
-        initToolBar();
+		// add grid to panel
+		panel.setTopComponent(toolBar);
+		panel.add(grid);
+		panel.getHeader().addTool(refreshTool);
+	}
 
-        // add grid to panel
-        panel.setTopComponent(toolBar);
-        panel.add(grid);
-        panel.getHeader().addTool(refreshTool);
-    }
+	private void initToolBar() {
 
-    private void initToolBar() {
+		final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
-        final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				Button source = ce.getButton();
+				if (source.equals(createButton)) {
+					createEnvironment();
+				} else if (source.equals(deleteButton)) {
+					onDeleteClick();
+				} else if (source.equals(viewButton)) {
+					onViewClick();
+				} else if (source.equals(editButton)) {
+					onEditClick();
+				} else {
+					LOG.warning("Unexpected buttons pressed");
+				}
+			}
+		};
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                Button source = ce.getButton();
-                if (source.equals(createButton)) {
-                    createEnvironment();
-                } else if (source.equals(deleteButton)) {
-                    onDeleteClick();
-                } else if (source.equals(viewButton)) {
-                    onViewClick();
-                } else if (source.equals(editButton)) {
-                    onEditClick();
-                } else {
-                    LOG.warning("Unexpected buttons pressed");
-                }
-            }
-        };
+		viewButton = new Button("View", l);
+		viewButton.disable();
 
-        viewButton = new Button("View", l);
-        viewButton.disable();
+		createButton = new Button("Create", l);
 
-        createButton = new Button("Create", l);
+		editButton = new Button("Edit", l);
+		editButton.disable();
 
-        editButton = new Button("Edit", l);
-        editButton.disable();
+		deleteButton = new Button("Remove", l);
+		deleteButton.disable();
 
-        deleteButton = new Button("Remove", l);
-        deleteButton.disable();
+		// create tool bar
+		toolBar = new ToolBar();
+		toolBar.add(viewButton);
+		toolBar.add(createButton);
+		toolBar.add(editButton);
+		toolBar.add(deleteButton);
 
-        // create tool bar
-        toolBar = new ToolBar();
-        toolBar.add(viewButton);
-        toolBar.add(createButton);
-        toolBar.add(editButton);
-        toolBar.add(deleteButton);
+		// enable/disable buttons according to grid selection
+		GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
+		selectionModel.setSelectionMode(SelectionMode.SINGLE);
+		selectionModel
+				.addSelectionChangedListener(new SelectionChangedListener<EnvironmentModel>() {
 
-        // enable/disable buttons according to grid selection
-        GridSelectionModel<EnvironmentModel> selectionModel = new GridSelectionModel<EnvironmentModel>();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel
-                .addSelectionChangedListener(new SelectionChangedListener<EnvironmentModel>() {
+					@Override
+					public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
+						EnvironmentModel selection = se.getSelectedItem();
+						if (null != selection) {
+							deleteButton.enable();
+							viewButton.enable();
+						} else {
+							deleteButton.disable();
+							viewButton.disable();
+						}
+					}
+				});
+		grid.setSelectionModel(selectionModel);
+	}
 
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<EnvironmentModel> se) {
-                        EnvironmentModel selection = se.getSelectedItem();
-                        if (null != selection) {
-                            deleteButton.enable();
-                            viewButton.enable();
-                        } else {
-                            deleteButton.disable();
-                            viewButton.disable();
-                        }
-                    }
-                });
-        grid.setSelectionModel(selectionModel);
-    }
+	private void onDeleteClick() {
+		MessageBox.confirm(null, "Are you sure you want to remove this environment?",
+				new Listener<MessageBoxEvent>() {
 
-    private void onDeleteClick() {
-        MessageBox.confirm(null, "Are you sure you want to remove this environment?",
-                new Listener<MessageBoxEvent>() {
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+						Button clicked = be.getButtonClicked();
+						if ("yes".equalsIgnoreCase(clicked.getText())) {
+							deleteEnvironment();
+						}
+					}
+				});
+	}
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        Button clicked = be.getButtonClicked();
-                        if ("yes".equalsIgnoreCase(clicked.getText())) {
-                            deleteEnvironment();
-                        }
-                    }
-                });
-    }
+	protected void onEditClick() {
+		// TODO Auto-generated method stub
 
-    protected void onEditClick() {
-        // TODO Auto-generated method stub
+	}
 
-    }
+	private void onListUpdated(AppEvent event) {
+		isListDirty = false;
+	}
 
-    private void onListUpdated(AppEvent event) {
-        isListDirty = false;
-    }
+	protected void onViewClick() {
+		AppEvent viewEvent = new AppEvent(EnvViewEvents.Show);
+		viewEvent.setData("environment", grid.getSelectionModel().getSelectedItem());
+		Dispatcher.forwardEvent(viewEvent);
+	}
 
-    private void onLoggedOut(AppEvent event) {
-        store.removeAll();
-    }
+	private void refreshLoader(boolean force) {
+		if (force || (store.getCount() == 0 || isListDirty) && panel.isExpanded()) {
+			loader.load();
+		}
+	}
 
-    protected void onViewClick() {
-        AppEvent viewEvent = new AppEvent(EnvViewEvents.Show);
-        viewEvent.setData("environment", grid.getSelectionModel().getSelectedItem());
-        Dispatcher.forwardEvent(viewEvent);
-    }
+	private void setBusyIcon(boolean busy) {
+		if (busy) {
+			panel.getHeader().setIconStyle("sense-btn-icon-loading");
+		} else {
+			panel.getHeader().setIconStyle("");
+		}
+	}
 
-    private void refreshLoader(boolean force) {
-        if (force || (store.getCount() == 0 || isListDirty) && panel.isExpanded()) {
-            loader.load();
-        }
-    }
-
-    private void setBusyIcon(boolean busy) {
-        if (busy) {
-            panel.getHeader().setIconStyle("sense-btn-icon-loading");
-        } else {
-            panel.getHeader().setIconStyle("");
-        }
-    }
-    private void showPanel(LayoutContainer parent) {
-        if (null != parent) {
-            parent.add(panel);
-            parent.layout();
-        } else {
-            LOG.severe("Failed to show buildings panel: parent=null");
-        }
-    }
+	private void showPanel(LayoutContainer parent) {
+		if (null != parent) {
+			parent.add(panel);
+			parent.layout();
+		} else {
+			LOG.severe("Failed to show buildings panel: parent=null");
+		}
+	}
 }
