@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.main.client.main;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
@@ -60,7 +59,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	private String currentToken;
 
 	public MainController() {
-		LOG.setLevel(Level.ALL);
 		registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady,
 				MainEvents.RequestLogout, MainEvents.LoggedIn);
 	}
