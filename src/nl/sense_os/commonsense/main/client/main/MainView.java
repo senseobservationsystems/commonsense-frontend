@@ -39,8 +39,9 @@ public class MainView extends View {
 	private LayoutContainer centerContent;
 	private Component helpComponent;
 	private NavPanel navPanel;
-	private Viewport viewport;
+	// private Viewport viewport;
 	private LayoutContainer westContent;
+	private LayoutContainer appWidget;
 
 	public MainView(Controller controller) {
 		super(controller);
@@ -100,18 +101,17 @@ public class MainView extends View {
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setMargins(new Margins(10));
 		// this.viewport.add(center, centerData);
-		this.viewport.add(this.centerContent, centerData);
+		appWidget.add(this.centerContent, centerData);
 	}
 
 	@Override
 	protected void initialize() {
 		LOGGER.finest("Initialize...");
 
-		// ViewPort fills browser screen and automatically resizes content
-		this.viewport = new Viewport();
-		this.viewport.setId("sense-viewport");
-		this.viewport.setLayout(new BorderLayout());
-		this.viewport.setStyleAttribute("background", "transparent;");
+		appWidget = new LayoutContainer();
+		appWidget.setLayout(new BorderLayout());
+		appWidget.setStyleAttribute("background",
+				"url('commonsense/images/bgRightTop.png') no-repeat right top;");
 
 		initNorth();
 		initWest();
@@ -128,7 +128,7 @@ public class MainView extends View {
 		BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, NavPanel.HEIGHT);
 		northData.setMargins(new Margins(0));
 		northData.setSplit(false);
-		this.viewport.add(navPanel, northData);
+		appWidget.add(navPanel, northData);
 	}
 
 	private void initSouth() {
@@ -144,7 +144,7 @@ public class MainView extends View {
 		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 23);
 		southData.setMargins(new Margins(0));
 		southData.setSplit(false);
-		this.viewport.add(footer, southData);
+		appWidget.add(footer, southData);
 	}
 
 	private void initWest() {
@@ -178,8 +178,7 @@ public class MainView extends View {
 		final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
 		westData.setMargins(new Margins(10, 0, 10, 10));
 		westData.setSplit(true);
-		// this.viewport.add(west, westData);
-		this.viewport.add(this.westContent, westData);
+		appWidget.add(this.westContent, westData);
 	}
 
 	private void onError(AppEvent event) {
@@ -274,6 +273,15 @@ public class MainView extends View {
 	}
 
 	private void onUiReady(AppEvent event) {
-		RootPanel.get().add(this.viewport);
+
+		// ViewPort fills browser screen and automatically resizes content
+		Viewport viewport = new Viewport();
+		viewport.setLayout(new FitLayout());
+		viewport.setStyleAttribute("background",
+				"url('commonsense/images/bgLeftBottom.png') no-repeat left bottom;");
+
+		viewport.add(appWidget);
+
+		RootPanel.get().add(viewport);
 	}
 }
