@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.main;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.UserModel;
-import nl.sense_os.commonsense.main.client.LastDeployed;
+import nl.sense_os.commonsense.common.client.resource.CSResources;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
 import nl.sense_os.commonsense.main.client.main.components.HelpScreen;
@@ -136,7 +136,7 @@ public class MainView extends View {
 		String copyright = "&copy;2011 Sense";
 		String bullet = "&nbsp;&nbsp;&#8226;&nbsp;&nbsp;";
 		Anchor website = new Anchor("Sense Home", "http://www.sense-os.nl", "_blank");
-		String update = "Last update: " + LastDeployed.getPrettyString();
+		String update = "Last update: " + CSResources.INSTANCE.lastUpdated().getText();
 		HTML footerLink = new HTML(copyright + bullet + website.toString() + bullet + update);
 		footer.add(footerLink);
 		footer.setId("footer-bar");
@@ -149,30 +149,10 @@ public class MainView extends View {
 
 	private void initWest() {
 
-		// final LayoutContainer west = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
-		// west.setBorders(false);
-		//
-		// // Sense logo
-		// final Image logo = new Image("/img/logo_sense-162x90.png");
-		// logo.setPixelSize(162, 90);
-		// logo.addMouseDownHandler(new MouseDownHandler() {
-		// @Override
-		// public void onMouseDown(MouseDownEvent event) {
-		// LOGGER.fine("relative x: " + event.getRelativeX(logo.getElement()));
-		// LOGGER.fine("relative y: " + event.getRelativeY(logo.getElement()));
-		// }
-		// });
-		// final LayoutContainer logoContainer = new LayoutContainer(new CenterLayout());
-		// logoContainer.setId("logo-container");
-		// logoContainer.setHeight(90);
-		// logoContainer.add(logo);
-		// west.add(logoContainer, new RowData(1, -1, new Margins(0)));
-
 		// real content
 		this.westContent = new LayoutContainer(new FitLayout());
 		this.westContent.setId("west-content");
 		this.westContent.setScrollMode(Scroll.AUTOY);
-		// west.add(this.westContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
 		// add to viewport
 		final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
