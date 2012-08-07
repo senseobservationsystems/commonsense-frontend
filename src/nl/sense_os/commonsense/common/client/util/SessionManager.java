@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.common.client.util;
 
 import java.util.Date;
 
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window.Location;
 
 public class SessionManager {
 
@@ -25,12 +25,11 @@ public class SessionManager {
 	 * Removes the session ID from the sense-os.nl cookie
 	 */
 	public static void removeSessionId() {
-		if (GWT.isProdMode()) {
+		if (GWT.isProdMode() && Location.getHostName().contains("sense-os.nl")) {
 			String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
 			Cookies.setCookie(KEY, "", new Date(), domain, null, false);
-		} else {
-			Cookies.removeCookie(KEY);
 		}
+		Cookies.removeCookie(KEY);
 	}
 
 	/**
@@ -39,10 +38,9 @@ public class SessionManager {
 	 * @param sessionId
 	 */
 	public static void setSessionId(String sessionId) {
-		if (GWT.isProdMode()) {
+		if (GWT.isProdMode() && Location.getHostName().contains("sense-os.nl")) {
 			String domain = Constants.DEV_MODE ? "dev.sense-os.nl" : ".sense-os.nl";
 			Cookies.setCookie(KEY, sessionId, null, domain, "", false);
-			Cookies.setCookie(KEY, sessionId);
 		} else {
 			Cookies.setCookie(KEY, sessionId);
 		}
