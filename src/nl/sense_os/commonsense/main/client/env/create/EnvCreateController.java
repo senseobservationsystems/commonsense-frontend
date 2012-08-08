@@ -7,11 +7,11 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateEnvironmentResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.ExtDevice;
-import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.model.Sensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
+import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

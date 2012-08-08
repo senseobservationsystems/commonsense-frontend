@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client.sensors.library;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;

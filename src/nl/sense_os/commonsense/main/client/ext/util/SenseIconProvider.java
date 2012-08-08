@@ -1,12 +1,13 @@
-package nl.sense_os.commonsense.common.client.util;
+package nl.sense_os.commonsense.main.client.ext.util;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtDevice;
-import nl.sense_os.commonsense.common.client.model.ExtGroup;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.util.Constants;
+import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
+import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
@@ -71,8 +72,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
 			ExtSensor sensor = (ExtSensor) model;
 
 			List<ExtUser> users = sensor.getUsers();
-			ExtUser currentUser = Registry
-					.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+			ExtUser currentUser = Registry.get(Constants.REG_USER);
 			int type = sensor.getType();
 			if (users != null
 					&& (users.size() > 1 || (!users.contains(currentUser) && users.size() > 0))) {
@@ -108,8 +108,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
 			}
 
 		} else if (model instanceof ExtUser) {
-			final ExtUser me = Registry
-					.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+			final ExtUser me = Registry.<ExtUser> get(Constants.REG_USER);
 			if (model.equals(me)) {
 				return ICON_USER_ME;
 			} else {

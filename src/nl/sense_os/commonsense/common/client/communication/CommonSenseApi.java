@@ -14,9 +14,9 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Window.Location;
 
-public class CommonSense {
+public class CommonSenseApi {
 
-	private static class Api {
+	private static class Urls {
 		private static final boolean IS_LIVE = GWT.getModuleBaseURL()
 				.contains("common.sense-os.nl");
 		private static final boolean IS_RC = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
@@ -26,6 +26,7 @@ public class CommonSense {
 				: IS_DEV ? "dev.sense-os.nl" : "api.sense-os.nl";
 		public static final String PROTOCOL = "http";
 		public static final String PATH_SENSORS = PATH_PREFIX + "sensors";
+		public static final String PATH_AVAIL_SERVICES = PATH_PREFIX + "sensors/services/available";
 		public static final String PATH_DATA = PATH_PREFIX + "sensors/%1/data";
 		@SuppressWarnings("unused")
 		public static final String PATH_DATA_POINT = PATH_PREFIX + "sensors/%1/data/%2";
@@ -38,12 +39,12 @@ public class CommonSense {
 		public static final String PATH_GROUPS = PATH_PREFIX + "groups";
 		public static final String PATH_GROUP_USERS = PATH_PREFIX + "groups/%1/users";
 
-		private Api() {
+		private Urls() {
 			// do not instantiate
 		}
 	}
 
-	private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
+	private static final Logger LOG = Logger.getLogger(CommonSenseApi.class.getName());
 	private static final String JSON_TYPE = "application/json";
 	private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
@@ -57,8 +58,8 @@ public class CommonSense {
 
 		// prepare request details
 		Method method = RequestBuilder.POST;
-		String url = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_FORGOT_PASSWORD).buildString();
+		String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_FORGOT_PASSWORD).buildString();
 
 		// prepare request data
 		String requestData = null != username ? "username=" + URL.encode(username) : "email="
@@ -76,6 +77,34 @@ public class CommonSense {
 		}
 	}
 
+	public static void getAvailableServices(RequestCallback callback, String perPage, String page,
+			String groupId) {
+
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_AVAIL_SERVICES);
+		if (null != page) {
+			urlBuilder.setParameter("page", page);
+		}
+		if (null != perPage) {
+			urlBuilder.setParameter("per_page", perPage);
+		}
+		if (null != groupId) {
+			urlBuilder.setParameter("group_id", groupId);
+		}
+		String url = urlBuilder.buildString();
+
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
 	/**
 	 * @param callback
 	 *            RequestCallback to handle HTTP response
@@ -86,11 +115,12 @@ public class CommonSense {
 		String sessionId = SessionManager.getSessionId();
 		if (null == sessionId) {
 			callback.onError(null, new Exception("Not logged in"));
+			return;
 		}
 
 		Method method = RequestBuilder.GET;
-		String url = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_CURRENT_USER).buildString();
+		String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_CURRENT_USER).buildString();
 
 		// send request
 		sendRequest(method, url, sessionId, null, callback);
@@ -118,12 +148,13 @@ public class CommonSense {
 		String sessionId = SessionManager.getSessionId();
 		if (null == sessionId) {
 			callback.onError(null, new Exception("Not logged in"));
+			return;
 		}
 
 		// prepare request properties
 		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_DATA.replace("%1", Integer.toString(sensorId)));
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_DATA.replace("%1", Integer.toString(sensorId)));
 		if (null != startDate) {
 			urlBuilder.setParameter("start_date", startDate);
 		}
@@ -166,20 +197,22 @@ public class CommonSense {
 	 * @param owned
 	 * @param physical
 	 * @param details
+	 * @param groupId
 	 */
 	public static void getSensors(RequestCallback callback, String perPage, String page,
-			String shared, String owned, String physical, String details) {
+			String shared, String owned, String physical, String details, String groupId) {
 
 		// check if there is a session ID
 		String sessionId = SessionManager.getSessionId();
 		if (null == sessionId) {
 			callback.onError(null, new Exception("Not logged in"));
+			return;
 		}
 
 		// prepare request properties
 		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_SENSORS);
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_SENSORS);
 		if (null != page) {
 			urlBuilder.setParameter("page", page);
 		}
@@ -197,6 +230,9 @@ public class CommonSense {
 		}
 		if (null != details) {
 			urlBuilder.setParameter("details", details);
+		}
+		if (null != groupId) {
+			urlBuilder.setParameter("group_id", groupId);
 		}
 		String url = urlBuilder.buildString();
 
@@ -228,8 +264,8 @@ public class CommonSense {
 		String callbackUrl = callbackBuilder.buildString();
 
 		// relocate to OpenID handler
-		Location.replace(new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_LOGIN_GOOGLE).setParameter("callback_url", callbackUrl)
+		Location.replace(new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_LOGIN_GOOGLE).setParameter("callback_url", callbackUrl)
 				.setParameter("session_id", sessionId).buildString());
 	}
 
@@ -254,8 +290,8 @@ public class CommonSense {
 		String callbackUrl = callbackBuilder.buildString();
 
 		// relocate to OpenID handler
-		Location.replace(new UrlBuilder().setProtocol(Api.PROTOCOL).setHost("api.sense-os.nl")
-				.setPath(Api.PATH_LOGIN_GOOGLE).setParameter("callback_url", callbackUrl)
+		Location.replace(new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost("api.sense-os.nl")
+				.setPath(Urls.PATH_LOGIN_GOOGLE).setParameter("callback_url", callbackUrl)
 				.buildString());
 	}
 
@@ -270,8 +306,8 @@ public class CommonSense {
 	public static void login(RequestCallback callback, String username, String password) {
 		// prepare request properties
 		Method method = RequestBuilder.POST;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_LOGIN);
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_LOGIN);
 		String url = urlBuilder.buildString();
 
 		// prepare request data
@@ -298,8 +334,8 @@ public class CommonSense {
 		String sessionId = SessionManager.getSessionId();
 
 		Method method = RequestBuilder.GET;
-		String url = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_LOGOUT).buildString();
+		String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_LOGOUT).buildString();
 
 		// send request
 		sendRequest(method, url, sessionId, null, callback);
@@ -309,8 +345,8 @@ public class CommonSense {
 
 		// prepare request details
 		Method method = RequestBuilder.POST;
-		String url = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_PW_RESET).buildString();
+		String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_PW_RESET).buildString();
 
 		// prepare request data
 		String hashedPass = Md5Hasher.hash(password);
@@ -347,12 +383,13 @@ public class CommonSense {
 		String sessionId = SessionManager.getSessionId();
 		if (null == sessionId) {
 			callback.onError(null, new Exception("Not logged in"));
+			return;
 		}
 
 		// prepare request properties
 		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_GROUPS);
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_GROUPS);
 		if (null != page) {
 			urlBuilder.setParameter("page", page);
 		}
@@ -371,12 +408,13 @@ public class CommonSense {
 		String sessionId = SessionManager.getSessionId();
 		if (null == sessionId) {
 			callback.onError(null, new Exception("Not logged in"));
+			return;
 		}
 
 		// prepare request properties
 		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
-				.setPath(Api.PATH_GROUP_USERS.replace("%1", Integer.toString(groupId)));
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_GROUP_USERS.replace("%1", Integer.toString(groupId)));
 		if (null != page) {
 			urlBuilder.setParameter("page", page);
 		}

@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
-import nl.sense_os.commonsense.common.client.util.SensorComparator;
-import nl.sense_os.commonsense.common.client.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SensorComparator;
+import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;

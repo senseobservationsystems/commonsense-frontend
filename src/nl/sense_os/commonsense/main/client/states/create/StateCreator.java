@@ -4,13 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtService;
-import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
-import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
-import nl.sense_os.commonsense.common.client.util.SensorProcessor;
-import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
+import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtService;
+import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 

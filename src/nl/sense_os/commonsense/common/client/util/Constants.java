@@ -25,22 +25,15 @@ public class Constants {
 		private static final String MAPS_KEY_DEV = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBSkBEmSOMRgjngroDitmgRTGdBMeRTbwc1k-RzAZgpJJ7UzaCSpp5AFyQ";
 
 		/**
-		 * Google Maps API key, generated for http://apigee.common.sense-os.nl
-		 */
-		private static final String MAPS_KEY_APIGEE = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBTvcdSqkWlRFnarZeagA5hkQdjGexTqYU3q3N3rdDah3xpifwQSeolw8w";
-
-		/**
 		 * Maps key for "regular" deployments: either stable version or test version.
 		 */
 		private static final String MAPS_KEY_REGULAR = Constants.RC_MODE ? MAPS_KEY_RC
 				: MAPS_KEY_STABLE;
-		private static final String MAPS_KEY_INTERMED = Constants.APIGEE_MODE ? MAPS_KEY_APIGEE
-				: MAPS_KEY_REGULAR;
 
 		/**
 		 * Google Maps API key.
 		 */
-		public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV : MAPS_KEY_INTERMED;
+		public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV : MAPS_KEY_REGULAR;
 
 		private MapsKeys() {
 			// empty private constructor to prevent instantiation
@@ -200,24 +193,9 @@ public class Constants {
 	public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
 
 	/**
-	 * Flag for 'ted' mode. <code>true</code> if the app is deployed to
-	 * commonsense-test.appspot.com.
-	 */
-	public static final boolean TED_MODE = GWT.getModuleBaseURL().contains(
-			"commonsense-test.appspot.com");
-
-	/**
 	 * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
 	 */
-	public static final boolean DEV_MODE = !GWT.isProdMode()
-			|| GWT.getModuleBaseURL().contains("common.dev.sense-os.nl");
-
-	/**
-	 * Flag for Apigee test mode. <code>true</code> if the app is deployed to
-	 * apigee.common.sense-os.nl.
-	 */
-	public static final boolean APIGEE_MODE = GWT.getModuleBaseURL().contains(
-			"apigee.common.sense-os.nl");
+	public static final boolean DEV_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
 
 	/**
 	 * Flag for Release Candidate mode. <code>true</code> if the app is deployed to rc.sense-os.nl.
@@ -227,8 +205,7 @@ public class Constants {
 	/**
 	 * Flag for local mode. <code>true</code> if the app is deployed to an unknown location.
 	 */
-	public static final boolean GENERIC_MODE = !STABLE_MODE && !TED_MODE && !DEV_MODE
-			&& !APIGEE_MODE && !RC_MODE;
+	public static final boolean GENERIC_MODE = !STABLE_MODE && !DEV_MODE && !RC_MODE;
 
 	/**
 	 * true if shortcut 'hacks' for easy developing are allowed

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
@@ -74,7 +74,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 	@Override
 	public void googleLogin() {
-		CommonSense.googleLogin();
+		CommonSenseApi.googleLogin();
 	}
 
 	private void goToMainPage() {
@@ -122,7 +122,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		};
 
 		// send request
-		CommonSense.login(callback, username, password);
+		CommonSenseApi.login(callback, username, password);
 	}
 
 	private void onAuthenticationFailure() {

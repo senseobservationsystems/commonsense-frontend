@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.main.client.groups.create;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtGroup;
 import nl.sense_os.commonsense.common.client.util.Md5Hasher;
+import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 import nl.sense_os.commonsense.main.client.groups.create.components.GroupCreator;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;

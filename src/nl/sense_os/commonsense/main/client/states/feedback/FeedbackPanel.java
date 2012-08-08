@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.component.CenteredWindow;
 import nl.sense_os.commonsense.common.client.model.DataPoint;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
 import com.chap.links.client.Graph;

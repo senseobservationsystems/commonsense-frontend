@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.groups.leave;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;

@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.util.Constants;
-import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;

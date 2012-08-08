@@ -5,12 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -23,7 +22,6 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
@@ -70,11 +68,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	private void getCurrentUser() {
 		LOG.finest("Get current user");
 
-		// prepare request details
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		final String url = urlBuilder.setPath(Urls.PATH_USERS + "/current.json").buildString();
-		final String sessionId = SessionManager.getSessionId();
-
 		// prepare request callback
 		RequestCallback callback = new RequestCallback() {
 
@@ -100,15 +93,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, callback);
-		} catch (Exception e) {
-			LOG.warning("GET current user request threw exception: " + e.getMessage());
-			callback.onError(null, e);
-		}
+		CommonSenseApi.getCurrentUser(callback);
 	}
 
 	@Override
@@ -200,7 +185,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 				}
 			}
 		};
-		CommonSense.logout(callback);
+		CommonSenseApi.logout(callback);
 	}
 
 	private void onCurrentUser(ExtUser user) {
@@ -223,7 +208,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	}
 
 	private void onLogoutError(int code, Throwable error) {
-		// TODO Auto-generated method stub
+		// TODO Handle logout failure
 		LOG.warning("Logout failure! Code: " + code + " " + error);
 		onLoggedOut();
 	}

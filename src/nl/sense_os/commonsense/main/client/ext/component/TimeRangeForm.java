@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.common.client.component;
+package nl.sense_os.commonsense.main.client.ext.component;
 
 import java.util.Date;
 import java.util.logging.Logger;

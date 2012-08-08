@@ -10,6 +10,7 @@
 
   <!-- Other module inherits                                      -->
   <inherits name="nl.sense_os.commonsense.common.Common" />
+  <inherits name='com.extjs.gxt.ui.GXT'/>
   <inherits name='com.chap.links.Graph'/>
   <inherits name='com.chap.links.Timeline'/>
   <inherits name='com.google.gwt.visualization.Visualization'/> 

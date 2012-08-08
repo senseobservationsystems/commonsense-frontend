@@ -1,11 +1,5 @@
 package nl.sense_os.commonsense.common.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.sense_os.commonsense.common.client.util.Constants;
-
-import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
@@ -26,14 +20,13 @@ public class Sensor extends JavaScriptObject {
 		return this.data_type;
 	}-*/;
 
-	public final ExtDevice getDevice() {
-		Device jso = getRawDevice();
-		if (null != jso) {
-			return new ExtDevice(jso);
-		} else {
-			return null;
-		}
-	}
+	public final native String getDescription() /*-{
+		return this.device_type;
+	}-*/;
+
+	public final native Device getDevice() /*-{
+		return this.device;
+	}-*/;
 
 	public final native String getDisplayName() /*-{
 		if (undefined == this.display_name || this.display_name === '') {
@@ -43,14 +36,9 @@ public class Sensor extends JavaScriptObject {
 		}
 	}-*/;
 
-	public final ExtEnvironment getEnvironment() {
-		Environment jso = getRawEnvironment();
-		if (null != jso) {
-			return new ExtEnvironment(jso);
-		} else {
-			return null;
-		}
-	}
+	public final native Environment getEnvironment() /*-{
+		return this.environment;
+	}-*/;
 
 	public final native int getId() /*-{
 		return parseInt(this.id);
@@ -60,56 +48,23 @@ public class Sensor extends JavaScriptObject {
 		return this.name;
 	}-*/;
 
-	public final ExtUser getOwner() {
-		User jso = getRawOwner();
-		if (null != jso) {
-			return new ExtUser(jso);
-		} else {
-			return Registry.get(Constants.REG_USER);
-		}
-	}
+	public final native User getOwner() /*-{
+		return this.owner;
+	}-*/;
 
 	public final native String getPagerType() /*-{
 		return this.pager_type;
-	}-*/;
-
-	public final native String getPhysicalSensor() /*-{
-		return this.device_type;
-	}-*/;
-
-	public final native Device getRawDevice() /*-{
-		return this.device;
-	}-*/;
-
-	public final native Environment getRawEnvironment() /*-{
-		return this.environment;
-	}-*/;
-
-	public final native User getRawOwner() /*-{
-		return this.owner;
 	}-*/;
 
 	public final native int getType() /*-{
 		return parseInt(this.type);
 	}-*/;
 
-	public final native JsArray<User> getRawUsers() /*-{
+	public final native JsArray<User> getUsers() /*-{
 		if (undefined != this.users) {
 			return this.users;
 		} else {
 			return [];
 		}
 	}-*/;
-
-	public final List<ExtUser> getUsers() {
-		List<ExtUser> list = new ArrayList<ExtUser>();
-
-		JsArray<User> rawUsers = getRawUsers();
-
-		for (int i = 0; i < rawUsers.length(); i++) {
-			list.add(new ExtUser(rawUsers.get(i)));
-		}
-
-		return list;
-	}
 }

@@ -1,31 +1,23 @@
 package nl.sense_os.commonsense.common.client.constant;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.util.Constants;
 
 /**
  * Contains URLs and other constants for use in communication with the CommonSense API.
  * 
- * @deprecated Use {@link CommonSense} class for communication with CommonSense
+ * @deprecated Use {@link CommonSenseApi} class for communication with CommonSense
  */
 public class Urls {
 
 	private static final String _STABLE_BASE = "common.sense-os.nl/api";
 	private static final String _RC_BASE = "rc.sense-os.nl/api";
-	private static final String _APIGEE_BASE = "api-senseos.apigee.com";
 	private static final String _DEV_BASE = "api.dev.sense-os.nl";
 	private static final String _GENERIC_BASE = "api.sense-os.nl";
-	private static final String _TED_BASE = "217.77.159.221/restful/api";
 
 	// find out which base URL to use
-	private static final String _INTERMED_BASE_1 = Constants.RC_MODE ? _RC_BASE : _STABLE_BASE;
-	private static final String _INTERMED_BASE_2 = Constants.APIGEE_MODE ? _APIGEE_BASE
-			: _INTERMED_BASE_1;
-	private static final String _INTERMED_BASE_3 = Constants.DEV_MODE ? _DEV_BASE
-			: _INTERMED_BASE_2;
-	private static final String _INTERMED_BASE_4 = Constants.GENERIC_MODE ? _GENERIC_BASE
-			: _INTERMED_BASE_3;
-	public static final String HOST = Constants.TED_MODE ? _TED_BASE : _INTERMED_BASE_4;
+	public static final String HOST = Constants.STABLE_MODE ? _STABLE_BASE
+			: Constants.RC_MODE ? _RC_BASE : Constants.DEV_MODE ? _DEV_BASE : _GENERIC_BASE;
 
 	public static final String PATH_ENV = "environments";
 	public static final String PATH_GROUPS = "groups";

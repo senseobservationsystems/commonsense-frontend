@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtGroup;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
-import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
-import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
-import nl.sense_os.commonsense.common.client.util.SensorComparator;
+import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SensorComparator;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;

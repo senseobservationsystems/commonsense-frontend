@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.viz.panels.table;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizView;
 

@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.main.client.main;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.resource.CSResources;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
 import nl.sense_os.commonsense.main.client.main.components.HelpScreen;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;

@@ -4,23 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponseEntry;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.BatchAvailServicesResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.ExtDevice;
-import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtService;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.CommonSense;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
+import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
+import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtService;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
@@ -41,11 +40,8 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class LibraryController extends Controller {
@@ -105,19 +101,6 @@ public class LibraryController extends Controller {
 		isLoadingServices = true;
 		notifyState();
 
-		// prepare request properties
-		final Method method = RequestBuilder.GET;
-		final UrlBuilder urlBuilder = new UrlBuilder();
-		urlBuilder.setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_SENSORS + "/services/available.json");
-		if (groupId != null && groupId.length() > 0) {
-			urlBuilder.setParameter("group_id", groupId);
-		}
-		urlBuilder.setParameter("per_page", "" + PER_PAGE);
-		urlBuilder.setParameter("page", "" + page);
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
-
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
 
@@ -143,25 +126,12 @@ public class LibraryController extends Controller {
 		};
 
 		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(method, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET  available services request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.getAvailableServices(reqCallback, Integer.toString(PER_PAGE),
+				Integer.toString(page), groupId);
 	}
 
 	private void getGroups(final List<ExtSensor> library,
 			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
-
-		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder();
-		urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_GROUPS + ".json");
-		urlBuilder.setParameter("per_page", "" + PER_PAGE);
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -188,33 +158,13 @@ public class LibraryController extends Controller {
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET groups request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.getGroups(reqCallback, Integer.toString(PER_PAGE), null);
 	}
 
 	private void getGroupSensors(final List<Group> groups, final int index, final int page,
 			final List<ExtSensor> library, final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		if (index < groups.size()) {
-
-			int groupId = groups.get(index).getId();
-
-			// prepare request properties
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
-			urlBuilder.setParameter("per_page", Integer.toString(PER_PAGE));
-			urlBuilder.setParameter("page", Integer.toString(page));
-			urlBuilder.setParameter("details", "full");
-			urlBuilder.setParameter("group_id", Integer.toString(groupId));
-			final String url = urlBuilder.buildString();
-			final String sessionId = SessionManager.getSessionId();
 
 			// prepare request callback
 			RequestCallback reqCallback = new RequestCallback() {
@@ -247,15 +197,10 @@ public class LibraryController extends Controller {
 				}
 			};
 
-			// send request
-			try {
-				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-				builder.setHeader("X-SESSION_ID", sessionId);
-				builder.sendRequest(null, reqCallback);
-			} catch (Exception e) {
-				LOG.warning("GET group sensors request threw exception: " + e.getMessage());
-				reqCallback.onError(null, e);
-			}
+			int groupId = groups.get(index).getId();
+
+			CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE),
+					Integer.toString(page), null, null, null, "full", Integer.toString(groupId));
 
 		} else {
 
@@ -266,18 +211,6 @@ public class LibraryController extends Controller {
 
 	private void getSensors(final List<ExtSensor> library, final int page, final boolean shared,
 			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
-
-		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder();
-		urlBuilder.setHost(Urls.HOST).setPath(Urls.PATH_SENSORS + ".json");
-		urlBuilder.setParameter("per_page", "" + PER_PAGE);
-		urlBuilder.setParameter("page", "" + page);
-		urlBuilder.setParameter("details", "full");
-		if (shared) {
-			urlBuilder.setParameter("shared", "1");
-		}
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -303,15 +236,8 @@ public class LibraryController extends Controller {
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET sensors request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE), Integer.toString(page),
+				shared ? "1" : null, null, null, "full", null);
 	}
 
 	@Override

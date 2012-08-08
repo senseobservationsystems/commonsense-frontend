@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.component.TimeRangeForm;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.ext.component.TimeRangeForm;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 

@@ -3,13 +3,13 @@ package nl.sense_os.commonsense.main.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
-import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
-import nl.sense_os.commonsense.common.client.util.SensorProcessor;
-import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;

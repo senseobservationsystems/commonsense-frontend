@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.model.ExtNotification;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtTrigger;
+import nl.sense_os.commonsense.main.client.ext.model.ExtNotification;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtTrigger;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 

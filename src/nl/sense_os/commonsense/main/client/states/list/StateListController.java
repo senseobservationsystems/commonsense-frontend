@@ -8,12 +8,12 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
-import nl.sense_os.commonsense.common.client.model.ExtServiceMethod;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.ServiceMethod;
-import nl.sense_os.commonsense.common.client.util.TreeCopier;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.ext.util.TreeCopier;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
@@ -303,7 +303,7 @@ public class StateListController extends Controller {
 			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			JsArray<Sensor> rawSensors = responseJso.getRawSensors();
 			for (int i = 0; i < rawSensors.length(); i++) {
-				ExtSensor sensor = new ExtSensor(sensors.get(i));
+				ExtSensor sensor = new ExtSensor(rawSensors.get(i));
 				sensors.add(sensor);
 			}
 		}

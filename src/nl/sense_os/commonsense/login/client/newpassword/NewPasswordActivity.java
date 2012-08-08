@@ -16,7 +16,7 @@ package nl.sense_os.commonsense.login.client.newpassword;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
@@ -122,7 +122,7 @@ public class NewPasswordActivity extends AbstractActivity implements NewPassword
 		};
 
 		// send request
-		CommonSense.resetPassword(callback, password, token);
+		CommonSenseApi.resetPassword(callback, password, token);
 	}
 
 	@Override

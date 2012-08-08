@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.main.client.env.list;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
+import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 

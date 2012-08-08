@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.viz.data;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.EventType;

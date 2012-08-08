@@ -1,8 +1,8 @@
-package nl.sense_os.commonsense.common.client.util;
+package nl.sense_os.commonsense.main.client.ext.util;
 
 import java.util.Comparator;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
 public class SensorComparator<M extends Object> implements Comparator<Object> {
 

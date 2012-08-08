@@ -1,8 +1,10 @@
-package nl.sense_os.commonsense.common.client.model;
+package nl.sense_os.commonsense.main.client.ext.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import nl.sense_os.commonsense.common.client.model.ServiceMethod;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 

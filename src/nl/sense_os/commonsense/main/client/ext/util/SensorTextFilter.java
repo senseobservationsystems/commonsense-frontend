@@ -1,6 +1,6 @@
-package nl.sense_os.commonsense.common.client.util;
+package nl.sense_os.commonsense.main.client.ext.util;
 
-import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;

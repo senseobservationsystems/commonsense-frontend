@@ -1,8 +1,10 @@
-package nl.sense_os.commonsense.common.client.model;
+package nl.sense_os.commonsense.main.client.ext.model;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import nl.sense_os.commonsense.common.client.model.Group;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.json.client.JSONArray;

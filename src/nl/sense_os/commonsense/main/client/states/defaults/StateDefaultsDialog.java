@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;

@@ -16,7 +16,7 @@ package nl.sense_os.commonsense.login.client.forgotpassword;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.mvp.ForgotPasswordPlace;
@@ -87,7 +87,7 @@ public class ForgotPasswordActivity extends AbstractActivity implements
 			}
 		};
 
-		CommonSense.forgotPassword(callback, username, email);
+		CommonSenseApi.forgotPassword(callback, username, email);
 	}
 
 	private void onForgotPasswordFailure(int code, Throwable error) {
