@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.common.client.httpresponse;
+package nl.sense_os.commonsense.common.client.communication.httpresponse;
 
 import nl.sense_os.commonsense.common.client.model.GroupJso;
 import nl.sense_os.commonsense.common.client.model.GroupModel;

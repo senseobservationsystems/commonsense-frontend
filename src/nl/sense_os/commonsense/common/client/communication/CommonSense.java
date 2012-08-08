@@ -1,8 +1,10 @@
-package nl.sense_os.commonsense.common.client.util;
+package nl.sense_os.commonsense.common.client.communication;
 
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import nl.sense_os.commonsense.common.client.util.Md5Hasher;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
@@ -19,10 +21,10 @@ public class CommonSense {
 				.contains("common.sense-os.nl");
 		private static final boolean IS_RC = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
 		private static final boolean IS_DEV = GWT.getModuleBaseURL().contains("dev.sense-os.nl");
+		private static final String PATH_PREFIX = IS_LIVE || IS_RC || IS_DEV ? "api/" : "";
 		public static final String HOST = IS_LIVE ? "common.sense-os.nl" : IS_RC ? "rc.sense-os.nl"
 				: IS_DEV ? "dev.sense-os.nl" : "api.sense-os.nl";
 		public static final String PROTOCOL = "http";
-		private static final String PATH_PREFIX = IS_LIVE || IS_RC || IS_DEV ? "api/" : "";
 		public static final String PATH_SENSORS = PATH_PREFIX + "sensors";
 		public static final String PATH_DATA = PATH_PREFIX + "sensors/%1/data";
 		@SuppressWarnings("unused")

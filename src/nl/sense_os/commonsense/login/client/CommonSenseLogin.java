@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.util.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.login.client.main.MainView;
 import nl.sense_os.commonsense.login.client.mvp.LoginActivityMapper;
 import nl.sense_os.commonsense.login.client.mvp.LoginErrorPlace;

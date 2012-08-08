@@ -4,12 +4,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponseJso;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.httpresponse.GetSensorDataResponseJso;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.viz.data.cache.Cache;
 
 import com.extjs.gxt.ui.client.event.EventType;

@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponseJso;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.httpresponse.CurrentUserResponseJso;
 import nl.sense_os.commonsense.common.client.model.UserModel;
-import nl.sense_os.commonsense.common.client.util.CommonSense;
-import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;

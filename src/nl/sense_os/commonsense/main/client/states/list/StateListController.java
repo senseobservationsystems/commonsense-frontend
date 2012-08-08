@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponseJso;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.httpresponse.GetMethodsResponseJso;
-import nl.sense_os.commonsense.common.client.httpresponse.GetSensorsResponseJso;
 import nl.sense_os.commonsense.common.client.model.SensorModel;
 import nl.sense_os.commonsense.common.client.model.ServiceMethodModel;
 import nl.sense_os.commonsense.common.client.model.UserModel;
-import nl.sense_os.commonsense.common.client.util.SessionManager;
 import nl.sense_os.commonsense.common.client.util.TreeCopier;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;

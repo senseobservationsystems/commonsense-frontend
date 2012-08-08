@@ -1,6 +1,8 @@
-package nl.sense_os.commonsense.common.client.util;
+package nl.sense_os.commonsense.common.client.communication;
 
 import java.util.Date;
+
+import nl.sense_os.commonsense.common.client.util.Constants;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;

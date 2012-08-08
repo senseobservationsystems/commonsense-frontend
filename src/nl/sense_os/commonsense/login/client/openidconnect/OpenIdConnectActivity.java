@@ -14,9 +14,9 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.openidconnect;
 
-import nl.sense_os.commonsense.common.client.httpresponse.LoginResponseJso;
-import nl.sense_os.commonsense.common.client.util.CommonSense;
-import nl.sense_os.commonsense.common.client.util.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.CommonSense;
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponseJso;
 import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
 import nl.sense_os.commonsense.login.client.mvp.OpenIdConnectPlace;

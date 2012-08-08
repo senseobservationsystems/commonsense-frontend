@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.common.client.httpresponse;
+package nl.sense_os.commonsense.common.client.communication.httpresponse;
 
 import nl.sense_os.commonsense.common.client.model.EnvironmentJso;
 import nl.sense_os.commonsense.common.client.model.EnvironmentModel;

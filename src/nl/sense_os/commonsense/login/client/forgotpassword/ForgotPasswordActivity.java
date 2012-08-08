@@ -16,8 +16,8 @@ package nl.sense_os.commonsense.login.client.forgotpassword;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.communication.CommonSense;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
-import nl.sense_os.commonsense.common.client.util.CommonSense;
 import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.mvp.ForgotPasswordPlace;
 import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
