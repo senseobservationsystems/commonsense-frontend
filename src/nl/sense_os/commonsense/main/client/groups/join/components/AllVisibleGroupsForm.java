@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.WizardFormPanel;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -33,15 +33,15 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 
 	private static final Logger LOG = Logger.getLogger(AllVisibleGroupsForm.class.getName());
 
-	private Grid<GroupModel> grid;
+	private Grid<ExtGroup> grid;
 	private ToolBar filterBar;
 	private PagingToolBar pagingBar;
-	private ListStore<GroupModel> store;
-	private PagingLoader<PagingLoadResult<GroupModel>> loader;
+	private ListStore<ExtGroup> store;
+	private PagingLoader<PagingLoadResult<ExtGroup>> loader;
 	private TextField<String> hiddenField;
-	private GroupModel selected;
+	private ExtGroup selected;
 
-	public AllVisibleGroupsForm(PagingLoader<PagingLoadResult<GroupModel>> loader) {
+	public AllVisibleGroupsForm(PagingLoader<PagingLoadResult<ExtGroup>> loader) {
 
 		this.loader = loader;
 
@@ -49,12 +49,12 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 		initFilters();
 
 		// handle selections
-		GridSelectionModel<GroupModel> selectionModel = new GridSelectionModel<GroupModel>();
+		GridSelectionModel<ExtGroup> selectionModel = new GridSelectionModel<ExtGroup>();
 		selectionModel.setSelectionMode(SelectionMode.SINGLE);
-		selectionModel.addSelectionChangedListener(new SelectionChangedListener<GroupModel>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtGroup>() {
 
 			@Override
-			public void selectionChanged(SelectionChangedEvent<GroupModel> se) {
+			public void selectionChanged(SelectionChangedEvent<ExtGroup> se) {
 				// change valid state of the hidden field when a group is selected
 				selected = se.getSelectedItem();
 				if (null != selected) {
@@ -93,11 +93,11 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 	private void initFilters() {
 
 		// text filter
-		StoreFilterField<GroupModel> textFilter = new StoreFilterField<GroupModel>() {
+		StoreFilterField<ExtGroup> textFilter = new StoreFilterField<ExtGroup>() {
 
 			@Override
-			protected boolean doSelect(Store<GroupModel> store, GroupModel parent,
-					GroupModel record, String property, String filter) {
+			protected boolean doSelect(Store<ExtGroup> store, ExtGroup parent,
+					ExtGroup record, String property, String filter) {
 				String matchMe = record.getName().toLowerCase() + " "
 						+ record.getDescription().toLowerCase();
 				return matchMe.contains(filter.toLowerCase());
@@ -114,24 +114,24 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 	private void initGrid() {
 
 		// list store
-		store = new ListStore<GroupModel>(loader);
-		store.setKeyProvider(new SenseKeyProvider<GroupModel>());
+		store = new ListStore<ExtGroup>(loader);
+		store.setKeyProvider(new SenseKeyProvider<ExtGroup>());
 		store.setMonitorChanges(true);
 
 		pagingBar = new PagingToolBar(15);
 		pagingBar.bind(loader);
 
 		// Column model
-		ColumnConfig id = new ColumnConfig(UserModel.ID, "ID", 50);
+		ColumnConfig id = new ColumnConfig(ExtUser.ID, "ID", 50);
 		id.setHidden(true);
-		ColumnConfig name = new ColumnConfig(GroupModel.NAME, "Name", 125);
-		ColumnConfig description = new ColumnConfig(GroupModel.DESCRIPTION, "Description", 125);
-		ColumnConfig isPublic = new ColumnConfig(GroupModel.PUBLIC, "Public", 75);
-		ColumnConfig isAnon = new ColumnConfig(GroupModel.ANONYMOUS, "Anonymous", 75);
+		ColumnConfig name = new ColumnConfig(ExtGroup.NAME, "Name", 125);
+		ColumnConfig description = new ColumnConfig(ExtGroup.DESCRIPTION, "Description", 125);
+		ColumnConfig isPublic = new ColumnConfig(ExtGroup.PUBLIC, "Public", 75);
+		ColumnConfig isAnon = new ColumnConfig(ExtGroup.ANONYMOUS, "Anonymous", 75);
 		ColumnModel cm = new ColumnModel(Arrays.asList(id, name, description, isPublic, isAnon));
 
-		grid = new Grid<GroupModel>(store, cm);
-		grid.setAutoExpandColumn(GroupModel.NAME);
+		grid = new Grid<ExtGroup>(store, cm);
+		grid.setAutoExpandColumn(ExtGroup.NAME);
 		grid.setBorders(false);
 		grid.setId("group-join-grid");
 		grid.setStateful(true);
@@ -139,7 +139,7 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 	}
 
-	public GroupModel getGroup() {
+	public ExtGroup getGroup() {
 		return selected;
 	}
 }

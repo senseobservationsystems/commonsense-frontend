@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.join.components.GroupJoinDialog;
 import nl.sense_os.commonsense.main.client.groups.join.components.GroupJoinDialog.States;
 
@@ -31,7 +31,7 @@ public class GroupJoinView extends View {
 
 	private static final Logger LOG = Logger.getLogger(GroupJoinView.class.getName());
 	private GroupJoinDialog window;
-	private PagingLoader<PagingLoadResult<GroupModel>> groupLoader;
+	private PagingLoader<PagingLoadResult<ExtGroup>> groupLoader;
 	private MessageBox progress;
 
 	public GroupJoinView(Controller c) {
@@ -54,7 +54,7 @@ public class GroupJoinView extends View {
 
 		} else if (type.equals(GroupJoinEvents.AllGroupsSuccess)) {
 			LOG.finest("AllGroupsSuccess");
-			List<GroupModel> groups = event.getData("groups");
+			List<ExtGroup> groups = event.getData("groups");
 			onAllGroupsSuccess(groups);
 
 		} else if (type.equals(GroupJoinEvents.AllGroupsFailure)) {
@@ -63,7 +63,7 @@ public class GroupJoinView extends View {
 
 		} else if (type.equals(GroupJoinEvents.GroupDetailsSuccess)) {
 			LOG.finest("GroupDetailsSuccess");
-			GroupModel group = event.getData("group");
+			ExtGroup group = event.getData("group");
 			onGroupDetailsSuccess(group);
 
 		} else if (type.equals(GroupJoinEvents.GroupDetailsFailure)) {
@@ -88,7 +88,7 @@ public class GroupJoinView extends View {
 		MessageBox.alert("CommonSense", "Failed to get group details!", null);
 	}
 
-	private void onGroupDetailsSuccess(GroupModel group) {
+	private void onGroupDetailsSuccess(ExtGroup group) {
 		window.setBusy(false);
 		window.setReqSensors(group.getReqSensors());
 		window.setMemberRights(group.isAllowAddUsers(), group.isAllowAddSensors(),
@@ -106,11 +106,11 @@ public class GroupJoinView extends View {
 		MessageBox.alert("CommonSense", "Failed to get list of groups to join!", null);
 	}
 
-	private void onAllGroupsSuccess(List<GroupModel> groups) {
+	private void onAllGroupsSuccess(List<ExtGroup> groups) {
 		progress.close();
 
 		PagingModelMemoryProxy groupProxy = new PagingModelMemoryProxy(groups);
-		groupLoader = new BasePagingLoader<PagingLoadResult<GroupModel>>(groupProxy);
+		groupLoader = new BasePagingLoader<PagingLoadResult<ExtGroup>>(groupProxy);
 
 		showWizard();
 
@@ -120,10 +120,10 @@ public class GroupJoinView extends View {
 	private void showWizard() {
 
 		// sensor list loader
-		List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-		List<SensorModel> ownedSensors = new ArrayList<SensorModel>();
-		UserModel user = Registry.get(Constants.REG_USER);
-		for (SensorModel sensor : sensors) {
+		List<ExtSensor> sensors = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> ownedSensors = new ArrayList<ExtSensor>();
+		ExtUser user = Registry.get(Constants.REG_USER);
+		for (ExtSensor sensor : sensors) {
 			if (sensor.getOwner().equals(user)) {
 				ownedSensors.add(sensor);
 			}
@@ -159,7 +159,7 @@ public class GroupJoinView extends View {
 	private void onFailure() {
 		window.setBusy(false);
 
-		GroupModel group = window.getGroup();
+		ExtGroup group = window.getGroup();
 		MessageBox.confirm("CommonSense", "Failed to join the group " + group.getName()
 				+ "! Do you want to retry?", new Listener<MessageBoxEvent>() {
 
@@ -199,7 +199,7 @@ public class GroupJoinView extends View {
 		}
 	}
 
-	private void getGroupDetails(GroupModel group) {
+	private void getGroupDetails(ExtGroup group) {
 		AppEvent event = new AppEvent(GroupJoinEvents.GroupDetailsRequest);
 		event.setData("group", group);
 		event.setSource(this);
@@ -238,7 +238,7 @@ public class GroupJoinView extends View {
 	private void onSuccess() {
 		window.setBusy(false);
 
-		GroupModel group = window.getGroup();
+		ExtGroup group = window.getGroup();
 		MessageBox.info("CommonSense", "You have joined the group " + group.getName()
 				+ ". Any sensors you selected were automatically shared with the group.",
 				new Listener<MessageBoxEvent>() {
@@ -252,7 +252,7 @@ public class GroupJoinView extends View {
 
 	private void submitForm() {
 
-		GroupModel group = window.getGroup();
+		ExtGroup group = window.getGroup();
 
 		AppEvent event = new AppEvent(GroupJoinEvents.JoinRequest);
 		event.setData("group", group);

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -38,8 +38,8 @@ public class GroupJoinDialog extends CenteredWindow {
 	private FormButtonBinding buttonBinding;
 	private int state;
 
-	public GroupJoinDialog(PagingLoader<PagingLoadResult<GroupModel>> groupLoader,
-			List<SensorModel> sensors) {
+	public GroupJoinDialog(PagingLoader<PagingLoadResult<ExtGroup>> groupLoader,
+			List<ExtSensor> sensors) {
 
 		// main window properties
 		setHeading("Join a public group");
@@ -81,7 +81,7 @@ public class GroupJoinDialog extends CenteredWindow {
 		return btnNext;
 	}
 
-	public GroupModel getGroup() {
+	public ExtGroup getGroup() {
 		return frmAllVisibleGroups.getGroup();
 	}
 
@@ -89,7 +89,7 @@ public class GroupJoinDialog extends CenteredWindow {
 		return frmGroupType.getType();
 	}
 
-	public List<SensorModel> getSharedSensors() {
+	public List<ExtSensor> getSharedSensors() {
 		return frmShareSensors.getSharedSensors();
 	}
 

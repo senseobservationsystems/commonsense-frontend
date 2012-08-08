@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -41,10 +41,10 @@ public class SensorDeleteController extends Controller {
 	 * @param retryCount
 	 *            Counter for failed requests that were retried.
 	 */
-	private void delete(final List<SensorModel> sensors, final int index, final int retryCount) {
+	private void delete(final List<ExtSensor> sensors, final int index, final int retryCount) {
 
 		if (index < sensors.size()) {
-			SensorModel sensor = sensors.get(index);
+			ExtSensor sensor = sensors.get(index);
 
 			// prepare request properties
 			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -97,7 +97,7 @@ public class SensorDeleteController extends Controller {
 
 		if (type.equals(SensorDeleteEvents.DeleteRequest)) {
 			LOG.fine("DeleteRequest");
-			final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
 			delete(sensors, 0, 0);
 
 		} else
@@ -125,7 +125,7 @@ public class SensorDeleteController extends Controller {
 	 * @param retryCount
 	 *            Number of times this request was attempted.
 	 */
-	private void onDeleteFailure(List<SensorModel> sensors, int index, int retryCount) {
+	private void onDeleteFailure(List<ExtSensor> sensors, int index, int retryCount) {
 
 		if (retryCount < 3) {
 			// retry
@@ -144,10 +144,10 @@ public class SensorDeleteController extends Controller {
 	 * @param sensors
 	 *            List of sensors that have to be deleted.
 	 */
-	private void onDeleteSuccess(List<SensorModel> sensors, int index) {
+	private void onDeleteSuccess(List<ExtSensor> sensors, int index) {
 
 		// remove the sensor from the cached library
-		boolean removed = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).remove(
+		boolean removed = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST).remove(
 				sensors.get(index));
 		if (!removed) {
 			LOG.warning("Failed to remove the sensor from the library!");

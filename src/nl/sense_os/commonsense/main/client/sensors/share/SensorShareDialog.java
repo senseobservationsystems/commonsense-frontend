@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -38,7 +38,7 @@ public class SensorShareDialog extends View {
     private TextField<String> user;
     private Button createButton;
     private Button cancelButton;
-    private List<SensorModel> sensors;
+    private List<ExtSensor> sensors;
 
     private ListStore<TreeModel> store;
 
@@ -175,7 +175,7 @@ public class SensorShareDialog extends View {
     }
 
     private void onShow(AppEvent event) {
-        sensors = event.<List<SensorModel>> getData("sensors");
+        sensors = event.<List<ExtSensor>> getData("sensors");
         List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
         store.removeAll();
         store.add(users);
@@ -186,7 +186,7 @@ public class SensorShareDialog extends View {
 
     private void onSubmit() {
         final String user = this.user.getValue();
-        final List<SensorModel> sensors = new ArrayList<SensorModel>(this.sensors);
+        final List<ExtSensor> sensors = new ArrayList<ExtSensor>(this.sensors);
 
         AppEvent event = new AppEvent(SensorShareEvents.ShareRequest);
         event.setData("user", user);

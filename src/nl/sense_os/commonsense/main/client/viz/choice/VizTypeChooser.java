@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
 import nl.sense_os.commonsense.common.client.component.TimeRangeForm;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
@@ -43,8 +43,8 @@ public class VizTypeChooser extends View {
     private Window window;
     private CardLayout layout;
 
-    private List<SensorModel> sensors;
-    private List<SensorModel> locationSensors;
+    private List<ExtSensor> sensors;
+    private List<ExtSensor> locationSensors;
 
     private AppEvent submitEvent;
 
@@ -65,16 +65,16 @@ public class VizTypeChooser extends View {
         super(c);
     }
 
-    private boolean checkForLocationSensors(List<SensorModel> list) {
+    private boolean checkForLocationSensors(List<ExtSensor> list) {
 
         // create array to send as parameter in RPC
-        locationSensors = new ArrayList<SensorModel>();
-        for (SensorModel sensor : list) {
+        locationSensors = new ArrayList<ExtSensor>();
+        for (ExtSensor sensor : list) {
 
             String structure = sensor.<String> get("data_structure");
 
             if (null != structure && structure.contains("longitude")) {
-                locationSensors.add(new SensorModel(sensor.getProperties()));
+                locationSensors.add(new ExtSensor(sensor.getProperties()));
 
             } else {
                 // do nothing
@@ -92,7 +92,7 @@ public class VizTypeChooser extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(VizEvents.ShowTypeChoice)) {
-            List<SensorModel> sensors = event.<List<SensorModel>> getData();
+            List<ExtSensor> sensors = event.<List<ExtSensor>> getData();
             showWindow(sensors);
 
         } else if (type.equals(VizEvents.TypeChoiceCancelled)) {
@@ -342,7 +342,7 @@ public class VizTypeChooser extends View {
         }
     }
 
-    private void showWindow(List<SensorModel> sensors) {
+    private void showWindow(List<ExtSensor> sensors) {
         this.sensors = sensors;
         if (this.sensors.size() > 0) {
             window.show();

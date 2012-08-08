@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.common.client.util;
 
 import java.util.Comparator;
 
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 public class SensorComparator<M extends Object> implements Comparator<Object> {
 
@@ -14,12 +14,12 @@ public class SensorComparator<M extends Object> implements Comparator<Object> {
 
     @Override
     public int compare(Object obj1, Object obj2) {
-        if (!(obj1 instanceof SensorModel) || !(obj2 instanceof SensorModel)) {
+        if (!(obj1 instanceof ExtSensor) || !(obj2 instanceof ExtSensor)) {
             return 0;
         }
 
-        SensorModel mdl1 = (SensorModel) obj1;
-        SensorModel mdl2 = (SensorModel) obj2;
+        ExtSensor mdl1 = (ExtSensor) obj1;
+        ExtSensor mdl2 = (ExtSensor) obj2;
         int type1 = -1;
         switch (mdl1.getType()) {
         case 0:

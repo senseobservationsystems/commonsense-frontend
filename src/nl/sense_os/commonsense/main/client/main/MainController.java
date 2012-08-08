@@ -7,10 +7,11 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSense;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -203,7 +204,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 		CommonSense.logout(callback);
 	}
 
-	private void onCurrentUser(UserModel user) {
+	private void onCurrentUser(ExtUser user) {
 
 		Registry.register(Constants.REG_USER, user);
 		Dispatcher.forwardEvent(new AppEvent(MainEvents.LoggedIn, user));
@@ -265,14 +266,15 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 		if (response != null) {
 
 			// try to get "user" object
-			UserModel user = null;
+			User user = null;
 			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-				CurrentUserResponseJso jso = JsonUtils.unsafeEval(response);
+				CurrentUserResponse jso = JsonUtils.unsafeEval(response);
 				user = jso.getUser();
 			}
 
 			if (null != user) {
-				onCurrentUser(user);
+				ExtUser extUser = new ExtUser(user);
+				onCurrentUser(extUser);
 			} else {
 				LOG.severe("Unexpected current user response");
 				onLoginFailure(-1);

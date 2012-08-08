@@ -2,47 +2,47 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.model.NotificationModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.TriggerModel;
+import nl.sense_os.commonsense.common.client.model.ExtNotification;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtTrigger;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
 public class CreateAlertEvent extends AppEvent {
 
-    private List<SensorModel> sensors;
-    private TriggerModel trigger;
-    private NotificationModel notification;
+    private List<ExtSensor> sensors;
+    private ExtTrigger trigger;
+    private ExtNotification notification;
 
-    public CreateAlertEvent(List<SensorModel> sensors, TriggerModel trigger,
-            NotificationModel notification) {
+    public CreateAlertEvent(List<ExtSensor> sensors, ExtTrigger trigger,
+            ExtNotification notification) {
         super(AlertCreateEvents.CreateAlertRequest);
         setSensors(sensors);
         setTrigger(trigger);
         setNotification(notification);
     }
 
-    public NotificationModel getNotification() {
+    public ExtNotification getNotification() {
         return notification;
     }
 
-    public List<SensorModel> getSensors() {
+    public List<ExtSensor> getSensors() {
         return sensors;
     }
 
-    public TriggerModel getTrigger() {
+    public ExtTrigger getTrigger() {
         return trigger;
     }
 
-    public void setNotification(NotificationModel notification) {
+    public void setNotification(ExtNotification notification) {
         this.notification = notification;
     }
 
-    private void setSensors(List<SensorModel> sensors) {
+    private void setSensors(List<ExtSensor> sensors) {
         this.sensors = sensors;
     }
 
-    public void setTrigger(TriggerModel trigger) {
+    public void setTrigger(ExtTrigger trigger) {
         this.trigger = trigger;
     }
 }

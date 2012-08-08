@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.main.components;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -181,7 +181,7 @@ public class NavPanel extends LayoutContainer {
 	/**
 	 * Changes the displayed user name
 	 */
-	public void setUser(UserModel user) {
+	public void setUser(ExtUser user) {
 		if (null != user) {
 			userName.setText(user.toString());
 		} else {

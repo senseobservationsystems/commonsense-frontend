@@ -10,10 +10,10 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.model.DataPoint;
-import nl.sense_os.commonsense.common.client.model.DeviceModel;
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
+import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
 import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
@@ -52,16 +52,16 @@ public class EnvMap extends VizPanel {
 
     private static final Logger LOG = Logger.getLogger(EnvMap.class.getName());
     private MapWidget map;
-    private final Map<Marker, List<DeviceModel>> deviceMarkers = new HashMap<Marker, List<DeviceModel>>();
+    private final Map<Marker, List<ExtDevice>> deviceMarkers = new HashMap<Marker, List<ExtDevice>>();
 
-    private EnvironmentModel environment;
-    private List<SensorModel> sensors;
+    private ExtEnvironment environment;
+    private List<ExtSensor> sensors;
     private Polygon outline;
     private final Window window = new Window();
 
     private MapClickHandler mapClickHandler;
     private PolygonClickHandler polygonClickHandler;
-    private ListStore<DeviceModel> store;
+    private ListStore<ExtDevice> store;
     private HashMap<Integer, List<Timeseries>> sensorValues;
 
     public EnvMap() {
@@ -69,7 +69,7 @@ public class EnvMap extends VizPanel {
         // LOG.setLevel(Level.ALL);
     }
 
-    public EnvMap(EnvironmentModel environment) {
+    public EnvMap(ExtEnvironment environment) {
 
         // Create the map.
         this.map = new MapWidget();
@@ -112,7 +112,7 @@ public class EnvMap extends VizPanel {
     private void drawMarkers() {
         LOG.fine("Draw markers...");
 
-        for (SensorModel sensor : sensors) {
+        for (ExtSensor sensor : sensors) {
             if (sensor.getName().contains("position")) {
                 List<Timeseries> positionData = sensorValues.get(sensor.getId());
                 if (positionData != null) {
@@ -161,12 +161,12 @@ public class EnvMap extends VizPanel {
 
     }
 
-    private void addDeviceMarker(LatLng latLng, List<DeviceModel> devices) {
+    private void addDeviceMarker(LatLng latLng, List<ExtDevice> devices) {
         LOG.finest("Add device marker...");
 
         // create title
         String title = "";
-        for (DeviceModel device : devices) {
+        for (ExtDevice device : devices) {
             String type = device.getType();
             if (type.equals("myrianode")) {
                 title += device.getType() + " " + device.getUuid();
@@ -244,12 +244,12 @@ public class EnvMap extends VizPanel {
      * @return A list of deviceMarkers with their lat/lng from the map's markers, stored in the
      *         "latlng" property.
      */
-    public List<DeviceModel> getDevices() {
+    public List<ExtDevice> getDevices() {
         // create list of deviceMarkers
-        List<DeviceModel> result = new ArrayList<DeviceModel>();
-        for (Entry<Marker, List<DeviceModel>> entry : this.deviceMarkers.entrySet()) {
+        List<ExtDevice> result = new ArrayList<ExtDevice>();
+        for (Entry<Marker, List<ExtDevice>> entry : this.deviceMarkers.entrySet()) {
             LatLng latLng = entry.getKey().getLatLng();
-            for (DeviceModel device : entry.getValue()) {
+            for (ExtDevice device : entry.getValue()) {
                 device.set("latlng", latLng);
                 result.add(device);
             }
@@ -305,18 +305,18 @@ public class EnvMap extends VizPanel {
         window.setSize(300, 300);
         window.setHeading("Select the devices for this position");
 
-        store = new ListStore<DeviceModel>();
+        store = new ListStore<ExtDevice>();
 
-        CheckBoxSelectionModel<DeviceModel> sm = new CheckBoxSelectionModel<DeviceModel>();
+        CheckBoxSelectionModel<ExtDevice> sm = new CheckBoxSelectionModel<ExtDevice>();
 
         ColumnConfig check = sm.getColumn();
-        ColumnConfig id = new ColumnConfig(DeviceModel.ID, "ID", 50);
-        ColumnConfig type = new ColumnConfig(DeviceModel.TYPE, "Type", 100);
-        ColumnConfig uuid = new ColumnConfig(DeviceModel.UUID, "UUID", 50);
+        ColumnConfig id = new ColumnConfig(ExtDevice.ID, "ID", 50);
+        ColumnConfig type = new ColumnConfig(ExtDevice.TYPE, "Type", 100);
+        ColumnConfig uuid = new ColumnConfig(ExtDevice.UUID, "UUID", 50);
         ColumnModel cm = new ColumnModel(Arrays.asList(check, id, type, uuid));
 
-        final Grid<DeviceModel> grid = new Grid<DeviceModel>(store, cm);
-        grid.setAutoExpandColumn(DeviceModel.TYPE);
+        final Grid<ExtDevice> grid = new Grid<ExtDevice>(store, cm);
+        grid.setAutoExpandColumn(ExtDevice.TYPE);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
 
@@ -365,7 +365,7 @@ public class EnvMap extends VizPanel {
         super.onRender(parent, index);
     }
 
-    private void setEnvironment(EnvironmentModel environment) {
+    private void setEnvironment(ExtEnvironment environment) {
         this.environment = environment;
 
         if (null != environment) {
@@ -396,7 +396,7 @@ public class EnvMap extends VizPanel {
         LOG.finest("Zoom level: " + this.map.getBoundsZoomLevel(this.outline.getBounds()));
     }
 
-    public void setSensors(List<SensorModel> sensors) {
+    public void setSensors(List<ExtSensor> sensors) {
         LOG.finest("Set sensors...");
 
         this.sensors = sensors;
@@ -414,13 +414,13 @@ public class EnvMap extends VizPanel {
         store.removeAll();
 
         // only display devices that are not added to the map yet
-        List<DeviceModel> myDevices = Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST);
-        List<DeviceModel> selectable = new ArrayList<DeviceModel>();
-        for (DeviceModel device : myDevices) {
+        List<ExtDevice> myDevices = Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST);
+        List<ExtDevice> selectable = new ArrayList<ExtDevice>();
+        for (ExtDevice device : myDevices) {
 
             boolean isAlreadyInMap = false;
-            for (Entry<Marker, List<DeviceModel>> entry : deviceMarkers.entrySet()) {
-                for (DeviceModel mapDevice : entry.getValue()) {
+            for (Entry<Marker, List<ExtDevice>> entry : deviceMarkers.entrySet()) {
+                for (ExtDevice mapDevice : entry.getValue()) {
                     if (device.equals(mapDevice)) {
                         isAlreadyInMap = true;
                     }

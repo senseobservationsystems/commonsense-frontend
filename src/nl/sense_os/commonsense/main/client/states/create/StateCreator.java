@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtService;
 import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.common.client.util.SensorProcessor;
@@ -59,11 +59,11 @@ public class StateCreator extends View {
     private Window window;
     private FormPanel form;
     private TextField<String> nameField;
-    private ComboBox<ServiceModel> servicesField;
-    private ListStore<ServiceModel> servicesStore;
+    private ComboBox<ExtService> servicesField;
+    private ListStore<ExtService> servicesStore;
     private AdapterField sensorsField;
-    private GroupingStore<SensorModel> sensorsStore;
-    private Grid<SensorModel> sensorsGrid;
+    private GroupingStore<ExtSensor> sensorsStore;
+    private Grid<ExtSensor> sensorsGrid;
     private ToolBar sensorsFilterBar;
     private ListStore<ModelData> dataFieldsStore;
     private Grid<ModelData> dataFieldsGrid;
@@ -97,7 +97,7 @@ public class StateCreator extends View {
 
         } else if (type.equals(StateCreateEvents.LoadSensorsSuccess)) {
             // LOG.fine( "LoadSensorsSuccess");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             onLoadSensorsComplete(sensors);
 
         } else if (type.equals(StateCreateEvents.LoadSensorsFailure)) {
@@ -106,7 +106,7 @@ public class StateCreator extends View {
 
         } else if (type.equals(StateCreateEvents.AvailableServicesUpdated)) {
             // LOG.fine( "AvailableServicesUpdated");
-            final List<ServiceModel> services = event.<List<ServiceModel>> getData("services");
+            final List<ExtService> services = event.<List<ExtService>> getData("services");
             onAvailableServicesComplete(services);
 
         } else if (type.equals(StateCreateEvents.AvailableServicesNotUpdated)) {
@@ -167,10 +167,10 @@ public class StateCreator extends View {
         sensorsField.setFieldLabel("Input sensor");
 
         sensorsGrid.getSelectionModel().addSelectionChangedListener(
-                new SelectionChangedListener<SensorModel>() {
+                new SelectionChangedListener<ExtSensor>() {
 
                     @Override
-                    public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
+                    public void selectionChanged(SelectionChangedEvent<ExtSensor> se) {
 
                         servicesField.clear();
                         TreeModel selected = se.getSelectedItem();
@@ -185,32 +185,32 @@ public class StateCreator extends View {
                     }
                 });
 
-        servicesStore = new ListStore<ServiceModel>();
+        servicesStore = new ListStore<ExtService>();
 
-        servicesField = new ComboBox<ServiceModel>();
+        servicesField = new ComboBox<ExtService>();
         servicesField.setFieldLabel("Algorithm type");
         servicesField.setEmptyText("Select service algorithm type...");
         servicesField.setStore(servicesStore);
-        servicesField.setDisplayField(ServiceModel.NAME);
+        servicesField.setDisplayField(ExtService.NAME);
         servicesField.setAllowBlank(false);
         servicesField.setTriggerAction(TriggerAction.ALL);
         servicesField.setTypeAhead(true);
         servicesField.setForceSelection(true);
 
         // update sensors and data fields when a service is selected
-        servicesField.addSelectionChangedListener(new SelectionChangedListener<ServiceModel>() {
+        servicesField.addSelectionChangedListener(new SelectionChangedListener<ExtService>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<ServiceModel> se) {
-                ServiceModel selected = se.getSelectedItem();
-                SensorModel sensor = sensorsGrid.getSelectionModel().getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<ExtService> se) {
+                ExtService selected = se.getSelectedItem();
+                ExtSensor sensor = sensorsGrid.getSelectionModel().getSelectedItem();
                 dataFieldsStore.removeAll();
 
                 if (null != selected) {
-                    String sensorName = sensor.<String> get(SensorModel.NAME);
+                    String sensorName = sensor.<String> get(ExtSensor.NAME);
                     sensorName = sensorName.replace(' ', '_');
 
-                    List<String> dataFields = selected.<List<String>> get(ServiceModel.DATA_FIELDS);
+                    List<String> dataFields = selected.<List<String>> get(ExtService.DATA_FIELDS);
                     for (String fieldName : dataFields) {
                         if (fieldName.contains(sensorName)
                                 && fieldName.length() > sensorName.length()) {
@@ -274,11 +274,11 @@ public class StateCreator extends View {
     private void initSensorsFilter() {
 
         // text filter
-        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
         textFilter.bind(sensorsStore);
 
         // filter to show only my own sensors
-        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
         sensorsStore.addFilter(ownerFilter);
 
         // checkbox to toggle filter
@@ -305,8 +305,8 @@ public class StateCreator extends View {
 
     private void initSensorsGrid() {
 
-        sensorsStore = new GroupingStore<SensorModel>();
-        sensorsStore.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        sensorsStore = new GroupingStore<ExtSensor>();
+        sensorsStore.setKeyProvider(new SenseKeyProvider<ExtSensor>());
 
         // Column model
         ColumnModel cm = LibraryColumnsFactory.create();
@@ -317,13 +317,13 @@ public class StateCreator extends View {
         view.setForceFit(true);
         view.setGroupRenderer(new SensorGroupRenderer(cm));
 
-        sensorsGrid = new Grid<SensorModel>(sensorsStore, cm);
-        sensorsGrid.setModelProcessor(new SensorProcessor<SensorModel>());
+        sensorsGrid = new Grid<ExtSensor>(sensorsStore, cm);
+        sensorsGrid.setModelProcessor(new SensorProcessor<ExtSensor>());
         sensorsGrid.setView(view);
         sensorsGrid.setBorders(false);
     }
 
-    private void onAvailableServicesComplete(List<ServiceModel> services) {
+    private void onAvailableServicesComplete(List<ExtService> services) {
         servicesStore.removeAll();
         dataFieldsStore.removeAll();
 
@@ -361,7 +361,7 @@ public class StateCreator extends View {
                 });
     }
 
-    private void onLoadSensorsComplete(List<SensorModel> sensors) {
+    private void onLoadSensorsComplete(List<ExtSensor> sensors) {
         sensorsStore.removeAll();
         servicesStore.removeAll();
         dataFieldsStore.removeAll();

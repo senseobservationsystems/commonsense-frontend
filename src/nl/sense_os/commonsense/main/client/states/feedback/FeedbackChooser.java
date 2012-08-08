@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.TimeRangeForm;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -33,8 +33,8 @@ public class FeedbackChooser extends View {
 
         if (type.equals(FeedbackEvents.ShowChooser)) {
             LOG.finest("ShowChooser");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final ExtSensor state = event.<ExtSensor> getData("state");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             final List<String> labels = event.<List<String>> getData("labels");
             showChooser(state, sensors, labels);
 
@@ -44,7 +44,7 @@ public class FeedbackChooser extends View {
 
     }
 
-    private void showChooser(final SensorModel state, final List<SensorModel> sensors,
+    private void showChooser(final ExtSensor state, final List<ExtSensor> sensors,
             final List<String> labels) {
         final Window w = new Window();
         w.setLayout(new FitLayout());

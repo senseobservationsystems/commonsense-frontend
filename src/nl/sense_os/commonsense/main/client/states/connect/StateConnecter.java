@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.states.connect;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.common.client.util.SensorProcessor;
@@ -59,12 +59,12 @@ public class StateConnecter extends View {
     private FormPanel form;
     private Button submitButton;
     private Button cancelButton;
-    private GroupingStore<SensorModel> store;
-    private ListLoader<ListLoadResult<SensorModel>> loader;
-    private SensorModel stateSensor;
+    private GroupingStore<ExtSensor> store;
+    private ListLoader<ListLoadResult<ExtSensor>> loader;
+    private ExtSensor stateSensor;
     private String serviceName;
     private MessageBox waitDialog;
-    private Grid<SensorModel> grid;
+    private Grid<ExtSensor> grid;
     private ToolBar filterBar;
 
     public StateConnecter(Controller c) {
@@ -130,13 +130,13 @@ public class StateConnecter extends View {
         form.addButton(cancelButton);
 
         // handle selections
-        GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
+        GridSelectionModel<ExtSensor> selectionModel = new GridSelectionModel<ExtSensor>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtSensor>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
-                SensorModel selection = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<ExtSensor> se) {
+                ExtSensor selection = se.getSelectedItem();
                 if (null != selection) {
                     submitButton.enable();
                 } else {
@@ -174,11 +174,11 @@ public class StateConnecter extends View {
     private void initFilters() {
 
         // text filter
-        SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+        SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
         textFilter.bind(store);
 
         // filter to show only my own sensors
-        final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+        final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
         store.addFilter(ownerFilter);
 
         // checkbox to toggle filter
@@ -219,11 +219,11 @@ public class StateConnecter extends View {
     private void initGrid() {
 
         // proxy
-        DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
+        DataProxy<ListLoadResult<ExtSensor>> proxy = new DataProxy<ListLoadResult<ExtSensor>>() {
 
             @Override
-            public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
-                    AsyncCallback<ListLoadResult<SensorModel>> callback) {
+            public void load(DataReader<ListLoadResult<ExtSensor>> reader, Object loadConfig,
+                    AsyncCallback<ListLoadResult<ExtSensor>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
                     LOG.finest("Load library...");
@@ -240,11 +240,11 @@ public class StateConnecter extends View {
         };
 
         // list loader
-        loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
+        loader = new BaseListLoader<ListLoadResult<ExtSensor>>(proxy);
 
         // list store
-        store = new GroupingStore<SensorModel>(loader);
-        store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+        store = new GroupingStore<ExtSensor>(loader);
+        store.setKeyProvider(new SenseKeyProvider<ExtSensor>());
         store.setMonitorChanges(true);
 
         // Column model
@@ -256,8 +256,8 @@ public class StateConnecter extends View {
         view.setForceFit(true);
         view.setGroupRenderer(new SensorGroupRenderer(cm));
 
-        grid = new Grid<SensorModel>(store, cm);
-        grid.setModelProcessor(new SensorProcessor<SensorModel>());
+        grid = new Grid<ExtSensor>(store, cm);
+        grid.setModelProcessor(new SensorProcessor<ExtSensor>());
         grid.setView(view);
         grid.setBorders(false);
         grid.setId("state-connecter-grid");

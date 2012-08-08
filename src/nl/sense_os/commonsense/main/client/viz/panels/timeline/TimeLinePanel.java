@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.DataPoint;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
@@ -36,7 +36,7 @@ public class TimeLinePanel extends VizPanel {
     private final Timeline.Options tlineOpts = Timeline.Options.create();
     private boolean showTimeLine = true;
 
-    public TimeLinePanel(List<SensorModel> sensors, long start, long end, boolean subsample,
+    public TimeLinePanel(List<ExtSensor> sensors, long start, long end, boolean subsample,
             String title) {
         super();
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 import nl.sense_os.commonsense.main.client.viz.data.DataRequestEvent;
@@ -117,9 +117,9 @@ public abstract class VizView extends View {
         });
     }
 
-    protected String createChartTitle(List<SensorModel> sensors) {
+    protected String createChartTitle(List<ExtSensor> sensors) {
         String title = null;
-        for (SensorModel sensor : sensors) {
+        for (ExtSensor sensor : sensors) {
             title = sensor.getDisplayName() + ", ";
         }
 
@@ -184,7 +184,7 @@ public abstract class VizView extends View {
     /**
      * Dispatches request for refreshing the sensor data.
      */
-    protected void refreshData(JsArray<Timeseries> currentData, List<SensorModel> sensors,
+    protected void refreshData(JsArray<Timeseries> currentData, List<ExtSensor> sensors,
             long start, long end, boolean subsample) {
         LOG.fine("Refresh data...");
 
@@ -196,7 +196,7 @@ public abstract class VizView extends View {
 
         if (null != sensors) {
 
-            for (SensorModel sensor : sensors) {
+            for (ExtSensor sensor : sensors) {
 
                 // find the latest data point for which we have data and refresh from this point
                 long refreshStart = start;
@@ -284,7 +284,7 @@ public abstract class VizView extends View {
      * @param subsample
      * 
      */
-    protected void requestData(List<SensorModel> sensors, long start, long end, boolean subsample) {
+    protected void requestData(List<ExtSensor> sensors, long start, long end, boolean subsample) {
         LOG.fine("Request data...");
         DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true);
         dataRequest.setSource(this);

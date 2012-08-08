@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
 import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 import nl.sense_os.commonsense.common.client.util.SensorComparator;
@@ -59,15 +59,15 @@ public class GroupGrid extends View {
 
     private static final Logger LOG = Logger.getLogger(GroupGrid.class.getName());
     private Button createButton;
-    private TreeGrid<UserModel> grid;
+    private TreeGrid<ExtUser> grid;
     private Button addUserButton;
     private Button joinButton;
     private Button leaveButton;
     private ContentPanel panel;
-    private TreeStore<UserModel> store;
-    private TreeLoader<UserModel> loader;
+    private TreeStore<ExtUser> store;
+    private TreeLoader<ExtUser> loader;
     private ToolBar filterBar;
-    private StoreFilterField<UserModel> filter;
+    private StoreFilterField<ExtUser> filter;
     private ToolBar toolBar;
 
     public GroupGrid(Controller controller) {
@@ -112,10 +112,10 @@ public class GroupGrid extends View {
     private void initFilter() {
         filterBar = new ToolBar();
         filterBar.add(new LabelToolItem("Filter: "));
-        filter = new StoreFilterField<UserModel>() {
+        filter = new StoreFilterField<ExtUser>() {
 
             @Override
-            protected boolean doSelect(Store<UserModel> store, UserModel parent, UserModel record,
+            protected boolean doSelect(Store<ExtUser> store, ExtUser parent, ExtUser record,
                     String property, String filter) {
                 // only match leaf nodes
                 if (record.getChildCount() > 0) {
@@ -141,11 +141,11 @@ public class GroupGrid extends View {
     private void initGrid() {
 
         // proxy
-        DataProxy<List<UserModel>> proxy = new DataProxy<List<UserModel>>() {
+        DataProxy<List<ExtUser>> proxy = new DataProxy<List<ExtUser>>() {
 
             @Override
-            public void load(DataReader<List<UserModel>> reader, Object loadConfig,
-                    AsyncCallback<List<UserModel>> callback) {
+            public void load(DataReader<List<ExtUser>> reader, Object loadConfig,
+                    AsyncCallback<List<ExtUser>> callback) {
 
                 if (panel.isExpanded()) {
                     AppEvent loadRequest = new AppEvent(GroupEvents.LoadRequest);
@@ -159,41 +159,41 @@ public class GroupGrid extends View {
         };
 
         // tree loader
-        loader = new BaseTreeLoader<UserModel>(proxy) {
+        loader = new BaseTreeLoader<ExtUser>(proxy) {
 
             @Override
-            public boolean hasChildren(UserModel parent) {
-                return parent instanceof GroupModel;
+            public boolean hasChildren(ExtUser parent) {
+                return parent instanceof ExtGroup;
             };
         };
 
         // tree store
-        store = new TreeStore<UserModel>(loader);
-        store.setKeyProvider(new SenseKeyProvider<UserModel>());
-        store.setStoreSorter(new StoreSorter<UserModel>(new SensorComparator<UserModel>()));
+        store = new TreeStore<ExtUser>(loader);
+        store.setKeyProvider(new SenseKeyProvider<ExtUser>());
+        store.setStoreSorter(new StoreSorter<ExtUser>(new SensorComparator<ExtUser>()));
 
-        ColumnConfig id = new ColumnConfig(UserModel.ID, "ID", 50);
+        ColumnConfig id = new ColumnConfig(ExtUser.ID, "ID", 50);
         id.setHidden(true);
-        ColumnConfig name = new ColumnConfig(UserModel.NAME, "Name", 125);
+        ColumnConfig name = new ColumnConfig(ExtUser.NAME, "Name", 125);
         name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-        ColumnConfig surname = new ColumnConfig(UserModel.SURNAME, "Surname", 125);
-        ColumnConfig description = new ColumnConfig(GroupModel.DESCRIPTION, "Description", 125);
-        ColumnConfig isPublic = new ColumnConfig(GroupModel.PUBLIC, "Public", 75);
+        ColumnConfig surname = new ColumnConfig(ExtUser.SURNAME, "Surname", 125);
+        ColumnConfig description = new ColumnConfig(ExtGroup.DESCRIPTION, "Description", 125);
+        ColumnConfig isPublic = new ColumnConfig(ExtGroup.PUBLIC, "Public", 75);
         isPublic.setHidden(true);
-        ColumnConfig isHidden = new ColumnConfig(GroupModel.HIDDEN, "Hidden", 75);
+        ColumnConfig isHidden = new ColumnConfig(ExtGroup.HIDDEN, "Hidden", 75);
         isHidden.setHidden(true);
-        ColumnConfig isAnon = new ColumnConfig(GroupModel.ANONYMOUS, "Anonymous", 75);
+        ColumnConfig isAnon = new ColumnConfig(ExtGroup.ANONYMOUS, "Anonymous", 75);
         isAnon.setHidden(true);
         ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, description, isPublic,
                 isHidden, isAnon));
 
-        grid = new TreeGrid<UserModel>(store, cm);
+        grid = new TreeGrid<ExtUser>(store, cm);
         grid.setAutoLoad(true);
         grid.setLoadMask(true);
         grid.setId("groupGrid");
         grid.setStateful(true);
-        grid.setAutoExpandColumn(GroupModel.DESCRIPTION);
-        grid.setIconProvider(new SenseIconProvider<UserModel>());
+        grid.setAutoExpandColumn(ExtGroup.DESCRIPTION);
+        grid.setIconProvider(new SenseIconProvider<ExtUser>());
     }
 
     private void initHeaderTool() {
@@ -273,13 +273,13 @@ public class GroupGrid extends View {
         addUserButton.disable();
 
         // handle selections
-        TreeGridSelectionModel<UserModel> selectionModel = new TreeGridSelectionModel<UserModel>();
+        TreeGridSelectionModel<ExtUser> selectionModel = new TreeGridSelectionModel<ExtUser>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<UserModel>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtUser>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<UserModel> se) {
-                UserModel selection = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<ExtUser> se) {
+                ExtUser selection = se.getSelectedItem();
                 if (null != selection) {
                     leaveButton.enable();
                     addUserButton.enable();
@@ -300,12 +300,12 @@ public class GroupGrid extends View {
     }
 
     private void onAddUserClick() {
-        UserModel selected = grid.getSelectionModel().getSelectedItem();
-        GroupModel group = null;
-        if (selected instanceof GroupModel) {
-            group = (GroupModel) selected;
-        } else if (selected.getParent() instanceof GroupModel) {
-            group = (GroupModel) selected.getParent();
+        ExtUser selected = grid.getSelectionModel().getSelectedItem();
+        ExtGroup group = null;
+        if (selected instanceof ExtGroup) {
+            group = (ExtGroup) selected;
+        } else if (selected.getParent() instanceof ExtGroup) {
+            group = (ExtGroup) selected.getParent();
         } else {
             MessageBox.alert(null, "Cannot add user to group: no group selected.", null);
             return;
@@ -317,9 +317,9 @@ public class GroupGrid extends View {
     }
 
     private void onLeaveClick() {
-        UserModel group = grid.getSelectionModel().getSelectedItem();
-        while (!(group instanceof GroupModel)) {
-            group = (UserModel) group.getParent();
+        ExtUser group = grid.getSelectionModel().getSelectedItem();
+        while (!(group instanceof ExtGroup)) {
+            group = (ExtUser) group.getParent();
         }
         AppEvent event = new AppEvent(GroupLeaveEvents.LeaveRequest);
         event.setData("group", group);

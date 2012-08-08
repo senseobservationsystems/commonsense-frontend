@@ -5,13 +5,15 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponseJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceMethodModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtServiceMethod;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.Sensor;
+import nl.sense_os.commonsense.common.client.model.ServiceMethod;
 import nl.sense_os.commonsense.common.client.util.TreeCopier;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
@@ -26,6 +28,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -56,7 +59,7 @@ public class StateListController extends Controller {
 		registerEventTypes(StateListEvents.RemoveRequested, StateListEvents.RemoveComplete);
 	}
 
-	private void disconnectService(SensorModel sensor, SensorModel stateSensor) {
+	private void disconnectService(ExtSensor sensor, ExtSensor stateSensor) {
 
 		// prepare request data
 		final Method method = RequestBuilder.DELETE;
@@ -99,8 +102,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getConnected(final SensorModel state,
-			final AsyncCallback<List<SensorModel>> callback) {
+	private void getConnected(final ExtSensor state, final AsyncCallback<List<ExtSensor>> callback) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -142,7 +144,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getMethods(final SensorModel state, final List<SensorModel> sensors) {
+	private void getMethods(final ExtSensor state, final List<ExtSensor> sensors) {
 
 		if (sensors.size() > 0) {
 			// prepare request properties
@@ -190,7 +192,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getStateSensors(final AsyncCallback<List<SensorModel>> callback) {
+	private void getStateSensors(final AsyncCallback<List<ExtSensor>> callback) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -244,8 +246,8 @@ public class StateListController extends Controller {
 		if (type.equals(StateListEvents.LoadRequest)) {
 			// LOG.fine( "LoadRequest");
 			final Object loadConfig = event.getData("loadConfig");
-			final AsyncCallback<List<SensorModel>> callback = event
-					.<AsyncCallback<List<SensorModel>>> getData("callback");
+			final AsyncCallback<List<ExtSensor>> callback = event
+					.<AsyncCallback<List<ExtSensor>>> getData("callback");
 			load(loadConfig, callback);
 
 		} else
@@ -255,8 +257,8 @@ public class StateListController extends Controller {
 		 */
 		if (type.equals(StateListEvents.RemoveRequested)) {
 			// LOG.fine( "RemoveRequested");
-			SensorModel sensor = event.<SensorModel> getData("sensor");
-			SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+			ExtSensor sensor = event.<ExtSensor> getData("sensor");
+			ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
 			disconnectService(sensor, stateSensor);
 
 		} else
@@ -275,47 +277,51 @@ public class StateListController extends Controller {
 		tree = new StateGrid(this);
 	}
 
-	private void load(Object loadConfig, AsyncCallback<List<SensorModel>> callback) {
+	private void load(Object loadConfig, AsyncCallback<List<ExtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Working));
 		if (null == loadConfig) {
 			getStateSensors(callback);
-		} else if (loadConfig instanceof SensorModel && ((SensorModel) loadConfig).getType() == 2) {
-			getConnected((SensorModel) loadConfig, callback);
+		} else if (loadConfig instanceof ExtSensor && ((ExtSensor) loadConfig).getType() == 2) {
+			getConnected((ExtSensor) loadConfig, callback);
 		} else {
-			onLoadComplete(new ArrayList<SensorModel>(), callback);
+			onLoadComplete(new ArrayList<ExtSensor>(), callback);
 		}
 	}
 
-	private void onConnectedFailure(AsyncCallback<List<SensorModel>> callback) {
+	private void onConnectedFailure(AsyncCallback<List<ExtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
 		}
 	}
 
-	private void onConnectedSuccess(String response, SensorModel state,
-			AsyncCallback<List<SensorModel>> callback) {
+	private void onConnectedSuccess(String response, ExtSensor state,
+			AsyncCallback<List<ExtSensor>> callback) {
 
 		// parse list of sensors from response
-		List<SensorModel> sensors = new ArrayList<SensorModel>();
+		List<ExtSensor> sensors = new ArrayList<ExtSensor>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-			sensors.addAll(responseJso.getSensors());
+			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+			JsArray<Sensor> rawSensors = responseJso.getRawSensors();
+			for (int i = 0; i < rawSensors.length(); i++) {
+				ExtSensor sensor = new ExtSensor(sensors.get(i));
+				sensors.add(sensor);
+			}
 		}
 
 		// get details from library
-		List<SensorModel> result = new ArrayList<SensorModel>();
-		List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-		for (SensorModel sensor : sensors) {
+		List<ExtSensor> result = new ArrayList<ExtSensor>();
+		List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		for (ExtSensor sensor : sensors) {
 			int index = -1;
-			for (SensorModel libSensor : library) {
+			for (ExtSensor libSensor : library) {
 				if (libSensor.getId() == sensor.getId()) {
 					index = library.indexOf(libSensor);
 					break;
 				}
 			}
 			if (index != -1) {
-				SensorModel detailed = (SensorModel) TreeCopier.copySensor(library.get(index));
+				ExtSensor detailed = (ExtSensor) TreeCopier.copySensor(library.get(index));
 				state.add(detailed);
 				result.add(detailed);
 			} else {
@@ -339,7 +345,7 @@ public class StateListController extends Controller {
 		Dispatcher.forwardEvent(StateListEvents.RemoveComplete);
 	}
 
-	private void onLoadComplete(List<SensorModel> result, AsyncCallback<List<SensorModel>> callback) {
+	private void onLoadComplete(List<ExtSensor> result, AsyncCallback<List<ExtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		forwardToView(tree, new AppEvent(StateListEvents.LoadComplete));
 		if (null != callback) {
@@ -347,7 +353,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void onLoadFailure(AsyncCallback<List<SensorModel>> callback) {
+	private void onLoadFailure(AsyncCallback<List<ExtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
@@ -358,36 +364,41 @@ public class StateListController extends Controller {
 		// TODO
 	}
 
-	private void onMethodsSuccess(String response, SensorModel state, List<SensorModel> sensors) {
+	private void onMethodsSuccess(String response, ExtSensor state, List<ExtSensor> sensors) {
 
 		// parse list of methods from the response
-		List<ServiceMethodModel> methods = new ArrayList<ServiceMethodModel>();
+		JsArray<ServiceMethod> methods = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetMethodsResponseJso jso = JsonUtils.unsafeEval(response);
-			methods = jso.getMethods();
+			GetMethodsResponse jso = JsonUtils.unsafeEval(response);
+			methods = jso.getRawMethods();
 		}
 
 		if (null != methods) {
-			state.set("methods", methods);
+			List<ExtServiceMethod> extMethods = new ArrayList<ExtServiceMethod>(methods.length());
+			for (int i = 0; i < methods.length(); i++) {
+				extMethods.add(new ExtServiceMethod(methods.get(i)));
+			}
+			state.set("methods", extMethods);
 		}
 	}
 
-	private void onStateSensorsFailure(AsyncCallback<List<SensorModel>> callback) {
+	private void onStateSensorsFailure(AsyncCallback<List<ExtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onStateSensorsSuccess(String response, AsyncCallback<List<SensorModel>> callback) {
+	private void onStateSensorsSuccess(String response, AsyncCallback<List<ExtSensor>> callback) {
 
 		// parse list of sensors from response
-		List<SensorModel> sensors = new ArrayList<SensorModel>();
+		JsArray<Sensor> sensors = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-			sensors.addAll(responseJso.getSensors());
+			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+			sensors = responseJso.getRawSensors();
 		}
 
-		UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-		List<SensorModel> states = new ArrayList<SensorModel>();
-		for (SensorModel sensor : sensors) {
+		ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
+		List<ExtSensor> states = new ArrayList<ExtSensor>();
+		for (int i = 0; i < sensors.length(); i++) {
+			ExtSensor sensor = new ExtSensor(sensors.get(i));
 			if (sensor.getType() == 2 && user.equals(sensor.getOwner())) {
 				states.add(sensor);
 			}

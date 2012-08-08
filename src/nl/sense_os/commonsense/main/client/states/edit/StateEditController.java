@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.ServiceMethodResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.ServiceMethodResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceMethodModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtServiceMethod;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -40,8 +40,8 @@ public class StateEditController extends Controller {
 		 */
 		if (type.equals(StateEditEvents.InvokeMethodRequested)) {
 			LOG.finest("InvokeMethodRequested");
-			final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
-			final ServiceMethodModel serviceMethod = event.<ServiceMethodModel> getData("method");
+			final ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
+			final ExtServiceMethod serviceMethod = event.<ExtServiceMethod> getData("method");
 			final List<String> params = event.<List<String>> getData("parameters");
 			invokeMethod(stateSensor, serviceMethod, params);
 
@@ -61,11 +61,11 @@ public class StateEditController extends Controller {
 		editor = new StateEditor(this);
 	}
 
-	private void invokeMethod(SensorModel stateSensor, ServiceMethodModel serviceMethod,
+	private void invokeMethod(ExtSensor stateSensor, ExtServiceMethod serviceMethod,
 			List<String> params) {
 
 		// get one of the state sensor children
-		SensorModel sensor = (SensorModel) stateSensor.getChild(0);
+		ExtSensor sensor = (ExtSensor) stateSensor.getChild(0);
 
 		LOG.fine("State: " + stateSensor);
 		LOG.fine("Sensor: " + sensor);
@@ -132,7 +132,7 @@ public class StateEditController extends Controller {
 		// parse result from the response
 		String result = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			ServiceMethodResponseJso jso = JsonUtils.unsafeEval(response);
+			ServiceMethodResponse jso = JsonUtils.unsafeEval(response);
 			result = jso.getResult();
 		}
 

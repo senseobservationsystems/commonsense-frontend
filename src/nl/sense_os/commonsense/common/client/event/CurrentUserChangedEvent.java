@@ -1,19 +1,19 @@
 package nl.sense_os.commonsense.common.client.event;
 
-import nl.sense_os.commonsense.common.client.model.UserJso;
+import nl.sense_os.commonsense.common.client.model.User;
 
 import com.google.web.bindery.event.shared.Event;
 
 public class CurrentUserChangedEvent extends Event<CurrentUserChangedHandler> {
 
 	public static final Type<CurrentUserChangedHandler> TYPE = new Type<CurrentUserChangedHandler>();
-	private UserJso user;
+	private User user;
 
-	public CurrentUserChangedEvent(UserJso user) {
+	public CurrentUserChangedEvent(User user) {
 		this.user = user;
 	}
 
-	public UserJso getUser() {
+	public User getUser() {
 		return user;
 	}
 

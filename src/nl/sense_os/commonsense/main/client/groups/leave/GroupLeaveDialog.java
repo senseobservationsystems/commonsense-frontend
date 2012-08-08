@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.groups.leave;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -17,7 +17,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 public class GroupLeaveDialog extends View {
 
 	private static final Logger LOG = Logger.getLogger(GroupLeaveController.class.getName());
-	private GroupModel group;
+	private ExtGroup group;
 
 	public GroupLeaveDialog(Controller c) {
 		super(c);
@@ -28,7 +28,7 @@ public class GroupLeaveDialog extends View {
 		EventType type = event.getType();
 		if (type.equals(GroupLeaveEvents.LeaveRequest)) {
 			LOG.finest("LeaveRequest");
-			GroupModel group = event.getData("group");
+			ExtGroup group = event.getData("group");
 			show(group);
 
 		} else if (type.equals(GroupLeaveEvents.LeaveComplete)) {
@@ -69,7 +69,7 @@ public class GroupLeaveDialog extends View {
 				});
 	}
 
-	private void show(GroupModel group) {
+	private void show(ExtGroup group) {
 
 		this.group = group;
 

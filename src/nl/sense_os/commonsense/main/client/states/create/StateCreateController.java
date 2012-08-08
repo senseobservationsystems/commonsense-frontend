@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtService;
+import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -48,7 +49,7 @@ public class StateCreateController extends Controller {
 				StateCreateEvents.CreateServiceComplete, StateCreateEvents.CreateServiceCancelled);
 	}
 
-	private void createService(String name, ServiceModel service, SensorModel sensor,
+	private void createService(String name, ExtService service, ExtSensor sensor,
 			List<ModelData> dataFields) {
 
 		// prepare request properties
@@ -60,7 +61,7 @@ public class StateCreateController extends Controller {
 
 		// create request body
 		String serviceJson = "\"service\":{";
-		serviceJson += "\"name\":\"" + service.<String> get(ServiceModel.NAME) + "\"";
+		serviceJson += "\"name\":\"" + service.<String> get(ExtService.NAME) + "\"";
 		serviceJson += ",\"data_fields\":[";
 		for (ModelData dataField : dataFields) {
 			serviceJson += "\"" + dataField.get("text") + "\",";
@@ -107,7 +108,7 @@ public class StateCreateController extends Controller {
 		}
 	}
 
-	private void getAvailableServices(SensorModel sensor) {
+	private void getAvailableServices(ExtSensor sensor) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -161,7 +162,7 @@ public class StateCreateController extends Controller {
 		 */
 		if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
 			// LOG.fine( "AvailableServicesRequested");
-			final SensorModel sensor = event.getData("sensor");
+			final ExtSensor sensor = event.getData("sensor");
 			getAvailableServices(sensor);
 
 		} else
@@ -172,8 +173,8 @@ public class StateCreateController extends Controller {
 		if (type.equals(StateCreateEvents.CreateServiceRequested)) {
 			// LOG.fine( "CreateRequested");
 			final String name = event.<String> getData("name");
-			final ServiceModel service = event.<ServiceModel> getData("service");
-			final SensorModel sensor = event.<SensorModel> getData("sensor");
+			final ExtService service = event.<ExtService> getData("service");
+			final ExtSensor sensor = event.<ExtSensor> getData("sensor");
 			final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
 			createService(name, service, sensor, dataFields);
 
@@ -215,7 +216,7 @@ public class StateCreateController extends Controller {
 	private void loadSensors() {
 		isLoadingSensors = true;
 
-		List<SensorModel> sensors = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> sensors = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
 		if (null == sensors) {
 			Dispatcher.forwardEvent(LibraryEvents.LoadRequest);
 			return;
@@ -234,10 +235,16 @@ public class StateCreateController extends Controller {
 	private void onAvailableServicesSuccess(String response) {
 
 		// parse list of services from response
-		List<ServiceModel> services = new ArrayList<ServiceModel>();
+		List<Service> services = new ArrayList<Service>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			AvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
+			AvailServicesResponse jso = JsonUtils.unsafeEval(response);
 			services = jso.getServices();
+		}
+
+		// convert to Ext models
+		List<ExtService> extServices = new ArrayList<ExtService>(services.size());
+		for (Service service : services) {
+			extServices.add(new ExtService(service));
 		}
 
 		AppEvent success = new AppEvent(StateCreateEvents.AvailableServicesUpdated);

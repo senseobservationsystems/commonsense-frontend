@@ -16,7 +16,7 @@ package nl.sense_os.commonsense.login.client.openidconnect;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSense;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
 import nl.sense_os.commonsense.login.client.mvp.OpenIdConnectPlace;
@@ -104,7 +104,7 @@ public class OpenIdConnectActivity extends AbstractActivity implements OpenIdCon
 			// try to get "session_id" object
 			String sessionId = null;
 			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-				LoginResponseJso jso = JsonUtils.unsafeEval(response);
+				LoginResponse jso = JsonUtils.unsafeEval(response);
 				sessionId = jso.getSessionId();
 			}
 

@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -39,8 +39,8 @@ public class UnshareController extends Controller {
 
 		if (type.equals(UnshareEvents.UnshareRequest)) {
 			LOG.finest("UnshareRequest");
-			SensorModel sensor = event.getData("sensor");
-			List<UserModel> users = event.getData("users");
+			ExtSensor sensor = event.getData("sensor");
+			List<ExtUser> users = event.getData("users");
 			onUnshareRequest(sensor, users);
 
 		} else
@@ -60,10 +60,10 @@ public class UnshareController extends Controller {
 		super.initialize();
 	}
 
-	private void onUnshareComplete(SensorModel sensor) {
+	private void onUnshareComplete(ExtSensor sensor) {
 
 		// update library
-		List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
 		int index = library.indexOf(sensor);
 		if (index != -1) {
 			LOG.fine("Updating sensor's users in the library");
@@ -81,14 +81,14 @@ public class UnshareController extends Controller {
 		forwardToView(dialog, new AppEvent(UnshareEvents.UnshareFailed));
 	}
 
-	private void onUnshareRequest(SensorModel sensor, List<UserModel> users) {
+	private void onUnshareRequest(ExtSensor sensor, List<ExtUser> users) {
 		unshare(sensor, users, 0);
 	}
 
-	private void onUnshareSuccess(String response, SensorModel sensor, List<UserModel> users,
+	private void onUnshareSuccess(String response, ExtSensor sensor, List<ExtUser> users,
 			int index) {
 		// update the sensor model
-		List<UserModel> sensorUsers = sensor.getUsers();
+		List<ExtUser> sensorUsers = sensor.getUsers();
 		sensorUsers.remove(users.get(index));
 		sensor.setUsers(sensorUsers);
 
@@ -97,12 +97,12 @@ public class UnshareController extends Controller {
 		unshare(sensor, users, index);
 	}
 
-	private void unshare(final SensorModel sensor, final List<UserModel> users, final int index) {
+	private void unshare(final ExtSensor sensor, final List<ExtUser> users, final int index) {
 
 		if (index < users.size()) {
-			UserModel user = users.get(index);
+			ExtUser user = users.get(index);
 
-			UserModel currentUser = Registry.<UserModel> get(Constants.REG_USER);
+			ExtUser currentUser = Registry.<ExtUser> get(Constants.REG_USER);
 			if (currentUser.equals(user)) {
 				LOG.finest("Skipped unsharing with the current user...");
 				unshare(sensor, users, index + 1);

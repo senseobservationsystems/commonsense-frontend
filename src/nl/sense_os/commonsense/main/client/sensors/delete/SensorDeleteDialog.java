@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -25,7 +25,7 @@ public class SensorDeleteDialog extends View {
     private Text text;
     private Button removeButton;
     private Button cancelButton;
-    private List<SensorModel> sensors;
+    private List<ExtSensor> sensors;
 
     public SensorDeleteDialog(Controller c) {
         super(c);
@@ -42,7 +42,7 @@ public class SensorDeleteDialog extends View {
 
         if (type.equals(SensorDeleteEvents.ShowDeleteDialog)) {
             LOG.fine("Show");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             onShow(sensors);
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
@@ -112,7 +112,7 @@ public class SensorDeleteDialog extends View {
         MessageBox.info(null, "Removal complete.", null);
     }
 
-    private void onShow(final List<SensorModel> sensors) {
+    private void onShow(final List<ExtSensor> sensors) {
 
         this.sensors = sensors;
 

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
@@ -39,7 +39,7 @@ public class SensorDataGrid extends VizPanel {
 
     private static final Logger LOG = Logger.getLogger("SensorDataGrid");
 
-    public SensorDataGrid(final List<SensorModel> sensors, long startTime, long endTime) {
+    public SensorDataGrid(final List<ExtSensor> sensors, long startTime, long endTime) {
 
         // grid panel parameters
         ModelType model = createModelType();
@@ -57,7 +57,7 @@ public class SensorDataGrid extends VizPanel {
         add(gridPanel);
     }
 
-    private List<ColumnConfig> createColConfig(final List<SensorModel> sensors) {
+    private List<ColumnConfig> createColConfig(final List<ExtSensor> sensors) {
         List<ColumnConfig> colConf = new ArrayList<ColumnConfig>();
 
         ColumnConfig idCol = new ColumnConfig();
@@ -78,7 +78,7 @@ public class SensorDataGrid extends VizPanel {
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
                 String id = "" + model.get(property);
-                for (SensorModel sensor : sensors) {
+                for (ExtSensor sensor : sensors) {
                     if (id.equals("" + sensor.getId())) {
                         String name = sensor.getName();
                         String deviceType = sensor.getDescription();
@@ -159,7 +159,7 @@ public class SensorDataGrid extends VizPanel {
         return model;
     }
 
-    private String createUrl(List<SensorModel> sensors, long startTime, long endTime) {
+    private String createUrl(List<ExtSensor> sensors, long startTime, long endTime) {
 
         int id = sensors.get(0).getId();
 

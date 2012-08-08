@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.sensors.library;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
@@ -28,7 +28,7 @@ public class SensorGroupRenderer implements GridGroupRenderer {
         String count = data.models.size() + ((data.models.size() == 1) ? " sensor" : " sensors");
 
         String group = data.group;
-        if (data.field.equals(SensorModel.TYPE)) {
+        if (data.field.equals(ExtSensor.TYPE)) {
             int type = Integer.parseInt("" + data.group);
             switch (type) {
             case 0:

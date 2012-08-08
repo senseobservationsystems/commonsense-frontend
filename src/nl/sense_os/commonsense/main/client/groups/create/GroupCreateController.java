@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -26,7 +26,7 @@ public class GroupCreateController extends Controller {
 		registerEventTypes(GroupCreateEvents.ShowCreator, GroupCreateEvents.CreateRequested);
 	}
 
-	private void createGroup(GroupModel group, final GroupCreateView source) {
+	private void createGroup(ExtGroup group, final GroupCreateView source) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
@@ -77,7 +77,7 @@ public class GroupCreateController extends Controller {
 
 		if (type.equals(GroupCreateEvents.CreateRequested)) {
 			LOG.finest("CreateRequested");
-			final GroupModel group = event.getData("group");
+			final ExtGroup group = event.getData("group");
 			GroupCreateView source = (GroupCreateView) event.getSource();
 			createGroup(group, source);
 

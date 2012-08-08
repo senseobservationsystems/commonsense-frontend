@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvironmentsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvironmentsResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.Environment;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
@@ -47,7 +48,7 @@ public class EnvController extends Controller {
 		registerEventTypes(EnvCreateEvents.CreateSuccess);
 	}
 
-	private void delete(final EnvironmentModel environment) {
+	private void delete(final ExtEnvironment environment) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -94,8 +95,8 @@ public class EnvController extends Controller {
 
 		if (type.equals(EnvEvents.ListRequested)) {
 			LOG.fine("LoadRequest");
-			final AsyncCallback<List<EnvironmentModel>> callback = event
-					.<AsyncCallback<List<EnvironmentModel>>> getData();
+			final AsyncCallback<List<ExtEnvironment>> callback = event
+					.<AsyncCallback<List<ExtEnvironment>>> getData();
 			requestList(callback);
 
 		} else
@@ -105,7 +106,7 @@ public class EnvController extends Controller {
 		 */
 		if (type.equals(EnvEvents.DeleteRequest)) {
 			LOG.fine("DeleteRequest");
-			final EnvironmentModel environment = event.getData("environment");
+			final ExtEnvironment environment = event.getData("environment");
 			delete(environment);
 
 		} else
@@ -119,58 +120,63 @@ public class EnvController extends Controller {
 	protected void initialize() {
 		super.initialize();
 		grid = new EnvGrid(this);
-		Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<EnvironmentModel>());
+		Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<ExtEnvironment>());
 	}
 
 	private void onDeleteFailure() {
 		forwardToView(grid, new AppEvent(EnvEvents.DeleteFailure));
 	}
 
-	private void onDeleteSuccess(EnvironmentModel environment) {
+	private void onDeleteSuccess(ExtEnvironment environment) {
 
 		// update sensor library
-		List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
-		for (SensorModel sensor : library) {
+		List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		for (ExtSensor sensor : library) {
 			if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
 				sensor.setEnvironment(null);
 			}
 		}
 
 		// update global environment list
-		Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).remove(environment);
+		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).remove(environment);
 
 		Dispatcher.forwardEvent(EnvEvents.DeleteSuccess);
 	}
 
-	private void onListFailure(AsyncCallback<List<EnvironmentModel>> callback) {
+	private void onListFailure(AsyncCallback<List<ExtEnvironment>> callback) {
 		forwardToView(grid, new AppEvent(EnvEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
 		}
 	}
 
-	private void onListSuccess(String response, AsyncCallback<List<EnvironmentModel>> callback) {
+	private void onListSuccess(String response, AsyncCallback<List<ExtEnvironment>> callback) {
 
 		// parse the list of environments from the response
-		List<EnvironmentModel> environments = new ArrayList<EnvironmentModel>();
+		List<Environment> environments = new ArrayList<Environment>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetEnvironmentsResponseJso jso = JsonUtils.unsafeEval(response);
+			GetEnvironmentsResponse jso = JsonUtils.unsafeEval(response);
 			environments = jso.getEnvironments();
 		}
 
-		Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).addAll(environments);
+		List<ExtEnvironment> extEnvironments = new ArrayList<ExtEnvironment>();
+		for (Environment e : environments) {
+			extEnvironments.add(new ExtEnvironment(e));
+		}
+
+		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).addAll(extEnvironments);
 
 		forwardToView(grid, new AppEvent(EnvEvents.Done));
 		Dispatcher.forwardEvent(EnvEvents.ListUpdated);
 		if (null != callback) {
-			callback.onSuccess(environments);
+			callback.onSuccess(extEnvironments);
 		}
 	}
 
-	private void requestList(final AsyncCallback<List<EnvironmentModel>> callback) {
+	private void requestList(final AsyncCallback<List<ExtEnvironment>> callback) {
 
 		forwardToView(grid, new AppEvent(EnvEvents.Working));
-		Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
+		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
 		// prepare request properties
 		final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_ENV + ".json")

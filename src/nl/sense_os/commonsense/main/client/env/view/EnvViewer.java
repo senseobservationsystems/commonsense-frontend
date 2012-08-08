@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.env.view;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -26,7 +26,7 @@ public class EnvViewer extends View {
         final EventType type = event.getType();
         if (type.equals(EnvViewEvents.Show)) {
             LOG.finest("Show");
-            final EnvironmentModel environment = event.getData("environment");
+            final ExtEnvironment environment = event.getData("environment");
             showPanel(environment);
         }
     }
@@ -37,7 +37,7 @@ public class EnvViewer extends View {
         super.initialize();
     }
 
-    private void showPanel(EnvironmentModel environment) {
+    private void showPanel(ExtEnvironment environment) {
 
         Window w = new Window();
         w.setLayout(new FitLayout());

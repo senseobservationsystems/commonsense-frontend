@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
@@ -20,7 +20,7 @@ public class Cache {
         // empty private constructor to prevent instantiation
     }
 
-    public static void remove(SensorModel sensor) {
+    public static void remove(ExtSensor sensor) {
         if (cache != null) {
             cache.remove(sensor.getId());
         } else {
@@ -43,13 +43,13 @@ public class Cache {
      *            End time of period to get data from.
      * @return Cached data, as array of Timeseries that can be used directly by Jos' timeline graph.
      */
-    public static JsArray<Timeseries> request(List<SensorModel> sensors, long start, long end) {
+    public static JsArray<Timeseries> request(List<ExtSensor> sensors, long start, long end) {
 
         if (null != cache) {
 
             // convert list of sensors into JSONArray of IDs
             String ids = "[";
-            for (SensorModel sensor : sensors) {
+            for (ExtSensor sensor : sensors) {
                 ids += sensor.getId() + ", ";
             }
             if (sensors.size() > 0) {
@@ -87,7 +87,7 @@ public class Cache {
      *            Raw data response from CommonSense.
      * @return The total number of values in the request.
      */
-    public static void store(SensorModel sensor, long start, long end,
+    public static void store(ExtSensor sensor, long start, long end,
             JsArray<BackEndDataPoint> data) {
         // LOG.setLevel(Level.ALL);
         LOG.fine("Caching " + data.length() + " data points for " + sensor.getDisplayName());

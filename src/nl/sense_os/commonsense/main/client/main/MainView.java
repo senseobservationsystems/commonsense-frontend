@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.main;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.resource.CSResources;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
@@ -166,7 +166,7 @@ public class MainView extends View {
 	}
 
 	private void onLoggedIn(AppEvent event) {
-		final UserModel user = event.<UserModel> getData();
+		final ExtUser user = event.<ExtUser> getData();
 		this.navPanel.setUser(user);
 		this.navPanel.setLoggedIn(true);
 	}

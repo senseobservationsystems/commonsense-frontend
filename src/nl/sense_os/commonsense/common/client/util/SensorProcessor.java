@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.common.client.util;
 
-import nl.sense_os.commonsense.common.client.model.DeviceModel;
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 
 import com.extjs.gxt.ui.client.data.ModelProcessor;
 
@@ -12,52 +12,52 @@ import com.extjs.gxt.ui.client.data.ModelProcessor;
  * 
  * @param <M>
  */
-public class SensorProcessor<M extends SensorModel> extends ModelProcessor<M> {
+public class SensorProcessor<M extends ExtSensor> extends ModelProcessor<M> {
 
     @Override
     public M prepareData(M model) {
 
-        final UserModel owner = model.getOwner();
+        final ExtUser owner = model.getOwner();
         if (null != owner) {
-            model.set(SensorModel.OWNER_EMAIL, owner.getEmail());
-            model.set(SensorModel.OWNER_ID, "" + owner.getId());
-            model.set(SensorModel.OWNER_MOBILE, owner.getMobile());
-            model.set(SensorModel.OWNER_NAME, owner.getName());
-            model.set(SensorModel.OWNER_SURNAME, owner.getSurname());
-            model.set(SensorModel.OWNER_USERNAME, owner.getUsername());
+            model.set(ExtSensor.OWNER_EMAIL, owner.getEmail());
+            model.set(ExtSensor.OWNER_ID, "" + owner.getId());
+            model.set(ExtSensor.OWNER_MOBILE, owner.getMobile());
+            model.set(ExtSensor.OWNER_NAME, owner.getName());
+            model.set(ExtSensor.OWNER_SURNAME, owner.getSurname());
+            model.set(ExtSensor.OWNER_USERNAME, owner.getUsername());
         } else {
-            model.remove(SensorModel.OWNER_EMAIL);
-            model.remove(SensorModel.OWNER_ID);
-            model.remove(SensorModel.OWNER_MOBILE);
-            model.remove(SensorModel.OWNER_NAME);
-            model.remove(SensorModel.OWNER_SURNAME);
-            model.remove(SensorModel.OWNER_USERNAME);
+            model.remove(ExtSensor.OWNER_EMAIL);
+            model.remove(ExtSensor.OWNER_ID);
+            model.remove(ExtSensor.OWNER_MOBILE);
+            model.remove(ExtSensor.OWNER_NAME);
+            model.remove(ExtSensor.OWNER_SURNAME);
+            model.remove(ExtSensor.OWNER_USERNAME);
         }
 
-        final DeviceModel device = model.getDevice();
+        final ExtDevice device = model.getDevice();
         if (null != device) {
-            model.set(SensorModel.DEVICE_ID, "" + device.getId());
-            model.set(SensorModel.DEVICE_TYPE, device.getType());
-            model.set(SensorModel.DEVICE_UUID, device.getUuid());
+            model.set(ExtSensor.DEVICE_ID, "" + device.getId());
+            model.set(ExtSensor.DEVICE_TYPE, device.getType());
+            model.set(ExtSensor.DEVICE_UUID, device.getUuid());
         } else {
-            model.remove(SensorModel.DEVICE_ID);
-            model.remove(SensorModel.DEVICE_TYPE);
-            model.remove(SensorModel.DEVICE_UUID);
+            model.remove(ExtSensor.DEVICE_ID);
+            model.remove(ExtSensor.DEVICE_TYPE);
+            model.remove(ExtSensor.DEVICE_UUID);
         }
 
-        final EnvironmentModel environment = model.getEnvironment();
+        final ExtEnvironment environment = model.getEnvironment();
         if (null != environment) {
-            model.set(SensorModel.ENVIRONMENT_ID, "" + environment.getId());
-            model.set(SensorModel.ENVIRONMENT_NAME, environment.getName());
-            model.set(SensorModel.ENVIRONMENT_FLOORS, "" + environment.getFloors());
-            model.set(SensorModel.ENVIRONMENT_OUTLINE, "" + environment.getOutline());
-            model.set(SensorModel.ENVIRONMENT_POSITION, "" + environment.getPosition());
+            model.set(ExtSensor.ENVIRONMENT_ID, "" + environment.getId());
+            model.set(ExtSensor.ENVIRONMENT_NAME, environment.getName());
+            model.set(ExtSensor.ENVIRONMENT_FLOORS, "" + environment.getFloors());
+            model.set(ExtSensor.ENVIRONMENT_OUTLINE, "" + environment.getOutline());
+            model.set(ExtSensor.ENVIRONMENT_POSITION, "" + environment.getPosition());
         } else {
-            model.remove(SensorModel.ENVIRONMENT_ID);
-            model.remove(SensorModel.ENVIRONMENT_NAME);
-            model.remove(SensorModel.ENVIRONMENT_FLOORS);
-            model.remove(SensorModel.ENVIRONMENT_OUTLINE);
-            model.remove(SensorModel.ENVIRONMENT_POSITION);
+            model.remove(ExtSensor.ENVIRONMENT_ID);
+            model.remove(ExtSensor.ENVIRONMENT_NAME);
+            model.remove(ExtSensor.ENVIRONMENT_FLOORS);
+            model.remove(ExtSensor.ENVIRONMENT_OUTLINE);
+            model.remove(ExtSensor.ENVIRONMENT_POSITION);
         }
 
         return model;

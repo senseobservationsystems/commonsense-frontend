@@ -5,18 +5,20 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponseEntryJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.BatchAvailServicesResponseJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponseJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponseEntry;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.BatchAvailServicesResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.DeviceModel;
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtService;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.Group;
+import nl.sense_os.commonsense.common.client.model.Sensor;
+import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.CommonSense;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
@@ -75,13 +77,13 @@ public class LibraryController extends Controller {
 		registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
 	}
 
-	private List<DeviceModel> devicesFromLibrary(List<SensorModel> library) {
+	private List<ExtDevice> devicesFromLibrary(List<ExtSensor> library) {
 		LOG.finest("Listing devices...");
-		List<DeviceModel> devices = new ArrayList<DeviceModel>();
+		List<ExtDevice> devices = new ArrayList<ExtDevice>();
 
 		// gather the devices of all sensors in the library
-		DeviceModel device;
-		for (SensorModel sensor : library) {
+		ExtDevice device;
+		for (ExtSensor sensor : library) {
 			device = sensor.getDevice();
 			if (device != null && !devices.contains(device)) {
 				devices.add(device);
@@ -152,8 +154,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void getGroups(final List<SensorModel> library,
-			final AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void getGroups(final List<ExtSensor> library,
+			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder();
@@ -198,9 +200,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void getGroupSensors(final List<GroupModel> groups, final int index, final int page,
-			final List<SensorModel> library,
-			final AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void getGroupSensors(final List<Group> groups, final int index, final int page,
+			final List<ExtSensor> library, final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		if (index < groups.size()) {
 
@@ -264,8 +265,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void getSensors(final List<SensorModel> library, final int page, final boolean shared,
-			final AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void getSensors(final List<ExtSensor> library, final int page, final boolean shared,
+			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder();
@@ -320,7 +321,7 @@ public class LibraryController extends Controller {
 
 		if (type.equals(LibraryEvents.LoadRequest)) {
 			LOG.finest("LoadRequest");
-			final AsyncCallback<ListLoadResult<SensorModel>> callback = event.getData("callback");
+			final AsyncCallback<ListLoadResult<ExtSensor>> callback = event.getData("callback");
 			final boolean renewCache = event.getData("renewCache");
 			onLoadRequest(renewCache, callback);
 
@@ -342,8 +343,8 @@ public class LibraryController extends Controller {
 		this.grid = new LibraryGrid(this);
 
 		// initialize library and lists of devices and environments
-		Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<SensorModel>());
-		Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<DeviceModel>());
+		Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<ExtSensor>());
+		Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<ExtDevice>());
 	}
 
 	private void notifyState() {
@@ -362,18 +363,22 @@ public class LibraryController extends Controller {
 
 	private void onAvailServicesSuccess(String response, int page, String groupId) {
 
-		List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
 
 		// parse list of services from response
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			BatchAvailServicesResponseJso jso = JsonUtils.unsafeEval(response);
-			JsArray<AvailServicesResponseEntryJso> entries = jso.getEntries();
+			BatchAvailServicesResponse jso = JsonUtils.unsafeEval(response);
+			JsArray<AvailServicesResponseEntry> entries = jso.getEntries();
 			for (int i = 0; i < entries.length(); i++) {
 				int id = entries.get(i).getSensorId();
-				List<ServiceModel> availServices = entries.get(i).getServices();
-				for (SensorModel sensor : library) {
+				List<Service> availServices = entries.get(i).getServices();
+				List<ExtService> extServices = new ArrayList<ExtService>();
+				for (Service service : availServices) {
+					extServices.add(new ExtService(service));
+				}
+				for (ExtSensor sensor : library) {
 					if (sensor.getId() == id) {
-						sensor.setAvailServices(availServices);
+						sensor.setAvailServices(extServices);
 					}
 				}
 			}
@@ -389,27 +394,28 @@ public class LibraryController extends Controller {
 		notifyState();
 	}
 
-	private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onGroupSensorsSuccess(String response, List<GroupModel> groups, int index,
-			int page, List<SensorModel> library, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onGroupSensorsSuccess(String response, List<Group> groups, int index, int page,
+			List<ExtSensor> library, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 		LOG.fine("Received group sensors response...");
 
 		// parse group sensors
-		List<SensorModel> groupSensors = new ArrayList<SensorModel>();
+		JsArray<Sensor> groupSensors = null;
 		int total = 0;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
-			groupSensors.addAll(responseJso.getSensors());
+			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+			groupSensors = responseJso.getRawSensors();
 			total = responseJso.getTotal();
 		}
 
 		LOG.finest("Parsed group sensors...");
 
-		GroupModel group = groups.get(index);
-		for (SensorModel groupSensor : groupSensors) {
+		Group group = groups.get(index);
+		for (int i = 0; i < groupSensors.length(); i++) {
+			ExtSensor groupSensor = new ExtSensor(groupSensors.get(i));
 			if (!library.contains(groupSensor)) {
 				// set SensorModel.ALIAS property
 				groupSensor.setAlias(group.getId());
@@ -417,14 +423,14 @@ public class LibraryController extends Controller {
 			}
 		}
 
-		int retrieved = page * PER_PAGE + groupSensors.size();
+		int retrieved = page * PER_PAGE + groupSensors.length();
 		if (total > retrieved) {
 			// not all sensors from the group are retrieved yet
 			page++;
 			getGroupSensors(groups, index, page, library, callback);
 
 		} else {
-			if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.size() > 0) {
+			if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.length() > 0) {
 				// get available services from the group sensors
 				getAvailableServices(0, "" + group.getId());
 			}
@@ -435,30 +441,30 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onGroupsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onGroupsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onGroupsSuccess(String response, List<SensorModel> library,
-			AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onGroupsSuccess(String response, List<ExtSensor> library,
+			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// parse list of groups from the response
-		List<GroupModel> groups = new ArrayList<GroupModel>();
+		List<Group> groups = new ArrayList<Group>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
 			groups = jso.getGroups();
 		}
 
 		getGroupSensors(groups, 0, 0, library, callback);
 	}
 
-	private void onLoadComplete(List<SensorModel> library,
-			AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onLoadComplete(List<ExtSensor> library,
+			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 		LOG.fine("Load complete...");
 
 		// update list of devices
-		Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).addAll(
+		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
+		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).addAll(
 				devicesFromLibrary(library));
 
 		isLoadingList = false;
@@ -466,7 +472,7 @@ public class LibraryController extends Controller {
 
 		if (null != callback) {
 			LOG.finest("Create load result...");
-			ListLoadResult<SensorModel> result = new BaseListLoadResult<SensorModel>(library);
+			ListLoadResult<ExtSensor> result = new BaseListLoadResult<ExtSensor>(library);
 
 			LOG.finest("Call back with load result...");
 			callback.onSuccess(result);
@@ -475,10 +481,10 @@ public class LibraryController extends Controller {
 		Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
 	}
 
-	private void onLoadFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
-		Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST).clear();
-		Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<EnvironmentModel>> get(Constants.REG_ENVIRONMENT_LIST).clear();
+	private void onLoadFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+		Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST).clear();
+		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
+		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).clear();
 
 		Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
 		forwardToView(this.grid, new AppEvent(LibraryEvents.Done));
@@ -488,13 +494,12 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onLoadRequest(boolean renewCache,
-			AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onLoadRequest(boolean renewCache, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
-		List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
 		if (renewCache) {
 			library.clear();
-			Registry.<List<DeviceModel>> get(Constants.REG_DEVICE_LIST).clear();
+			Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
 
 			isLoadingList = true;
 			notifyState();
@@ -505,12 +510,12 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onSensorsFailure(AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onSensorsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onSensorsResponse(String response, List<SensorModel> library, int page,
-			boolean shared, AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onSensorsResponse(String response, List<ExtSensor> library, int page,
+			boolean shared, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// different callbacks for shared or unshared requests
 		if (shared) {
@@ -520,18 +525,20 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onSharedSensorsSuccess(String response, List<SensorModel> library, int page,
-			AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onSharedSensorsSuccess(String response, List<ExtSensor> library, int page,
+			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// parse response
 		int total = library.size();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
 
-			GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			total = responseJso.getTotal();
 
-			UserModel user = Registry.<UserModel> get(Constants.REG_USER);
-			for (SensorModel sharedSensor : responseJso.getSensors()) {
+			ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
+			JsArray<Sensor> sharedSensors = responseJso.getRawSensors();
+			for (int i = 0; i < sharedSensors.length(); i++) {
+				ExtSensor sharedSensor = new ExtSensor(sharedSensors.get(i));
 				sharedSensor.getUsers().add(user);
 				library.remove(sharedSensor);
 				library.add(sharedSensor);
@@ -556,15 +563,19 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onUnsharedSensorsSuccess(String response, List<SensorModel> library, int page,
-			AsyncCallback<ListLoadResult<SensorModel>> callback) {
+	private void onUnsharedSensorsSuccess(String response, List<ExtSensor> library, int page,
+			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
 		// parse response
 		int total = library.size();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponseJso responseJso = JsonUtils.unsafeEval(response);
+			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			total = responseJso.getTotal();
-			library.addAll(responseJso.getSensors());
+			JsArray<Sensor> sensors = responseJso.getRawSensors();
+			for (int i = 0; i < sensors.length(); i++) {
+				ExtSensor sensor = new ExtSensor(sensors.get(i));
+				library.add(sensor);
+			}
 		}
 
 		LOG.fine("total: " + total + ", library size: " + library.size());

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.EnvironmentModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -33,7 +33,7 @@ public class EnvViewController extends Controller {
 
         if (type.equals(EnvViewEvents.RequestSensors)) {
             LOG.finest("RequestSensors");
-            final EnvironmentModel environment = event.getData("environment");
+            final ExtEnvironment environment = event.getData("environment");
             final EnvMap panel = event.getData("panel");
             onSensorsRequest(environment, panel);
 
@@ -51,12 +51,12 @@ public class EnvViewController extends Controller {
         super.initialize();
     }
 
-    private void onSensorsRequest(EnvironmentModel environment, EnvMap panel) {
+    private void onSensorsRequest(ExtEnvironment environment, EnvMap panel) {
 
         // get the position sensors for the devices
-        List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
-        List<SensorModel> envSensors = new ArrayList<SensorModel>();
-        for (SensorModel sensor : library) {
+        List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+        List<ExtSensor> envSensors = new ArrayList<ExtSensor>();
+        for (ExtSensor sensor : library) {
             if (environment.equals(sensor.getEnvironment())) {
                 envSensors.add(sensor);
             }

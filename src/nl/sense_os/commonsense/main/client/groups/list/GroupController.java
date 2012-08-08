@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponseJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.Group;
+import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
@@ -67,8 +69,7 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
 	 *            complete.
 	 */
-	private void getGroupMembers(final GroupModel group,
-			final AsyncCallback<List<UserModel>> callback) {
+	private void getGroupMembers(final ExtGroup group, final AsyncCallback<List<ExtUser>> callback) {
 
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
@@ -113,12 +114,12 @@ public class GroupController extends Controller {
 		}
 	}
 
-	private void onGroupMembersForbidden(GroupModel group, AsyncCallback<List<UserModel>> callback) {
+	private void onGroupMembersForbidden(ExtGroup group, AsyncCallback<List<ExtUser>> callback) {
 		// user is not allowed to view the group members
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
-			callback.onSuccess(new ArrayList<UserModel>());
+			callback.onSuccess(new ArrayList<ExtUser>());
 		}
 	}
 
@@ -132,10 +133,10 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
 	 *            complete.
 	 */
-	private void getGroups(final AsyncCallback<List<UserModel>> callback) {
+	private void getGroups(final AsyncCallback<List<ExtUser>> callback) {
 
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-		Registry.<List<GroupModel>> get(Constants.REG_GROUPS).clear();
+		Registry.<List<ExtGroup>> get(Constants.REG_GROUPS).clear();
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -186,8 +187,8 @@ public class GroupController extends Controller {
 		if (type.equals(GroupEvents.LoadRequest)) {
 			// LOG.fine( "LoadRequest");
 			final Object loadConfig = event.getData("loadConfig");
-			final AsyncCallback<List<UserModel>> callback = event
-					.<AsyncCallback<List<UserModel>>> getData("callback");
+			final AsyncCallback<List<ExtUser>> callback = event
+					.<AsyncCallback<List<ExtUser>>> getData("callback");
 			onLoadRequest(loadConfig, callback);
 
 		} else
@@ -204,11 +205,11 @@ public class GroupController extends Controller {
 	protected void initialize() {
 		super.initialize();
 		this.tree = new GroupGrid(this);
-		Registry.register(Constants.REG_GROUPS, new ArrayList<GroupModel>());
+		Registry.register(Constants.REG_GROUPS, new ArrayList<ExtGroup>());
 	}
 
-	private void onGroupMembersFailure(int code, GroupModel group,
-			AsyncCallback<List<UserModel>> callback) {
+	private void onGroupMembersFailure(int code, ExtGroup group,
+			AsyncCallback<List<ExtUser>> callback) {
 
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
@@ -233,29 +234,31 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of groups is
 	 *            complete.
 	 */
-	private void onGroupMembersSuccess(String response, GroupModel group,
-			AsyncCallback<List<UserModel>> callback) {
+	private void onGroupMembersSuccess(String response, ExtGroup group,
+			AsyncCallback<List<ExtUser>> callback) {
 
 		// parse list of users from the response
-		List<UserModel> users = new ArrayList<UserModel>();
+		List<User> users = new ArrayList<User>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+			GetGroupUsersResponse jso = JsonUtils.unsafeEval(response);
 			users = jso.getUsers();
 		}
 
 		// add users to the group
-		for (UserModel user : users) {
-			group.add(user);
+		List<ExtUser> extUsers = new ArrayList<ExtUser>(users.size());
+		for (User user : users) {
+			extUsers.add(new ExtUser(user));
+			group.add(new ExtUser(user));
 		}
 
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
-			callback.onSuccess(new ArrayList<UserModel>(users));
+			callback.onSuccess(new ArrayList<ExtUser>(extUsers));
 		}
 	}
 
-	private void onGroupsFailure(AsyncCallback<List<UserModel>> callback) {
+	private void onGroupsFailure(AsyncCallback<List<ExtUser>> callback) {
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
@@ -273,32 +276,40 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of groups is
 	 *            complete.
 	 */
-	private void onGroupsSuccess(String response, AsyncCallback<List<UserModel>> callback) {
+	private void onGroupsSuccess(String response, AsyncCallback<List<ExtUser>> callback) {
 
 		// parse list of groups from the response
-		List<GroupModel> groups = new ArrayList<GroupModel>();
+		com.google.gwt.core.client.JsArray<Group> groups = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
-			groups = jso.getGroups();
+			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
+			groups = jso.getRawGroups();
 		}
 
-		Registry.<List<GroupModel>> get(Constants.REG_GROUPS).addAll(groups);
-		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+		if (null != groups) {
+			// convert to Ext
+			List<ExtGroup> extGroups = new ArrayList<ExtGroup>(groups.length());
+			for (int i = 0; i < groups.length(); i++) {
+				extGroups.add(new ExtGroup(groups.get(i)));
+			}
 
-		callback.onSuccess(new ArrayList<UserModel>(groups));
+			Registry.<List<ExtGroup>> get(Constants.REG_GROUPS).addAll(extGroups);
+			Dispatcher.forwardEvent(GroupEvents.ListUpdated);
+
+			callback.onSuccess(new ArrayList<ExtUser>(extGroups));
+		}
 	}
 
-	private void onLoadRequest(Object loadConfig, AsyncCallback<List<UserModel>> callback) {
+	private void onLoadRequest(Object loadConfig, AsyncCallback<List<ExtUser>> callback) {
 
 		if (null == loadConfig) {
 			getGroups(callback);
 
-		} else if (loadConfig instanceof GroupModel) {
-			GroupModel group = (GroupModel) loadConfig;
+		} else if (loadConfig instanceof ExtGroup) {
+			ExtGroup group = (ExtGroup) loadConfig;
 			getGroupMembers(group, callback);
 
 		} else {
-			callback.onSuccess(new ArrayList<UserModel>());
+			callback.onSuccess(new ArrayList<ExtUser>());
 		}
 	}
 }

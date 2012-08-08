@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.common.client.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
@@ -26,8 +26,8 @@ public class FeedbackView extends VizView {
     private TabItem item;
     private FeedbackPanel panel;
 
-    private SensorModel state;
-    private List<SensorModel> sensors;
+    private ExtSensor state;
+    private List<ExtSensor> sensors;
     private long start;
     private long end;
     private boolean subsample;
@@ -45,8 +45,8 @@ public class FeedbackView extends VizView {
 
         if (type.equals(FeedbackEvents.FeedbackInit)) {
             LOG.finest("FeedbackInit");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final ExtSensor state = event.<ExtSensor> getData("state");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             onInitEvent(state, sensors);
 
         } else
@@ -57,8 +57,8 @@ public class FeedbackView extends VizView {
         if (type.equals(FeedbackEvents.LabelsSuccess)) {
             LOG.finest("LabelsSuccess");
             final List<String> labels = event.<List<String>> getData("labels");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final ExtSensor state = event.<ExtSensor> getData("state");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             onLabelsSuccess(state, sensors, labels);
 
         } else if (type.equals(FeedbackEvents.LabelsFailure)) {
@@ -73,8 +73,8 @@ public class FeedbackView extends VizView {
         if (type.equals(FeedbackEvents.FeedbackChosen)) {
             LOG.finest("FeedbackChosen");
             final List<String> labels = event.<List<String>> getData("labels");
-            final SensorModel state = event.<SensorModel> getData("state");
-            final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+            final ExtSensor state = event.<ExtSensor> getData("state");
+            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
             final long start = event.getData("start");
             final long end = event.getData("end");
             final boolean subsample = event.getData("subsample");
@@ -119,7 +119,7 @@ public class FeedbackView extends VizView {
         super.initialize();
     }
 
-    private void onInitEvent(SensorModel state, List<SensorModel> sensors) {
+    private void onInitEvent(ExtSensor state, List<ExtSensor> sensors) {
         AppEvent labelRequest = new AppEvent(FeedbackEvents.LabelsRequest);
         labelRequest.setData("state", state);
         labelRequest.setData("sensors", sensors);
@@ -130,7 +130,7 @@ public class FeedbackView extends VizView {
         MessageBox.alert(null, "Failed to initialize feedback panel!", null);
     }
 
-    private void onLabelsSuccess(SensorModel state, List<SensorModel> sensors, List<String> labels) {
+    private void onLabelsSuccess(ExtSensor state, List<ExtSensor> sensors, List<String> labels) {
         AppEvent showChooser = new AppEvent(FeedbackEvents.ShowChooser);
         showChooser.setData("state", state);
         showChooser.setData("sensors", sensors);
@@ -140,12 +140,12 @@ public class FeedbackView extends VizView {
 
     @Override
     protected void onRefresh() {
-        List<SensorModel> allSensors = new ArrayList<SensorModel>(sensors);
+        List<ExtSensor> allSensors = new ArrayList<ExtSensor>(sensors);
         allSensors.add(state);
         refreshData(data, allSensors, start, end, subsample);
     }
 
-    private void showPanel(SensorModel state, List<SensorModel> sensors, List<String> labels,
+    private void showPanel(ExtSensor state, List<ExtSensor> sensors, List<String> labels,
             long start, long end, boolean subsample) {
 
         this.state = state;
@@ -154,7 +154,7 @@ public class FeedbackView extends VizView {
         this.end = end;
         this.subsample = subsample;
 
-        List<SensorModel> allSensors = new ArrayList<SensorModel>(sensors);
+        List<ExtSensor> allSensors = new ArrayList<ExtSensor>(sensors);
         allSensors.add(state);
         requestData(allSensors, start, end, subsample);
 

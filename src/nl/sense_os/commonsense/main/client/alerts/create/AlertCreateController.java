@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -31,7 +31,7 @@ public class AlertCreateController extends Controller {
 		EventType type = event.getType();
 		if (type.equals(AlertCreateEvents.NewCreator)) {
 			LOG.finest("Prepare new alert creator view");
-			SensorModel sensor = event.getData("sensor");
+			ExtSensor sensor = event.getData("sensor");
 			prepareCreator(sensor);
 
 		} else if (type.equals(AlertCreateEvents.CreateAlertRequest)) {
@@ -44,7 +44,7 @@ public class AlertCreateController extends Controller {
 		}
 	}
 
-	private void prepareCreator(final SensorModel sensor) {
+	private void prepareCreator(final ExtSensor sensor) {
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
@@ -85,8 +85,8 @@ public class AlertCreateController extends Controller {
 		}
 	}
 
-	private void onLastDataPointSuccess(String response, SensorModel sensor) {
-		GetSensorDataResponseJso jso = GetSensorDataResponseJso.create(response);
+	private void onLastDataPointSuccess(String response, ExtSensor sensor) {
+		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
 		JsArray<BackEndDataPoint> data = jso.getData();
 		if (data.length() > 0) {
 			BackEndDataPoint dataPoint = data.get(0);
@@ -102,7 +102,7 @@ public class AlertCreateController extends Controller {
 		}
 	}
 
-	private void onLastDataPointFailure(SensorModel sensor) {
+	private void onLastDataPointFailure(ExtSensor sensor) {
 		AppEvent showCreator = new AppEvent(AlertCreateEvents.ShowCreator);
 		showCreator.setData("sensor", sensor);
 		showCreator.setData("timestamp", -1l);

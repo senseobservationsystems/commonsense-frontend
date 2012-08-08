@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.common.client.storage;
 
 import nl.sense_os.commonsense.common.client.component.Resettable;
-import nl.sense_os.commonsense.common.client.model.UserJso;
+import nl.sense_os.commonsense.common.client.model.User;
 
 public interface AppStorage extends Resettable {
 
@@ -9,11 +9,11 @@ public interface AppStorage extends Resettable {
 
 	void clearRememberedUsername();
 
-	UserJso getCurrentUser();
+	User getCurrentUser();
 
 	String getPersistedUsername();
 
 	void rememberUsername(String username);
 
-	void setCurrentUser(UserJso user);
+	void setCurrentUser(User user);
 }

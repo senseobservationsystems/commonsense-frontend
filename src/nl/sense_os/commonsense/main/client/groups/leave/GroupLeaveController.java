@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -31,7 +31,7 @@ public class GroupLeaveController extends Controller {
 		EventType type = event.getType();
 		if (type.equals(GroupLeaveEvents.Leave)) {
 			LOG.finest("Leave");
-			final GroupModel group = event.getData("group");
+			final ExtGroup group = event.getData("group");
 			View source = (View) event.getSource();
 			leave(group, source);
 
@@ -45,7 +45,7 @@ public class GroupLeaveController extends Controller {
 		}
 	}
 
-	private void leave(GroupModel group, final View source) {
+	private void leave(ExtGroup group, final View source) {
 
 		// prepare request property
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);

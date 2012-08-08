@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.groups.create;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
 import nl.sense_os.commonsense.common.client.util.Md5Hasher;
 import nl.sense_os.commonsense.main.client.groups.create.components.GroupCreator;
 
@@ -116,7 +116,7 @@ public class GroupCreateView extends View {
 	private void submit() {
 		window.setBusy(true);
 
-		GroupModel group = new GroupModel();
+		ExtGroup group = new ExtGroup();
 		group.setName(window.getGroupName());
 		group.setDescription(window.getGroupDescription());
 

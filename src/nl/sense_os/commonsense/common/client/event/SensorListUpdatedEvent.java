@@ -2,16 +2,16 @@ package nl.sense_os.commonsense.common.client.event;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.model.SensorJso;
+import nl.sense_os.commonsense.common.client.model.Sensor;
 
 import com.google.web.bindery.event.shared.Event;
 
 public class SensorListUpdatedEvent extends Event<SensorListUpdatedHandler> {
 
 	public static final Type<SensorListUpdatedHandler> TYPE = new Type<SensorListUpdatedHandler>();
-	private List<SensorJso> sensors;
+	private List<Sensor> sensors;
 
-	public SensorListUpdatedEvent(List<SensorJso> sensors) {
+	public SensorListUpdatedEvent(List<Sensor> sensors) {
 		this.sensors = sensors;
 	}
 
@@ -20,7 +20,7 @@ public class SensorListUpdatedEvent extends Event<SensorListUpdatedHandler> {
 		return TYPE;
 	}
 
-	public List<SensorJso> getSensors() {
+	public List<Sensor> getSensors() {
 		return sensors;
 	}
 

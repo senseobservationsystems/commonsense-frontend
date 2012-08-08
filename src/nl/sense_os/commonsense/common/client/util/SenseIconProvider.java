@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.DeviceModel;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
@@ -62,17 +62,17 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
     @Override
     public AbstractImagePrototype getIcon(M model) {
 
-        if (model instanceof GroupModel) {
+        if (model instanceof ExtGroup) {
             return ICON_GROUP;
 
-        } else if (model instanceof DeviceModel) {
+        } else if (model instanceof ExtDevice) {
             return ICON_DEVICE;
 
-        } else if (model instanceof SensorModel) {
-            SensorModel sensor = (SensorModel) model;
+        } else if (model instanceof ExtSensor) {
+            ExtSensor sensor = (ExtSensor) model;
 
-            List<UserModel> users = sensor.getUsers();
-            UserModel currentUser = Registry.get(Constants.REG_USER);
+            List<ExtUser> users = sensor.getUsers();
+            ExtUser currentUser = Registry.get(Constants.REG_USER);
             int type = sensor.getType();
             if (users != null
                     && (users.size() > 1 || (!users.contains(currentUser) && users.size() > 0))) {
@@ -107,8 +107,8 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
                 }
             }
 
-        } else if (model instanceof UserModel) {
-            final UserModel me = Registry.<UserModel> get(Constants.REG_USER);
+        } else if (model instanceof ExtUser) {
+            final ExtUser me = Registry.<ExtUser> get(Constants.REG_USER);
             if (model.equals(me)) {
                 return ICON_USER_ME;
             } else {

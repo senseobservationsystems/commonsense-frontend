@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -32,7 +32,7 @@ public class GroupInviteController extends Controller {
 
 		if (type.equals(GroupInviteEvents.InviteRequested)) {
 			LOG.finest("InviteRequested");
-			final GroupModel group = event.getData("group");
+			final ExtGroup group = event.getData("group");
 			final String email = event.getData("username");
 			View source = (View) event.getSource();
 			inviteUser(group, email, source);
@@ -56,7 +56,7 @@ public class GroupInviteController extends Controller {
 		forwardToView(source, new AppEvent(GroupInviteEvents.InviteFailed));
 	}
 
-	private void inviteUser(GroupModel group, String username, final View source) {
+	private void inviteUser(ExtGroup group, String username, final View source) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;

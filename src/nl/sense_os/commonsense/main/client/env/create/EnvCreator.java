@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
 import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.common.client.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
@@ -74,9 +74,9 @@ public class EnvCreator extends View {
     protected boolean isFormValid;
     private boolean isOutlineValid;
     private ContentPanel sensorsPanel;
-    private Grid<SensorModel> grid;
+    private Grid<ExtSensor> grid;
     private ToolBar sensorsFilterBar;
-    private GroupingStore<SensorModel> sensorsStore;
+    private GroupingStore<ExtSensor> sensorsStore;
 
     public EnvCreator(Controller c) {
 	super(c);
@@ -200,11 +200,11 @@ public class EnvCreator extends View {
     private void initSensorsFilters() {
 
 	// text filter
-	SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+	SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
 	textFilter.bind(sensorsStore);
 
 	// filter to show only my own sensors
-	final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+	final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
 	sensorsStore.addFilter(ownerFilter);
 
 	// checkbox to toggle filter
@@ -416,20 +416,20 @@ public class EnvCreator extends View {
 	explWrapper.add(explanation, new FlowData(10));
 	sensorsPanel.setTopComponent(explWrapper);
 
-	sensorsStore = new GroupingStore<SensorModel>();
-	List<SensorModel> library = Registry.<List<SensorModel>> get(Constants.REG_SENSOR_LIST);
+	sensorsStore = new GroupingStore<ExtSensor>();
+	List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
 	sensorsStore.add(library);
 
 	initSensorsFilters();
 
-	CheckBoxSelectionModel<SensorModel> sm = new CheckBoxSelectionModel<SensorModel>();
+	CheckBoxSelectionModel<ExtSensor> sm = new CheckBoxSelectionModel<ExtSensor>();
 
 	// column model
 	List<ColumnConfig> cols = LibraryColumnsFactory.create().getColumns();
 	cols.add(0, sm.getColumn());
 	ColumnModel cm = new ColumnModel(cols);
 
-	grid = new Grid<SensorModel>(sensorsStore, cm);
+	grid = new Grid<ExtSensor>(sensorsStore, cm);
 	grid.setSelectionModel(sm);
 	grid.addPlugin(sm);
 

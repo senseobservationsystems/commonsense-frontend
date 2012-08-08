@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.User;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -42,7 +43,7 @@ public class SensorShareController extends Controller {
 
 		if (type.equals(SensorShareEvents.ShareRequest)) {
 			LOG.finest("ShareRequest");
-			final List<SensorModel> sensors = event.<List<SensorModel>> getData("sensors");
+			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
 			final String user = event.<String> getData("user");
 			shareSensor(sensors, user, 0, 0);
 
@@ -62,7 +63,7 @@ public class SensorShareController extends Controller {
 		shareDialog = new SensorShareDialog(this);
 	}
 
-	private void onShareSensorFailure(List<SensorModel> sensors, String username, int index,
+	private void onShareSensorFailure(List<ExtSensor> sensors, String username, int index,
 			int retryCount) {
 
 		if (retryCount < 3) {
@@ -76,19 +77,25 @@ public class SensorShareController extends Controller {
 		}
 	}
 
-	private void onShareSensorSuccess(String response, List<SensorModel> sensors, int index,
+	private void onShareSensorSuccess(String response, List<ExtSensor> sensors, int index,
 			String username) {
 
 		// parse list of users from the response
-		List<UserModel> users = new ArrayList<UserModel>();
+		List<User> users = new ArrayList<User>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupUsersResponseJso jso = JsonUtils.unsafeEval(response);
+			GetGroupUsersResponse jso = JsonUtils.unsafeEval(response);
 			users = jso.getUsers();
 		}
 
+		// convert to Ext
+		List<ExtUser> extUsers = new ArrayList<ExtUser>(users.size());
+		for (User u : users) {
+			extUsers.add(new ExtUser(u));
+		}
+
 		// update the sensor model
-		SensorModel sensor = sensors.get(index);
-		sensor.setUsers(users);
+		ExtSensor sensor = sensors.get(index);
+		sensor.setUsers(extUsers);
 
 		index++;
 
@@ -102,12 +109,12 @@ public class SensorShareController extends Controller {
 	 * @param event
 	 *            AppEvent with "sensors" and "user" properties
 	 */
-	private void shareSensor(final List<SensorModel> sensors, final String username,
-			final int index, final int retryCount) {
+	private void shareSensor(final List<ExtSensor> sensors, final String username, final int index,
+			final int retryCount) {
 
 		if (null != sensors && index < sensors.size()) {
 			// get first sensor from the list
-			SensorModel sensor = sensors.get(index);
+			ExtSensor sensor = sensors.get(index);
 
 			// prepare request properties
 			final Method method = RequestBuilder.POST;
@@ -156,11 +163,11 @@ public class SensorShareController extends Controller {
 		}
 	}
 
-	private void onShareSuccess(List<SensorModel> sensors) {
+	private void onShareSuccess(List<ExtSensor> sensors) {
 
 		// update library
-		for (SensorModel sensor : sensors) {
-			List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
+		for (ExtSensor sensor : sensors) {
+			List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
 			int index = library.indexOf(sensor);
 			if (index != -1) {
 				LOG.fine("Updating sensor users in the library");

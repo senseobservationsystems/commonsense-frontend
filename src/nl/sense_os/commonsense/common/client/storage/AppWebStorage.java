@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.common.client.storage;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.UserJso;
+import nl.sense_os.commonsense.common.client.model.User;
 
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.storage.client.Storage;
@@ -32,7 +32,7 @@ public class AppWebStorage implements AppStorage {
 	}
 
 	@Override
-	public UserJso getCurrentUser() {
+	public User getCurrentUser() {
 		String serialized = Storage.getSessionStorageIfSupported().getItem("currentUser");
 		if (null == serialized) {
 			return null;
@@ -61,7 +61,7 @@ public class AppWebStorage implements AppStorage {
 	}
 
 	@Override
-	public void setCurrentUser(UserJso user) {
+	public void setCurrentUser(User user) {
 		// TODO
 	}
 }

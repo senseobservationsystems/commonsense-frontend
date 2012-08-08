@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupDetailsResponseJso;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupDetailsResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.GroupModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtGroup;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.model.Group;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -19,6 +20,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -40,7 +42,7 @@ public class GroupJoinController extends Controller {
 				GroupJoinEvents.AllGroupsRequest, GroupJoinEvents.GroupDetailsRequest);
 	}
 
-	private void getAllGroups(final List<GroupModel> groups, final int page, final View source) {
+	private void getAllGroups(final List<ExtGroup> groups, final int page, final View source) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -93,8 +95,8 @@ public class GroupJoinController extends Controller {
 
 		} else if (type.equals(GroupJoinEvents.JoinRequest)) {
 			LOG.finest("JoinRequest");
-			GroupModel group = event.getData("group");
-			List<SensorModel> sensors = event.getData("sensors");
+			ExtGroup group = event.getData("group");
+			List<ExtSensor> sensors = event.getData("sensors");
 			View source = (View) event.getSource();
 			join(group, sensors, source);
 
@@ -105,7 +107,7 @@ public class GroupJoinController extends Controller {
 
 		} else if (type.equals(GroupJoinEvents.GroupDetailsRequest)) {
 			LOG.finest("GroupDetailsRequest");
-			GroupModel group = event.getData("group");
+			ExtGroup group = event.getData("group");
 			View source = (View) event.getSource();
 			onGroupsDetailsRequest(group, source);
 
@@ -114,7 +116,7 @@ public class GroupJoinController extends Controller {
 		}
 	}
 
-	private void onGroupsDetailsRequest(GroupModel group, final View source) {
+	private void onGroupsDetailsRequest(ExtGroup group, final View source) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -157,14 +159,17 @@ public class GroupJoinController extends Controller {
 	}
 
 	private void onGroupDetailsSuccess(String response, View source) {
-		GroupModel group = null;
+		Group group = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupDetailsResponseJso jso = JsonUtils.unsafeEval(response);
+			GetGroupDetailsResponse jso = JsonUtils.unsafeEval(response);
 			group = jso.getGroup();
 		}
 
+		// convert to Ext
+		ExtGroup extGroup = new ExtGroup(group);
+
 		AppEvent event = new AppEvent(GroupJoinEvents.GroupDetailsSuccess);
-		event.setData("group", group);
+		event.setData("group", extGroup);
 		forwardToView(source, event);
 	}
 
@@ -172,7 +177,7 @@ public class GroupJoinController extends Controller {
 		forwardToView(source, new AppEvent(GroupJoinEvents.GroupDetailsFailure));
 	}
 
-	private void join(GroupModel group, List<SensorModel> sensors, final View source) {
+	private void join(ExtGroup group, List<ExtSensor> sensors, final View source) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -180,14 +185,14 @@ public class GroupJoinController extends Controller {
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
-		UserModel user = Registry.<UserModel> get(Constants.REG_USER);
+		ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
 
 		JSONObject userJson = new JSONObject();
 		userJson.put("id", new JSONNumber(user.getId()));
 		userJson.put("username", new JSONString(user.getUsername()));
 		JSONArray sensorsJson = new JSONArray();
 		for (int i = 0; i < sensors.size(); i++) {
-			SensorModel sensor = sensors.get(i);
+			ExtSensor sensor = sensors.get(i);
 			sensorsJson.set(i, new JSONNumber(sensor.getId()));
 		}
 		JSONObject bodyJson = new JSONObject();
@@ -242,19 +247,22 @@ public class GroupJoinController extends Controller {
 	}
 
 	private void onAllGroupsRequest(View source) {
-		List<GroupModel> groups = new ArrayList<GroupModel>();
+		List<ExtGroup> groups = new ArrayList<ExtGroup>();
 		int page = 0;
 		getAllGroups(groups, page, source);
 	}
 
-	private void onAllGroupsSuccess(String response, List<GroupModel> groups, int page, View source) {
+	private void onAllGroupsSuccess(String response, List<ExtGroup> groups, int page, View source) {
 
 		// parse list of groups from the response
 		int total = -1;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupsResponseJso jso = JsonUtils.unsafeEval(response);
+			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
 			total = jso.getGroups().size();
-			groups.addAll(jso.getGroups());
+			JsArray<Group> newGroups = jso.getRawGroups();
+			for (int i = 0; i < newGroups.length(); i++) {
+				groups.add(new ExtGroup(newGroups.get(i)));
+			}
 		}
 
 		// check if there are more pages left

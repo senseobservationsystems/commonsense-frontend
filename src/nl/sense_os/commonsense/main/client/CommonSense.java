@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Keys;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.TestData;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.common.client.model.UserModel;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.main.client.demo.DemoController;
@@ -177,7 +177,7 @@ public class CommonSense implements EntryPoint {
 					public void run() {
 
 						LOG.fine("API loaded");
-						SensorModel sensor = new SensorModel();
+						ExtSensor sensor = new ExtSensor();
 						sensor.setDataType("String");
 						sensor.setName("Sensor");
 						sensor.setId(4);
@@ -228,7 +228,7 @@ public class CommonSense implements EntryPoint {
 				window.setHeading("Maps test");
 				window.setSize("90%", "600px");
 
-				MapPanel map = new MapPanel(new ArrayList<SensorModel>(), 0, 0, false, "title");
+				MapPanel map = new MapPanel(new ArrayList<ExtSensor>(), 0, 0, false, "title");
 				window.add(map);
 				window.show();
 				window.center();
@@ -260,7 +260,7 @@ public class CommonSense implements EntryPoint {
 		NavPanel navPanel = new NavPanel();
 		north.add(navPanel, new RowData(.67, 1));
 
-		navPanel.setUser(new UserModel());
+		navPanel.setUser(new ExtUser());
 		navPanel.setLoggedIn(true);
 		navPanel.setHighlight(NavPanel.VISUALIZATION);
 

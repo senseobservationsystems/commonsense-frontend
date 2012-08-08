@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.DeviceModel;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtDevice;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -31,7 +31,7 @@ public class StateDefaultsController extends Controller {
 				StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
 	}
 
-	private void checkDefaults(List<DeviceModel> devices, boolean overwrite, final View source) {
+	private void checkDefaults(List<ExtDevice> devices, boolean overwrite, final View source) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
@@ -42,9 +42,9 @@ public class StateDefaultsController extends Controller {
 
 		// prepare body
 		String body = "{\"sensors\":[";
-		List<SensorModel> sensors = Registry.get(Constants.REG_SENSOR_LIST);
-		for (SensorModel sensor : sensors) {
-			DeviceModel sensorDevice = sensor.getDevice();
+		List<ExtSensor> sensors = Registry.get(Constants.REG_SENSOR_LIST);
+		for (ExtSensor sensor : sensors) {
+			ExtDevice sensorDevice = sensor.getDevice();
 			if (sensorDevice != null && devices.contains(sensorDevice)) {
 				body += "\"" + sensor.getId() + "\",";
 			}
@@ -96,7 +96,7 @@ public class StateDefaultsController extends Controller {
 
 		if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
 			LOG.fine("CheckDefaultsRequest");
-			List<DeviceModel> devices = event.getData("devices");
+			List<ExtDevice> devices = event.getData("devices");
 			boolean overwrite = event.getData("overwrite");
 			View source = (View) event.getSource();
 			checkDefaults(devices, overwrite, source);

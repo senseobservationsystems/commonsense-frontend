@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetServicesResponseJso;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.GetServicesResponse;
 import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.SensorModel;
-import nl.sense_os.commonsense.common.client.model.ServiceModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtService;
+import nl.sense_os.commonsense.common.client.model.Service;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -43,7 +44,7 @@ public class StateConnectController extends Controller {
 				StateConnectEvents.AvailableSensorsNotUpdated);
 	}
 
-	private void connectService(SensorModel sensor, SensorModel stateSensor, String serviceName) {
+	private void connectService(ExtSensor sensor, ExtSensor stateSensor, String serviceName) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
@@ -93,15 +94,15 @@ public class StateConnectController extends Controller {
 	}
 
 	private void getAvailableSensors(String serviceName,
-			final AsyncCallback<List<SensorModel>> proxyCallback) {
+			final AsyncCallback<List<ExtSensor>> proxyCallback) {
 
-		List<SensorModel> result = new ArrayList<SensorModel>();
+		List<ExtSensor> result = new ArrayList<ExtSensor>();
 
-		List<SensorModel> library = Registry.get(Constants.REG_SENSOR_LIST);
-		for (SensorModel sensor : library) {
-			List<ServiceModel> availableServices = sensor.getAvailServices();
+		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		for (ExtSensor sensor : library) {
+			List<ExtService> availableServices = sensor.getAvailServices();
 			if (null != availableServices) {
-				for (ServiceModel availableService : availableServices) {
+				for (ExtService availableService : availableServices) {
 					if (availableService.getName().equalsIgnoreCase(serviceName)) {
 						result.add(sensor);
 						break;
@@ -113,14 +114,14 @@ public class StateConnectController extends Controller {
 		proxyCallback.onSuccess(result);
 	}
 
-	private void getServiceName(final SensorModel stateSensor) {
+	private void getServiceName(final ExtSensor stateSensor) {
 
 		if (stateSensor.getChildCount() == 0) {
 			// if a service has no child sensors, we cannot get the name
 			onServiceNameFailure();
 			return;
 		}
-		SensorModel sensor = (SensorModel) stateSensor.getChild(0);
+		ExtSensor sensor = (ExtSensor) stateSensor.getChild(0);
 
 		final Method method = RequestBuilder.GET;
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -171,8 +172,8 @@ public class StateConnectController extends Controller {
 		if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
 			LOG.fine("AvailableSensorsRequested");
 			final String serviceName = event.<String> getData("name");
-			final AsyncCallback<List<SensorModel>> callback = event
-					.<AsyncCallback<List<SensorModel>>> getData("callback");
+			final AsyncCallback<List<ExtSensor>> callback = event
+					.<AsyncCallback<List<ExtSensor>>> getData("callback");
 			getAvailableSensors(serviceName, callback);
 
 		} else
@@ -182,8 +183,8 @@ public class StateConnectController extends Controller {
 		 */
 		if (type.equals(StateConnectEvents.ConnectRequested)) {
 			LOG.fine("ConnectRequested");
-			final SensorModel sensor = event.<SensorModel> getData("sensor");
-			final SensorModel stateSensor = event.<SensorModel> getData("stateSensor");
+			final ExtSensor sensor = event.<ExtSensor> getData("sensor");
+			final ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
 			final String serviceName = event.<String> getData("serviceName");
 			connectService(sensor, stateSensor, serviceName);
 
@@ -194,7 +195,7 @@ public class StateConnectController extends Controller {
 		 */
 		if (type.equals(StateConnectEvents.ServiceNameRequest)) {
 			LOG.fine("ServiceNameRequest");
-			final SensorModel service = event.<SensorModel> getData("stateSensor");
+			final ExtSensor service = event.<ExtSensor> getData("stateSensor");
 			getServiceName(service);
 
 		} else
@@ -226,18 +227,17 @@ public class StateConnectController extends Controller {
 		forwardToView(connecter, new AppEvent(StateConnectEvents.ServiceNameFailure));
 	}
 
-	private void onServiceNameSuccess(SensorModel stateSensor, String response) {
+	private void onServiceNameSuccess(ExtSensor stateSensor, String response) {
 
 		// parse list of running services from the response
-		List<ServiceModel> services = new ArrayList<ServiceModel>();
+		List<Service> services = new ArrayList<Service>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetServicesResponseJso jso = JsonUtils.unsafeEval(response);
+			GetServicesResponse jso = JsonUtils.unsafeEval(response);
 			services = jso.getServices();
 		}
 
 		// find the right service among all the running services
-		for (ServiceModel service : services) {
-
+		for (Service service : services) {
 			int id = service.getId();
 			if (id == stateSensor.getId()) {
 				String name = service.getName();

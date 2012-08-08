@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.common.client.storage;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.UserJso;
+import nl.sense_os.commonsense.common.client.model.User;
 
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.user.client.Cookies;
@@ -28,7 +28,7 @@ public class AppCookieStorage implements AppStorage {
 	}
 
 	@Override
-	public UserJso getCurrentUser() {
+	public User getCurrentUser() {
 		String serialized = Cookies.getCookie("currentUser");
 		try {
 			return JsonUtils.safeEval(serialized);
@@ -55,7 +55,7 @@ public class AppCookieStorage implements AppStorage {
 	}
 
 	@Override
-	public void setCurrentUser(UserJso user) {
+	public void setCurrentUser(User user) {
 		// TODO
 	}
 }

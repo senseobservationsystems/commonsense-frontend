@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.sensors.library;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.SensorModel;
+import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.util.SenseKeyProvider;
 import nl.sense_os.commonsense.common.client.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.common.client.util.SensorProcessor;
@@ -62,9 +62,9 @@ public class LibraryGrid extends View {
 
 	private static final Logger LOG = Logger.getLogger(LibraryGrid.class.getName());
 	private ContentPanel panel;
-	private BaseListLoader<ListLoadResult<SensorModel>> loader;
-	private GroupingStore<SensorModel> store;
-	private Grid<SensorModel> grid;
+	private BaseListLoader<ListLoadResult<ExtSensor>> loader;
+	private GroupingStore<ExtSensor> store;
+	private Grid<ExtSensor> grid;
 	private ToolBar toolBar;
 	private Button shareButton;
 	private Button unshareButton;
@@ -134,11 +134,11 @@ public class LibraryGrid extends View {
 	private void initFilters() {
 
 		// text filter
-		SensorTextFilter<SensorModel> textFilter = new SensorTextFilter<SensorModel>();
+		SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
 		textFilter.bind(store);
 
 		// filter to show only my own sensors
-		final SensorOwnerFilter<SensorModel> ownerFilter = new SensorOwnerFilter<SensorModel>();
+		final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
 		store.addFilter(ownerFilter);
 
 		// checkbox to toggle filter
@@ -166,11 +166,11 @@ public class LibraryGrid extends View {
 	private void initGrid() {
 
 		// proxy
-		DataProxy<ListLoadResult<SensorModel>> proxy = new DataProxy<ListLoadResult<SensorModel>>() {
+		DataProxy<ListLoadResult<ExtSensor>> proxy = new DataProxy<ListLoadResult<ExtSensor>>() {
 
 			@Override
-			public void load(DataReader<ListLoadResult<SensorModel>> reader, Object loadConfig,
-					AsyncCallback<ListLoadResult<SensorModel>> callback) {
+			public void load(DataReader<ListLoadResult<ExtSensor>> reader, Object loadConfig,
+					AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 				// only load when the panel is not collapsed
 				if (panel.isExpanded()) {
 					if (loadConfig instanceof ListLoadConfig) {
@@ -192,16 +192,16 @@ public class LibraryGrid extends View {
 		};
 
 		// list loader
-		loader = new BaseListLoader<ListLoadResult<SensorModel>>(proxy);
+		loader = new BaseListLoader<ListLoadResult<ExtSensor>>(proxy);
 
 		// list store
-		store = new GroupingStore<SensorModel>(loader);
-		store.setKeyProvider(new SenseKeyProvider<SensorModel>());
+		store = new GroupingStore<ExtSensor>(loader);
+		store.setKeyProvider(new SenseKeyProvider<ExtSensor>());
 		store.setMonitorChanges(true);
 
 		// this.store.groupBy(SensorModel.DEVICE_TYPE, true);
-		store.sort(SensorModel.DISPLAY_NAME, SortDir.ASC);
-		store.setDefaultSort(SensorModel.DISPLAY_NAME, SortDir.ASC);
+		store.sort(ExtSensor.DISPLAY_NAME, SortDir.ASC);
+		store.setDefaultSort(ExtSensor.DISPLAY_NAME, SortDir.ASC);
 
 		// Column model
 		ColumnModel cm = LibraryColumnsFactory.create();
@@ -213,8 +213,8 @@ public class LibraryGrid extends View {
 		view.setGroupRenderer(new SensorGroupRenderer(cm));
 		view.setStartCollapsed(true);
 
-		grid = new Grid<SensorModel>(store, cm);
-		grid.setModelProcessor(new SensorProcessor<SensorModel>());
+		grid = new Grid<ExtSensor>(store, cm);
+		grid.setModelProcessor(new SensorProcessor<ExtSensor>());
 		grid.setView(view);
 		grid.setBorders(false);
 		grid.setId("library-grid");
@@ -313,13 +313,13 @@ public class LibraryGrid extends View {
 		alertButton.disable();
 
 		// listen to selection of tree items to enable/disable buttons
-		GridSelectionModel<SensorModel> selectionModel = new GridSelectionModel<SensorModel>();
+		GridSelectionModel<ExtSensor> selectionModel = new GridSelectionModel<ExtSensor>();
 		selectionModel.setSelectionMode(SelectionMode.MULTI);
-		selectionModel.addSelectionChangedListener(new SelectionChangedListener<SensorModel>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtSensor>() {
 
 			@Override
-			public void selectionChanged(SelectionChangedEvent<SensorModel> se) {
-				List<SensorModel> selection = se.getSelection();
+			public void selectionChanged(SelectionChangedEvent<ExtSensor> se) {
+				List<ExtSensor> selection = se.getSelection();
 				if (selection != null && selection.size() > 0) {
 					vizButton.enable();
 					shareButton.enable();
@@ -365,7 +365,7 @@ public class LibraryGrid extends View {
 
 	private void onRemoveClick() {
 		// get sensor models from the selection
-		final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+		final List<ExtSensor> sensors = grid.getSelectionModel().getSelection();
 
 		if (sensors.size() > 0) {
 			AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
@@ -379,7 +379,7 @@ public class LibraryGrid extends View {
 
 	private void onAlertClick() {
 		// get sensor models from the selection
-		final List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+		final List<ExtSensor> sensors = grid.getSelectionModel().getSelection();
 
 		if (sensors.size() > 0) {
 			// AppEvent event = new AppEvent(AlertCreateEvents.ShowCreator);
@@ -393,7 +393,7 @@ public class LibraryGrid extends View {
 	}
 
 	private void onShareClick() {
-		List<SensorModel> sensors = grid.getSelectionModel().getSelection();
+		List<ExtSensor> sensors = grid.getSelectionModel().getSelection();
 		AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
 		shareEvent.setData("sensors", sensors);
 		Dispatcher.forwardEvent(shareEvent);
@@ -406,7 +406,7 @@ public class LibraryGrid extends View {
 	}
 
 	private void onVizClick() {
-		List<SensorModel> selection = grid.getSelectionModel().getSelection();
+		List<ExtSensor> selection = grid.getSelectionModel().getSelection();
 		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
 	}
 
