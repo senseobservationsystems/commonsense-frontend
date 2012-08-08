@@ -16,8 +16,8 @@
 	<g:SimplePanel styleName="{style.outer}">
 		<g:DockLayoutPanel
 			height="100%"
-			unit="PX"
-			styleName="{style.inner}">
+			styleName="{style.inner}"
+			unit="PX">
 			<g:north size="30">
 				<my:LoginNavigationBar />
 			</g:north>
