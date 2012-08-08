@@ -2,9 +2,8 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
@@ -13,10 +12,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.UrlBuilder;
 
 public class AlertCreateController extends Controller {
 
@@ -45,12 +42,6 @@ public class AlertCreateController extends Controller {
 	}
 
 	private void prepareCreator(final ExtSensor sensor) {
-		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-		urlBuilder.setParameter("last", "1");
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -74,15 +65,8 @@ public class AlertCreateController extends Controller {
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET data request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.getSensorData(reqCallback, sensor.getId(), null, null, null, null, null,
+				null, null, "1", null);
 	}
 
 	private void onLastDataPointSuccess(String response, ExtSensor sensor) {

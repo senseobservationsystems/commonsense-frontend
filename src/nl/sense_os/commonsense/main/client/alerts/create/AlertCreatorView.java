@@ -32,6 +32,7 @@ public class AlertCreatorView extends View {
 	private static final Logger LOG = Logger.getLogger(AlertCreatorView.class.getName());
 
 	private AlertCreator creator;
+	@SuppressWarnings("unused")
 	private ExtSensor sensor;
 	private JsArray<Timeseries> data;
 	private int triggerType;
