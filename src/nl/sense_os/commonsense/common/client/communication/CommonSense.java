@@ -32,7 +32,7 @@ public class CommonSense {
 		public static final String PATH_CURRENT_USER = PATH_PREFIX + "users/current";
 		public static final String PATH_FORGOT_PASSWORD = PATH_PREFIX + "requestPasswordReset";
 		public static final String PATH_LOGIN = PATH_PREFIX + "login";
-		public static final String PATH_LOGIN_GOOGLE = PATH_PREFIX + "login/openID/google";
+		public static final String PATH_LOGIN_GOOGLE = "login/openID/google"; // no prefix!
 		public static final String PATH_LOGOUT = PATH_PREFIX + "logout";
 		public static final String PATH_PW_RESET = PATH_PREFIX + "resetPassword";
 		public static final String PATH_GROUPS = PATH_PREFIX + "groups";
@@ -254,7 +254,7 @@ public class CommonSense {
 		String callbackUrl = callbackBuilder.buildString();
 
 		// relocate to OpenID handler
-		Location.replace(new UrlBuilder().setProtocol(Api.PROTOCOL).setHost(Api.HOST)
+		Location.replace(new UrlBuilder().setProtocol(Api.PROTOCOL).setHost("api.sense-os.nl")
 				.setPath(Api.PATH_LOGIN_GOOGLE).setParameter("callback_url", callbackUrl)
 				.buildString());
 	}
