@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateEvents;
-import nl.sense_os.commonsense.main.client.demo.DemoController;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
@@ -98,7 +97,6 @@ public class CommonSense implements EntryPoint {
 		dispatcher.addController(new MainController());
 		dispatcher.addController(new VizMainController());
 		dispatcher.addController(new VizPanelsController());
-		dispatcher.addController(new DemoController());
 		dispatcher.addController(new DataController());
 
 		// sensor library controllers
