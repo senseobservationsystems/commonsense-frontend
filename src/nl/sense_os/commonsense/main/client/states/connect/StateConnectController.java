@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetServicesResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.ExtService;
@@ -98,7 +97,8 @@ public class StateConnectController extends Controller {
 
 		List<ExtSensor> result = new ArrayList<ExtSensor>();
 
-		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : library) {
 			List<ExtService> availableServices = sensor.getAvailServices();
 			if (null != availableServices) {

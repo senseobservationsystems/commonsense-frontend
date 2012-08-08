@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.viz.tabs;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.constant.Keys;
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.choice.VizTypeChooser;
 
@@ -67,7 +67,7 @@ public class VizMainController extends Controller {
 			return;
 		}
 
-		Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
 
 			@Override
 			public void run() {

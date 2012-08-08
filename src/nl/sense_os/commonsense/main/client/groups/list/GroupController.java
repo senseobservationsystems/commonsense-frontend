@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtGroup;
 import nl.sense_os.commonsense.common.client.model.ExtUser;
@@ -136,7 +135,8 @@ public class GroupController extends Controller {
 	private void getGroups(final AsyncCallback<List<ExtUser>> callback) {
 
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-		Registry.<List<ExtGroup>> get(Constants.REG_GROUPS).clear();
+		Registry.<List<ExtGroup>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS).clear();
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -205,7 +205,8 @@ public class GroupController extends Controller {
 	protected void initialize() {
 		super.initialize();
 		this.tree = new GroupGrid(this);
-		Registry.register(Constants.REG_GROUPS, new ArrayList<ExtGroup>());
+		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS,
+				new ArrayList<ExtGroup>());
 	}
 
 	private void onGroupMembersFailure(int code, ExtGroup group,
@@ -292,7 +293,9 @@ public class GroupController extends Controller {
 				extGroups.add(new ExtGroup(groups.get(i)));
 			}
 
-			Registry.<List<ExtGroup>> get(Constants.REG_GROUPS).addAll(extGroups);
+			Registry.<List<ExtGroup>> get(
+					nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS).addAll(
+					extGroups);
 			Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 			callback.onSuccess(new ArrayList<ExtUser>(extGroups));

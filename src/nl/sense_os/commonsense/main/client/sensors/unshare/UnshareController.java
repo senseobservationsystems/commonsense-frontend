@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.ExtUser;
@@ -63,7 +62,8 @@ public class UnshareController extends Controller {
 	private void onUnshareComplete(ExtSensor sensor) {
 
 		// update library
-		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		int index = library.indexOf(sensor);
 		if (index != -1) {
 			LOG.fine("Updating sensor's users in the library");
@@ -85,8 +85,7 @@ public class UnshareController extends Controller {
 		unshare(sensor, users, 0);
 	}
 
-	private void onUnshareSuccess(String response, ExtSensor sensor, List<ExtUser> users,
-			int index) {
+	private void onUnshareSuccess(String response, ExtSensor sensor, List<ExtUser> users, int index) {
 		// update the sensor model
 		List<ExtUser> sensorUsers = sensor.getUsers();
 		sensorUsers.remove(users.get(index));
@@ -102,7 +101,8 @@ public class UnshareController extends Controller {
 		if (index < users.size()) {
 			ExtUser user = users.get(index);
 
-			ExtUser currentUser = Registry.<ExtUser> get(Constants.REG_USER);
+			ExtUser currentUser = Registry
+					.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 			if (currentUser.equals(user)) {
 				LOG.finest("Skipped unsharing with the current user...");
 				unshare(sensor, users, index + 1);

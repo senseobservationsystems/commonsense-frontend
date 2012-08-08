@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.main.MainEvents;
 
@@ -56,7 +55,8 @@ public class VizMainView extends View {
 		tabPanel = new VizTabPanel();
 		setupDragDrop();
 
-		Registry.register(Constants.REG_VIZPANEL, tabPanel);
+		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_VIZPANEL,
+				tabPanel);
 	}
 
 	/**

@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailSer
 import nl.sense_os.commonsense.common.client.communication.httpresponse.BatchAvailServicesResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtDevice;
 import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
@@ -343,8 +342,10 @@ public class LibraryController extends Controller {
 		this.grid = new LibraryGrid(this);
 
 		// initialize library and lists of devices and environments
-		Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<ExtSensor>());
-		Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<ExtDevice>());
+		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST,
+				new ArrayList<ExtSensor>());
+		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST,
+				new ArrayList<ExtDevice>());
 	}
 
 	private void notifyState() {
@@ -363,7 +364,8 @@ public class LibraryController extends Controller {
 
 	private void onAvailServicesSuccess(String response, int page, String groupId) {
 
-		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 
 		// parse list of services from response
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
@@ -463,8 +465,10 @@ public class LibraryController extends Controller {
 		LOG.fine("Load complete...");
 
 		// update list of devices
-		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).addAll(
+		Registry.<List<ExtDevice>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
+		Registry.<List<ExtDevice>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).addAll(
 				devicesFromLibrary(library));
 
 		isLoadingList = false;
@@ -482,9 +486,12 @@ public class LibraryController extends Controller {
 	}
 
 	private void onLoadFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
-		Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST).clear();
-		Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).clear();
+		Registry.<List<ExtSensor>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).clear();
+		Registry.<List<ExtDevice>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
+		Registry.<List<ExtEnvironment>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).clear();
 
 		Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
 		forwardToView(this.grid, new AppEvent(LibraryEvents.Done));
@@ -496,10 +503,12 @@ public class LibraryController extends Controller {
 
 	private void onLoadRequest(boolean renewCache, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
 
-		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		if (renewCache) {
 			library.clear();
-			Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST).clear();
+			Registry.<List<ExtDevice>> get(
+					nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
 
 			isLoadingList = true;
 			notifyState();
@@ -535,7 +544,8 @@ public class LibraryController extends Controller {
 			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			total = responseJso.getTotal();
 
-			ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
+			ExtUser user = Registry
+					.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 			JsArray<Sensor> sharedSensors = responseJso.getRawSensors();
 			for (int i = 0; i < sharedSensors.length(); i++) {
 				ExtSensor sharedSensor = new ExtSensor(sharedSensors.get(i));

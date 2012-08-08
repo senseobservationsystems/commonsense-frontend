@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.model.ExtDevice;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -28,114 +27,115 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class StateDefaultsDialog extends CenteredWindow {
 
-    private static final Logger LOG = Logger.getLogger(StateDefaultsDialog.class.getName());
-    private ListStore<ExtDevice> store;
-    private Grid<ExtDevice> grid;
-    private FormPanel form;
-    private Button submitButton;
-    private Button cancelButton;
-    private CheckBox overwrite;
+	private static final Logger LOG = Logger.getLogger(StateDefaultsDialog.class.getName());
+	private ListStore<ExtDevice> store;
+	private Grid<ExtDevice> grid;
+	private FormPanel form;
+	private Button submitButton;
+	private Button cancelButton;
+	private CheckBox overwrite;
 
-    public StateDefaultsDialog() {
-        super();
+	public StateDefaultsDialog() {
+		super();
 
-        setHeading("Create default states");
-        setLayout(new FitLayout());
-        setSize(600, 400);
-        setClosable(false);
+		setHeading("Create default states");
+		setLayout(new FitLayout());
+		setSize(600, 400);
+		setClosable(false);
 
-        initGrid();
-        initForm();
-        initButtons();
+		initGrid();
+		initForm();
+		initButtons();
 
-        add(form);
-        addButton(submitButton);
-        addButton(cancelButton);
-    }
+		add(form);
+		addButton(submitButton);
+		addButton(cancelButton);
+	}
 
-    public Button getCancelButton() {
-        return cancelButton;
-    }
+	public Button getCancelButton() {
+		return cancelButton;
+	}
 
-    public Grid<ExtDevice> getGrid() {
-        return grid;
-    }
+	public Grid<ExtDevice> getGrid() {
+		return grid;
+	}
 
-    public Button getSubmitButton() {
-        return submitButton;
-    }
+	public Button getSubmitButton() {
+		return submitButton;
+	}
 
-    private void initButtons() {
+	private void initButtons() {
 
-        grid.getSelectionModel().addSelectionChangedListener(
-                new SelectionChangedListener<ExtDevice>() {
+		grid.getSelectionModel().addSelectionChangedListener(
+				new SelectionChangedListener<ExtDevice>() {
 
-                    @Override
-                    public void selectionChanged(SelectionChangedEvent<ExtDevice> se) {
-                        // enable the submit button as soon as a device was selected
-                        LOG.finest("Grid selection changed...");
-                        submitButton.setEnabled(se.getSelection().size() > 0);
-                    }
-                });
+					@Override
+					public void selectionChanged(SelectionChangedEvent<ExtDevice> se) {
+						// enable the submit button as soon as a device was selected
+						LOG.finest("Grid selection changed...");
+						submitButton.setEnabled(se.getSelection().size() > 0);
+					}
+				});
 
-        submitButton = new Button("Submit");
-        submitButton.setIconStyle("sense-btn-icon-go");
-        submitButton.setEnabled(false);
-        submitButton.setMinWidth(75);
+		submitButton = new Button("Submit");
+		submitButton.setIconStyle("sense-btn-icon-go");
+		submitButton.setEnabled(false);
+		submitButton.setMinWidth(75);
 
-        cancelButton = new Button("Cancel");
-        cancelButton.setMinWidth(75);
-    }
+		cancelButton = new Button("Cancel");
+		cancelButton.setMinWidth(75);
+	}
 
-    private void initForm() {
-        form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBodyBorder(false);
-        form.setScrollMode(Scroll.AUTOY);
-        form.setLabelAlign(LabelAlign.TOP);
+	private void initForm() {
+		form = new FormPanel();
+		form.setHeaderVisible(false);
+		form.setBodyBorder(false);
+		form.setScrollMode(Scroll.AUTOY);
+		form.setLabelAlign(LabelAlign.TOP);
 
-        LabelField label = new LabelField("CommonSense will generate default state sensors, "
-                + "using the sensors in your library.<br><br>");
-        label.setHideLabel(true);
+		LabelField label = new LabelField("CommonSense will generate default state sensors, "
+				+ "using the sensors in your library.<br><br>");
+		label.setHideLabel(true);
 
-        AdapterField gridField = new AdapterField(grid);
-        gridField.setHeight(225);
-        gridField.setResizeWidget(true);
-        gridField.setFieldLabel("Select device(s) to use for the states");
+		AdapterField gridField = new AdapterField(grid);
+		gridField.setHeight(225);
+		gridField.setResizeWidget(true);
+		gridField.setFieldLabel("Select device(s) to use for the states");
 
-        overwrite = new CheckBox();
-        overwrite.setBoxLabel("Update existing state sensors (this will overwrite their settings)");
-        overwrite.setHideLabel(true);
-        overwrite.setValue(false);
+		overwrite = new CheckBox();
+		overwrite.setBoxLabel("Update existing state sensors (this will overwrite their settings)");
+		overwrite.setHideLabel(true);
+		overwrite.setValue(false);
 
-        form.add(label, new FormData("-10"));
-        form.add(gridField, new FormData("-10"));
-        form.add(overwrite, new FormData("-10"));
-    }
+		form.add(label, new FormData("-10"));
+		form.add(gridField, new FormData("-10"));
+		form.add(overwrite, new FormData("-10"));
+	}
 
-    private void initGrid() {
-        store = new ListStore<ExtDevice>();
-        store.add(Registry.<List<ExtDevice>> get(Constants.REG_DEVICE_LIST));
+	private void initGrid() {
+		store = new ListStore<ExtDevice>();
+		store.add(Registry
+				.<List<ExtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST));
 
-        ColumnConfig id = new ColumnConfig(ExtDevice.ID, "ID", 50);
-        ColumnConfig type = new ColumnConfig(ExtDevice.TYPE, "Type", 150);
-        ColumnConfig uuid = new ColumnConfig(ExtDevice.UUID, "UUID", 50);
-        ColumnModel cm = new ColumnModel(Arrays.asList(id, type, uuid));
+		ColumnConfig id = new ColumnConfig(ExtDevice.ID, "ID", 50);
+		ColumnConfig type = new ColumnConfig(ExtDevice.TYPE, "Type", 150);
+		ColumnConfig uuid = new ColumnConfig(ExtDevice.UUID, "UUID", 50);
+		ColumnModel cm = new ColumnModel(Arrays.asList(id, type, uuid));
 
-        grid = new Grid<ExtDevice>(store, cm);
-        grid.setAutoExpandColumn(ExtDevice.UUID);
-        grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
-    }
+		grid = new Grid<ExtDevice>(store, cm);
+		grid.setAutoExpandColumn(ExtDevice.UUID);
+		grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
+	}
 
-    public boolean isOverwrite() {
-        return overwrite.getValue();
-    }
+	public boolean isOverwrite() {
+		return overwrite.getValue();
+	}
 
-    public void setBusy(boolean busy) {
-        if (busy) {
-            submitButton.setIconStyle("sense-btn-icon-loading");
-        } else {
-            submitButton.setIconStyle("sense-btn-icon-go");
-        }
-    }
+	public void setBusy(boolean busy) {
+		if (busy) {
+			submitButton.setIconStyle("sense-btn-icon-loading");
+		} else {
+			submitButton.setIconStyle("sense-btn-icon-go");
+		}
+	}
 }

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
@@ -147,7 +146,8 @@ public class SensorDeleteController extends Controller {
 	private void onDeleteSuccess(List<ExtSensor> sensors, int index) {
 
 		// remove the sensor from the cached library
-		boolean removed = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST).remove(
+		boolean removed = Registry.<List<ExtSensor>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).remove(
 				sensors.get(index));
 		if (!removed) {
 			LOG.warning("Failed to remove the sensor from the library!");

@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupDetailsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtGroup;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
@@ -185,7 +184,8 @@ public class GroupJoinController extends Controller {
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
-		ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
+		ExtUser user = Registry
+				.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 
 		JSONObject userJson = new JSONObject();
 		userJson.put("id", new JSONNumber(user.getId()));

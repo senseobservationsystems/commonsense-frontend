@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.ExtUser;
@@ -167,7 +166,8 @@ public class SensorShareController extends Controller {
 
 		// update library
 		for (ExtSensor sensor : sensors) {
-			List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+			List<ExtSensor> library = Registry
+					.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 			int index = library.indexOf(sensor);
 			if (index != -1) {
 				LOG.fine("Updating sensor users in the library");

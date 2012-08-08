@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateEnvironmentResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateSensorResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtDevice;
 import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
@@ -291,7 +290,8 @@ public class EnvCreateController extends Controller {
 				// check if it is the right device
 				if (sensor.getDevice() != null && sensor.getDevice().equals(device)) {
 					// make sure we are the owner of the sensor
-					ExtUser user = Registry.get(Constants.REG_USER);
+					ExtUser user = Registry
+							.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 					if (sensor.getOwner() == null || sensor.getOwner().equals(user)) {
 						positionSensor = sensor;
 						break;
@@ -374,7 +374,9 @@ public class EnvCreateController extends Controller {
 		if (null != environment) {
 
 			// update global environment list
-			Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).add(environment);
+			Registry.<List<ExtEnvironment>> get(
+					nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).add(
+					environment);
 
 			// continue with adding sensors
 			addSensors(environment, sensors);
@@ -393,7 +395,8 @@ public class EnvCreateController extends Controller {
 			List<ExtSensor> sensors) {
 
 		// add the devices's sensors
-		List<ExtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : library) {
 			if (sensor.getDevice() != null && devices.contains(sensor.getDevice())) {
 				LOG.finest("Add device sensor \'" + sensor + "\' to list of environment sensors");
@@ -427,7 +430,9 @@ public class EnvCreateController extends Controller {
 			sensors.add(extSensor);
 
 			// add the new sensor to the global library
-			Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST).add(extSensor);
+			Registry.<List<ExtSensor>> get(
+					nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).add(
+					extSensor);
 
 			// add the new position sensor to the proper device
 			addSensorToDevice(extSensor, devices, index, name, floors, outline, sensors);

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.component.CenteredWindow;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -32,179 +31,180 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class SensorShareDialog extends View {
 
-    private static final Logger LOG = Logger.getLogger(SensorShareDialog.class.getName());
-    private Window window;
-    private FormPanel form;
-    private TextField<String> user;
-    private Button createButton;
-    private Button cancelButton;
-    private List<ExtSensor> sensors;
+	private static final Logger LOG = Logger.getLogger(SensorShareDialog.class.getName());
+	private Window window;
+	private FormPanel form;
+	private TextField<String> user;
+	private Button createButton;
+	private Button cancelButton;
+	private List<ExtSensor> sensors;
 
-    private ListStore<TreeModel> store;
+	private ListStore<TreeModel> store;
 
-    public SensorShareDialog(Controller c) {
-        super(c);
-    }
+	public SensorShareDialog(Controller c) {
+		super(c);
+	}
 
-    @Override
-    protected void handleEvent(AppEvent event) {
-        EventType type = event.getType();
-        if (type.equals(SensorShareEvents.ShowShareDialog)) {
-            // LOG.fine( "Show");
-            onShow(event);
+	@Override
+	protected void handleEvent(AppEvent event) {
+		EventType type = event.getType();
+		if (type.equals(SensorShareEvents.ShowShareDialog)) {
+			// LOG.fine( "Show");
+			onShow(event);
 
-        } else if (type.equals(SensorShareEvents.ShareCancelled)) {
-            // LOG.fine( "Cancelled");
-            hideWindow();
+		} else if (type.equals(SensorShareEvents.ShareCancelled)) {
+			// LOG.fine( "Cancelled");
+			hideWindow();
 
-        } else if (type.equals(SensorShareEvents.ShareComplete)) {
-            // LOG.fine( "Complete");
-            onComplete(event);
+		} else if (type.equals(SensorShareEvents.ShareComplete)) {
+			// LOG.fine( "Complete");
+			onComplete(event);
 
-        } else if (type.equals(SensorShareEvents.ShareFailed)) {
-            LOG.warning("Failed");
-            onFailed(event);
+		} else if (type.equals(SensorShareEvents.ShareFailed)) {
+			LOG.warning("Failed");
+			onFailed(event);
 
-        } else {
-            LOG.warning("Unexpected event type: " + type);
-        }
-    }
+		} else {
+			LOG.warning("Unexpected event type: " + type);
+		}
+	}
 
-    private void hideWindow() {
-        window.hide();
-        form.reset();
-        setBusy(false);
-    }
+	private void hideWindow() {
+		window.hide();
+		form.reset();
+		setBusy(false);
+	}
 
-    private void initButtons() {
+	private void initButtons() {
 
-        SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+		SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                Button b = ce.getButton();
-                if (b.equals(createButton)) {
-                    if (form.isValid()) {
-                        onSubmit();
-                    }
-                } else if (b.equals(cancelButton)) {
-                    Dispatcher.forwardEvent(SensorShareEvents.ShareCancelled);
-                } else {
-                    LOG.warning("Unexpected button pressed");
-                }
-            }
-        };
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				Button b = ce.getButton();
+				if (b.equals(createButton)) {
+					if (form.isValid()) {
+						onSubmit();
+					}
+				} else if (b.equals(cancelButton)) {
+					Dispatcher.forwardEvent(SensorShareEvents.ShareCancelled);
+				} else {
+					LOG.warning("Unexpected button pressed");
+				}
+			}
+		};
 
-        createButton = new Button("Share", l);
-        createButton.setIconStyle("sense-btn-icon-go");
-        cancelButton = new Button("Cancel", l);
+		createButton = new Button("Share", l);
+		createButton.setIconStyle("sense-btn-icon-go");
+		cancelButton = new Button("Cancel", l);
 
-        final FormButtonBinding binding = new FormButtonBinding(form);
-        binding.addButton(createButton);
+		final FormButtonBinding binding = new FormButtonBinding(form);
+		binding.addButton(createButton);
 
-        form.addButton(createButton);
-        form.addButton(cancelButton);
-    }
+		form.addButton(createButton);
+		form.addButton(cancelButton);
+	}
 
-    private void initFields() {
+	private void initFields() {
 
-        final FormData formData = new FormData("-10");
+		final FormData formData = new FormData("-10");
 
-        store = new ListStore<TreeModel>();
+		store = new ListStore<TreeModel>();
 
-        user = new TextField<String>();
-        user.setFieldLabel("Share with");
-        user.setEmptyText("Enter a username...");
-        user.setAllowBlank(false);
+		user = new TextField<String>();
+		user.setFieldLabel("Share with");
+		user.setEmptyText("Enter a username...");
+		user.setAllowBlank(false);
 
-        form.add(user, formData);
-    }
+		form.add(user, formData);
+	}
 
-    private void initForm() {
-        form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBodyBorder(false);
-        form.setScrollMode(Scroll.AUTOY);
+	private void initForm() {
+		form = new FormPanel();
+		form.setHeaderVisible(false);
+		form.setBodyBorder(false);
+		form.setScrollMode(Scroll.AUTOY);
 
-        initFields();
-        initButtons();
+		initFields();
+		initButtons();
 
-        window.add(form);
-    }
+		window.add(form);
+	}
 
-    @Override
-    protected void initialize() {
-        super.initialize();
+	@Override
+	protected void initialize() {
+		super.initialize();
 
-        window = new CenteredWindow();
-        window.setHeading("Manage data sharing");
-        window.setLayout(new FitLayout());
-        window.setSize(323, 200);
+		window = new CenteredWindow();
+		window.setHeading("Manage data sharing");
+		window.setLayout(new FitLayout());
+		window.setSize(323, 200);
 
-        initForm();
-    }
+		initForm();
+	}
 
-    private void onComplete(AppEvent event) {
+	private void onComplete(AppEvent event) {
 
-        String info = "";
-        if (sensors.size() > 1) {
-            info = "The sensors were successfully shared with " + user.getValue() + ".";
-        } else {
-            info = "The sensor was successfully shared with " + user.getValue() + ".";
-        }
+		String info = "";
+		if (sensors.size() > 1) {
+			info = "The sensors were successfully shared with " + user.getValue() + ".";
+		} else {
+			info = "The sensor was successfully shared with " + user.getValue() + ".";
+		}
 
-        hideWindow();
+		hideWindow();
 
-        MessageBox.info(null, info, null);
-    }
+		MessageBox.info(null, info, null);
+	}
 
-    private void onFailed(AppEvent event) {
-        setBusy(false);
-        MessageBox.confirm(null, "Failed to update sharing settings, retry?",
-                new Listener<MessageBoxEvent>() {
+	private void onFailed(AppEvent event) {
+		setBusy(false);
+		MessageBox.confirm(null, "Failed to update sharing settings, retry?",
+				new Listener<MessageBoxEvent>() {
 
-                    @Override
-                    public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-                            onSubmit();
-                        } else {
-                            hideWindow();
-                        }
-                    }
-                });
-    }
+					@Override
+					public void handleEvent(MessageBoxEvent be) {
+						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+							onSubmit();
+						} else {
+							hideWindow();
+						}
+					}
+				});
+	}
 
-    private void onShow(AppEvent event) {
-        sensors = event.<List<ExtSensor>> getData("sensors");
-        List<TreeModel> users = Registry.<List<TreeModel>> get(Constants.REG_GROUPS);
-        store.removeAll();
-        store.add(users);
+	private void onShow(AppEvent event) {
+		sensors = event.<List<ExtSensor>> getData("sensors");
+		List<TreeModel> users = Registry
+				.<List<TreeModel>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS);
+		store.removeAll();
+		store.add(users);
 
-        window.show();
-        window.center();
-    }
+		window.show();
+		window.center();
+	}
 
-    private void onSubmit() {
-        final String user = this.user.getValue();
-        final List<ExtSensor> sensors = new ArrayList<ExtSensor>(this.sensors);
+	private void onSubmit() {
+		final String user = this.user.getValue();
+		final List<ExtSensor> sensors = new ArrayList<ExtSensor>(this.sensors);
 
-        AppEvent event = new AppEvent(SensorShareEvents.ShareRequest);
-        event.setData("user", user);
-        event.setData("sensors", sensors);
+		AppEvent event = new AppEvent(SensorShareEvents.ShareRequest);
+		event.setData("user", user);
+		event.setData("sensors", sensors);
 
-        fireEvent(event);
+		fireEvent(event);
 
-        setBusy(true);
-    }
+		setBusy(true);
+	}
 
-    private void setBusy(boolean busy) {
-        if (busy) {
-            createButton.setIconStyle("sense-btn-icon-loading");
-            cancelButton.disable();
-        } else {
-            createButton.setIconStyle("sense-btn-icon-go");
-            cancelButton.enable();
-        }
-    }
+	private void setBusy(boolean busy) {
+		if (busy) {
+			createButton.setIconStyle("sense-btn-icon-loading");
+			cancelButton.disable();
+		} else {
+			createButton.setIconStyle("sense-btn-icon-go");
+			cancelButton.enable();
+		}
+	}
 
 }

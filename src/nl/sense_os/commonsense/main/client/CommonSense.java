@@ -3,12 +3,11 @@ package nl.sense_os.commonsense.main.client;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.constant.Constants;
-import nl.sense_os.commonsense.common.client.constant.Keys;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
+import nl.sense_os.commonsense.common.client.model.ExtUser;
 import nl.sense_os.commonsense.common.client.model.TestData;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.common.client.model.ExtUser;
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateEvents;
 import nl.sense_os.commonsense.main.client.demo.DemoController;
@@ -171,7 +170,7 @@ public class CommonSense implements EntryPoint {
 		Runnable onLoadCallback = new Runnable() {
 
 			public void run() {
-				Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+				Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
 
 					@Override
 					public void run() {
@@ -207,7 +206,7 @@ public class CommonSense implements EntryPoint {
 
 		initControllers();
 
-		Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
 
 			@Override
 			public void run() {
@@ -219,7 +218,7 @@ public class CommonSense implements EntryPoint {
 	private void testMapViz() {
 		LOG.config("Test map visualization...");
 
-		Maps.loadMapsApi(Keys.MAPS_KEY, "2", false, new Runnable() {
+		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
 
 			@Override
 			public void run() {

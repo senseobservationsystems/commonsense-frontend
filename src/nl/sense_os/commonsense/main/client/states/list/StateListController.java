@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.ExtServiceMethod;
@@ -311,7 +310,8 @@ public class StateListController extends Controller {
 
 		// get details from library
 		List<ExtSensor> result = new ArrayList<ExtSensor>();
-		List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : sensors) {
 			int index = -1;
 			for (ExtSensor libSensor : library) {
@@ -395,7 +395,8 @@ public class StateListController extends Controller {
 			sensors = responseJso.getRawSensors();
 		}
 
-		ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
+		ExtUser user = Registry
+				.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 		List<ExtSensor> states = new ArrayList<ExtSensor>();
 		for (int i = 0; i < sensors.length(); i++) {
 			ExtSensor sensor = new ExtSensor(sensors.get(i));

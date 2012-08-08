@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvironmentsResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Environment;
 import nl.sense_os.commonsense.common.client.model.ExtEnvironment;
@@ -120,7 +119,9 @@ public class EnvController extends Controller {
 	protected void initialize() {
 		super.initialize();
 		grid = new EnvGrid(this);
-		Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<ExtEnvironment>());
+		Registry.register(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST,
+				new ArrayList<ExtEnvironment>());
 	}
 
 	private void onDeleteFailure() {
@@ -130,7 +131,8 @@ public class EnvController extends Controller {
 	private void onDeleteSuccess(ExtEnvironment environment) {
 
 		// update sensor library
-		List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry
+				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : library) {
 			if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
 				sensor.setEnvironment(null);
@@ -138,7 +140,9 @@ public class EnvController extends Controller {
 		}
 
 		// update global environment list
-		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).remove(environment);
+		Registry.<List<ExtEnvironment>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).remove(
+				environment);
 
 		Dispatcher.forwardEvent(EnvEvents.DeleteSuccess);
 	}
@@ -164,7 +168,9 @@ public class EnvController extends Controller {
 			extEnvironments.add(new ExtEnvironment(e));
 		}
 
-		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).addAll(extEnvironments);
+		Registry.<List<ExtEnvironment>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).addAll(
+				extEnvironments);
 
 		forwardToView(grid, new AppEvent(EnvEvents.Done));
 		Dispatcher.forwardEvent(EnvEvents.ListUpdated);
@@ -176,7 +182,8 @@ public class EnvController extends Controller {
 	private void requestList(final AsyncCallback<List<ExtEnvironment>> callback) {
 
 		forwardToView(grid, new AppEvent(EnvEvents.Working));
-		Registry.<List<ExtEnvironment>> get(Constants.REG_ENVIRONMENT_LIST).clear();
+		Registry.<List<ExtEnvironment>> get(
+				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).clear();
 
 		// prepare request properties
 		final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_ENV + ".json")

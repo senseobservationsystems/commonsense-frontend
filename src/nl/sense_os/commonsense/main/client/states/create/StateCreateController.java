@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponse;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
 import nl.sense_os.commonsense.common.client.model.ExtService;
@@ -216,7 +215,8 @@ public class StateCreateController extends Controller {
 	private void loadSensors() {
 		isLoadingSensors = true;
 
-		List<ExtSensor> sensors = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> sensors = Registry
+				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		if (null == sensors) {
 			Dispatcher.forwardEvent(LibraryEvents.LoadRequest);
 			return;

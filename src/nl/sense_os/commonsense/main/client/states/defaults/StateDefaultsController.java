@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Constants;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.ExtDevice;
 import nl.sense_os.commonsense.common.client.model.ExtSensor;
@@ -42,7 +41,8 @@ public class StateDefaultsController extends Controller {
 
 		// prepare body
 		String body = "{\"sensors\":[";
-		List<ExtSensor> sensors = Registry.get(Constants.REG_SENSOR_LIST);
+		List<ExtSensor> sensors = Registry
+				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : sensors) {
 			ExtDevice sensorDevice = sensor.getDevice();
 			if (sensorDevice != null && devices.contains(sensorDevice)) {
