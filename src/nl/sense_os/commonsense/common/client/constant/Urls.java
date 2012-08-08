@@ -1,7 +1,13 @@
 package nl.sense_os.commonsense.common.client.constant;
 
+import nl.sense_os.commonsense.common.client.communication.CommonSense;
 import nl.sense_os.commonsense.common.client.util.Constants;
 
+/**
+ * Contains URLs and other constants for use in communication with the CommonSense API.
+ * 
+ * @deprecated Use {@link CommonSense} class for communication with CommonSense
+ */
 public class Urls {
 
 	private static final String _STABLE_BASE = "common.sense-os.nl/api";
