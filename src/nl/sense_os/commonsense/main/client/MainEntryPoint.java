@@ -61,9 +61,9 @@ import com.google.gwt.visualization.client.visualizations.AnnotatedTimeLine;
  * Entry point for the CommonSense web application. Initializes services, prepares the MVC
  * framework, and dispatches the first events to show the application.
  */
-public class CommonSense implements EntryPoint {
+public class MainEntryPoint implements EntryPoint {
 
-	private static final Logger LOG = Logger.getLogger(CommonSense.class.getName());
+	private static final Logger LOG = Logger.getLogger(MainEntryPoint.class.getName());
 
 	public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
 	public static final boolean HACK_TEST_NAVBAR = Constants.ALLOW_HACKS && false;

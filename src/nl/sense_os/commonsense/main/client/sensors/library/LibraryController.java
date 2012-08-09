@@ -12,7 +12,7 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSenso
 import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.Service;
-import nl.sense_os.commonsense.main.client.CommonSense;
+import nl.sense_os.commonsense.main.client.MainEntryPoint;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
@@ -358,7 +358,7 @@ public class LibraryController extends Controller {
 			getGroupSensors(groups, index, page, library, callback);
 
 		} else {
-			if (!CommonSense.HACK_SKIP_LIB_DETAILS && groupSensors.length() > 0) {
+			if (!MainEntryPoint.HACK_SKIP_LIB_DETAILS && groupSensors.length() > 0) {
 				// get available services from the group sensors
 				getAvailableServices(0, "" + group.getId());
 			}
@@ -490,7 +490,7 @@ public class LibraryController extends Controller {
 
 		} else {
 			// request full details for my own sensors
-			if (!CommonSense.HACK_SKIP_LIB_DETAILS) {
+			if (!MainEntryPoint.HACK_SKIP_LIB_DETAILS) {
 				getAvailableServices(0, null);
 			}
 
