@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.login.client.main.component;
+package nl.sense_os.commonsense.login.client.application.component;
 
 import nl.sense_os.commonsense.common.client.resource.CSResources;
 import nl.sense_os.commonsense.common.client.util.Constants;

@@ -2,7 +2,7 @@
 <ui:UiBinder
 	xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
-	xmlns:my="urn:import:nl.sense_os.commonsense.login.client.main.component"
+	xmlns:my="urn:import:nl.sense_os.commonsense.login.client.application.component"
 	xmlns:common="urn:import:nl.sense_os.commonsense.common.client.component">
 	<ui:style>
 		.outer {

@@ -14,10 +14,10 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client;
 
+import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordView;
 import nl.sense_os.commonsense.login.client.login.LoginView;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorView;
-import nl.sense_os.commonsense.login.client.main.MainView;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordView;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectView;
 
@@ -39,7 +39,7 @@ public interface LoginClientFactory {
 
 	LoginView getLoginView();
 
-	MainView getMainView();
+	LoginApplicationView getMainView();
 
 	NewPasswordView getNewPasswordView();
 

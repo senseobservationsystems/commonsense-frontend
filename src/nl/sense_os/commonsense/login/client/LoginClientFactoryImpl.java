@@ -14,14 +14,14 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client;
 
+import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
+import nl.sense_os.commonsense.login.client.application.LoginApplicationViewImpl;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordView;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordViewImpl;
 import nl.sense_os.commonsense.login.client.login.LoginView;
 import nl.sense_os.commonsense.login.client.login.LoginViewImpl;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorView;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorViewImpl;
-import nl.sense_os.commonsense.login.client.main.MainView;
-import nl.sense_os.commonsense.login.client.main.MainViewImpl;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordView;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordViewImpl;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectView;
@@ -38,7 +38,7 @@ public class LoginClientFactoryImpl implements LoginClientFactory {
 	private static final LoginView login = new LoginViewImpl();
 	private static final NewPasswordViewImpl newPassword = new NewPasswordViewImpl();
 	private static final ForgotPasswordViewImpl forgotPassword = new ForgotPasswordViewImpl();
-	private static final MainViewImpl main = new MainViewImpl();
+	private static final LoginApplicationViewImpl main = new LoginApplicationViewImpl();
 	private static final LoginErrorView loginError = new LoginErrorViewImpl();
 	private static final OpenIdConnectViewImpl openIdConnect = new OpenIdConnectViewImpl();
 
@@ -63,7 +63,7 @@ public class LoginClientFactoryImpl implements LoginClientFactory {
 	}
 
 	@Override
-	public MainView getMainView() {
+	public LoginApplicationView getMainView() {
 		return main;
 	}
 

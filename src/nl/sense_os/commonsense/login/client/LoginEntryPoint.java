@@ -19,9 +19,9 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
-import nl.sense_os.commonsense.login.client.main.MainView;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
 
 import com.google.gwt.activity.shared.ActivityManager;
@@ -112,7 +112,7 @@ public class LoginEntryPoint implements EntryPoint {
 		PlaceController placeController = clientFactory.getPlaceController();
 
 		// prepare UI
-		MainView main = clientFactory.getMainView();
+		LoginApplicationView main = clientFactory.getMainView();
 		SimplePanel appWidget = main.getActivityPanel();
 
 		// Start ActivityManager for the main widget with our ActivityMapper
