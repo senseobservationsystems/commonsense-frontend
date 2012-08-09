@@ -19,7 +19,7 @@ public class SenseIconProvider<M extends TreeModel> implements ModelIconProvider
 
 	private static final Logger LOGGER = Logger.getLogger(SenseIconProvider.class.getName());
 
-	public static final String GXT_ICONS_PATH = "ExtGWT/images/gxt/icons/";
+	public static final String GXT_ICONS_PATH = "commonsense/ExtGWT/images/gxt/icons/";
 	public static final String SENSE_ICONS_PATH = "img/icons/16/";
 
 	public static final AbstractImagePrototype ICON_DEVICE = IconHelper.create(SENSE_ICONS_PATH
