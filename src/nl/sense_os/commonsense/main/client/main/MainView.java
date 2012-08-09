@@ -2,7 +2,8 @@ package nl.sense_os.commonsense.main.client.main;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.resource.CSResources;
+import nl.sense_os.commonsense.common.client.component.FooterBar;
+import nl.sense_os.commonsense.main.client.application.component.MainNavigationBar;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
@@ -29,8 +30,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class MainView extends View {
@@ -38,7 +37,7 @@ public class MainView extends View {
 	private static final Logger LOGGER = Logger.getLogger(MainView.class.getName());
 	private LayoutContainer centerContent;
 	private Component helpComponent;
-	private NavPanel navPanel;
+	private MainNavigationBar navPanel;
 	// private Viewport viewport;
 	private LayoutContainer westContent;
 	private LayoutContainer appWidget;
@@ -123,23 +122,17 @@ public class MainView extends View {
 
 	private void initNorth() {
 
-		navPanel = new NavPanel();
+		navPanel = new MainNavigationBar();
 
-		BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, NavPanel.HEIGHT);
+		BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 30);
 		northData.setMargins(new Margins(0));
 		northData.setSplit(false);
 		appWidget.add(navPanel, northData);
 	}
 
 	private void initSouth() {
-		LayoutContainer footer = new LayoutContainer(new CenterLayout());
-		String copyright = "&copy;2011 Sense";
-		String bullet = "&nbsp;&nbsp;&#8226;&nbsp;&nbsp;";
-		Anchor website = new Anchor("Sense Home", "http://www.sense-os.nl", "_blank");
-		String update = "Last update: " + CSResources.INSTANCE.lastUpdated().getText();
-		HTML footerLink = new HTML(copyright + bullet + website.toString() + bullet + update);
-		footer.add(footerLink);
-		footer.setId("footer-bar");
+
+		FooterBar footer = new FooterBar();
 
 		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 23);
 		southData.setMargins(new Margins(0));
@@ -167,8 +160,7 @@ public class MainView extends View {
 
 	private void onLoggedIn(AppEvent event) {
 		final ExtUser user = event.<ExtUser> getData();
-		this.navPanel.setUser(user);
-		this.navPanel.setLoggedIn(true);
+		this.navPanel.setUserLabel(user.getUsername());
 	}
 
 	private void onNavigate(AppEvent event) {
@@ -247,9 +239,6 @@ public class MainView extends View {
 			this.centerContent.add(newContent);
 			this.centerContent.layout();
 		}
-
-		// update navigation panel
-		this.navPanel.setHighlight(location);
 	}
 
 	private void onUiReady(AppEvent event) {
