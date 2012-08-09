@@ -93,6 +93,7 @@
 		field="res" />
 	<g:FlowPanel styleName="{style.navBar}">
 		<g:Image
+		    ui:field="logo"
 			styleName="{style.logo}"
 			resource='{res.logoSense}' />
 		<g:SimplePanel styleName="{style.login} {style.menuItem} {style.link} {style.active}">
