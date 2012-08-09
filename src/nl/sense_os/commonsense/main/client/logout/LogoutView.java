@@ -12,39 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.forgotpassword;
+package nl.sense_os.commonsense.main.client.logout;
 
-import com.google.gwt.place.shared.Place;
-import com.google.gwt.place.shared.PlaceTokenizer;
-import com.google.gwt.place.shared.Prefix;
+import com.google.gwt.user.client.ui.IsWidget;
 
-public class ForgotPasswordPlace extends Place {
+/**
+ * View base interface. Extends IsWidget so a view impl can easily provide its container widget.
+ */
+public interface LogoutView extends IsWidget {
 
-	@Prefix("forgotpassword")
-	public static class Tokenizer implements PlaceTokenizer<ForgotPasswordPlace> {
+	public interface Presenter {
 
-		@Override
-		public ForgotPasswordPlace getPlace(String token) {
-			return new ForgotPasswordPlace(token);
-		}
-
-		@Override
-		public String getToken(ForgotPasswordPlace place) {
-			return place.getToken();
-		}
 	}
 
-	private String token;
-
-	public ForgotPasswordPlace() {
-		this("");
-	}
-
-	public ForgotPasswordPlace(String token) {
-		this.token = token;
-	}
-
-	public String getToken() {
-		return this.token != null ? token : "";
-	}
+	void setPresenter(Presenter presenter);
 }

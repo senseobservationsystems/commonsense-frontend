@@ -39,6 +39,10 @@ public class LoginPlace extends Place {
 
 	private String token;
 
+	public LoginPlace() {
+		this("");
+	}
+
 	public LoginPlace(String token) {
 		this.token = token;
 	}

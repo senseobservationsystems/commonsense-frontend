@@ -1,5 +1,6 @@
 package nl.sense_os.commonsense.main.client;
 
+import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
 import nl.sense_os.commonsense.main.client.sensors.SensorsPlace;
 
 import com.google.gwt.place.shared.PlaceHistoryMapper;
@@ -11,7 +12,7 @@ import com.google.gwt.place.shared.WithTokenizers;
  * aware of. This is done via the @WithTokenizers annotation or by extending
  * {@link PlaceHistoryMapperWithFactory} and creating a separate TokenizerFactory.
  */
-@WithTokenizers(SensorsPlace.Tokenizer.class)
+@WithTokenizers({ SensorsPlace.Tokenizer.class, LogoutPlace.Tokenizer.class })
 public interface MainPlaceHistoryMapper extends PlaceHistoryMapper {
 
 }

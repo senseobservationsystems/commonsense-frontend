@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.main.client;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
+import nl.sense_os.commonsense.main.client.logout.LogoutView;
 
 /**
  * ClientFactory helpful to use a factory or dependency injection framework like GIN to obtain
@@ -13,4 +14,5 @@ public interface MainClientFactory {
 	EventBus getEventBus();
 
 	PlaceController getPlaceController();
+	public LogoutView getLogoutView();
 }

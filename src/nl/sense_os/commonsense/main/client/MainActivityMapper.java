@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.main.client;
 
+import nl.sense_os.commonsense.main.client.logout.LogoutActivity;
+import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
 import nl.sense_os.commonsense.main.client.sensors.SensorsActivity;
 import nl.sense_os.commonsense.main.client.sensors.SensorsPlace;
 
@@ -19,6 +21,8 @@ public class MainActivityMapper implements ActivityMapper {
 	public Activity getActivity(Place place) {
 		if (place instanceof SensorsPlace) {
 			return new SensorsActivity((SensorsPlace) place, clientFactory);
+		} else if (place instanceof LogoutPlace) {
+			return new LogoutActivity((LogoutPlace) place, clientFactory);
 		}
 		return null;
 	}

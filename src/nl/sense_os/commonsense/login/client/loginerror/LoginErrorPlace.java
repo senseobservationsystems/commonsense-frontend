@@ -39,6 +39,10 @@ public class LoginErrorPlace extends Place {
 
 	private String token;
 
+	public LoginErrorPlace() {
+		this("");
+	}
+
 	public LoginErrorPlace(String token) {
 		this.token = token;
 	}

@@ -25,6 +25,10 @@ public class SensorsPlace extends Place {
 
 	private String token;
 
+	public SensorsPlace() {
+		this("");
+	}
+
 	public SensorsPlace(String token) {
 		this.token = token;
 	}

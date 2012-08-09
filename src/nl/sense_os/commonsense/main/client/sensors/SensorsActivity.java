@@ -7,7 +7,9 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class SensorsActivity extends AbstractActivity {
-
+	/**
+	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
+	 */
 	private final MainClientFactory clientFactory;
 	private final SensorsPlace place;
 

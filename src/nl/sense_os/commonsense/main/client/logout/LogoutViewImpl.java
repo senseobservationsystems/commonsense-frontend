@@ -12,39 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.forgotpassword;
+package nl.sense_os.commonsense.main.client.logout;
 
-import com.google.gwt.place.shared.Place;
-import com.google.gwt.place.shared.PlaceTokenizer;
-import com.google.gwt.place.shared.Prefix;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Widget;
 
-public class ForgotPasswordPlace extends Place {
+/**
+ * Sample implementation of {@link LogoutView}.
+ */
+public class LogoutViewImpl extends Composite implements LogoutView {
 
-	@Prefix("forgotpassword")
-	public static class Tokenizer implements PlaceTokenizer<ForgotPasswordPlace> {
-
-		@Override
-		public ForgotPasswordPlace getPlace(String token) {
-			return new ForgotPasswordPlace(token);
-		}
-
-		@Override
-		public String getToken(ForgotPasswordPlace place) {
-			return place.getToken();
-		}
+	interface Binder extends UiBinder<Widget, LogoutViewImpl> {
 	}
 
-	private String token;
+	private static final Binder binder = GWT.create(Binder.class);
 
-	public ForgotPasswordPlace() {
-		this("");
+	public LogoutViewImpl() {
+		initWidget(binder.createAndBindUi(this));
 	}
 
-	public ForgotPasswordPlace(String token) {
-		this.token = token;
-	}
-
-	public String getToken() {
-		return this.token != null ? token : "";
+	@Override
+	public void setPresenter(Presenter listener) {
+		// not used
 	}
 }
