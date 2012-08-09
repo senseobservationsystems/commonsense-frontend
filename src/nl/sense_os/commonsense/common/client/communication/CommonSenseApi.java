@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.common.client.util.Md5Hasher;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
@@ -17,13 +17,11 @@ import com.google.gwt.user.client.Window.Location;
 public class CommonSenseApi {
 
 	private static class Urls {
-		private static final boolean IS_LIVE = GWT.getModuleBaseURL()
-				.contains("common.sense-os.nl");
-		private static final boolean IS_RC = GWT.getModuleBaseURL().contains("rc.sense-os.nl");
-		private static final boolean IS_DEV = GWT.getModuleBaseURL().contains("dev.sense-os.nl");
-		private static final String PATH_PREFIX = IS_LIVE || IS_RC || IS_DEV ? "api/" : "";
-		public static final String HOST = IS_LIVE ? "common.sense-os.nl" : IS_RC ? "rc.sense-os.nl"
-				: IS_DEV ? "dev.sense-os.nl" : "api.sense-os.nl";
+		private static final String PATH_PREFIX = Constants.STABLE_MODE || Constants.RC_MODE
+				|| Constants.DEV_MODE ? "api/" : "";
+		public static final String HOST = Constants.STABLE_MODE ? "common.sense-os.nl"
+				: Constants.RC_MODE ? "rc.sense-os.nl" : Constants.DEV_MODE ? "dev.sense-os.nl"
+						: "api.sense-os.nl";
 		public static final String PROTOCOL = "http";
 		public static final String PATH_SENSORS = PATH_PREFIX + "sensors";
 		public static final String PATH_AVAIL_SERVICES = PATH_PREFIX + "sensors/services/available";
