@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
 import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
-import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -19,8 +18,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -28,7 +25,7 @@ import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window.Location;
 
-public class MainController extends Controller implements ValueChangeHandler<String> {
+public class MainController extends Controller {
 
 	private static final Logger LOG = Logger.getLogger(MainController.class.getName());
 
@@ -58,7 +55,7 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 
 	public MainController() {
 		registerEventTypes(MainEvents.Error, MainEvents.Init, MainEvents.UiReady,
-				MainEvents.RequestLogout, MainEvents.LoggedIn);
+				MainEvents.LoggedIn);
 	}
 
 	/**
@@ -103,9 +100,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 			forwardToView(mainView, event);
 			onUiReady();
 
-		} else if (type.equals(MainEvents.RequestLogout)) {
-			logout();
-
 		} else if (type.equals(MainEvents.LoggedIn)) {
 			forwardToView(mainView, event);
 
@@ -149,68 +143,18 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 	@Override
 	protected void initialize() {
 		mainView = new MainView(this);
-
-		History.addValueChangeHandler(this);
-
 		super.initialize();
-	}
-
-	private boolean isLoginRequired(String token) {
-		boolean loginRequired = token.equals(NavPanel.VISUALIZATION);
-		return loginRequired;
-	}
-
-	private boolean isValidLocation(String token) {
-		boolean valid = token.equals(NavPanel.SIGN_OUT);
-		valid = valid || token.equals(NavPanel.HELP);
-		valid = valid || token.equals(NavPanel.VISUALIZATION);
-		return valid;
-	}
-
-	private void logout() {
-		LOG.finest("Log out");
-		RequestCallback callback = new RequestCallback() {
-
-			@Override
-			public void onError(Request request, Throwable exception) {
-				onLogoutError(-1, exception);
-			}
-
-			@Override
-			public void onResponseReceived(Request request, Response response) {
-				if (response.getStatusCode() == Response.SC_OK) {
-					onLoggedOut();
-				} else {
-					onLogoutError(response.getStatusCode(), new Throwable(response.getStatusText()));
-				}
-			}
-		};
-		CommonSenseApi.logout(callback);
 	}
 
 	private void onCurrentUser(ExtUser user) {
 
 		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, user);
 		Dispatcher.forwardEvent(new AppEvent(MainEvents.LoggedIn, user));
-
-		History.newItem(NavPanel.VISUALIZATION);
-		History.fireCurrentHistoryState();
-	}
-
-	private void onLoggedOut() {
-		SessionManager.removeSessionId();
-		goToLoginPage();
 	}
 
 	private void onLoginFailure(int i) {
 		LOG.warning("Login failure: " + i);
 		goToLoginPage();
-	}
-
-	private void onLogoutError(int code, Throwable error) {
-		// TODO Handle logout failure
-		LOG.warning("Logout failure! Code: " + code + " " + error);
-		onLoggedOut();
 	}
 
 	private void onUiReady() {
@@ -221,29 +165,6 @@ public class MainController extends Controller implements ValueChangeHandler<Str
 		} else {
 			handleStartLocation();
 		}
-	}
-
-	@Override
-	public void onValueChange(ValueChangeEvent<String> event) {
-		String token = event.getValue();
-		LOG.info("History value change: " + token);
-		if (token.equals("") || false == isValidLocation(token)) {
-			History.newItem(NavPanel.VISUALIZATION);
-			History.fireCurrentHistoryState();
-			return;
-		}
-
-		if (isLoginRequired(token) && null == SessionManager.getSessionId()) {
-			LOG.warning("Not signed in: refusing new history token " + token);
-			goToLoginPage();
-			return;
-		}
-
-		AppEvent navEvent = new AppEvent(MainEvents.Navigate);
-		navEvent.setData("old", currentToken);
-		navEvent.setData("new", token);
-		currentToken = token;
-		forwardToView(mainView, navEvent);
 	}
 
 	private void parseUserReponse(String response) {

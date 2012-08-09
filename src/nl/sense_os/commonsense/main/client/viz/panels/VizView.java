@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 import nl.sense_os.commonsense.main.client.viz.data.DataRequestEvent;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 
 public abstract class VizView extends View {
@@ -53,7 +52,6 @@ public abstract class VizView extends View {
 
 	public VizView(Controller c) {
 		super(c);
-		// LOG.setLevel(Level.ALL);
 	}
 
 	protected abstract void onRefresh();
@@ -136,7 +134,7 @@ public abstract class VizView extends View {
 	protected void initialize() {
 		super.initialize();
 
-		tabPanel = Registry.get(nl.sense_os.commonsense.common.client.util.Constants.REG_VIZPANEL);
+		tabPanel = Registry.get(Constants.REG_VIZPANEL);
 		if (tabPanel == null) {
 			LOG.severe("Cannot find main visualization panel!");
 			return;
@@ -187,11 +185,7 @@ public abstract class VizView extends View {
 			long start, long end, boolean subsample) {
 		LOG.fine("Refresh data...");
 
-		// don't refresh when the user has left the visualization section of the app
-		if (!History.getToken().equals(NavPanel.VISUALIZATION)) {
-			LOG.fine("Did not refresh because the current history token is: " + History.getToken());
-			return;
-		}
+		// TODO don't refresh when the user has left the visualization section of the app
 
 		if (null != sensors) {
 

@@ -7,8 +7,6 @@ import nl.sense_os.commonsense.main.client.application.component.MainNavigationB
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
-import nl.sense_os.commonsense.main.client.main.components.HelpScreen;
-import nl.sense_os.commonsense.main.client.main.components.NavPanel;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.main.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
@@ -21,14 +19,11 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -36,9 +31,7 @@ public class MainView extends View {
 
 	private static final Logger LOGGER = Logger.getLogger(MainView.class.getName());
 	private LayoutContainer centerContent;
-	private Component helpComponent;
 	private MainNavigationBar navPanel;
-	// private Viewport viewport;
 	private LayoutContainer westContent;
 	private LayoutContainer appWidget;
 
@@ -62,10 +55,6 @@ public class MainView extends View {
 			LOGGER.finest("UiReady");
 			onUiReady(event);
 
-		} else if (type.equals(MainEvents.Navigate)) {
-			LOGGER.finest("Navigate: \'" + event.<String> getData() + "\'");
-			onNavigate(event);
-
 		} else if (type.equals(MainEvents.LoggedIn)) {
 			LOGGER.finest("LoggedIn");
 			onLoggedIn(event);
@@ -76,30 +65,12 @@ public class MainView extends View {
 	}
 
 	private void initCenter() {
-		// LayoutContainer center = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
-		// center.setScrollMode(Scroll.AUTOY);
-		// center.setBorders(false);
-		//
-		// // banner
-		// final Text bannerText = new Text("CommonSense");
-		// bannerText.setId("banner-text");
-		// final LayoutContainer bannerContainer = new LayoutContainer(new CenterLayout());
-		// bannerContainer.setId("banner-container");
-		// bannerContainer.setSize(728, 90);
-		// bannerContainer.add(bannerText);
-		// final LayoutContainer banner = new LayoutContainer(new CenterLayout());
-		// banner.setId("banner");
-		// banner.add(bannerContainer);
-		// banner.setHeight(90);
-		// center.add(banner, new RowData(1, -1, new Margins(0)));
 
 		this.centerContent = new LayoutContainer(new FitLayout());
 		this.centerContent.setId("center-content");
-		// center.add(this.centerContent, new RowData(1, 1, new Margins(10, 0, 0, 0)));
 
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setMargins(new Margins(10));
-		// this.viewport.add(center, centerData);
 		appWidget.add(this.centerContent, centerData);
 	}
 
@@ -163,82 +134,39 @@ public class MainView extends View {
 		this.navPanel.setUserLabel(user.getUsername());
 	}
 
-	private void onNavigate(AppEvent event) {
-		String location = event.<String> getData("new");
-		String oldLocation = event.<String> getData("old");
-		if (location.equals(oldLocation)) {
-			return;
-		}
+	private void showContent() {
 
-		// select the new center content
-		Component newContent = null;
-		if (null != location) {
-			if (location.equals(NavPanel.VISUALIZATION)) {
+		this.centerContent.removeAll();
 
-				this.centerContent.removeAll();
+		// set up west panel layout
+		this.westContent.removeAll();
+		this.westContent.setLayout(new AccordionLayout());
+		this.westContent.show();
 
-				// set up west panel layout
-				this.westContent.removeAll();
-				this.westContent.setLayout(new AccordionLayout());
-				this.westContent.show();
+		// sensor library panel
+		AppEvent displaySensorGrid = new AppEvent(LibraryEvents.ShowLibrary);
+		displaySensorGrid.setData("parent", this.westContent);
+		Dispatcher.forwardEvent(displaySensorGrid);
 
-				// sensor library panel
-				AppEvent displaySensorGrid = new AppEvent(LibraryEvents.ShowLibrary);
-				displaySensorGrid.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displaySensorGrid);
+		// groups panel
+		AppEvent displayGroups = new AppEvent(GroupEvents.ShowGrid);
+		displayGroups.setData("parent", this.westContent);
+		Dispatcher.forwardEvent(displayGroups);
 
-				// groups panel
-				AppEvent displayGroups = new AppEvent(GroupEvents.ShowGrid);
-				displayGroups.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displayGroups);
+		// states panel
+		AppEvent displayStates = new AppEvent(StateListEvents.ShowGrid);
+		displayStates.setData("parent", this.westContent);
+		Dispatcher.forwardEvent(displayStates);
 
-				// states panel
-				AppEvent displayStates = new AppEvent(StateListEvents.ShowGrid);
-				displayStates.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displayStates);
+		// environments panel
+		AppEvent displayEnvironments = new AppEvent(EnvEvents.ShowGrid);
+		displayEnvironments.setData("parent", this.westContent);
+		Dispatcher.forwardEvent(displayEnvironments);
 
-				// environments panel
-				AppEvent displayEnvironments = new AppEvent(EnvEvents.ShowGrid);
-				displayEnvironments.setData("parent", this.westContent);
-				Dispatcher.forwardEvent(displayEnvironments);
-
-				// visualizations panel
-				AppEvent displayVisualization = new AppEvent(VizEvents.Show);
-				displayVisualization.setData("parent", this.centerContent);
-				Dispatcher.forwardEvent(displayVisualization);
-
-			} else if (location.equals(NavPanel.HELP)) {
-				if (null == this.helpComponent) {
-					this.helpComponent = new HelpScreen();
-				}
-				newContent = this.helpComponent;
-
-				// set up west panel layout
-				this.westContent.removeAll();
-				this.westContent.hide();
-
-			} else if (location.equals(NavPanel.SIGN_OUT)) {
-				newContent = null;
-				Dispatcher.forwardEvent(MainEvents.RequestLogout);
-
-			} else {
-
-				// set up west panel layout
-				this.westContent.removeAll();
-				this.westContent.hide();
-
-				LayoutContainer lc = new LayoutContainer(new CenterLayout());
-				lc.add(new Text("Under construction..."));
-				newContent = lc;
-			}
-		}
-
-		// remove old center content
-		if (null != newContent) {
-			this.centerContent.removeAll();
-			this.centerContent.add(newContent);
-			this.centerContent.layout();
-		}
+		// visualizations panel
+		AppEvent displayVisualization = new AppEvent(VizEvents.Show);
+		displayVisualization.setData("parent", this.centerContent);
+		Dispatcher.forwardEvent(displayVisualization);
 	}
 
 	private void onUiReady(AppEvent event) {
@@ -252,5 +180,7 @@ public class MainView extends View {
 		viewport.add(appWidget);
 
 		RootPanel.get().add(viewport);
+
+		showContent();
 	}
 }
