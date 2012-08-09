@@ -1,5 +1,8 @@
 package nl.sense_os.commonsense.main.client.application;
 
+import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.application.component.MainNavigationBar;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -16,6 +19,8 @@ public class MainApplicationViewImpl extends Composite implements MainApplicatio
 
 	@UiField
 	SimplePanel appWidget;
+	@UiField
+	MainNavigationBar navBar;
 
 	public MainApplicationViewImpl() {
 		initWidget(uiBinder.createAndBindUi(this));
@@ -24,5 +29,10 @@ public class MainApplicationViewImpl extends Composite implements MainApplicatio
 	@Override
 	public SimplePanel getActivityPanel() {
 		return appWidget;
+	}
+
+	@Override
+	public void onCurrentUserChanged(CurrentUserChangedEvent event) {
+		navBar.setUserLabel(event.getUser().getUsername());
 	}
 }

@@ -19,7 +19,7 @@
 			styleName="{style.inner}"
 			unit="PX">
 			<g:north size="30">
-				<my:MainNavigationBar />
+				<my:MainNavigationBar ui:field="navBar" />
 			</g:north>
 			<g:south size="23">
 				<common:FooterBar />
