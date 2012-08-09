@@ -21,15 +21,20 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 
 	public MainApplicationViewGxt() {
 
-		LayoutContainer layoutContainer = new LayoutContainer();
-		layoutContainer.setLayout(new BorderLayout());
+		LayoutContainer wrapper = new LayoutContainer(new FitLayout());
+		wrapper.setStyleAttribute("background",
+				"url('commonsense/images/bgLeftBottom.png') no-repeat left bottom;");
+
+		LayoutContainer borderLayout = new LayoutContainer(new BorderLayout());
+		borderLayout.setStyleAttribute("background",
+				"url('commonsense/images/bgRightTop.png') no-repeat right top;");
 
 		LayoutContainer north = new LayoutContainer();
 		north.setLayout(new FitLayout());
 
 		mainNavigationBar = new MainNavigationBar();
 		north.add(mainNavigationBar);
-		layoutContainer.add(north, new BorderLayoutData(LayoutRegion.NORTH, 30.0f));
+		borderLayout.add(north, new BorderLayoutData(LayoutRegion.NORTH, 30.0f));
 		north.setBorders(true);
 
 		LayoutContainer south = new LayoutContainer();
@@ -37,24 +42,25 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 
 		FooterBar footerBar = new FooterBar();
 		south.add(footerBar);
-		layoutContainer.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
+		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
 		south.setBorders(true);
 
 		LayoutContainer east = new LayoutContainer();
 
 		simplePanel = new SimplePanel();
 		east.add(simplePanel);
-		layoutContainer.add(east, new BorderLayoutData(LayoutRegion.EAST, 0.0f));
+		borderLayout.add(east, new BorderLayoutData(LayoutRegion.EAST, 0.0f));
 		east.setBorders(true);
 
-		center = new LayoutContainer();
-		center.setLayout(new FitLayout());
+		center = new LayoutContainer(new FitLayout());
 
-		layoutContainer.add(center, new BorderLayoutData(LayoutRegion.CENTER));
+		borderLayout.add(center, new BorderLayoutData(LayoutRegion.CENTER));
 		center.setBorders(true);
 
-		initComponent(layoutContainer);
-		layoutContainer.setBorders(true);
+		wrapper.add(borderLayout);
+		borderLayout.setBorders(true);
+
+		initComponent(wrapper);
 	}
 
 	@Override

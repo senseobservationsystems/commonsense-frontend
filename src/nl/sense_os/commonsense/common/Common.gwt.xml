@@ -10,8 +10,8 @@
 	<inherits name='com.google.gwt.maps.GoogleMaps' />
 
 	<!-- External style sheets -->
-	<stylesheet src="css/sense.css" />
 	<stylesheet src="gwt/commonsense/commonsense.css" />
+	<stylesheet src="css/sense.css" />
 	<!-- Logging properties -->
 	<set-property
 		name="gwt.logging.enabled"

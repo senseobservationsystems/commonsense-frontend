@@ -26,13 +26,43 @@ public class SensorsViewImpl extends Composite implements SensorsView {
 
 	public SensorsViewImpl() {
 
-		container = new LayoutContainer();
-		container.setLayout(new BorderLayout());
+		container = new LayoutContainer(new BorderLayout());
 
 		initWest();
 		initCenter();
 
 		initComponent(container);
+	}
+
+	private void initCenter() {
+
+		this.centerContent = new LayoutContainer(new FitLayout());
+		this.centerContent.setId("center-content");
+
+		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+		centerData.setMargins(new Margins(10));
+		container.add(this.centerContent, centerData);
+	}
+
+	private void initWest() {
+
+		// real content
+		this.westContent = new LayoutContainer(new FitLayout());
+		this.westContent.setId("west-content");
+		this.westContent.setScrollMode(Scroll.AUTOY);
+
+		// add to viewport
+		final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
+		westData.setMargins(new Margins(10, 0, 10, 10));
+		westData.setSplit(true);
+		container.add(this.westContent, westData);
+	}
+
+	@Override
+	public void setPresenter(Presenter presenter) {
+		// not used
+
+		showContent();
 	}
 
 	private void showContent() {
@@ -68,36 +98,5 @@ public class SensorsViewImpl extends Composite implements SensorsView {
 		AppEvent displayVisualization = new AppEvent(VizEvents.Show);
 		displayVisualization.setData("parent", this.centerContent);
 		Dispatcher.forwardEvent(displayVisualization);
-	}
-
-	private void initCenter() {
-
-		this.centerContent = new LayoutContainer(new FitLayout());
-		this.centerContent.setId("center-content");
-
-		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-		centerData.setMargins(new Margins(10));
-		container.add(this.centerContent, centerData);
-	}
-
-	private void initWest() {
-
-		// real content
-		this.westContent = new LayoutContainer(new FitLayout());
-		this.westContent.setId("west-content");
-		this.westContent.setScrollMode(Scroll.AUTOY);
-
-		// add to viewport
-		final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
-		westData.setMargins(new Margins(10, 0, 10, 10));
-		westData.setSplit(true);
-		container.add(this.westContent, westData);
-	}
-
-	@Override
-	public void setPresenter(Presenter presenter) {
-		// not used
-
-		showContent();
 	}
 }

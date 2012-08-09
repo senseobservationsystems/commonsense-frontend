@@ -206,7 +206,11 @@
 }
 
 .transparent .x-tab-panel-body-top {
-	background-color: transparent !important;
+	background-color: transparent ! important;
+}
+
+.x-border-layout-ct {
+	background-color: transparent ! important;
 }
 
 .x-panel-body {
