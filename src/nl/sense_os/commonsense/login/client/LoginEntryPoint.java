@@ -16,7 +16,6 @@ package nl.sense_os.commonsense.login.client;
 
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
@@ -38,53 +37,10 @@ import com.google.web.bindery.event.shared.EventBus;
 
 public class LoginEntryPoint implements EntryPoint {
 
-	private static final Logger LOG = Logger.getLogger(LoginEntryPoint.class.getName());
-
-	/**
-	 * Tries to get a session ID from either the URL parameters or from the domain cookies.
-	 * 
-	 * @return The session ID or null
-	 */
-	private String getAvailableSessionId() {
-
-		String sessionId = Location.getParameter("session_id");
-		if (null != sessionId && sessionId.length() > 0) {
-			LOG.info("Got session ID from URL parameter");
-			return sessionId;
-		}
-
-		sessionId = SessionManager.getSessionId();
-		if (null != sessionId && sessionId.length() > 0) {
-			LOG.info("Got session ID from cookie");
-			return sessionId;
-		}
-
-		return null;
-	}
-
-	/**
-	 * @return The value of the 'error' URL parameter, or null
-	 */
-	private String getErrorParameter() {
-		String error = Location.getParameter("error");
-		return error != null && error.length() > 0 ? error : null;
-	}
-
-	public void onModuleLoad() {
-
-		String sessionId = getAvailableSessionId();
-		if (null != sessionId) {
-			SessionManager.setSessionId(sessionId);
-			skipToMainPage();
-		} else {
-			startApplication();
-		}
-	}
-
 	/**
 	 * Redirects the user to the main page
 	 */
-	private void skipToMainPage() {
+	public static void goToMainPage() {
 		UrlBuilder builder = new UrlBuilder();
 		builder.setProtocol(Location.getProtocol());
 		builder.setHost(Location.getHost());
@@ -99,6 +55,24 @@ public class LoginEntryPoint implements EntryPoint {
 			}
 		}
 		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
+	}
+
+	/**
+	 * @return The value of the 'error' URL parameter, or null
+	 */
+	private String getErrorParameter() {
+		String error = Location.getParameter("error");
+		return error != null && error.length() > 0 ? error : null;
+	}
+
+	public void onModuleLoad() {
+
+		String sessionId = SessionManager.getSessionId();
+		if (null != sessionId) {
+			goToMainPage();
+		} else {
+			startApplication();
+		}
 	}
 
 	/**
@@ -123,7 +97,7 @@ public class LoginEntryPoint implements EntryPoint {
 		// Start PlaceHistoryHandler with our PlaceHistoryMapper
 		LoginPlaceHistoryMapper historyMapper = GWT.create(LoginPlaceHistoryMapper.class);
 		PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
-		historyHandler.register(placeController, eventBus, new LoginPlace(""));
+		historyHandler.register(placeController, eventBus, new LoginPlace());
 		RootLayoutPanel.get().add(main);
 
 		String errorMessage = getErrorParameter();

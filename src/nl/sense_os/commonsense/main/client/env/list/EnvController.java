@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.common.client.model.Environment;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -38,7 +37,6 @@ public class EnvController extends Controller {
 		// LOG.setLevel(Level.ALL);
 
 		// events to update the list of groups
-		registerEventTypes(MainEvents.Init);
 		registerEventTypes(VizEvents.Show);
 		registerEventTypes(EnvEvents.ShowGrid);
 

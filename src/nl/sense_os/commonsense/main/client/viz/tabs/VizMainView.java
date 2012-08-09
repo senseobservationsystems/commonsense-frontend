@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -35,10 +34,7 @@ public class VizMainView extends View {
 	protected void handleEvent(AppEvent event) {
 		final EventType type = event.getType();
 
-		if (type.equals(MainEvents.Init)) {
-			// do nothing, initialization is done in initialize()
-
-		} else if (type.equals(VizEvents.Show)) {
+		if (type.equals(VizEvents.Show)) {
 			LOG.finest("Show");
 			final LayoutContainer parent = event.<LayoutContainer> getData("parent");
 			showPanel(parent);

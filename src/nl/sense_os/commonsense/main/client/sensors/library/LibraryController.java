@@ -20,7 +20,6 @@ import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtService;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
@@ -57,7 +56,6 @@ public class LibraryController extends Controller {
 
 		// LOG.setLevel(Level.WARNING);
 
-		registerEventTypes(MainEvents.Init);
 		registerEventTypes(VizEvents.Show);
 
 		registerEventTypes(LibraryEvents.ShowLibrary, LibraryEvents.LoadRequest,

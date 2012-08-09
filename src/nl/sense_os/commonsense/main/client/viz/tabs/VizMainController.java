@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.main.client.viz.tabs;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.util.Constants;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.choice.VizTypeChooser;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -27,7 +26,6 @@ public class VizMainController extends Controller {
 	private boolean isVizApiLoaded;
 
 	public VizMainController() {
-		registerEventTypes(MainEvents.Init);
 
 		registerEventTypes(VizEvents.Show);
 		registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);

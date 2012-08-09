@@ -17,7 +17,9 @@ package nl.sense_os.commonsense.main.client.logout;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
+import nl.sense_os.commonsense.main.client.MainEntryPoint;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
@@ -79,8 +81,8 @@ public class LogoutActivity extends AbstractActivity implements LogoutView.Prese
 	 * Handles successful logout
 	 */
 	private void onLogoutSuccess() {
-		// TODO Auto-generated method stub
-
+		SessionManager.removeSessionId();
+		MainEntryPoint.goToLoginPage();
 	}
 
 	/**
@@ -99,6 +101,7 @@ public class LogoutActivity extends AbstractActivity implements LogoutView.Prese
 
 	@Override
 	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
+		LOG.info("Start 'logout' activity");
 
 		// show view
 		LogoutView view = clientFactory.getLogoutView();

@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.ext.util.SensorComparator;
 import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
@@ -142,10 +141,7 @@ public class StateGrid extends View {
 	protected void handleEvent(AppEvent event) {
 		EventType type = event.getType();
 
-		if (type.equals(MainEvents.Init)) {
-			// do nothing, initialization is done in initialize()
-
-		} else if (type.equals(StateListEvents.ShowGrid)) {
+		if (type.equals(StateListEvents.ShowGrid)) {
 			// LOG.fine( "ShowGrid");
 			final LayoutContainer parent = event.getData("parent");
 			showPanel(parent);
@@ -192,8 +188,8 @@ public class StateGrid extends View {
 		filter = new StoreFilterField<ExtSensor>() {
 
 			@Override
-			protected boolean doSelect(Store<ExtSensor> store, ExtSensor parent,
-					ExtSensor record, String property, String filter) {
+			protected boolean doSelect(Store<ExtSensor> store, ExtSensor parent, ExtSensor record,
+					String property, String filter) {
 				filter = filter.toLowerCase();
 				if (record.getName().toLowerCase().contains(filter)) {
 					return true;

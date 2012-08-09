@@ -14,7 +14,6 @@ import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.ext.util.TreeCopier;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
@@ -43,7 +42,6 @@ public class StateListController extends Controller {
 	private View tree;
 
 	public StateListController() {
-		registerEventTypes(MainEvents.Init);
 		registerEventTypes(VizEvents.Show);
 		registerEventTypes(StateListEvents.ShowGrid);
 

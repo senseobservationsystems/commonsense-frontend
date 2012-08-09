@@ -17,6 +17,7 @@ package nl.sense_os.commonsense.main.client.logout;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceTokenizer;
+import com.google.gwt.place.shared.Prefix;
 
 /**
  * A place object representing a particular state of the UI. A Place can be converted to and from a
@@ -29,6 +30,7 @@ public class LogoutPlace extends Place {
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
+	@Prefix("logout")
 	public static class Tokenizer implements PlaceTokenizer<LogoutPlace> {
 
 		@Override

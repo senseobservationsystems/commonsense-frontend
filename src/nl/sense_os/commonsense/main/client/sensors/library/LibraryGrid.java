@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
 import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
@@ -83,10 +82,7 @@ public class LibraryGrid extends View {
 	protected void handleEvent(AppEvent event) {
 		EventType type = event.getType();
 
-		if (type.equals(MainEvents.Init)) {
-			// do nothing, initialization is done in initialize()
-
-		} else if (type.equals(LibraryEvents.ShowLibrary)) {
+		if (type.equals(LibraryEvents.ShowLibrary)) {
 			LOG.finest("ShowLibrary");
 			final LayoutContainer parent = event.getData("parent");
 			showPanel(parent);
@@ -433,6 +429,7 @@ public class LibraryGrid extends View {
 	private void showPanel(LayoutContainer parent) {
 		if (null != parent) {
 			parent.add(panel);
+			parent.setSize("100%", "100%");
 			parent.layout();
 		} else {
 			LOG.severe("Failed to show my sensors panel: parent=null");

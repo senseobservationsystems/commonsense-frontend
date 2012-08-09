@@ -13,13 +13,25 @@ public class SessionManager {
 	private static final String KEY = "session_id";
 
 	/**
-	 * @return The session ID from the sense-os.nl cookie
+	 * Tries to get a session ID from either the URL parameters or from the domain cookies.
+	 * 
+	 * @return The session ID or null
 	 */
 	public static String getSessionId() {
+
+		// check session ID cookie
 		String sessionId = Cookies.getCookie(KEY);
-		if ("".equals(sessionId)) {
-			sessionId = null;
+
+		if ("".equals(sessionId) || null == sessionId) {
+
+			// check session ID parameter in the URL
+			sessionId = Location.getParameter("session_id");
+
+			if ("".equals(sessionId)) {
+				sessionId = null;
+			}
 		}
+
 		return sessionId;
 	}
 

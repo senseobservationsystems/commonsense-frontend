@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
-import nl.sense_os.commonsense.main.client.main.MainEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -81,10 +80,7 @@ public class EnvGrid extends View {
 	protected void handleEvent(AppEvent event) {
 		EventType type = event.getType();
 
-		if (type.equals(MainEvents.Init)) {
-			// do nothing, initialization is done in initialize()
-
-		} else if (type.equals(EnvEvents.ShowGrid)) {
+		if (type.equals(EnvEvents.ShowGrid)) {
 			// LOG.fine( "ShowGrid");
 			final LayoutContainer parent = event.getData("parent");
 			showPanel(parent);
@@ -121,8 +117,8 @@ public class EnvGrid extends View {
 		DataProxy<ListLoadResult<ExtEnvironment>> proxy = new DataProxy<ListLoadResult<ExtEnvironment>>() {
 
 			@Override
-			public void load(DataReader<ListLoadResult<ExtEnvironment>> reader,
-					Object loadConfig, AsyncCallback<ListLoadResult<ExtEnvironment>> callback) {
+			public void load(DataReader<ListLoadResult<ExtEnvironment>> reader, Object loadConfig,
+					AsyncCallback<ListLoadResult<ExtEnvironment>> callback) {
 
 				// only load when the panel is not collapsed
 				if (loadConfig instanceof ListLoadConfig) {
@@ -264,21 +260,20 @@ public class EnvGrid extends View {
 		// enable/disable buttons according to grid selection
 		GridSelectionModel<ExtEnvironment> selectionModel = new GridSelectionModel<ExtEnvironment>();
 		selectionModel.setSelectionMode(SelectionMode.SINGLE);
-		selectionModel
-				.addSelectionChangedListener(new SelectionChangedListener<ExtEnvironment>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtEnvironment>() {
 
-					@Override
-					public void selectionChanged(SelectionChangedEvent<ExtEnvironment> se) {
-						ExtEnvironment selection = se.getSelectedItem();
-						if (null != selection) {
-							deleteButton.enable();
-							viewButton.enable();
-						} else {
-							deleteButton.disable();
-							viewButton.disable();
-						}
-					}
-				});
+			@Override
+			public void selectionChanged(SelectionChangedEvent<ExtEnvironment> se) {
+				ExtEnvironment selection = se.getSelectedItem();
+				if (null != selection) {
+					deleteButton.enable();
+					viewButton.enable();
+				} else {
+					deleteButton.disable();
+					viewButton.disable();
+				}
+			}
+		});
 		grid.setSelectionModel(selectionModel);
 	}
 
