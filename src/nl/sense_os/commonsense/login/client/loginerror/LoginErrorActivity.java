@@ -14,9 +14,8 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.loginerror;
 
-import nl.sense_os.commonsense.login.client.ClientFactory;
-import nl.sense_os.commonsense.login.client.mvp.LoginErrorPlace;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
+import nl.sense_os.commonsense.login.client.LoginClientFactory;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
@@ -30,14 +29,14 @@ public class LoginErrorActivity extends AbstractActivity implements LoginErrorVi
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
 	/**
 	 * Error message
 	 */
 	private String message;
 
-	public LoginErrorActivity(LoginErrorPlace place, ClientFactory clientFactory) {
+	public LoginErrorActivity(LoginErrorPlace place, LoginClientFactory clientFactory) {
 		this.message = place.getToken();
 		this.clientFactory = clientFactory;
 	}

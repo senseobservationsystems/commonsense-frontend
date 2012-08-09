@@ -8,10 +8,10 @@
 	<!-- Other modules -->
 	<inherits name="nl.sense_os.commonsense.common.Common" />
 	<!-- Entry point -->
-	<entry-point class="nl.sense_os.commonsense.login.client.CommonSenseLogin" />
+	<entry-point class="nl.sense_os.commonsense.login.client.LoginEntryPoint" />
 	<!-- Define binding for ClientFactory -->
-	<replace-with class="nl.sense_os.commonsense.login.client.ClientFactoryImpl">
-		<when-type-is class="nl.sense_os.commonsense.login.client.ClientFactory" />
+	<replace-with class="nl.sense_os.commonsense.login.client.LoginClientFactoryImpl">
+		<when-type-is class="nl.sense_os.commonsense.login.client.LoginClientFactory" />
 	</replace-with>
 	<!-- Logging properties -->
 	<set-property

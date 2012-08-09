@@ -12,38 +12,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.mvp;
+package nl.sense_os.commonsense.login.client.forgotpassword;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
 
-public class LoginErrorPlace extends Place {
+public class ForgotPasswordPlace extends Place {
 
-	/**
-	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
-	 */
-	@Prefix("loginerror")
-	public static class Tokenizer implements PlaceTokenizer<LoginErrorPlace> {
+	@Prefix("forgotpassword")
+	public static class Tokenizer implements PlaceTokenizer<ForgotPasswordPlace> {
 
 		@Override
-		public LoginErrorPlace getPlace(String token) {
-			return new LoginErrorPlace(token);
+		public ForgotPasswordPlace getPlace(String token) {
+			return new ForgotPasswordPlace(token);
 		}
 
 		@Override
-		public String getToken(LoginErrorPlace place) {
+		public String getToken(ForgotPasswordPlace place) {
 			return place.getToken();
 		}
 	}
 
 	private String token;
 
-	public LoginErrorPlace(String token) {
+	public ForgotPasswordPlace(String token) {
 		this.token = token;
 	}
 
 	public String getToken() {
-		return token != null ? token : "";
+		return this.token != null ? token : "";
 	}
 }

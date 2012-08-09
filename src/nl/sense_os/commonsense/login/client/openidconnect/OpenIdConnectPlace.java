@@ -12,39 +12,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.mvp;
+package nl.sense_os.commonsense.login.client.openidconnect;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
 
-public class NewPasswordPlace extends Place {
+public class OpenIdConnectPlace extends Place {
 
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
-	@Prefix("newpassword")
-	public static class Tokenizer implements PlaceTokenizer<NewPasswordPlace> {
+	@Prefix("openidconnect")
+	public static class Tokenizer implements PlaceTokenizer<OpenIdConnectPlace> {
 
 		@Override
-		public NewPasswordPlace getPlace(String token) {
-			return new NewPasswordPlace(token);
+		public OpenIdConnectPlace getPlace(String token) {
+			return new OpenIdConnectPlace(token);
 		}
 
 		@Override
-		public String getToken(NewPasswordPlace place) {
-			return place.getToken();
+		public String getToken(OpenIdConnectPlace place) {
+			return place.getEmail();
 		}
 
 	}
 
-	private String token;
+	private String email;
 
-	public NewPasswordPlace(String token) {
-		this.token = token;
+	public OpenIdConnectPlace(String token) {
+		this.email = token;
 	}
 
-	public String getToken() {
-		return token != null ? token : "";
+	public String getEmail() {
+		return email != null ? email : "";
 	}
 }

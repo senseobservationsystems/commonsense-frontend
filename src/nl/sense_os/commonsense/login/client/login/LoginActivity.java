@@ -22,9 +22,8 @@ import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
-import nl.sense_os.commonsense.login.client.ClientFactory;
-import nl.sense_os.commonsense.login.client.mvp.ForgotPasswordPlace;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
+import nl.sense_os.commonsense.login.client.LoginClientFactory;
+import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.core.client.JsonUtils;
@@ -49,13 +48,13 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
 	private LoginView view;
 
 	private DialogBox alertDialog;
 
-	public LoginActivity(LoginPlace place, ClientFactory clientFactory) {
+	public LoginActivity(LoginPlace place, LoginClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 

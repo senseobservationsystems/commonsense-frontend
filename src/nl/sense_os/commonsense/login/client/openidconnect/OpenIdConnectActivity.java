@@ -17,9 +17,8 @@ package nl.sense_os.commonsense.login.client.openidconnect;
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
-import nl.sense_os.commonsense.login.client.ClientFactory;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
-import nl.sense_os.commonsense.login.client.mvp.OpenIdConnectPlace;
+import nl.sense_os.commonsense.login.client.LoginClientFactory;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.core.client.JsonUtils;
@@ -36,11 +35,11 @@ public class OpenIdConnectActivity extends AbstractActivity implements OpenIdCon
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
 	private String email;
 
-	public OpenIdConnectActivity(OpenIdConnectPlace place, ClientFactory clientFactory) {
+	public OpenIdConnectActivity(OpenIdConnectPlace place, LoginClientFactory clientFactory) {
 		this.email = place.getEmail();
 		this.clientFactory = clientFactory;
 	}

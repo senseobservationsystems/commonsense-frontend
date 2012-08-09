@@ -29,7 +29,7 @@ import com.google.web.bindery.event.shared.EventBus;
  * references to objects needed throughout your application like the {@link EventBus},
  * {@link PlaceController} and views.
  */
-public interface ClientFactory {
+public interface LoginClientFactory {
 
 	EventBus getEventBus();
 

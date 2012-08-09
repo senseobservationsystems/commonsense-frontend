@@ -18,9 +18,8 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
-import nl.sense_os.commonsense.login.client.ClientFactory;
-import nl.sense_os.commonsense.login.client.mvp.ForgotPasswordPlace;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
+import nl.sense_os.commonsense.login.client.LoginClientFactory;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
@@ -42,13 +41,13 @@ public class ForgotPasswordActivity extends AbstractActivity implements
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
 	private ForgotPasswordView view;
 	private DialogBox successDialog;
 	private DialogBox errorDialog;
 
-	public ForgotPasswordActivity(ForgotPasswordPlace place, ClientFactory clientFactory) {
+	public ForgotPasswordActivity(ForgotPasswordPlace place, LoginClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 

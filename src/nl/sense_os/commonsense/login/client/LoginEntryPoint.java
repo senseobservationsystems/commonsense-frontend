@@ -19,12 +19,10 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
+import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
 import nl.sense_os.commonsense.login.client.main.MainView;
-import nl.sense_os.commonsense.login.client.mvp.LoginActivityMapper;
-import nl.sense_os.commonsense.login.client.mvp.LoginErrorPlace;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlaceHistoryMapper;
-import nl.sense_os.commonsense.login.client.mvp.OpenIdConnectPlace;
+import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
 
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -38,9 +36,9 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
-public class CommonSenseLogin implements EntryPoint {
+public class LoginEntryPoint implements EntryPoint {
 
-	private static final Logger LOG = Logger.getLogger(CommonSenseLogin.class.getName());
+	private static final Logger LOG = Logger.getLogger(LoginEntryPoint.class.getName());
 
 	/**
 	 * Tries to get a session ID from either the URL parameters or from the domain cookies.
@@ -109,7 +107,7 @@ public class CommonSenseLogin implements EntryPoint {
 	private void startApplication() {
 
 		// Create ClientFactory using deferred binding
-		ClientFactory clientFactory = GWT.create(ClientFactory.class);
+		LoginClientFactory clientFactory = GWT.create(LoginClientFactory.class);
 		EventBus eventBus = clientFactory.getEventBus();
 		PlaceController placeController = clientFactory.getPlaceController();
 

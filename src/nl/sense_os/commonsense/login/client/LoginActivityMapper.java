@@ -12,14 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.mvp;
+package nl.sense_os.commonsense.login.client;
 
-import nl.sense_os.commonsense.login.client.ClientFactory;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordActivity;
+import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 import nl.sense_os.commonsense.login.client.login.LoginActivity;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorActivity;
+import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordActivity;
+import nl.sense_os.commonsense.login.client.newpassword.NewPasswordPlace;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectActivity;
+import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -27,9 +31,9 @@ import com.google.gwt.place.shared.Place;
 
 public class LoginActivityMapper implements ActivityMapper {
 
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
-	public LoginActivityMapper(ClientFactory clientFactory) {
+	public LoginActivityMapper(LoginClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 

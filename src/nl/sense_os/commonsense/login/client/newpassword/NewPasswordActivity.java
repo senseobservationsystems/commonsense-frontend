@@ -18,9 +18,8 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
-import nl.sense_os.commonsense.login.client.ClientFactory;
-import nl.sense_os.commonsense.login.client.mvp.LoginPlace;
-import nl.sense_os.commonsense.login.client.mvp.NewPasswordPlace;
+import nl.sense_os.commonsense.login.client.LoginClientFactory;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
@@ -39,7 +38,7 @@ public class NewPasswordActivity extends AbstractActivity implements NewPassword
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
-	private ClientFactory clientFactory;
+	private LoginClientFactory clientFactory;
 
 	/**
 	 * Token for password reset request
@@ -49,7 +48,7 @@ public class NewPasswordActivity extends AbstractActivity implements NewPassword
 	private DialogBox alertDialog;
 	private NewPasswordView view;
 
-	public NewPasswordActivity(NewPasswordPlace place, ClientFactory clientFactory) {
+	public NewPasswordActivity(NewPasswordPlace place, LoginClientFactory clientFactory) {
 		this.token = place.getToken();
 		this.clientFactory = clientFactory;
 	}

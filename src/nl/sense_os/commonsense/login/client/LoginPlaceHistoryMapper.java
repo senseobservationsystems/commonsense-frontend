@@ -12,7 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.mvp;
+package nl.sense_os.commonsense.login.client;
+
+import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
+import nl.sense_os.commonsense.login.client.login.LoginPlace;
+import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
+import nl.sense_os.commonsense.login.client.newpassword.NewPasswordPlace;
+import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
 
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceHistoryMapperWithFactory;

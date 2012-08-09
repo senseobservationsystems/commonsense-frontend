@@ -31,7 +31,7 @@ import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
-public class ClientFactoryImpl implements ClientFactory {
+public class LoginClientFactoryImpl implements LoginClientFactory {
 
 	private static final EventBus eventBus = new SimpleEventBus();
 	private static final PlaceController placeController = new PlaceController(eventBus);
