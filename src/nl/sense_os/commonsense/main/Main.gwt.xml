@@ -20,6 +20,7 @@
 	<!-- external modules like gwt-links-graph.jar are not loaded...-->
 	<stylesheet src="links-graph.css"></stylesheet>
 	<stylesheet src="ExtGWT/css/gxt-all.css"></stylesheet>
+	<stylesheet src="ExtGWT/css/gxt-gray.css"></stylesheet>
 	<!-- Specify the app entry point class.                         -->
 	<entry-point class='nl.sense_os.commonsense.main.client.MainEntryPoint'/>
 	<!-- Define binding for ClientFactory -->
