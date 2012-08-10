@@ -329,7 +329,7 @@ public class LibraryController extends Controller {
 		LOG.fine("Received group sensors response...");
 
 		// parse group sensors
-		JsArray<Sensor> groupSensors = null;
+		JsArray<Sensor> groupSensors = JsArray.createArray().cast();
 		int total = 0;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
 			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
