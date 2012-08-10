@@ -1,35 +1,35 @@
-package nl.sense_os.commonsense.main.client.sensors;
+package nl.sense_os.commonsense.main.client.allinone;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
 
-public class SensorsPlace extends Place {
+public class AllInOnePlace extends Place {
 
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
-	@Prefix("sensors")
-	public static class Tokenizer implements PlaceTokenizer<SensorsPlace> {
+	@Prefix("allinone")
+	public static class Tokenizer implements PlaceTokenizer<AllInOnePlace> {
 
 		@Override
-		public SensorsPlace getPlace(String token) {
-			return new SensorsPlace(token);
+		public AllInOnePlace getPlace(String token) {
+			return new AllInOnePlace(token);
 		}
 
 		@Override
-		public String getToken(SensorsPlace place) {
+		public String getToken(AllInOnePlace place) {
 			return place.getToken();
 		}
 	}
 
 	private String token;
 
-	public SensorsPlace() {
+	public AllInOnePlace() {
 		this("");
 	}
 
-	public SensorsPlace(String token) {
+	public AllInOnePlace(String token) {
 		this.token = token;
 	}
 

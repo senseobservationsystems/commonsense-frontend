@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
+import nl.sense_os.commonsense.main.client.allinone.AllInOnePlace;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
@@ -21,7 +22,6 @@ import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
 import nl.sense_os.commonsense.main.client.groups.list.GroupController;
-import nl.sense_os.commonsense.main.client.sensors.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
@@ -230,7 +230,7 @@ public class MainEntryPoint implements EntryPoint {
 		// Start PlaceHistoryHandler with our PlaceHistoryMapper
 		PlaceHistoryMapper historyMapper = GWT.create(MainPlaceHistoryMapper.class);
 		historyHandler = new PlaceHistoryHandler(historyMapper);
-		historyHandler.register(placeController, eventBus, new SensorsPlace());
+		historyHandler.register(placeController, eventBus, new AllInOnePlace());
 
 		Viewport viewport = new Viewport();
 		viewport.setLayout(new FitLayout());

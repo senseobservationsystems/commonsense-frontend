@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensors;
+package nl.sense_os.commonsense.main.client.allinone;
 
 import java.util.logging.Logger;
 
@@ -10,16 +10,16 @@ import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-public class SensorsActivity extends AbstractActivity implements SensorsView.Presenter {
+public class AllInOneActivity extends AbstractActivity implements AllInOneView.Presenter {
 
-	private static final Logger LOG = Logger.getLogger(SensorsActivity.class.getName());
+	private static final Logger LOG = Logger.getLogger(AllInOneActivity.class.getName());
 
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
 	 */
 	private final MainClientFactory clientFactory;
 
-	public SensorsActivity(SensorsPlace place, MainClientFactory clientFactory) {
+	public AllInOneActivity(AllInOnePlace place, MainClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 
@@ -27,7 +27,7 @@ public class SensorsActivity extends AbstractActivity implements SensorsView.Pre
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		LOG.info("Start 'sensors' activity");
 
-		SensorsView view = clientFactory.getSensorsView();
+		AllInOneView view = clientFactory.getSensorsView();
 
 		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
 		parent.removeAll();

@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.main.client;
 
+import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
-import nl.sense_os.commonsense.main.client.sensors.SensorsView;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -22,5 +22,5 @@ public interface MainClientFactory {
 
 	public PlaceController getPlaceController();
 
-	public SensorsView getSensorsView();
+	public AllInOneView getSensorsView();
 }

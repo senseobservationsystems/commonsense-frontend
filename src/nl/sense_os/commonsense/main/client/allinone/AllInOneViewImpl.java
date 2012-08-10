@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensors;
+package nl.sense_os.commonsense.main.client.allinone;
 
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.groups.list.GroupEvents;
@@ -18,13 +18,13 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-public class SensorsViewImpl extends Composite implements SensorsView {
+public class AllInOneViewImpl extends Composite implements AllInOneView {
 
 	private LayoutContainer container;
 	private LayoutContainer centerContent;
 	private LayoutContainer westContent;
 
-	public SensorsViewImpl() {
+	public AllInOneViewImpl() {
 
 		container = new LayoutContainer(new BorderLayout());
 

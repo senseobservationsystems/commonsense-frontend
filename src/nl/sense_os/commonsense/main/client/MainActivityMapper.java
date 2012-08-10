@@ -1,9 +1,9 @@
 package nl.sense_os.commonsense.main.client;
 
+import nl.sense_os.commonsense.main.client.allinone.AllInOneActivity;
+import nl.sense_os.commonsense.main.client.allinone.AllInOnePlace;
 import nl.sense_os.commonsense.main.client.logout.LogoutActivity;
 import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
-import nl.sense_os.commonsense.main.client.sensors.SensorsActivity;
-import nl.sense_os.commonsense.main.client.sensors.SensorsPlace;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -19,8 +19,8 @@ public class MainActivityMapper implements ActivityMapper {
 
 	@Override
 	public Activity getActivity(Place place) {
-		if (place instanceof SensorsPlace) {
-			return new SensorsActivity((SensorsPlace) place, clientFactory);
+		if (place instanceof AllInOnePlace) {
+			return new AllInOneActivity((AllInOnePlace) place, clientFactory);
 		} else if (place instanceof LogoutPlace) {
 			return new LogoutActivity((LogoutPlace) place, clientFactory);
 		}
