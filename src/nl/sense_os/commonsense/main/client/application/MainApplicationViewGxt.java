@@ -29,36 +29,30 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 		borderLayout.setStyleAttribute("background",
 				"url('commonsense/images/bgRightTop.png') no-repeat right top;");
 
-		LayoutContainer north = new LayoutContainer();
-		north.setLayout(new FitLayout());
-
+		// north: navigation bar
 		mainNavigationBar = new MainNavigationBar();
+		LayoutContainer north = new LayoutContainer(new FitLayout());
 		north.add(mainNavigationBar);
 		borderLayout.add(north, new BorderLayoutData(LayoutRegion.NORTH, 30.0f));
-		north.setBorders(true);
 
-		LayoutContainer south = new LayoutContainer();
-		south.setLayout(new FitLayout());
-
+		// south: footer bar
 		FooterBar footerBar = new FooterBar();
+		LayoutContainer south = new LayoutContainer(new FitLayout());
 		south.add(footerBar);
 		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
-		south.setBorders(true);
 
-		LayoutContainer east = new LayoutContainer();
-
+		// east: hidden simple panel for place/activities API
 		simplePanel = new SimplePanel();
+		LayoutContainer east = new LayoutContainer();
 		east.add(simplePanel);
+		east.setVisible(false);
 		borderLayout.add(east, new BorderLayoutData(LayoutRegion.EAST, 0.0f));
-		east.setBorders(true);
 
+		// center
 		center = new LayoutContainer(new FitLayout());
-
 		borderLayout.add(center, new BorderLayoutData(LayoutRegion.CENTER));
-		center.setBorders(true);
 
 		wrapper.add(borderLayout);
-		borderLayout.setBorders(true);
 
 		initComponent(wrapper);
 	}
