@@ -67,6 +67,7 @@ public class MainEntryPoint implements EntryPoint {
 	public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
 	private static final Logger LOG = Logger.getLogger(MainEntryPoint.class.getName());
 	private MainClientFactory clientFactory;
+	private PlaceHistoryHandler historyHandler;
 
 	/**
 	 * Redirects the user to the main page
@@ -190,6 +191,8 @@ public class MainEntryPoint implements EntryPoint {
 
 		// fire event
 		clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
+
+		startApplication();
 	}
 
 	@Override
@@ -199,15 +202,15 @@ public class MainEntryPoint implements EntryPoint {
 		if (null == sessionId) {
 			goToLoginPage();
 		} else {
-			startApplication();
+			init();
 			getCurrentUser();
 		}
 	}
 
 	/**
-	 * Starts the application. Initializes the views and starts the default activity.
+	 * Initializes the views and starts the default activity.
 	 */
-	private void startApplication() {
+	private void init() {
 
 		// Create ClientFactory using deferred binding
 		clientFactory = GWT.create(MainClientFactory.class);
@@ -226,7 +229,7 @@ public class MainEntryPoint implements EntryPoint {
 
 		// Start PlaceHistoryHandler with our PlaceHistoryMapper
 		PlaceHistoryMapper historyMapper = GWT.create(MainPlaceHistoryMapper.class);
-		PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
+		historyHandler = new PlaceHistoryHandler(historyMapper);
 		historyHandler.register(placeController, eventBus, new SensorsPlace());
 
 		Viewport viewport = new Viewport();
@@ -236,6 +239,9 @@ public class MainEntryPoint implements EntryPoint {
 
 		/* initialize GXT MVC */
 		initDispatcher();
+	}
+
+	private void startApplication() {
 
 		GXT.hideLoadingPanel("loading");
 
