@@ -10,6 +10,9 @@ import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
+/**
+ * Activity that reproduces the old UI, without places or activities. Will be replaced.
+ */
 public class AllInOneActivity extends AbstractActivity implements AllInOneView.Presenter {
 
 	private static final Logger LOG = Logger.getLogger(AllInOneActivity.class.getName());
@@ -25,9 +28,9 @@ public class AllInOneActivity extends AbstractActivity implements AllInOneView.P
 
 	@Override
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		LOG.info("Start 'sensors' activity");
+		LOG.info("Start 'allinone' activity");
 
-		AllInOneView view = clientFactory.getSensorsView();
+		AllInOneView view = clientFactory.getAllInOneView();
 
 		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
 		parent.removeAll();

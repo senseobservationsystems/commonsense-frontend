@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
-import nl.sense_os.commonsense.main.client.allinone.AllInOnePlace;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
@@ -22,6 +21,7 @@ import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
 import nl.sense_os.commonsense.main.client.groups.list.GroupController;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
@@ -66,8 +66,6 @@ public class MainEntryPoint implements EntryPoint {
 
 	public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
 	private static final Logger LOG = Logger.getLogger(MainEntryPoint.class.getName());
-	private MainClientFactory clientFactory;
-	private PlaceHistoryHandler historyHandler;
 
 	/**
 	 * Redirects the user to the main page
@@ -88,6 +86,10 @@ public class MainEntryPoint implements EntryPoint {
 		}
 		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
 	}
+
+	private MainClientFactory clientFactory;
+
+	private PlaceHistoryHandler historyHandler;
 
 	/**
 	 * Requests the current user's details from CommonSense
@@ -110,6 +112,40 @@ public class MainEntryPoint implements EntryPoint {
 		};
 
 		CommonSenseApi.getCurrentUser(callback);
+	}
+
+	/**
+	 * Initializes the views and starts the default activity.
+	 */
+	private void init() {
+
+		// Create ClientFactory using deferred binding
+		clientFactory = GWT.create(MainClientFactory.class);
+		EventBus eventBus = clientFactory.getEventBus();
+		PlaceController placeController = clientFactory.getPlaceController();
+
+		// prepare UI
+		MainApplicationView main = clientFactory.getMainView();
+		eventBus.addHandler(CurrentUserChangedEvent.TYPE, main);
+		AcceptsOneWidget appWidget = main.getActivityPanel();
+
+		// Start ActivityManager for the main widget with our ActivityMapper
+		ActivityMapper activityMapper = new MainActivityMapper(clientFactory);
+		ActivityManager activityManager = new ActivityManager(activityMapper, eventBus);
+		activityManager.setDisplay(appWidget);
+
+		// Start PlaceHistoryHandler with our PlaceHistoryMapper
+		PlaceHistoryMapper historyMapper = GWT.create(MainPlaceHistoryMapper.class);
+		historyHandler = new PlaceHistoryHandler(historyMapper);
+		historyHandler.register(placeController, eventBus, new SensorManagementPlace());
+
+		Viewport viewport = new Viewport();
+		viewport.setLayout(new FitLayout());
+		viewport.add(main.asWidget());
+		RootPanel.get().add(viewport);
+
+		/* initialize GXT MVC */
+		initDispatcher();
 	}
 
 	/**
@@ -205,40 +241,6 @@ public class MainEntryPoint implements EntryPoint {
 			init();
 			getCurrentUser();
 		}
-	}
-
-	/**
-	 * Initializes the views and starts the default activity.
-	 */
-	private void init() {
-
-		// Create ClientFactory using deferred binding
-		clientFactory = GWT.create(MainClientFactory.class);
-		EventBus eventBus = clientFactory.getEventBus();
-		PlaceController placeController = clientFactory.getPlaceController();
-
-		// prepare UI
-		MainApplicationView main = clientFactory.getMainView();
-		eventBus.addHandler(CurrentUserChangedEvent.TYPE, main);
-		AcceptsOneWidget appWidget = main.getActivityPanel();
-
-		// Start ActivityManager for the main widget with our ActivityMapper
-		ActivityMapper activityMapper = new MainActivityMapper(clientFactory);
-		ActivityManager activityManager = new ActivityManager(activityMapper, eventBus);
-		activityManager.setDisplay(appWidget);
-
-		// Start PlaceHistoryHandler with our PlaceHistoryMapper
-		PlaceHistoryMapper historyMapper = GWT.create(MainPlaceHistoryMapper.class);
-		historyHandler = new PlaceHistoryHandler(historyMapper);
-		historyHandler.register(placeController, eventBus, new AllInOnePlace());
-
-		Viewport viewport = new Viewport();
-		viewport.setLayout(new FitLayout());
-		viewport.add(main.asWidget());
-		RootPanel.get().add(viewport);
-
-		/* initialize GXT MVC */
-		initDispatcher();
 	}
 
 	private void startApplication() {

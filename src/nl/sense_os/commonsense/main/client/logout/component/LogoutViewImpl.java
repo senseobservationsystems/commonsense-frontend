@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.main.client.logout;
+package nl.sense_os.commonsense.main.client.logout.component;
+
+import nl.sense_os.commonsense.main.client.logout.LogoutView;
+import nl.sense_os.commonsense.main.client.logout.LogoutView.Presenter;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;

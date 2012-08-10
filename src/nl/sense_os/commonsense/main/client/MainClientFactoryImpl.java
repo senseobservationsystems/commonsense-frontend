@@ -3,9 +3,11 @@ package nl.sense_os.commonsense.main.client;
 import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.allinone.AllInOneViewImpl;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
-import nl.sense_os.commonsense.main.client.application.MainApplicationViewGxt;
+import nl.sense_os.commonsense.main.client.application.component.MainApplicationViewGxt;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
-import nl.sense_os.commonsense.main.client.logout.LogoutViewImpl;
+import nl.sense_os.commonsense.main.client.logout.component.LogoutViewImpl;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
+import nl.sense_os.commonsense.main.client.sensormanagement.component.SensorManagementViewGxt;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -17,7 +19,11 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static final PlaceController placeController = new PlaceController(eventBus);
 	private static final MainApplicationView appView = new MainApplicationViewGxt();
 	private static final LogoutView logout = new LogoutViewImpl();
-	private static final AllInOneView sensors = new AllInOneViewImpl();
+
+	@Override
+	public AllInOneView getAllInOneView() {
+		return new AllInOneViewImpl();
+	}
 
 	@Override
 	public EventBus getEventBus() {
@@ -40,7 +46,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
-	public AllInOneView getSensorsView() {
-		return sensors;
+	public SensorManagementView getSensorManagementView() {
+		return new SensorManagementViewGxt();
 	}
 }
