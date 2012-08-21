@@ -1,5 +1,7 @@
 package nl.sense_os.commonsense.main.client.groupmanagement;
 
+import java.util.logging.Logger;
+
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView.Presenter;
@@ -13,6 +15,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class GroupManagementActivity extends AbstractActivity implements Presenter {
 
+	private static final Logger LOG = Logger.getLogger(GroupManagementActivity.class.getName());
 	private MainClientFactory clientFactory;
 	private GroupManagementView view;
 
@@ -22,6 +25,7 @@ public class GroupManagementActivity extends AbstractActivity implements Present
 
 	@Override
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
+		LOG.info("Starting 'groupmanagement' activity");
 
 		view = clientFactory.getGroupManagementView();
 		view.setPresenter(this);

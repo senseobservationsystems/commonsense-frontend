@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class MainApplicationViewGxt extends Composite implements MainApplicationView {
@@ -51,6 +52,25 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 		// center
 		center = new LayoutContainer(new FitLayout());
 		borderLayout.add(center, new BorderLayoutData(LayoutRegion.CENTER));
+
+		LayoutContainer layoutContainer = new LayoutContainer();
+
+		Hyperlink hprlnkSensors = new Hyperlink("Manage sensors", false, "sensormanagement:");
+		hprlnkSensors.setHTML("Sensors");
+		layoutContainer.add(hprlnkSensors);
+
+		Hyperlink hprlnkGroups = new Hyperlink("Manage groups", false, "groupmanagement:");
+		hprlnkGroups.setHTML("Groups");
+		layoutContainer.add(hprlnkGroups);
+
+		Hyperlink hprlnkStates = new Hyperlink("States", false, "statemanagement:");
+		layoutContainer.add(hprlnkStates);
+
+		Hyperlink hprlnkEnvironments = new Hyperlink("Environments", false,
+				"environmentmanagement:");
+		layoutContainer.add(hprlnkEnvironments);
+		borderLayout.add(layoutContainer, new BorderLayoutData(LayoutRegion.WEST));
+		layoutContainer.setBorders(true);
 
 		wrapper.add(borderLayout);
 
