@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
+import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
 
@@ -26,4 +27,6 @@ public interface MainClientFactory {
 	public PlaceController getPlaceController();
 
 	public SensorManagementView getSensorManagementView();
+
+	public GroupManagementView getGroupManagementView();
 }

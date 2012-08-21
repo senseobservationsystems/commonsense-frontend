@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.allinone.AllInOnePlace;
+import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementPlace;
 import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementPlace;
 
@@ -13,8 +14,8 @@ import com.google.gwt.place.shared.WithTokenizers;
  * aware of. This is done via the @WithTokenizers annotation or by extending
  * {@link PlaceHistoryMapperWithFactory} and creating a separate TokenizerFactory.
  */
-@WithTokenizers({ AllInOnePlace.Tokenizer.class, LogoutPlace.Tokenizer.class,
-		SensorManagementPlace.Tokenizer.class })
+@WithTokenizers({ AllInOnePlace.Tokenizer.class, GroupManagementPlace.Tokenizer.class,
+		LogoutPlace.Tokenizer.class, SensorManagementPlace.Tokenizer.class })
 public interface MainPlaceHistoryMapper extends PlaceHistoryMapper {
 
 }
