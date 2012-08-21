@@ -248,7 +248,7 @@ public class StateCreateController extends Controller {
 		}
 
 		AppEvent success = new AppEvent(StateCreateEvents.AvailableServicesUpdated);
-		success.setData("services", services);
+		success.setData("services", extServices);
 		forwardToView(creator, success);
 	}
 
