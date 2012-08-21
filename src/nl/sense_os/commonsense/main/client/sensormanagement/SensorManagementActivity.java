@@ -487,5 +487,7 @@ public class SensorManagementActivity extends AbstractActivity implements
 		parent.removeAll();
 		parent.add(view.asWidget());
 		parent.layout();
+
+		view.refreshLoader(false);
 	}
 }

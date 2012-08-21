@@ -51,6 +51,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class SensorManagementViewGxt extends Composite implements SensorManagementView {
@@ -82,6 +84,15 @@ public class SensorManagementViewGxt extends Composite implements SensorManageme
 
 			@Override
 			public void handleEvent(ComponentEvent be) {
+				refreshLoader(false);
+			}
+		});
+
+		addAttachHandler(new Handler() {
+
+			@Override
+			public void onAttachOrDetach(AttachEvent event) {
+				LOG.finest("AttachEvent");
 				refreshLoader(false);
 			}
 		});
@@ -351,7 +362,8 @@ public class SensorManagementViewGxt extends Composite implements SensorManageme
 		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
 	}
 
-	private void refreshLoader(boolean force) {
+	@Override
+	public void refreshLoader(boolean force) {
 		this.forceRefresh = this.forceRefresh || force;
 		loader.load();
 	}

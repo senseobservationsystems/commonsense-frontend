@@ -37,4 +37,6 @@ public interface SensorManagementView extends IsWidget {
 	void setPresenter(Presenter presenter);
 
 	void setBusy(boolean busy);
+
+	void refreshLoader(boolean force);
 }
