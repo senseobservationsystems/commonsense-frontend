@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.main.client.groupmanagement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
@@ -35,7 +34,6 @@ public class GroupManagementActivity extends AbstractActivity implements Present
 	private GroupManagementView view;
 
 	public GroupManagementActivity(GroupManagementPlace place, MainClientFactory clientFactory) {
-		LOG.setLevel(Level.ALL);
 		this.clientFactory = clientFactory;
 		Registry.register(Constants.REG_GROUPS, new ArrayList<ExtGroup>());
 	}
