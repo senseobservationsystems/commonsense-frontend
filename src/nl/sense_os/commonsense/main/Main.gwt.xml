@@ -11,10 +11,11 @@
 	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
 	<!-- Other module inherits                                      -->
 	<inherits name="nl.sense_os.commonsense.common.Common" />
+	<inherits name='com.google.gwt.maps.GoogleMaps' />
 	<inherits name='com.extjs.gxt.ui.GXT'/>
 	<inherits name='com.chap.links.Graph'/>
 	<inherits name='com.chap.links.Timeline'/>
-	<inherits name='com.google.gwt.visualization.Visualization'/>   
+	<inherits name='com.google.gwt.visualization.Visualization'/>
 	<!-- External stylesheets                                       -->
 	<!-- Include at least one stylesheet, else the stylesheets in   -->
 	<!-- external modules like gwt-links-graph.jar are not loaded...-->

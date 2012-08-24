@@ -5,9 +5,6 @@
 	<inherits name="com.google.gwt.json.JSON" />
 	<inherits name="com.google.gwt.logging.Logging" />
 	<inherits name="com.google.gwt.resources.Resources" />
-	
-	<!-- Other modules -->
-	<inherits name='com.google.gwt.maps.GoogleMaps' />
 
 	<!-- External style sheets -->
 	<stylesheet src="gwt/commonsense/commonsense.css" />

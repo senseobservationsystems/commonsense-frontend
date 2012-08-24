@@ -16,118 +16,139 @@ import com.google.gwt.maps.client.overlay.Polygon;
  */
 public class ExtEnvironment extends BaseTreeModel {
 
-    private static final Logger LOGGER = Logger.getLogger(ExtEnvironment.class.getName());
-    private static final long serialVersionUID = 1L;
-    public final static String ID = "id";
-    public final static String NAME = "name";
-    public final static String FLOORS = "floors";
-    public final static String OUTLINE = "gps_outline";
-    public final static String POSITION = "position";
-    public final static String DATE = "date";
+	private static final Logger LOGGER = Logger.getLogger(ExtEnvironment.class.getName());
+	private static final long serialVersionUID = 1L;
+	public final static String ID = "id";
+	public final static String NAME = "name";
+	public final static String FLOORS = "floors";
+	public final static String OUTLINE = "gps_outline";
+	public final static String POSITION = "position";
+	public final static String DATE = "date";
 
-    public ExtEnvironment() {
-        super();
-    }
+	private static Polygon outlineToPolygon(String outline) {
+		if (null != outline && outline.length() > 0) {
+			String[] values = outline.split(";");
+			LatLng[] points = new LatLng[values.length];
+			for (int i = 0; i < values.length; i++) {
+				points[i] = LatLng.fromUrlValue(values[i]);
+			}
+			return new Polygon(points);
+		} else {
+			return null;
+		}
+	}
 
-    public ExtEnvironment(Environment environment) {
-        this();
-        setId(environment.getId());
-        setName(environment.getName());
-        setFloors(environment.getFloors());
-        setOutline(environment.getOutline());
-        setPosition(environment.getPosition());
-        setDate(environment.getDate());
-    }
+	private static LatLng positionToLatLng(String position) {
+		if (null != position && position.length() > 0) {
+			return LatLng.fromUrlValue(position);
+		} else {
+			return null;
+		}
+	}
 
-    public ExtEnvironment(Map<String, Object> properties) {
-        super(properties);
-    }
+	public ExtEnvironment() {
+		super();
+	}
 
-    public ExtEnvironment(TreeModel parent) {
-        super(parent);
-    }
+	public ExtEnvironment(Environment environment) {
+		this();
+		setId(environment.getId());
+		setName(environment.getName());
+		setFloors(environment.getFloors());
+		setOutline(outlineToPolygon(environment.getOutline()));
+		setPosition(positionToLatLng(environment.getPosition()));
+		setDate(environment.getDate());
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ExtEnvironment) {
-            return getId() == ((ExtEnvironment) obj).getId();
-        } else {
-            return super.equals(obj);
-        }
-    }
+	public ExtEnvironment(Map<String, Object> properties) {
+		super(properties);
+	}
 
-    public Date getDate() {
-        return new Date(0); // get(DATE, new Date(0));
-    }
+	public ExtEnvironment(TreeModel parent) {
+		super(parent);
+	}
 
-    public int getFloors() {
-        Object property = get(FLOORS);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            LOGGER.severe("Missing property: " + FLOORS);
-            return -1;
-        }
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ExtEnvironment) {
+			return getId() == ((ExtEnvironment) obj).getId();
+		} else {
+			return super.equals(obj);
+		}
+	}
 
-    public int getId() {
-        Object property = get(ID);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            LOGGER.severe("Missing property: " + ID);
-            return -1;
-        }
-    }
+	public Date getDate() {
+		return new Date(0); // get(DATE, new Date(0));
+	}
 
-    public String getName() {
-        return get(NAME);
-    }
+	public int getFloors() {
+		Object property = get(FLOORS);
+		if (property instanceof Integer) {
+			return ((Integer) property).intValue();
+		} else if (property instanceof String) {
+			return Integer.parseInt((String) property);
+		} else {
+			LOGGER.severe("Missing property: " + FLOORS);
+			return -1;
+		}
+	}
 
-    public Polygon getOutline() {
-        return get(OUTLINE, null);
-    }
+	public int getId() {
+		Object property = get(ID);
+		if (property instanceof Integer) {
+			return ((Integer) property).intValue();
+		} else if (property instanceof String) {
+			return Integer.parseInt((String) property);
+		} else {
+			LOGGER.severe("Missing property: " + ID);
+			return -1;
+		}
+	}
 
-    public LatLng getPosition() {
-        return get(POSITION, null);
-    }
+	public String getName() {
+		return get(NAME);
+	}
 
-    public ExtEnvironment setDate(Date date) {
-        set(DATE, date);
-        return this;
-    }
+	public Polygon getOutline() {
+		return get(OUTLINE, null);
+	}
 
-    public ExtEnvironment setFloors(int floors) {
-        set(FLOORS, floors);
-        return this;
-    }
+	public LatLng getPosition() {
+		return get(POSITION, null);
+	}
 
-    public ExtEnvironment setId(int id) {
-        set(ID, id);
-        return this;
-    }
+	public ExtEnvironment setDate(Date date) {
+		set(DATE, date);
+		return this;
+	}
 
-    public ExtEnvironment setName(String name) {
-        set(NAME, name);
-        return this;
-    }
+	public ExtEnvironment setFloors(int floors) {
+		set(FLOORS, floors);
+		return this;
+	}
 
-    public ExtEnvironment setOutline(Polygon outline) {
-        set(OUTLINE, outline);
-        return this;
-    }
+	public ExtEnvironment setId(int id) {
+		set(ID, id);
+		return this;
+	}
 
-    public ExtEnvironment setPosition(LatLng position) {
-        set(POSITION, position);
-        return this;
-    }
+	public ExtEnvironment setName(String name) {
+		set(NAME, name);
+		return this;
+	}
 
-    @Override
-    public String toString() {
-        return getName();
-    }
+	public ExtEnvironment setOutline(Polygon outline) {
+		set(OUTLINE, outline);
+		return this;
+	}
+
+	public ExtEnvironment setPosition(LatLng position) {
+		set(POSITION, position);
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

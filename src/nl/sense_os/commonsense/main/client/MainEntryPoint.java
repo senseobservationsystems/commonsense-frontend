@@ -50,12 +50,14 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.maps.client.Maps;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
@@ -66,7 +68,6 @@ public class MainEntryPoint implements EntryPoint {
 
 	public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
 	private static final Logger LOG = Logger.getLogger(MainEntryPoint.class.getName());
-
 	/**
 	 * Redirects the user to the main page
 	 */
@@ -87,9 +88,13 @@ public class MainEntryPoint implements EntryPoint {
 		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
 	}
 
+	private boolean isVizApiLoaded;
+
 	private MainClientFactory clientFactory;
 
 	private PlaceHistoryHandler historyHandler;
+	private boolean isCurrentUserLoaded;
+	private boolean isMapsApiLoaded;
 
 	/**
 	 * Requests the current user's details from CommonSense
@@ -189,6 +194,45 @@ public class MainEntryPoint implements EntryPoint {
 	}
 
 	/**
+	 * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
+	 * window is shown.
+	 */
+	private void loadMapsApi() {
+
+		// Asynchronously load the Maps API.
+		if (Maps.isLoaded()) {
+			LOG.fine("Google Maps API already loaded");
+			return;
+		}
+
+		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
+
+			@Override
+			public void run() {
+				// LOGGER.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");
+				isMapsApiLoaded = true;
+				onLoadComplete();
+			}
+		});
+	}
+
+	private void loadVizApi() {
+
+		// Load the visualization API
+		this.isVizApiLoaded = false;
+		final Runnable vizCallback = new Runnable() {
+
+			@Override
+			public void run() {
+				LOG.fine("Google Visualization API loaded...");
+				isVizApiLoaded = true;
+				onLoadComplete();
+			}
+		};
+		VisualizationUtils.loadVisualizationApi(vizCallback, new String[] {});
+	}
+
+	/**
 	 * Handles failed request to get the current user details by redirecting to the login page.
 	 * 
 	 * @param code
@@ -228,7 +272,17 @@ public class MainEntryPoint implements EntryPoint {
 		// fire event
 		clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
 
-		startApplication();
+		isCurrentUserLoaded = true;
+		onLoadComplete();
+	}
+
+	private synchronized void onLoadComplete() {
+		if (isVizApiLoaded && isMapsApiLoaded && isCurrentUserLoaded) {
+			startApplication();
+			isVizApiLoaded = false;
+			isMapsApiLoaded = false;
+			isCurrentUserLoaded = false;
+		}
 	}
 
 	@Override
@@ -240,6 +294,8 @@ public class MainEntryPoint implements EntryPoint {
 		} else {
 			init();
 			getCurrentUser();
+			loadMapsApi();
+			loadVizApi();
 		}
 	}
 
