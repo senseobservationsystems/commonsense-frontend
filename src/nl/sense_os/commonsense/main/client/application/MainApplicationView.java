@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 public interface MainApplicationView extends IsWidget, CurrentUserChangedHandler {
 
-	LayoutContainer getActivityPanelGxt();
-
 	AcceptsOneWidget getActivityPanel();
+
+	LayoutContainer getGxtActivityPanel();
 }

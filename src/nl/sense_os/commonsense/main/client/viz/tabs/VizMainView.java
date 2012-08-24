@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -65,21 +65,21 @@ public class VizMainView extends View {
 	private void onTagsDropped(List<TreeStoreModel> treeStoreModels) {
 
 		// get the children of node tags
-		List<ExtSensor> sensors = new ArrayList<ExtSensor>();
+		List<GxtSensor> sensors = new ArrayList<GxtSensor>();
 		for (TreeStoreModel tsm : treeStoreModels) {
 			final TreeModel tag = (TreeModel) tsm.getModel();
 			if (false == sensors.contains(tag)) {
 
-				if (tag instanceof ExtSensor) {
-					sensors.add((ExtSensor) tag);
+				if (tag instanceof GxtSensor) {
+					sensors.add((GxtSensor) tag);
 				} else {
 					// add any children
 					for (ModelData model : tsm.getChildren()) {
 						TreeStoreModel tm = (TreeStoreModel) model;
 						TreeModel child = (TreeModel) tm.getModel();
 						if (false == sensors.contains(child)) {
-							if (child instanceof ExtSensor) {
-								sensors.add((ExtSensor) child);
+							if (child instanceof GxtSensor) {
+								sensors.add((GxtSensor) child);
 							}
 						}
 					}
@@ -109,9 +109,9 @@ public class VizMainView extends View {
 						@SuppressWarnings("unchecked")
 						List<TreeStoreModel> list = (List<TreeStoreModel>) data;
 						onTagsDropped(list);
-					} else if (listEntry instanceof ExtSensor) {
+					} else if (listEntry instanceof GxtSensor) {
 						@SuppressWarnings("unchecked")
-						List<ExtSensor> list = (List<ExtSensor>) data;
+						List<GxtSensor> list = (List<GxtSensor>) data;
 						showTypeChoice(list);
 					} else {
 						LOG.fine("Unknown list type: " + listEntry);
@@ -132,7 +132,7 @@ public class VizMainView extends View {
 		}
 	}
 
-	private void showTypeChoice(List<ExtSensor> sensors) {
+	private void showTypeChoice(List<GxtSensor> sensors) {
 		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, sensors);
 	}
 }

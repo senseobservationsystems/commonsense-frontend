@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.env.view;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -26,7 +26,7 @@ public class EnvViewer extends View {
         final EventType type = event.getType();
         if (type.equals(EnvViewEvents.Show)) {
             LOG.finest("Show");
-            final ExtEnvironment environment = event.getData("environment");
+            final GxtEnvironment environment = event.getData("environment");
             showPanel(environment);
         }
     }
@@ -37,7 +37,7 @@ public class EnvViewer extends View {
         super.initialize();
     }
 
-    private void showPanel(ExtEnvironment environment) {
+    private void showPanel(GxtEnvironment environment) {
 
         Window w = new Window();
         w.setLayout(new FitLayout());

@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.ServiceMethodResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -40,8 +40,8 @@ public class StateEditController extends Controller {
 		 */
 		if (type.equals(StateEditEvents.InvokeMethodRequested)) {
 			LOG.finest("InvokeMethodRequested");
-			final ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
-			final ExtServiceMethod serviceMethod = event.<ExtServiceMethod> getData("method");
+			final GxtSensor stateSensor = event.<GxtSensor> getData("stateSensor");
+			final GxtServiceMethod serviceMethod = event.<GxtServiceMethod> getData("method");
 			final List<String> params = event.<List<String>> getData("parameters");
 			invokeMethod(stateSensor, serviceMethod, params);
 
@@ -61,11 +61,11 @@ public class StateEditController extends Controller {
 		editor = new StateEditor(this);
 	}
 
-	private void invokeMethod(ExtSensor stateSensor, ExtServiceMethod serviceMethod,
+	private void invokeMethod(GxtSensor stateSensor, GxtServiceMethod serviceMethod,
 			List<String> params) {
 
 		// get one of the state sensor children
-		ExtSensor sensor = (ExtSensor) stateSensor.getChild(0);
+		GxtSensor sensor = (GxtSensor) stateSensor.getChild(0);
 
 		LOG.fine("State: " + stateSensor);
 		LOG.fine("Sensor: " + sensor);

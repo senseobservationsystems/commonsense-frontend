@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.sensors.delete;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -25,7 +25,7 @@ public class SensorDeleteDialog extends View {
     private Text text;
     private Button removeButton;
     private Button cancelButton;
-    private List<ExtSensor> sensors;
+    private List<GxtSensor> sensors;
 
     public SensorDeleteDialog(Controller c) {
         super(c);
@@ -42,7 +42,7 @@ public class SensorDeleteDialog extends View {
 
         if (type.equals(SensorDeleteEvents.ShowDeleteDialog)) {
             LOG.fine("Show");
-            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+            final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
             onShow(sensors);
 
         } else if (type.equals(SensorDeleteEvents.DeleteSuccess)) {
@@ -112,7 +112,7 @@ public class SensorDeleteDialog extends View {
         MessageBox.info(null, "Removal complete.", null);
     }
 
-    private void onShow(final List<ExtSensor> sensors) {
+    private void onShow(final List<GxtSensor> sensors) {
 
         this.sensors = sensors;
 

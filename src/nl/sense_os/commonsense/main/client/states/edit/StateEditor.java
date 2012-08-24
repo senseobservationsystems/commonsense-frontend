@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -42,11 +42,11 @@ import com.google.gwt.core.client.JsonUtils;
 public class StateEditor extends View {
 
     private static final Logger LOG = Logger.getLogger(StateEditor.class.getName());
-    private ExtSensor stateSensor;
-    private ComboBox<ExtServiceMethod> methodField;
+    private GxtSensor stateSensor;
+    private ComboBox<GxtServiceMethod> methodField;
     private FieldSet paramFields;
     private LabelField returnField;
-    private ListStore<ExtServiceMethod> methodStore;
+    private ListStore<GxtServiceMethod> methodStore;
     private Window window;
     private FormPanel form;
     private Button submitButton;
@@ -110,21 +110,21 @@ public class StateEditor extends View {
     }
 
     private void initFields() {
-	methodStore = new ListStore<ExtServiceMethod>();
+	methodStore = new ListStore<GxtServiceMethod>();
 
-	methodField = new ComboBox<ExtServiceMethod>();
+	methodField = new ComboBox<GxtServiceMethod>();
 	methodField.setFieldLabel("Method");
-	methodField.setDisplayField(ExtServiceMethod.NAME);
+	methodField.setDisplayField(GxtServiceMethod.NAME);
 	methodField.setEmptyText("Select state service method...");
 	methodField.setStore(methodStore);
 	methodField.setTypeAhead(true);
 	methodField.setTriggerAction(TriggerAction.ALL);
 
-	methodField.addSelectionChangedListener(new SelectionChangedListener<ExtServiceMethod>() {
+	methodField.addSelectionChangedListener(new SelectionChangedListener<GxtServiceMethod>() {
 
 	    @Override
-	    public void selectionChanged(SelectionChangedEvent<ExtServiceMethod> se) {
-		ExtServiceMethod method = se.getSelectedItem();
+	    public void selectionChanged(SelectionChangedEvent<GxtServiceMethod> se) {
+		GxtServiceMethod method = se.getSelectedItem();
 		updateParametersField(method);
 		updateReturnField(method);
 		form.layout();
@@ -258,8 +258,8 @@ public class StateEditor extends View {
     }
 
     private void onShow(AppEvent event) {
-	stateSensor = event.<ExtSensor> getData();
-	List<ExtServiceMethod> methods = stateSensor.get("methods");
+	stateSensor = event.<GxtSensor> getData();
+	List<GxtServiceMethod> methods = stateSensor.get("methods");
 
 	if (null != methods) {
 	    methodStore.removeAll();
@@ -278,7 +278,7 @@ public class StateEditor extends View {
     private void onSubmit() {
 	setBusy(true);
 
-	ExtServiceMethod method = methodField.getValue();
+	GxtServiceMethod method = methodField.getValue();
 	List<String> params = new ArrayList<String>();
 	for (Component c : paramFields.getItems()) {
 	    if (c instanceof TextField<?>) {
@@ -302,7 +302,7 @@ public class StateEditor extends View {
 	}
     }
 
-    private void updateParametersField(ExtServiceMethod method) {
+    private void updateParametersField(GxtServiceMethod method) {
 	List<String> params = method != null ? method.getParameters() : new ArrayList<String>();
 
 	paramFields.removeAll();
@@ -325,7 +325,7 @@ public class StateEditor extends View {
 	paramFields.layout();
     }
 
-    private void updateReturnField(ExtServiceMethod method) {
+    private void updateReturnField(GxtServiceMethod method) {
 	String returns = method != null ? method.getReturnValue() : "";
 
 	if (returns.length() > 0) {

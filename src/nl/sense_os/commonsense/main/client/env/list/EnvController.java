@@ -9,8 +9,8 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvir
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Environment;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -45,7 +45,7 @@ public class EnvController extends Controller {
 		registerEventTypes(EnvCreateEvents.CreateSuccess);
 	}
 
-	private void delete(final ExtEnvironment environment) {
+	private void delete(final GxtEnvironment environment) {
 
 		// prepare request properties
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -92,8 +92,8 @@ public class EnvController extends Controller {
 
 		if (type.equals(EnvEvents.ListRequested)) {
 			LOG.fine("LoadRequest");
-			final AsyncCallback<List<ExtEnvironment>> callback = event
-					.<AsyncCallback<List<ExtEnvironment>>> getData();
+			final AsyncCallback<List<GxtEnvironment>> callback = event
+					.<AsyncCallback<List<GxtEnvironment>>> getData();
 			requestList(callback);
 
 		} else
@@ -103,7 +103,7 @@ public class EnvController extends Controller {
 		 */
 		if (type.equals(EnvEvents.DeleteRequest)) {
 			LOG.fine("DeleteRequest");
-			final ExtEnvironment environment = event.getData("environment");
+			final GxtEnvironment environment = event.getData("environment");
 			delete(environment);
 
 		} else
@@ -119,40 +119,40 @@ public class EnvController extends Controller {
 		grid = new EnvGrid(this);
 		Registry.register(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST,
-				new ArrayList<ExtEnvironment>());
+				new ArrayList<GxtEnvironment>());
 	}
 
 	private void onDeleteFailure() {
 		forwardToView(grid, new AppEvent(EnvEvents.DeleteFailure));
 	}
 
-	private void onDeleteSuccess(ExtEnvironment environment) {
+	private void onDeleteSuccess(GxtEnvironment environment) {
 
 		// update sensor library
-		List<ExtSensor> library = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		for (ExtSensor sensor : library) {
+		List<GxtSensor> library = Registry
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		for (GxtSensor sensor : library) {
 			if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
 				sensor.setEnvironment(null);
 			}
 		}
 
 		// update global environment list
-		Registry.<List<ExtEnvironment>> get(
+		Registry.<List<GxtEnvironment>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).remove(
 				environment);
 
 		Dispatcher.forwardEvent(EnvEvents.DeleteSuccess);
 	}
 
-	private void onListFailure(AsyncCallback<List<ExtEnvironment>> callback) {
+	private void onListFailure(AsyncCallback<List<GxtEnvironment>> callback) {
 		forwardToView(grid, new AppEvent(EnvEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
 		}
 	}
 
-	private void onListSuccess(String response, AsyncCallback<List<ExtEnvironment>> callback) {
+	private void onListSuccess(String response, AsyncCallback<List<GxtEnvironment>> callback) {
 
 		// parse the list of environments from the response
 		List<Environment> environments = new ArrayList<Environment>();
@@ -161,26 +161,26 @@ public class EnvController extends Controller {
 			environments = jso.getEnvironments();
 		}
 
-		List<ExtEnvironment> extEnvironments = new ArrayList<ExtEnvironment>();
+		List<GxtEnvironment> gxtEnvironments = new ArrayList<GxtEnvironment>();
 		for (Environment e : environments) {
-			extEnvironments.add(new ExtEnvironment(e));
+			gxtEnvironments.add(new GxtEnvironment(e));
 		}
 
-		Registry.<List<ExtEnvironment>> get(
+		Registry.<List<GxtEnvironment>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).addAll(
-				extEnvironments);
+				gxtEnvironments);
 
 		forwardToView(grid, new AppEvent(EnvEvents.Done));
 		Dispatcher.forwardEvent(EnvEvents.ListUpdated);
 		if (null != callback) {
-			callback.onSuccess(extEnvironments);
+			callback.onSuccess(gxtEnvironments);
 		}
 	}
 
-	private void requestList(final AsyncCallback<List<ExtEnvironment>> callback) {
+	private void requestList(final AsyncCallback<List<GxtEnvironment>> callback) {
 
 		forwardToView(grid, new AppEvent(EnvEvents.Working));
-		Registry.<List<ExtEnvironment>> get(
+		Registry.<List<GxtEnvironment>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).clear();
 
 		// prepare request properties

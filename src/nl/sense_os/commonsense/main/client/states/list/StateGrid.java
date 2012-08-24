@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
-import nl.sense_os.commonsense.main.client.ext.util.SensorComparator;
-import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorComparator;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
@@ -67,9 +67,9 @@ public class StateGrid extends View {
 
 	private static final Logger LOG = Logger.getLogger(StateGrid.class.getName());
 	private ContentPanel panel;
-	private TreeGrid<ExtSensor> grid;
-	private TreeStore<ExtSensor> store;
-	private TreeLoader<ExtSensor> loader;
+	private TreeGrid<GxtSensor> grid;
+	private TreeStore<GxtSensor> store;
+	private TreeLoader<GxtSensor> loader;
 	private boolean isListDirty = false;
 	private MenuItem createButton;
 	private MenuItem deleteButton;
@@ -81,7 +81,7 @@ public class StateGrid extends View {
 	private ToolBar filterBar;
 	private ToolButton refreshButton;
 	private MenuBar toolBar;
-	private StoreFilterField<ExtSensor> filter;
+	private StoreFilterField<GxtSensor> filter;
 
 	public StateGrid(Controller controller) {
 		super(controller);
@@ -111,15 +111,15 @@ public class StateGrid extends View {
 	 * Dispatches request to show "delete dialog" for the selected state.
 	 */
 	private void deleteState() {
-		ExtSensor state = getSelectedState();
+		GxtSensor state = getSelectedState();
 		AppEvent delete = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
 		delete.setData("sensors", Arrays.asList(state));
 		Dispatcher.forwardEvent(delete);
 	}
 
 	private void disconnectSensor() {
-		ExtSensor sensor = grid.getSelectionModel().getSelectedItem();
-		ExtSensor stateSensor = store.getParent(sensor);
+		GxtSensor sensor = grid.getSelectionModel().getSelectedItem();
+		GxtSensor stateSensor = store.getParent(sensor);
 
 		AppEvent event = new AppEvent(StateListEvents.RemoveRequested);
 		event.setData("sensor", sensor);
@@ -128,9 +128,9 @@ public class StateGrid extends View {
 		setBusy(true);
 	}
 
-	private ExtSensor getSelectedState() {
-		ExtSensor selection = grid.getSelectionModel().getSelectedItem();
-		while (store.getParent(selection) instanceof ExtSensor) {
+	private GxtSensor getSelectedState() {
+		GxtSensor selection = grid.getSelectionModel().getSelectedItem();
+		while (store.getParent(selection) instanceof GxtSensor) {
 			selection = store.getParent(selection);
 		}
 		LOG.finest("Selected state: " + selection);
@@ -185,10 +185,10 @@ public class StateGrid extends View {
 	private void initFilter() {
 		filterBar = new ToolBar();
 		filterBar.add(new LabelToolItem("Filter: "));
-		filter = new StoreFilterField<ExtSensor>() {
+		filter = new StoreFilterField<GxtSensor>() {
 
 			@Override
-			protected boolean doSelect(Store<ExtSensor> store, ExtSensor parent, ExtSensor record,
+			protected boolean doSelect(Store<GxtSensor> store, GxtSensor parent, GxtSensor record,
 					String property, String filter) {
 				filter = filter.toLowerCase();
 				if (record.getName().toLowerCase().contains(filter)) {
@@ -215,11 +215,11 @@ public class StateGrid extends View {
 	private void initGrid() {
 
 		// proxy
-		DataProxy<List<ExtSensor>> proxy = new DataProxy<List<ExtSensor>>() {
+		DataProxy<List<GxtSensor>> proxy = new DataProxy<List<GxtSensor>>() {
 
 			@Override
-			public void load(DataReader<List<ExtSensor>> reader, Object loadConfig,
-					AsyncCallback<List<ExtSensor>> callback) {
+			public void load(DataReader<List<GxtSensor>> reader, Object loadConfig,
+					AsyncCallback<List<GxtSensor>> callback) {
 
 				if (panel.isExpanded()) {
 					AppEvent request = new AppEvent(StateListEvents.LoadRequest);
@@ -233,28 +233,28 @@ public class StateGrid extends View {
 		};
 
 		// tree loader
-		loader = new BaseTreeLoader<ExtSensor>(proxy) {
+		loader = new BaseTreeLoader<GxtSensor>(proxy) {
 
 			@Override
-			public boolean hasChildren(ExtSensor parent) {
+			public boolean hasChildren(GxtSensor parent) {
 				// only state sensors have children
 				return parent.getType() == 2;
 			};
 		};
 
 		// tree store
-		store = new TreeStore<ExtSensor>(loader);
-		store.setStoreSorter(new StoreSorter<ExtSensor>(new SensorComparator<ExtSensor>()));
+		store = new TreeStore<GxtSensor>(loader);
+		store.setStoreSorter(new StoreSorter<GxtSensor>(new SensorComparator<GxtSensor>()));
 
 		// column model, make sure you add a TreeGridCellRenderer
 		List<ColumnConfig> columns = LibraryColumnsFactory.create().getColumns();
 		ColumnModel cm = new ColumnModel(columns);
-		ColumnConfig type = cm.getColumnById(ExtSensor.TYPE);
+		ColumnConfig type = cm.getColumnById(GxtSensor.TYPE);
 		if (type != null) {
-			type.setRenderer(new TreeGridCellRenderer<ExtSensor>() {
+			type.setRenderer(new TreeGridCellRenderer<GxtSensor>() {
 
 				@Override
-				protected String getText(TreeGrid<ExtSensor> grid, ExtSensor model,
+				protected String getText(TreeGrid<GxtSensor> grid, GxtSensor model,
 						String property, int rowIndex, int colIndex) {
 					// type text is always empty, use SenseIconProvider to differentiate
 					return "";
@@ -263,13 +263,13 @@ public class StateGrid extends View {
 			type.setWidth(65);
 		}
 
-		grid = new TreeGrid<ExtSensor>(store, cm);
-		grid.setModelProcessor(new SensorProcessor<ExtSensor>());
+		grid = new TreeGrid<GxtSensor>(store, cm);
+		grid.setModelProcessor(new SensorProcessor<GxtSensor>());
 		grid.setId("stateGrid");
 		grid.setStateful(true);
 		grid.setAutoLoad(true);
-		grid.setAutoExpandColumn(ExtSensor.ENVIRONMENT_NAME);
-		grid.setIconProvider(new SenseIconProvider<ExtSensor>());
+		grid.setAutoExpandColumn(GxtSensor.ENVIRONMENT_NAME);
+		grid.setIconProvider(new SenseIconProvider<GxtSensor>());
 	}
 
 	private void initHeaderTool() {
@@ -319,13 +319,13 @@ public class StateGrid extends View {
 	}
 
 	private void initToolBar() {
-		TreeGridSelectionModel<ExtSensor> selectionModel = new TreeGridSelectionModel<ExtSensor>();
+		TreeGridSelectionModel<GxtSensor> selectionModel = new TreeGridSelectionModel<GxtSensor>();
 		selectionModel.setSelectionMode(SelectionMode.SINGLE);
-		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtSensor>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<GxtSensor>() {
 
 			@Override
-			public void selectionChanged(SelectionChangedEvent<ExtSensor> se) {
-				ExtSensor selection = se.getSelectedItem();
+			public void selectionChanged(SelectionChangedEvent<GxtSensor> se) {
+				GxtSensor selection = se.getSelectedItem();
 				if (null != selection) {
 					deleteButton.enable();
 					editButton.enable();
@@ -340,7 +340,7 @@ public class StateGrid extends View {
 					}
 
 					// only able to give feedback if state has manualLearn method
-					ExtSensor state = getSelectedState();
+					GxtSensor state = getSelectedState();
 					List<ModelData> methods = state.get("methods");
 					boolean canHazFeedback = false;
 					if (null != methods) {
@@ -437,7 +437,7 @@ public class StateGrid extends View {
 	}
 
 	private void onConnectClick() {
-		ExtSensor selectedService = getSelectedState();
+		GxtSensor selectedService = getSelectedState();
 		Dispatcher.forwardEvent(StateConnectEvents.ShowSensorConnecter, selectedService);
 	}
 
@@ -446,7 +446,7 @@ public class StateGrid extends View {
 	}
 
 	private void onEditClick() {
-		ExtSensor selectedService = getSelectedState();
+		GxtSensor selectedService = getSelectedState();
 		AppEvent event = new AppEvent(StateEditEvents.ShowEditor);
 		event.setData(selectedService);
 		Dispatcher.forwardEvent(event);
@@ -499,8 +499,8 @@ public class StateGrid extends View {
 	}
 
 	private void showFeedback() {
-		ExtSensor state = getSelectedState();
-		List<ExtSensor> sensors = store.getChildren(state);
+		GxtSensor state = getSelectedState();
+		List<GxtSensor> sensors = store.getChildren(state);
 
 		AppEvent event = new AppEvent(FeedbackEvents.FeedbackInit);
 		event.setData("state", state);

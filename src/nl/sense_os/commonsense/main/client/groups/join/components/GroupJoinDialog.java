@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -38,8 +38,8 @@ public class GroupJoinDialog extends CenteredWindow {
 	private FormButtonBinding buttonBinding;
 	private int state;
 
-	public GroupJoinDialog(PagingLoader<PagingLoadResult<ExtGroup>> groupLoader,
-			List<ExtSensor> sensors) {
+	public GroupJoinDialog(PagingLoader<PagingLoadResult<GxtGroup>> groupLoader,
+			List<GxtSensor> sensors) {
 
 		// main window properties
 		setHeading("Join a public group");
@@ -81,7 +81,7 @@ public class GroupJoinDialog extends CenteredWindow {
 		return btnNext;
 	}
 
-	public ExtGroup getGroup() {
+	public GxtGroup getGroup() {
 		return frmAllVisibleGroups.getGroup();
 	}
 
@@ -89,7 +89,7 @@ public class GroupJoinDialog extends CenteredWindow {
 		return frmGroupType.getType();
 	}
 
-	public List<ExtSensor> getSharedSensors() {
+	public List<GxtSensor> getSharedSensors() {
 		return frmShareSensors.getSharedSensors();
 	}
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.alerts.create.triggers.Notification;
-import nl.sense_os.commonsense.main.client.ext.component.WizardFormPanel;
+import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;

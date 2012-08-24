@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.join.components.GroupJoinDialog;
 import nl.sense_os.commonsense.main.client.groups.join.components.GroupJoinDialog.States;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -30,7 +30,7 @@ public class GroupJoinView extends View {
 
 	private static final Logger LOG = Logger.getLogger(GroupJoinView.class.getName());
 	private GroupJoinDialog window;
-	private PagingLoader<PagingLoadResult<ExtGroup>> groupLoader;
+	private PagingLoader<PagingLoadResult<GxtGroup>> groupLoader;
 	private MessageBox progress;
 
 	public GroupJoinView(Controller c) {
@@ -53,7 +53,7 @@ public class GroupJoinView extends View {
 
 		} else if (type.equals(GroupJoinEvents.AllGroupsSuccess)) {
 			LOG.finest("AllGroupsSuccess");
-			List<ExtGroup> groups = event.getData("groups");
+			List<GxtGroup> groups = event.getData("groups");
 			onAllGroupsSuccess(groups);
 
 		} else if (type.equals(GroupJoinEvents.AllGroupsFailure)) {
@@ -62,7 +62,7 @@ public class GroupJoinView extends View {
 
 		} else if (type.equals(GroupJoinEvents.GroupDetailsSuccess)) {
 			LOG.finest("GroupDetailsSuccess");
-			ExtGroup group = event.getData("group");
+			GxtGroup group = event.getData("group");
 			onGroupDetailsSuccess(group);
 
 		} else if (type.equals(GroupJoinEvents.GroupDetailsFailure)) {
@@ -87,7 +87,7 @@ public class GroupJoinView extends View {
 		MessageBox.alert("CommonSense", "Failed to get group details!", null);
 	}
 
-	private void onGroupDetailsSuccess(ExtGroup group) {
+	private void onGroupDetailsSuccess(GxtGroup group) {
 		window.setBusy(false);
 		window.setReqSensors(group.getReqSensors());
 		window.setMemberRights(group.isAllowAddUsers(), group.isAllowAddSensors(),
@@ -105,11 +105,11 @@ public class GroupJoinView extends View {
 		MessageBox.alert("CommonSense", "Failed to get list of groups to join!", null);
 	}
 
-	private void onAllGroupsSuccess(List<ExtGroup> groups) {
+	private void onAllGroupsSuccess(List<GxtGroup> groups) {
 		progress.close();
 
 		PagingModelMemoryProxy groupProxy = new PagingModelMemoryProxy(groups);
-		groupLoader = new BasePagingLoader<PagingLoadResult<ExtGroup>>(groupProxy);
+		groupLoader = new BasePagingLoader<PagingLoadResult<GxtGroup>>(groupProxy);
 
 		showWizard();
 
@@ -119,11 +119,11 @@ public class GroupJoinView extends View {
 	private void showWizard() {
 
 		// sensor list loader
-		List<ExtSensor> sensors = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		List<ExtSensor> ownedSensors = new ArrayList<ExtSensor>();
-		ExtUser user = Registry.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
-		for (ExtSensor sensor : sensors) {
+		List<GxtSensor> sensors = Registry
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		List<GxtSensor> ownedSensors = new ArrayList<GxtSensor>();
+		GxtUser user = Registry.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+		for (GxtSensor sensor : sensors) {
 			if (sensor.getOwner().equals(user)) {
 				ownedSensors.add(sensor);
 			}
@@ -159,7 +159,7 @@ public class GroupJoinView extends View {
 	private void onFailure() {
 		window.setBusy(false);
 
-		ExtGroup group = window.getGroup();
+		GxtGroup group = window.getGroup();
 		MessageBox.confirm("CommonSense", "Failed to join the group " + group.getName()
 				+ "! Do you want to retry?", new Listener<MessageBoxEvent>() {
 
@@ -199,7 +199,7 @@ public class GroupJoinView extends View {
 		}
 	}
 
-	private void getGroupDetails(ExtGroup group) {
+	private void getGroupDetails(GxtGroup group) {
 		AppEvent event = new AppEvent(GroupJoinEvents.GroupDetailsRequest);
 		event.setData("group", group);
 		event.setSource(this);
@@ -238,7 +238,7 @@ public class GroupJoinView extends View {
 	private void onSuccess() {
 		window.setBusy(false);
 
-		ExtGroup group = window.getGroup();
+		GxtGroup group = window.getGroup();
 		MessageBox.info("CommonSense", "You have joined the group " + group.getName()
 				+ ". Any sensors you selected were automatically shared with the group.",
 				new Listener<MessageBoxEvent>() {
@@ -252,7 +252,7 @@ public class GroupJoinView extends View {
 
 	private void submitForm() {
 
-		ExtGroup group = window.getGroup();
+		GxtGroup group = window.getGroup();
 
 		AppEvent event = new AppEvent(GroupJoinEvents.JoinRequest);
 		event.setData("group", group);

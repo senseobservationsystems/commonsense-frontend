@@ -8,8 +8,8 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.User;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -42,7 +42,7 @@ public class SensorShareController extends Controller {
 
 		if (type.equals(SensorShareEvents.ShareRequest)) {
 			LOG.finest("ShareRequest");
-			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+			final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
 			final String user = event.<String> getData("user");
 			shareSensor(sensors, user, 0, 0);
 
@@ -62,7 +62,7 @@ public class SensorShareController extends Controller {
 		shareDialog = new SensorShareDialog(this);
 	}
 
-	private void onShareSensorFailure(List<ExtSensor> sensors, String username, int index,
+	private void onShareSensorFailure(List<GxtSensor> sensors, String username, int index,
 			int retryCount) {
 
 		if (retryCount < 3) {
@@ -76,7 +76,7 @@ public class SensorShareController extends Controller {
 		}
 	}
 
-	private void onShareSensorSuccess(String response, List<ExtSensor> sensors, int index,
+	private void onShareSensorSuccess(String response, List<GxtSensor> sensors, int index,
 			String username) {
 
 		// parse list of users from the response
@@ -87,14 +87,14 @@ public class SensorShareController extends Controller {
 		}
 
 		// convert to Ext
-		List<ExtUser> extUsers = new ArrayList<ExtUser>(users.size());
+		List<GxtUser> gxtUsers = new ArrayList<GxtUser>(users.size());
 		for (User u : users) {
-			extUsers.add(new ExtUser(u));
+			gxtUsers.add(new GxtUser(u));
 		}
 
 		// update the sensor model
-		ExtSensor sensor = sensors.get(index);
-		sensor.setUsers(extUsers);
+		GxtSensor sensor = sensors.get(index);
+		sensor.setUsers(gxtUsers);
 
 		index++;
 
@@ -108,12 +108,12 @@ public class SensorShareController extends Controller {
 	 * @param event
 	 *            AppEvent with "sensors" and "user" properties
 	 */
-	private void shareSensor(final List<ExtSensor> sensors, final String username, final int index,
+	private void shareSensor(final List<GxtSensor> sensors, final String username, final int index,
 			final int retryCount) {
 
 		if (null != sensors && index < sensors.size()) {
 			// get first sensor from the list
-			ExtSensor sensor = sensors.get(index);
+			GxtSensor sensor = sensors.get(index);
 
 			// prepare request properties
 			final Method method = RequestBuilder.POST;
@@ -162,11 +162,11 @@ public class SensorShareController extends Controller {
 		}
 	}
 
-	private void onShareSuccess(List<ExtSensor> sensors) {
+	private void onShareSuccess(List<GxtSensor> sensors) {
 
 		// update library
-		for (ExtSensor sensor : sensors) {
-			List<ExtSensor> library = Registry
+		for (GxtSensor sensor : sensors) {
+			List<GxtSensor> library = Registry
 					.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 			int index = library.indexOf(sensor);
 			if (index != -1) {

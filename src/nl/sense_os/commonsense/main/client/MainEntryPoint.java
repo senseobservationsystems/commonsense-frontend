@@ -15,13 +15,13 @@ import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
 import nl.sense_os.commonsense.main.client.groups.list.GroupController;
-import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementPlace;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
@@ -142,7 +142,7 @@ public class MainEntryPoint implements EntryPoint {
 		// Start PlaceHistoryHandler with our PlaceHistoryMapper
 		PlaceHistoryMapper historyMapper = GWT.create(MainPlaceHistoryMapper.class);
 		historyHandler = new PlaceHistoryHandler(historyMapper);
-		historyHandler.register(placeController, eventBus, new SensorManagementPlace());
+		historyHandler.register(placeController, eventBus, new SensorsPlace());
 
 		Viewport viewport = new Viewport();
 		viewport.setLayout(new FitLayout());
@@ -266,8 +266,8 @@ public class MainEntryPoint implements EntryPoint {
 	private void onGetCurrentUserSuccess(User user) {
 
 		// store in registry
-		ExtUser extUser = new ExtUser(user);
-		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, extUser);
+		GxtUser gxtUser = new GxtUser(user);
+		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, gxtUser);
 
 		// fire event
 		clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));

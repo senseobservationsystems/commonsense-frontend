@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
-import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -73,9 +73,9 @@ public class EnvCreator extends View {
 	protected boolean isFormValid;
 	private boolean isOutlineValid;
 	private ContentPanel sensorsPanel;
-	private Grid<ExtSensor> grid;
+	private Grid<GxtSensor> grid;
 	private ToolBar sensorsFilterBar;
-	private GroupingStore<ExtSensor> sensorsStore;
+	private GroupingStore<GxtSensor> sensorsStore;
 
 	public EnvCreator(Controller c) {
 		super(c);
@@ -199,11 +199,11 @@ public class EnvCreator extends View {
 	private void initSensorsFilters() {
 
 		// text filter
-		SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
+		SensorTextFilter<GxtSensor> textFilter = new SensorTextFilter<GxtSensor>();
 		textFilter.bind(sensorsStore);
 
 		// filter to show only my own sensors
-		final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
+		final SensorOwnerFilter<GxtSensor> ownerFilter = new SensorOwnerFilter<GxtSensor>();
 		sensorsStore.addFilter(ownerFilter);
 
 		// checkbox to toggle filter
@@ -415,21 +415,21 @@ public class EnvCreator extends View {
 		explWrapper.add(explanation, new FlowData(10));
 		sensorsPanel.setTopComponent(explWrapper);
 
-		sensorsStore = new GroupingStore<ExtSensor>();
-		List<ExtSensor> library = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		sensorsStore = new GroupingStore<GxtSensor>();
+		List<GxtSensor> library = Registry
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		sensorsStore.add(library);
 
 		initSensorsFilters();
 
-		CheckBoxSelectionModel<ExtSensor> sm = new CheckBoxSelectionModel<ExtSensor>();
+		CheckBoxSelectionModel<GxtSensor> sm = new CheckBoxSelectionModel<GxtSensor>();
 
 		// column model
 		List<ColumnConfig> cols = LibraryColumnsFactory.create().getColumns();
 		cols.add(0, sm.getColumn());
 		ColumnModel cm = new ColumnModel(cols);
 
-		grid = new Grid<ExtSensor>(sensorsStore, cm);
+		grid = new Grid<GxtSensor>(sensorsStore, cm);
 		grid.setSelectionModel(sm);
 		grid.addPlugin(sm);
 

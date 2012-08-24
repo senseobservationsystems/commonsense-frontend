@@ -13,9 +13,9 @@ import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
-import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
@@ -51,16 +51,16 @@ public class EnvMap extends VizPanel {
 
 	private static final Logger LOG = Logger.getLogger(EnvMap.class.getName());
 	private MapWidget map;
-	private final Map<Marker, List<ExtDevice>> deviceMarkers = new HashMap<Marker, List<ExtDevice>>();
+	private final Map<Marker, List<GxtDevice>> deviceMarkers = new HashMap<Marker, List<GxtDevice>>();
 
-	private ExtEnvironment environment;
-	private List<ExtSensor> sensors;
+	private GxtEnvironment environment;
+	private List<GxtSensor> sensors;
 	private Polygon outline;
 	private final Window window = new Window();
 
 	private MapClickHandler mapClickHandler;
 	private PolygonClickHandler polygonClickHandler;
-	private ListStore<ExtDevice> store;
+	private ListStore<GxtDevice> store;
 	private HashMap<Integer, List<Timeseries>> sensorValues;
 
 	public EnvMap() {
@@ -68,7 +68,7 @@ public class EnvMap extends VizPanel {
 		// LOG.setLevel(Level.ALL);
 	}
 
-	public EnvMap(ExtEnvironment environment) {
+	public EnvMap(GxtEnvironment environment) {
 
 		// Create the map.
 		this.map = new MapWidget();
@@ -111,7 +111,7 @@ public class EnvMap extends VizPanel {
 	private void drawMarkers() {
 		LOG.fine("Draw markers...");
 
-		for (ExtSensor sensor : sensors) {
+		for (GxtSensor sensor : sensors) {
 			if (sensor.getName().contains("position")) {
 				List<Timeseries> positionData = sensorValues.get(sensor.getId());
 				if (positionData != null) {
@@ -160,12 +160,12 @@ public class EnvMap extends VizPanel {
 
 	}
 
-	private void addDeviceMarker(LatLng latLng, List<ExtDevice> devices) {
+	private void addDeviceMarker(LatLng latLng, List<GxtDevice> devices) {
 		LOG.finest("Add device marker...");
 
 		// create title
 		String title = "";
-		for (ExtDevice device : devices) {
+		for (GxtDevice device : devices) {
 			String type = device.getType();
 			if (type.equals("myrianode")) {
 				title += device.getType() + " " + device.getUuid();
@@ -243,12 +243,12 @@ public class EnvMap extends VizPanel {
 	 * @return A list of deviceMarkers with their lat/lng from the map's markers, stored in the
 	 *         "latlng" property.
 	 */
-	public List<ExtDevice> getDevices() {
+	public List<GxtDevice> getDevices() {
 		// create list of deviceMarkers
-		List<ExtDevice> result = new ArrayList<ExtDevice>();
-		for (Entry<Marker, List<ExtDevice>> entry : this.deviceMarkers.entrySet()) {
+		List<GxtDevice> result = new ArrayList<GxtDevice>();
+		for (Entry<Marker, List<GxtDevice>> entry : this.deviceMarkers.entrySet()) {
 			LatLng latLng = entry.getKey().getLatLng();
-			for (ExtDevice device : entry.getValue()) {
+			for (GxtDevice device : entry.getValue()) {
 				device.set("latlng", latLng);
 				result.add(device);
 			}
@@ -304,18 +304,18 @@ public class EnvMap extends VizPanel {
 		window.setSize(300, 300);
 		window.setHeading("Select the devices for this position");
 
-		store = new ListStore<ExtDevice>();
+		store = new ListStore<GxtDevice>();
 
-		CheckBoxSelectionModel<ExtDevice> sm = new CheckBoxSelectionModel<ExtDevice>();
+		CheckBoxSelectionModel<GxtDevice> sm = new CheckBoxSelectionModel<GxtDevice>();
 
 		ColumnConfig check = sm.getColumn();
-		ColumnConfig id = new ColumnConfig(ExtDevice.ID, "ID", 50);
-		ColumnConfig type = new ColumnConfig(ExtDevice.TYPE, "Type", 100);
-		ColumnConfig uuid = new ColumnConfig(ExtDevice.UUID, "UUID", 50);
+		ColumnConfig id = new ColumnConfig(GxtDevice.ID, "ID", 50);
+		ColumnConfig type = new ColumnConfig(GxtDevice.TYPE, "Type", 100);
+		ColumnConfig uuid = new ColumnConfig(GxtDevice.UUID, "UUID", 50);
 		ColumnModel cm = new ColumnModel(Arrays.asList(check, id, type, uuid));
 
-		final Grid<ExtDevice> grid = new Grid<ExtDevice>(store, cm);
-		grid.setAutoExpandColumn(ExtDevice.TYPE);
+		final Grid<GxtDevice> grid = new Grid<GxtDevice>(store, cm);
+		grid.setAutoExpandColumn(GxtDevice.TYPE);
 		grid.setSelectionModel(sm);
 		grid.addPlugin(sm);
 
@@ -364,7 +364,7 @@ public class EnvMap extends VizPanel {
 		super.onRender(parent, index);
 	}
 
-	private void setEnvironment(ExtEnvironment environment) {
+	private void setEnvironment(GxtEnvironment environment) {
 		this.environment = environment;
 
 		if (null != environment) {
@@ -395,7 +395,7 @@ public class EnvMap extends VizPanel {
 		LOG.finest("Zoom level: " + this.map.getBoundsZoomLevel(this.outline.getBounds()));
 	}
 
-	public void setSensors(List<ExtSensor> sensors) {
+	public void setSensors(List<GxtSensor> sensors) {
 		LOG.finest("Set sensors...");
 
 		this.sensors = sensors;
@@ -413,14 +413,14 @@ public class EnvMap extends VizPanel {
 		store.removeAll();
 
 		// only display devices that are not added to the map yet
-		List<ExtDevice> myDevices = Registry
-				.<List<ExtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST);
-		List<ExtDevice> selectable = new ArrayList<ExtDevice>();
-		for (ExtDevice device : myDevices) {
+		List<GxtDevice> myDevices = Registry
+				.<List<GxtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST);
+		List<GxtDevice> selectable = new ArrayList<GxtDevice>();
+		for (GxtDevice device : myDevices) {
 
 			boolean isAlreadyInMap = false;
-			for (Entry<Marker, List<ExtDevice>> entry : deviceMarkers.entrySet()) {
-				for (ExtDevice mapDevice : entry.getValue()) {
+			for (Entry<Marker, List<GxtDevice>> entry : deviceMarkers.entrySet()) {
+				for (GxtDevice mapDevice : entry.getValue()) {
 					if (device.equals(mapDevice)) {
 						isAlreadyInMap = true;
 					}

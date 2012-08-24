@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.viz.panels.table;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizView;
 
@@ -33,7 +33,7 @@ public class TableVizView extends VizView {
 
         if (type.equals(VizPanelEvents.ShowTable)) {
             LOG.finest("ShowTable");
-            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+            final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
             final long start = event.getData("startTime");
             final long end = event.getData("endTime");
             final boolean subsample = event.getData("subsample");
@@ -49,7 +49,7 @@ public class TableVizView extends VizView {
         // nothing to do
     }
 
-    private void showTable(List<ExtSensor> sensors, long start, long end, boolean subsample) {
+    private void showTable(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
         // add table tab item
         item = new TabItem(createChartTitle(sensors));

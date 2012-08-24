@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client.groups.invite;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -20,7 +20,7 @@ public class GroupInviteWindow extends Window {
     private Button btnCancel;
     private TextField<String> txtfldUsername;
 
-    public GroupInviteWindow(ExtGroup group) {
+    public GroupInviteWindow(GxtGroup group) {
         setSize("300px", "210px");
         setClosable(false);
         setHeading("Add user to " + group.getName());

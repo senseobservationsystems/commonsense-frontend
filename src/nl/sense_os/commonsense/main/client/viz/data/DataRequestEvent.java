@@ -3,22 +3,22 @@ package nl.sense_os.commonsense.main.client.viz.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 
 public class DataRequestEvent extends AppEvent {
 
     private long start, end;
-    private List<ExtSensor> sensors;
+    private List<GxtSensor> sensors;
     private boolean showProgress, subsample;
 
     public DataRequestEvent() {
         super(DataEvents.DataRequest);
-        sensors = new ArrayList<ExtSensor>();
+        sensors = new ArrayList<GxtSensor>();
     }
 
-    public DataRequestEvent(long start, long end, List<ExtSensor> sensors, boolean subsample,
+    public DataRequestEvent(long start, long end, List<GxtSensor> sensors, boolean subsample,
             boolean showProgress) {
         this();
         setStart(start);
@@ -32,7 +32,7 @@ public class DataRequestEvent extends AppEvent {
         return end;
     }
 
-    public List<ExtSensor> getSensors() {
+    public List<GxtSensor> getSensors() {
         return sensors;
     }
 
@@ -52,7 +52,7 @@ public class DataRequestEvent extends AppEvent {
         this.end = end;
     }
 
-    public void setSensors(List<ExtSensor> sensors) {
+    public void setSensors(List<GxtSensor> sensors) {
         this.sensors = sensors;
     }
 

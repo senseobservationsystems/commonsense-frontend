@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.groups.invite;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -17,7 +17,7 @@ public class GroupInviteView extends View {
 
     private static final Logger LOG = Logger.getLogger(GroupInviteView.class.getName());
     private GroupInviteWindow window;
-    private ExtGroup group;
+    private GxtGroup group;
 
     public GroupInviteView(Controller c) {
         super(c);
@@ -57,7 +57,7 @@ public class GroupInviteView extends View {
 
     private void onShow(AppEvent event) {
 
-        group = event.<ExtGroup> getData("group");
+        group = event.<GxtGroup> getData("group");
         LOG.fine("Add user for group " + group.getId() + "(" + group.getName() + ")");
 
         window = new GroupInviteWindow(group);

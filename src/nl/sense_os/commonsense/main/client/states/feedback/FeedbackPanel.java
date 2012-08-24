@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.DataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
 import com.chap.links.client.Graph;
@@ -53,7 +53,7 @@ public class FeedbackPanel extends VizPanel {
 
     private static final Logger LOG = Logger.getLogger(FeedbackPanel.class.getName());
 
-    private final ExtSensor stateSensor;
+    private final GxtSensor stateSensor;
     private final LayoutContainer stateContainer;
     private final LayoutContainer vizContainer;
     private List<String> labels;
@@ -73,7 +73,7 @@ public class FeedbackPanel extends VizPanel {
 
     private boolean isProcessingInBackground;
 
-    public FeedbackPanel(ExtSensor stateSensor, List<ExtSensor> sensors, long start, long end,
+    public FeedbackPanel(GxtSensor stateSensor, List<GxtSensor> sensors, long start, long end,
 	    boolean subsample, String title, List<String> labels) {
 	super();
 

@@ -2,11 +2,11 @@ package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
-import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementView;
-import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
+import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
+import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
-import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
-import nl.sense_os.commonsense.main.client.statemanagement.StateManagementView;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
+import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -20,11 +20,11 @@ public interface MainClientFactory {
 
 	public AllInOneView getAllInOneView();
 
-	public EnvironmentManagementView getEnvironmentManagementView();
+	public EnvironmentListView getEnvironmentListView();
 
 	public EventBus getEventBus();
 
-	public GroupManagementView getGroupManagementView();
+	public GroupListView getGroupListView();
 
 	public LogoutView getLogoutView();
 
@@ -32,7 +32,7 @@ public interface MainClientFactory {
 
 	public PlaceController getPlaceController();
 
-	public SensorManagementView getSensorManagementView();
+	public SensorListView getSensorListView();
 
-	public StateManagementView getStateManagementView();
+	public StateListView getStateListView();
 }

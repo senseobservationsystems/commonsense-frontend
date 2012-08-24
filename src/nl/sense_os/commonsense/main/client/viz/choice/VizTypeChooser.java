@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.component.TimeRangeForm;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.component.TimeRangeForm;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
@@ -43,8 +43,8 @@ public class VizTypeChooser extends View {
     private Window window;
     private CardLayout layout;
 
-    private List<ExtSensor> sensors;
-    private List<ExtSensor> locationSensors;
+    private List<GxtSensor> sensors;
+    private List<GxtSensor> locationSensors;
 
     private AppEvent submitEvent;
 
@@ -65,16 +65,16 @@ public class VizTypeChooser extends View {
         super(c);
     }
 
-    private boolean checkForLocationSensors(List<ExtSensor> list) {
+    private boolean checkForLocationSensors(List<GxtSensor> list) {
 
         // create array to send as parameter in RPC
-        locationSensors = new ArrayList<ExtSensor>();
-        for (ExtSensor sensor : list) {
+        locationSensors = new ArrayList<GxtSensor>();
+        for (GxtSensor sensor : list) {
 
             String structure = sensor.<String> get("data_structure");
 
             if (null != structure && structure.contains("longitude")) {
-                locationSensors.add(new ExtSensor(sensor.getProperties()));
+                locationSensors.add(new GxtSensor(sensor.getProperties()));
 
             } else {
                 // do nothing
@@ -92,7 +92,7 @@ public class VizTypeChooser extends View {
     protected void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type.equals(VizEvents.ShowTypeChoice)) {
-            List<ExtSensor> sensors = event.<List<ExtSensor>> getData();
+            List<GxtSensor> sensors = event.<List<GxtSensor>> getData();
             showWindow(sensors);
 
         } else if (type.equals(VizEvents.TypeChoiceCancelled)) {
@@ -342,7 +342,7 @@ public class VizTypeChooser extends View {
         }
     }
 
-    private void showWindow(List<ExtSensor> sensors) {
+    private void showWindow(List<GxtSensor> sensors) {
         this.sensors = sensors;
         if (this.sensors.size() > 0) {
             window.show();

@@ -3,11 +3,11 @@ package nl.sense_os.commonsense.main.client.groups.join.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.sense_os.commonsense.main.client.ext.component.WizardFormPanel;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
-import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
-import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
+import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 
@@ -30,12 +30,12 @@ public class ShareSensorsForm extends WizardFormPanel {
 	private List<String> reqSensorNames;
 	private LabelField lblReqSensors;
 
-	private GroupingStore<ExtSensor> store;
-	private Grid<ExtSensor> grid;
+	private GroupingStore<GxtSensor> store;
+	private Grid<GxtSensor> grid;
 	private ToolBar filterBar;
 
 	public ShareSensorsForm(final List<String> reqSensors, List<String> optSensors,
-			List<ExtSensor> sensors) {
+			List<GxtSensor> sensors) {
 
 		reqSensorNames = reqSensors;
 
@@ -60,10 +60,10 @@ public class ShareSensorsForm extends WizardFormPanel {
 				selectRequiredSensors();
 
 				String missingSensors = "";
-				List<ExtSensor> selected = grid.getSelectionModel().getSelectedItems();
+				List<GxtSensor> selected = grid.getSelectionModel().getSelectedItems();
 				for (String reqName : reqSensorNames) {
 					boolean reqSensorSelected = false;
-					for (ExtSensor sensor : selected) {
+					for (GxtSensor sensor : selected) {
 						if (sensor.getName().equals(reqName)) {
 							reqSensorSelected = true;
 							break;
@@ -97,11 +97,11 @@ public class ShareSensorsForm extends WizardFormPanel {
 		add(lblReqSensors, new FormData("-5"));
 	}
 
-	public Grid<ExtSensor> getGrid() {
+	public Grid<GxtSensor> getGrid() {
 		return grid;
 	}
 
-	public List<ExtSensor> getSharedSensors() {
+	public List<GxtSensor> getSharedSensors() {
 		return grid.getSelectionModel().getSelection();
 	}
 
@@ -112,7 +112,7 @@ public class ShareSensorsForm extends WizardFormPanel {
 	private void initFilters() {
 
 		// text filter
-		SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
+		SensorTextFilter<GxtSensor> textFilter = new SensorTextFilter<GxtSensor>();
 		textFilter.bind(store);
 
 		// add filters to filter bar
@@ -121,16 +121,16 @@ public class ShareSensorsForm extends WizardFormPanel {
 		filterBar.add(textFilter);
 	}
 
-	private void initGrid(List<ExtSensor> sensors) {
+	private void initGrid(List<GxtSensor> sensors) {
 
 		// list store
-		store = new GroupingStore<ExtSensor>();
-		store.setKeyProvider(new SenseKeyProvider<ExtSensor>());
+		store = new GroupingStore<GxtSensor>();
+		store.setKeyProvider(new SenseKeyProvider<GxtSensor>());
 		store.setMonitorChanges(true);
 		store.add(sensors);
 
 		// selection model for the grid
-		CheckBoxSelectionModel<ExtSensor> selectionModel = new CheckBoxSelectionModel<ExtSensor>();
+		CheckBoxSelectionModel<GxtSensor> selectionModel = new CheckBoxSelectionModel<GxtSensor>();
 
 		// Column model
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
@@ -144,8 +144,8 @@ public class ShareSensorsForm extends WizardFormPanel {
 		view.setForceFit(true);
 		view.setGroupRenderer(new SensorGroupRenderer(cm));
 
-		grid = new Grid<ExtSensor>(store, cm);
-		grid.setModelProcessor(new SensorProcessor<ExtSensor>());
+		grid = new Grid<GxtSensor>(store, cm);
+		grid.setModelProcessor(new SensorProcessor<GxtSensor>());
 		grid.setView(view);
 		grid.setBorders(false);
 		grid.setId("group-sensor-share-grid");
@@ -156,9 +156,9 @@ public class ShareSensorsForm extends WizardFormPanel {
 
 	private void selectRequiredSensors() {
 
-		List<ExtSensor> sensors = store.getModels();
-		List<ExtSensor> requiredSensors = new ArrayList<ExtSensor>();
-		for (ExtSensor sensor : sensors) {
+		List<GxtSensor> sensors = store.getModels();
+		List<GxtSensor> requiredSensors = new ArrayList<GxtSensor>();
+		for (GxtSensor sensor : sensors) {
 			boolean required = false;
 			for (String reqName : reqSensorNames) {
 				if (sensor.getName().equals(reqName)) {
@@ -173,7 +173,7 @@ public class ShareSensorsForm extends WizardFormPanel {
 
 		// select the sensors in the grid
 		grid.getSelectionModel().select(true,
-				requiredSensors.toArray(new ExtSensor[requiredSensors.size()]));
+				requiredSensors.toArray(new GxtSensor[requiredSensors.size()]));
 	}
 
 	public void setReqSensors(List<String> sensorNames) {

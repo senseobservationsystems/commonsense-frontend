@@ -8,8 +8,8 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetServicesResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Service;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtService;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -43,7 +43,7 @@ public class StateConnectController extends Controller {
 				StateConnectEvents.AvailableSensorsNotUpdated);
 	}
 
-	private void connectService(ExtSensor sensor, ExtSensor stateSensor, String serviceName) {
+	private void connectService(GxtSensor sensor, GxtSensor stateSensor, String serviceName) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
@@ -93,16 +93,16 @@ public class StateConnectController extends Controller {
 	}
 
 	private void getAvailableSensors(String serviceName,
-			final AsyncCallback<List<ExtSensor>> proxyCallback) {
+			final AsyncCallback<List<GxtSensor>> proxyCallback) {
 
-		List<ExtSensor> result = new ArrayList<ExtSensor>();
+		List<GxtSensor> result = new ArrayList<GxtSensor>();
 
-		List<ExtSensor> library = Registry
+		List<GxtSensor> library = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		for (ExtSensor sensor : library) {
-			List<ExtService> availableServices = sensor.getAvailServices();
+		for (GxtSensor sensor : library) {
+			List<GxtService> availableServices = sensor.getAvailServices();
 			if (null != availableServices) {
-				for (ExtService availableService : availableServices) {
+				for (GxtService availableService : availableServices) {
 					if (availableService.getName().equalsIgnoreCase(serviceName)) {
 						result.add(sensor);
 						break;
@@ -114,14 +114,14 @@ public class StateConnectController extends Controller {
 		proxyCallback.onSuccess(result);
 	}
 
-	private void getServiceName(final ExtSensor stateSensor) {
+	private void getServiceName(final GxtSensor stateSensor) {
 
 		if (stateSensor.getChildCount() == 0) {
 			// if a service has no child sensors, we cannot get the name
 			onServiceNameFailure();
 			return;
 		}
-		ExtSensor sensor = (ExtSensor) stateSensor.getChild(0);
+		GxtSensor sensor = (GxtSensor) stateSensor.getChild(0);
 
 		final Method method = RequestBuilder.GET;
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -172,8 +172,8 @@ public class StateConnectController extends Controller {
 		if (type.equals(StateConnectEvents.AvailableSensorsRequested)) {
 			LOG.fine("AvailableSensorsRequested");
 			final String serviceName = event.<String> getData("name");
-			final AsyncCallback<List<ExtSensor>> callback = event
-					.<AsyncCallback<List<ExtSensor>>> getData("callback");
+			final AsyncCallback<List<GxtSensor>> callback = event
+					.<AsyncCallback<List<GxtSensor>>> getData("callback");
 			getAvailableSensors(serviceName, callback);
 
 		} else
@@ -183,8 +183,8 @@ public class StateConnectController extends Controller {
 		 */
 		if (type.equals(StateConnectEvents.ConnectRequested)) {
 			LOG.fine("ConnectRequested");
-			final ExtSensor sensor = event.<ExtSensor> getData("sensor");
-			final ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
+			final GxtSensor sensor = event.<GxtSensor> getData("sensor");
+			final GxtSensor stateSensor = event.<GxtSensor> getData("stateSensor");
 			final String serviceName = event.<String> getData("serviceName");
 			connectService(sensor, stateSensor, serviceName);
 
@@ -195,7 +195,7 @@ public class StateConnectController extends Controller {
 		 */
 		if (type.equals(StateConnectEvents.ServiceNameRequest)) {
 			LOG.fine("ServiceNameRequest");
-			final ExtSensor service = event.<ExtSensor> getData("stateSensor");
+			final GxtSensor service = event.<GxtSensor> getData("stateSensor");
 			getServiceName(service);
 
 		} else
@@ -227,7 +227,7 @@ public class StateConnectController extends Controller {
 		forwardToView(connecter, new AppEvent(StateConnectEvents.ServiceNameFailure));
 	}
 
-	private void onServiceNameSuccess(ExtSensor stateSensor, String response) {
+	private void onServiceNameSuccess(GxtSensor stateSensor, String response) {
 
 		// parse list of running services from the response
 		List<Service> services = new ArrayList<Service>();

@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.states.feedback;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.TimeRangeForm;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.component.TimeRangeForm;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -33,8 +33,8 @@ public class FeedbackChooser extends View {
 
         if (type.equals(FeedbackEvents.ShowChooser)) {
             LOG.finest("ShowChooser");
-            final ExtSensor state = event.<ExtSensor> getData("state");
-            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+            final GxtSensor state = event.<GxtSensor> getData("state");
+            final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
             final List<String> labels = event.<List<String>> getData("labels");
             showChooser(state, sensors, labels);
 
@@ -44,7 +44,7 @@ public class FeedbackChooser extends View {
 
     }
 
-    private void showChooser(final ExtSensor state, final List<ExtSensor> sensors,
+    private void showChooser(final GxtSensor state, final List<GxtSensor> sensors,
             final List<String> labels) {
         final Window w = new Window();
         w.setLayout(new FitLayout());

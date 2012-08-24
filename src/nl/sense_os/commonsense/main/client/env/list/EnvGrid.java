@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -54,10 +54,10 @@ public class EnvGrid extends View {
 	private Button deleteButton;
 	private Button editButton;
 	private Button viewButton;
-	private Grid<ExtEnvironment> grid;
+	private Grid<GxtEnvironment> grid;
 	private ContentPanel panel;
-	private ListStore<ExtEnvironment> store;
-	private ListLoader<ListLoadResult<ExtEnvironment>> loader;
+	private ListStore<GxtEnvironment> store;
+	private ListLoader<ListLoadResult<GxtEnvironment>> loader;
 	private boolean isListDirty;
 	private ToolButton refreshTool;
 	private ToolBar toolBar;
@@ -114,11 +114,11 @@ public class EnvGrid extends View {
 
 	private void initGrid() {
 		// tree store
-		DataProxy<ListLoadResult<ExtEnvironment>> proxy = new DataProxy<ListLoadResult<ExtEnvironment>>() {
+		DataProxy<ListLoadResult<GxtEnvironment>> proxy = new DataProxy<ListLoadResult<GxtEnvironment>>() {
 
 			@Override
-			public void load(DataReader<ListLoadResult<ExtEnvironment>> reader, Object loadConfig,
-					AsyncCallback<ListLoadResult<ExtEnvironment>> callback) {
+			public void load(DataReader<ListLoadResult<GxtEnvironment>> reader, Object loadConfig,
+					AsyncCallback<ListLoadResult<GxtEnvironment>> callback) {
 
 				// only load when the panel is not collapsed
 				if (loadConfig instanceof ListLoadConfig) {
@@ -129,20 +129,20 @@ public class EnvGrid extends View {
 				}
 			}
 		};
-		loader = new BaseListLoader<ListLoadResult<ExtEnvironment>>(proxy);
-		store = new ListStore<ExtEnvironment>(loader);
+		loader = new BaseListLoader<ListLoadResult<GxtEnvironment>>(proxy);
+		store = new ListStore<GxtEnvironment>(loader);
 
-		ColumnConfig name = new ColumnConfig(ExtEnvironment.NAME, "Name", 100);
-		ColumnConfig floors = new ColumnConfig(ExtEnvironment.FLOORS, "Floors", 100);
-		ColumnConfig id = new ColumnConfig(ExtEnvironment.ID, "ID", 50);
+		ColumnConfig name = new ColumnConfig(GxtEnvironment.NAME, "Name", 100);
+		ColumnConfig floors = new ColumnConfig(GxtEnvironment.FLOORS, "Floors", 100);
+		ColumnConfig id = new ColumnConfig(GxtEnvironment.ID, "ID", 50);
 		id.setHidden(true);
-		ColumnConfig outline = new ColumnConfig(ExtEnvironment.OUTLINE, "Outline", 200);
-		outline.setRenderer(new GridCellRenderer<ExtEnvironment>() {
+		ColumnConfig outline = new ColumnConfig(GxtEnvironment.OUTLINE, "Outline", 200);
+		outline.setRenderer(new GridCellRenderer<GxtEnvironment>() {
 
 			@Override
-			public Object render(ExtEnvironment model, String property, ColumnData config,
-					int rowIndex, int colIndex, ListStore<ExtEnvironment> store,
-					Grid<ExtEnvironment> grid) {
+			public Object render(GxtEnvironment model, String property, ColumnData config,
+					int rowIndex, int colIndex, ListStore<GxtEnvironment> store,
+					Grid<GxtEnvironment> grid) {
 				Polygon outline = model.getOutline();
 				String outString = "";
 				if (outline != null) {
@@ -154,13 +154,13 @@ public class EnvGrid extends View {
 			}
 		});
 		outline.setHidden(true);
-		ColumnConfig position = new ColumnConfig(ExtEnvironment.POSITION, "Position", 100);
-		position.setRenderer(new GridCellRenderer<ExtEnvironment>() {
+		ColumnConfig position = new ColumnConfig(GxtEnvironment.POSITION, "Position", 100);
+		position.setRenderer(new GridCellRenderer<GxtEnvironment>() {
 
 			@Override
-			public Object render(ExtEnvironment model, String property, ColumnData config,
-					int rowIndex, int colIndex, ListStore<ExtEnvironment> store,
-					Grid<ExtEnvironment> grid) {
+			public Object render(GxtEnvironment model, String property, ColumnData config,
+					int rowIndex, int colIndex, ListStore<GxtEnvironment> store,
+					Grid<GxtEnvironment> grid) {
 				LatLng position = model.getPosition();
 				if (null != position) {
 					return model.getPosition().toUrlValue();
@@ -173,11 +173,11 @@ public class EnvGrid extends View {
 
 		ColumnModel cm = new ColumnModel(Arrays.asList(id, name, floors, position, outline));
 
-		grid = new Grid<ExtEnvironment>(store, cm);
+		grid = new Grid<GxtEnvironment>(store, cm);
 		grid.setId("buildingGrid");
 		grid.setStateful(true);
 		grid.setLoadMask(true);
-		grid.setAutoExpandColumn(ExtEnvironment.NAME);
+		grid.setAutoExpandColumn(GxtEnvironment.NAME);
 	}
 
 	private void initHeaderTool() {
@@ -258,13 +258,13 @@ public class EnvGrid extends View {
 		toolBar.add(deleteButton);
 
 		// enable/disable buttons according to grid selection
-		GridSelectionModel<ExtEnvironment> selectionModel = new GridSelectionModel<ExtEnvironment>();
+		GridSelectionModel<GxtEnvironment> selectionModel = new GridSelectionModel<GxtEnvironment>();
 		selectionModel.setSelectionMode(SelectionMode.SINGLE);
-		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtEnvironment>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<GxtEnvironment>() {
 
 			@Override
-			public void selectionChanged(SelectionChangedEvent<ExtEnvironment> se) {
-				ExtEnvironment selection = se.getSelectedItem();
+			public void selectionChanged(SelectionChangedEvent<GxtEnvironment> se) {
+				GxtEnvironment selection = se.getSelectedItem();
 				if (null != selection) {
 					deleteButton.enable();
 					viewButton.enable();

@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.ServiceMethodResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -47,9 +47,9 @@ public class FeedbackController extends Controller {
 		registerEventTypes(FeedbackEvents.LabelsRequest);
 	}
 
-	private void checkFeedbackProcessed(final int checkCount, final ExtSensor state,
+	private void checkFeedbackProcessed(final int checkCount, final GxtSensor state,
 			final List<FeedbackData> changes, final int index, final FeedbackPanel panel) {
-		ExtSensor sensor = (ExtSensor) state.getChild(0);
+		GxtSensor sensor = (GxtSensor) state.getChild(0);
 
 		if (index < changes.size()) {
 
@@ -101,7 +101,7 @@ public class FeedbackController extends Controller {
 		}
 	}
 
-	private void getLabels(final ExtSensor state, final List<ExtSensor> sensors) {
+	private void getLabels(final GxtSensor state, final List<GxtSensor> sensors) {
 
 		List<ModelData> methods = state.<List<ModelData>> get("methods");
 		boolean canHazClassLabels = false;
@@ -116,7 +116,7 @@ public class FeedbackController extends Controller {
 		}
 
 		if (sensors.size() > 0) {
-			ExtSensor sensor = sensors.get(0);
+			GxtSensor sensor = sensors.get(0);
 
 			// prepare request properties
 			final Method method = RequestBuilder.GET;
@@ -173,7 +173,7 @@ public class FeedbackController extends Controller {
 		 */
 		if (type.equals(FeedbackEvents.FeedbackSubmit)) {
 			// LOG.fine( "FeedbackSubmit");
-			final ExtSensor state = event.<ExtSensor> getData("state");
+			final GxtSensor state = event.<GxtSensor> getData("state");
 			final List<FeedbackData> changes = event.<List<FeedbackData>> getData("changes");
 			final FeedbackPanel panel = event.<FeedbackPanel> getData("panel");
 			markFeedback(state, changes, 0, panel);
@@ -185,8 +185,8 @@ public class FeedbackController extends Controller {
 		 */
 		if (type.equals(FeedbackEvents.LabelsRequest)) {
 			// LOG.fine( "LabelsRequest");
-			final ExtSensor state = event.getData("state");
-			final List<ExtSensor> sensors = event.getData("sensors");
+			final GxtSensor state = event.getData("state");
+			final List<GxtSensor> sensors = event.getData("sensors");
 			getLabels(state, sensors);
 
 		} else
@@ -226,10 +226,10 @@ public class FeedbackController extends Controller {
 	 * @param panel
 	 *            Feedback panel that should receive callbacks about the feedback processing.
 	 */
-	private void markFeedback(final ExtSensor state, final List<FeedbackData> changes,
+	private void markFeedback(final GxtSensor state, final List<FeedbackData> changes,
 			final int index, final FeedbackPanel panel) {
 
-		ExtSensor sensor = (ExtSensor) state.getChild(0);
+		GxtSensor sensor = (GxtSensor) state.getChild(0);
 
 		if (index < changes.size()) {
 			FeedbackData change = changes.get(index);
@@ -309,7 +309,7 @@ public class FeedbackController extends Controller {
 	 * @param panel
 	 *            The feedback panel that originated the changes.
 	 */
-	private void onNoContent(ExtSensor state, List<FeedbackData> changes, int index,
+	private void onNoContent(GxtSensor state, List<FeedbackData> changes, int index,
 			FeedbackPanel panel) {
 		markFeedback(state, changes, index + 1, panel);
 	}
@@ -329,7 +329,7 @@ public class FeedbackController extends Controller {
 	}
 
 	private void onCheckProcessedSuccess(String response, final int checkCount,
-			final ExtSensor state, final List<FeedbackData> changes, final int index,
+			final GxtSensor state, final List<FeedbackData> changes, final int index,
 			final FeedbackPanel panel) {
 
 		String result = null;
@@ -373,12 +373,12 @@ public class FeedbackController extends Controller {
 		forwardToView(feedback, failure);
 	}
 
-	private void onFeedbackMarked(String response, ExtSensor state, List<FeedbackData> changes,
+	private void onFeedbackMarked(String response, GxtSensor state, List<FeedbackData> changes,
 			int index, FeedbackPanel panel) {
 		checkFeedbackProcessed(0, state, changes, index, panel);
 	}
 
-	private void onLabelsComplete(ExtSensor state, List<ExtSensor> sensors, List<String> labels) {
+	private void onLabelsComplete(GxtSensor state, List<GxtSensor> sensors, List<String> labels) {
 		AppEvent event = new AppEvent(FeedbackEvents.LabelsSuccess);
 		event.setData("state", state);
 		event.setData("sensors", sensors);
@@ -390,7 +390,7 @@ public class FeedbackController extends Controller {
 		forwardToView(feedback, new AppEvent(FeedbackEvents.LabelsFailure));
 	}
 
-	private void onLabelsSuccess(String response, ExtSensor state, List<ExtSensor> sensors) {
+	private void onLabelsSuccess(String response, GxtSensor state, List<GxtSensor> sensors) {
 
 		// parse result from the GetClassLabels response
 		String resultString = null;

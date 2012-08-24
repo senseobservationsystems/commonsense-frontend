@@ -32,7 +32,7 @@ public class AllInOneActivity extends AbstractActivity implements AllInOneView.P
 
 		AllInOneView view = clientFactory.getAllInOneView();
 
-		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
+		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
 		parent.removeAll();
 		parent.setLayout(new FitLayout());
 		parent.add(view.asWidget());

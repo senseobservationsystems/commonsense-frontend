@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.groups.create;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.util.Md5Hasher;
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 import nl.sense_os.commonsense.main.client.groups.create.components.GroupCreator;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -116,7 +116,7 @@ public class GroupCreateView extends View {
 	private void submit() {
 		window.setBusy(true);
 
-		ExtGroup group = new ExtGroup();
+		GxtGroup group = new GxtGroup();
 		group.setName(window.getGroupName());
 		group.setDescription(window.getGroupDescription());
 

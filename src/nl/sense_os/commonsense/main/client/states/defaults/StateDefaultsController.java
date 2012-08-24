@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -30,7 +30,7 @@ public class StateDefaultsController extends Controller {
 				StateDefaultsEvents.CheckDefaultsRequest, StateDefaultsEvents.CheckDefaultsSuccess);
 	}
 
-	private void checkDefaults(List<ExtDevice> devices, boolean overwrite, final View source) {
+	private void checkDefaults(List<GxtDevice> devices, boolean overwrite, final View source) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
@@ -41,10 +41,10 @@ public class StateDefaultsController extends Controller {
 
 		// prepare body
 		String body = "{\"sensors\":[";
-		List<ExtSensor> sensors = Registry
+		List<GxtSensor> sensors = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		for (ExtSensor sensor : sensors) {
-			ExtDevice sensorDevice = sensor.getDevice();
+		for (GxtSensor sensor : sensors) {
+			GxtDevice sensorDevice = sensor.getDevice();
 			if (sensorDevice != null && devices.contains(sensorDevice)) {
 				body += "\"" + sensor.getId() + "\",";
 			}
@@ -96,7 +96,7 @@ public class StateDefaultsController extends Controller {
 
 		if (type.equals(StateDefaultsEvents.CheckDefaultsRequest)) {
 			LOG.fine("CheckDefaultsRequest");
-			List<ExtDevice> devices = event.getData("devices");
+			List<GxtDevice> devices = event.getData("devices");
 			boolean overwrite = event.getData("overwrite");
 			View source = (View) event.getSource();
 			checkDefaults(devices, overwrite, source);

@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.model.DataPoint;
 import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -160,7 +160,7 @@ public class MapPanel extends VizPanel {
 
     public final DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
 
-    public MapPanel(List<ExtSensor> sensors, long start, long end, boolean subsample, String title) {
+    public MapPanel(List<GxtSensor> sensors, long start, long end, boolean subsample, String title) {
         super();
 
         // LOG.setLevel(Level.ALL);

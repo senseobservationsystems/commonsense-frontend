@@ -8,10 +8,10 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateEn
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Sensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -41,13 +41,13 @@ public class EnvCreateController extends Controller {
 		registerEventTypes(EnvCreateEvents.CreateRequest, EnvCreateEvents.CreateSuccess);
 	}
 
-	private void addSensors(final ExtEnvironment environment, final List<ExtSensor> sensors) {
+	private void addSensors(final GxtEnvironment environment, final List<GxtSensor> sensors) {
 
 		if (false == sensors.isEmpty()) {
 
 			// prepare body
 			String sensorsArray = "[";
-			for (ExtSensor sensor : sensors) {
+			for (GxtSensor sensor : sensors) {
 				if (sensor.getAlias() == -1) {
 					sensorsArray += "{\"id\":" + sensor.getId() + "},";
 				}
@@ -103,17 +103,17 @@ public class EnvCreateController extends Controller {
 		}
 	}
 
-	private void addSensorToDevice(final ExtSensor sensor, final List<ExtDevice> devices,
+	private void addSensorToDevice(final GxtSensor sensor, final List<GxtDevice> devices,
 			final int index, final String name, final int floors, final Polygon outline,
-			final List<ExtSensor> sensors) {
+			final List<GxtSensor> sensors) {
 
-		ExtDevice device = devices.get(index);
+		GxtDevice device = devices.get(index);
 
 		// prepare body
 		String body = "{\"device\":{";
-		body += "\"" + ExtDevice.ID + "\":\"" + device.getId() + "\",";
-		body += "\"" + ExtDevice.TYPE + "\":\"" + device.getType() + "\",";
-		body += "\"" + ExtDevice.UUID + "\":\"" + device.getUuid() + "\"}";
+		body += "\"" + GxtDevice.ID + "\":\"" + device.getId() + "\",";
+		body += "\"" + GxtDevice.TYPE + "\":\"" + device.getType() + "\",";
+		body += "\"" + GxtDevice.UUID + "\":\"" + device.getUuid() + "\"}";
 		body += "}";
 
 		// prepare request properties
@@ -159,7 +159,7 @@ public class EnvCreateController extends Controller {
 	}
 
 	private void createEnvironment(String name, int floors, Polygon outline,
-			final List<ExtSensor> sensors) {
+			final List<GxtSensor> sensors) {
 
 		// create GPS outline String
 		String gpsOutline = "";
@@ -180,10 +180,10 @@ public class EnvCreateController extends Controller {
 		final String sessionId = SessionManager.getSessionId();
 
 		String body = "{\"environment\":{";
-		body += "\"" + ExtEnvironment.NAME + "\":\"" + name + "\",";
-		body += "\"" + ExtEnvironment.FLOORS + "\":" + floors + ",";
-		body += "\"" + ExtEnvironment.OUTLINE + "\":\"" + gpsOutline + "\",";
-		body += "\"" + ExtEnvironment.POSITION + "\":\"" + position + "\"}";
+		body += "\"" + GxtEnvironment.NAME + "\":\"" + name + "\",";
+		body += "\"" + GxtEnvironment.FLOORS + "\":" + floors + ",";
+		body += "\"" + GxtEnvironment.OUTLINE + "\":\"" + gpsOutline + "\",";
+		body += "\"" + GxtEnvironment.POSITION + "\":\"" + position + "\"}";
 		body += "}";
 
 		// prepare request callback
@@ -220,17 +220,17 @@ public class EnvCreateController extends Controller {
 		}
 	}
 
-	private void createSensor(final List<ExtDevice> devices, final int index, final String name,
-			final int floors, final Polygon outline, final List<ExtSensor> sensors) {
+	private void createSensor(final List<GxtDevice> devices, final int index, final String name,
+			final int floors, final Polygon outline, final List<GxtSensor> sensors) {
 
 		// prepare body
 		String dataStructure = "{\\\"latitude\\\":\\\"string\\\",\\\"longitude\\\":\\\"string\\\",\\\"altitude\\\":\\\"string\\\"}";
 		String sensor = "{";
-		sensor += "\"" + ExtSensor.NAME + "\":\"position\",";
-		sensor += "\"" + ExtSensor.DISPLAY_NAME + "\":\"position\",";
-		sensor += "\"" + ExtSensor.DESCRIPTION + "\":\"position\",";
-		sensor += "\"" + ExtSensor.DATA_TYPE + "\":\"json\",";
-		sensor += "\"" + ExtSensor.DATA_STRUCTURE + "\":\"" + dataStructure + "\"";
+		sensor += "\"" + GxtSensor.NAME + "\":\"position\",";
+		sensor += "\"" + GxtSensor.DISPLAY_NAME + "\":\"position\",";
+		sensor += "\"" + GxtSensor.DESCRIPTION + "\":\"position\",";
+		sensor += "\"" + GxtSensor.DATA_TYPE + "\":\"json\",";
+		sensor += "\"" + GxtSensor.DATA_STRUCTURE + "\":\"" + dataStructure + "\"";
 		sensor += "}";
 		String body = "{\"sensor\":" + sensor + "}";
 
@@ -276,21 +276,21 @@ public class EnvCreateController extends Controller {
 		}
 	}
 
-	private void getPositionSensor(List<ExtDevice> devices, int index, String name, int floors,
-			Polygon outline, List<ExtSensor> sensors) {
+	private void getPositionSensor(List<GxtDevice> devices, int index, String name, int floors,
+			Polygon outline, List<GxtSensor> sensors) {
 
 		// get the device
-		ExtDevice device = devices.get(index);
+		GxtDevice device = devices.get(index);
 
 		// try to find the position sensor of the device
-		ExtSensor positionSensor = null;
-		for (ExtSensor sensor : sensors) {
+		GxtSensor positionSensor = null;
+		for (GxtSensor sensor : sensors) {
 			// only check position sensors
 			if (sensor.getName().equals("position")) {
 				// check if it is the right device
 				if (sensor.getDevice() != null && sensor.getDevice().equals(device)) {
 					// make sure we are the owner of the sensor
-					ExtUser user = Registry
+					GxtUser user = Registry
 							.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 					if (sensor.getOwner() == null || sensor.getOwner().equals(user)) {
 						positionSensor = sensor;
@@ -320,8 +320,8 @@ public class EnvCreateController extends Controller {
 			final String name = event.<String> getData("name");
 			final int floors = event.getData("floors");
 			final Polygon outline = event.<Polygon> getData("outline");
-			final List<ExtDevice> devices = event.<List<ExtDevice>> getData("devices");
-			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+			final List<GxtDevice> devices = event.<List<GxtDevice>> getData("devices");
+			final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
 			onCreateRequest(name, floors, outline, devices, sensors);
 
 		} else
@@ -340,15 +340,15 @@ public class EnvCreateController extends Controller {
 		creator = new EnvCreator(this);
 	}
 
-	private void onAddSensorsFailure(ExtEnvironment environment) {
+	private void onAddSensorsFailure(GxtEnvironment environment) {
 		onCreateFailure();
 	}
 
-	private void onAddSensorSuccess(ExtEnvironment environment, List<ExtSensor> sensors) {
+	private void onAddSensorSuccess(GxtEnvironment environment, List<GxtSensor> sensors) {
 
 		// update the sensors with the new environment
-		for (ExtSensor sensor : sensors) {
-			sensor.set(ExtSensor.ENVIRONMENT, environment);
+		for (GxtSensor sensor : sensors) {
+			sensor.set(GxtSensor.ENVIRONMENT, environment);
 		}
 
 		onCreateComplete();
@@ -362,19 +362,19 @@ public class EnvCreateController extends Controller {
 		onCreateFailure();
 	}
 
-	private void onCreateEnvironmentSuccess(String response, List<ExtSensor> sensors) {
+	private void onCreateEnvironmentSuccess(String response, List<GxtSensor> sensors) {
 
 		// parse the response
-		ExtEnvironment environment = null;
+		GxtEnvironment environment = null;
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
 			CreateEnvironmentResponse jso = JsonUtils.unsafeEval(response);
-			environment = new ExtEnvironment(jso.getEnvironment());
+			environment = new GxtEnvironment(jso.getEnvironment());
 		}
 
 		if (null != environment) {
 
 			// update global environment list
-			Registry.<List<ExtEnvironment>> get(
+			Registry.<List<GxtEnvironment>> get(
 					nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).add(
 					environment);
 
@@ -391,13 +391,13 @@ public class EnvCreateController extends Controller {
 
 	}
 
-	private void onCreateRequest(String name, int floors, Polygon outline, List<ExtDevice> devices,
-			List<ExtSensor> sensors) {
+	private void onCreateRequest(String name, int floors, Polygon outline, List<GxtDevice> devices,
+			List<GxtSensor> sensors) {
 
 		// add the devices's sensors
-		List<ExtSensor> library = Registry
+		List<GxtSensor> library = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		for (ExtSensor sensor : library) {
+		for (GxtSensor sensor : library) {
 			if (sensor.getDevice() != null && devices.contains(sensor.getDevice())) {
 				LOG.finest("Add device sensor \'" + sensor + "\' to list of environment sensors");
 				sensors.add(sensor);
@@ -412,8 +412,8 @@ public class EnvCreateController extends Controller {
 		onCreateEnvironmentFailure();
 	}
 
-	private void onCreateSensorSuccess(String response, List<ExtDevice> devices, int index,
-			String name, int floors, Polygon outline, List<ExtSensor> sensors) {
+	private void onCreateSensorSuccess(String response, List<GxtDevice> devices, int index,
+			String name, int floors, Polygon outline, List<GxtSensor> sensors) {
 
 		// parse the new sensor details from the response
 		Sensor positionSensor = null;
@@ -424,18 +424,18 @@ public class EnvCreateController extends Controller {
 
 		if (null != positionSensor) {
 
-			ExtSensor extSensor = new ExtSensor(positionSensor);
+			GxtSensor gxtSensor = new GxtSensor(positionSensor);
 
 			// add the new sensor to the list of sensors for this environment
-			sensors.add(extSensor);
+			sensors.add(gxtSensor);
 
 			// add the new sensor to the global library
-			Registry.<List<ExtSensor>> get(
+			Registry.<List<GxtSensor>> get(
 					nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).add(
-					extSensor);
+					gxtSensor);
 
 			// add the new position sensor to the proper device
-			addSensorToDevice(extSensor, devices, index, name, floors, outline, sensors);
+			addSensorToDevice(gxtSensor, devices, index, name, floors, outline, sensors);
 
 		} else {
 			onCreateSensorFailure();
@@ -446,9 +446,9 @@ public class EnvCreateController extends Controller {
 		onCreateFailure();
 	}
 
-	private void onSensorToDeviceSuccess(String response, ExtSensor sensor,
-			List<ExtDevice> devices, int index, String name, int floors, Polygon outline,
-			List<ExtSensor> sensors) {
+	private void onSensorToDeviceSuccess(String response, GxtSensor sensor,
+			List<GxtDevice> devices, int index, String name, int floors, Polygon outline,
+			List<GxtSensor> sensors) {
 
 		// update the sensor model
 		sensor.setDevice(devices.get(index));
@@ -461,17 +461,17 @@ public class EnvCreateController extends Controller {
 		onCreateFailure();
 	}
 
-	private void onSetPositionSuccess(String response, List<ExtDevice> devices, int index,
-			String name, int floors, Polygon outline, List<ExtSensor> sensors) {
+	private void onSetPositionSuccess(String response, List<GxtDevice> devices, int index,
+			String name, int floors, Polygon outline, List<GxtSensor> sensors) {
 		index++;
 		updatePosition(devices, index, name, floors, outline, sensors);
 	}
 
-	private void setPosition(ExtSensor positionSensor, final List<ExtDevice> devices,
+	private void setPosition(GxtSensor positionSensor, final List<GxtDevice> devices,
 			final int index, final String name, final int floors, final Polygon outline,
-			final List<ExtSensor> sensors) {
+			final List<GxtSensor> sensors) {
 
-		ExtDevice device = devices.get(index);
+		GxtDevice device = devices.get(index);
 		LatLng latLng = device.<LatLng> get("latlng");
 
 		// prepare request properties
@@ -523,8 +523,8 @@ public class EnvCreateController extends Controller {
 		}
 	}
 
-	private void updatePosition(List<ExtDevice> devices, int index, String name, int floors,
-			Polygon outline, List<ExtSensor> sensors) {
+	private void updatePosition(List<GxtDevice> devices, int index, String name, int floors,
+			Polygon outline, List<GxtSensor> sensors) {
 
 		if (index < devices.size()) {
 			// update the position sensor for the device

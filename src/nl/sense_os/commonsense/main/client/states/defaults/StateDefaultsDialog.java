@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -28,8 +28,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 public class StateDefaultsDialog extends CenteredWindow {
 
 	private static final Logger LOG = Logger.getLogger(StateDefaultsDialog.class.getName());
-	private ListStore<ExtDevice> store;
-	private Grid<ExtDevice> grid;
+	private ListStore<GxtDevice> store;
+	private Grid<GxtDevice> grid;
 	private FormPanel form;
 	private Button submitButton;
 	private Button cancelButton;
@@ -56,7 +56,7 @@ public class StateDefaultsDialog extends CenteredWindow {
 		return cancelButton;
 	}
 
-	public Grid<ExtDevice> getGrid() {
+	public Grid<GxtDevice> getGrid() {
 		return grid;
 	}
 
@@ -67,10 +67,10 @@ public class StateDefaultsDialog extends CenteredWindow {
 	private void initButtons() {
 
 		grid.getSelectionModel().addSelectionChangedListener(
-				new SelectionChangedListener<ExtDevice>() {
+				new SelectionChangedListener<GxtDevice>() {
 
 					@Override
-					public void selectionChanged(SelectionChangedEvent<ExtDevice> se) {
+					public void selectionChanged(SelectionChangedEvent<GxtDevice> se) {
 						// enable the submit button as soon as a device was selected
 						LOG.finest("Grid selection changed...");
 						submitButton.setEnabled(se.getSelection().size() > 0);
@@ -113,17 +113,17 @@ public class StateDefaultsDialog extends CenteredWindow {
 	}
 
 	private void initGrid() {
-		store = new ListStore<ExtDevice>();
+		store = new ListStore<GxtDevice>();
 		store.add(Registry
-				.<List<ExtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST));
+				.<List<GxtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST));
 
-		ColumnConfig id = new ColumnConfig(ExtDevice.ID, "ID", 50);
-		ColumnConfig type = new ColumnConfig(ExtDevice.TYPE, "Type", 150);
-		ColumnConfig uuid = new ColumnConfig(ExtDevice.UUID, "UUID", 50);
+		ColumnConfig id = new ColumnConfig(GxtDevice.ID, "ID", 50);
+		ColumnConfig type = new ColumnConfig(GxtDevice.TYPE, "Type", 150);
+		ColumnConfig uuid = new ColumnConfig(GxtDevice.UUID, "UUID", 50);
 		ColumnModel cm = new ColumnModel(Arrays.asList(id, type, uuid));
 
-		grid = new Grid<ExtDevice>(store, cm);
-		grid.setAutoExpandColumn(ExtDevice.UUID);
+		grid = new Grid<GxtDevice>(store, cm);
+		grid.setAutoExpandColumn(GxtDevice.UUID);
 		grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
 	}
 

@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.sensors.unshare;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -15,7 +15,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 public class UnshareDialog extends View {
 
     private static final Logger LOGGER = Logger.getLogger(UnshareDialog.class.getName());
-    private ExtSensor sensor;
+    private GxtSensor sensor;
 
     public UnshareDialog(Controller c) {
         super(c);
@@ -27,7 +27,7 @@ public class UnshareDialog extends View {
 
         if (type.equals(UnshareEvents.ShowUnshareDialog)) {
             LOGGER.finest("ShowUnshareDialog");
-            ExtSensor sensor = event.getData("sensor");
+            GxtSensor sensor = event.getData("sensor");
             showDialog(sensor);
 
         } else if (type.equals(UnshareEvents.UnshareComplete)) {
@@ -60,7 +60,7 @@ public class UnshareDialog extends View {
         MessageBox.info(null, "The sensor has been unshared.", null);
     }
 
-    private void showDialog(final ExtSensor sensor) {
+    private void showDialog(final GxtSensor sensor) {
         this.sensor = sensor;
         MessageBox.confirm(null, "Are you sure you want to stop sharing this sensor?",
                 new Listener<MessageBoxEvent>() {

@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSenso
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.data.cache.Cache;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -68,10 +68,10 @@ public class DataController extends Controller {
 		return Double.valueOf(interval).intValue();
 	}
 
-	private void getLatestValues(final List<ExtSensor> sensors, final int index, final View source) {
+	private void getLatestValues(final List<GxtSensor> sensors, final int index, final View source) {
 		if (index < sensors.size()) {
 
-			ExtSensor sensor = sensors.get(index);
+			GxtSensor sensor = sensors.get(index);
 
 			final Method method = RequestBuilder.GET;
 			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
@@ -128,7 +128,7 @@ public class DataController extends Controller {
 		if (type.equals(DataEvents.DataRequest)) {
 			LOG.finest("DataRequest");
 			DataRequestEvent dataRequest = (DataRequestEvent) event;
-			final List<ExtSensor> sensors = dataRequest.getSensors();
+			final List<GxtSensor> sensors = dataRequest.getSensors();
 			final long start = dataRequest.getStart();
 			final long end = dataRequest.getEnd();
 			final boolean showProgress = dataRequest.isShowProgress();
@@ -144,7 +144,7 @@ public class DataController extends Controller {
 		 */
 		if (type.equals(DataEvents.LatestValuesRequest)) {
 			LOG.finest("LatestValuesRequest");
-			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+			final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
 			final View source = (View) event.getSource();
 			onLatestValuesRequest(sensors, source);
 
@@ -184,7 +184,7 @@ public class DataController extends Controller {
 	 * @param source
 	 *            View that requested the data.
 	 */
-	private void onDataComplete(long start, long end, List<ExtSensor> sensors, View source) {
+	private void onDataComplete(long start, long end, List<GxtSensor> sensors, View source) {
 		LOG.fine("onDataComplete...");
 
 		hideProgress();
@@ -236,7 +236,7 @@ public class DataController extends Controller {
 	 *            View that requested the data.
 	 */
 	private void onReqSubsampledSuccess(String response, long start, long end,
-			List<ExtSensor> sensors, int sensorIndex, int pageIndex, boolean subsampled,
+			List<GxtSensor> sensors, int sensorIndex, int pageIndex, boolean subsampled,
 			boolean showProgress, View source) {
 		LOG.fine("Data page success...");
 
@@ -244,7 +244,7 @@ public class DataController extends Controller {
 		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
 
 		// store data in cache
-		ExtSensor sensor = sensors.get(sensorIndex);
+		GxtSensor sensor = sensors.get(sensorIndex);
 		Cache.store(sensor, start, end, jsoResponse.getData());
 
 		if (jsoResponse.getData().length() == PER_PAGE) {
@@ -289,14 +289,14 @@ public class DataController extends Controller {
 	 * @param showProgress
 	 *            Boolean to indicate whether to update the user of the progress.
 	 */
-	private void onReqRawSuccess(String response, long start, long end, List<ExtSensor> sensors,
+	private void onReqRawSuccess(String response, long start, long end, List<GxtSensor> sensors,
 			int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
 
 		// parse the incoming data
 		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
 
 		// store data in cache
-		ExtSensor sensor = sensors.get(sensorIndex);
+		GxtSensor sensor = sensors.get(sensorIndex);
 		JsArray<BackEndDataPoint> data = jsoResponse.getData();
 		Cache.store(sensor, start, end, data);
 
@@ -331,7 +331,7 @@ public class DataController extends Controller {
 	 * @param source
 	 *            View that the request originated from.
 	 */
-	private void onDataRequest(long start, long end, List<ExtSensor> sensors, boolean subsample,
+	private void onDataRequest(long start, long end, List<GxtSensor> sensors, boolean subsample,
 			boolean showProgress, View source) {
 		final int sensorIndex = 0;
 		final int pageIndex = 0;
@@ -359,7 +359,7 @@ public class DataController extends Controller {
 		// does nothing
 	}
 
-	private void onLatestValuesComplete(List<ExtSensor> sensors, View source) {
+	private void onLatestValuesComplete(List<GxtSensor> sensors, View source) {
 		LOG.finest("Latest values complete...");
 		JsArray<Timeseries> data = Cache.request(sensors, 0, System.currentTimeMillis());
 		AppEvent event = new AppEvent(DataEvents.DataReceived);
@@ -367,16 +367,16 @@ public class DataController extends Controller {
 		forwardToView(source, event);
 	}
 
-	private void onLatestValuesRequest(List<ExtSensor> sensors, View source) {
+	private void onLatestValuesRequest(List<GxtSensor> sensors, View source) {
 
-		for (ExtSensor sensor : sensors) {
+		for (GxtSensor sensor : sensors) {
 			Cache.remove(sensor);
 		}
 		int index = 0;
 		getLatestValues(sensors, index, source);
 	}
 
-	private void onLatestValueSuccess(String response, List<ExtSensor> sensors, int index,
+	private void onLatestValueSuccess(String response, List<GxtSensor> sensors, int index,
 			View source) {
 
 		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
@@ -409,14 +409,14 @@ public class DataController extends Controller {
 	 * @param showProgress
 	 *            Set to true to display a progress dialog.
 	 */
-	private void reqDataRaw(final long start, final long end, final List<ExtSensor> sensors,
+	private void reqDataRaw(final long start, final long end, final List<GxtSensor> sensors,
 			final int sensorIndex, final int pageIndex, final int sensorTotal, final View source,
 			final boolean showProgress) {
 		LOG.fine("Request paged data...");
 
 		if (sensorIndex < sensors.size()) {
 
-			final ExtSensor sensor = sensors.get(sensorIndex);
+			final GxtSensor sensor = sensors.get(sensorIndex);
 
 			// remove preexisting data from the cache, because reusing it is too complicated
 			if (pageIndex == 0) {
@@ -510,13 +510,13 @@ public class DataController extends Controller {
 	 *            View that requested the data.
 	 */
 	private void reqDataSubsampled(final long start, final long end,
-			final List<ExtSensor> sensors, final int sensorIndex, final int pageIndex,
+			final List<GxtSensor> sensors, final int sensorIndex, final int pageIndex,
 			final boolean subsample, final boolean showProgress, final View source) {
 		LOG.fine("Request data...");
 
 		if (sensorIndex < sensors.size()) {
 
-			final ExtSensor sensor = sensors.get(sensorIndex);
+			final GxtSensor sensor = sensors.get(sensorIndex);
 
 			// remove preexisting data from the cache, because reusing it is too complicated
 			if (pageIndex == 0) {

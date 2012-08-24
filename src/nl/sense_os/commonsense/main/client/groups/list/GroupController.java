@@ -10,12 +10,12 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroup
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.common.client.model.User;
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveEvents;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -66,7 +66,7 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
 	 *            complete.
 	 */
-	private void getGroupMembers(final ExtGroup group, final AsyncCallback<List<ExtUser>> callback) {
+	private void getGroupMembers(final GxtGroup group, final AsyncCallback<List<GxtUser>> callback) {
 
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
@@ -111,12 +111,12 @@ public class GroupController extends Controller {
 		}
 	}
 
-	private void onGroupMembersForbidden(ExtGroup group, AsyncCallback<List<ExtUser>> callback) {
+	private void onGroupMembersForbidden(GxtGroup group, AsyncCallback<List<GxtUser>> callback) {
 		// user is not allowed to view the group members
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
-			callback.onSuccess(new ArrayList<ExtUser>());
+			callback.onSuccess(new ArrayList<GxtUser>());
 		}
 	}
 
@@ -130,10 +130,10 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
 	 *            complete.
 	 */
-	private void getGroups(final AsyncCallback<List<ExtUser>> callback) {
+	private void getGroups(final AsyncCallback<List<GxtUser>> callback) {
 
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
-		Registry.<List<ExtGroup>> get(
+		Registry.<List<GxtGroup>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS).clear();
 
 		// prepare request properties
@@ -185,8 +185,8 @@ public class GroupController extends Controller {
 		if (type.equals(GroupEvents.LoadRequest)) {
 			// LOG.fine( "LoadRequest");
 			final Object loadConfig = event.getData("loadConfig");
-			final AsyncCallback<List<ExtUser>> callback = event
-					.<AsyncCallback<List<ExtUser>>> getData("callback");
+			final AsyncCallback<List<GxtUser>> callback = event
+					.<AsyncCallback<List<GxtUser>>> getData("callback");
 			onLoadRequest(loadConfig, callback);
 
 		} else
@@ -204,11 +204,11 @@ public class GroupController extends Controller {
 		super.initialize();
 		this.tree = new GroupGrid(this);
 		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS,
-				new ArrayList<ExtGroup>());
+				new ArrayList<GxtGroup>());
 	}
 
-	private void onGroupMembersFailure(int code, ExtGroup group,
-			AsyncCallback<List<ExtUser>> callback) {
+	private void onGroupMembersFailure(int code, GxtGroup group,
+			AsyncCallback<List<GxtUser>> callback) {
 
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
@@ -233,8 +233,8 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of groups is
 	 *            complete.
 	 */
-	private void onGroupMembersSuccess(String response, ExtGroup group,
-			AsyncCallback<List<ExtUser>> callback) {
+	private void onGroupMembersSuccess(String response, GxtGroup group,
+			AsyncCallback<List<GxtUser>> callback) {
 
 		// parse list of users from the response
 		List<User> users = new ArrayList<User>();
@@ -244,20 +244,20 @@ public class GroupController extends Controller {
 		}
 
 		// add users to the group
-		List<ExtUser> extUsers = new ArrayList<ExtUser>(users.size());
+		List<GxtUser> gxtUsers = new ArrayList<GxtUser>(users.size());
 		for (User user : users) {
-			extUsers.add(new ExtUser(user));
-			group.add(new ExtUser(user));
+			gxtUsers.add(new GxtUser(user));
+			group.add(new GxtUser(user));
 		}
 
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
-			callback.onSuccess(new ArrayList<ExtUser>(extUsers));
+			callback.onSuccess(new ArrayList<GxtUser>(gxtUsers));
 		}
 	}
 
-	private void onGroupsFailure(AsyncCallback<List<ExtUser>> callback) {
+	private void onGroupsFailure(AsyncCallback<List<GxtUser>> callback) {
 		Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
 		if (null != callback) {
@@ -275,7 +275,7 @@ public class GroupController extends Controller {
 	 *            Optional callback for a DataProxy. Will be called when the list of groups is
 	 *            complete.
 	 */
-	private void onGroupsSuccess(String response, AsyncCallback<List<ExtUser>> callback) {
+	private void onGroupsSuccess(String response, AsyncCallback<List<GxtUser>> callback) {
 
 		// parse list of groups from the response
 		com.google.gwt.core.client.JsArray<Group> groups = null;
@@ -286,31 +286,31 @@ public class GroupController extends Controller {
 
 		if (null != groups) {
 			// convert to Ext
-			List<ExtGroup> extGroups = new ArrayList<ExtGroup>(groups.length());
+			List<GxtGroup> gxtGroups = new ArrayList<GxtGroup>(groups.length());
 			for (int i = 0; i < groups.length(); i++) {
-				extGroups.add(new ExtGroup(groups.get(i)));
+				gxtGroups.add(new GxtGroup(groups.get(i)));
 			}
 
-			Registry.<List<ExtGroup>> get(
+			Registry.<List<GxtGroup>> get(
 					nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS).addAll(
-					extGroups);
+					gxtGroups);
 			Dispatcher.forwardEvent(GroupEvents.ListUpdated);
 
-			callback.onSuccess(new ArrayList<ExtUser>(extGroups));
+			callback.onSuccess(new ArrayList<GxtUser>(gxtGroups));
 		}
 	}
 
-	private void onLoadRequest(Object loadConfig, AsyncCallback<List<ExtUser>> callback) {
+	private void onLoadRequest(Object loadConfig, AsyncCallback<List<GxtUser>> callback) {
 
 		if (null == loadConfig) {
 			getGroups(callback);
 
-		} else if (loadConfig instanceof ExtGroup) {
-			ExtGroup group = (ExtGroup) loadConfig;
+		} else if (loadConfig instanceof GxtGroup) {
+			GxtGroup group = (GxtGroup) loadConfig;
 			getGroupMembers(group, callback);
 
 		} else {
-			callback.onSuccess(new ArrayList<ExtUser>());
+			callback.onSuccess(new ArrayList<GxtUser>());
 		}
 	}
 }

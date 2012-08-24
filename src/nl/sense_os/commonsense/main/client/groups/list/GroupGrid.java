@@ -4,15 +4,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
-import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
-import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
-import nl.sense_os.commonsense.main.client.ext.util.SensorComparator;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveEvents;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorComparator;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -58,15 +58,15 @@ public class GroupGrid extends View {
 
 	private static final Logger LOG = Logger.getLogger(GroupGrid.class.getName());
 	private Button createButton;
-	private TreeGrid<ExtUser> grid;
+	private TreeGrid<GxtUser> grid;
 	private Button addUserButton;
 	private Button joinButton;
 	private Button leaveButton;
 	private ContentPanel panel;
-	private TreeStore<ExtUser> store;
-	private TreeLoader<ExtUser> loader;
+	private TreeStore<GxtUser> store;
+	private TreeLoader<GxtUser> loader;
 	private ToolBar filterBar;
-	private StoreFilterField<ExtUser> filter;
+	private StoreFilterField<GxtUser> filter;
 	private ToolBar toolBar;
 
 	public GroupGrid(Controller controller) {
@@ -108,10 +108,10 @@ public class GroupGrid extends View {
 	private void initFilter() {
 		filterBar = new ToolBar();
 		filterBar.add(new LabelToolItem("Filter: "));
-		filter = new StoreFilterField<ExtUser>() {
+		filter = new StoreFilterField<GxtUser>() {
 
 			@Override
-			protected boolean doSelect(Store<ExtUser> store, ExtUser parent, ExtUser record,
+			protected boolean doSelect(Store<GxtUser> store, GxtUser parent, GxtUser record,
 					String property, String filter) {
 				// only match leaf nodes
 				if (record.getChildCount() > 0) {
@@ -137,11 +137,11 @@ public class GroupGrid extends View {
 	private void initGrid() {
 
 		// proxy
-		DataProxy<List<ExtUser>> proxy = new DataProxy<List<ExtUser>>() {
+		DataProxy<List<GxtUser>> proxy = new DataProxy<List<GxtUser>>() {
 
 			@Override
-			public void load(DataReader<List<ExtUser>> reader, Object loadConfig,
-					AsyncCallback<List<ExtUser>> callback) {
+			public void load(DataReader<List<GxtUser>> reader, Object loadConfig,
+					AsyncCallback<List<GxtUser>> callback) {
 
 				if (panel.isExpanded()) {
 					AppEvent loadRequest = new AppEvent(GroupEvents.LoadRequest);
@@ -155,41 +155,41 @@ public class GroupGrid extends View {
 		};
 
 		// tree loader
-		loader = new BaseTreeLoader<ExtUser>(proxy) {
+		loader = new BaseTreeLoader<GxtUser>(proxy) {
 
 			@Override
-			public boolean hasChildren(ExtUser parent) {
-				return parent instanceof ExtGroup;
+			public boolean hasChildren(GxtUser parent) {
+				return parent instanceof GxtGroup;
 			};
 		};
 
 		// tree store
-		store = new TreeStore<ExtUser>(loader);
-		store.setKeyProvider(new SenseKeyProvider<ExtUser>());
-		store.setStoreSorter(new StoreSorter<ExtUser>(new SensorComparator<ExtUser>()));
+		store = new TreeStore<GxtUser>(loader);
+		store.setKeyProvider(new SenseKeyProvider<GxtUser>());
+		store.setStoreSorter(new StoreSorter<GxtUser>(new SensorComparator<GxtUser>()));
 
-		ColumnConfig id = new ColumnConfig(ExtUser.ID, "ID", 50);
+		ColumnConfig id = new ColumnConfig(GxtUser.ID, "ID", 50);
 		id.setHidden(true);
-		ColumnConfig name = new ColumnConfig(ExtUser.NAME, "Name", 125);
+		ColumnConfig name = new ColumnConfig(GxtUser.NAME, "Name", 125);
 		name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-		ColumnConfig surname = new ColumnConfig(ExtUser.SURNAME, "Surname", 125);
-		ColumnConfig description = new ColumnConfig(ExtGroup.DESCRIPTION, "Description", 125);
-		ColumnConfig isPublic = new ColumnConfig(ExtGroup.PUBLIC, "Public", 75);
+		ColumnConfig surname = new ColumnConfig(GxtUser.SURNAME, "Surname", 125);
+		ColumnConfig description = new ColumnConfig(GxtGroup.DESCRIPTION, "Description", 125);
+		ColumnConfig isPublic = new ColumnConfig(GxtGroup.PUBLIC, "Public", 75);
 		isPublic.setHidden(true);
-		ColumnConfig isHidden = new ColumnConfig(ExtGroup.HIDDEN, "Hidden", 75);
+		ColumnConfig isHidden = new ColumnConfig(GxtGroup.HIDDEN, "Hidden", 75);
 		isHidden.setHidden(true);
-		ColumnConfig isAnon = new ColumnConfig(ExtGroup.ANONYMOUS, "Anonymous", 75);
+		ColumnConfig isAnon = new ColumnConfig(GxtGroup.ANONYMOUS, "Anonymous", 75);
 		isAnon.setHidden(true);
 		ColumnModel cm = new ColumnModel(Arrays.asList(id, name, surname, description, isPublic,
 				isHidden, isAnon));
 
-		grid = new TreeGrid<ExtUser>(store, cm);
+		grid = new TreeGrid<GxtUser>(store, cm);
 		grid.setAutoLoad(true);
 		grid.setLoadMask(true);
 		grid.setId("groupGrid");
 		grid.setStateful(true);
-		grid.setAutoExpandColumn(ExtGroup.DESCRIPTION);
-		grid.setIconProvider(new SenseIconProvider<ExtUser>());
+		grid.setAutoExpandColumn(GxtGroup.DESCRIPTION);
+		grid.setIconProvider(new SenseIconProvider<GxtUser>());
 	}
 
 	private void initHeaderTool() {
@@ -269,13 +269,13 @@ public class GroupGrid extends View {
 		addUserButton.disable();
 
 		// handle selections
-		TreeGridSelectionModel<ExtUser> selectionModel = new TreeGridSelectionModel<ExtUser>();
+		TreeGridSelectionModel<GxtUser> selectionModel = new TreeGridSelectionModel<GxtUser>();
 		selectionModel.setSelectionMode(SelectionMode.SINGLE);
-		selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtUser>() {
+		selectionModel.addSelectionChangedListener(new SelectionChangedListener<GxtUser>() {
 
 			@Override
-			public void selectionChanged(SelectionChangedEvent<ExtUser> se) {
-				ExtUser selection = se.getSelectedItem();
+			public void selectionChanged(SelectionChangedEvent<GxtUser> se) {
+				GxtUser selection = se.getSelectedItem();
 				if (null != selection) {
 					leaveButton.enable();
 					addUserButton.enable();
@@ -296,12 +296,12 @@ public class GroupGrid extends View {
 	}
 
 	private void onAddUserClick() {
-		ExtUser selected = grid.getSelectionModel().getSelectedItem();
-		ExtGroup group = null;
-		if (selected instanceof ExtGroup) {
-			group = (ExtGroup) selected;
-		} else if (selected.getParent() instanceof ExtGroup) {
-			group = (ExtGroup) selected.getParent();
+		GxtUser selected = grid.getSelectionModel().getSelectedItem();
+		GxtGroup group = null;
+		if (selected instanceof GxtGroup) {
+			group = (GxtGroup) selected;
+		} else if (selected.getParent() instanceof GxtGroup) {
+			group = (GxtGroup) selected.getParent();
 		} else {
 			MessageBox.alert(null, "Cannot add user to group: no group selected.", null);
 			return;
@@ -313,9 +313,9 @@ public class GroupGrid extends View {
 	}
 
 	private void onLeaveClick() {
-		ExtUser group = grid.getSelectionModel().getSelectedItem();
-		while (!(group instanceof ExtGroup)) {
-			group = (ExtUser) group.getParent();
+		GxtUser group = grid.getSelectionModel().getSelectedItem();
+		while (!(group instanceof GxtGroup)) {
+			group = (GxtUser) group.getParent();
 		}
 		AppEvent event = new AppEvent(GroupLeaveEvents.LeaveRequest);
 		event.setData("group", group);

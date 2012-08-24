@@ -33,7 +33,7 @@ public class MainApplicationViewImpl extends Composite implements MainApplicatio
 	}
 
 	@Override
-	public LayoutContainer getActivityPanelGxt() {
+	public LayoutContainer getGxtActivityPanel() {
 		return null;
 	}
 

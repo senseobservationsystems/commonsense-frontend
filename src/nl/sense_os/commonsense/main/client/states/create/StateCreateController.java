@@ -8,8 +8,8 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponse;
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Service;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtService;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -48,7 +48,7 @@ public class StateCreateController extends Controller {
 				StateCreateEvents.CreateServiceComplete, StateCreateEvents.CreateServiceCancelled);
 	}
 
-	private void createService(String name, ExtService service, ExtSensor sensor,
+	private void createService(String name, GxtService service, GxtSensor sensor,
 			List<ModelData> dataFields) {
 
 		// prepare request properties
@@ -60,7 +60,7 @@ public class StateCreateController extends Controller {
 
 		// create request body
 		String serviceJson = "\"service\":{";
-		serviceJson += "\"name\":\"" + service.<String> get(ExtService.NAME) + "\"";
+		serviceJson += "\"name\":\"" + service.<String> get(GxtService.NAME) + "\"";
 		serviceJson += ",\"data_fields\":[";
 		for (ModelData dataField : dataFields) {
 			serviceJson += "\"" + dataField.get("text") + "\",";
@@ -107,7 +107,7 @@ public class StateCreateController extends Controller {
 		}
 	}
 
-	private void getAvailableServices(ExtSensor sensor) {
+	private void getAvailableServices(GxtSensor sensor) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -161,7 +161,7 @@ public class StateCreateController extends Controller {
 		 */
 		if (type.equals(StateCreateEvents.AvailableServicesRequested)) {
 			// LOG.fine( "AvailableServicesRequested");
-			final ExtSensor sensor = event.getData("sensor");
+			final GxtSensor sensor = event.getData("sensor");
 			getAvailableServices(sensor);
 
 		} else
@@ -172,8 +172,8 @@ public class StateCreateController extends Controller {
 		if (type.equals(StateCreateEvents.CreateServiceRequested)) {
 			// LOG.fine( "CreateRequested");
 			final String name = event.<String> getData("name");
-			final ExtService service = event.<ExtService> getData("service");
-			final ExtSensor sensor = event.<ExtSensor> getData("sensor");
+			final GxtService service = event.<GxtService> getData("service");
+			final GxtSensor sensor = event.<GxtSensor> getData("sensor");
 			final List<ModelData> dataFields = event.<List<ModelData>> getData("dataFields");
 			createService(name, service, sensor, dataFields);
 
@@ -215,8 +215,8 @@ public class StateCreateController extends Controller {
 	private void loadSensors() {
 		isLoadingSensors = true;
 
-		List<ExtSensor> sensors = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		List<GxtSensor> sensors = Registry
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		if (null == sensors) {
 			Dispatcher.forwardEvent(LibraryEvents.LoadRequest);
 			return;
@@ -242,13 +242,13 @@ public class StateCreateController extends Controller {
 		}
 
 		// convert to Ext models
-		List<ExtService> extServices = new ArrayList<ExtService>(services.size());
+		List<GxtService> gxtServices = new ArrayList<GxtService>(services.size());
 		for (Service service : services) {
-			extServices.add(new ExtService(service));
+			gxtServices.add(new GxtService(service));
 		}
 
 		AppEvent success = new AppEvent(StateCreateEvents.AvailableServicesUpdated);
-		success.setData("services", extServices);
+		success.setData("services", gxtServices);
 		forwardToView(creator, success);
 	}
 

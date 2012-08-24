@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -38,8 +38,8 @@ public class UnshareController extends Controller {
 
 		if (type.equals(UnshareEvents.UnshareRequest)) {
 			LOG.finest("UnshareRequest");
-			ExtSensor sensor = event.getData("sensor");
-			List<ExtUser> users = event.getData("users");
+			GxtSensor sensor = event.getData("sensor");
+			List<GxtUser> users = event.getData("users");
 			onUnshareRequest(sensor, users);
 
 		} else
@@ -59,10 +59,10 @@ public class UnshareController extends Controller {
 		super.initialize();
 	}
 
-	private void onUnshareComplete(ExtSensor sensor) {
+	private void onUnshareComplete(GxtSensor sensor) {
 
 		// update library
-		List<ExtSensor> library = Registry
+		List<GxtSensor> library = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		int index = library.indexOf(sensor);
 		if (index != -1) {
@@ -81,13 +81,13 @@ public class UnshareController extends Controller {
 		forwardToView(dialog, new AppEvent(UnshareEvents.UnshareFailed));
 	}
 
-	private void onUnshareRequest(ExtSensor sensor, List<ExtUser> users) {
+	private void onUnshareRequest(GxtSensor sensor, List<GxtUser> users) {
 		unshare(sensor, users, 0);
 	}
 
-	private void onUnshareSuccess(String response, ExtSensor sensor, List<ExtUser> users, int index) {
+	private void onUnshareSuccess(String response, GxtSensor sensor, List<GxtUser> users, int index) {
 		// update the sensor model
-		List<ExtUser> sensorUsers = sensor.getUsers();
+		List<GxtUser> sensorUsers = sensor.getUsers();
 		sensorUsers.remove(users.get(index));
 		sensor.setUsers(sensorUsers);
 
@@ -96,13 +96,13 @@ public class UnshareController extends Controller {
 		unshare(sensor, users, index);
 	}
 
-	private void unshare(final ExtSensor sensor, final List<ExtUser> users, final int index) {
+	private void unshare(final GxtSensor sensor, final List<GxtUser> users, final int index) {
 
 		if (index < users.size()) {
-			ExtUser user = users.get(index);
+			GxtUser user = users.get(index);
 
-			ExtUser currentUser = Registry
-					.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+			GxtUser currentUser = Registry
+					.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 			if (currentUser.equals(user)) {
 				LOG.finest("Skipped unsharing with the current user...");
 				unshare(sensor, users, index + 1);

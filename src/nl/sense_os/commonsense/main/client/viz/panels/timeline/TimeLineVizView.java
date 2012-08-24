@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizView;
@@ -25,7 +25,7 @@ public class TimeLineVizView extends VizView {
     private TabItem item;
     private TimeLinePanel panel;
 
-    private List<ExtSensor> sensors;
+    private List<GxtSensor> sensors;
     private long start;
     private long end;
     private boolean subsample;
@@ -42,7 +42,7 @@ public class TimeLineVizView extends VizView {
 
         if (type.equals(VizPanelEvents.ShowTimeLine)) {
             LOG.finest("ShowTimeLine");
-            final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
+            final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
             final long start = event.getData("startTime");
             final long end = event.getData("endTime");
             final boolean subsample = event.getData("subsample");
@@ -68,7 +68,7 @@ public class TimeLineVizView extends VizView {
         refreshData(data, sensors, start, end, subsample);
     }
 
-    private void showTimeLine(List<ExtSensor> sensors, long start, long end, boolean subsample) {
+    private void showTimeLine(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
         this.sensors = sensors;
         this.start = start;

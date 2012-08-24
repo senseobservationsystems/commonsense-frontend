@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponse;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -28,7 +28,7 @@ public class AlertCreateController extends Controller {
 		EventType type = event.getType();
 		if (type.equals(AlertCreateEvents.NewCreator)) {
 			LOG.finest("Prepare new alert creator view");
-			ExtSensor sensor = event.getData("sensor");
+			GxtSensor sensor = event.getData("sensor");
 			prepareCreator(sensor);
 
 		} else if (type.equals(AlertCreateEvents.CreateAlertRequest)) {
@@ -41,7 +41,7 @@ public class AlertCreateController extends Controller {
 		}
 	}
 
-	private void prepareCreator(final ExtSensor sensor) {
+	private void prepareCreator(final GxtSensor sensor) {
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -69,7 +69,7 @@ public class AlertCreateController extends Controller {
 				null, null, "1", null);
 	}
 
-	private void onLastDataPointSuccess(String response, ExtSensor sensor) {
+	private void onLastDataPointSuccess(String response, GxtSensor sensor) {
 		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
 		JsArray<BackEndDataPoint> data = jso.getData();
 		if (data.length() > 0) {
@@ -86,7 +86,7 @@ public class AlertCreateController extends Controller {
 		}
 	}
 
-	private void onLastDataPointFailure(ExtSensor sensor) {
+	private void onLastDataPointFailure(GxtSensor sensor) {
 		AppEvent showCreator = new AppEvent(AlertCreateEvents.ShowCreator);
 		showCreator.setData("sensor", sensor);
 		showCreator.setData("timestamp", -1l);

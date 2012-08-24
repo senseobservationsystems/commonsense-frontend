@@ -10,10 +10,10 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSenso
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.ServiceMethod;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
-import nl.sense_os.commonsense.main.client.ext.util.TreeCopier;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.main.client.gxt.util.TreeCopier;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
@@ -56,7 +56,7 @@ public class StateListController extends Controller {
 		registerEventTypes(StateListEvents.RemoveRequested, StateListEvents.RemoveComplete);
 	}
 
-	private void disconnectService(ExtSensor sensor, ExtSensor stateSensor) {
+	private void disconnectService(GxtSensor sensor, GxtSensor stateSensor) {
 
 		// TODO this needs to be handled by separate view/controller
 
@@ -101,7 +101,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getConnected(final ExtSensor state, final AsyncCallback<List<ExtSensor>> callback) {
+	private void getConnected(final GxtSensor state, final AsyncCallback<List<GxtSensor>> callback) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -143,7 +143,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getMethods(final ExtSensor state, final List<ExtSensor> sensors) {
+	private void getMethods(final GxtSensor state, final List<GxtSensor> sensors) {
 
 		if (sensors.size() > 0) {
 			// prepare request properties
@@ -191,7 +191,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void getStateSensors(final AsyncCallback<List<ExtSensor>> callback) {
+	private void getStateSensors(final AsyncCallback<List<GxtSensor>> callback) {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
@@ -245,8 +245,8 @@ public class StateListController extends Controller {
 		if (type.equals(StateListEvents.LoadRequest)) {
 			// LOG.fine( "LoadRequest");
 			final Object loadConfig = event.getData("loadConfig");
-			final AsyncCallback<List<ExtSensor>> callback = event
-					.<AsyncCallback<List<ExtSensor>>> getData("callback");
+			final AsyncCallback<List<GxtSensor>> callback = event
+					.<AsyncCallback<List<GxtSensor>>> getData("callback");
 			load(loadConfig, callback);
 
 		} else
@@ -256,8 +256,8 @@ public class StateListController extends Controller {
 		 */
 		if (type.equals(StateListEvents.RemoveRequested)) {
 			// LOG.fine( "RemoveRequested");
-			ExtSensor sensor = event.<ExtSensor> getData("sensor");
-			ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
+			GxtSensor sensor = event.<GxtSensor> getData("sensor");
+			GxtSensor stateSensor = event.<GxtSensor> getData("stateSensor");
 			disconnectService(sensor, stateSensor);
 
 		} else
@@ -276,52 +276,52 @@ public class StateListController extends Controller {
 		tree = new StateGrid(this);
 	}
 
-	private void load(Object loadConfig, AsyncCallback<List<ExtSensor>> callback) {
+	private void load(Object loadConfig, AsyncCallback<List<GxtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Working));
 		if (null == loadConfig) {
 			getStateSensors(callback);
-		} else if (loadConfig instanceof ExtSensor && ((ExtSensor) loadConfig).getType() == 2) {
-			getConnected((ExtSensor) loadConfig, callback);
+		} else if (loadConfig instanceof GxtSensor && ((GxtSensor) loadConfig).getType() == 2) {
+			getConnected((GxtSensor) loadConfig, callback);
 		} else {
-			onLoadComplete(new ArrayList<ExtSensor>(), callback);
+			onLoadComplete(new ArrayList<GxtSensor>(), callback);
 		}
 	}
 
-	private void onConnectedFailure(AsyncCallback<List<ExtSensor>> callback) {
+	private void onConnectedFailure(AsyncCallback<List<GxtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
 		}
 	}
 
-	private void onConnectedSuccess(String response, ExtSensor state,
-			AsyncCallback<List<ExtSensor>> callback) {
+	private void onConnectedSuccess(String response, GxtSensor state,
+			AsyncCallback<List<GxtSensor>> callback) {
 
 		// parse list of sensors from response
-		List<ExtSensor> sensors = new ArrayList<ExtSensor>();
+		List<GxtSensor> sensors = new ArrayList<GxtSensor>();
 		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
 			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			JsArray<Sensor> rawSensors = responseJso.getRawSensors();
 			for (int i = 0; i < rawSensors.length(); i++) {
-				ExtSensor sensor = new ExtSensor(rawSensors.get(i));
+				GxtSensor sensor = new GxtSensor(rawSensors.get(i));
 				sensors.add(sensor);
 			}
 		}
 
 		// get details from library
-		List<ExtSensor> result = new ArrayList<ExtSensor>();
-		List<ExtSensor> library = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
-		for (ExtSensor sensor : sensors) {
+		List<GxtSensor> result = new ArrayList<GxtSensor>();
+		List<GxtSensor> library = Registry
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		for (GxtSensor sensor : sensors) {
 			int index = -1;
-			for (ExtSensor libSensor : library) {
+			for (GxtSensor libSensor : library) {
 				if (libSensor.getId() == sensor.getId()) {
 					index = library.indexOf(libSensor);
 					break;
 				}
 			}
 			if (index != -1) {
-				ExtSensor detailed = (ExtSensor) TreeCopier.copySensor(library.get(index));
+				GxtSensor detailed = (GxtSensor) TreeCopier.copySensor(library.get(index));
 				state.add(detailed);
 				result.add(detailed);
 			} else {
@@ -345,7 +345,7 @@ public class StateListController extends Controller {
 		Dispatcher.forwardEvent(StateListEvents.RemoveComplete);
 	}
 
-	private void onLoadComplete(List<ExtSensor> result, AsyncCallback<List<ExtSensor>> callback) {
+	private void onLoadComplete(List<GxtSensor> result, AsyncCallback<List<GxtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		forwardToView(tree, new AppEvent(StateListEvents.LoadComplete));
 		if (null != callback) {
@@ -353,7 +353,7 @@ public class StateListController extends Controller {
 		}
 	}
 
-	private void onLoadFailure(AsyncCallback<List<ExtSensor>> callback) {
+	private void onLoadFailure(AsyncCallback<List<GxtSensor>> callback) {
 		forwardToView(tree, new AppEvent(StateListEvents.Done));
 		if (null != callback) {
 			callback.onFailure(null);
@@ -364,7 +364,7 @@ public class StateListController extends Controller {
 		// TODO
 	}
 
-	private void onMethodsSuccess(String response, ExtSensor state, List<ExtSensor> sensors) {
+	private void onMethodsSuccess(String response, GxtSensor state, List<GxtSensor> sensors) {
 
 		// parse list of methods from the response
 		JsArray<ServiceMethod> methods = null;
@@ -374,19 +374,19 @@ public class StateListController extends Controller {
 		}
 
 		if (null != methods) {
-			List<ExtServiceMethod> extMethods = new ArrayList<ExtServiceMethod>(methods.length());
+			List<GxtServiceMethod> extMethods = new ArrayList<GxtServiceMethod>(methods.length());
 			for (int i = 0; i < methods.length(); i++) {
-				extMethods.add(new ExtServiceMethod(methods.get(i)));
+				extMethods.add(new GxtServiceMethod(methods.get(i)));
 			}
 			state.set("methods", extMethods);
 		}
 	}
 
-	private void onStateSensorsFailure(AsyncCallback<List<ExtSensor>> callback) {
+	private void onStateSensorsFailure(AsyncCallback<List<GxtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onStateSensorsSuccess(String response, AsyncCallback<List<ExtSensor>> callback) {
+	private void onStateSensorsSuccess(String response, AsyncCallback<List<GxtSensor>> callback) {
 
 		// parse list of sensors from response
 		JsArray<Sensor> sensors = null;
@@ -395,11 +395,11 @@ public class StateListController extends Controller {
 			sensors = responseJso.getRawSensors();
 		}
 
-		ExtUser user = Registry
-				.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
-		List<ExtSensor> states = new ArrayList<ExtSensor>();
+		GxtUser user = Registry
+				.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+		List<GxtSensor> states = new ArrayList<GxtSensor>();
 		for (int i = 0; i < sensors.length(); i++) {
-			ExtSensor sensor = new ExtSensor(sensors.get(i));
+			GxtSensor sensor = new GxtSensor(sensors.get(i));
 			if (sensor.getType() == 2 && user.equals(sensor.getOwner())) {
 				states.add(sensor);
 			}

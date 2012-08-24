@@ -9,7 +9,7 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.alerts.create.triggers.StringTrigger;
 import nl.sense_os.commonsense.main.client.alerts.create.utils.MediaButton;
 import nl.sense_os.commonsense.main.client.alerts.create.utils.MyWidget;
-import nl.sense_os.commonsense.main.client.ext.component.WizardFormPanel;
+import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;

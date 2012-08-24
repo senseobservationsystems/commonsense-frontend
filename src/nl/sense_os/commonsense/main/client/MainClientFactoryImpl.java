@@ -3,17 +3,17 @@ package nl.sense_os.commonsense.main.client;
 import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.allinone.AllInOneViewImpl;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
-import nl.sense_os.commonsense.main.client.application.component.MainApplicationViewGxt;
-import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementView;
-import nl.sense_os.commonsense.main.client.environment.component.EnvironmentManagementViewGxt;
-import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
-import nl.sense_os.commonsense.main.client.groupmanagement.component.GroupManagementViewGxt;
+import nl.sense_os.commonsense.main.client.application.component.GxtMainApplicationView;
+import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
+import nl.sense_os.commonsense.main.client.environments.component.GxtEnvironmentGrid;
+import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
+import nl.sense_os.commonsense.main.client.groupmanagement.component.GxtGroupGrid;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.logout.component.LogoutViewImpl;
-import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
-import nl.sense_os.commonsense.main.client.sensormanagement.component.SensorManagementViewGxt;
-import nl.sense_os.commonsense.main.client.statemanagement.StateManagementView;
-import nl.sense_os.commonsense.main.client.statemanagement.component.StateManagementViewGxt;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
+import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtSensorGrid;
+import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
+import nl.sense_os.commonsense.main.client.statemanagement.component.GxtStateGrid;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -23,7 +23,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	private static final EventBus eventBus = new SimpleEventBus();
 	private static final PlaceController placeController = new PlaceController(eventBus);
-	private static final MainApplicationView appView = new MainApplicationViewGxt();
+	private static final MainApplicationView appView = new GxtMainApplicationView();
 	private static final LogoutView logout = new LogoutViewImpl();
 
 	@Override
@@ -32,8 +32,8 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
-	public EnvironmentManagementView getEnvironmentManagementView() {
-		return new EnvironmentManagementViewGxt();
+	public EnvironmentListView getEnvironmentListView() {
+		return new GxtEnvironmentGrid();
 	}
 
 	@Override
@@ -42,8 +42,8 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
-	public GroupManagementView getGroupManagementView() {
-		return new GroupManagementViewGxt();
+	public GroupListView getGroupListView() {
+		return new GxtGroupGrid();
 	}
 
 	@Override
@@ -62,12 +62,12 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
-	public SensorManagementView getSensorManagementView() {
-		return new SensorManagementViewGxt();
+	public SensorListView getSensorListView() {
+		return new GxtSensorGrid();
 	}
 
 	@Override
-	public StateManagementView getStateManagementView() {
-		return new StateManagementViewGxt();
+	public StateListView getStateListView() {
+		return new GxtStateGrid();
 	}
 }

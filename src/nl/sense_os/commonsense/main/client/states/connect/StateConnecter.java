@@ -2,12 +2,12 @@ package nl.sense_os.commonsense.main.client.states.connect;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.util.SenseKeyProvider;
-import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
-import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
-import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 
@@ -59,12 +59,12 @@ public class StateConnecter extends View {
     private FormPanel form;
     private Button submitButton;
     private Button cancelButton;
-    private GroupingStore<ExtSensor> store;
-    private ListLoader<ListLoadResult<ExtSensor>> loader;
-    private ExtSensor stateSensor;
+    private GroupingStore<GxtSensor> store;
+    private ListLoader<ListLoadResult<GxtSensor>> loader;
+    private GxtSensor stateSensor;
     private String serviceName;
     private MessageBox waitDialog;
-    private Grid<ExtSensor> grid;
+    private Grid<GxtSensor> grid;
     private ToolBar filterBar;
 
     public StateConnecter(Controller c) {
@@ -130,13 +130,13 @@ public class StateConnecter extends View {
         form.addButton(cancelButton);
 
         // handle selections
-        GridSelectionModel<ExtSensor> selectionModel = new GridSelectionModel<ExtSensor>();
+        GridSelectionModel<GxtSensor> selectionModel = new GridSelectionModel<GxtSensor>();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        selectionModel.addSelectionChangedListener(new SelectionChangedListener<ExtSensor>() {
+        selectionModel.addSelectionChangedListener(new SelectionChangedListener<GxtSensor>() {
 
             @Override
-            public void selectionChanged(SelectionChangedEvent<ExtSensor> se) {
-                ExtSensor selection = se.getSelectedItem();
+            public void selectionChanged(SelectionChangedEvent<GxtSensor> se) {
+                GxtSensor selection = se.getSelectedItem();
                 if (null != selection) {
                     submitButton.enable();
                 } else {
@@ -174,11 +174,11 @@ public class StateConnecter extends View {
     private void initFilters() {
 
         // text filter
-        SensorTextFilter<ExtSensor> textFilter = new SensorTextFilter<ExtSensor>();
+        SensorTextFilter<GxtSensor> textFilter = new SensorTextFilter<GxtSensor>();
         textFilter.bind(store);
 
         // filter to show only my own sensors
-        final SensorOwnerFilter<ExtSensor> ownerFilter = new SensorOwnerFilter<ExtSensor>();
+        final SensorOwnerFilter<GxtSensor> ownerFilter = new SensorOwnerFilter<GxtSensor>();
         store.addFilter(ownerFilter);
 
         // checkbox to toggle filter
@@ -219,11 +219,11 @@ public class StateConnecter extends View {
     private void initGrid() {
 
         // proxy
-        DataProxy<ListLoadResult<ExtSensor>> proxy = new DataProxy<ListLoadResult<ExtSensor>>() {
+        DataProxy<ListLoadResult<GxtSensor>> proxy = new DataProxy<ListLoadResult<GxtSensor>>() {
 
             @Override
-            public void load(DataReader<ListLoadResult<ExtSensor>> reader, Object loadConfig,
-                    AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+            public void load(DataReader<ListLoadResult<GxtSensor>> reader, Object loadConfig,
+                    AsyncCallback<ListLoadResult<GxtSensor>> callback) {
                 // only load when the panel is not collapsed
                 if (loadConfig instanceof ListLoadConfig) {
                     LOG.finest("Load library...");
@@ -240,11 +240,11 @@ public class StateConnecter extends View {
         };
 
         // list loader
-        loader = new BaseListLoader<ListLoadResult<ExtSensor>>(proxy);
+        loader = new BaseListLoader<ListLoadResult<GxtSensor>>(proxy);
 
         // list store
-        store = new GroupingStore<ExtSensor>(loader);
-        store.setKeyProvider(new SenseKeyProvider<ExtSensor>());
+        store = new GroupingStore<GxtSensor>(loader);
+        store.setKeyProvider(new SenseKeyProvider<GxtSensor>());
         store.setMonitorChanges(true);
 
         // Column model
@@ -256,8 +256,8 @@ public class StateConnecter extends View {
         view.setForceFit(true);
         view.setGroupRenderer(new SensorGroupRenderer(cm));
 
-        grid = new Grid<ExtSensor>(store, cm);
-        grid.setModelProcessor(new SensorProcessor<ExtSensor>());
+        grid = new Grid<GxtSensor>(store, cm);
+        grid.setModelProcessor(new SensorProcessor<GxtSensor>());
         grid.setView(view);
         grid.setBorders(false);
         grid.setId("state-connecter-grid");

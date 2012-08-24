@@ -15,11 +15,11 @@ import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.MainEntryPoint;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
-import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
-import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-import nl.sense_os.commonsense.main.client.ext.model.ExtService;
-import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
@@ -70,13 +70,13 @@ public class LibraryController extends Controller {
 		registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
 	}
 
-	private List<ExtDevice> devicesFromLibrary(List<ExtSensor> library) {
+	private List<GxtDevice> devicesFromLibrary(List<GxtSensor> library) {
 		LOG.finest("Listing devices...");
-		List<ExtDevice> devices = new ArrayList<ExtDevice>();
+		List<GxtDevice> devices = new ArrayList<GxtDevice>();
 
 		// gather the devices of all sensors in the library
-		ExtDevice device;
-		for (ExtSensor sensor : library) {
+		GxtDevice device;
+		for (GxtSensor sensor : library) {
 			device = sensor.getDevice();
 			if (device != null && !devices.contains(device)) {
 				devices.add(device);
@@ -128,8 +128,8 @@ public class LibraryController extends Controller {
 				Integer.toString(page), groupId);
 	}
 
-	private void getGroups(final List<ExtSensor> library,
-			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void getGroups(final List<GxtSensor> library,
+			final AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -160,7 +160,7 @@ public class LibraryController extends Controller {
 	}
 
 	private void getGroupSensors(final List<Group> groups, final int index, final int page,
-			final List<ExtSensor> library, final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+			final List<GxtSensor> library, final AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		if (index < groups.size()) {
 
@@ -207,8 +207,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void getSensors(final List<ExtSensor> library, final int page, final boolean shared,
-			final AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void getSensors(final List<GxtSensor> library, final int page, final boolean shared,
+			final AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
@@ -244,7 +244,7 @@ public class LibraryController extends Controller {
 
 		if (type.equals(LibraryEvents.LoadRequest)) {
 			LOG.finest("LoadRequest");
-			final AsyncCallback<ListLoadResult<ExtSensor>> callback = event.getData("callback");
+			final AsyncCallback<ListLoadResult<GxtSensor>> callback = event.getData("callback");
 			final boolean renewCache = event.getData("renewCache");
 			onLoadRequest(renewCache, callback);
 
@@ -267,9 +267,9 @@ public class LibraryController extends Controller {
 
 		// initialize library and lists of devices and environments
 		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST,
-				new ArrayList<ExtSensor>());
+				new ArrayList<GxtSensor>());
 		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST,
-				new ArrayList<ExtDevice>());
+				new ArrayList<GxtDevice>());
 	}
 
 	private void notifyState() {
@@ -288,7 +288,7 @@ public class LibraryController extends Controller {
 
 	private void onAvailServicesSuccess(String response, int page, String groupId) {
 
-		List<ExtSensor> library = Registry
+		List<GxtSensor> library = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 
 		// parse list of services from response
@@ -298,13 +298,13 @@ public class LibraryController extends Controller {
 			for (int i = 0; i < entries.length(); i++) {
 				int id = entries.get(i).getSensorId();
 				List<Service> availServices = entries.get(i).getServices();
-				List<ExtService> extServices = new ArrayList<ExtService>();
+				List<GxtService> gxtServices = new ArrayList<GxtService>();
 				for (Service service : availServices) {
-					extServices.add(new ExtService(service));
+					gxtServices.add(new GxtService(service));
 				}
-				for (ExtSensor sensor : library) {
+				for (GxtSensor sensor : library) {
 					if (sensor.getId() == id) {
-						sensor.setAvailServices(extServices);
+						sensor.setAvailServices(gxtServices);
 					}
 				}
 			}
@@ -320,12 +320,12 @@ public class LibraryController extends Controller {
 		notifyState();
 	}
 
-	private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onGroupSensorsFailure(AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
 	private void onGroupSensorsSuccess(String response, List<Group> groups, int index, int page,
-			List<ExtSensor> library, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+			List<GxtSensor> library, AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 		LOG.fine("Received group sensors response...");
 
 		// parse group sensors
@@ -341,7 +341,7 @@ public class LibraryController extends Controller {
 
 		Group group = groups.get(index);
 		for (int i = 0; i < groupSensors.length(); i++) {
-			ExtSensor groupSensor = new ExtSensor(groupSensors.get(i));
+			GxtSensor groupSensor = new GxtSensor(groupSensors.get(i));
 			if (!library.contains(groupSensor)) {
 				// set SensorModel.ALIAS property
 				groupSensor.setAlias(group.getId());
@@ -367,12 +367,12 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onGroupsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onGroupsFailure(AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onGroupsSuccess(String response, List<ExtSensor> library,
-			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onGroupsSuccess(String response, List<GxtSensor> library,
+			AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// parse list of groups from the response
 		List<Group> groups = new ArrayList<Group>();
@@ -384,14 +384,14 @@ public class LibraryController extends Controller {
 		getGroupSensors(groups, 0, 0, library, callback);
 	}
 
-	private void onLoadComplete(List<ExtSensor> library,
-			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onLoadComplete(List<GxtSensor> library,
+			AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 		LOG.fine("Load complete...");
 
 		// update list of devices
-		Registry.<List<ExtDevice>> get(
+		Registry.<List<GxtDevice>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<ExtDevice>> get(
+		Registry.<List<GxtDevice>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).addAll(
 				devicesFromLibrary(library));
 
@@ -400,7 +400,7 @@ public class LibraryController extends Controller {
 
 		if (null != callback) {
 			LOG.finest("Create load result...");
-			ListLoadResult<ExtSensor> result = new BaseListLoadResult<ExtSensor>(library);
+			ListLoadResult<GxtSensor> result = new BaseListLoadResult<GxtSensor>(library);
 
 			LOG.finest("Call back with load result...");
 			callback.onSuccess(result);
@@ -409,12 +409,12 @@ public class LibraryController extends Controller {
 		Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
 	}
 
-	private void onLoadFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
-		Registry.<List<ExtSensor>> get(
+	private void onLoadFailure(AsyncCallback<ListLoadResult<GxtSensor>> callback) {
+		Registry.<List<GxtSensor>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).clear();
-		Registry.<List<ExtDevice>> get(
+		Registry.<List<GxtDevice>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
-		Registry.<List<ExtEnvironment>> get(
+		Registry.<List<GxtEnvironment>> get(
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).clear();
 
 		Dispatcher.forwardEvent(LibraryEvents.ListUpdated);
@@ -425,13 +425,13 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onLoadRequest(boolean renewCache, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onLoadRequest(boolean renewCache, AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
-		List<ExtSensor> library = Registry
+		List<GxtSensor> library = Registry
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		if (renewCache) {
 			library.clear();
-			Registry.<List<ExtDevice>> get(
+			Registry.<List<GxtDevice>> get(
 					nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST).clear();
 
 			isLoadingList = true;
@@ -443,12 +443,12 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onSensorsFailure(AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onSensorsFailure(AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 		onLoadFailure(callback);
 	}
 
-	private void onSensorsResponse(String response, List<ExtSensor> library, int page,
-			boolean shared, AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onSensorsResponse(String response, List<GxtSensor> library, int page,
+			boolean shared, AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// different callbacks for shared or unshared requests
 		if (shared) {
@@ -458,8 +458,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onSharedSensorsSuccess(String response, List<ExtSensor> library, int page,
-			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onSharedSensorsSuccess(String response, List<GxtSensor> library, int page,
+			AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// parse response
 		int total = library.size();
@@ -468,11 +468,11 @@ public class LibraryController extends Controller {
 			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
 			total = responseJso.getTotal();
 
-			ExtUser user = Registry
-					.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+			GxtUser user = Registry
+					.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 			JsArray<Sensor> sharedSensors = responseJso.getRawSensors();
 			for (int i = 0; i < sharedSensors.length(); i++) {
-				ExtSensor sharedSensor = new ExtSensor(sharedSensors.get(i));
+				GxtSensor sharedSensor = new GxtSensor(sharedSensors.get(i));
 				sharedSensor.getUsers().add(user);
 				library.remove(sharedSensor);
 				library.add(sharedSensor);
@@ -497,8 +497,8 @@ public class LibraryController extends Controller {
 		}
 	}
 
-	private void onUnsharedSensorsSuccess(String response, List<ExtSensor> library, int page,
-			AsyncCallback<ListLoadResult<ExtSensor>> callback) {
+	private void onUnsharedSensorsSuccess(String response, List<GxtSensor> library, int page,
+			AsyncCallback<ListLoadResult<GxtSensor>> callback) {
 
 		// parse response
 		int total = library.size();
@@ -507,7 +507,7 @@ public class LibraryController extends Controller {
 			total = responseJso.getTotal();
 			JsArray<Sensor> sensors = responseJso.getRawSensors();
 			for (int i = 0; i < sensors.length(); i++) {
-				ExtSensor sensor = new ExtSensor(sensors.get(i));
+				GxtSensor sensor = new GxtSensor(sensors.get(i));
 				library.add(sensor);
 			}
 		}
