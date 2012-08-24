@@ -14,9 +14,10 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.main.client.groupmanagement;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ListLoadResult;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 
@@ -27,7 +28,7 @@ public interface GroupManagementView extends IsWidget {
 
 	public interface Presenter {
 
-		void loadData(AsyncCallback<ListLoadResult<ExtSensor>> callback, boolean force);
+		void loadData(AsyncCallback<List<ExtUser>> callback, Object loadConfig);
 	}
 
 	void onListUpdate();
