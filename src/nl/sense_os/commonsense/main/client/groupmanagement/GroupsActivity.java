@@ -35,7 +35,10 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 
 	public GroupsActivity(GroupsPlace place, MainClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-		Registry.register(Constants.REG_GROUPS, new ArrayList<GxtGroup>());
+
+		if (null == Registry.get(Constants.REG_GROUPS)) {
+			Registry.register(Constants.REG_GROUPS, new ArrayList<GxtGroup>());
+		}
 	}
 
 	/**

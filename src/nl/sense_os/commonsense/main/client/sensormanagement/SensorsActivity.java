@@ -52,8 +52,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 /**
  * Activities are started and stopped by an ActivityManager associated with a container Widget.
  */
-public class SensorsActivity extends AbstractActivity implements
-		SensorListView.Presenter {
+public class SensorsActivity extends AbstractActivity implements SensorListView.Presenter {
 	private static final Logger LOG = Logger.getLogger(SensorsActivity.class.getName());
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
@@ -69,10 +68,12 @@ public class SensorsActivity extends AbstractActivity implements
 		this.clientFactory = clientFactory;
 
 		// initialize library and lists of devices and environments
-		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST,
-				new ArrayList<GxtSensor>());
-		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST,
-				new ArrayList<GxtDevice>());
+		if (null == Registry.get(Constants.REG_SENSOR_LIST)) {
+			Registry.register(Constants.REG_SENSOR_LIST, new ArrayList<GxtSensor>());
+		}
+		if (null == Registry.get(Constants.REG_DEVICE_LIST)) {
+			Registry.register(Constants.REG_DEVICE_LIST, new ArrayList<GxtDevice>());
+		}
 	}
 
 	private List<GxtDevice> devicesFromLibrary(List<GxtSensor> library) {

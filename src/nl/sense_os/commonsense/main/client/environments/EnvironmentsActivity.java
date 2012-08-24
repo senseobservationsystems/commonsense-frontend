@@ -35,18 +35,18 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-public class EnvironmentsActivity extends AbstractActivity implements
-		EnvironmentListView.Presenter {
+public class EnvironmentsActivity extends AbstractActivity implements EnvironmentListView.Presenter {
 
-	private static final Logger LOG = Logger.getLogger(EnvironmentsActivity.class
-			.getName());
+	private static final Logger LOG = Logger.getLogger(EnvironmentsActivity.class.getName());
 	private MainClientFactory clientFactory;
 	private EnvironmentListView view;
 
-	public EnvironmentsActivity(EnvironmentsPlace place,
-			MainClientFactory clientFactory) {
+	public EnvironmentsActivity(EnvironmentsPlace place, MainClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-		Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<GxtGroup>());
+
+		if (null == Registry.get(Constants.REG_ENVIRONMENT_LIST)) {
+			Registry.register(Constants.REG_ENVIRONMENT_LIST, new ArrayList<GxtGroup>());
+		}
 	}
 
 	private void delete(final GxtEnvironment environment) {

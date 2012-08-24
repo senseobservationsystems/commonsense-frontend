@@ -25,6 +25,10 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static final PlaceController placeController = new PlaceController(eventBus);
 	private static final MainApplicationView appView = new GxtMainApplicationView();
 	private static final LogoutView logout = new LogoutViewImpl();
+	private static SensorListView sensorListView;
+	private static GroupListView groupListView;
+	private static EnvironmentListView environmentListView;
+	private static StateListView stateListView;
 
 	@Override
 	public AllInOneView getAllInOneView() {
@@ -33,7 +37,10 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	@Override
 	public EnvironmentListView getEnvironmentListView() {
-		return new GxtEnvironmentGrid();
+		if (null == environmentListView) {
+			environmentListView = new GxtEnvironmentGrid();
+		}
+		return environmentListView;
 	}
 
 	@Override
@@ -43,7 +50,10 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	@Override
 	public GroupListView getGroupListView() {
-		return new GxtGroupGrid();
+		if (null == groupListView) {
+			groupListView = new GxtGroupGrid();
+		}
+		return groupListView;
 	}
 
 	@Override
@@ -63,11 +73,17 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	@Override
 	public SensorListView getSensorListView() {
-		return new GxtSensorGrid();
+		if (null == sensorListView) {
+			sensorListView = new GxtSensorGrid();
+		}
+		return sensorListView;
 	}
 
 	@Override
 	public StateListView getStateListView() {
-		return new GxtStateGrid();
+		if (null == stateListView) {
+			stateListView = new GxtStateGrid();
+		}
+		return stateListView;
 	}
 }
