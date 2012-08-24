@@ -5,12 +5,14 @@ import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -51,25 +53,31 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 
 		// center
 		center = new LayoutContainer(new FitLayout());
-		borderLayout.add(center, new BorderLayoutData(LayoutRegion.CENTER));
+		BorderLayoutData bld_center = new BorderLayoutData(LayoutRegion.CENTER);
+		bld_center.setMargins(new Margins(10, 10, 10, 5));
+		borderLayout.add(center, bld_center);
 
-		LayoutContainer layoutContainer = new LayoutContainer();
+		// west
+		LayoutContainer west = new LayoutContainer();
+		BorderLayoutData bld_west = new BorderLayoutData(LayoutRegion.WEST);
+		bld_west.setMargins(new Margins(10, 5, 10, 10));
+		borderLayout.add(west, bld_west);
 
-		Hyperlink hprlnkSensors = new Hyperlink("Manage sensors", false, "sensors:");
-		hprlnkSensors.setHTML("Sensors");
-		layoutContainer.add(hprlnkSensors);
+		FlowPanel flowPanel = new FlowPanel();
 
-		Hyperlink hprlnkGroups = new Hyperlink("Manage groups", false, "groups:");
-		hprlnkGroups.setHTML("Groups");
-		layoutContainer.add(hprlnkGroups);
+		Hyperlink hprlnkSensors = new Hyperlink("Sensors", false, "sensors:");
+		flowPanel.add(hprlnkSensors);
+
+		Hyperlink hprlnkGroups = new Hyperlink("Groups", false, "groups:");
+		flowPanel.add(hprlnkGroups);
 
 		Hyperlink hprlnkStates = new Hyperlink("States", false, "states:");
-		layoutContainer.add(hprlnkStates);
+		flowPanel.add(hprlnkStates);
 
 		Hyperlink hprlnkEnvironments = new Hyperlink("Environments", false, "environments:");
-		layoutContainer.add(hprlnkEnvironments);
-		borderLayout.add(layoutContainer, new BorderLayoutData(LayoutRegion.WEST));
-		layoutContainer.setBorders(true);
+		flowPanel.add(hprlnkEnvironments);
+
+		west.add(flowPanel);
 
 		wrapper.add(borderLayout);
 
