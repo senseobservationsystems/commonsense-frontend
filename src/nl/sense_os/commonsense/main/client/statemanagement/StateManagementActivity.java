@@ -18,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.ServiceMethod;
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
@@ -37,11 +37,8 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
@@ -63,111 +60,66 @@ public class StateManagementActivity extends AbstractActivity implements
 		this.clientFactory = clientFactory;
 	}
 
-	private void disconnectService(ExtSensor sensor, ExtSensor stateSensor) {
-
-		// TODO this needs to be handled by separate view/controller
-
-		// prepare request data
-		final Method method = RequestBuilder.DELETE;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/"
-				+ stateSensor.getId() + ".json");
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
+	@Override
+	public void disconnectService(ExtSensor sensor, ExtSensor stateSensor) {
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				LOG.warning("DELETE service onError callback: " + exception.getMessage());
-				onDisconnectFailure(0);
+				onDisconnectFailure(-1, exception);
 			}
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				LOG.finest("DELETE service response received: " + response.getStatusText());
 				int statusCode = response.getStatusCode();
 				if (Response.SC_OK == statusCode) {
 					onDisconnectSuccess(response.getText());
 				} else {
-					LOG.warning("DELETE service returned incorrect status: " + statusCode);
-					onDisconnectFailure(statusCode);
+					onDisconnectFailure(statusCode, new Throwable(response.getStatusText()));
 				}
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(method, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("DELETE service request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.disconnectService(reqCallback, sensor.getId(), stateSensor.getId());
 	}
 
 	private void getConnected(final ExtSensor state, final AsyncCallback<List<ExtSensor>> callback) {
-
-		// prepare request properties
-		final Method method = RequestBuilder.GET;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + state.getId() + "/sensors.json");
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
 
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				LOG.warning("GET service sensors onError callback: " + exception.getMessage());
-				onConnectedFailure(callback);
+				onConnectedFailure(-1, exception, callback);
 			}
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				LOG.finest("GET service sensors response received: " + response.getStatusText());
 				int statusCode = response.getStatusCode();
 				if (Response.SC_OK == statusCode) {
 					onConnectedSuccess(response.getText(), state, callback);
 				} else {
-					LOG.warning("GET service sensors returned incorrect status: " + statusCode);
-					onConnectedFailure(callback);
+					onConnectedFailure(statusCode, new Throwable(response.getStatusText()),
+							callback);
 				}
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(method, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET service sensors request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
+		CommonSenseApi.getConnectedSensors(reqCallback, state.getId());
 	}
 
 	private void getMethods(final ExtSensor state, final List<ExtSensor> sensors) {
 
 		if (sensors.size() > 0) {
-			// prepare request properties
-			final Method method = RequestBuilder.GET;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensors.get(0).getId() + "/services/"
-					+ state.getId() + "/methods.json");
-			final String url = urlBuilder.buildString();
-			final String sessionId = SessionManager.getSessionId();
 
 			// prepare request callback
 			RequestCallback reqCallback = new RequestCallback() {
 
 				@Override
 				public void onError(Request request, Throwable exception) {
-					LOG.warning("GET service methods onError callback: " + exception.getMessage());
-					onMethodsFailure(0);
+					onMethodsFailure(-1, exception);
 				}
 
 				@Override
@@ -177,21 +129,12 @@ public class StateManagementActivity extends AbstractActivity implements
 					if (Response.SC_OK == statusCode) {
 						onMethodsSuccess(response.getText(), state, sensors);
 					} else {
-						LOG.warning("GET service methods returned incorrect status: " + statusCode);
-						onMethodsFailure(statusCode);
+						onMethodsFailure(statusCode, new Throwable(response.getStatusText()));
 					}
 				}
 			};
 
-			// send request
-			try {
-				RequestBuilder builder = new RequestBuilder(method, url);
-				builder.setHeader("X-SESSION_ID", sessionId);
-				builder.sendRequest(null, reqCallback);
-			} catch (Exception e) {
-				LOG.warning("GET service methods request threw exception: " + e.getMessage());
-				reqCallback.onError(null, e);
-			}
+			CommonSenseApi.getServiceMethods(reqCallback, sensors.get(0).getId(), state.getId());
 
 		} else {
 			LOG.warning("State \'" + state + "\' has no connected sensors!");
@@ -200,61 +143,27 @@ public class StateManagementActivity extends AbstractActivity implements
 
 	private void getStateSensors(final AsyncCallback<List<ExtSensor>> callback) {
 
-		// prepare request properties
-		final Method method = RequestBuilder.GET;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
-		urlBuilder.setParameter("per_page", "1000");
-		urlBuilder.setParameter("details", "full");
-		final String url = urlBuilder.buildString();
-		final String sessionId = SessionManager.getSessionId();
-
 		// prepare request callback
 		RequestCallback reqCallback = new RequestCallback() {
 
 			@Override
 			public void onError(Request request, Throwable exception) {
-				LOG.warning("GET sensors onError callback: " + exception.getMessage());
-				onStateSensorsFailure(callback);
+				onStateSensorsFailure(-1, exception, callback);
 			}
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				LOG.finest("GET sensors response received: " + response.getStatusText());
 				int statusCode = response.getStatusCode();
 				if (Response.SC_OK == statusCode) {
 					onStateSensorsSuccess(response.getText(), callback);
 				} else {
-					LOG.warning("GET sensors returned incorrect status: " + statusCode);
-					onStateSensorsFailure(callback);
+					onStateSensorsFailure(response.getStatusCode(),
+							new Throwable(response.getStatusText()), callback);
 				}
 			}
 		};
 
-		// send request
-		try {
-			RequestBuilder builder = new RequestBuilder(method, url);
-			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.sendRequest(null, reqCallback);
-		} catch (Exception e) {
-			LOG.warning("GET sensors request threw exception: " + e.getMessage());
-			reqCallback.onError(null, e);
-		}
-	}
-
-	@Override
-	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
-		LOG.info("Start 'statemanagement' activity");
-
-		view = clientFactory.getStateManagementView();
-		view.setPresenter(this);
-
-		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
-		parent.removeAll();
-		parent.add(view.asWidget());
-		parent.layout();
-
-		view.refreshLoader(false);
+		CommonSenseApi.getSensors(reqCallback, "1000", null, null, null, null, "full", null);
 	}
 
 	@Override
@@ -271,7 +180,8 @@ public class StateManagementActivity extends AbstractActivity implements
 		}
 	}
 
-	private void onConnectedFailure(AsyncCallback<List<ExtSensor>> callback) {
+	private void onConnectedFailure(int code, Throwable error,
+			AsyncCallback<List<ExtSensor>> callback) {
 
 		view.setBusy(false);
 
@@ -296,8 +206,7 @@ public class StateManagementActivity extends AbstractActivity implements
 
 		// get details from library
 		List<ExtSensor> result = new ArrayList<ExtSensor>();
-		List<ExtSensor> library = Registry
-				.<List<ExtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+		List<ExtSensor> library = Registry.<List<ExtSensor>> get(Constants.REG_SENSOR_LIST);
 		for (ExtSensor sensor : sensors) {
 			int index = -1;
 			for (ExtSensor libSensor : library) {
@@ -323,7 +232,8 @@ public class StateManagementActivity extends AbstractActivity implements
 		getMethods(state, result);
 	}
 
-	private void onDisconnectFailure(int code) {
+	private void onDisconnectFailure(int code, Throwable error) {
+		LOG.warning("Failed to disconnect service! Code: " + code + " " + error.getMessage());
 		view.onDisconnectFailure();
 	}
 
@@ -349,8 +259,9 @@ public class StateManagementActivity extends AbstractActivity implements
 		}
 	}
 
-	private void onMethodsFailure(int statusCode) {
-		// TODO
+	private void onMethodsFailure(int code, Throwable error) {
+		LOG.warning("Failed to get service methods! Code: " + code + " " + error.getMessage());
+		// TODO notify the user that something is wrong
 	}
 
 	private void onMethodsSuccess(String response, ExtSensor state, List<ExtSensor> sensors) {
@@ -371,7 +282,9 @@ public class StateManagementActivity extends AbstractActivity implements
 		}
 	}
 
-	private void onStateSensorsFailure(AsyncCallback<List<ExtSensor>> callback) {
+	private void onStateSensorsFailure(int code, Throwable error,
+			AsyncCallback<List<ExtSensor>> callback) {
+		LOG.warning("Failed to get state sensors! Code: " + code + " " + error.getMessage());
 		onLoadFailure(callback);
 	}
 
@@ -384,8 +297,7 @@ public class StateManagementActivity extends AbstractActivity implements
 			sensors = responseJso.getRawSensors();
 		}
 
-		ExtUser user = Registry
-				.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+		ExtUser user = Registry.<ExtUser> get(Constants.REG_USER);
 		List<ExtSensor> states = new ArrayList<ExtSensor>();
 		for (int i = 0; i < sensors.length(); i++) {
 			ExtSensor sensor = new ExtSensor(sensors.get(i));
@@ -395,5 +307,20 @@ public class StateManagementActivity extends AbstractActivity implements
 		}
 
 		onLoadComplete(states, callback);
+	}
+
+	@Override
+	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
+		LOG.info("Start 'statemanagement' activity");
+
+		view = clientFactory.getStateManagementView();
+		view.setPresenter(this);
+
+		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
+		parent.removeAll();
+		parent.add(view.asWidget());
+		parent.layout();
+
+		view.refreshLoader(false);
 	}
 }

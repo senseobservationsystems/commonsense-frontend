@@ -30,7 +30,7 @@ public class SensorManagementPlace extends Place {
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
-	@Prefix("sensormanagement")
+	@Prefix("sensors")
 	public static class Tokenizer implements PlaceTokenizer<SensorManagementPlace> {
 
 		@Override

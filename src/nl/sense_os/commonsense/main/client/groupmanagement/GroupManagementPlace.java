@@ -30,7 +30,7 @@ public class GroupManagementPlace extends Place {
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
-	@Prefix("groupmanagement")
+	@Prefix("groups")
 	public static class Tokenizer implements PlaceTokenizer<GroupManagementPlace> {
 
 		@Override

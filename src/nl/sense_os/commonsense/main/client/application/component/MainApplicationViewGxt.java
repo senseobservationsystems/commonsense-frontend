@@ -55,19 +55,18 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 
 		LayoutContainer layoutContainer = new LayoutContainer();
 
-		Hyperlink hprlnkSensors = new Hyperlink("Manage sensors", false, "sensormanagement:");
+		Hyperlink hprlnkSensors = new Hyperlink("Manage sensors", false, "sensors:");
 		hprlnkSensors.setHTML("Sensors");
 		layoutContainer.add(hprlnkSensors);
 
-		Hyperlink hprlnkGroups = new Hyperlink("Manage groups", false, "groupmanagement:");
+		Hyperlink hprlnkGroups = new Hyperlink("Manage groups", false, "groups:");
 		hprlnkGroups.setHTML("Groups");
 		layoutContainer.add(hprlnkGroups);
 
-		Hyperlink hprlnkStates = new Hyperlink("States", false, "statemanagement:");
+		Hyperlink hprlnkStates = new Hyperlink("States", false, "states:");
 		layoutContainer.add(hprlnkStates);
 
-		Hyperlink hprlnkEnvironments = new Hyperlink("Environments", false,
-				"environmentmanagement:");
+		Hyperlink hprlnkEnvironments = new Hyperlink("Environments", false, "environments:");
 		layoutContainer.add(hprlnkEnvironments);
 		borderLayout.add(layoutContainer, new BorderLayoutData(LayoutRegion.WEST));
 		layoutContainer.setBorders(true);

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.main.client.statemanagement;
+package nl.sense_os.commonsense.main.client.environment;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
@@ -25,21 +25,21 @@ import com.google.gwt.place.shared.Prefix;
  * {@link PlaceHistoryHandler} automatically updates the browser URL corresponding to each
  * {@link Place} in your app.
  */
-public class StateManagementPlace extends Place {
+public class EnvironmentManagementPlace extends Place {
 
 	/**
 	 * PlaceTokenizer knows how to serialize the Place's state to a URL token.
 	 */
-	@Prefix("states")
-	public static class Tokenizer implements PlaceTokenizer<StateManagementPlace> {
+	@Prefix("environments")
+	public static class Tokenizer implements PlaceTokenizer<EnvironmentManagementPlace> {
 
 		@Override
-		public StateManagementPlace getPlace(String token) {
-			return new StateManagementPlace(token);
+		public EnvironmentManagementPlace getPlace(String token) {
+			return new EnvironmentManagementPlace(token);
 		}
 
 		@Override
-		public String getToken(StateManagementPlace place) {
+		public String getToken(EnvironmentManagementPlace place) {
 			return place.getToken();
 		}
 
@@ -47,11 +47,11 @@ public class StateManagementPlace extends Place {
 
 	private String token;
 
-	public StateManagementPlace() {
+	public EnvironmentManagementPlace() {
 		this("");
 	}
 
-	public StateManagementPlace(String token) {
+	public EnvironmentManagementPlace(String token) {
 		this.token = token;
 	}
 

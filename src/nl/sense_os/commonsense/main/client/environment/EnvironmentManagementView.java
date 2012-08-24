@@ -12,34 +12,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.main.client.statemanagement;
+package nl.sense_os.commonsense.main.client.environment;
 
-import java.util.List;
+import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
-
+import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 
 /**
  * View base interface. Extends IsWidget so a view impl can easily provide its container widget.
  */
-public interface StateManagementView extends IsWidget {
+public interface EnvironmentManagementView extends IsWidget {
 
 	public interface Presenter {
 
-		void disconnectService(ExtSensor sensor, ExtSensor stateSensor);
+		void loadData(AsyncCallback<ListLoadResult<ExtEnvironment>> loadConfig);
 
-		void loadData(AsyncCallback<List<ExtSensor>> callback, Object loadConfig);
+		void onCreateClick();
+
+		void onDeleteClick(ExtEnvironment environment);
+
+		void onEditClick(ExtEnvironment environment);
+
+		void onViewClick(ExtEnvironment environment);
 	}
-
-	void onDisconnectFailure();
 
 	void onLibChanged();
 
 	void onListUpdate();
-
-	void refreshLoader(boolean force);
 
 	void setBusy(boolean busy);
 

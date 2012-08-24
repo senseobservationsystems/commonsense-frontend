@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
+import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
@@ -18,6 +19,8 @@ import com.google.web.bindery.event.shared.EventBus;
 public interface MainClientFactory {
 
 	public AllInOneView getAllInOneView();
+
+	public EnvironmentManagementView getEnvironmentManagementView();
 
 	public EventBus getEventBus();
 

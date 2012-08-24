@@ -2,6 +2,8 @@ package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.allinone.AllInOneActivity;
 import nl.sense_os.commonsense.main.client.allinone.AllInOnePlace;
+import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementActivity;
+import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementPlace;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementActivity;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementPlace;
 import nl.sense_os.commonsense.main.client.logout.LogoutActivity;
@@ -27,6 +29,9 @@ public class MainActivityMapper implements ActivityMapper {
 	public Activity getActivity(Place place) {
 		if (place instanceof AllInOnePlace) {
 			return new AllInOneActivity((AllInOnePlace) place, clientFactory);
+		} else if (place instanceof EnvironmentManagementPlace) {
+			return new EnvironmentManagementActivity((EnvironmentManagementPlace) place,
+					clientFactory);
 		} else if (place instanceof GroupManagementPlace) {
 			return new GroupManagementActivity((GroupManagementPlace) place, clientFactory);
 		} else if (place instanceof LogoutPlace) {

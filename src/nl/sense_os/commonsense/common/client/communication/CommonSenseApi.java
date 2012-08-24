@@ -23,19 +23,30 @@ public class CommonSenseApi {
 				: Constants.RC_MODE ? "rc.sense-os.nl" : Constants.DEV_MODE ? "dev.sense-os.nl"
 						: "api.sense-os.nl";
 		public static final String PROTOCOL = "http";
+
+		// main paths
 		public static final String PATH_SENSORS = PATH_PREFIX + "sensors";
-		public static final String PATH_AVAIL_SERVICES = PATH_PREFIX + "sensors/services/available";
-		public static final String PATH_DATA = PATH_PREFIX + "sensors/%1/data";
-		@SuppressWarnings("unused")
-		public static final String PATH_DATA_POINT = PATH_PREFIX + "sensors/%1/data/%2";
-		public static final String PATH_CURRENT_USER = PATH_PREFIX + "users/current";
-		public static final String PATH_FORGOT_PASSWORD = PATH_PREFIX + "requestPasswordReset";
+		public static final String PATH_GROUPS = PATH_PREFIX + "groups";
+		public static final String PATH_USERS = PATH_PREFIX + "users";
+		public static final String PATH_ENVIRONMENTS = PATH_PREFIX + "environments";
 		public static final String PATH_LOGIN = PATH_PREFIX + "login";
 		public static final String PATH_LOGIN_GOOGLE = "login/openID/google"; // no prefix!
 		public static final String PATH_LOGOUT = PATH_PREFIX + "logout";
 		public static final String PATH_PW_RESET = PATH_PREFIX + "resetPassword";
-		public static final String PATH_GROUPS = PATH_PREFIX + "groups";
-		public static final String PATH_GROUP_USERS = PATH_PREFIX + "groups/%1/users";
+		public static final String PATH_FORGOT_PASSWORD = PATH_PREFIX + "requestPasswordReset";
+
+		// sensors paths
+		public static final String PATH_AVAIL_SERVICES = PATH_SENSORS + "/services/available";
+		public static final String PATH_SENSOR_DATA = PATH_SENSORS + "/%1/data";
+		public static final String PATH_SERVICE = PATH_SENSORS + "/%1/services/%2";
+		public static final String PATH_SERVICE_METHODS = PATH_SERVICE + "/methods";
+		public static final String PATH_CONNECTED_SENSORS = PATH_SENSORS + "/%1/sensors";
+
+		// users paths
+		public static final String PATH_CURRENT_USER = PATH_USERS + "/current";
+
+		// groups paths
+		public static final String PATH_GROUP_USERS = PATH_GROUPS + "/%1/users";
 
 		private Urls() {
 			// do not instantiate
@@ -45,6 +56,29 @@ public class CommonSenseApi {
 	private static final Logger LOG = Logger.getLogger(CommonSenseApi.class.getName());
 	private static final String JSON_TYPE = "application/json";
 	private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+	public static void disconnectService(RequestCallback callback, int sensorId, int serviceId) {
+
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.DELETE;
+		UrlBuilder urlBuilder = new UrlBuilder()
+				.setProtocol(Urls.PROTOCOL)
+				.setHost(Urls.HOST)
+				.setPath(
+						Urls.PATH_SERVICE.replace("%1", Integer.toString(sensorId)).replace("%2",
+								Integer.toString(serviceId)));
+		String url = urlBuilder.buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
 
 	/**
 	 * @param callback
@@ -103,6 +137,25 @@ public class CommonSenseApi {
 		sendRequest(method, url, sessionId, null, callback);
 	}
 
+	public static void getConnectedSensors(RequestCallback callback, int sensorId) {
+
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_CONNECTED_SENSORS.replace("%1", Integer.toString(sensorId)));
+		String url = urlBuilder.buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
 	/**
 	 * @param callback
 	 *            RequestCallback to handle HTTP response
@@ -119,6 +172,80 @@ public class CommonSenseApi {
 		Method method = RequestBuilder.GET;
 		String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
 				.setPath(Urls.PATH_CURRENT_USER).buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
+	public static void getEnvironments(RequestCallback callback, String perPage, String page) {
+
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_ENVIRONMENTS);
+		if (null != page) {
+			urlBuilder.setParameter("page", page);
+		}
+		if (null != perPage) {
+			urlBuilder.setParameter("per_page", perPage);
+		}
+		String url = urlBuilder.buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
+	public static void getGroups(RequestCallback callback, String perPage, String page) {
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_GROUPS);
+		if (null != page) {
+			urlBuilder.setParameter("page", page);
+		}
+		if (null != perPage) {
+			urlBuilder.setParameter("per_page", perPage);
+		}
+		String url = urlBuilder.buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
+	public static void getGroupUsers(RequestCallback callback, int groupId, String perPage,
+			String page) {
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+				.setPath(Urls.PATH_GROUP_USERS.replace("%1", Integer.toString(groupId)));
+		if (null != page) {
+			urlBuilder.setParameter("page", page);
+		}
+		if (null != perPage) {
+			urlBuilder.setParameter("per_page", perPage);
+		}
+		String url = urlBuilder.buildString();
 
 		// send request
 		sendRequest(method, url, sessionId, null, callback);
@@ -152,7 +279,7 @@ public class CommonSenseApi {
 		// prepare request properties
 		Method method = RequestBuilder.GET;
 		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-				.setPath(Urls.PATH_DATA.replace("%1", Integer.toString(sensorId)));
+				.setPath(Urls.PATH_SENSOR_DATA.replace("%1", Integer.toString(sensorId)));
 		if (null != startDate) {
 			urlBuilder.setParameter("start_date", startDate);
 		}
@@ -232,6 +359,28 @@ public class CommonSenseApi {
 		if (null != groupId) {
 			urlBuilder.setParameter("group_id", groupId);
 		}
+		String url = urlBuilder.buildString();
+
+		// send request
+		sendRequest(method, url, sessionId, null, callback);
+	}
+
+	public static void getServiceMethods(RequestCallback callback, int sensorId, int serviceId) {
+		// check if there is a session ID
+		String sessionId = SessionManager.getSessionId();
+		if (null == sessionId) {
+			callback.onError(null, new Exception("Not logged in"));
+			return;
+		}
+
+		// prepare request properties
+		Method method = RequestBuilder.GET;
+		UrlBuilder urlBuilder = new UrlBuilder()
+				.setProtocol(Urls.PROTOCOL)
+				.setHost(Urls.HOST)
+				.setPath(
+						Urls.PATH_SERVICE_METHODS.replace("%1", Integer.toString(sensorId))
+								.replace("%2", Integer.toString(serviceId)));
 		String url = urlBuilder.buildString();
 
 		// send request
@@ -376,52 +525,8 @@ public class CommonSenseApi {
 		}
 	}
 
-	public static void getGroups(RequestCallback callback, String perPage, String page) {
-		// check if there is a session ID
-		String sessionId = SessionManager.getSessionId();
-		if (null == sessionId) {
-			callback.onError(null, new Exception("Not logged in"));
-			return;
-		}
+	public static void deleteEnvironment(RequestCallback callback, int environmentId) {
+		// TODO Auto-generated method stub
 
-		// prepare request properties
-		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-				.setPath(Urls.PATH_GROUPS);
-		if (null != page) {
-			urlBuilder.setParameter("page", page);
-		}
-		if (null != perPage) {
-			urlBuilder.setParameter("per_page", perPage);
-		}
-		String url = urlBuilder.buildString();
-
-		// send request
-		sendRequest(method, url, sessionId, null, callback);
-	}
-
-	public static void getGroupUsers(RequestCallback callback, int groupId, String perPage,
-			String page) {
-		// check if there is a session ID
-		String sessionId = SessionManager.getSessionId();
-		if (null == sessionId) {
-			callback.onError(null, new Exception("Not logged in"));
-			return;
-		}
-
-		// prepare request properties
-		Method method = RequestBuilder.GET;
-		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-				.setPath(Urls.PATH_GROUP_USERS.replace("%1", Integer.toString(groupId)));
-		if (null != page) {
-			urlBuilder.setParameter("page", page);
-		}
-		if (null != perPage) {
-			urlBuilder.setParameter("per_page", perPage);
-		}
-		String url = urlBuilder.buildString();
-
-		// send request
-		sendRequest(method, url, sessionId, null, callback);
 	}
 }

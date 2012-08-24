@@ -4,6 +4,8 @@ import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.allinone.AllInOneViewImpl;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.application.component.MainApplicationViewGxt;
+import nl.sense_os.commonsense.main.client.environment.EnvironmentManagementView;
+import nl.sense_os.commonsense.main.client.environment.component.EnvironmentManagementViewGxt;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
 import nl.sense_os.commonsense.main.client.groupmanagement.component.GroupManagementViewGxt;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
@@ -27,6 +29,11 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	@Override
 	public AllInOneView getAllInOneView() {
 		return new AllInOneViewImpl();
+	}
+
+	@Override
+	public EnvironmentManagementView getEnvironmentManagementView() {
+		return new EnvironmentManagementViewGxt();
 	}
 
 	@Override
