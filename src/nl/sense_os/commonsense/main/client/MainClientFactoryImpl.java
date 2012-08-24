@@ -10,6 +10,8 @@ import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.logout.component.LogoutViewImpl;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
 import nl.sense_os.commonsense.main.client.sensormanagement.component.SensorManagementViewGxt;
+import nl.sense_os.commonsense.main.client.statemanagement.StateManagementView;
+import nl.sense_os.commonsense.main.client.statemanagement.component.StateManagementViewGxt;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -33,6 +35,11 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
+	public GroupManagementView getGroupManagementView() {
+		return new GroupManagementViewGxt();
+	}
+
+	@Override
 	public LogoutView getLogoutView() {
 		return logout;
 	}
@@ -53,7 +60,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	}
 
 	@Override
-	public GroupManagementView getGroupManagementView() {
-		return new GroupManagementViewGxt();
+	public StateManagementView getStateManagementView() {
+		return new StateManagementViewGxt();
 	}
 }

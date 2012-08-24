@@ -1,4 +1,18 @@
-package nl.sense_os.commonsense.main.client.states.list;
+/*******************************************************************************
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+package nl.sense_os.commonsense.main.client.statemanagement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,24 +24,18 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSenso
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.ServiceMethod;
+import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtServiceMethod;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.ext.util.TreeCopier;
-import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
-import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
-import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
-import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -35,25 +43,24 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-public class StateListController extends Controller {
+/**
+ * Activities are started and stopped by an ActivityManager associated with a container Widget.
+ */
+public class StateManagementActivity extends AbstractActivity implements
+		StateManagementView.Presenter {
 
-	private static final Logger LOG = Logger.getLogger(StateListController.class.getName());
-	private View tree;
+	private static final Logger LOG = Logger.getLogger(StateManagementActivity.class.getName());
 
-	public StateListController() {
-		registerEventTypes(VizEvents.Show);
-		registerEventTypes(StateListEvents.ShowGrid);
+	/**
+	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
+	 */
+	private MainClientFactory clientFactory;
+	private StateManagementView view;
 
-		// external triggers to initiate a list update
-		registerEventTypes(StateCreateEvents.CreateServiceComplete,
-				StateConnectEvents.ConnectSuccess, SensorDeleteEvents.DeleteSuccess,
-				StateDefaultsEvents.CheckDefaultsSuccess);
-
-		// events to update the list of groups
-		registerEventTypes(StateListEvents.LoadRequest);
-
-		registerEventTypes(StateListEvents.RemoveRequested, StateListEvents.RemoveComplete);
+	public StateManagementActivity(StateManagementPlace place, MainClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
 	}
 
 	private void disconnectService(ExtSensor sensor, ExtSensor stateSensor) {
@@ -236,48 +243,25 @@ public class StateListController extends Controller {
 	}
 
 	@Override
-	public void handleEvent(AppEvent event) {
-		final EventType type = event.getType();
+	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
+		LOG.info("Start 'statemanagement' activity");
 
-		/*
-		 * Get list of states
-		 */
-		if (type.equals(StateListEvents.LoadRequest)) {
-			// LOG.fine( "LoadRequest");
-			final Object loadConfig = event.getData("loadConfig");
-			final AsyncCallback<List<ExtSensor>> callback = event
-					.<AsyncCallback<List<ExtSensor>>> getData("callback");
-			load(loadConfig, callback);
+		view = clientFactory.getStateManagementView();
+		view.setPresenter(this);
 
-		} else
+		LayoutContainer parent = clientFactory.getMainView().getActivityPanelGxt();
+		parent.removeAll();
+		parent.add(view.asWidget());
+		parent.layout();
 
-		/*
-		 * Disconnect a sensor from a state
-		 */
-		if (type.equals(StateListEvents.RemoveRequested)) {
-			// LOG.fine( "RemoveRequested");
-			ExtSensor sensor = event.<ExtSensor> getData("sensor");
-			ExtSensor stateSensor = event.<ExtSensor> getData("stateSensor");
-			disconnectService(sensor, stateSensor);
-
-		} else
-
-		/*
-		 * Pass on to state tree view
-		 */
-		{
-			forwardToView(tree, event);
-		}
+		view.refreshLoader(false);
 	}
 
 	@Override
-	protected void initialize() {
-		super.initialize();
-		tree = new StateGrid(this);
-	}
+	public void loadData(AsyncCallback<List<ExtSensor>> callback, Object loadConfig) {
 
-	private void load(Object loadConfig, AsyncCallback<List<ExtSensor>> callback) {
-		forwardToView(tree, new AppEvent(StateListEvents.Working));
+		view.setBusy(true);
+
 		if (null == loadConfig) {
 			getStateSensors(callback);
 		} else if (loadConfig instanceof ExtSensor && ((ExtSensor) loadConfig).getType() == 2) {
@@ -288,7 +272,9 @@ public class StateListController extends Controller {
 	}
 
 	private void onConnectedFailure(AsyncCallback<List<ExtSensor>> callback) {
-		forwardToView(tree, new AppEvent(StateListEvents.Done));
+
+		view.setBusy(false);
+
 		if (null != callback) {
 			callback.onFailure(null);
 		}
@@ -338,23 +324,26 @@ public class StateListController extends Controller {
 	}
 
 	private void onDisconnectFailure(int code) {
-		forwardToView(tree, new AppEvent(StateListEvents.RemoveFailed));
+		view.onDisconnectFailure();
 	}
 
 	private void onDisconnectSuccess(String response) {
-		Dispatcher.forwardEvent(StateListEvents.RemoveComplete);
+		view.onListUpdate();
 	}
 
 	private void onLoadComplete(List<ExtSensor> result, AsyncCallback<List<ExtSensor>> callback) {
-		forwardToView(tree, new AppEvent(StateListEvents.Done));
-		forwardToView(tree, new AppEvent(StateListEvents.LoadComplete));
+
+		view.setBusy(false);
+
 		if (null != callback) {
 			callback.onSuccess(result);
 		}
 	}
 
 	private void onLoadFailure(AsyncCallback<List<ExtSensor>> callback) {
-		forwardToView(tree, new AppEvent(StateListEvents.Done));
+
+		view.setBusy(false);
+
 		if (null != callback) {
 			callback.onFailure(null);
 		}

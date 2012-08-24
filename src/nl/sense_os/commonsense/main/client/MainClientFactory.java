@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupManagementView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementView;
+import nl.sense_os.commonsense.main.client.statemanagement.StateManagementView;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -20,6 +21,8 @@ public interface MainClientFactory {
 
 	public EventBus getEventBus();
 
+	public GroupManagementView getGroupManagementView();
+
 	public LogoutView getLogoutView();
 
 	public MainApplicationView getMainView();
@@ -28,5 +31,5 @@ public interface MainClientFactory {
 
 	public SensorManagementView getSensorManagementView();
 
-	public GroupManagementView getGroupManagementView();
+	public StateManagementView getStateManagementView();
 }

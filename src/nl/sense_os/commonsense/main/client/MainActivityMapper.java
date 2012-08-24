@@ -8,6 +8,8 @@ import nl.sense_os.commonsense.main.client.logout.LogoutActivity;
 import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementActivity;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorManagementPlace;
+import nl.sense_os.commonsense.main.client.statemanagement.StateManagementActivity;
+import nl.sense_os.commonsense.main.client.statemanagement.StateManagementPlace;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -31,6 +33,8 @@ public class MainActivityMapper implements ActivityMapper {
 			return new LogoutActivity((LogoutPlace) place, clientFactory);
 		} else if (place instanceof SensorManagementPlace) {
 			return new SensorManagementActivity((SensorManagementPlace) place, clientFactory);
+		} else if (place instanceof StateManagementPlace) {
+			return new StateManagementActivity((StateManagementPlace) place, clientFactory);
 		}
 		return null;
 	}
