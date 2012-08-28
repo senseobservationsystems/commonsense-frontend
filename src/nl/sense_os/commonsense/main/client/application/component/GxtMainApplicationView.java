@@ -13,7 +13,9 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class GxtMainApplicationView extends Composite implements MainApplicationView {
@@ -63,21 +65,40 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 		bld_west.setMargins(new Margins(10, 5, 10, 10));
 		borderLayout.add(west, bld_west);
 
-		FlowPanel flowPanel = new FlowPanel();
+		FlowPanel placeList = new FlowPanel();
+		placeList.setStyleName("borderPanel");
+
+		Label lblManageYourData = new Label("Manage your stuff");
+		lblManageYourData.setStyleName("panelHeader");
+		lblManageYourData.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		placeList.add(lblManageYourData);
 
 		Hyperlink hprlnkSensors = new Hyperlink("Sensors", false, "sensors:");
-		flowPanel.add(hprlnkSensors);
+		hprlnkSensors.setHTML("Sensor library");
+		placeList.add(hprlnkSensors);
 
 		Hyperlink hprlnkGroups = new Hyperlink("Groups", false, "groups:");
-		flowPanel.add(hprlnkGroups);
+		placeList.add(hprlnkGroups);
 
 		Hyperlink hprlnkStates = new Hyperlink("States", false, "states:");
-		flowPanel.add(hprlnkStates);
+		placeList.add(hprlnkStates);
 
 		Hyperlink hprlnkEnvironments = new Hyperlink("Environments", false, "environments:");
-		flowPanel.add(hprlnkEnvironments);
+		placeList.add(hprlnkEnvironments);
 
-		west.add(flowPanel);
+		west.add(placeList);
+
+		FlowPanel visualizationList = new FlowPanel();
+		visualizationList.setStyleName("borderPanel");
+		west.add(visualizationList);
+
+		Label lblViewYourData = new Label("View your data");
+		lblViewYourData.setStyleName("panelHeader");
+		lblViewYourData.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		visualizationList.add(lblViewYourData);
+
+		Label lblNoVisualization = new Label("You have not created any visualizations yet...");
+		visualizationList.add(lblNoVisualization);
 
 		wrapper.add(borderLayout);
 

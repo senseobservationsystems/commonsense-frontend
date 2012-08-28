@@ -1,0 +1,33 @@
+.borderPanel {
+	margin-bottom: 5px;
+	padding: 10px;
+	border: 1px solid #ff7f00;
+}
+
+.panelHeader {
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+/**
+ * CSS styles for javascript scrolling line graph
+ */
+div.graph-legend,div.graph-canvas {
+	background-color: white;
+}
+
+.timeline-frame {
+	background-color: white;
+}
+
+.timeline-frame,.timeline-axis,.timeline-groups-axis {
+	border-color: #A6A6A6;
+}
+
+.graph-frame {
+	background-color: white;
+}
+
+.graph-legend,.graph-axis {
+	border-color: #A6A6A6;
+}

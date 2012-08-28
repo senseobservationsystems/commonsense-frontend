@@ -128,9 +128,8 @@
 			ui:field="logo"
 			styleName="{style.logo}"
 			resource='{res.logoSense}' />
-		<g:Hyperlink
+		<g:Label
 			styleName="{style.sensors} {style.menuItem} {style.link} {style.active}"
-			targetHistoryToken="sensors:"
 			text="my sensors" />
 		<g:Anchor
 			styleName="{style.dashboard} {style.menuItem} {style.link}"
