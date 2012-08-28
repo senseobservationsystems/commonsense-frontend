@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client.application.component;
 
-import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
+import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.core.client.GWT;

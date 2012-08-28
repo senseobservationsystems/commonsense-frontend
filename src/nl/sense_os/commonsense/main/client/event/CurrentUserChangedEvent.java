@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.common.client.event;
+package nl.sense_os.commonsense.main.client.event;
 
 import nl.sense_os.commonsense.common.client.model.User;
 

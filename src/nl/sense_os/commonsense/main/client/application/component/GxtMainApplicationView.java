@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.main.client.application.component;
 
 import nl.sense_os.commonsense.common.client.component.FooterBar;
-import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
+import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
