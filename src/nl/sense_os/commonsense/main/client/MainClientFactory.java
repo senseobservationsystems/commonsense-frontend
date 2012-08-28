@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.main.client;
 
-import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
@@ -17,8 +16,6 @@ import com.google.web.bindery.event.shared.EventBus;
  * {@link PlaceController} and views.
  */
 public interface MainClientFactory {
-
-	public AllInOneView getAllInOneView();
 
 	public EnvironmentListView getEnvironmentListView();
 

@@ -1,7 +1,5 @@
 package nl.sense_os.commonsense.main.client;
 
-import nl.sense_os.commonsense.main.client.allinone.AllInOneView;
-import nl.sense_os.commonsense.main.client.allinone.AllInOneViewImpl;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.application.component.GxtMainApplicationView;
 import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
@@ -29,11 +27,6 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static GroupListView groupListView;
 	private static EnvironmentListView environmentListView;
 	private static StateListView stateListView;
-
-	@Override
-	public AllInOneView getAllInOneView() {
-		return new AllInOneViewImpl();
-	}
 
 	@Override
 	public EnvironmentListView getEnvironmentListView() {
