@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.main.client.viz.tabs;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.util.Constants;
-import nl.sense_os.commonsense.main.client.viz.choice.VizTypeChooser;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -22,32 +21,23 @@ public class VizMainController extends Controller {
 	private static final Logger LOGGER = Logger.getLogger(VizMainController.class.getName());
 
 	private View vizView;
-	private View typeChooser;
 	private boolean isVizApiLoaded;
 
 	public VizMainController() {
-
 		registerEventTypes(VizEvents.Show);
-		registerEventTypes(VizEvents.ShowTypeChoice, VizEvents.TypeChoiceCancelled);
 	}
 
 	@Override
 	public void handleEvent(AppEvent event) {
 		final EventType type = event.getType();
 
-		if (type.equals(VizEvents.ShowTypeChoice) || type.equals(VizEvents.TypeChoiceCancelled)) {
-			forwardToView(this.typeChooser, event);
-
-		} else {
-			forwardToView(this.vizView, event);
-		}
+		forwardToView(this.vizView, event);
 	}
 
 	@Override
 	protected void initialize() {
 		super.initialize();
 		this.vizView = new VizMainView(this);
-		this.typeChooser = new VizTypeChooser(this);
 
 		loadMapsApi();
 		loadVizApi();

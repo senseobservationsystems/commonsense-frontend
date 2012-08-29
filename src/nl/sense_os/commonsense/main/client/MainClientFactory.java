@@ -5,6 +5,7 @@ import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
+import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 
 import com.google.gwt.place.shared.PlaceController;
@@ -32,4 +33,6 @@ public interface MainClientFactory {
 	public SensorListView getSensorListView();
 
 	public StateListView getStateListView();
+
+	public VisualizationChooserView getVisualizationChooserView();
 }

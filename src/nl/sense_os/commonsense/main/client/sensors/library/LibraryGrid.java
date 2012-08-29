@@ -403,7 +403,8 @@ public class LibraryGrid extends View {
 
 	private void onVizClick() {
 		List<GxtSensor> selection = grid.getSelectionModel().getSelection();
-		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+		// Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+		// removed
 	}
 
 	private void refreshLoader(boolean force) {

@@ -9,7 +9,9 @@ import nl.sense_os.commonsense.main.client.groupmanagement.component.GxtGroupGri
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.logout.component.LogoutViewImpl;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
+import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
 import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtSensorGrid;
+import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtVisualizationChooserWindow;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 import nl.sense_os.commonsense.main.client.statemanagement.component.GxtStateGrid;
 
@@ -27,6 +29,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static GroupListView groupListView;
 	private static EnvironmentListView environmentListView;
 	private static StateListView stateListView;
+	private static VisualizationChooserView visualizationChooser;
 
 	@Override
 	public EnvironmentListView getEnvironmentListView() {
@@ -78,5 +81,13 @@ public class MainClientFactoryImpl implements MainClientFactory {
 			stateListView = new GxtStateGrid();
 		}
 		return stateListView;
+	}
+
+	@Override
+	public VisualizationChooserView getVisualizationChooserView() {
+		if (null == visualizationChooser) {
+			visualizationChooser = new GxtVisualizationChooserWindow();
+		}
+		return visualizationChooser;
 	}
 }

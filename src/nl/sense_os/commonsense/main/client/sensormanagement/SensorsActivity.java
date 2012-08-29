@@ -479,7 +479,7 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 
 	@Override
 	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
-		LOG.info("Start 'sensormanagement' activity");
+		LOG.info("Start 'sensors' activity");
 
 		view = clientFactory.getSensorListView();
 		view.setPresenter(this);
@@ -490,5 +490,12 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 		parent.layout();
 
 		view.refreshLoader(false);
+	}
+
+	@Override
+	public void onVisualizeClick(List<GxtSensor> sensors) {
+
+		VisualizationChooserView visualizationChooser = clientFactory.getVisualizationChooserView();
+		visualizationChooser.showWindow(sensors);
 	}
 }

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.main.client.sensormanagement;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.extjs.gxt.ui.client.data.ListLoadResult;
@@ -28,6 +30,8 @@ public interface SensorListView extends IsWidget {
 	public interface Presenter {
 
 		void loadData(AsyncCallback<ListLoadResult<GxtSensor>> callback, boolean force);
+
+		void onVisualizeClick(List<GxtSensor> sensors);
 	}
 
 	void onListUpdate();

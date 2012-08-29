@@ -15,7 +15,6 @@ import nl.sense_os.commonsense.main.client.sensors.library.LibraryGrid;
 import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -359,7 +358,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 
 	private void onVizClick() {
 		List<GxtSensor> selection = grid.getSelectionModel().getSelection();
-		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, selection);
+		presenter.onVisualizeClick(selection);
 	}
 
 	@Override

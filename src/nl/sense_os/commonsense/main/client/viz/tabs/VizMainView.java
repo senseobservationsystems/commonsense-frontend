@@ -16,7 +16,6 @@ import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.TreeStoreModel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -133,6 +132,6 @@ public class VizMainView extends View {
 	}
 
 	private void showTypeChoice(List<GxtSensor> sensors) {
-		Dispatcher.forwardEvent(VizEvents.ShowTypeChoice, sensors);
+		// removed
 	}
 }
