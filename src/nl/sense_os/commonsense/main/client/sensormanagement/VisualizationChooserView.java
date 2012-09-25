@@ -8,7 +8,13 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 public interface VisualizationChooserView extends IsWidget {
 
-	public void hideWindow();
+	public interface Presenter {
+		void onVisualizationChoice(int type, long start, long end, boolean subsample);
+	}
 
-	public void showWindow(List<GxtSensor> sensors);
+	void hideWindow();
+
+	void setPresenter(Presenter presenter);
+
+	void showWindow(List<GxtSensor> sensors);
 }

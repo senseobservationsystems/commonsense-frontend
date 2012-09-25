@@ -52,7 +52,9 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 /**
  * Activities are started and stopped by an ActivityManager associated with a container Widget.
  */
-public class SensorsActivity extends AbstractActivity implements SensorListView.Presenter {
+public class SensorsActivity extends AbstractActivity implements SensorListView.Presenter,
+		VisualizationChooserView.Presenter {
+
 	private static final Logger LOG = Logger.getLogger(SensorsActivity.class.getName());
 	/**
 	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
@@ -63,6 +65,7 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 	private static final int PER_PAGE = 1000;
 	private boolean isLoadingUsers;
 	private boolean isLoadingServices;
+	private VisualizationChooserView visualizationChooser;
 
 	public SensorsActivity(SensorsPlace place, MainClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
@@ -478,6 +481,26 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 	}
 
 	@Override
+	public void onVisualizationChoice(int type, long start, long end, boolean subsample) {
+
+		if (null != visualizationChooser) {
+			visualizationChooser.hideWindow();
+		} else {
+			LOG.warning("Cannot hide visualization window!");
+		}
+
+		// TODO fire event
+	}
+
+	@Override
+	public void onVisualizeClick(List<GxtSensor> sensors) {
+
+		visualizationChooser = clientFactory.getVisualizationChooserView();
+		visualizationChooser.setPresenter(this);
+		visualizationChooser.showWindow(sensors);
+	}
+
+	@Override
 	public void start(AcceptsOneWidget containerWidget, EventBus eventBus) {
 		LOG.info("Start 'sensors' activity");
 
@@ -490,12 +513,5 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 		parent.layout();
 
 		view.refreshLoader(false);
-	}
-
-	@Override
-	public void onVisualizeClick(List<GxtSensor> sensors) {
-
-		VisualizationChooserView visualizationChooser = clientFactory.getVisualizationChooserView();
-		visualizationChooser.showWindow(sensors);
 	}
 }

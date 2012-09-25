@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 import nl.sense_os.commonsense.main.client.gxt.component.TimeRangeForm;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
-import nl.sense_os.commonsense.main.client.viz.panels.VizPanelEvents;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -42,8 +41,6 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 	private List<GxtSensor> sensors;
 	private List<GxtSensor> locationSensors;
 
-	private AppEvent submitEvent;
-
 	private Button buttonComplete;
 	private Button buttonToTimeRange;
 	private Button buttonToTypes;
@@ -57,8 +54,9 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 
 	private TimeRangeForm timeRangeForm;
 
+	private Presenter presenter;
+
 	public GxtVisualizationChooserWindow() {
-		submitEvent = new AppEvent(VizPanelEvents.ShowTimeLine);
 
 		setHeading("Visualization wizard");
 		setMinWidth(425);
@@ -97,6 +95,34 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 		return true;
 	}
 
+	/**
+	 * Saves the selected visualization type from the form into the AppEvent that will be dispatched
+	 * when the user presses "Go!".
+	 */
+	private int getSelectedType() {
+
+		int result = -1;
+
+		Radio selected = typesField.getValue();
+		if (timeLineRadio.equals(selected)) {
+			result = NewVisualizationEvent.TIMELINE;
+
+		} else if (tableRadio.equals(selected)) {
+			result = NewVisualizationEvent.TABLE;
+
+		} else if (mapRadio.equals(selected)) {
+			result = NewVisualizationEvent.MAP;
+
+		} else if (networkRadio.equals(selected)) {
+			result = NewVisualizationEvent.NETWORK;
+
+		} else {
+			LOG.warning("Unexpected visualization type selection: " + selected);
+		}
+
+		return result;
+	}
+
 	public void hideWindow() {
 		hide();
 		layout.setActiveItem(typeForm);
@@ -108,7 +134,6 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				if (ce.getButton().equals(buttonComplete)) {
-					saveSelectedTimes();
 					submitForm();
 				} else if (ce.getButton().equals(buttonToTypes)) {
 					layout.setActiveItem(typeForm);
@@ -135,7 +160,6 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 		timeRangeForm = new TimeRangeForm();
 		timeRangeForm.setLabel("Select the time range to visualize:");
 		initTimeRangeButtons();
-		saveSelectedTimes();
 
 		add(timeRangeForm);
 	}
@@ -228,15 +252,6 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 		networkRadio.disable();
 		right.add(networkRadio, new FormData());
 
-		// listen to changes in types field
-		typesField.addListener(Events.Change, new Listener<FieldEvent>() {
-
-			@Override
-			public void handleEvent(FieldEvent be) {
-				saveSelectedType();
-			}
-		});
-
 		// add the choices to the typesfield
 		typesField.add(timeLineRadio);
 		typesField.add(tableRadio);
@@ -265,55 +280,13 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 
 		initTypeFields();
 		initTypeButtons();
-		saveSelectedType();
 
 		add(typeForm);
 	}
 
-	/**
-	 * Saves the selected time range from the form into the AppEvent that will be dispatched when
-	 * the user presses "Go!".
-	 */
-	private void saveSelectedTimes() {
-		submitEvent.setData("startTime", timeRangeForm.getStartTime());
-		submitEvent.setData("endTime", timeRangeForm.getEndTime());
-		submitEvent.setData("subsample", timeRangeForm.getSubsample());
-	}
-
-	/**
-	 * Saves the selected visualization type from the form into the AppEvent that will be dispatched
-	 * when the user presses "Go!".
-	 */
-	private void saveSelectedType() {
-
-		Radio selected = typesField.getValue();
-		if (timeLineRadio.equals(selected)) {
-			submitEvent = new AppEvent(VizPanelEvents.ShowTimeLine);
-			submitEvent.setData("sensors", sensors);
-
-			buttonToTimeRange.setText("Next");
-
-		} else if (tableRadio.equals(selected)) {
-			submitEvent = new AppEvent(VizPanelEvents.ShowTable);
-			submitEvent.setData("sensors", sensors);
-
-			buttonToTimeRange.setText("Next");
-
-		} else if (mapRadio.equals(selected)) {
-			submitEvent = new AppEvent(VizPanelEvents.ShowMap);
-			submitEvent.setData("sensors", locationSensors);
-
-			buttonToTimeRange.setText("Next");
-
-		} else if (networkRadio.equals(selected)) {
-			submitEvent = new AppEvent(VizPanelEvents.ShowNetwork);
-			submitEvent.setData("sensors", sensors);
-
-			buttonToTimeRange.setText("Next");
-
-		} else {
-			LOG.warning("Unexpected selection: " + selected);
-		}
+	@Override
+	public void setPresenter(Presenter presenter) {
+		this.presenter = presenter;
 	}
 
 	public void showWindow(List<GxtSensor> sensors) {
@@ -338,10 +311,11 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 	}
 
 	private void submitForm() {
-		saveSelectedType();
-		saveSelectedTimes();
-		// Dispatcher.forwardEvent(submitEvent);
-		// TODO notify presenter
-		hideWindow();
+		if (null != presenter) {
+			presenter.onVisualizationChoice(getSelectedType(), timeRangeForm.getStartTime(),
+					timeRangeForm.getEndTime(), timeRangeForm.getSubsample());
+		} else {
+			LOG.severe("No presenter to handle submit!");
+		}
 	}
 }
