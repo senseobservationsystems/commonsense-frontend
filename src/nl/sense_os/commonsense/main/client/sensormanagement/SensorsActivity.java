@@ -35,6 +35,7 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -494,6 +495,9 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 		// fire event
 		NewVisualizationEvent event = new NewVisualizationEvent(type, start, end, subsample);
 		clientFactory.getEventBus().fireEvent(event);
+
+		// change place
+		clientFactory.getPlaceController().goTo(new VisualizePlace(type, start, end, subsample));
 	}
 
 	@Override

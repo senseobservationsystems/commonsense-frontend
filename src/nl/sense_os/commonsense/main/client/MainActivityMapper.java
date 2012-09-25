@@ -10,6 +10,8 @@ import nl.sense_os.commonsense.main.client.sensormanagement.SensorsActivity;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesActivity;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesPlace;
+import nl.sense_os.commonsense.main.client.visualization.VisualizeActivity;
+import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -35,6 +37,8 @@ public class MainActivityMapper implements ActivityMapper {
 			return new SensorsActivity((SensorsPlace) place, clientFactory);
 		} else if (place instanceof StatesPlace) {
 			return new StatesActivity((StatesPlace) place, clientFactory);
+		} else if (place instanceof VisualizePlace) {
+			return new VisualizeActivity((VisualizePlace) place, clientFactory);
 		}
 		return null;
 	}

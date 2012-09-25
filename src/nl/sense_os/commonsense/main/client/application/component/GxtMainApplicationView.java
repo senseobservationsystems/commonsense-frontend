@@ -1,11 +1,16 @@
 package nl.sense_os.commonsense.main.client.application.component;
 
+import java.util.HashMap;
+
 import nl.sense_os.commonsense.common.client.component.FooterBar;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
+import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesPlace;
+import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -18,7 +23,6 @@ import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -27,7 +31,7 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 
 	private LayoutContainer center;
 	private MainNavigationBar mainNavigationBar;
-	private SimplePanel simplePanel;
+	private SimplePanel hiddenPanel;
 
 	private Hyperlink menuSensors;
 	private Hyperlink menuGroups;
@@ -35,6 +39,8 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 	private Hyperlink menuEnvironments;
 	private Hyperlink menuHighlight;
 	private Label noVisualization;
+	private FlowPanel visualizationList;
+	private HashMap<VisualizePlace, Hyperlink> visualizeItems = new HashMap<VisualizePlace, Hyperlink>();
 
 	public GxtMainApplicationView() {
 
@@ -59,9 +65,9 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
 
 		// east: hidden simple panel for place/activities API
-		simplePanel = new SimplePanel();
+		hiddenPanel = new SimplePanel();
 		LayoutContainer east = new LayoutContainer();
-		east.add(simplePanel);
+		east.add(hiddenPanel);
 		east.setVisible(false);
 		borderLayout.add(east, new BorderLayoutData(LayoutRegion.EAST, 0.0f));
 
@@ -82,7 +88,6 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 
 		Label lblManageYourData = new Label("Manage your stuff");
 		lblManageYourData.setStyleName("panelHeader");
-		lblManageYourData.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		placeList.add(lblManageYourData);
 
 		menuSensors = new Hyperlink("Sensors", false, "sensors:");
@@ -104,13 +109,12 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 
 		west.add(placeList);
 
-		FlowPanel visualizationList = new FlowPanel();
+		visualizationList = new FlowPanel();
 		visualizationList.setStyleName("borderPanel");
 		west.add(visualizationList);
 
 		Label lblViewYourData = new Label("View your data");
 		lblViewYourData.setStyleName("panelHeader");
-		lblViewYourData.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		visualizationList.add(lblViewYourData);
 
 		noVisualization = new Label("You have not created any visualizations yet...");
@@ -126,7 +130,7 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 
 	@Override
 	public AcceptsOneWidget getActivityPanel() {
-		return simplePanel;
+		return hiddenPanel;
 	}
 
 	@Override
@@ -140,7 +144,26 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 	}
 
 	@Override
+	public void onNewVisualization(NewVisualizationEvent event) {
+
+	}
+
+	@Override
 	public void onPlaceChange(PlaceChangeEvent event) {
+		Place newPlace = event.getNewPlace();
+		if (newPlace instanceof VisualizePlace && !visualizeItems.containsKey(newPlace)) {
+			// remove "empty" text
+			if (visualizeItems.isEmpty()) {
+				visualizationList.remove(noVisualization);
+			}
+
+			// new item
+			Hyperlink newItem = new Hyperlink("Visualization", false, "visualize:");
+			newItem.setStyleName("menuItem");
+			visualizationList.add(newItem);
+			visualizeItems.put((VisualizePlace) newPlace, newItem);
+		}
+
 		setHighlight(event.getNewPlace());
 	}
 
@@ -159,10 +182,14 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 			menuHighlight = menuStates;
 		} else if (newPlace instanceof EnvironmentsPlace) {
 			menuHighlight = menuEnvironments;
-		} else {
+		} else if (newPlace instanceof SensorsPlace) {
 			menuHighlight = menuSensors;
+		} else if (newPlace instanceof VisualizePlace) {
+			menuHighlight = visualizeItems.get(newPlace);
 		}
 
-		menuHighlight.addStyleDependentName("highlight");
+		if (null != menuHighlight) {
+			menuHighlight.addStyleDependentName("highlight");
+		}
 	}
 }

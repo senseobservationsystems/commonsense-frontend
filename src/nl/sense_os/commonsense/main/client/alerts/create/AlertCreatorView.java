@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.alerts.create.components.AlertCreator;
-import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.data.DataRequestEvent;
 
@@ -33,7 +33,7 @@ public class AlertCreatorView extends View {
 
 	private AlertCreator creator;
 	@SuppressWarnings("unused")
-	private ExtSensor sensor;
+	private GxtSensor sensor;
 	private JsArray<Timeseries> data;
 	private int triggerType;
 
@@ -118,7 +118,7 @@ public class AlertCreatorView extends View {
 		EventType type = event.getType();
 		if (type.equals(AlertCreateEvents.ShowCreator)) {
 			LOG.finest("NewCreator");
-			ExtSensor sensor = event.getData("sensor");
+			GxtSensor sensor = event.getData("sensor");
 			long timestamp = event.getData("timestamp");
 			onShowRequest(sensor, timestamp);
 
@@ -167,14 +167,14 @@ public class AlertCreatorView extends View {
 		showCreator();
 	}
 
-	private void onShowRequest(ExtSensor sensor, long timestamp) {
+	private void onShowRequest(GxtSensor sensor, long timestamp) {
 		this.sensor = sensor;
 
 		if (-1 != timestamp) {
 			// send request for sensor data
 			long end = timestamp;
 			long start = timestamp - 1000l * 60 * 60 * 24 * 2;
-			List<ExtSensor> sensors = Arrays.asList(sensor);
+			List<GxtSensor> sensors = Arrays.asList(sensor);
 			boolean subsample = false;
 			boolean showProgress = true;
 			DataRequestEvent event = new DataRequestEvent(start, end, sensors, subsample,

@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.main.client.application.component;
 
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.core.client.GWT;
@@ -41,6 +42,12 @@ public class MainApplicationViewImpl extends Composite implements MainApplicatio
 	@Override
 	public void onCurrentUserChanged(CurrentUserChangedEvent event) {
 		navBar.setUserLabel(event.getUser().getUsername());
+	}
+
+	@Override
+	public void onNewVisualization(NewVisualizationEvent event) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
