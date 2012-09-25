@@ -157,12 +157,11 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 		store.setKeyProvider(new SenseKeyProvider<GxtUser>());
 		store.setStoreSorter(new StoreSorter<GxtUser>(new SensorComparator<GxtUser>()));
 
-		ColumnConfig id = new ColumnConfig(GxtUser.ID, "ID", 50);
-		id.setHidden(true);
-		ColumnConfig name = new ColumnConfig(GxtUser.NAME, "Name", 125);
-		name.setRenderer(new TreeGridCellRenderer<TreeModel>());
-		ColumnConfig surname = new ColumnConfig(GxtUser.SURNAME, "Surname", 125);
-		ColumnConfig description = new ColumnConfig(GxtGroup.DESCRIPTION, "Description", 125);
+		ColumnConfig id = new ColumnConfig(GxtUser.ID, "ID", 125);
+		id.setRenderer(new TreeGridCellRenderer<TreeModel>());
+		ColumnConfig name = new ColumnConfig(GxtUser.NAME, "Name", 200);
+		ColumnConfig surname = new ColumnConfig(GxtUser.SURNAME, "Surname", 200);
+		ColumnConfig description = new ColumnConfig(GxtGroup.DESCRIPTION, "Description", 200);
 		ColumnConfig isPublic = new ColumnConfig(GxtGroup.PUBLIC, "Public", 75);
 		isPublic.setHidden(true);
 		ColumnConfig isHidden = new ColumnConfig(GxtGroup.HIDDEN, "Hidden", 75);
