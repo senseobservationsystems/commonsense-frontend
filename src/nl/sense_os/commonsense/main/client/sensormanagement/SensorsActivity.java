@@ -29,6 +29,7 @@ import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.MainEntryPoint;
+import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
@@ -483,13 +484,16 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 	@Override
 	public void onVisualizationChoice(int type, long start, long end, boolean subsample) {
 
+		// hide chooser
 		if (null != visualizationChooser) {
 			visualizationChooser.hideWindow();
 		} else {
 			LOG.warning("Cannot hide visualization window!");
 		}
 
-		// TODO fire event
+		// fire event
+		NewVisualizationEvent event = new NewVisualizationEvent(type, start, end, subsample);
+		clientFactory.getEventBus().fireEvent(event);
 	}
 
 	@Override

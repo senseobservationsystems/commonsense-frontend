@@ -1,12 +1,18 @@
 package nl.sense_os.commonsense.main.client.event;
 
 import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent.Handler;
 
+import com.google.gwt.event.shared.EventHandler;
 import com.google.web.bindery.event.shared.Event;
 
-public class CurrentUserChangedEvent extends Event<CurrentUserChangedHandler> {
+public class CurrentUserChangedEvent extends Event<Handler> {
 
-	public static final Type<CurrentUserChangedHandler> TYPE = new Type<CurrentUserChangedHandler>();
+	public interface Handler extends EventHandler {
+		void onCurrentUserChanged(CurrentUserChangedEvent event);
+	}
+
+	public static final Type<Handler> TYPE = new Type<Handler>();
 	private User user;
 
 	public CurrentUserChangedEvent(User user) {
@@ -18,12 +24,12 @@ public class CurrentUserChangedEvent extends Event<CurrentUserChangedHandler> {
 	}
 
 	@Override
-	public Type<CurrentUserChangedHandler> getAssociatedType() {
+	public Type<Handler> getAssociatedType() {
 		return TYPE;
 	}
 
 	@Override
-	protected void dispatch(CurrentUserChangedHandler handler) {
+	protected void dispatch(Handler handler) {
 		handler.onCurrentUserChanged(this);
 	}
 }
