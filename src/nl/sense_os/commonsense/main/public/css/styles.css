@@ -1,12 +1,44 @@
 .borderPanel {
 	margin-bottom: 10px;
-	padding: 10px;
 	border: 1px solid #ff7f00;
 }
 
 .panelHeader {
-	margin-bottom: 5px;
+	padding: 5px 5px 5px 8px;
+	margin-bottom: 3px;
 	font-weight: bold;
+	border-bottom: 1px solid #ff7f00;
+}
+
+.menuItem {
+	padding: 5px;
+	margin-bottom: 3px;
+	border-left: solid 3px #bbb;
+	cursor: pointer;
+}
+
+.menuItem:hover {
+	background-color: #ffd5aa;
+	border-left: solid 3px #ff7f00;
+}
+
+.menuItem a {
+	text-decoration: none;
+	color: #555;
+}
+
+.menuItem-highlight {
+	border-left: solid 3px #ff7f00;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.menuItem-highlight a {
+	cursor: pointer;
+}
+
+.menu-empty {
+	padding: 5px 5px 5px 8px;
 }
 
 /**

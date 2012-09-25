@@ -51,6 +51,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.maps.client.Maps;
+import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
@@ -68,6 +69,7 @@ public class MainEntryPoint implements EntryPoint {
 
 	public static final boolean HACK_SKIP_LIB_DETAILS = Constants.ALLOW_HACKS && false;
 	private static final Logger LOG = Logger.getLogger(MainEntryPoint.class.getName());
+
 	/**
 	 * Redirects the user to the main page
 	 */
@@ -132,6 +134,7 @@ public class MainEntryPoint implements EntryPoint {
 		// prepare UI
 		MainApplicationView main = clientFactory.getMainView();
 		eventBus.addHandler(CurrentUserChangedEvent.TYPE, main);
+		eventBus.addHandler(PlaceChangeEvent.TYPE, main);
 		AcceptsOneWidget appWidget = main.getActivityPanel();
 
 		// Start ActivityManager for the main widget with our ActivityMapper
