@@ -1,6 +1,10 @@
 package nl.sense_os.commonsense.main.client.visualization;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
@@ -18,10 +22,24 @@ public class VisualizePlace extends Place {
 
 		@Override
 		public VisualizePlace getPlace(String token) {
+			List<GxtSensor> sensors = new ArrayList<GxtSensor>();
 			int type = -1;
 			long start = -1;
 			long end = -1;
 			boolean subsample = false;
+
+			// parse sensors
+			try {
+				int sensorsBegin = token.indexOf("sensors=") + "sensors=".length();
+				String rawSensors = token.substring(sensorsBegin, token.indexOf("/", sensorsBegin));
+				String[] split = rawSensors.split(",");
+				for (String id : split) {
+					sensors.add(new GxtSensor().setId(Integer.parseInt(id)));
+				}
+
+			} catch (Exception e) {
+				LOG.severe("Failed to serialize token: " + e);
+			}
 
 			// parse type
 			try {
@@ -55,7 +73,7 @@ public class VisualizePlace extends Place {
 
 			// parse subsample
 			try {
-				int subsampleBegin = token.indexOf("start=") + "start=".length();
+				int subsampleBegin = token.indexOf("subsample=") + "subsample=".length();
 				String rawSubsample = token.substring(subsampleBegin);
 				subsample = Boolean.parseBoolean(rawSubsample);
 
@@ -63,13 +81,20 @@ public class VisualizePlace extends Place {
 				LOG.severe("Failed to serialize token: " + e);
 			}
 
-			return new VisualizePlace(type, start, end, subsample);
+			return new VisualizePlace(sensors, type, start, end, subsample);
 		}
 
 		@Override
 		public String getToken(VisualizePlace place) {
-			return "type=" + place.getType() + "/start=" + place.getStart() + "/end="
-					+ place.getEnd() + "/subsample=" + place.isSubsample();
+			String sensors = "";
+			for (GxtSensor sensor : place.getSensors()) {
+				sensors += sensor.getId() + ",";
+			}
+			if (sensors.length() > 1) {
+				sensors = sensors.substring(0, sensors.length() - 1);
+			}
+			return "sensors=" + sensors + "/type=" + place.getType() + "/start=" + place.getStart()
+					+ "/end=" + place.getEnd() + "/subsample=" + place.isSubsample();
 		}
 	}
 
@@ -77,8 +102,10 @@ public class VisualizePlace extends Place {
 	private long start;
 	private long end;
 	private boolean subsample;
+	private List<GxtSensor> sensors;
 
-	public VisualizePlace(int type, long start, long end, boolean subsample) {
+	public VisualizePlace(List<GxtSensor> sensors, int type, long start, long end, boolean subsample) {
+		this.sensors = sensors;
 		this.type = type;
 		this.start = start;
 		this.end = end;
@@ -87,6 +114,10 @@ public class VisualizePlace extends Place {
 
 	public long getEnd() {
 		return end;
+	}
+
+	public List<GxtSensor> getSensors() {
+		return sensors;
 	}
 
 	public long getStart() {

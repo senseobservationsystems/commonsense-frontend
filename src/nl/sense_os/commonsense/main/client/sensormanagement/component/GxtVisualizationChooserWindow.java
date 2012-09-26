@@ -312,8 +312,9 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 
 	private void submitForm() {
 		if (null != presenter) {
-			presenter.onVisualizationChoice(getSelectedType(), timeRangeForm.getStartTime(),
-					timeRangeForm.getEndTime(), timeRangeForm.getSubsample());
+			presenter.onVisualizationChoice(sensors, getSelectedType(),
+					timeRangeForm.getStartTime(), timeRangeForm.getEndTime(),
+					timeRangeForm.getSubsample());
 		} else {
 			LOG.severe("No presenter to handle submit!");
 		}

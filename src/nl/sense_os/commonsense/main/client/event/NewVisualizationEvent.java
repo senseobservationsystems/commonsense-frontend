@@ -1,6 +1,9 @@
 package nl.sense_os.commonsense.main.client.event;
 
+import java.util.List;
+
 import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent.Handler;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
 import com.google.web.bindery.event.shared.Event;
 
@@ -20,8 +23,11 @@ public class NewVisualizationEvent extends Event<Handler> {
 	private long start;
 	private long end;
 	private boolean subsample;
+	private List<GxtSensor> sensors;
 
-	public NewVisualizationEvent(int type, long start, long end, boolean subsample) {
+	public NewVisualizationEvent(List<GxtSensor> sensors, int type, long start, long end,
+			boolean subsample) {
+		this.sensors = sensors;
 		this.type = type;
 		this.start = start;
 		this.end = end;
@@ -40,6 +46,10 @@ public class NewVisualizationEvent extends Event<Handler> {
 
 	public long getEnd() {
 		return end;
+	}
+
+	public List<GxtSensor> getSensors() {
+		return sensors;
 	}
 
 	public long getStart() {

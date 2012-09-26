@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.main.client.application.component;
 
 import java.util.HashMap;
+import java.util.List;
 
 import nl.sense_os.commonsense.common.client.component.FooterBar;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
@@ -8,6 +9,7 @@ import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesPlace;
 import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
@@ -40,7 +42,7 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 	private Hyperlink menuHighlight;
 	private Label noVisualization;
 	private FlowPanel visualizationList;
-	private HashMap<VisualizePlace, Hyperlink> visualizeItems = new HashMap<VisualizePlace, Hyperlink>();
+	private HashMap<String, Hyperlink> visualizeItems = new HashMap<String, Hyperlink>();
 
 	public GxtMainApplicationView() {
 
@@ -146,24 +148,38 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 	@Override
 	public void onNewVisualization(NewVisualizationEvent event) {
 
+		// remove "empty" text
+		if (visualizeItems.isEmpty()) {
+			visualizationList.remove(noVisualization);
+		}
+
+		// get visualization details
+		List<GxtSensor> sensors = event.getSensors();
+		int type = event.getType();
+		long start = event.getStart();
+		long end = event.getEnd();
+		boolean subsample = event.isSubsample();
+
+		// Create label
+		String label = "";
+		for (GxtSensor sensor : sensors) {
+			label += sensor.getDisplayName() + ", ";
+		}
+		label = label.substring(0, label.length() - 2);
+
+		// create hyperlink
+		VisualizePlace place = new VisualizePlace(sensors, type, start, end, subsample);
+		String token = new VisualizePlace.Tokenizer().getToken(place);
+		Hyperlink hyperlink = new Hyperlink(label, false, "visualize:" + token);
+		hyperlink.setStyleName("menuItem");
+
+		// put link in menu
+		visualizationList.add(hyperlink);
+		visualizeItems.put(token, hyperlink);
 	}
 
 	@Override
 	public void onPlaceChange(PlaceChangeEvent event) {
-		Place newPlace = event.getNewPlace();
-		if (newPlace instanceof VisualizePlace && !visualizeItems.containsKey(newPlace)) {
-			// remove "empty" text
-			if (visualizeItems.isEmpty()) {
-				visualizationList.remove(noVisualization);
-			}
-
-			// new item
-			Hyperlink newItem = new Hyperlink("Visualization", false, "visualize:");
-			newItem.setStyleName("menuItem");
-			visualizationList.add(newItem);
-			visualizeItems.put((VisualizePlace) newPlace, newItem);
-		}
-
 		setHighlight(event.getNewPlace());
 	}
 
@@ -185,7 +201,8 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 		} else if (newPlace instanceof SensorsPlace) {
 			menuHighlight = menuSensors;
 		} else if (newPlace instanceof VisualizePlace) {
-			menuHighlight = visualizeItems.get(newPlace);
+			String token = new VisualizePlace.Tokenizer().getToken((VisualizePlace) newPlace);
+			menuHighlight = visualizeItems.get(token);
 		}
 
 		if (null != menuHighlight) {

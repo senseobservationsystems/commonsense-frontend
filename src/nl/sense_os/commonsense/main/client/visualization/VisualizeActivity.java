@@ -4,9 +4,11 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.Label;
 
 public class VisualizeActivity extends AbstractActivity {
 
@@ -26,7 +28,9 @@ public class VisualizeActivity extends AbstractActivity {
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		LOG.info("Start 'visualize' activity");
 
-		LOG.info("type=" + place.getType() + "/start=" + place.getStart() + "/end="
-				+ place.getEnd() + "/subsample=" + place.isSubsample());
+		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
+		parent.removeAll();
+		parent.add(new Label(new VisualizePlace.Tokenizer().getToken(place)));
+		parent.layout();
 	}
 }

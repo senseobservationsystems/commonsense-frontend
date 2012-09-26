@@ -15,6 +15,7 @@ import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
@@ -134,6 +135,7 @@ public class MainEntryPoint implements EntryPoint {
 		// prepare UI
 		MainApplicationView main = clientFactory.getMainView();
 		eventBus.addHandler(CurrentUserChangedEvent.TYPE, main);
+		eventBus.addHandler(NewVisualizationEvent.TYPE, main);
 		eventBus.addHandler(PlaceChangeEvent.TYPE, main);
 		AcceptsOneWidget appWidget = main.getActivityPanel();
 
