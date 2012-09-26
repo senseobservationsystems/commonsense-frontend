@@ -483,7 +483,8 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 	}
 
 	@Override
-	public void onVisualizationChoice(int type, long start, long end, boolean subsample) {
+	public void onVisualizationChoice(List<GxtSensor> sensors, int type, long start, long end,
+			boolean subsample) {
 
 		// hide chooser
 		if (null != visualizationChooser) {
@@ -493,11 +494,13 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 		}
 
 		// fire event
-		NewVisualizationEvent event = new NewVisualizationEvent(type, start, end, subsample);
+		NewVisualizationEvent event = new NewVisualizationEvent(sensors, type, start, end,
+				subsample);
 		clientFactory.getEventBus().fireEvent(event);
 
 		// change place
-		clientFactory.getPlaceController().goTo(new VisualizePlace(type, start, end, subsample));
+		clientFactory.getPlaceController().goTo(
+				new VisualizePlace(sensors, type, start, end, subsample));
 	}
 
 	@Override
