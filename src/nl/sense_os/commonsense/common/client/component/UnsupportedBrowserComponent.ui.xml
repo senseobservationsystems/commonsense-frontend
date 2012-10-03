@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style>
+		.main {
+			max-width: 450px;
+			margin: 0px 25px;
+			color: #555;
+		}
+		.main h1 {
+			font-size: 2em;
+			margin: .67em 0px;
+		}
+		.main p {
+			margin: 1em 0px;
+		}
+	</ui:style>
+	<g:HTMLPanel styleName="{style.main}">
+		<h1>Unsupported browser</h1>
+		<p>
+			You are using a browser that is not supported by this website. That	probably means your browser is out of date, insecure, and lacks support for modern web standards.
+		</p>
+		<p>
+			We suggest installing the latest version of <a href="http://www.mozilla.com/en-US/firefox/firefox.html">Firefox</a>, <a href="http://www.google.com/chrome">Google Chrome</a>, <a href="http://www.apple.com/safari/download/">Safari</a>, or even <a href="http://www.opera.com/">Opera</a>.
+		</p>
+	</g:HTMLPanel>
+</ui:UiBinder> 

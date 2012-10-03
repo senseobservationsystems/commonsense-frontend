@@ -9,6 +9,18 @@
 	<inherits name="nl.sense_os.commonsense.common.Common" />
 	<!-- Entry point -->
 	<entry-point class="nl.sense_os.commonsense.login.client.LoginEntryPoint" />
+	<replace-with class="nl.sense_os.commonsense.login.client.LoginEntryPoint">
+		<when-type-is class="nl.sense_os.commonsense.login.client.LoginEntryPoint" />
+	</replace-with>
+	<!-- Replace entry point class for ancient browsers -->
+	<replace-with class="nl.sense_os.commonsense.common.client.entrypoint.UnsupportedBrowserEntryPoint">
+		<when-type-is class="nl.sense_os.commonsense.login.client.LoginEntryPoint" />
+		<any>
+      		<when-property-is name="user.agent" value="ie6"/>
+      		<when-property-is name="user.agent" value="ie7" />
+      		<when-property-is name="user.agent" value="ie8" />
+    	</any>
+	</replace-with>
 	<!-- Define binding for ClientFactory -->
 	<replace-with class="nl.sense_os.commonsense.login.client.LoginClientFactoryImpl">
 		<when-type-is class="nl.sense_os.commonsense.login.client.LoginClientFactory" />
