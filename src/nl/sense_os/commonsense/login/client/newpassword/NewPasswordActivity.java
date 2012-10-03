@@ -14,24 +14,57 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.newpassword;
 
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
-import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.DialogBox;
 
 public class NewPasswordActivity extends AbstractActivity implements NewPasswordView.Presenter,
 		AlertDialogContent.Presenter {
+
+	/**
+	 * Removes any URL parameters that are not useful anymore after a new password was set.
+	 */
+	private static void cleanUrlParameters() {
+
+		// clear any session ID to prevent from bouncing back immediately
+		SessionManager.removeSessionId();
+
+		UrlBuilder builder = new UrlBuilder();
+		builder.setProtocol(Location.getProtocol());
+		builder.setHost(Location.getHost());
+		builder.setPath(Location.getPath());
+		for (Entry<String, List<String>> entry : Location.getParameterMap().entrySet()) {
+			if ("session_id".equals(entry.getKey()) || "error".equals(entry.getKey())
+					|| "token".equals(entry.getKey())) {
+				// do not copy the session id, error, or token parameters
+			} else {
+				builder.setParameter(entry.getKey(), entry.getValue().toArray(new String[0]));
+			}
+		}
+		String newLocation = builder.buildString();
+
+		// do not mangle the GWT development server parameter
+		newLocation = newLocation.replace("127.0.0.1%3A", "127.0.0.1:");
+
+		// relocate
+		Location.replace(newLocation);
+	}
 
 	private static final Logger LOG = Logger.getLogger(NewPasswordActivity.class.getName());
 
@@ -55,13 +88,12 @@ public class NewPasswordActivity extends AbstractActivity implements NewPassword
 
 	@Override
 	public void cancel() {
-		clientFactory.getPlaceController().goTo(new LoginPlace(""));
+		cleanUrlParameters();
 	}
 
 	@Override
 	public void dismissAlert() {
-		alertDialog.hide();
-		clientFactory.getPlaceController().goTo(new LoginPlace(""));
+		cleanUrlParameters();
 	}
 
 	private void onPasswordResetFailure(int code, Throwable error) {
