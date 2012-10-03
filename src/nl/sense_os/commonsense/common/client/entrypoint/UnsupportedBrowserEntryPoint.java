@@ -9,6 +9,11 @@ public class UnsupportedBrowserEntryPoint implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+		RootPanel loadingPanel = RootPanel.get("loading");
+		if (null != loadingPanel) {
+			loadingPanel.setVisible(false);
+		}
+		RootPanel.get().clear();
 		RootPanel.get().add(new UnsupportedBrowserComponent());
 	}
 }
