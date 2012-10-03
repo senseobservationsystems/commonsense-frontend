@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder
+	xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+	<ui:style>
+		.text {
+			margin-top: 20%;
+			text-align: center;
+		}
+	</ui:style>
+	<g:FlowPanel>
+		<g:Label
+			styleName="{style.text}"
+			text="Logging out..." />
+	</g:FlowPanel>
+</ui:UiBinder>

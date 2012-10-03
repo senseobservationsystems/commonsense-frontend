@@ -1,4 +1,6 @@
-commonsense-front-end
+CommonSense Front End
 =====================
 
-Front-end for CommonSense, written in GWT
+Front end for CommonSense, written in GWT.
+
+http://common.sense-os.nl

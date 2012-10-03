@@ -1,0 +1,40 @@
+<module>
+	<!-- Core GWT inherits -->
+	<inherits name="com.google.gwt.user.User" />
+	<inherits name="com.google.gwt.http.HTTP" />
+	<inherits name="com.google.gwt.json.JSON" />
+	<inherits name="com.google.gwt.logging.Logging" />
+	<inherits name="com.google.gwt.resources.Resources" />
+	
+	<!-- Other modules -->
+	<inherits name='com.google.gwt.maps.GoogleMaps' />
+
+	<!-- External style sheets -->
+	<stylesheet src="gwt/commonsense/commonsense.css" />
+	<stylesheet src="css/sense.css" />
+	<!-- Logging properties -->
+	<set-property
+		name="gwt.logging.enabled"
+		value="TRUE" />
+	<set-property
+		name="gwt.logging.logLevel"
+		value="INFO" />
+	<set-property
+		name="gwt.logging.systemHandler"
+		value="DISABLED" />
+	<set-property
+		name="gwt.logging.consoleHandler"
+		value="DISABLED" />
+	<set-property
+		name="gwt.logging.developmentModeHandler"
+		value="ENABLED" />
+	<set-property
+		name="gwt.logging.popupHandler"
+		value="DISABLED" />
+	<set-property
+		name="gwt.logging.simpleRemoteHandler"
+		value="DISABLED" />
+	<set-property
+		name="gwt.logging.firebugHandler"
+		value="ENABLED" />
+</module>
