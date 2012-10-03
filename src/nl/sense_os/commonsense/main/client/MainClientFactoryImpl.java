@@ -17,7 +17,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static final PlaceController placeController = new PlaceController(eventBus);
 	private static final MainApplicationView appView = new MainApplicationViewGxt();
 	private static final LogoutView logout = new LogoutViewImpl();
-	private static final SensorsView sensors = new SensorsViewImpl();
+	private static SensorsView sensors;
 
 	@Override
 	public EventBus getEventBus() {
@@ -41,6 +41,9 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	@Override
 	public SensorsView getSensorsView() {
+		if (null == sensors) {
+			sensors = new SensorsViewImpl();
+		}
 		return sensors;
 	}
 }
