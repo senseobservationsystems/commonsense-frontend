@@ -3,8 +3,16 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style>
 		.main {
-			max-width: 440px;
-			margin: 30px;
+			max-width: 450px;
+			margin: 0px 25px;
+			color: #555;
+		}
+		.main h1 {
+			font-size: 2em;
+			margin: .67em 0px;
+		}
+		.main p {
+			margin: 1em 0px;
 		}
 	</ui:style>
 	<g:HTMLPanel styleName="{style.main}">
