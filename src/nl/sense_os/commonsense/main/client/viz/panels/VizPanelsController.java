@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.viz.panels;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
+import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.map.MapVizView;
 import nl.sense_os.commonsense.main.client.viz.panels.table.TableVizView;
 import nl.sense_os.commonsense.main.client.viz.panels.timeline.TimeLineVizView;

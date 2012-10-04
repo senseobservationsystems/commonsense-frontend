@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
-import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
+import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizView;
 
 import com.extjs.gxt.ui.client.event.EventType;

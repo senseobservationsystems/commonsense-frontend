@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.viz.data.DataRequestEvent;
+import nl.sense_os.commonsense.main.client.visualization.data.GxtDataRequestEvent;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -209,7 +209,7 @@ public abstract class VizView extends View {
 				LOG.fine("Refresh start time: " + dtf.format(new Date(refreshStart)));
 
 				// submit request event
-				DataRequestEvent refreshRequest = new DataRequestEvent(refreshStart, end, sensors,
+				GxtDataRequestEvent refreshRequest = new GxtDataRequestEvent(refreshStart, end, sensors,
 						true, false);
 				refreshRequest.setSource(this);
 				Dispatcher.forwardEvent(refreshRequest);
@@ -279,7 +279,7 @@ public abstract class VizView extends View {
 	 */
 	protected void requestData(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 		LOG.fine("Request data...");
-		DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true);
+		GxtDataRequestEvent dataRequest = new GxtDataRequestEvent(start, end, sensors, subsample, true);
 		dataRequest.setSource(this);
 		Dispatcher.forwardEvent(dataRequest);
 	}

@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.viz.data.cache;
+package nl.sense_os.commonsense.main.client.visualization.data.cache;
 
 import java.util.List;
 import java.util.logging.Logger;

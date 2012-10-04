@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.alerts.create.components.AlertCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
-import nl.sense_os.commonsense.main.client.viz.data.DataRequestEvent;
+import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
+import nl.sense_os.commonsense.main.client.visualization.data.GxtDataRequestEvent;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -177,7 +177,7 @@ public class AlertCreatorView extends View {
 			List<GxtSensor> sensors = Arrays.asList(sensor);
 			boolean subsample = false;
 			boolean showProgress = true;
-			DataRequestEvent event = new DataRequestEvent(start, end, sensors, subsample,
+			GxtDataRequestEvent event = new GxtDataRequestEvent(start, end, sensors, subsample,
 					showProgress);
 			event.setSource(this);
 			Dispatcher.forwardEvent(event);

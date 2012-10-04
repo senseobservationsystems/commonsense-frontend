@@ -16,7 +16,7 @@ import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.viz.data.DataEvents;
+import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.Registry;

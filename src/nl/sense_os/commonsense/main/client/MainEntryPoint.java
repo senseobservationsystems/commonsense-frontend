@@ -15,6 +15,7 @@ import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.list.EnvController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
 import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
@@ -33,7 +34,7 @@ import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsControll
 import nl.sense_os.commonsense.main.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.main.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.main.client.states.list.StateListController;
-import nl.sense_os.commonsense.main.client.viz.data.DataController;
+import nl.sense_os.commonsense.main.client.visualization.data.DataHandler;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanelsController;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizMainController;
 
@@ -154,6 +155,10 @@ public class MainEntryPoint implements EntryPoint {
 		viewport.add(main.asWidget());
 		RootPanel.get().add(viewport);
 
+		// initialize data handler
+		DataHandler dataHandler = new DataHandler(clientFactory);
+		clientFactory.getEventBus().addHandler(DataRequestEvent.TYPE, dataHandler);
+
 		/* initialize GXT MVC */
 		initDispatcher();
 	}
@@ -167,7 +172,6 @@ public class MainEntryPoint implements EntryPoint {
 
 		dispatcher.addController(new VizMainController());
 		dispatcher.addController(new VizPanelsController());
-		dispatcher.addController(new DataController());
 
 		// sensor library controllers
 		dispatcher.addController(new LibraryController());

@@ -1,6 +1,5 @@
-package nl.sense_os.commonsense.main.client.viz.data;
+package nl.sense_os.commonsense.main.client.visualization.data;
 
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -9,13 +8,14 @@ import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSenso
 import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.main.client.MainClientFactory;
+import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
+import nl.sense_os.commonsense.main.client.event.LatestValuesRequestEvent;
+import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.viz.data.cache.Cache;
+import nl.sense_os.commonsense.main.client.visualization.data.cache.Cache;
+import nl.sense_os.commonsense.main.client.visualization.data.component.GxtProgressDialog;
 
-import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
@@ -24,22 +24,20 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 
-public class DataController extends Controller {
+public class DataHandler implements DataRequestEvent.Handler, LatestValuesRequestEvent.Handler {
 
-	private static final Logger LOG = Logger.getLogger(DataController.class.getName());
-	private View progressDialog;
+	private static final Logger LOG = Logger.getLogger(DataHandler.class.getName());
+	private ProgressView progressView;
+	private MainClientFactory clientFactory;
 	private static final int PER_PAGE = 1000; // max: 1000
 
-	public DataController() {
+	public DataHandler(MainClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
 
-		// LOG.setLevel(Level.FINE);
-
-		registerEventTypes(DataEvents.DataRequest);
-		registerEventTypes(DataEvents.LatestValuesRequest);
+		// TODO change into regular view
+		progressView = new GxtProgressDialog();
 	}
 
 	private int calcInterval(long start, long end) {
@@ -68,7 +66,7 @@ public class DataController extends Controller {
 		return Double.valueOf(interval).intValue();
 	}
 
-	private void getLatestValues(final List<GxtSensor> sensors, final int index, final View source) {
+	private void getLatestValues(final List<GxtSensor> sensors, final int index, final Object source) {
 		if (index < sensors.size()) {
 
 			GxtSensor sensor = sensors.get(index);
@@ -121,54 +119,11 @@ public class DataController extends Controller {
 		}
 	}
 
-	@Override
-	public void handleEvent(AppEvent event) {
-		final EventType type = event.getType();
-
-		if (type.equals(DataEvents.DataRequest)) {
-			LOG.finest("DataRequest");
-			DataRequestEvent dataRequest = (DataRequestEvent) event;
-			final List<GxtSensor> sensors = dataRequest.getSensors();
-			final long start = dataRequest.getStart();
-			final long end = dataRequest.getEnd();
-			final boolean showProgress = dataRequest.isShowProgress();
-			final boolean subsample = dataRequest.isSubsample();
-			final View source = (View) dataRequest.getSource();
-
-			onDataRequest(start, end, sensors, subsample, showProgress, source);
-
-		} else
-
-		/*
-		 * Request for latest sensor value
-		 */
-		if (type.equals(DataEvents.LatestValuesRequest)) {
-			LOG.finest("LatestValuesRequest");
-			final List<GxtSensor> sensors = event.<List<GxtSensor>> getData("sensors");
-			final View source = (View) event.getSource();
-			onLatestValuesRequest(sensors, source);
-
-		} else
-
-		/*
-		 * Something is wrong
-		 */
-		{
-			LOG.warning("Unexpected event received!");
-		}
-	}
-
 	/**
 	 * Hides the progress bar View.
 	 */
 	private void hideProgress() {
-		forwardToView(this.progressDialog, new AppEvent(DataEvents.HideProgress));
-	}
-
-	@Override
-	protected void initialize() {
-		super.initialize();
-		this.progressDialog = new ProgressDialog(this);
+		progressView.hideWindow();
 	}
 
 	/**
@@ -180,20 +135,17 @@ public class DataController extends Controller {
 	 * @param end
 	 *            End of time range of the finished requests.
 	 * @param sensors
-	 *            List of sensors that the data was retrieved for.
-	 * @param source
-	 *            View that requested the data.
+	 *            List of sensors that the data was retrieved for
 	 */
-	private void onDataComplete(long start, long end, List<GxtSensor> sensors, View source) {
+	private void onDataComplete(long start, long end, List<GxtSensor> sensors, Object source) {
 		LOG.fine("onDataComplete...");
 
 		hideProgress();
 
-		// pass data on to view
+		// fire event
 		JsArray<Timeseries> data = Cache.request(sensors, start, end);
-		AppEvent event = new AppEvent(DataEvents.DataReceived);
-		event.setData("data", data);
-		forwardToView(source, event);
+		NewSensorDataEvent event = new NewSensorDataEvent(sensors, data);
+		clientFactory.getEventBus().fireEvent(event);
 	}
 
 	/**
@@ -209,6 +161,119 @@ public class DataController extends Controller {
 		if (showProgress) {
 			hideProgress();
 			MessageBox.alert(null, "Data request failed! Please try again.", null);
+		}
+	}
+
+	/**
+	 * Handles request for data from the user. Shows the progress dialog and starts requesting the
+	 * data.
+	 */
+	@Override
+	public void onDataRequest(DataRequestEvent event) {
+
+		long start = event.getStart();
+		long end = event.getEnd();
+		List<GxtSensor> sensors = event.getSensors();
+		int sensorIndex = 0;
+		int pageIndex = 0;
+		boolean subsample = event.isSubsample();
+		boolean showProgress = event.isShowProgress();
+
+		if (showProgress) {
+			showProgress(sensors.size());
+		}
+
+		reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
+				event.getSource());
+	}
+
+	/**
+	 * Handles a failed request for the latest data.
+	 * 
+	 * @param code
+	 *            Response code of the failed request.
+	 * @param source
+	 *            View that requested the data.
+	 */
+	private void onLatestValueFailure(int code, Object source) {
+		// does nothing
+	}
+
+	private void onLatestValuesComplete(List<GxtSensor> sensors, Object source) {
+		LOG.finest("Latest values complete...");
+
+		JsArray<Timeseries> data = Cache.request(sensors, 0, System.currentTimeMillis());
+		NewSensorDataEvent event = new NewSensorDataEvent(sensors, data);
+		clientFactory.getEventBus().fireEvent(event);
+	}
+
+	@Override
+	public void onLatestValuesRequest(LatestValuesRequestEvent event) {
+
+		List<GxtSensor> sensors = event.getSensors();
+		for (GxtSensor sensor : sensors) {
+			Cache.remove(sensor);
+		}
+		int index = 0;
+		getLatestValues(sensors, index, event.getSource());
+	}
+
+	private void onLatestValueSuccess(String response, List<GxtSensor> sensors, int index,
+			Object source) {
+
+		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
+		Cache.store(sensors.get(index), 0, 0, jso.getData());
+
+		index++;
+		getLatestValues(sensors, index, source);
+	}
+
+	/**
+	 * Handles successful requests for paged data. Parses the response, stores it and moves on to
+	 * the next page, or the next sensor in the list.
+	 * 
+	 * @param response
+	 *            Response from CommonSense back end, should contain sensor data points.
+	 * @param start
+	 *            Start of the requested time range.
+	 * @param end
+	 *            End of the requested time range, or -1 for no end time.
+	 * @param sensors
+	 *            List of sensors that we are requesting data for.
+	 * @param sensorIndex
+	 *            Index of the sensor that the data belongs to.
+	 * @param pageIndex
+	 *            Index of the current page of data for the current sensor.
+	 * @param total
+	 *            Total amount of data that should be retrieved for the current sensor. This count
+	 *            is returned along with the first page of data.
+	 * @param source
+	 *            View that requested the data.
+	 * @param showProgress
+	 *            Boolean to indicate whether to update the user of the progress.
+	 */
+	private void onReqRawSuccess(String response, long start, long end, List<GxtSensor> sensors,
+			int sensorIndex, int pageIndex, int total, Object source, boolean showProgress) {
+
+		// parse the incoming data
+		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
+
+		// store data in cache
+		GxtSensor sensor = sensors.get(sensorIndex);
+		JsArray<BackEndDataPoint> data = jsoResponse.getData();
+		Cache.store(sensor, start, end, data);
+
+		// the first page also contains a total count, otherwise reuse the total from earlier pages
+		if (pageIndex == 0) {
+			total = jsoResponse.getTotal();
+		}
+
+		// check if we need to fetch additional pages
+		if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
+			reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, source, showProgress);
+		} else {
+			updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
+			reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, source, showProgress);
 		}
 	}
 
@@ -237,7 +302,7 @@ public class DataController extends Controller {
 	 */
 	private void onReqSubsampledSuccess(String response, long start, long end,
 			List<GxtSensor> sensors, int sensorIndex, int pageIndex, boolean subsampled,
-			boolean showProgress, View source) {
+			boolean showProgress, Object source) {
 		LOG.fine("Data page success...");
 
 		// parse the incoming data
@@ -266,127 +331,6 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Handles successful requests for paged data. Parses the response, stores it and moves on to
-	 * the next page, or the next sensor in the list.
-	 * 
-	 * @param response
-	 *            Response from CommonSense back end, should contain sensor data points.
-	 * @param start
-	 *            Start of the requested time range.
-	 * @param end
-	 *            End of the requested time range, or -1 for no end time.
-	 * @param sensors
-	 *            List of sensors that we are requesting data for.
-	 * @param sensorIndex
-	 *            Index of the sensor that the data belongs to.
-	 * @param pageIndex
-	 *            Index of the current page of data for the current sensor.
-	 * @param total
-	 *            Total amount of data that should be retrieved for the current sensor. This count
-	 *            is returned along with the first page of data.
-	 * @param source
-	 *            View that requested the data.
-	 * @param showProgress
-	 *            Boolean to indicate whether to update the user of the progress.
-	 */
-	private void onReqRawSuccess(String response, long start, long end, List<GxtSensor> sensors,
-			int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
-
-		// parse the incoming data
-		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
-
-		// store data in cache
-		GxtSensor sensor = sensors.get(sensorIndex);
-		JsArray<BackEndDataPoint> data = jsoResponse.getData();
-		Cache.store(sensor, start, end, data);
-
-		// the first page also contains a total count, otherwise reuse the total from earlier pages
-		if (pageIndex == 0) {
-			total = jsoResponse.getTotal();
-		}
-
-		// check if we need to fetch additional pages
-		if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
-			reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, source, showProgress);
-		} else {
-			updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
-			reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, source, showProgress);
-		}
-	}
-
-	/**
-	 * Handles request for data from the user. Shows the progress dialog and starts requesting the
-	 * data.
-	 * 
-	 * @param start
-	 *            Start of the requested time range.
-	 * @param end
-	 *            End of the requested time range, or -1 for no end time.
-	 * @param sensors
-	 *            List of sensors that we are requesting data for.
-	 * @param subsample
-	 *            Boolean to indicate whether to use subsampling or paging to request the data.
-	 * @param showProgress
-	 *            Boolean to indicate whether to inform the user of progress.
-	 * @param source
-	 *            View that the request originated from.
-	 */
-	private void onDataRequest(long start, long end, List<GxtSensor> sensors, boolean subsample,
-			boolean showProgress, View source) {
-		final int sensorIndex = 0;
-		final int pageIndex = 0;
-
-		if (showProgress) {
-			showProgress(sensors.size());
-		}
-
-		LOG.fine("request start: "
-				+ DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
-
-		reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
-				source);
-	}
-
-	/**
-	 * Handles a failed request for the latest data.
-	 * 
-	 * @param code
-	 *            Response code of the failed request.
-	 * @param source
-	 *            View that requested the data.
-	 */
-	private void onLatestValueFailure(int code, View source) {
-		// does nothing
-	}
-
-	private void onLatestValuesComplete(List<GxtSensor> sensors, View source) {
-		LOG.finest("Latest values complete...");
-		JsArray<Timeseries> data = Cache.request(sensors, 0, System.currentTimeMillis());
-		AppEvent event = new AppEvent(DataEvents.DataReceived);
-		event.setData("data", data);
-		forwardToView(source, event);
-	}
-
-	private void onLatestValuesRequest(List<GxtSensor> sensors, View source) {
-
-		for (GxtSensor sensor : sensors) {
-			Cache.remove(sensor);
-		}
-		int index = 0;
-		getLatestValues(sensors, index, source);
-	}
-
-	private void onLatestValueSuccess(String response, List<GxtSensor> sensors, int index,
-			View source) {
-
-		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
-		Cache.store(sensors.get(index), 0, 0, jso.getData());
-
-		index++;
-		getLatestValues(sensors, index, source);
-	}
-
-	/**
 	 * Requests data from a list of sensors, between a given start and end date. CommonSense will
 	 * page the data to ensure that we get all data.
 	 * 
@@ -410,7 +354,7 @@ public class DataController extends Controller {
 	 *            Set to true to display a progress dialog.
 	 */
 	private void reqDataRaw(final long start, final long end, final List<GxtSensor> sensors,
-			final int sensorIndex, final int pageIndex, final int sensorTotal, final View source,
+			final int sensorIndex, final int pageIndex, final int sensorTotal, final Object source,
 			final boolean showProgress) {
 		LOG.fine("Request paged data...");
 
@@ -506,12 +450,10 @@ public class DataController extends Controller {
 	 *            Boolean to request subsampled data.
 	 * @param showProgress
 	 *            Set to true to display a progress dialog.
-	 * @param source
-	 *            View that requested the data.
 	 */
-	private void reqDataSubsampled(final long start, final long end,
-			final List<GxtSensor> sensors, final int sensorIndex, final int pageIndex,
-			final boolean subsample, final boolean showProgress, final View source) {
+	private void reqDataSubsampled(final long start, final long end, final List<GxtSensor> sensors,
+			final int sensorIndex, final int pageIndex, final boolean subsample,
+			final boolean showProgress, final Object source) {
 		LOG.fine("Request data...");
 
 		if (sensorIndex < sensors.size()) {
@@ -599,9 +541,7 @@ public class DataController extends Controller {
 	 *            The total number of data requests that will have to be done.
 	 */
 	private void showProgress(int tasks) {
-		AppEvent showProgress = new AppEvent(DataEvents.ShowProgress);
-		showProgress.setData("tasks", tasks);
-		forwardToView(progressDialog, showProgress);
+		progressView.showWindow(tasks);
 	}
 
 	/**
@@ -614,10 +554,6 @@ public class DataController extends Controller {
 	 * @see #showProgress(int)
 	 */
 	private void updateProgress(int progress, int total) {
-		LOG.finest("Update progress...");
-		AppEvent update = new AppEvent(DataEvents.UpdateMainProgress);
-		update.setData("progress", progress);
-		update.setData("total", total);
-		forwardToView(progressDialog, update);
+		progressView.updateMainProgress(progress, total);
 	}
 }

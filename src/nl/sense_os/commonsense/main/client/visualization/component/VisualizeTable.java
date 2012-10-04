@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.main.client.visualization.component;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.VisualizeView;
 
@@ -23,5 +24,11 @@ public class VisualizeTable extends Composite implements VisualizeView {
 
 		initWidget(new Label("Table for sensors: " + sensors + ", start: " + start + ", end: "
 				+ end + ", subsample: " + subsample));
+	}
+
+	@Override
+	public void onNewSensorData(NewSensorDataEvent event) {
+		// TODO Auto-generated method stub
+
 	}
 }
