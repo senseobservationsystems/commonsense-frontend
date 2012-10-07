@@ -7,6 +7,7 @@ import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
 import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
+import nl.sense_os.commonsense.main.client.visualization.data.ProgressView;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -29,6 +30,8 @@ public interface MainClientFactory {
 	public MainApplicationView getMainView();
 
 	public PlaceController getPlaceController();
+
+	public ProgressView getProgressView();
 
 	public SensorListView getSensorListView();
 

@@ -12,7 +12,6 @@ import nl.sense_os.commonsense.main.client.event.LatestValuesRequestEvent;
 import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.data.cache.Cache;
-import nl.sense_os.commonsense.main.client.visualization.data.component.GxtProgressDialog;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.JsArray;
@@ -24,15 +23,11 @@ import com.google.gwt.i18n.client.NumberFormat;
 public class DataHandler implements DataRequestEvent.Handler, LatestValuesRequestEvent.Handler {
 
 	private static final Logger LOG = Logger.getLogger(DataHandler.class.getName());
-	private ProgressView progressView;
 	private MainClientFactory clientFactory;
 	private static final int PER_PAGE = 1000; // max: 1000
 
 	public DataHandler(MainClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-
-		// TODO change into regular view
-		progressView = new GxtProgressDialog();
 	}
 
 	private int calcInterval(long start, long end) {
@@ -178,7 +173,7 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 	 * Hides the progress bar View.
 	 */
 	private void hideProgress() {
-		progressView.hideWindow();
+		clientFactory.getProgressView().hideWindow();
 	}
 
 	/**
@@ -343,7 +338,7 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 	 *            The total number of data requests that will have to be done.
 	 */
 	private void showProgress(int tasks) {
-		progressView.showWindow(tasks);
+		clientFactory.getProgressView().showWindow(tasks);
 	}
 
 	/**
@@ -356,6 +351,6 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 	 * @see #showProgress(int)
 	 */
 	private void updateProgress(int progress, int total) {
-		progressView.updateMainProgress(progress, total);
+		clientFactory.getProgressView().updateMainProgress(progress, total);
 	}
 }

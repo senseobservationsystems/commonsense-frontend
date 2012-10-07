@@ -14,6 +14,8 @@ import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtSensorG
 import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtVisualizationChooserWindow;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 import nl.sense_os.commonsense.main.client.statemanagement.component.GxtStateGrid;
+import nl.sense_os.commonsense.main.client.visualization.data.ProgressView;
+import nl.sense_os.commonsense.main.client.visualization.data.component.GxtProgressDialog;
 
 import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
@@ -28,6 +30,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	private static SensorListView sensorListView;
 	private static GroupListView groupListView;
 	private static EnvironmentListView environmentListView;
+	private static ProgressView progressView;
 	private static StateListView stateListView;
 	private static VisualizationChooserView visualizationChooser;
 
@@ -65,6 +68,14 @@ public class MainClientFactoryImpl implements MainClientFactory {
 	@Override
 	public PlaceController getPlaceController() {
 		return placeController;
+	}
+
+	@Override
+	public ProgressView getProgressView() {
+		if (null == progressView) {
+			progressView = new GxtProgressDialog();
+		}
+		return progressView;
 	}
 
 	@Override
