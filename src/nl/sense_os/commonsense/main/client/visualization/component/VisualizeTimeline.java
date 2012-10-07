@@ -7,14 +7,15 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.DataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
-import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.VisualizeView;
 
 import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
@@ -46,22 +48,23 @@ public class VisualizeTimeline extends Composite implements VisualizeView {
 
 	private ToolButton refresh;
 	private ToolButton autoRefresh;
+	private static final int REFRESH_PERIOD = 1000 * 10;
+	private Timer refreshTimer = new Timer() {
 
-	private long start;
-	private long end;
-	private boolean subsample;
-	private List<GxtSensor> sensors;
+		@Override
+		public void run() {
+			if (null != presenter) {
+				presenter.refreshData();
+			}
+		}
+	};
+	private boolean isAutoRefresh;
 
-	private JsArray<Timeseries> data;
+	private Presenter presenter;
 
 	public VisualizeTimeline(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
 		LOG.setLevel(Level.ALL);
-
-		this.sensors = sensors;
-		this.start = start;
-		this.end = end;
-		this.subsample = subsample;
 
 		initGraphOptions();
 
@@ -72,61 +75,9 @@ public class VisualizeTimeline extends Composite implements VisualizeView {
 		panel.setBodyBorder(false);
 		panel.setLayout(new FillLayout());
 
-		addToolButtons();
+		initToolButtons();
 
 		initComponent(panel);
-	}
-
-	private void addToolButtons() {
-		// regular refresh button
-		refresh = new ToolButton("x-tool-refresh");
-		refresh.setToolTip("refresh");
-
-		// auto-refresh button
-		autoRefresh = new ToolButton("x-tool-right");
-		autoRefresh.setToolTip("start auto-refresh");
-
-		// add buttons to the panel's header
-		Header header = panel.getHeader();
-		header.addTool(autoRefresh);
-		header.addTool(refresh);
-	}
-
-	/**
-	 * Appends new data to the old data
-	 * 
-	 * @param oldData
-	 *            Original set of timeseries
-	 * @param newData
-	 *            New timeseries that need to be appended
-	 */
-	protected JsArray<Timeseries> appendNewData(JsArray<Timeseries> oldData,
-			JsArray<Timeseries> newData) {
-		if (null == oldData) {
-			LOG.fine("No old data to append to");
-			return newData;
-
-		} else {
-			for (int i = 0; i < newData.length(); i++) {
-				Timeseries toAppend = newData.get(i);
-				boolean appended = false;
-				for (int j = 0; j < oldData.length(); j++) {
-					Timeseries original = oldData.get(j);
-					if (toAppend.getLabel().equals(original.getLabel())
-							&& toAppend.getId() == original.getId()) {
-						LOG.fine("Append data to " + original.getLabel());
-						original.append(toAppend);
-						appended = true;
-						break;
-					}
-				}
-				if (!appended) {
-					LOG.fine("Add new timeseries to the visualization data " + toAppend.getLabel());
-					oldData.push(toAppend);
-				}
-			}
-			return oldData;
-		}
 	}
 
 	/**
@@ -310,7 +261,133 @@ public class VisualizeTimeline extends Composite implements VisualizeView {
 		tlineOpts.setGroupsWidth(135);
 	}
 
-	protected void onNewData(final JsArray<Timeseries> data) {
+	private void initToolButtons() {
+		// regular refresh button
+		refresh = new ToolButton("x-tool-refresh");
+		refresh.setToolTip("refresh");
+		refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+
+			@Override
+			public void componentSelected(IconButtonEvent ce) {
+				if (null != presenter) {
+					presenter.refreshData();
+				}
+			}
+		});
+
+		// auto-refresh button
+		autoRefresh = new ToolButton("x-tool-right");
+		autoRefresh.setToolTip("start auto-refresh");
+		autoRefresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+
+			@Override
+			public void componentSelected(IconButtonEvent ce) {
+				if (!isAutoRefresh) {
+					startAutoRefresh();
+				} else {
+					stopAutoRefresh();
+				}
+			}
+		});
+
+		// add buttons to the panel's header
+		Header header = panel.getHeader();
+		header.addTool(autoRefresh);
+		header.addTool(refresh);
+	}
+
+	/**
+	 * Shows a dialog to inform the user that there was no data to show.
+	 */
+	private void onNoData() {
+		LOG.fine("No data to visualize!");
+
+		String msg = "No data to visualize! "
+				+ "Please make sure that you selected a time range that contains sensor readings.";
+		MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
+
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				// TODO remove the view if there is no data?
+			}
+		});
+	}
+
+	/**
+	 * Redraws the graph, if this is possible (i.e. if it is drawn already).
+	 */
+	private void redrawGraph() {
+		if (null != graph && graph.isAttached()) {
+			LOG.finest("Redraw graph...");
+			graph.redraw();
+		}
+	}
+
+	/**
+	 * Redraws the time line, if this is possible (i.e. if it is drawn already).
+	 */
+	private void redrawTimeline() {
+		if (null != timeline && timeline.isAttached()) {
+			LOG.finest("Redraw time line...");
+			timeline.redraw();
+		}
+	}
+
+	public void setPresenter(Presenter presenter) {
+		this.presenter = presenter;
+	}
+
+	private void showNumberData(JsArray<Timeseries> data) {
+		LOG.fine("Show number data...");
+
+		if (null == graph) {
+			createGraph(data);
+		} else {
+			LOG.fine("Draw in existing graph");
+			graph.draw(data, graphOpts);
+		}
+	}
+
+	private void showStringData(JsArray<Timeseries> data) {
+		LOG.fine("Show string data...");
+
+		// create a new data table
+		DataTable dataTable = createDataTable(data);
+
+		if (dataTable.getNumberOfRows() > 0) {
+			if (null == timeline) {
+				createTimeline(dataTable);
+			} else {
+				LOG.fine("Draw on existing time line");
+				timeline.setData(dataTable);
+			}
+		} else {
+			LOG.warning("No data for time line visualization!");
+		}
+	}
+
+	private void startAutoRefresh() {
+		// request data refresh
+		if (null != presenter) {
+			presenter.refreshData();
+		}
+
+		// start timer
+		refreshTimer.scheduleRepeating(REFRESH_PERIOD);
+		isAutoRefresh = true;
+		autoRefresh.setToolTip("stop autorefresh");
+		autoRefresh.setStylePrimaryName("x-tool-pin");
+	}
+
+	private void stopAutoRefresh() {
+		refreshTimer.cancel();
+		isAutoRefresh = false;
+		autoRefresh.setToolTip("start autorefresh");
+		autoRefresh.setStylePrimaryName("x-tool-right");
+	}
+
+	@Override
+	public void visualize(final JsArray<Timeseries> data) {
 
 		LOG.fine("New data...");
 		LOG.fine("Total " + data.length() + " timeseries");
@@ -361,83 +438,6 @@ public class VisualizeTimeline extends Composite implements VisualizeView {
 			graph.redraw();
 		} else if (timeline != null) {
 			timeline.redraw();
-		}
-	}
-
-	@Override
-	public void onNewSensorData(NewSensorDataEvent event) {
-		if (event.getSensors().equals(sensors)) {
-			LOG.severe("received new sensor data!");
-			JsArray<Timeseries> newData = event.getSensorData();
-			data = appendNewData(data, newData);
-
-			onNewData(data);
-		}
-	}
-
-	/**
-	 * Shows a dialog to inform the user that there was no data to show.
-	 */
-	private void onNoData() {
-		LOG.fine("No data to visualize!");
-
-		String msg = "No data to visualize! "
-				+ "Please make sure that you selected a time range that contains sensor readings.";
-		MessageBox.info(null, msg, new Listener<MessageBoxEvent>() {
-
-			@Override
-			public void handleEvent(MessageBoxEvent be) {
-				// TODO remove the view if there is no data?
-			}
-		});
-	}
-
-	/**
-	 * Redraws the graph, if this is possible (i.e. if it is drawn already).
-	 */
-	private void redrawGraph() {
-		if (null != graph && graph.isAttached()) {
-			LOG.finest("Redraw graph...");
-			graph.redraw();
-		}
-	}
-
-	/**
-	 * Redraws the time line, if this is possible (i.e. if it is drawn already).
-	 */
-	private void redrawTimeline() {
-		if (null != timeline && timeline.isAttached()) {
-			LOG.finest("Redraw time line...");
-			timeline.redraw();
-		}
-	}
-
-	private void showNumberData(JsArray<Timeseries> data) {
-		LOG.fine("Show number data...");
-
-		if (null == graph) {
-			createGraph(data);
-		} else {
-			LOG.fine("Draw in existing graph");
-			graph.draw(data, graphOpts);
-		}
-	}
-
-	private void showStringData(JsArray<Timeseries> data) {
-		LOG.fine("Show string data...");
-
-		// create a new data table
-		DataTable dataTable = createDataTable(data);
-
-		if (dataTable.getNumberOfRows() > 0) {
-			if (null == timeline) {
-				createTimeline(dataTable);
-			} else {
-				LOG.fine("Draw on existing time line");
-				timeline.setData(dataTable);
-			}
-		} else {
-			LOG.warning("No data for time line visualization!");
 		}
 	}
 }
