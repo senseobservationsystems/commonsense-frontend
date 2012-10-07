@@ -46,8 +46,6 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 	private final Timeline.Options tlineOpts = Timeline.Options.create();
 	private boolean showTimeLine = true;
 
-	private ToolButton refresh;
-	private ToolButton autoRefresh;
 	private static final int REFRESH_PERIOD = 1000 * 10;
 	private Timer refreshTimer = new Timer() {
 
@@ -263,7 +261,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 
 	private void initToolButtons() {
 		// regular refresh button
-		refresh = new ToolButton("x-tool-refresh");
+		ToolButton refresh = new ToolButton("x-tool-refresh");
 		refresh.setToolTip("refresh");
 		refresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
@@ -276,7 +274,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 		});
 
 		// auto-refresh button
-		autoRefresh = new ToolButton("x-tool-right");
+		final ToolButton autoRefresh = new ToolButton("x-tool-right");
 		autoRefresh.setToolTip("start auto-refresh");
 		autoRefresh.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
@@ -284,8 +282,12 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 			public void componentSelected(IconButtonEvent ce) {
 				if (!isAutoRefresh) {
 					startAutoRefresh();
+					autoRefresh.setToolTip("stop autorefresh");
+					autoRefresh.setStylePrimaryName("x-tool-pin");
 				} else {
 					stopAutoRefresh();
+					autoRefresh.setToolTip("start autorefresh");
+					autoRefresh.setStylePrimaryName("x-tool-right");
 				}
 			}
 		});
@@ -375,15 +377,11 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 		// start timer
 		refreshTimer.scheduleRepeating(REFRESH_PERIOD);
 		isAutoRefresh = true;
-		autoRefresh.setToolTip("stop autorefresh");
-		autoRefresh.setStylePrimaryName("x-tool-pin");
 	}
 
 	private void stopAutoRefresh() {
 		refreshTimer.cancel();
 		isAutoRefresh = false;
-		autoRefresh.setToolTip("start autorefresh");
-		autoRefresh.setStylePrimaryName("x-tool-right");
 	}
 
 	@Override
