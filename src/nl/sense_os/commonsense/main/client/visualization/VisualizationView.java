@@ -5,7 +5,7 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.ui.IsWidget;
 
-public interface VisualizeView extends IsWidget {
+public interface VisualizationView extends IsWidget {
 
 	public interface Presenter {
 

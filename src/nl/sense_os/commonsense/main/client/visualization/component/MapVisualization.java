@@ -4,23 +4,23 @@ import java.util.List;
 
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.visualization.VisualizeView;
+import nl.sense_os.commonsense.main.client.visualization.VisualizationView;
 
+import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.user.client.ui.Composite;
 
-public class VisualizeTable extends Composite implements VisualizeView {
+public class MapVisualization extends Composite implements VisualizationView {
 
-	public VisualizeTable(List<GxtSensor> sensors, long start, long end, boolean subsample) {
+	public MapVisualization(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
-		initWidget(new Label("Table for sensors: " + sensors + ", start: " + start + ", end: "
+		initComponent(new Label("Map for sensors: " + sensors + ", start: " + start + ", end: "
 				+ end + ", subsample: " + subsample));
 	}
 
 	@Override
 	public void setPresenter(Presenter presenter) {
-		// not used
+		// TODO Auto-generated method stub
 
 	}
 

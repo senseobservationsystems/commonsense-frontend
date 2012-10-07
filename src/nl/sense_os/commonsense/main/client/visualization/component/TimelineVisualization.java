@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.model.DataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.visualization.VisualizeView;
+import nl.sense_os.commonsense.main.client.visualization.VisualizationView;
 
 import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;
@@ -33,9 +33,9 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.events.RangeChangeHandler;
 
-public class VisualizeTimeline extends Composite implements VisualizeView {
+public class TimelineVisualization extends Composite implements VisualizationView {
 
-	private static final Logger LOG = Logger.getLogger(VisualizeTimeline.class.getName());
+	private static final Logger LOG = Logger.getLogger(TimelineVisualization.class.getName());
 
 	private ContentPanel panel;
 
@@ -62,7 +62,7 @@ public class VisualizeTimeline extends Composite implements VisualizeView {
 
 	private Presenter presenter;
 
-	public VisualizeTimeline(List<GxtSensor> sensors, long start, long end, boolean subsample) {
+	public TimelineVisualization(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
 		LOG.setLevel(Level.ALL);
 

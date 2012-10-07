@@ -10,8 +10,9 @@ import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
 import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.visualization.component.VisualizeTable;
-import nl.sense_os.commonsense.main.client.visualization.component.VisualizeTimeline;
+import nl.sense_os.commonsense.main.client.visualization.component.MapVisualization;
+import nl.sense_os.commonsense.main.client.visualization.component.TableVisualization;
+import nl.sense_os.commonsense.main.client.visualization.component.TimelineVisualization;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.activity.shared.AbstractActivity;
@@ -21,25 +22,10 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-public class VisualizeActivity extends AbstractActivity implements VisualizeView.Presenter,
+public class VisualizeActivity extends AbstractActivity implements VisualizationView.Presenter,
 		NewSensorDataEvent.Handler {
 
 	private static final Logger LOG = Logger.getLogger(VisualizeActivity.class.getName());
-	/**
-	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
-	 */
-	private MainClientFactory clientFactory;
-
-	private int type;
-	private long start;
-	private long end;
-	private boolean subsample;
-	private List<GxtSensor> sensors;
-
-	private VisualizeView view;
-
-	private JsArray<Timeseries> data;
-
 	/**
 	 * Appends new data to the old data
 	 * 
@@ -77,6 +63,21 @@ public class VisualizeActivity extends AbstractActivity implements VisualizeView
 		}
 	}
 
+	/**
+	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
+	 */
+	private MainClientFactory clientFactory;
+	private int type;
+	private long start;
+	private long end;
+	private boolean subsample;
+
+	private List<GxtSensor> sensors;
+
+	private VisualizationView view;
+
+	private JsArray<Timeseries> data;
+
 	public VisualizeActivity(VisualizePlace place, MainClientFactory clientFactory) {
 		type = place.getType();
 		start = place.getStart();
@@ -100,33 +101,6 @@ public class VisualizeActivity extends AbstractActivity implements VisualizeView
 
 			view.visualize(data);
 		}
-	}
-
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		LOG.info("Start 'visualize' activity");
-
-		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
-		parent.removeAll();
-
-		switch (type) {
-		case NewVisualizationEvent.TIMELINE:
-			view = new VisualizeTimeline(sensors, start, end, subsample);
-			break;
-
-		case NewVisualizationEvent.TABLE:
-			view = new VisualizeTable(sensors, start, end, subsample);
-			break;
-		default:
-			LOG.warning("Unsupported visualization!");
-		}
-		view.setPresenter(this);
-		parent.add(view.asWidget());
-		parent.layout();
-
-		clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
-
-		getData();
 	}
 
 	@Override
@@ -165,5 +139,35 @@ public class VisualizeActivity extends AbstractActivity implements VisualizeView
 		} else {
 			LOG.warning("Cannot refresh data: list of sensors is null");
 		}
+	}
+
+	@Override
+	public void start(AcceptsOneWidget panel, EventBus eventBus) {
+		LOG.info("Start 'visualize' activity");
+
+		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
+		parent.removeAll();
+
+		switch (type) {
+		case NewVisualizationEvent.TIMELINE:
+			view = new TimelineVisualization(sensors, start, end, subsample);
+			break;
+
+		case NewVisualizationEvent.TABLE:
+			view = new TableVisualization(sensors, start, end, subsample);
+			break;
+		case NewVisualizationEvent.MAP:
+			view = new MapVisualization(sensors, start, end, subsample);
+			break;
+		default:
+			LOG.warning("Unsupported visualization!");
+		}
+		view.setPresenter(this);
+		parent.add(view.asWidget());
+		parent.layout();
+
+		clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
+
+		getData();
 	}
 }
