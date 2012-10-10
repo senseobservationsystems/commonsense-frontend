@@ -24,6 +24,7 @@ import nl.sense_os.commonsense.main.client.groups.list.GroupController;
 import nl.sense_os.commonsense.main.client.sensors.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryController;
+import nl.sense_os.commonsense.main.client.sensors.publish.PublishController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareController;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectController;
@@ -182,6 +183,7 @@ public class MainEntryPoint implements EntryPoint {
 		dispatcher.addController(new SensorDeleteController());
 		dispatcher.addController(new SensorShareController());
 		dispatcher.addController(new UnshareController());
+		dispatcher.addController(new PublishController());
 
 		// group controllers
 		dispatcher.addController(new GroupController());

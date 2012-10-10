@@ -11,6 +11,7 @@ import nl.sense_os.commonsense.main.client.ext.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.ext.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.ext.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
+import nl.sense_os.commonsense.main.client.sensors.publish.PublishEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
@@ -66,6 +67,7 @@ public class LibraryGrid extends View {
 	private Grid<ExtSensor> grid;
 	private ToolBar toolBar;
 	private Button shareButton;
+	private Button publishButton;
 	private Button unshareButton;
 	private Button removeButton;
 	private Button alertButton;
@@ -286,6 +288,8 @@ public class LibraryGrid extends View {
 					onRemoveClick();
 				} else if (source.equals(alertButton)) {
 					onAlertClick();
+				} else if (source.equals(publishButton)) {
+					onPublishClick();
 				} else {
 					LOG.warning("Unexpected button pressed");
 				}
@@ -301,6 +305,9 @@ public class LibraryGrid extends View {
 
 		unshareButton = new Button("Unshare", l);
 		unshareButton.disable();
+
+		publishButton = new Button("Publish", l);
+		publishButton.disable();
 
 		removeButton = new Button("Remove", l);
 		removeButton.disable();
@@ -319,6 +326,7 @@ public class LibraryGrid extends View {
 				if (selection != null && selection.size() > 0) {
 					vizButton.enable();
 					shareButton.enable();
+					publishButton.enable();
 					if (selection.size() == 1 && selection.get(0).getUsers() != null) {
 						// TODO re-enable alert button
 						// alertButton.enable();
@@ -334,6 +342,7 @@ public class LibraryGrid extends View {
 					vizButton.disable();
 					shareButton.disable();
 					unshareButton.disable();
+					publishButton.disable();
 					removeButton.disable();
 				}
 			}
@@ -345,8 +354,23 @@ public class LibraryGrid extends View {
 		toolBar.add(vizButton);
 		toolBar.add(shareButton);
 		toolBar.add(unshareButton);
+		toolBar.add(publishButton);
 		toolBar.add(removeButton);
 		toolBar.add(alertButton);
+	}
+
+	private void onPublishClick() {
+		// get sensor models from the selection
+		final List<ExtSensor> sensors = grid.getSelectionModel().getSelection();
+
+		if (sensors.size() > 0) {
+			AppEvent event = new AppEvent(PublishEvents.ShowPublisher);
+			event.setData("sensors", sensors);
+			Dispatcher.forwardEvent(event);
+
+		} else {
+			MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+		}
 	}
 
 	private void onLibChanged() {
