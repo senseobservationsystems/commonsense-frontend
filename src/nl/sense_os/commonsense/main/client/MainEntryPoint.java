@@ -216,6 +216,7 @@ public class MainEntryPoint implements EntryPoint {
 	 */
 	private void onGetCurrentUserFailure(int code, Throwable error) {
 		LOG.severe("Failed to get current user! Code: " + code + " " + error);
+		SessionManager.removeSessionId();
 		MainEntryPoint.goToLoginPage();
 	}
 
