@@ -20,8 +20,8 @@ public class CommonSenseApi {
 		private static final String PATH_PREFIX = Constants.STABLE_MODE || Constants.RC_MODE
 				|| Constants.DEV_MODE ? "api/" : "";
 		public static final String HOST = Constants.STABLE_MODE ? "common.sense-os.nl"
-				: Constants.RC_MODE ? "rc.sense-os.nl" : Constants.DEV_MODE ? "dev.sense-os.nl"
-						: "api.sense-os.nl";
+				: Constants.RC_MODE ? "rc.sense-os.nl"
+						: Constants.DEV_MODE ? "common.dev.sense-os.nl" : "api.sense-os.nl";
 		public static final String PROTOCOL = "http";
 		public static final String PATH_SENSORS = PATH_PREFIX + "sensors";
 		public static final String PATH_AVAIL_SERVICES = PATH_PREFIX + "sensors/services/available";
