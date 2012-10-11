@@ -2,9 +2,12 @@ package nl.sense_os.commonsense.main.client.sensors.publish;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.ext.component.CenteredWindow;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
+import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -37,6 +40,15 @@ public class PublishConfirmDialog extends View {
 		window.hide();
 	}
 
+	@SuppressWarnings("unused")
+	private void getDatasetUrl() {
+		setBusy(true);
+		AppEvent publish = new AppEvent(PublishEvents.DatasetUrlRequest);
+		publish.setData("user", Registry.<ExtUser> get(Constants.REG_USER));
+		publish.setData("anonymous", anonymous.getValue().booleanValue());
+		fireEvent(publish);
+	}
+
 	@Override
 	protected void handleEvent(AppEvent event) {
 		final EventType type = event.getType();
@@ -45,11 +57,19 @@ public class PublishConfirmDialog extends View {
 			final List<ExtSensor> sensors = event.<List<ExtSensor>> getData("sensors");
 			onShow(sensors);
 
-		} else if (type.equals(PublishEvents.PublicationComplete)) {
+		} else if (type.equals(PublishEvents.PublicationSuccess)) {
 			String url = event.getData("url");
-			onPublicationComplete(url);
+			String title = event.getData("title");
+			String name = event.getData("name");
+			int[] sensorIds = event.getData("sensorIds");
+			onPublicationSuccess(url, title, name, sensorIds);
 
-		} else if (type.equals(PublishEvents.PublicationError)) {
+		} else if (type.equals(PublishEvents.DatasetUrlSuccess)) {
+			String url = event.getData("url");
+			onDatasetUrlSuccess(url);
+
+		} else if (type.equals(PublishEvents.PublicationError)
+				|| type.equals(PublishEvents.DatasetUrlError)) {
 			int code = event.getData("code");
 			Throwable error = event.getData("error");
 			onPublicationFailure(code, error);
@@ -78,22 +98,6 @@ public class PublishConfirmDialog extends View {
 		window.addButton(cancelButton);
 	}
 
-	@Override
-	protected void initialize() {
-		super.initialize();
-
-		window = new CenteredWindow();
-		window.setHeading("Publish sensors");
-		// window.setLayout(new FitLayout());
-		window.setSize(400, 250);
-		window.setScrollMode(Scroll.AUTOY);
-
-		initButtons();
-		initForm();
-
-		setBusy(false);
-	}
-
 	private void initForm() {
 
 		FormPanel form = new FormPanel();
@@ -114,7 +118,23 @@ public class PublishConfirmDialog extends View {
 		window.add(container);
 	}
 
-	private void onPublicationComplete(String url) {
+	@Override
+	protected void initialize() {
+		super.initialize();
+
+		window = new CenteredWindow();
+		window.setHeading("Publish sensors");
+		// window.setLayout(new FitLayout());
+		window.setSize(400, 250);
+		window.setScrollMode(Scroll.AUTOY);
+
+		initButtons();
+		initForm();
+
+		setBusy(false);
+	}
+
+	private void onDatasetUrlSuccess(String url) {
 		setBusy(false);
 		closeWindow();
 		MessageBox.info(null, "Publication complete! Your data will be published at " + url, null);
@@ -127,16 +147,26 @@ public class PublishConfirmDialog extends View {
 		window.show();
 	}
 
+	private void onPublicationSuccess(String url, String title, String name, int[] sensorIds) {
+		setBusy(false);
+		closeWindow();
+		String msg = "Publication complete! Your data is published ";
+		msg += "<a href='http://data.rotterdamopendata.nl:9090/nl/dataset/" + url
+				+ "' target='_blank'>here</a>.";
+		MessageBox.info(null, msg, null);
+	}
+
 	private void onShow(final List<ExtSensor> sensors) {
 
 		this.sensors = sensors;
 
 		String message = "This will add a link to your sensor data on the Rotterdam Open Data Store (RODS). For more information, please go to <a href=\"http://data.rotterdamopendata.nl\" target=\"_blank\">data.rotterdamopendata.nl</a>.";
 		message += "<br/><br/>";
-		message += "Are you sure you want to continue with the publication of the selected sensor?";
 		if (sensors.size() > 1) {
 			message += "Are you sure you want to continue with the publication of the "
 					+ sensors.size() + " selected sensors?";
+		} else {
+			message += "Are you sure you want to continue with the publication of the selected sensor?";
 		}
 
 		text.setText(message);
@@ -147,6 +177,7 @@ public class PublishConfirmDialog extends View {
 	private void publish() {
 		setBusy(true);
 		AppEvent publish = new AppEvent(PublishEvents.PublishRequest);
+		publish.setData("user", Registry.<ExtUser> get(Constants.REG_USER));
 		publish.setData("sensors", sensors);
 		publish.setData("anonymous", anonymous.getValue().booleanValue());
 		fireEvent(publish);
