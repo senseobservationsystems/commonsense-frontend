@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.visualization.component;
+package nl.sense_os.commonsense.main.client.visualization.component.map;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
+import nl.sense_os.commonsense.main.client.visualization.component.map.resource.MapResources;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.maps.client.MapWidget;
@@ -19,6 +20,7 @@ import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.maps.client.overlay.PolylineOptions;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Composite;
 
 public class MapPanel extends Composite {
@@ -155,7 +157,8 @@ public class MapPanel extends Composite {
 		LOG.fine("Show animation markers");
 
 		// make an icon used to animate the trace
-		Icon icon = Icon.newInstance("/img/map/circle blue.png");
+		ImageResource iconResource = MapResources.INSTANCE.markerBlueDot();
+		Icon icon = Icon.newInstance(iconResource.getSafeUri().asString());
 		icon.setIconSize(Size.newInstance(18, 18));
 		icon.setIconAnchor(Point.newInstance(9, 9));
 		icon.setInfoWindowAnchor(Point.newInstance(5, 1));

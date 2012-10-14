@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.visualization.component;
+package nl.sense_os.commonsense.main.client.visualization.component.timeline;
 
 import java.util.Date;
 import java.util.List;

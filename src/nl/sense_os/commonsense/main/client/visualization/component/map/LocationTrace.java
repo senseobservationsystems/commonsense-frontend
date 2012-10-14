@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.visualization.component;
+package nl.sense_os.commonsense.main.client.visualization.component.map;
 
 import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Marker;

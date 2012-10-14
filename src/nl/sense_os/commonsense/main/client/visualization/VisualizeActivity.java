@@ -10,9 +10,9 @@ import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
 import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.visualization.component.MapVisualization;
-import nl.sense_os.commonsense.main.client.visualization.component.TableVisualization;
-import nl.sense_os.commonsense.main.client.visualization.component.TimelineVisualization;
+import nl.sense_os.commonsense.main.client.visualization.component.map.MapVisualization;
+import nl.sense_os.commonsense.main.client.visualization.component.table.TableVisualization;
+import nl.sense_os.commonsense.main.client.visualization.component.timeline.TimelineVisualization;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.activity.shared.AbstractActivity;

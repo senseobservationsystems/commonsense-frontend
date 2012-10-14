@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.visualization.component;
+package nl.sense_os.commonsense.main.client.visualization.component.map;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;

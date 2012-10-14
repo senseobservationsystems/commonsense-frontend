@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.visualization.component;
+package nl.sense_os.commonsense.main.client.visualization.component.map;
 
 import java.util.Date;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.main.client.visualization.component.map.resource.MapResources;
 import nl.sense_os.commonsense.main.client.viz.panels.map.DateSlider;
 
 import com.extjs.gxt.ui.client.event.Events;
@@ -277,9 +278,8 @@ public class MapVisualizationControls extends Composite {
 
 	private ToggleButton createPlayPauseButton() {
 
-		Image playImage = new Image("/img/map/play.png");
-
-		Image pauseImage = new Image("/img/map/pause.png");
+		Image playImage = new Image(MapResources.INSTANCE.iconPlay());
+		Image pauseImage = new Image(MapResources.INSTANCE.iconPause());
 
 		final ToggleButton button = new ToggleButton(playImage, pauseImage);
 		button.addClickHandler(new ClickHandler() {
@@ -307,7 +307,7 @@ public class MapVisualizationControls extends Composite {
 	}
 
 	private PushButton createReplayButton() {
-		Image replayImage = new Image("/img/map/rewind.png");
+		Image replayImage = new Image(MapResources.INSTANCE.iconRewind());
 
 		PushButton button = new PushButton(replayImage, new ClickHandler() {
 
