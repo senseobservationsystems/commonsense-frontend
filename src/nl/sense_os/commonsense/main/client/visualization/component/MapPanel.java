@@ -36,8 +36,8 @@ public class MapPanel extends Composite {
 	 */
 	private Map<Integer, LocationData> dataset;
 
-	private long traceStartTime;
-	private long traceEndTime;
+	private long traceStartTime = Long.MIN_VALUE;
+	private long traceEndTime = Long.MAX_VALUE;
 	private long animationTime;
 
 	private boolean animationMode = true;
@@ -100,21 +100,22 @@ public class MapPanel extends Composite {
 	}
 
 	public void setAnimationMode(boolean enable) {
-		if (animationMode) {
+		LOG.fine((enable ? "Enable" : "Disable") + " animation mode");
+		if (enable) {
 			// remove start/end markers for each trace
 			for (LocationData locationData : dataset.values()) {
-				Marker startMarker = locationData.getTrace().getStartMarker();
-				Marker endMarker = locationData.getTrace().getEndMarker();
-				mapWidget.removeOverlay(startMarker);
-				mapWidget.removeOverlay(endMarker);
+				LocationTrace trace = locationData.getTrace();
+				mapWidget.removeOverlay(trace.getStartMarker());
+				mapWidget.removeOverlay(trace.getEndMarker());
+				mapWidget.addOverlay(trace.getAnimationMarker());
 			}
 		} else {
 
 			for (LocationData locationData : dataset.values()) {
-				Marker startMarker = locationData.getTrace().getStartMarker();
-				Marker endMarker = locationData.getTrace().getEndMarker();
-				mapWidget.addOverlay(startMarker);
-				mapWidget.addOverlay(endMarker);
+				LocationTrace trace = locationData.getTrace();
+				mapWidget.addOverlay(trace.getStartMarker());
+				mapWidget.addOverlay(trace.getEndMarker());
+				mapWidget.removeOverlay(trace.getAnimationMarker());
 			}
 		}
 
@@ -252,7 +253,9 @@ public class MapPanel extends Composite {
 
 				// save the trace details with the location data
 				trace.setStartMarker(startMarker);
+				trace.setStartIndex(0);
 				trace.setEndMarker(endMarker);
+				trace.setEndIndex(points.length - 1);
 				trace.setPolyline(polyline);
 				locationData.setTrace(trace);
 
@@ -263,7 +266,7 @@ public class MapPanel extends Composite {
 	}
 
 	private void updateAnimationMarkers() {
-		LOG.fine("Update animation markers");
+		LOG.finer("Update animation markers");
 
 		for (LocationData locationData : dataset.values()) {
 
@@ -292,6 +295,8 @@ public class MapPanel extends Composite {
 
 		// TODO determine which side of the time range has changed
 
+		LOG.fine("Start time: " + traceStartTime + ", end time: " + traceEndTime);
+
 		for (LocationData locationData : dataset.values()) {
 
 			LocationTrace trace = locationData.getTrace();
@@ -309,11 +314,11 @@ public class MapPanel extends Composite {
 
 			// get the sensor values
 			JsArray<FloatDataPoint> latData = locationData.getLatitude().getData().cast();
-			JsArray<FloatDataPoint> lonData = locationData.getLatitude().getData().cast();
+			JsArray<FloatDataPoint> lonData = locationData.getLongitude().getData().cast();
 
 			// find the start and end indices of the trace in the sensor data array
-			int newTraceStartIndex = -1;
-			int newTraceEndIndex = -1;
+			int newTraceStartIndex = 0;
+			int newTraceEndIndex = 0;
 			for (int i = 0; i < latData.length(); i++) {
 				if (latData.get(i).getTime() < traceStartTime) {
 					newTraceStartIndex = i;
@@ -325,12 +330,15 @@ public class MapPanel extends Composite {
 				}
 			}
 
+			LOG.fine("Old start: " + traceStartIndex + ", new start: " + newTraceStartIndex
+					+ ", old end: " + traceEndIndex + ", new end: " + newTraceEndIndex
+					+ ", total trace length: " + latData.length());
+
 			// add vertices at START of trace if newTraceStart < traceStartIndex
 			if (newTraceStartIndex < traceStartIndex) {
 				double lat;
 				double lon;
-				// LOG.fine( "Add " + (traceStartIndex - newTraceStartIndex) +
-				// " vertices at start");
+				LOG.fine("Add " + (traceStartIndex - newTraceStartIndex) + " vertices at start");
 				for (int i = traceStartIndex - 1; i >= newTraceStartIndex; i--) {
 					lat = latData.get(i).getValue();
 					lon = lonData.get(i).getValue();
@@ -340,8 +348,7 @@ public class MapPanel extends Composite {
 
 			// delete vertices at START of trace if newTraceStart > traceStartIndex
 			if (newTraceStartIndex > traceStartIndex) {
-				// LOG.fine( "Delete " + (newTraceStartIndex - traceStartIndex) +
-				// " vertices at start");
+				LOG.fine("Delete " + (newTraceStartIndex - traceStartIndex) + " vertices at start");
 				for (int i = traceStartIndex; i < newTraceStartIndex; i++) {
 					polyline.deleteVertex(0);
 				}
@@ -355,7 +362,7 @@ public class MapPanel extends Composite {
 
 			// add vertices at END of trace if newTraceEnd > traceEndIndex
 			if (newTraceEndIndex > traceEndIndex) {
-				// LOG.fine( "Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
+				LOG.fine("Add " + (newTraceEndIndex - traceEndIndex) + " vertices at end");
 				double lat;
 				double lon;
 				int vertexCount = polyline.getVertexCount();
@@ -369,7 +376,7 @@ public class MapPanel extends Composite {
 
 			// delete vertices at END of trace if newTraceEnd < traceEndIndex
 			if (newTraceEndIndex < traceEndIndex) {
-				// LOG.fine( "Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
+				LOG.fine("Delete " + (traceEndIndex - newTraceEndIndex) + " vertices at end");
 				int currentCount = polyline.getVertexCount();
 				for (int i = traceEndIndex; i > newTraceEndIndex; i--) {
 					polyline.deleteVertex(currentCount - 1);
@@ -386,7 +393,6 @@ public class MapPanel extends Composite {
 			// update trace indexes
 			trace.setStartIndex(newTraceStartIndex);
 			trace.setEndIndex(newTraceEndIndex);
-
 		}
 	}
 }

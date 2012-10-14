@@ -21,7 +21,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.ToggleButton;
@@ -42,10 +42,9 @@ public class MapVisualizationControls extends Composite {
 
 	private static final Logger LOG = Logger.getLogger(MapVisualizationControls.class.getName());
 	private boolean animationMode = false;
-	private ToggleButton animateButton;
-	private SliderField animateField;
-	private VerticalPanel animatePanel;
 	private boolean animationPaused = false;
+	private ToggleButton modeSelectionButton;
+	private SliderField animationSliderField;
 	/**
 	 * Slider for controlling the animation time
 	 */
@@ -62,35 +61,32 @@ public class MapVisualizationControls extends Composite {
 	 */
 	private DateSlider displayStartSlider;
 	private MapPanel mapPanel;
-	private PushButton pauseButton;
-	private PushButton playButton;
-	private PushButton replayButton;
-	private HorizontalPanel playPanel;
-	private boolean replayButtonState = false;
+	private ToggleButton playPauseButton;
+	private PushButton rewindButton;
+	private FlowPanel animationButtonPanel;
 	private long sliderMax;
 	private long sliderMin;
-	private FormPanel slidersForm;
+	private FormPanel panel;
 	private long sliderValue;
 	private Label timeLabel;
 
 	public MapVisualizationControls(MapPanel mapPanel) {
 
-		LOG.setLevel(Level.ALL);
+		LOG.setLevel(Level.FINE);
 
 		this.mapPanel = mapPanel;
 
 		animationSlider = createAnimationSlider();
 
-		playButton = createPlayButton();
-		pauseButton = createPauseButton();
-		replayButton = createReplayButton();
-		animateButton = createAnimateButton();
+		playPauseButton = createPlayPauseButton();
+		rewindButton = createReplayButton();
+		modeSelectionButton = createModeSelectionButton();
 		timeLabel = new Label();
 		timeLabel.setStyleName("timeLabel");
 
-		slidersForm = createControlPanel();
+		panel = createControlPanel();
 
-		initComponent(slidersForm);
+		initComponent(panel);
 	}
 
 	/**
@@ -118,14 +114,14 @@ public class MapVisualizationControls extends Composite {
 		}
 
 		// set display start slider range
-		int interval = (max - min) / 25;
+		int interval = (max - min) / 100;
 		displayStartSlider.setMinValue(min);
 		displayStartSlider.setMaxValue(max);
 		displayStartSlider.setIncrement(interval);
 		displayStartSlider.disableEvents(true);
 		// if you set the value to min, the slider starts with the second value
 		// for some reason; so i set it to min - 100000, then it equals min anyway
-		displayStartSlider.setValue(min - 100000);
+		displayStartSlider.setValue(min);
 		displayStartSlider.enableEvents(true);
 
 		// set display end slider range
@@ -135,7 +131,7 @@ public class MapVisualizationControls extends Composite {
 		displayEndSlider.disableEvents(true);
 		// if you set the value to max, the slider starts with the second value
 		// for some reason; so i add something to the max, then it equals max anyway
-		displayEndSlider.setValue(max + 100000);
+		displayEndSlider.setValue(max);
 		displayEndSlider.enableEvents(true);
 
 		// set anymation slider range
@@ -144,8 +140,11 @@ public class MapVisualizationControls extends Composite {
 		animationSlider.setMaxValue(max);
 		animationSlider.setIncrement(playInterval);
 		animationSlider.disableEvents(true);
-		animationSlider.setValue(min - 100000);
+		animationSlider.setValue(min);
 		animationSlider.enableEvents(true);
+
+		timeLabel.setText(DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT).format(
+				new Date(min * 1000l)));
 
 		// save the slider ranges in memory
 		sliderMin = min * 1000l;
@@ -161,6 +160,47 @@ public class MapVisualizationControls extends Composite {
 			animationTimer.cancel();
 			animationTimer = null;
 		}
+	}
+
+	private ToggleButton createModeSelectionButton() {
+
+		final ToggleButton button = new ToggleButton("Show static mode", "Show animation");
+		button.addClickHandler(new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent event) {
+				setAnimationMode(!button.isDown());
+			}
+		});
+		return button;
+	}
+
+	private DateSlider createAnimationSlider() {
+		Listener<SliderEvent> slideListener = new Listener<SliderEvent>() {
+
+			@Override
+			public void handleEvent(SliderEvent be) {
+				if (animationPaused == true && animationMode == true) {
+
+					// update the map
+					mapPanel.setAnimationTime(animationSlider.getValue() * 1000);
+
+					// show the play button
+					if (rewindButton.isVisible()) {
+						playPauseButton.setVisible(true);
+						rewindButton.setVisible(false);
+					}
+				}
+			}
+		};
+
+		DateSlider slider = new DateSlider();
+		slider.setMessage("{0}");
+		slider.addListener(Events.Change, slideListener);
+		slider.addStyleName("playSlider");
+		slider.setValue(slider.getMinValue() - 100000);
+
+		return slider;
 	}
 
 	/**
@@ -209,181 +249,96 @@ public class MapVisualizationControls extends Composite {
 		displayEndField.setFieldLabel("Trace end");
 
 		// slider for animation time
-		animateField = new SliderField(animationSlider);
-		animateField.setHideLabel(true);
+		animationSliderField = new SliderField(animationSlider);
+		animationSliderField.setHideLabel(true);
 
-		playPanel = new HorizontalPanel();
-		playPanel.addStyleName("playPanel");
-		animatePanel = new VerticalPanel();
-		animatePanel.add(animateButton);
+		animationButtonPanel = new FlowPanel();
+		animationButtonPanel.addStyleName("playPanel");
+
+		VerticalPanel modeSelectionPanel = new VerticalPanel();
+		modeSelectionPanel.add(modeSelectionButton);
 
 		// ADD THE animate PANEL HERE!
-		slidersForm.add(animatePanel);
-		animatePanel.add(playPanel);
-		playPanel.add(playButton);
-		playPanel.add(timeLabel);
+		slidersForm.add(modeSelectionPanel);
+		animationButtonPanel.add(playPauseButton);
+		animationButtonPanel.add(rewindButton);
+		animationButtonPanel.add(timeLabel);
 
-		slidersForm.add(animateField, new FormData("-5"));
+		slidersForm.add(animationButtonPanel, new FormData("-5"));
+		slidersForm.add(animationSliderField, new FormData("-5"));
 
 		displayEndSlider.setValue(displayEndSlider.getMaxValue() + 100000);
 		animationSlider.setValue(animationSlider.getMinValue() - 100000);
 
 		sliderValue = sliderMin;
 
-		slidersForm.layout();
-
 		return slidersForm;
 	}
 
-	private String formatDate(long timestamp) {
-		DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
-		String formatDate = format.format(new Date(timestamp));
-		return formatDate;
-	}
+	private ToggleButton createPlayPauseButton() {
 
-	private DateSlider createAnimationSlider() {
-		Listener<SliderEvent> slideListener = new Listener<SliderEvent>() {
+		Image playImage = new Image("/img/map/play.png");
 
-			@Override
-			public void handleEvent(SliderEvent be) {
-				if (animationPaused == true && animationMode == true) {
+		Image pauseImage = new Image("/img/map/pause.png");
 
-					// update the map
-					mapPanel.setAnimationTime(animationSlider.getValue() * 1000);
-
-					// show the play button
-					if (replayButtonState == true) {
-						playPanel.remove(replayButton);
-						playPanel.insert(playButton, 0);
-						replayButtonState = false;
-					}
-				}
-
-			}
-		};
-
-		DateSlider slider = new DateSlider();
-		slider.setMessage("{0}");
-		slider.addListener(Events.Change, slideListener);
-		slider.addStyleName("playSlider");
-		slider.setValue(slider.getMinValue() - 100000);
-
-		return slider;
-	}
-
-	private PushButton createPlayButton() {
-
-		Image playImage = new Image("/img/map/Play4.png");
-		playImage.setWidth("26px");
-		playImage.setHeight("20px");
-
-		PushButton button = new PushButton(playImage, new ClickHandler() {
+		final ToggleButton button = new ToggleButton(playImage, pauseImage);
+		button.addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-
-				animationMode = true;
-				animationPaused = false;
-
-				animationSlider.setValue(animationSlider.getMinValue() - 100000);
-
-				mapPanel.setAnimationMode(true);
-
-				playPanel.remove(playButton);
-				playPanel.insert(pauseButton, 0);
-				cancelAnimationTimer();
-				sliderValue = animationSlider.getValue() * 1000l;
-				startAnimationTimer();
+				onPlayPause(button.isDown());
 			}
 		});
 
-		button.setStyleName("mediaButton");
+		button.addStyleName("mediaButton");
 
 		return button;
 	}
 
-	private PushButton createPauseButton() {
-		Image pauseImage = new Image("/img/map/pause5.png");
-		pauseImage.setWidth("20px");
-		pauseImage.setHeight("20px");
-
-		PushButton button = new PushButton(pauseImage, new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-
-				if (animationPaused == false) {
-					animationPaused = true;
-					playPanel.remove(pauseButton);
-					playPanel.insert(playButton, 0);
-					cancelAnimationTimer();
-				}
-
-				else {
-					animationPaused = false;
-					cancelAnimationTimer();
-					startAnimationTimer();
-				}
-
-			}
-		});
-
-		button.setStyleName("pauseButton");
-
-		return button;
+	private void onPlayPause(boolean play) {
+		if (!play) {
+			cancelAnimationTimer();
+		} else {
+			cancelAnimationTimer();
+			sliderValue = animationSlider.getValue() * 1000l;
+			startAnimationTimer();
+		}
+		animationPaused = !play;
 	}
 
 	private PushButton createReplayButton() {
-		Image replayImage = new Image("/img/map/replay.png");
-		replayImage.setWidth("18px");
-		replayImage.setHeight("18px");
+		Image replayImage = new Image("/img/map/rewind.png");
 
 		PushButton button = new PushButton(replayImage, new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
 
-				if (animationPaused == true) {
-					animationPaused = false;
-					replayButtonState = false;
-					playPanel.remove(replayButton);
-					playPanel.insert(pauseButton, 0);
-					cancelAnimationTimer();
+				animationPaused = false;
+				rewindButton.setVisible(false);
+				cancelAnimationTimer();
 
-					animationSlider.setValue(animationSlider.getMinValue() - 100000);
-					sliderValue = animationSlider.getValue() * 1000l;
-					startAnimationTimer();
-				}
+				animationSlider.setValue(animationSlider.getMinValue() - 100000);
+				sliderValue = animationSlider.getValue() * 1000l;
 
+				playPauseButton.setVisible(true);
+				playPauseButton.setDown(true);
+				onPlayPause(true);
 			}
 		});
 
-		button.setStyleName("replayButton");
-
-		return button;
-	}
-
-	private ToggleButton createAnimateButton() {
-
-		ToggleButton button = new ToggleButton("Show static mode", "Show animation",
-				new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-						setAnimationMode(!animateButton.isDown());
-					}
-				});
-
-		button.addStyleName("animateButton");
+		button.addStyleName("mediaButton");
+		button.setVisible(false);
 
 		return button;
 	}
 
 	private void setAnimationMode(boolean enable) {
+		LOG.fine((enable ? "Enable" : "Disable") + " animation mode");
 		if (enable) {
 			animationMode = true;
-			animationPaused = false;
-			// LOG.fine ("Animate Button pressed: sliderValue is " + sliderValue);
+			animationPaused = true;
+
 			animationSlider.setMinValue(displayStartSlider.getValue());
 			animationSlider.setMaxValue(displayEndSlider.getValue());
 			sliderMin = displayStartSlider.getValue() * 1000l;
@@ -391,46 +346,41 @@ public class MapVisualizationControls extends Composite {
 			sliderValue = displayStartSlider.getValue() * 1000l;
 			animationSlider.setValue(displayStartSlider.getValue());
 
-			slidersForm.remove(displayStartField);
-			slidersForm.remove(displayEndField);
+			panel.remove(displayStartField);
+			panel.remove(displayEndField);
 
-			animatePanel.add(playPanel);
-			slidersForm.add(animateField, new FormData("-5"));
-			playPanel.add(pauseButton);
-			playPanel.add(timeLabel);
-			animationPaused = false;
+			panel.add(animationButtonPanel, new FormData("-5"));
+			panel.add(animationSliderField, new FormData("-5"));
+			playPauseButton.setVisible(true);
+			rewindButton.setVisible(false);
 
 			mapPanel.setAnimationMode(true);
 
 			cancelAnimationTimer();
-			startAnimationTimer();
 
-			slidersForm.layout();
+			panel.layout();
 
 		} else {
-			// LOG.fine ("Animate button is off");
 			animationMode = false;
 			cancelAnimationTimer();
 
-			animatePanel.remove(playPanel);
-			playPanel.remove(pauseButton);
-			playPanel.remove(replayButton);
-			playPanel.remove(playButton);
-			playPanel.remove(timeLabel);
-
 			mapPanel.setAnimationMode(false);
 
-			slidersForm.remove(animateField);
-			slidersForm.add(displayStartField, new FormData("-5"));
-			slidersForm.add(displayEndField, new FormData("-5"));
+			animationSlider.setValue(animationSlider.getMinValue());
+			panel.remove(animationButtonPanel);
+			panel.remove(animationSliderField);
+			panel.add(displayStartField, new FormData("-5"));
+			panel.add(displayEndField, new FormData("-5"));
 
-			slidersForm.layout();
+			panel.layout();
 
-			animationSlider.setValue(animationSlider.getMinValue() - 100000);
-			displayStartSlider.setValue(displayStartSlider.getMinValue() - 100000);
-			displayEndSlider.setValue(displayEndSlider.getMaxValue() + 100000);
-
+			displayStartSlider.setValue(displayStartSlider.getMinValue());
+			displayEndSlider.setValue(displayEndSlider.getMaxValue());
 		}
+	}
+
+	public void setLocatonDataSet(Map<Integer, LocationData> dataset) {
+		calcSliderRange(dataset);
 	}
 
 	/**
@@ -443,38 +393,31 @@ public class MapVisualizationControls extends Composite {
 	}
 
 	private void stepAnimationSlider() {
-		LOG.fine("Update animation slider");
+		LOG.finest("Update animation slider");
 
 		long minim = sliderMin;
 		long maxim = sliderMax;
 		long step = (maxim - minim) / 500;
+		DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_SHORT);
 
 		if (sliderValue + step < maxim) {
 			// step animation slider
 			sliderValue = sliderValue + step;
 			animationSlider.setValue((int) (sliderValue / 1000l));
-			timeLabel.setText(formatDate(sliderValue));
+			timeLabel.setText(format.format(new Date(sliderValue)));
 
 		} else {
 			// stop the animation slider at the max
 			sliderValue = sliderMax;
 			animationSlider.setValue((int) (sliderMax / 1000l + 100000));
-			timeLabel.setText(formatDate(sliderValue));
+			timeLabel.setText(format.format(new Date(sliderValue)));
 
 			cancelAnimationTimer();
 
-			if (animationPaused == false) {
-				animationPaused = true;
-				replayButtonState = true;
-				playPanel.remove(pauseButton);
-				playPanel.insert(replayButton, 0);
-			}
+			playPauseButton.setVisible(false);
+			rewindButton.setVisible(true);
 		}
 
 		mapPanel.setAnimationTime(sliderValue);
-	}
-
-	public void setLocatonDataSet(Map<Integer, LocationData> dataset) {
-		calcSliderRange(dataset);
 	}
 }
