@@ -19,9 +19,10 @@
 	<!-- External stylesheets                                       -->
 	<!-- Include at least one stylesheet, else the stylesheets in   -->
 	<!-- external modules like gwt-links-graph.jar are not loaded...-->
-	<stylesheet src="css/styles.css"></stylesheet>
-	<stylesheet src="ExtGWT/css/gxt-all.css"></stylesheet>
-	<stylesheet src="ExtGWT/css/gxt-gray.css"></stylesheet>
+    <stylesheet src="css/sense.css" />
+	<stylesheet src="css/styles.css" />
+	<stylesheet src="ExtGWT/css/gxt-all.css" />
+	<stylesheet src="ExtGWT/css/gxt-gray.css" />
 	<!-- Specify the app entry point class.                         -->
 	<entry-point class='nl.sense_os.commonsense.main.client.MainEntryPoint'/>
 	<replace-with class="nl.sense_os.commonsense.main.client.MainEntryPoint">
