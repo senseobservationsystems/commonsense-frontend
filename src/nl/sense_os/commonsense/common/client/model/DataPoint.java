@@ -14,7 +14,7 @@ public class DataPoint extends JavaScriptObject {
      * @return The timestamp, as Date object
      */
 	public final Date getDate() {
-        return new Date(Math.round(getTimestamp()));
+        return new Date(getTimestamp());
 	}
 
     /**

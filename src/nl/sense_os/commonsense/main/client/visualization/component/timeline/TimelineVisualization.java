@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.main.client.visualization.component.timeline;
 
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.DataPoint;
@@ -61,8 +60,6 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 	private Presenter presenter;
 
 	public TimelineVisualization(List<GxtSensor> sensors, long start, long end, boolean subsample) {
-
-		LOG.setLevel(Level.ALL);
 
 		initGraphOptions();
 
@@ -134,8 +131,8 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 
 				// set end time
 				if (nextPoint != null) {
-					long endDate = Math.max(dataPoint.getDate().getTime(), nextPoint
-							.getDate().getTime() - 1000);
+                    long endDate = Math.max(dataPoint.getTimestamp(),
+                            nextPoint.getTimestamp() - 1000);
 					dataTable.setValue(index, 1, new Date(endDate));
 				} else {
 					dataTable.setValue(index, 1, new Date());
