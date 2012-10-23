@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.main.client.visualization.component.map;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
@@ -45,8 +44,6 @@ public class MapPanel extends Composite {
 	private boolean animationMode = true;
 
 	public MapPanel() {
-
-		LOG.setLevel(Level.FINE);
 
 		mapWidget = new MapWidget();
 		mapWidget.setWidth("100%");
@@ -168,8 +165,8 @@ public class MapPanel extends Composite {
 
 		// create marker for each location trace
 		for (LocationData locationData : dataset.values()) {
-			JsArray<FloatDataPoint> latData = locationData.getLatitude().getData().cast();
-			JsArray<FloatDataPoint> lonData = locationData.getLongitude().getData().cast();
+			JsArray<FloatDataPoint> latData = locationData.getLatitudes().getData().cast();
+			JsArray<FloatDataPoint> lonData = locationData.getLongitudes().getData().cast();
 
 			LatLng markerLatLng = LatLng.newInstance(latData.get(0).getValue(), lonData.get(0)
 					.getValue());
@@ -194,8 +191,8 @@ public class MapPanel extends Composite {
 			colourCount++;
 
 			// get the sensor values
-			JsArray<FloatDataPoint> latValues = locationData.getLatitude().getData().cast();
-			JsArray<FloatDataPoint> lonValues = locationData.getLongitude().getData().cast();
+			JsArray<FloatDataPoint> latValues = locationData.getLatitudes().getData().cast();
+			JsArray<FloatDataPoint> lonValues = locationData.getLongitudes().getData().cast();
 
 			LOG.finest("Number of points to draw: " + latValues.length());
 
@@ -215,8 +212,8 @@ public class MapPanel extends Composite {
 					lat = latValues.get(i).getValue();
 					lng = lonValues.get(i).getValue();
 
-					// timestamp in secs
-					double timestamp = latValues.get(i).getTime();
+                    // timestamp in ms
+                    long timestamp = latValues.get(i).getTimestamp();
 					// LOG.fine ("The timestamp for point " + i + " is " + timestamp);
 
 					if (timestamp != 0) {
@@ -276,12 +273,12 @@ public class MapPanel extends Composite {
 			LocationTrace trace = locationData.getTrace();
 			Marker animationMarker = trace.getAnimationMarker();
 
-			JsArray<FloatDataPoint> latData = locationData.getLatitude().getData().cast();
-			JsArray<FloatDataPoint> lonData = locationData.getLongitude().getData().cast();
+			JsArray<FloatDataPoint> latData = locationData.getLatitudes().getData().cast();
+			JsArray<FloatDataPoint> lonData = locationData.getLongitudes().getData().cast();
 			LatLng newLocation = LatLng.newInstance(latData.get(0).getValue(), lonData.get(0)
 					.getValue());
 			for (int i = 0; i < latData.length(); i++) {
-				if (latData.get(i).getTime() > animationTime) {
+                if (latData.get(i).getTimestamp() >= animationTime) {
 					newLocation = LatLng.newInstance(latData.get(i).getValue(), lonData.get(i)
 							.getValue());
 					break;
@@ -316,16 +313,16 @@ public class MapPanel extends Composite {
 			}
 
 			// get the sensor values
-			JsArray<FloatDataPoint> latData = locationData.getLatitude().getData().cast();
-			JsArray<FloatDataPoint> lonData = locationData.getLongitude().getData().cast();
+			JsArray<FloatDataPoint> latData = locationData.getLatitudes().getData().cast();
+			JsArray<FloatDataPoint> lonData = locationData.getLongitudes().getData().cast();
 
 			// find the start and end indices of the trace in the sensor data array
 			int newTraceStartIndex = 0;
 			int newTraceEndIndex = 0;
 			for (int i = 0; i < latData.length(); i++) {
-				if (latData.get(i).getTime() < traceStartTime) {
+                if (latData.get(i).getTimestamp() < traceStartTime) {
 					newTraceStartIndex = i;
-				} else if (latData.get(i).getTime() > traceEndTime) {
+                } else if (latData.get(i).getTimestamp() > traceEndTime) {
 					newTraceEndIndex = i;
 					break;
 				} else {

@@ -23,151 +23,152 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class VisualizeActivity extends AbstractActivity implements VisualizationView.Presenter,
-		NewSensorDataEvent.Handler {
+        NewSensorDataEvent.Handler {
 
-	private static final Logger LOG = Logger.getLogger(VisualizeActivity.class.getName());
-	/**
-	 * Appends new data to the old data
-	 * 
-	 * @param oldData
-	 *            Original set of timeseries
-	 * @param newData
-	 *            New timeseries that need to be appended
-	 */
-	private static JsArray<Timeseries> appendNewData(JsArray<Timeseries> oldData,
-			JsArray<Timeseries> newData) {
-		if (null == oldData) {
-			LOG.fine("No old data to append to");
-			return newData;
+    private static final Logger LOG = Logger.getLogger(VisualizeActivity.class.getName());
 
-		} else {
-			for (int i = 0; i < newData.length(); i++) {
-				Timeseries toAppend = newData.get(i);
-				boolean appended = false;
-				for (int j = 0; j < oldData.length(); j++) {
-					Timeseries original = oldData.get(j);
-					if (toAppend.getLabel().equals(original.getLabel())
-							&& toAppend.getId() == original.getId()) {
-						LOG.fine("Append data to " + original.getLabel());
-						original.append(toAppend);
-						appended = true;
-						break;
-					}
-				}
-				if (!appended) {
-					LOG.fine("Add new timeseries to the visualization data " + toAppend.getLabel());
-					oldData.push(toAppend);
-				}
-			}
-			return oldData;
-		}
-	}
+    /**
+     * Appends new data to the old data
+     * 
+     * @param oldData
+     *            Original set of timeseries
+     * @param newData
+     *            New timeseries that need to be appended
+     */
+    private static JsArray<Timeseries> appendNewData(JsArray<Timeseries> oldData,
+            JsArray<Timeseries> newData) {
+        if (null == oldData) {
+            LOG.fine("No old data to append to");
+            return newData;
 
-	/**
-	 * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
-	 */
-	private MainClientFactory clientFactory;
-	private int type;
-	private long start;
-	private long end;
-	private boolean subsample;
+        } else {
+            for (int i = 0; i < newData.length(); i++) {
+                Timeseries toAppend = newData.get(i);
+                boolean appended = false;
+                for (int j = 0; j < oldData.length(); j++) {
+                    Timeseries original = oldData.get(j);
+                    if (toAppend.getLabel().equals(original.getLabel())
+                            && toAppend.getId() == original.getId()) {
+                        LOG.fine("Append data to " + original.getLabel());
+                        original.append(toAppend);
+                        appended = true;
+                        break;
+                    }
+                }
+                if (!appended) {
+                    LOG.fine("Add new timeseries to the visualization data " + toAppend.getLabel());
+                    oldData.push(toAppend);
+                }
+            }
+            return oldData;
+        }
+    }
 
-	private List<GxtSensor> sensors;
+    /**
+     * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
+     */
+    private MainClientFactory clientFactory;
+    private int type;
+    private long start;
+    private long end;
+    private boolean subsample;
 
-	private VisualizationView view;
+    private List<GxtSensor> sensors;
 
-	private JsArray<Timeseries> data;
+    private VisualizationView view;
 
-	public VisualizeActivity(VisualizePlace place, MainClientFactory clientFactory) {
-		type = place.getType();
-		start = place.getStart();
-		end = place.getEnd();
-		subsample = place.isSubsample();
-		sensors = place.getSensors();
-		this.clientFactory = clientFactory;
-	}
+    private JsArray<Timeseries> data;
 
-	private void getData() {
-		DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true);
-		clientFactory.getEventBus().fireEvent(dataRequest);
-	}
+    public VisualizeActivity(VisualizePlace place, MainClientFactory clientFactory) {
+        type = place.getType();
+        start = place.getStart();
+        end = place.getEnd();
+        subsample = place.isSubsample();
+        sensors = place.getSensors();
+        this.clientFactory = clientFactory;
+    }
 
-	@Override
-	public void onNewSensorData(NewSensorDataEvent event) {
-		if (event.getSensors().equals(sensors)) {
-			LOG.severe("received new sensor data!");
-			JsArray<Timeseries> newData = event.getSensorData();
-			data = appendNewData(data, newData);
+    private void getData() {
+        DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true);
+        clientFactory.getEventBus().fireEvent(dataRequest);
+    }
 
-			view.visualize(data);
-		}
-	}
+    @Override
+    public void onNewSensorData(NewSensorDataEvent event) {
+        if (event.getSensors().equals(sensors)) {
+            LOG.fine("received new sensor data!");
+            JsArray<Timeseries> newData = event.getSensorData();
+            data = appendNewData(data, newData);
 
-	@Override
-	public void refreshData() {
-		LOG.fine("Refresh data...");
+            view.visualize(data);
+        }
+    }
 
-		// TODO don't refresh when the user has left the visualization section of the app
+    @Override
+    public void refreshData() {
+        LOG.fine("Refresh data...");
 
-		if (null != sensors) {
+        // TODO don't refresh when the user has left the visualization section of the app
 
-			for (GxtSensor sensor : sensors) {
+        if (null != sensors) {
 
-				// find the latest data point for which we have data and refresh from this point
-				long refreshStart = start;
-				for (int i = 0; i < data.length(); i++) {
-					Timeseries ts = data.get(i);
-					if (ts.getId() == sensor.getId()) {
-						LOG.finest("Found time series for sensor " + sensor.getDisplayName());
-						LOG.fine("time series end: "
-								+ DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
-										new Date(ts.getEnd())));
-						refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
+            for (GxtSensor sensor : sensors) {
 
-					}
-				}
+                // find the latest data point for which we have data and refresh from this point
+                long refreshStart = start;
+                for (int i = 0; i < data.length(); i++) {
+                    Timeseries ts = data.get(i);
+                    if (ts.getId() == sensor.getId()) {
+                        LOG.finest("Found time series for sensor " + sensor.getDisplayName());
+                        LOG.fine("time series end: "
+                                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
+                                        new Date(ts.getEnd())));
+                        refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
 
-				DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL);
-				LOG.fine("Refresh start time: " + dtf.format(new Date(refreshStart)));
+                    }
+                }
 
-				// submit request event
-				DataRequestEvent dataRequest = new DataRequestEvent(refreshStart, end, sensors,
-						subsample, false);
-				clientFactory.getEventBus().fireEvent(dataRequest);
-			}
+                DateTimeFormat dtf = DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL);
+                LOG.fine("Refresh start time: " + dtf.format(new Date(refreshStart)));
 
-		} else {
-			LOG.warning("Cannot refresh data: list of sensors is null");
-		}
-	}
+                // submit request event
+                DataRequestEvent dataRequest = new DataRequestEvent(refreshStart, end, sensors,
+                        subsample, false);
+                clientFactory.getEventBus().fireEvent(dataRequest);
+            }
 
-	@Override
-	public void start(AcceptsOneWidget panel, EventBus eventBus) {
-		LOG.info("Start 'visualize' activity");
+        } else {
+            LOG.warning("Cannot refresh data: list of sensors is null");
+        }
+    }
 
-		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
-		parent.removeAll();
+    @Override
+    public void start(AcceptsOneWidget panel, EventBus eventBus) {
+        LOG.info("Start 'visualize' activity");
 
-		switch (type) {
-		case NewVisualizationEvent.TIMELINE:
-			view = new TimelineVisualization(sensors, start, end, subsample);
-			break;
+        LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
+        parent.removeAll();
 
-		case NewVisualizationEvent.TABLE:
-			view = new TableVisualization(sensors, start, end, subsample);
-			break;
-		case NewVisualizationEvent.MAP:
-			view = new MapVisualization(sensors, start, end, subsample);
-			break;
-		default:
-			LOG.warning("Unsupported visualization!");
-		}
-		view.setPresenter(this);
-		parent.add(view.asWidget());
-		parent.layout();
+        switch (type) {
+        case NewVisualizationEvent.TIMELINE:
+            view = new TimelineVisualization(sensors, start, end, subsample);
+            break;
 
-		clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
+        case NewVisualizationEvent.TABLE:
+            view = new TableVisualization(sensors, start, end, subsample);
+            break;
+        case NewVisualizationEvent.MAP:
+            view = new MapVisualization(sensors, start, end, subsample);
+            break;
+        default:
+            LOG.warning("Unsupported visualization!");
+        }
+        view.setPresenter(this);
+        parent.add(view.asWidget());
+        parent.layout();
 
-		getData();
-	}
+        clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
+
+        getData();
+    }
 }

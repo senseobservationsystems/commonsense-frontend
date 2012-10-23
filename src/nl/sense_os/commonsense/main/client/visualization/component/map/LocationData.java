@@ -4,50 +4,50 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 
 public class LocationData {
 
-	private Timeseries latitude;
-	private Timeseries longitude;
-	private LocationTrace trace;
+    private Timeseries latitudes;
+    private Timeseries longitudes;
+    private LocationTrace trace;
 
-	public LocationData(Timeseries latitude, Timeseries longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
-	}
+    public LocationData(Timeseries latitude, Timeseries longitude) {
+        this.latitudes = latitude;
+        this.longitudes = longitude;
+    }
 
-	/**
-	 * @return the latitude
-	 */
-	public Timeseries getLatitude() {
-		return latitude;
-	}
+    /**
+     * @return the latitude data
+     */
+    public Timeseries getLatitudes() {
+        return latitudes;
+    }
 
-	/**
-	 * @return the longitude
-	 */
-	public Timeseries getLongitude() {
-		return longitude;
-	}
+    /**
+     * @return the longitude data
+     */
+    public Timeseries getLongitudes() {
+        return longitudes;
+    }
 
-	/**
-	 * @param latitude
-	 *            the latitude to set
-	 */
-	public void setLatitude(Timeseries latitude) {
-		this.latitude = latitude;
-	}
+    public LocationTrace getTrace() {
+        return trace;
+    }
 
-	/**
-	 * @param longitude
-	 *            the longitude to set
-	 */
-	public void setLongitude(Timeseries longitude) {
-		this.longitude = longitude;
-	}
+    /**
+     * @param latitudes
+     *            the latitude to set
+     */
+    public void setLatitudes(Timeseries latitudes) {
+        this.latitudes = latitudes;
+    }
 
-	public LocationTrace getTrace() {
-		return trace;
-	}
+    /**
+     * @param longitudes
+     *            the longitude to set
+     */
+    public void setLongitudes(Timeseries longitudes) {
+        this.longitudes = longitudes;
+    }
 
-	public void setTrace(LocationTrace trace) {
-		this.trace = trace;
-	}
+    public void setTrace(LocationTrace trace) {
+        this.trace = trace;
+    }
 }

@@ -1132,7 +1132,7 @@ public class MapPanel extends VizPanel {
                     for (int k = 0; k < currentLatValues.length(); k++) {
                         FloatDataPoint lat = currentLatValues.get(k).cast();
                         float latValue = new Float(lat.getValue());
-                        long curTimestamp = new Long(lat.getTimestamp().getTime());
+                        long curTimestamp = new Long(lat.getDate().getTime());
                         timestamps.add(curTimestamp);
                         latPoints.add(latValue);
                         // LOG.fine("the latitude equals " + latValue);

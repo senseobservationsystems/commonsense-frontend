@@ -253,7 +253,7 @@ public class FeedbackPanel extends VizPanel {
 			// value changed! new row...
 			dataTable.addRow();
 			index++;
-			dataTable.setValue(index, 0, dataPoint.getTimestamp());
+			dataTable.setValue(index, 0, dataPoint.getDate());
 			dataTable.setValue(index, 2, dataPoint.getRawValue());
 			dataTable.setValue(index, 3, ts.getLabel());
 		    } else {
@@ -262,15 +262,15 @@ public class FeedbackPanel extends VizPanel {
 		} else {
 		    // insert first data point
 		    dataTable.addRow();
-		    dataTable.setValue(index, 0, dataPoint.getTimestamp());
+		    dataTable.setValue(index, 0, dataPoint.getDate());
 		    dataTable.setValue(index, 2, dataPoint.getRawValue());
 		    dataTable.setValue(index, 3, ts.getLabel());
 		}
 
 		// set end time
 		if (nextPoint != null) {
-		    long endDate = Math.max(dataPoint.getTimestamp().getTime(), nextPoint
-			    .getTimestamp().getTime() - 1000);
+		    long endDate = Math.max(dataPoint.getDate().getTime(), nextPoint
+			    .getDate().getTime() - 1000);
 		    dataTable.setValue(index, 1, new Date(endDate));
 		} else {
 		    dataTable.setValue(index, 1, new Date());
@@ -376,10 +376,10 @@ public class FeedbackPanel extends VizPanel {
 			// value changed! new row...
 			index++;
 			this.stateData.addRow();
-			this.stateData.setValue(index, 0, dataPoint.getTimestamp());
+			this.stateData.setValue(index, 0, dataPoint.getDate());
 			this.stateData.setValue(index, 2, dataPoint.getRawValue());
 			initialStates.addRow();
-			initialStates.setValue(index, 0, dataPoint.getTimestamp());
+			initialStates.setValue(index, 0, dataPoint.getDate());
 			initialStates.setValue(index, 2, dataPoint.getRawValue());
 		    } else {
 			// only the end time has to be changed
@@ -387,17 +387,17 @@ public class FeedbackPanel extends VizPanel {
 		} else {
 		    // insert first data point
 		    this.stateData.addRow();
-		    this.stateData.setValue(index, 0, dataPoint.getTimestamp());
+		    this.stateData.setValue(index, 0, dataPoint.getDate());
 		    this.stateData.setValue(index, 2, dataPoint.getRawValue());
 		    initialStates.addRow();
-		    initialStates.setValue(index, 0, dataPoint.getTimestamp());
+		    initialStates.setValue(index, 0, dataPoint.getDate());
 		    initialStates.setValue(index, 2, dataPoint.getRawValue());
 		}
 
 		// set end time
 		if (nextPoint != null) {
-		    long endDate = Math.max(dataPoint.getTimestamp().getTime(), nextPoint
-			    .getTimestamp().getTime() - 1000);
+		    long endDate = Math.max(dataPoint.getDate().getTime(), nextPoint
+			    .getDate().getTime() - 1000);
 		    this.stateData.setValue(index, 1, new Date(endDate));
 		    initialStates.setValue(index, 1, new Date(endDate));
 		} else {

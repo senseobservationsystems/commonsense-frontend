@@ -118,7 +118,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 						// value changed! new row...
 						dataTable.addRow();
 						index++;
-						dataTable.setValue(index, 0, dataPoint.getTimestamp());
+						dataTable.setValue(index, 0, dataPoint.getDate());
 						dataTable.setValue(index, 2, dataPoint.getRawValue());
 						dataTable.setValue(index, 3, ts.getLabel());
 					} else {
@@ -127,15 +127,15 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 				} else {
 					// insert first data point
 					dataTable.addRow();
-					dataTable.setValue(index, 0, dataPoint.getTimestamp());
+					dataTable.setValue(index, 0, dataPoint.getDate());
 					dataTable.setValue(index, 2, dataPoint.getRawValue());
 					dataTable.setValue(index, 3, ts.getLabel());
 				}
 
 				// set end time
 				if (nextPoint != null) {
-					long endDate = Math.max(dataPoint.getTimestamp().getTime(), nextPoint
-							.getTimestamp().getTime() - 1000);
+					long endDate = Math.max(dataPoint.getDate().getTime(), nextPoint
+							.getDate().getTime() - 1000);
 					dataTable.setValue(index, 1, new Date(endDate));
 				} else {
 					dataTable.setValue(index, 1, new Date());

@@ -10,36 +10,50 @@ public class DataPoint extends JavaScriptObject {
 		// empty protected constructor
 	}
 
-	public final native int getId() /*-{
-		return parseInt(this.id);
-	}-*/;
+    /**
+     * @return The timestamp, as Date object
+     */
+	public final Date getDate() {
+        return new Date(Math.round(getTimestamp()));
+	}
 
-	public final native void setDate(double date)/*-{
-		this.date = date;
-	}-*/;
+    /**
+     * @return The ID of this data point
+     */
+    public final native String getId() /*-{
+		return this.id;
+    }-*/;
+
+    /**
+     * @return The timestamp (in milliseconds!)
+     */
+	protected final native double getRawTimestamp() /*-{
+		return this.date;
+    }-*/;
+
+    /**
+     * @return The 'raw' (String) value
+     */
+	public final native String getRawValue() /*-{
+		return '' + this.value;
+    }-*/;
+
+    /**
+     * @return The timestamp (in milliseconds!)
+     */
+	public final long getTimestamp() {
+        return Math.round(getRawTimestamp());
+    }
 
 	public final native void setId(int id)/*-{
 		this.id = id;
-	}-*/;
+    }-*/;
 
-	protected final native double getRawDate() /*-{
-		return this.date;
-	}-*/;
+    public final native void setTimestamp(double date)/*-{
+		this.date = date;
+    }-*/;
 
-	public final native String getRawValue() /*-{
-		return '' + this.value;
-	}-*/;
-
-	public final Date getTimestamp() {
-		return new Date(Math.round(this.getRawDate()));
-	}
-
-	public final double getTime() {
-		return Math.round(this.getRawDate());
-	}
-
-	public final native void setValue(double value) /*-{
+    public final native void setValue(String value) /*-{
 		this.value = value;
-	}-*/;
-
+    }-*/;
 }

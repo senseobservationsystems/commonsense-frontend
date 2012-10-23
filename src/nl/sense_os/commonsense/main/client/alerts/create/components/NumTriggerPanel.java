@@ -126,7 +126,7 @@ public class NumTriggerPanel extends LayoutContainer {
 	private void clearLine(int index) {
 		DataPoint dataPoint = graphData.get(0).getData().get(0);
 		String emptyTimeseries = "{\"label\":\"trigger\",\"data\":[{\"value\":"
-				+ dataPoint.getRawValue() + ",\"date\":" + dataPoint.getTime() + "}]}";
+                + dataPoint.getRawValue() + ",\"date\":" + dataPoint.getTimestamp() + "}]}";
 		graphData.set(index, JsonUtils.<Timeseries> unsafeEval(emptyTimeseries));
 		graphOptions.setLineVisibe(false, index);
 	}
