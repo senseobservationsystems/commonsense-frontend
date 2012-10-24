@@ -88,7 +88,8 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
         this.clientFactory = clientFactory;
     }
 
-    private void getData() {
+    @Override
+    public void getData() {
         DataRequestEvent dataRequest = new DataRequestEvent(start, end, sensors, subsample, true);
         clientFactory.getEventBus().fireEvent(dataRequest);
     }
@@ -110,8 +111,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
 
         // TODO don't refresh when the user has left the visualization section of the app
 
-        if (null != sensors) {
-
+        if (null != data) {
             for (GxtSensor sensor : sensors) {
 
                 // find the latest data point for which we have data and refresh from this point
@@ -119,12 +119,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
                 for (int i = 0; i < data.length(); i++) {
                     Timeseries ts = data.get(i);
                     if (ts.getId() == sensor.getId()) {
-                        LOG.finest("Found time series for sensor " + sensor.getDisplayName());
-                        LOG.fine("time series end: "
-                                + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(
-                                        new Date(ts.getEnd())));
                         refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
-
                     }
                 }
 
@@ -138,7 +133,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
             }
 
         } else {
-            LOG.warning("Cannot refresh data: list of sensors is null");
+            getData();
         }
     }
 
@@ -165,10 +160,10 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
         }
         view.setPresenter(this);
         parent.add(view.asWidget());
-        parent.layout();
 
         clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
 
-        getData();
+        // notify the view
+        view.onShow(parent);
     }
 }

@@ -17,11 +17,13 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Widget;
 
 public class MapVisualization extends Composite implements VisualizationView {
 
@@ -152,6 +154,20 @@ public class MapVisualization extends Composite implements VisualizationView {
         // add buttons to the header
         header.addTool(autoRefresh);
         header.addTool(refresh);
+    }
+
+    @Override
+    public void onShow(Widget parent) {
+        if (parent instanceof LayoutContainer) {
+            ((LayoutContainer) parent).layout();
+        }
+        if (null != presenter) {
+            if (null == dataset) {
+                presenter.getData();
+            } else {
+                presenter.refreshData();
+            }
+        }
     }
 
     @Override
