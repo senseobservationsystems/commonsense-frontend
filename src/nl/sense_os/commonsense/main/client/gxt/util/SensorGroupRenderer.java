@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensors.library;
+package nl.sense_os.commonsense.main.client.gxt.util;
 
 import java.util.logging.Logger;
 

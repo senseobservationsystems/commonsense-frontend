@@ -4,12 +4,12 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorGroupRenderer;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
-import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
-import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoader;

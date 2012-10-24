@@ -1,10 +1,9 @@
-package nl.sense_os.commonsense.main.client.sensors.library;
+package nl.sense_os.commonsense.main.client.gxt.util;
 
 import java.util.Arrays;
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;

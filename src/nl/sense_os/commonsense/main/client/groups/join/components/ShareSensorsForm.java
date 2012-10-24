@@ -5,11 +5,11 @@ import java.util.List;
 
 import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
+import nl.sense_os.commonsense.main.client.gxt.util.SensorGroupRenderer;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
-import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
-import nl.sense_os.commonsense.main.client.sensors.library.SensorGroupRenderer;
 
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;

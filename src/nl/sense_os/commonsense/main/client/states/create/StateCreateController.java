@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
-import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -41,7 +40,6 @@ public class StateCreateController extends Controller {
 
 		// load all sensors to create service from
 		registerEventTypes(StateCreateEvents.LoadSensors);
-		registerEventTypes(LibraryEvents.ListUpdated);
 
 		// create state from sensor
 		registerEventTypes(StateCreateEvents.CreateServiceRequested,
@@ -186,12 +184,6 @@ public class StateCreateController extends Controller {
 			// LOG.fine( "LoadSensors");
 			loadSensors();
 
-		} else if (type.equals(LibraryEvents.ListUpdated)) {
-			if (isLoadingSensors) {
-				// LOG.fine( "Sensor lists updated: LoadSensors");
-				loadSensors();
-			}
-
 		} else
 
 		/*
@@ -218,7 +210,7 @@ public class StateCreateController extends Controller {
 		List<GxtSensor> sensors = Registry
 				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 		if (null == sensors) {
-			Dispatcher.forwardEvent(LibraryEvents.LoadRequest);
+            // TODO request sensors
 			return;
 		}
 

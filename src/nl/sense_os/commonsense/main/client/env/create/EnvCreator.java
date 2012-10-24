@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.main.client.env.components.EnvMap;
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.util.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
-import nl.sense_os.commonsense.main.client.sensors.library.LibraryColumnsFactory;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
