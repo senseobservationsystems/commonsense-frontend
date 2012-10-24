@@ -14,7 +14,6 @@ import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.MainEntryPoint;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
@@ -64,7 +63,7 @@ public class LibraryController extends Controller {
 		registerEventTypes(UnshareEvents.UnshareComplete);
 		registerEventTypes(StateCreateEvents.CreateServiceComplete, StateListEvents.RemoveComplete,
 				StateDefaultsEvents.CheckDefaultsSuccess);
-		registerEventTypes(EnvCreateEvents.CreateSuccess, EnvEvents.DeleteSuccess);
+        registerEventTypes(EnvCreateEvents.CreateSuccess);
 	}
 
 	private List<GxtDevice> devicesFromLibrary(List<GxtSensor> library) {

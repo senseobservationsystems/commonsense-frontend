@@ -12,7 +12,6 @@ import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
-import nl.sense_os.commonsense.main.client.env.list.EnvController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
@@ -190,7 +189,6 @@ public class MainEntryPoint implements EntryPoint {
 		dispatcher.addController(new FeedbackController());
 
 		// environment controllers
-		dispatcher.addController(new EnvController());
 		dispatcher.addController(new EnvCreateController());
 		dispatcher.addController(new EnvViewController());
 

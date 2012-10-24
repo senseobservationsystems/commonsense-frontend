@@ -10,7 +10,6 @@ import nl.sense_os.commonsense.common.client.model.Environment;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
@@ -131,7 +130,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).remove(
 				environment);
 
-		Dispatcher.forwardEvent(EnvEvents.DeleteSuccess);
+        // TODO notify the rest of the app
 	}
 
 	private void onListFailure(int code, Throwable error,

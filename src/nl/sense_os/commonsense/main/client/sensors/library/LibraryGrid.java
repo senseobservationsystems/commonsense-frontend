@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.main.client.env.list.EnvEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
@@ -91,7 +90,6 @@ public class LibraryGrid extends View {
 				|| type.equals(SensorDeleteEvents.DeleteSuccess)
 				|| type.equals(SensorDeleteEvents.DeleteFailure)
 				|| type.equals(EnvCreateEvents.CreateSuccess)
-				|| type.equals(EnvEvents.DeleteSuccess)
 				|| type.equals(UnshareEvents.UnshareComplete)
 				|| type.equals(SensorShareEvents.ShareComplete)) {
 			LOG.finest("Library changed");
