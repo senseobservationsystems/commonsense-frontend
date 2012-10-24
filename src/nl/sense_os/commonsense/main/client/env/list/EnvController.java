@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.common.client.model.Environment;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -37,7 +36,6 @@ public class EnvController extends Controller {
 		// LOG.setLevel(Level.ALL);
 
 		// events to update the list of groups
-		registerEventTypes(VizEvents.Show);
 		registerEventTypes(EnvEvents.ShowGrid);
 
 		registerEventTypes(EnvEvents.ListRequested, EnvEvents.ListUpdated);

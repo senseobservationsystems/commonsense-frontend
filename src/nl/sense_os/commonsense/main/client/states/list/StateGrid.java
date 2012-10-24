@@ -15,7 +15,6 @@ import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.main.client.states.edit.StateEditEvents;
 import nl.sense_os.commonsense.main.client.states.feedback.FeedbackEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -145,10 +144,6 @@ public class StateGrid extends View {
 			// LOG.fine( "ShowGrid");
 			final LayoutContainer parent = event.getData("parent");
 			showPanel(parent);
-
-		} else if (type.equals(VizEvents.Show)) {
-			// LOG.fine( "Show Visualization");
-			refreshLoader(false);
 
 		} else if (type.equals(StateListEvents.Done)) {
 			// LOG.fine( "TreeUpdated");

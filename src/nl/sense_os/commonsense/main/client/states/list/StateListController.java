@@ -18,7 +18,6 @@ import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -42,7 +41,6 @@ public class StateListController extends Controller {
 	private View tree;
 
 	public StateListController() {
-		registerEventTypes(VizEvents.Show);
 		registerEventTypes(StateListEvents.ShowGrid);
 
 		// external triggers to initiate a list update

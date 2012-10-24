@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -88,10 +87,6 @@ public class EnvGrid extends View {
 		} else if (type.equals(EnvEvents.ListUpdated)) {
 			// LOG.fine( "ListUpdated");
 			onListUpdated(event);
-
-		} else if (type.equals(VizEvents.Show)) {
-			// LOG.fine( "Show Visualization");
-			refreshLoader(false);
 
 		} else if (type.equals(EnvEvents.Working)) {
 			// LOG.fine( "Working");

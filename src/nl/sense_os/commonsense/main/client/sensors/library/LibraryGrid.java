@@ -16,7 +16,6 @@ import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.main.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -113,10 +112,6 @@ public class LibraryGrid extends View {
 		} else if (type.equals(LibraryEvents.ListUpdated)) {
 			LOG.finest("ListUpdated");
 			onListUpdate();
-
-		} else if (type.equals(VizEvents.Show)) {
-			LOG.finest("Show Visualization");
-			refreshLoader(true);
 
 		} else {
 			LOG.severe("Unexpected event: " + event);

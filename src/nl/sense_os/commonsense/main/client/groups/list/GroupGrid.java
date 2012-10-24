@@ -13,7 +13,6 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorComparator;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -84,10 +83,6 @@ public class GroupGrid extends View {
 		} else if (type.equals(GroupEvents.ListUpdated)) {
 			// LOG.fine( "TreeUpdated");
 			setBusy(false);
-
-		} else if (type.equals(VizEvents.Show)) {
-			// LOG.fine( "Show Visualization");
-			refreshLoader(false);
 
 		} else if (type.equals(GroupEvents.Working)) {
 			// LOG.fine( "Working");

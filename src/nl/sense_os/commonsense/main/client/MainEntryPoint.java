@@ -35,8 +35,6 @@ import nl.sense_os.commonsense.main.client.states.edit.StateEditController;
 import nl.sense_os.commonsense.main.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.main.client.states.list.StateListController;
 import nl.sense_os.commonsense.main.client.visualization.data.DataHandler;
-import nl.sense_os.commonsense.main.client.viz.panels.VizPanelsController;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizMainController;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
@@ -169,9 +167,6 @@ public class MainEntryPoint implements EntryPoint {
 	private void initDispatcher() {
 
 		Dispatcher dispatcher = Dispatcher.get();
-
-		dispatcher.addController(new VizMainController());
-		dispatcher.addController(new VizPanelsController());
 
 		// sensor library controllers
 		dispatcher.addController(new LibraryController());

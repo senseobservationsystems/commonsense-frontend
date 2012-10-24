@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.viz.panels;
+package nl.sense_os.commonsense.main.client.gxt.component;
 
 import java.util.Date;
 import java.util.List;

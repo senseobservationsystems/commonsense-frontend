@@ -13,11 +13,11 @@ import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
+import nl.sense_os.commonsense.main.client.gxt.component.VizPanel;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
-import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

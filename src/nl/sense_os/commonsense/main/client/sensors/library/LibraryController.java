@@ -26,7 +26,6 @@ import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
 import nl.sense_os.commonsense.main.client.states.list.StateListEvents;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -55,8 +54,6 @@ public class LibraryController extends Controller {
 	public LibraryController() {
 
 		// LOG.setLevel(Level.WARNING);
-
-		registerEventTypes(VizEvents.Show);
 
 		registerEventTypes(LibraryEvents.ShowLibrary, LibraryEvents.LoadRequest,
 				LibraryEvents.ListUpdated);

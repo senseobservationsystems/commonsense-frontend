@@ -16,7 +16,6 @@ import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -44,7 +43,6 @@ public class GroupController extends Controller {
 		// events to update the list of groups
 		registerEventTypes(GroupEvents.LoadRequest, GroupEvents.ListUpdated, GroupEvents.Working);
 
-		registerEventTypes(VizEvents.Show);
 		registerEventTypes(GroupInviteEvents.InviteComplete);
 		registerEventTypes(GroupCreateEvents.CreateComplete);
 		registerEventTypes(GroupLeaveEvents.LeaveComplete);
