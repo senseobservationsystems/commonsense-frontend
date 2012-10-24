@@ -20,7 +20,6 @@ import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
-import nl.sense_os.commonsense.main.client.groups.list.GroupController;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
@@ -174,7 +173,6 @@ public class MainEntryPoint implements EntryPoint {
 		dispatcher.addController(new UnshareController());
 
 		// group controllers
-		dispatcher.addController(new GroupController());
 		dispatcher.addController(new GroupCreateController());
 		dispatcher.addController(new GroupJoinController());
 		dispatcher.addController(new GroupLeaveController());
