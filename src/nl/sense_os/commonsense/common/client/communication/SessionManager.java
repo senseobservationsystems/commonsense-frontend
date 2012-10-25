@@ -22,13 +22,16 @@ public class SessionManager {
 		// check session ID cookie
 		String sessionId = Cookies.getCookie(KEY);
 
-		if ("".equals(sessionId) || null == sessionId) {
+        if (null == sessionId || "".equals(sessionId)) {
 
-			// check session ID parameter in the URL
+            // sometimes the session ID parameter can be found in the URL
 			sessionId = Location.getParameter("session_id");
 
-			if ("".equals(sessionId)) {
-				sessionId = null;
+            // store the session ID in the cookie if we found it in the URL
+            if (null != sessionId && !"".equals(sessionId)) {
+                setSessionId(sessionId);
+            } else {
+                sessionId = null;
 			}
 		}
 
