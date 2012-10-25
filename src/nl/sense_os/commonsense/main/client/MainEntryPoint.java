@@ -23,6 +23,7 @@ import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
+import nl.sense_os.commonsense.main.client.sensors.publish.PublishController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareController;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectController;
@@ -71,6 +72,10 @@ public class MainEntryPoint implements EntryPoint {
 	 * Redirects the user to the main page
 	 */
 	public static void goToLoginPage() {
+
+		// clear any session ID to prevent from bouncing back immediately
+		SessionManager.removeSessionId();
+
 		UrlBuilder builder = new UrlBuilder();
 		builder.setProtocol(Location.getProtocol());
 		builder.setHost(Location.getHost());
@@ -116,6 +121,14 @@ public class MainEntryPoint implements EntryPoint {
 		};
 
 		CommonSenseApi.getCurrentUser(callback);
+	}
+
+	/**
+	 * @return The value of the 'token' URL parameter, or null
+	 */
+	private String getNewPasswordToken() {
+		String token = Location.getParameter("token");
+		return token != null && token.length() > 0 ? token : null;
 	}
 
 	/**
@@ -169,6 +182,7 @@ public class MainEntryPoint implements EntryPoint {
 		dispatcher.addController(new SensorDeleteController());
 		dispatcher.addController(new SensorShareController());
 		dispatcher.addController(new UnshareController());
+        dispatcher.addController(new PublishController());
 
 		// group controllers
 		dispatcher.addController(new GroupCreateController());
@@ -238,6 +252,7 @@ public class MainEntryPoint implements EntryPoint {
 	 */
 	private void onGetCurrentUserFailure(int code, Throwable error) {
 		LOG.severe("Failed to get current user! Code: " + code + " " + error);
+		SessionManager.removeSessionId();
 		MainEntryPoint.goToLoginPage();
 	}
 
@@ -287,7 +302,8 @@ public class MainEntryPoint implements EntryPoint {
 	public void onModuleLoad() {
 
 		String sessionId = SessionManager.getSessionId();
-		if (null == sessionId) {
+		String newPasswordToken = getNewPasswordToken();
+		if (null == sessionId || null != newPasswordToken) {
 			goToLoginPage();
 		} else {
 			init();

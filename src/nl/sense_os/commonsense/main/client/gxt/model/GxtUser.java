@@ -19,6 +19,7 @@ public class GxtUser extends BaseTreeModel {
     public static final String NAME = "name";
     public static final String SURNAME = "surname";
     public static final String USERNAME = "username";
+    public static final String UUID = "uuid";
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(GxtUser.class.getName());
 
@@ -42,6 +43,7 @@ public class GxtUser extends BaseTreeModel {
         setName(jso.getName());
         setSurname(jso.getSurname());
         setUsername(jso.getUsername());
+        setUuid(jso.getUuid());
     }
 
     @Override
@@ -94,6 +96,10 @@ public class GxtUser extends BaseTreeModel {
         return get(USERNAME);
     }
 
+    public String getUuid() {
+        return get(UUID);
+    }
+
     public GxtUser setEmail(String email) {
         set(EMAIL, email);
         return this;
@@ -121,6 +127,11 @@ public class GxtUser extends BaseTreeModel {
 
     public GxtUser setUsername(String username) {
         set(USERNAME, username);
+        return this;
+    }
+
+    public GxtUser setUuid(String uuid) {
+        set(UUID, uuid);
         return this;
     }
 

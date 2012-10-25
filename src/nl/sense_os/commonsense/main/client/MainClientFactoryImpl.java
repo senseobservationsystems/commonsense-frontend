@@ -25,7 +25,7 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	private static final EventBus eventBus = new SimpleEventBus();
 	private static final PlaceController placeController = new PlaceController(eventBus);
-	private static final MainApplicationView appView = new GxtMainApplicationView();
+    private static final MainApplicationView appView = new GxtMainApplicationView();
 	private static final LogoutView logout = new LogoutViewImpl();
 	private static SensorListView sensorListView;
 	private static GroupListView groupListView;

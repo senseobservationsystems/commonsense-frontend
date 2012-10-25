@@ -21,6 +21,7 @@ import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
+import nl.sense_os.commonsense.login.client.newpassword.NewPasswordPlace;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
 
 import com.google.gwt.activity.shared.ActivityManager;
@@ -54,7 +55,13 @@ public class LoginEntryPoint implements EntryPoint {
 				builder.setParameter(entry.getKey(), entry.getValue().toArray(new String[0]));
 			}
 		}
-		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
+		String newLocation = builder.buildString();
+
+		// do not mangle the GWT development server parameter
+		newLocation = newLocation.replace("127.0.0.1%3A", "127.0.0.1:");
+
+		// relocate
+		Location.replace(newLocation);
 	}
 
 	/**
@@ -63,6 +70,14 @@ public class LoginEntryPoint implements EntryPoint {
 	private String getErrorParameter() {
 		String error = Location.getParameter("error");
 		return error != null && error.length() > 0 ? error : null;
+	}
+
+	/**
+	 * @return The value of the 'token' URL parameter, or null
+	 */
+	private String getTokenParameter() {
+		String token = Location.getParameter("token");
+		return token != null && token.length() > 0 ? token : null;
 	}
 
 	public void onModuleLoad() {
@@ -101,6 +116,7 @@ public class LoginEntryPoint implements EntryPoint {
 		RootLayoutPanel.get().add(main);
 
 		String errorMessage = getErrorParameter();
+		String newPasswordToken = getTokenParameter();
 		if (null != errorMessage) {
 
 			if (errorMessage.contains("e-mail address:")
@@ -120,6 +136,15 @@ public class LoginEntryPoint implements EntryPoint {
 				// handle error (probably from failed OpenID attempt)
 				placeController.goTo(new LoginErrorPlace(errorMessage));
 			}
+
+		} else if (null != newPasswordToken) {
+
+			// clear any session ID
+			SessionManager.removeSessionId();
+
+			// handle error (probably from failed OpenID attempt)
+			placeController.goTo(new NewPasswordPlace(newPasswordToken));
+
 		} else {
 			// Goes to place represented on URL or default place
 			historyHandler.handleCurrentHistory();
