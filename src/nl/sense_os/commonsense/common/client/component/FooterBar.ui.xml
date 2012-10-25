@@ -27,8 +27,7 @@
 			©2011 Sense  •  
 			<a
 				href="http://www.sense-os.nl"
-				target="_blank"> Sense Home 
-			</a>
+				target="_blank">Sense Home</a>
 			  •  Last update: 
 			<ui:text from="{resources.lastUpdated.getText}" />
 		</g:HTML>
