@@ -147,39 +147,51 @@ public class GxtMainApplicationView extends Composite implements MainApplication
 
 	@Override
 	public void onNewVisualization(NewVisualizationEvent event) {
+        addVisualizationLink(event.getSensors(), event.getType(), event.getStart(), event.getEnd(),
+                event.isSubsample());
+    }
 
-		// remove "empty" text
-		if (visualizeItems.isEmpty()) {
-			visualizationList.remove(noVisualization);
-		}
+    private void addVisualizationLink(List<GxtSensor> sensors, int type, long start, long end,
+            boolean subsample) {
 
-		// get visualization details
-		List<GxtSensor> sensors = event.getSensors();
-		int type = event.getType();
-		long start = event.getStart();
-		long end = event.getEnd();
-		boolean subsample = event.isSubsample();
+        // remove "empty" text
+        if (visualizeItems.isEmpty()) {
+            visualizationList.remove(noVisualization);
+        }
 
-		// Create label
-		String label = "";
-		for (GxtSensor sensor : sensors) {
-			label += sensor.getDisplayName() + ", ";
-		}
-		label = label.substring(0, label.length() - 2);
+        // Create label
+        String label = "";
+        for (GxtSensor sensor : sensors) {
+            label += sensor.getDisplayName() + ", ";
+        }
+        label = label.substring(0, label.length() - 2);
 
-		// create hyperlink
-		VisualizePlace place = new VisualizePlace(sensors, type, start, end, subsample);
-		String token = new VisualizePlace.Tokenizer().getToken(place);
-		Hyperlink hyperlink = new Hyperlink(label, false, "visualize:" + token);
-		hyperlink.setStyleName("menuItem");
+        // create hyperlink
+        VisualizePlace place = new VisualizePlace(sensors, type, start, end, subsample);
+        String token = new VisualizePlace.Tokenizer().getToken(place);
+        Hyperlink hyperlink = new Hyperlink(label, false, "visualize:" + token);
+        hyperlink.setStyleName("menuItem");
 
-		// put link in menu
-		visualizationList.add(hyperlink);
-		visualizeItems.put(token, hyperlink);
-	}
+        // put link in menu
+        visualizationList.add(hyperlink);
+        visualizeItems.put(token, hyperlink);
+    }
 
-	@Override
+    @Override
 	public void onPlaceChange(PlaceChangeEvent event) {
+
+        // special case for visualize places
+        if (event.getNewPlace() instanceof VisualizePlace) {
+            VisualizePlace place = (VisualizePlace) event.getNewPlace();
+            String token = new VisualizePlace.Tokenizer().getToken(place);
+
+            // add link if it does not exist yet
+            if (null == visualizeItems.get(token)) {
+                addVisualizationLink(place.getSensors(), place.getType(), place.getStart(),
+                        place.getEnd(), place.isSubsample());
+            }
+        }
+
 		setHighlight(event.getNewPlace());
 	}
 

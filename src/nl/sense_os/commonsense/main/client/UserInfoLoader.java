@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.main.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
@@ -34,7 +33,6 @@ public class UserInfoLoader implements PreLoader {
     private static final int PER_PAGE = 1000;
 
     public UserInfoLoader(MainClientFactory clientFactory) {
-        LOG.setLevel(Level.ALL);
         this.clientFactory = clientFactory;
     }
 
