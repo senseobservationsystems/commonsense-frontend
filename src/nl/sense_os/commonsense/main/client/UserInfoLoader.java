@@ -135,6 +135,9 @@ public class UserInfoLoader implements PreLoader {
 
         } else {
 
+            // save the library
+            Registry.register(Constants.REG_SENSOR_LIST, library);
+
             // notify the view that the list is complete
             isSensorListLoaded = true;
             onLoadComplete();

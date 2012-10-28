@@ -158,9 +158,9 @@ public class TableVisualization extends Composite implements VisualizationView {
     }
 
     private String createTitle(List<GxtSensor> sensors) {
-        String title = null;
+        String title = "";
         for (GxtSensor sensor : sensors) {
-            title = sensor.getDisplayName() + ", ";
+            title += sensor.getDisplayName() + ", ";
         }
 
         // remove trailing ", "

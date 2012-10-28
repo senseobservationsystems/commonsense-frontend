@@ -226,9 +226,9 @@ public class TimelineVisualization extends Composite implements VisualizationVie
     }
 
     private String getChartTitle(List<GxtSensor> sensors) {
-        String title = null;
+        String title = "";
         for (GxtSensor sensor : sensors) {
-            title = sensor.getDisplayName() + ", ";
+            title += sensor.getDisplayName() + ", ";
         }
 
         // remove trailing ", "
