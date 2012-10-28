@@ -27,7 +27,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -188,12 +187,12 @@ public class GroupJoinController extends Controller {
 				.<ExtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
 
 		JSONObject userJson = new JSONObject();
-		userJson.put("id", new JSONNumber(user.getId()));
+        userJson.put("id", new JSONString(user.getId()));
 		userJson.put("username", new JSONString(user.getUsername()));
 		JSONArray sensorsJson = new JSONArray();
 		for (int i = 0; i < sensors.size(); i++) {
 			ExtSensor sensor = sensors.get(i);
-			sensorsJson.set(i, new JSONNumber(sensor.getId()));
+            sensorsJson.set(i, new JSONString(sensor.getId()));
 		}
 		JSONObject bodyJson = new JSONObject();
 		bodyJson.put("user", userJson);

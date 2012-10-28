@@ -17,11 +17,11 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
-	public final native int getId() /*-{
-		return parseInt(this.id);
-	}-*/;
+    public final native String getId() /*-{
+		return this.id;
+    }-*/;
 
 	public final native String getMobile() /*-{
 		if (undefined != this.mobile) {
@@ -29,7 +29,7 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
 	public final native String getName() /*-{
 		if (undefined != this.name) {
@@ -37,7 +37,7 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
 	public final native String getSurname() /*-{
 		if (undefined != this.surname) {
@@ -45,7 +45,7 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
 	public final native String getUsername() /*-{
 		if (undefined != this.username) {
@@ -53,7 +53,7 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
 	public final native String getUuid() /*-{
 		if (undefined != this.UUID) {
@@ -61,5 +61,5 @@ public class User extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 }

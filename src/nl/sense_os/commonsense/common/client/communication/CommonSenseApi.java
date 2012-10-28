@@ -138,7 +138,7 @@ public class CommonSenseApi {
 	 * @param next
 	 * @param last
 	 */
-	public static void getSensorData(RequestCallback callback, int sensorId, String startDate,
+    public static void getSensorData(RequestCallback callback, String sensorId, String startDate,
 			String endDate, String date, String perPage, String page, String interval, String next,
 			String last, String sort) {
 
@@ -152,7 +152,7 @@ public class CommonSenseApi {
 		// prepare request properties
 		Method method = RequestBuilder.GET;
 		UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-				.setPath(Urls.PATH_DATA.replace("%1", Integer.toString(sensorId)));
+                .setPath(Urls.PATH_DATA.replace("%1", sensorId));
 		if (null != startDate) {
 			urlBuilder.setParameter("start_date", startDate);
 		}

@@ -238,8 +238,8 @@ public class StateConnectController extends Controller {
 
 		// find the right service among all the running services
 		for (Service service : services) {
-			int id = service.getId();
-			if (id == stateSensor.getId()) {
+            String id = service.getId();
+            if (id.equals(stateSensor.getId())) {
 				String name = service.getName();
 
 				// forward event to Connecter

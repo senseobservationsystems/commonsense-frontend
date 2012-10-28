@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.common.client.model.Group;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -91,8 +90,8 @@ public class ExtGroup extends ExtUser {
         return get(EMAIL);
     }
 
-    public int getId() {
-        return get(ID, -1);
+    public String getId() {
+        return get(ID);
     }
 
     public String getName() {
@@ -224,7 +223,7 @@ public class ExtGroup extends ExtUser {
         set(HIDDEN, hidden);
     }
 
-    public ExtGroup setId(int id) {
+    public ExtGroup setId(String id) {
         set(ID, id);
         return this;
     };
@@ -276,8 +275,8 @@ public class ExtGroup extends ExtUser {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        if (-1 != getId()) {
-            json.put(ID, new JSONNumber(getId()));
+        if (null != getId()) {
+            json.put(ID, new JSONString(getId()));
         }
         if (null != getName()) {
             json.put(NAME, new JSONString(getName()));

@@ -12,12 +12,8 @@ public class Service extends JavaScriptObject {
         // empty protected constructor
     }
 
-    public final native int getId() /*-{
-		if (undefined != this.id) {
-			return parseInt(this.id);
-		} else {
-			return -1;
-		}
+    public final native String getId() /*-{
+		return this.id;
     }-*/;
 
     public final native String getName() /*-{

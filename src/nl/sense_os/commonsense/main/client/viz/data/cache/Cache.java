@@ -8,7 +8,7 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.client.JsonUtils;
 
 public class Cache {
@@ -50,7 +50,7 @@ public class Cache {
             // convert list of sensors into JSONArray of IDs
             String ids = "[";
             for (ExtSensor sensor : sensors) {
-                ids += sensor.getId() + ", ";
+                ids += "'" + sensor.getId() + "', ";
             }
             if (sensors.size() > 0) {
                 ids = ids.substring(0, ids.length() - 2);
@@ -58,7 +58,7 @@ public class Cache {
             ids += "]";
 
             // get data from cache
-            JsArray<Timeseries> result = cache.request(JsonUtils.<JsArrayInteger> unsafeEval(ids),
+            JsArray<Timeseries> result = cache.request(JsonUtils.<JsArrayString> unsafeEval(ids),
                     start, end);
             LOG.fine("Retrieved " + result.length() + " timeseries from the cache.");
             for (int i = 0; i < result.length(); i++) {

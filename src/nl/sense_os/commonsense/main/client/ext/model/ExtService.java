@@ -26,10 +26,6 @@ public class ExtService extends BaseTreeModel {
         super(properties);
     }
 
-    public ExtService(TreeModel parent) {
-        super(parent);
-    }
-
     public ExtService(Service jso) {
         this();
         setId(jso.getId());
@@ -37,19 +33,8 @@ public class ExtService extends BaseTreeModel {
         setDataFields(jso.getDataFields());
     }
 
-    public ExtService setDataFields(List<String> dataFields) {
-        set(DATA_FIELDS, dataFields);
-        return this;
-    }
-
-    public ExtService setName(String name) {
-        set(NAME, name);
-        return this;
-    }
-
-    public ExtService setId(int id) {
-        set(ID, id);
-        return this;
+    public ExtService(TreeModel parent) {
+        super(parent);
     }
 
     public List<String> getDataFields() {
@@ -57,18 +42,26 @@ public class ExtService extends BaseTreeModel {
     }
 
     public int getId() {
-        Object property = get(ID);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            return -1;
-        }
+        return get(ID);
     }
 
     public String getName() {
         return get(NAME);
+    }
+
+    public ExtService setDataFields(List<String> dataFields) {
+        set(DATA_FIELDS, dataFields);
+        return this;
+    }
+
+    public ExtService setId(String id) {
+        set(ID, id);
+        return this;
+    }
+
+    public ExtService setName(String name) {
+        set(NAME, name);
+        return this;
     }
 
     @Override

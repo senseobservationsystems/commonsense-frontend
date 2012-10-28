@@ -11,8 +11,8 @@ public class Device extends JavaScriptObject {
         // empty protected constructor
     }
 
-    public final native int getId() /*-{
-		return parseInt(this.id);
+    public final native String getId() /*-{
+		return this.id;
     }-*/;
 
     public final native String getType() /*-{

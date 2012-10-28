@@ -195,10 +195,10 @@ public class LibraryController extends Controller {
 				}
 			};
 
-			int groupId = groups.get(index).getId();
+            String groupId = groups.get(index).getId();
 
 			CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE),
-					Integer.toString(page), null, null, null, "full", Integer.toString(groupId));
+                    Integer.toString(page), null, null, null, "full", groupId);
 
 		} else {
 
@@ -296,14 +296,14 @@ public class LibraryController extends Controller {
 			BatchAvailServicesResponse jso = JsonUtils.unsafeEval(response);
 			JsArray<AvailServicesResponseEntry> entries = jso.getEntries();
 			for (int i = 0; i < entries.length(); i++) {
-				int id = entries.get(i).getSensorId();
+                String id = entries.get(i).getSensorId();
 				List<Service> availServices = entries.get(i).getServices();
 				List<ExtService> extServices = new ArrayList<ExtService>();
 				for (Service service : availServices) {
 					extServices.add(new ExtService(service));
 				}
 				for (ExtSensor sensor : library) {
-					if (sensor.getId() == id) {
+                    if (sensor.getId().equals(id)) {
 						sensor.setAvailServices(extServices);
 					}
 				}
@@ -343,8 +343,6 @@ public class LibraryController extends Controller {
 		for (int i = 0; i < groupSensors.length(); i++) {
 			ExtSensor groupSensor = new ExtSensor(groupSensors.get(i));
 			if (!library.contains(groupSensor)) {
-				// set SensorModel.ALIAS property
-				groupSensor.setAlias(group.getId());
 				library.add(groupSensor);
 			}
 		}

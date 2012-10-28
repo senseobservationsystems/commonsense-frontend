@@ -161,7 +161,7 @@ public class SensorDataGrid extends VizPanel {
 
     private String createUrl(List<ExtSensor> sensors, long startTime, long endTime) {
 
-        int id = sensors.get(0).getId();
+        String id = sensors.get(0).getId();
 
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
         urlBuilder.setPath(Urls.PATH_SENSORS + "/" + id + "/data.json");

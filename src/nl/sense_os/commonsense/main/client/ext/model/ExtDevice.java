@@ -1,10 +1,8 @@
 package nl.sense_os.commonsense.main.client.ext.model;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.Device;
-
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -18,7 +16,6 @@ public class ExtDevice extends BaseTreeModel {
     public static final String ID = "id";
     public static final String TYPE = "type";
     public static final String UUID = "uuid";
-    private static final Logger LOGGER = Logger.getLogger(ExtDevice.class.getName());
 
     public ExtDevice() {
         super();
@@ -42,22 +39,14 @@ public class ExtDevice extends BaseTreeModel {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ExtDevice) {
-            return getId() == ((ExtDevice) obj).getId();
+            return getId().equals(((ExtDevice) obj).getId());
         } else {
             return super.equals(obj);
         }
     }
 
-    public int getId() {
-        Object property = get(ID);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            LOGGER.severe("Missing property: " + ID);
-            return -1;
-        }
+    public String getId() {
+        return get(ID);
     }
 
     public String getType() {
@@ -68,7 +57,7 @@ public class ExtDevice extends BaseTreeModel {
         return get(UUID);
     }
 
-    public ExtDevice setId(int id) {
+    public ExtDevice setId(String id) {
         set(ID, id);
         return this;
     }

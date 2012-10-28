@@ -1,7 +1,6 @@
 package nl.sense_os.commonsense.main.client.ext.model;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.model.User;
 
@@ -21,7 +20,6 @@ public class ExtUser extends BaseTreeModel {
 	public static final String USERNAME = "username";
 	public static final String UUID = "uuid";
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(ExtUser.class.getName());
 
 	public ExtUser() {
 		super();
@@ -51,12 +49,12 @@ public class ExtUser extends BaseTreeModel {
 		if (obj instanceof ExtUser) {
 			ExtUser user = ((ExtUser) obj);
 			if (null == user.getParent()) {
-				return getId() == ((ExtUser) obj).getId();
+                return getId().equals(((ExtUser) obj).getId());
 			} else {
 				if (user.getParent() != this.getParent()) {
 					return false;
 				} else {
-					return getId() == ((ExtUser) obj).getId();
+                    return getId().equals(((ExtUser) obj).getId());
 				}
 			}
 		} else {
@@ -68,16 +66,8 @@ public class ExtUser extends BaseTreeModel {
 		return get(EMAIL);
 	}
 
-	public int getId() {
-		Object property = get(ID);
-		if (property instanceof Integer) {
-			return ((Integer) property).intValue();
-		} else if (property instanceof String) {
-			return Integer.parseInt((String) property);
-		} else {
-			LOGGER.severe("Missing property: " + ID);
-			return -1;
-		}
+    public String getId() {
+        return get(ID);
 	}
 
 	public String getMobile() {
@@ -105,7 +95,7 @@ public class ExtUser extends BaseTreeModel {
 		return this;
 	}
 
-	public ExtUser setId(int id) {
+    public ExtUser setId(String id) {
 		set(ID, id);
 		return this;
 	}

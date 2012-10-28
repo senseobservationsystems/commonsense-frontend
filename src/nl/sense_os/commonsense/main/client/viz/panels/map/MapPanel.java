@@ -96,7 +96,7 @@ public class MapPanel extends VizPanel {
     private long sliderMax;
     private long sliderValue;
     // store all the id's that we get
-    private ArrayList<Integer> Id_names = new ArrayList<Integer>();
+    private ArrayList<String> Id_names = new ArrayList<String>();
 
     // create an arrayList with timeseries for all the IDs
     private ArrayList<ArrayList<Timeseries>> bigList;
@@ -738,9 +738,16 @@ public class MapPanel extends VizPanel {
         // that ID, and include that arraylist into the Big Arraylist
 
         for (int i = 0; i < data.length(); i++) {
-            int newId = data.get(i).getId();
-            if (!Id_names.contains(newId)) { // && newId!= null) {
-                // LOG.fine ("New Id found " + newId);
+            String newId = data.get(i).getId();
+            boolean isNew = true;
+            for (String id : Id_names) {
+                if (id.equals(newId)) {
+                    isNew = false;
+                    break;
+                }
+            }
+            if (isNew) {
+                LOG.severe("New Id found " + newId);
                 Id_names.add(newId);
                 ArrayList<Timeseries> currentList = new ArrayList<Timeseries>();
                 currentList.add(data.get(i));
@@ -754,7 +761,7 @@ public class MapPanel extends VizPanel {
                 for (int j = 0; j < bigList.size(); j++) {
                     ArrayList<Timeseries> currentArray = new ArrayList<Timeseries>();
                     currentArray = bigList.get(j);
-                    if (currentArray.get(0).getId() == newId) {
+                    if (currentArray.get(0).getId().equals(newId)) {
                         currentArray.add(data.get(i));
                     }
                 }

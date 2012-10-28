@@ -50,7 +50,7 @@ public class ExtEnvironment extends BaseTreeModel {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ExtEnvironment) {
-            return getId() == ((ExtEnvironment) obj).getId();
+            return getId().equals(((ExtEnvironment) obj).getId());
         } else {
             return super.equals(obj);
         }
@@ -72,16 +72,8 @@ public class ExtEnvironment extends BaseTreeModel {
         }
     }
 
-    public int getId() {
-        Object property = get(ID);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            LOGGER.severe("Missing property: " + ID);
-            return -1;
-        }
+    public String getId() {
+        return get(ID);
     }
 
     public String getName() {
@@ -106,7 +98,7 @@ public class ExtEnvironment extends BaseTreeModel {
         return this;
     }
 
-    public ExtEnvironment setId(int id) {
+    public ExtEnvironment setId(String id) {
         set(ID, id);
         return this;
     }

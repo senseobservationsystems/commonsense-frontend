@@ -114,7 +114,7 @@ public class ExtSensor extends BaseTreeModel {
 		if (obj instanceof ExtSensor) {
 			final ExtSensor sensor = (ExtSensor) obj;
 
-			boolean idEqual = getId() == sensor.getId();
+            boolean idEqual = getId().equals(sensor.getId());
 			boolean ownerEqual = (getOwner() == null && sensor.getOwner() == null)
 					|| (null != getOwner() && getOwner().equals(sensor.getOwner()));
 			boolean environmentEqual = (getEnvironment() == null && sensor.getEnvironment() == null)
@@ -200,16 +200,8 @@ public class ExtSensor extends BaseTreeModel {
 	/**
 	 * @return The sensor's ID.
 	 */
-	public int getId() {
-		Object property = get(ID);
-		if (property instanceof Integer) {
-			return ((Integer) property).intValue();
-		} else if (property instanceof String) {
-			return Integer.parseInt((String) property);
-		} else {
-			LOGGER.severe("Missing property: " + ID);
-			return -1;
-		}
+    public String getId() {
+        return get(ID);
 	}
 
 	/**
@@ -327,7 +319,7 @@ public class ExtSensor extends BaseTreeModel {
 		return this;
 	}
 
-	public ExtSensor setId(int id) {
+    public ExtSensor setId(String id) {
 		set(ID, id);
 		return this;
 	}
