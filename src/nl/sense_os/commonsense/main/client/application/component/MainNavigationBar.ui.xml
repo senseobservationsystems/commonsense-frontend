@@ -45,7 +45,7 @@
 			top: 0px;
 			bottom: 0px;
 			left: 196px;
-			width: 82px;
+			width: 85px;
 			padding: 1px 5px 0px 5px;
 		}
 		
@@ -53,7 +53,7 @@
 			position: absolute;
 			top: 0px;
 			bottom: 0px;
-			left: 291px;
+			left: 294px;
 			width: 72px;
 			padding: 1px 5px 0px 5px;
 		}
@@ -62,7 +62,7 @@
 			position: absolute;
 			top: 0px;
 			bottom: 0px;
-			left: 376px;
+			left: 379px;
 			width: 37px;
 			padding: 1px 5px 0px 5px;
 		}
@@ -72,7 +72,7 @@
 			display: inline-block;
 			top: 0px;
 			right: 70px;
-			left: 426px;
+			left: 429px;
 			padding: 1px 5px 0px 5px;
 			font-weight: bold;
 			text-align: right;
