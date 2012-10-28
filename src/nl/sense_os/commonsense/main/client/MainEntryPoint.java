@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
-import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
@@ -20,7 +17,6 @@ import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
-import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.publish.PublishController;
@@ -35,7 +31,6 @@ import nl.sense_os.commonsense.main.client.states.list.StateListController;
 import nl.sense_os.commonsense.main.client.visualization.data.DataHandler;
 
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -43,12 +38,7 @@ import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.maps.client.Maps;
 import com.google.gwt.place.shared.PlaceChangeEvent;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
@@ -56,7 +46,6 @@ import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
@@ -92,36 +81,10 @@ public class MainEntryPoint implements EntryPoint {
 		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
 	}
 
-	private boolean isVizApiLoaded;
 
 	private MainClientFactory clientFactory;
 
 	private PlaceHistoryHandler historyHandler;
-	private boolean isCurrentUserLoaded;
-	private boolean isMapsApiLoaded;
-
-	/**
-	 * Requests the current user's details from CommonSense
-	 */
-	private void getCurrentUser() {
-		LOG.finest("Get current user");
-
-		// prepare request callback
-		RequestCallback callback = new RequestCallback() {
-
-			@Override
-			public void onError(Request request, Throwable exception) {
-				onGetCurrentUserFailure(-1, exception);
-			}
-
-			@Override
-			public void onResponseReceived(Request request, Response response) {
-				onGetCurrentUserResponse(response);
-			}
-		};
-
-		CommonSenseApi.getCurrentUser(callback);
-	}
 
 	/**
 	 * @return The value of the 'token' URL parameter, or null
@@ -205,99 +168,6 @@ public class MainEntryPoint implements EntryPoint {
 		dispatcher.addController(new AlertCreateController());
 	}
 
-	/**
-	 * Loads the Google Maps API when the controller is initialized. If loading fails, a popup
-	 * window is shown.
-	 */
-	private void loadMapsApi() {
-
-		// Asynchronously load the Maps API.
-		if (Maps.isLoaded()) {
-			LOG.fine("Google Maps API already loaded");
-			return;
-		}
-
-		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
-
-			@Override
-			public void run() {
-				// LOGGER.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");
-				isMapsApiLoaded = true;
-				onLoadComplete();
-			}
-		});
-	}
-
-	private void loadVizApi() {
-
-		// Load the visualization API
-		this.isVizApiLoaded = false;
-		final Runnable vizCallback = new Runnable() {
-
-			@Override
-			public void run() {
-				LOG.fine("Google Visualization API loaded...");
-				isVizApiLoaded = true;
-				onLoadComplete();
-			}
-		};
-		VisualizationUtils.loadVisualizationApi(vizCallback, new String[] {});
-	}
-
-	/**
-	 * Handles failed request to get the current user details by redirecting to the login page.
-	 * 
-	 * @param code
-	 * @param error
-	 */
-	private void onGetCurrentUserFailure(int code, Throwable error) {
-		LOG.severe("Failed to get current user! Code: " + code + " " + error);
-		SessionManager.removeSessionId();
-		MainEntryPoint.goToLoginPage();
-	}
-
-	/**
-	 * Parses the response from CommonSense
-	 * 
-	 * @param response
-	 */
-	private void onGetCurrentUserResponse(Response response) {
-		int statusCode = response.getStatusCode();
-		if (Response.SC_OK == statusCode) {
-			CurrentUserResponse jso = JsonUtils.safeEval(response.getText());
-			onGetCurrentUserSuccess(jso.getUser());
-		} else {
-			onGetCurrentUserFailure(statusCode, new Throwable(response.getStatusText()));
-		}
-	}
-
-	/**
-	 * Handles the new user details
-	 * 
-	 * @param user
-	 */
-	private void onGetCurrentUserSuccess(User user) {
-
-		// store in registry
-		GxtUser gxtUser = new GxtUser(user);
-		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, gxtUser);
-
-		// fire event
-		clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
-
-		isCurrentUserLoaded = true;
-		onLoadComplete();
-	}
-
-	private synchronized void onLoadComplete() {
-		if (isVizApiLoaded && isMapsApiLoaded && isCurrentUserLoaded) {
-			startApplication();
-			isVizApiLoaded = false;
-			isMapsApiLoaded = false;
-			isCurrentUserLoaded = false;
-		}
-	}
-
 	@Override
 	public void onModuleLoad() {
 
@@ -305,12 +175,31 @@ public class MainEntryPoint implements EntryPoint {
 		String newPasswordToken = getNewPasswordToken();
 		if (null == sessionId || null != newPasswordToken) {
 			goToLoginPage();
-		} else {
-			init();
-			getCurrentUser();
-			loadMapsApi();
-			loadVizApi();
-		}
+        } else {
+            // initialize application
+            init();
+
+            // get user info
+            UserInfoLoader userInfoLoader = new UserInfoLoader(clientFactory);
+            userInfoLoader.load(new UserInfoLoader.Callback() {
+
+                @Override
+                public void onSuccess() {
+                    startApplication();
+                }
+
+                @Override
+                public void onFailure(int code, Throwable error) {
+                    LOG.severe("Failed to get user info! Code: " + code + " " + error);
+                    SessionManager.removeSessionId();
+                    MainEntryPoint.goToLoginPage();
+                }
+            });
+
+            // get API libraries
+            ApiLoader apiLoader = new ApiLoader();
+            apiLoader.load(null);
+        }
 	}
 
 	private void startApplication() {
