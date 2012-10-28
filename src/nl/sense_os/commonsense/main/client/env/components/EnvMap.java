@@ -61,7 +61,7 @@ public class EnvMap extends VizPanel {
 	private MapClickHandler mapClickHandler;
 	private PolygonClickHandler polygonClickHandler;
 	private ListStore<GxtDevice> store;
-	private HashMap<Integer, List<Timeseries>> sensorValues;
+    private HashMap<String, List<Timeseries>> sensorValues;
 
 	public EnvMap() {
 		this(null);
@@ -92,17 +92,17 @@ public class EnvMap extends VizPanel {
 		LOG.finest("Got latest values...");
 
 		// order the data by sensor ID
-		this.sensorValues = new HashMap<Integer, List<Timeseries>>();
+        sensorValues = new HashMap<String, List<Timeseries>>();
 		for (int i = 0; i < data.length(); i++) {
 			Timeseries ts = data.get(i);
-			int id = ts.getId();
+            String id = ts.getId();
 
 			List<Timeseries> timeseries = this.sensorValues.get(id);
 			if (null == timeseries) {
 				timeseries = new ArrayList<Timeseries>();
 			}
 			timeseries.add(ts);
-			this.sensorValues.put(id, timeseries);
+            sensorValues.put(id, timeseries);
 		}
 
 		drawMarkers();

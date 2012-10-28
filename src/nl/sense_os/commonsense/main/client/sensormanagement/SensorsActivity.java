@@ -206,10 +206,10 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 				}
 			};
 
-			int groupId = groups.get(index).getId();
+            String groupId = groups.get(index).getId();
 
 			CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE),
-					Integer.toString(page), null, null, null, "full", Integer.toString(groupId));
+                    Integer.toString(page), null, null, null, "full", groupId);
 
 		} else {
 
@@ -281,14 +281,14 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 			BatchAvailServicesResponse jso = JsonUtils.unsafeEval(response);
 			JsArray<AvailServicesResponseEntry> entries = jso.getEntries();
 			for (int i = 0; i < entries.length(); i++) {
-				int id = entries.get(i).getSensorId();
+                String id = entries.get(i).getSensorId();
 				List<Service> availServices = entries.get(i).getServices();
 				List<GxtService> gxtServices = new ArrayList<GxtService>();
 				for (Service service : availServices) {
 					gxtServices.add(new GxtService(service));
 				}
 				for (GxtSensor sensor : library) {
-					if (sensor.getId() == id) {
+                    if (sensor.getId().equals(id)) {
 						sensor.setAvailServices(gxtServices);
 					}
 				}
@@ -328,8 +328,6 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 		for (int i = 0; i < groupSensors.length(); i++) {
 			GxtSensor groupSensor = new GxtSensor(groupSensors.get(i));
 			if (!library.contains(groupSensor)) {
-				// set SensorModel.ALIAS property
-				groupSensor.setAlias(group.getId());
 				library.add(groupSensor);
 			}
 		}

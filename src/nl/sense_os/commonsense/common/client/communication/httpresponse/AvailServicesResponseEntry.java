@@ -14,9 +14,9 @@ public class AvailServicesResponseEntry extends JavaScriptObject {
 		// empty protected constructor
 	}
 
-	public native final int getSensorId() /*-{
-		return parseInt(this.sensor_id);
-	}-*/;
+    public native final String getSensorId() /*-{
+		return this.sensor_id;
+    }-*/;
 
 	public final native JsArray<Service> getRawServices() /*-{
 		if (undefined != this.services) {
@@ -24,7 +24,7 @@ public class AvailServicesResponseEntry extends JavaScriptObject {
 		} else {
 			return [];
 		}
-	}-*/;
+    }-*/;
 
 	public final List<Service> getServices() {
 		List<Service> list = new ArrayList<Service>();

@@ -55,9 +55,9 @@ public class GxtEnvironment extends BaseTreeModel {
 		setId(environment.getId());
 		setName(environment.getName());
 		setFloors(environment.getFloors());
-		setOutline(outlineToPolygon(environment.getOutline()));
+        setOutline(outlineToPolygon(environment.getRawOutline()));
 		setPosition(positionToLatLng(environment.getPosition()));
-		setDate(environment.getDate());
+        setDate(environment.getDate());
 	}
 
 	public GxtEnvironment(Map<String, Object> properties) {
@@ -127,7 +127,7 @@ public class GxtEnvironment extends BaseTreeModel {
 		return this;
 	}
 
-	public GxtEnvironment setId(int id) {
+    public GxtEnvironment setId(String id) {
 		set(ID, id);
 		return this;
 	}

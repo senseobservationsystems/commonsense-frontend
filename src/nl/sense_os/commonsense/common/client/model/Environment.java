@@ -9,38 +9,38 @@ import com.google.gwt.core.client.JavaScriptObject;
  */
 public class Environment extends JavaScriptObject {
 
-	protected Environment() {
-		// empty protected constructor
-	}
+    protected Environment() {
+        // empty protected constructor
+    }
 
-	public final Date getDate() {
-		long date = Math.round(getRawDate() * 1000);
-		return new Date(date);
-	}
+    public final Date getDate() {
+        long date = Math.round(getRawDate() * 1000);
+        return new Date(date);
+    }
 
-	public final native int getFloors() /*-{
+    public final native String getId() /*-{
+		return this.id;
+    }-*/;
+
+    public final native String getName() /*-{
+		return this.name;
+    }-*/;
+
+    public final native int getFloors() /*-{
 		if (undefined == this.floors) {
 			return -1;
 		} else {
 			return parseInt(this.floors);
 		}
-	}-*/;
+    }-*/;
 
-	public final native int getId() /*-{
-		return parseInt(this.id);
-	}-*/;
-
-	public final native String getName() /*-{
-		return this.name;
-	}-*/;
-
-	public final native String getOutline() /*-{
+    public final native String getRawOutline() /*-{
 		if (undefined != this.gps_outline) {
 			return this.gps_outline;
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
 	public final native String getPosition() /*-{
 		if (undefined != this.position) {
@@ -48,13 +48,13 @@ public class Environment extends JavaScriptObject {
 		} else {
 			return '';
 		}
-	}-*/;
+    }-*/;
 
-	private final native double getRawDate() /*-{
+    private final native double getRawDate() /*-{
 		if (undefined != this.date) {
 			return this.date;
 		} else {
 			return -1;
 		}
-	}-*/;
+    }-*/;
 }

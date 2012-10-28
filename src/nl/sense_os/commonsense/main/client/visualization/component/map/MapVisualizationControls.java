@@ -87,7 +87,7 @@ public class MapVisualizationControls extends Composite {
      * 
      * @param dataset
      */
-    private void calcSliderRange(Map<Integer, LocationData> dataset) {
+    private void calcSliderRange(Map<String, LocationData> dataset) {
 
         // find maximum and minimum timestamps
         long minTimestamp = Long.MAX_VALUE;
@@ -342,7 +342,7 @@ public class MapVisualizationControls extends Composite {
         }
     }
 
-    public void setLocatonDataSet(Map<Integer, LocationData> dataset) {
+    public void setLocatonDataSet(Map<String, LocationData> dataset) {
         calcSliderRange(dataset);
         LOG.fine("Display start slider value: " + displayStartSlider.getValue()
                 + ", end slider value: " + displayEndSlider.getValue() + ", sliders min: "

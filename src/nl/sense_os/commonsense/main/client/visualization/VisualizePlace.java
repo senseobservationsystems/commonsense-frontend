@@ -34,7 +34,7 @@ public class VisualizePlace extends Place {
 				String rawSensors = token.substring(sensorsBegin, token.indexOf("/", sensorsBegin));
 				String[] split = rawSensors.split(",");
 				for (String id : split) {
-					sensors.add(new GxtSensor().setId(Integer.parseInt(id)));
+                    sensors.add(new GxtSensor().setId(id));
 				}
 
 			} catch (Exception e) {

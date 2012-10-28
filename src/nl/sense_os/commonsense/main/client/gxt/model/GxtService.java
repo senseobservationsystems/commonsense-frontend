@@ -47,7 +47,7 @@ public class GxtService extends BaseTreeModel {
         return this;
     }
 
-    public GxtService setId(int id) {
+    public GxtService setId(String id) {
         set(ID, id);
         return this;
     }
@@ -57,14 +57,7 @@ public class GxtService extends BaseTreeModel {
     }
 
     public int getId() {
-        Object property = get(ID);
-        if (property instanceof Integer) {
-            return ((Integer) property).intValue();
-        } else if (property instanceof String) {
-            return Integer.parseInt((String) property);
-        } else {
-            return -1;
-        }
+        return get(ID);
     }
 
     public String getName() {

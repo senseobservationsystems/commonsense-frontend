@@ -19,13 +19,13 @@ public class BatchAvailServicesResponse extends JavaScriptObject {
 		} else {
 			return [];
 		}
-	}-*/;
+    }-*/;
 
 	public final native int getTotal() /*-{
 		return this.total;
-	}-*/;
+    }-*/;
 
-	public final int getSensorId(int index) {
+    public final String getSensorId(int index) {
 		JsArray<AvailServicesResponseEntry> entries = getEntries();
 		return entries.get(index).getSensorId();
 	}

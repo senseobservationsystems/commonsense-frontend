@@ -41,7 +41,7 @@ public class MapVisualization extends Composite implements VisualizationView {
         }
     };
     private MapPanel map;
-    private Map<Integer, LocationData> dataset;
+    private Map<String, LocationData> dataset;
     private MapVisualizationControls controlPanel;
 
     public MapVisualization(List<GxtSensor> sensors, long start, long end, boolean subsample) {
@@ -84,13 +84,13 @@ public class MapVisualization extends Composite implements VisualizationView {
      * 
      * @param data
      */
-    private Map<Integer, LocationData> groupTimeseriesById(JsArray<Timeseries> data) {
+    private Map<String, LocationData> groupTimeseriesById(JsArray<Timeseries> data) {
 
-        Map<Integer, LocationData> dataset = new HashMap<Integer, LocationData>();
+        Map<String, LocationData> dataset = new HashMap<String, LocationData>();
         for (int i = 0; i < data.length(); i++) {
 
             Timeseries newTimeseries = data.get(i);
-            int newId = newTimeseries.getId();
+            String newId = newTimeseries.getId();
 
             // get location data for this sensor from the map
             LocationData locationData = dataset.get(newId);
@@ -199,7 +199,7 @@ public class MapVisualization extends Composite implements VisualizationView {
         dataset = groupTimeseriesById(data);
 
         // filter dataset
-        for (Entry<Integer, LocationData> entry : dataset.entrySet()) {
+        for (Entry<String, LocationData> entry : dataset.entrySet()) {
             LocationData locationData = entry.getValue();
             dataset.put(entry.getKey(), LocationDataFilter.filter(locationData));
         }

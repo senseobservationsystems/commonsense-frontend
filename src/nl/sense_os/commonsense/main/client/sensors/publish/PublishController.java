@@ -16,7 +16,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -193,7 +192,7 @@ public class PublishController extends Controller {
 		for (int i = 0; i < sensors.size(); i++) {
             GxtSensor sensor = sensors.get(i);
 			JSONObject sensorJson = new JSONObject();
-			sensorJson.put("id", new JSONNumber(sensor.getId()));
+            sensorJson.put("id", new JSONString(sensor.getId()));
 			sensorJson.put("name", new JSONString(sensor.getName()));
 			sensorJson.put("description", new JSONString(sensor.getDescription()));
 			array.set(i, sensorJson);
