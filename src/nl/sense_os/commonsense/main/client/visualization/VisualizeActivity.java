@@ -8,11 +8,7 @@ import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
 import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
-import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.visualization.component.map.MapVisualization;
-import nl.sense_os.commonsense.main.client.visualization.component.table.TableVisualization;
-import nl.sense_os.commonsense.main.client.visualization.component.timeline.TimelineVisualization;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.activity.shared.AbstractActivity;
@@ -68,7 +64,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
      * Used to obtain views, eventBus, placeController. Alternatively, could be injected via GIN.
      */
     private MainClientFactory clientFactory;
-    private int type;
+    private VisualizePlace place;
     private long start;
     private long end;
     private boolean subsample;
@@ -80,7 +76,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
     private JsArray<Timeseries> data;
 
     public VisualizeActivity(VisualizePlace place, MainClientFactory clientFactory) {
-        type = place.getType();
+        this.place = place;
         start = place.getStart();
         end = place.getEnd();
         subsample = place.isSubsample();
@@ -141,26 +137,16 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
     public void start(AcceptsOneWidget panel, EventBus eventBus) {
         LOG.info("Start 'visualize' activity");
 
+        // get the view
+        view = VisualizationViewFactory.getInstance().getView(place);
+        view.setPresenter(this);
+
+        // add to layout
         LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
         parent.removeAll();
-
-        switch (type) {
-        case NewVisualizationEvent.TIMELINE:
-            view = new TimelineVisualization(sensors, start, end, subsample);
-            break;
-
-        case NewVisualizationEvent.TABLE:
-            view = new TableVisualization(sensors, start, end, subsample);
-            break;
-        case NewVisualizationEvent.MAP:
-            view = new MapVisualization(sensors, start, end, subsample);
-            break;
-        default:
-            LOG.warning("Unsupported visualization!");
-        }
-        view.setPresenter(this);
         parent.add(view.asWidget());
 
+        // listen for new sensor data
         clientFactory.getEventBus().addHandler(NewSensorDataEvent.TYPE, this);
 
         // notify the view

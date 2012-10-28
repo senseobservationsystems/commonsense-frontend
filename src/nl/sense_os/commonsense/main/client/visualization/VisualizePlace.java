@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
@@ -33,8 +35,15 @@ public class VisualizePlace extends Place {
 				int sensorsBegin = token.indexOf("sensors=") + "sensors=".length();
 				String rawSensors = token.substring(sensorsBegin, token.indexOf("/", sensorsBegin));
 				String[] split = rawSensors.split(",");
-				for (String id : split) {
-					sensors.add(new GxtSensor().setId(Integer.parseInt(id)));
+                List<GxtSensor> allSensors = Registry.get(Constants.REG_SENSOR_LIST);
+                for (String idString : split) {
+                    int id = Integer.parseInt(idString);
+                    for (GxtSensor sensor : allSensors) {
+                        if (sensor.getId() == id) {
+                            sensors.add(sensor);
+                            break;
+                        }
+                    }
 				}
 
 			} catch (Exception e) {
