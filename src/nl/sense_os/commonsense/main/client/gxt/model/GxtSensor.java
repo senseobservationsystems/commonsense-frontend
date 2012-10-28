@@ -114,7 +114,7 @@ public class GxtSensor extends BaseTreeModel {
 		if (obj instanceof GxtSensor) {
 			final GxtSensor sensor = (GxtSensor) obj;
 
-			boolean idEqual = getId() == sensor.getId();
+            boolean idEqual = getId().equals(sensor.getId());
 			boolean ownerEqual = (getOwner() == null && sensor.getOwner() == null)
 					|| (null != getOwner() && getOwner().equals(sensor.getOwner()));
 			boolean environmentEqual = (getEnvironment() == null && sensor.getEnvironment() == null)
@@ -200,16 +200,8 @@ public class GxtSensor extends BaseTreeModel {
 	/**
 	 * @return The sensor's ID.
 	 */
-	public int getId() {
-		Object property = get(ID);
-		if (property instanceof Integer) {
-			return ((Integer) property).intValue();
-		} else if (property instanceof String) {
-			return Integer.parseInt((String) property);
-		} else {
-			LOGGER.severe("Missing property: " + ID);
-			return -1;
-		}
+    public String getId() {
+        return get(ID);
 	}
 
 	/**
@@ -327,7 +319,7 @@ public class GxtSensor extends BaseTreeModel {
 		return this;
 	}
 
-	public GxtSensor setId(int id) {
+	public GxtSensor setId(String id) {
 		set(ID, id);
 		return this;
 	}

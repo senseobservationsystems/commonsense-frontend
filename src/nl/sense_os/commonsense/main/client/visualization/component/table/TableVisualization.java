@@ -75,15 +75,15 @@ public class TableVisualization extends Composite implements VisualizationView {
             @Override
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                String id = "" + model.get(property);
+                String id = Long.toString(Math.round(model.<Double> get(property)));
                 for (GxtSensor sensor : sensors) {
                     if (id.equals("" + sensor.getId())) {
                         String name = sensor.getName();
                         String deviceType = sensor.getDescription();
                         if (name.equals(deviceType)) {
-                            return name;
+                            return id + ". " + name;
                         }
-                        return name + " (" + deviceType + ")";
+                        return id + ". " + name + " (" + deviceType + ")";
                     }
                 }
                 return id;
@@ -171,10 +171,10 @@ public class TableVisualization extends Composite implements VisualizationView {
 
     private String createUrl(List<GxtSensor> sensors, long startTime, long endTime) {
 
-        int id = sensors.get(0).getId();
+        String id = sensors.get(0).getId();
 
         final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_SENSOR_DATA.replace("%1", Integer.toString(id)));
+        urlBuilder.setPath(Urls.PATH_SENSOR_DATA.replace("%1", id));
 
         urlBuilder.setParameter("start_date",
                 NumberFormat.getFormat("#.000").format(startTime / 1000d));

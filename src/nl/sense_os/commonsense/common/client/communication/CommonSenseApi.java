@@ -57,7 +57,7 @@ public class CommonSenseApi {
     private static final String JSON_TYPE = "application/json";
     private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
-    public static void disconnectService(RequestCallback callback, int sensorId, int serviceId) {
+    public static void disconnectService(RequestCallback callback, String sensorId, String serviceId) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -71,9 +71,7 @@ public class CommonSenseApi {
         UrlBuilder urlBuilder = new UrlBuilder()
                 .setProtocol(Urls.PROTOCOL)
                 .setHost(Urls.HOST)
-                .setPath(
-                        Urls.PATH_SERVICE.replace("%1", Integer.toString(sensorId)).replace("%2",
-                                Integer.toString(serviceId)));
+                .setPath(Urls.PATH_SERVICE.replace("%1", sensorId).replace("%2", serviceId));
         String url = urlBuilder.buildString();
 
         // send request
@@ -137,7 +135,7 @@ public class CommonSenseApi {
         sendRequest(method, url, sessionId, null, callback);
     }
 
-    public static void getConnectedSensors(RequestCallback callback, int sensorId) {
+    public static void getConnectedSensors(RequestCallback callback, String sensorId) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -149,7 +147,7 @@ public class CommonSenseApi {
         // prepare request properties
         Method method = RequestBuilder.GET;
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_CONNECTED_SENSORS.replace("%1", Integer.toString(sensorId)));
+                .setPath(Urls.PATH_CONNECTED_SENSORS.replace("%1", sensorId));
         String url = urlBuilder.buildString();
 
         // send request
@@ -226,7 +224,7 @@ public class CommonSenseApi {
         sendRequest(method, url, sessionId, null, callback);
     }
 
-    public static void getGroupUsers(RequestCallback callback, int groupId, String perPage,
+    public static void getGroupUsers(RequestCallback callback, String groupId, String perPage,
             String page) {
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -238,7 +236,7 @@ public class CommonSenseApi {
         // prepare request properties
         Method method = RequestBuilder.GET;
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_GROUP_USERS.replace("%1", Integer.toString(groupId)));
+                .setPath(Urls.PATH_GROUP_USERS.replace("%1", groupId));
         if (null != page) {
             urlBuilder.setParameter("page", page);
         }
@@ -265,7 +263,7 @@ public class CommonSenseApi {
      * @param next
      * @param last
      */
-    public static void getSensorData(RequestCallback callback, int sensorId, String startDate,
+    public static void getSensorData(RequestCallback callback, String sensorId, String startDate,
             String endDate, String date, String perPage, String page, String interval, String next,
             String last, String sort) {
 
@@ -279,7 +277,7 @@ public class CommonSenseApi {
         // prepare request properties
         Method method = RequestBuilder.GET;
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_SENSOR_DATA.replace("%1", Integer.toString(sensorId)));
+                .setPath(Urls.PATH_SENSOR_DATA.replace("%1", sensorId));
         if (null != startDate) {
             urlBuilder.setParameter("start_date", startDate);
         }
@@ -365,7 +363,7 @@ public class CommonSenseApi {
         sendRequest(method, url, sessionId, null, callback);
     }
 
-    public static void getServiceMethods(RequestCallback callback, int sensorId, int serviceId) {
+    public static void getServiceMethods(RequestCallback callback, String sensorId, String serviceId) {
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
         if (null == sessionId) {
@@ -378,9 +376,7 @@ public class CommonSenseApi {
         UrlBuilder urlBuilder = new UrlBuilder()
                 .setProtocol(Urls.PROTOCOL)
                 .setHost(Urls.HOST)
-                .setPath(
-                        Urls.PATH_SERVICE_METHODS.replace("%1", Integer.toString(sensorId))
-                                .replace("%2", Integer.toString(serviceId)));
+                .setPath(Urls.PATH_SERVICE_METHODS.replace("%1", sensorId).replace("%2", serviceId));
         String url = urlBuilder.buildString();
 
         // send request

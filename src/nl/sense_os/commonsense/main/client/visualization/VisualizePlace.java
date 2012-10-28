@@ -37,9 +37,8 @@ public class VisualizePlace extends Place {
 				String[] split = rawSensors.split(",");
                 List<GxtSensor> allSensors = Registry.get(Constants.REG_SENSOR_LIST);
                 for (String idString : split) {
-                    int id = Integer.parseInt(idString);
                     for (GxtSensor sensor : allSensors) {
-                        if (sensor.getId() == id) {
+                        if (sensor.getId().equals(idString)) {
                             sensors.add(sensor);
                             break;
                         }

@@ -9,7 +9,6 @@ import nl.sense_os.commonsense.common.client.model.Group;
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -91,8 +90,8 @@ public class GxtGroup extends GxtUser {
         return get(EMAIL);
     }
 
-    public int getId() {
-        return get(ID, -1);
+    public String getId() {
+        return get(ID);
     }
 
     public String getName() {
@@ -224,7 +223,7 @@ public class GxtGroup extends GxtUser {
         set(HIDDEN, hidden);
     }
 
-    public GxtGroup setId(int id) {
+    public GxtGroup setId(String id) {
         set(ID, id);
         return this;
     };
@@ -276,8 +275,8 @@ public class GxtGroup extends GxtUser {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        if (-1 != getId()) {
-            json.put(ID, new JSONNumber(getId()));
+        if (null != getId()) {
+            json.put(ID, new JSONString(getId()));
         }
         if (null != getName()) {
             json.put(NAME, new JSONString(getName()));

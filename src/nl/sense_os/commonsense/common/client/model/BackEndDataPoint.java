@@ -12,34 +12,34 @@ public class BackEndDataPoint extends JavaScriptObject {
     }
 
     public final native String getId() /*-{
-        return this.id;
+		return this.id;
     }-*/;
 
-    public final native String getSensorId() /*-{
-        return this.sensor_id;
+    public final native int getSensorId() /*-{
+		return this.sensor_id;
     }-*/;
 
     /**
      * @return the date (in seconds!), formatted as String by CommonSense back end
      */
     public final native String getDate() /*-{
-        return '' + this.date;
+		return '' + this.date;
     }-*/;
 
     public final native String getValue() /*-{
-        return this.value;
+		return this.value;
     }-*/;
 
-    public final native String getWeek() /*-{
-        return this.week;
+    public final native int getWeek() /*-{
+		return this.week;
     }-*/;
 
-    public final native String getMonth() /*-{
-        return this.month;
+    public final native int getMonth() /*-{
+		return this.month;
     }-*/;
 
-    public final native String getYear() /*-{
-        return this.year;
+    public final native int getYear() /*-{
+		return this.year;
     }-*/;
 
 }

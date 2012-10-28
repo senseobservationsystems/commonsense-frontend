@@ -35,7 +35,7 @@ public class MapPanel extends Composite {
 	/**
 	 * Set of all position data, including the corresponding polylines and markers
 	 */
-	private Map<Integer, LocationData> dataset;
+    private Map<String, LocationData> dataset;
 
 	private long traceStartTime = Long.MIN_VALUE;
 	private long traceEndTime = Long.MAX_VALUE;
@@ -136,7 +136,7 @@ public class MapPanel extends Composite {
 		updateTraces();
 	}
 
-	public void setLocationDataSet(Map<Integer, LocationData> dataset) {
+    public void setLocationDataSet(Map<String, LocationData> dataset) {
 		this.dataset = dataset;
 
 		showTraces();
