@@ -77,15 +77,15 @@ public class SensorDataGrid extends VizPanel {
             @Override
             public Object render(ModelData model, String property, ColumnData config, int rowIndex,
                     int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {
-                String id = "" + model.get(property);
+                String id = Long.toString(Math.round(model.<Double> get(property)));
                 for (ExtSensor sensor : sensors) {
-                    if (id.equals("" + sensor.getId())) {
+                    if (id.equals(sensor.getId())) {
                         String name = sensor.getName();
                         String deviceType = sensor.getDescription();
                         if (name.equals(deviceType)) {
-                            return name;
+                            return id + ". " + name;
                         }
-                        return name + " (" + deviceType + ")";
+                        return id + ". " + name + " (" + deviceType + ")";
                     }
                 }
                 return id;
