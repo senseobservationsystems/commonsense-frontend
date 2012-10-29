@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
@@ -17,11 +18,16 @@ import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteController;
 import nl.sense_os.commonsense.main.client.sensors.publish.PublishController;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareController;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareController;
+import nl.sense_os.commonsense.main.client.shared.loader.ApiLoader;
+import nl.sense_os.commonsense.main.client.shared.loader.Loader;
+import nl.sense_os.commonsense.main.client.shared.loader.SensorListLoader;
+import nl.sense_os.commonsense.main.client.shared.loader.UserDetailsLoader;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectController;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateController;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsController;
@@ -31,6 +37,7 @@ import nl.sense_os.commonsense.main.client.states.list.StateListController;
 import nl.sense_os.commonsense.main.client.visualization.data.DataHandler;
 
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -81,9 +88,7 @@ public class MainEntryPoint implements EntryPoint {
 		Location.replace(builder.buildString().replace("127.0.0.1%3A", "127.0.0.1:"));
 	}
 
-
 	private MainClientFactory clientFactory;
-
 	private PlaceHistoryHandler historyHandler;
 
 	/**
@@ -130,14 +135,14 @@ public class MainEntryPoint implements EntryPoint {
 		DataHandler dataHandler = new DataHandler(clientFactory);
 		clientFactory.getEventBus().addHandler(DataRequestEvent.TYPE, dataHandler);
 
-		/* initialize GXT MVC */
-		initDispatcher();
+        // initialize GXT MVC
+		initGxt();
 	}
 
 	/**
 	 * Initializes the event dispatcher by adding the application's controllers to it.
 	 */
-	private void initDispatcher() {
+	private void initGxt() {
 
 		Dispatcher dispatcher = Dispatcher.get();
 
@@ -175,38 +180,98 @@ public class MainEntryPoint implements EntryPoint {
 		String newPasswordToken = getNewPasswordToken();
 		if (null == sessionId || null != newPasswordToken) {
 			goToLoginPage();
+
         } else {
             // initialize application
             init();
 
-            // get user info
-            UserInfoLoader userInfoLoader = new UserInfoLoader(clientFactory);
-            userInfoLoader.load(new UserInfoLoader.Callback() {
-
-                @Override
-                public void onSuccess() {
-                    startApplication();
-                }
-
-                @Override
-                public void onFailure(int code, Throwable error) {
-                    LOG.severe("Failed to get user info! Code: " + code + " " + error);
-                    SessionManager.removeSessionId();
-                    MainEntryPoint.goToLoginPage();
-                }
-            });
-
-            // get API libraries
-            ApiLoader apiLoader = new ApiLoader();
-            apiLoader.load(null);
+            startPreloaders();
         }
-	}
+    }
 
-	private void startApplication() {
+    /**
+     * Start the MVP application
+     */
+    private void startApplication() {
 
-		GXT.hideLoadingPanel("loading");
+        GXT.hideLoadingPanel("loading");
 
-		// Goes to place represented on URL or default place
-		historyHandler.handleCurrentHistory();
+        // Goes to place represented on URL or default place
+        historyHandler.handleCurrentHistory();
+    }
+
+    /**
+     * Load some information before starting the application
+     */
+    private void startPreloaders() {
+        // get user info
+        UserDetailsLoader userLoader = new UserDetailsLoader();
+        userLoader.load(new Loader.Callback() {
+
+            @Override
+            public void onFailure(int code, Throwable error) {
+                LOG.severe("Failed to get user info! Code: " + code + " " + error);
+                SessionManager.removeSessionId();
+                MainEntryPoint.goToLoginPage();
+            }
+
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof User) {
+                    User user = (User) result;
+
+                    // store in registry
+                    GxtUser gxtUser = new GxtUser(user);
+                    Registry.register(Constants.REG_USER, gxtUser);
+
+                    // fire event
+                    clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
+
+                } else {
+                    onFailure(-1, new Throwable("Unexpected user loader result: " + result));
+                }
+            }
+        });
+
+        // get sensor list
+        SensorListLoader sensorLoader = new SensorListLoader();
+        sensorLoader.load(new Loader.Callback() {
+
+            @Override
+            public void onFailure(int code, Throwable error) {
+                LOG.severe("Failed to get sensor list! Code: " + code + " " + error);
+                SessionManager.removeSessionId();
+                MainEntryPoint.goToLoginPage();
+            }
+
+            @Override
+            public void onSuccess(Object result) {
+                if (result instanceof List<?>) {
+
+                    // store the result
+                    Registry.register(Constants.REG_SENSOR_LIST, result);
+
+                    startApplication();
+
+                } else {
+                    onFailure(-1, new Throwable("Unexpected sensors loader result: " + result));
+                }
+            }
+        });
+
+        // get API libraries
+        ApiLoader apiLoader = new ApiLoader();
+        apiLoader.load(new Loader.Callback() {
+
+            @Override
+            public void onFailure(int code, Throwable error) {
+                LOG.severe("Failed to load APIs!");
+            }
+
+            @Override
+            public void onSuccess(Object loadResult) {
+                // nothing to do
+            }
+        });
 	}
 }

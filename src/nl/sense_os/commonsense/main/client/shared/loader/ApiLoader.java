@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client;
+package nl.sense_os.commonsense.main.client.shared.loader;
 
 import java.util.logging.Logger;
 
@@ -7,7 +7,7 @@ import nl.sense_os.commonsense.common.client.util.Constants;
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.visualization.client.VisualizationUtils;
 
-public class ApiLoader implements PreLoader {
+public class ApiLoader implements Loader {
 
     private static final Logger LOG = Logger.getLogger(ApiLoader.class.getName());
     private boolean isMapsApiLoaded;
@@ -64,7 +64,7 @@ public class ApiLoader implements PreLoader {
 
     private synchronized void onLoadComplete() {
         if (isVizApiLoaded && isMapsApiLoaded && null != callback) {
-            callback.onSuccess();
+            callback.onSuccess(true);
         }
     }
 }

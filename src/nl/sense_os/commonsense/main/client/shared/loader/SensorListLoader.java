@@ -1,19 +1,20 @@
-package nl.sense_os.commonsense.main.client;
+package nl.sense_os.commonsense.main.client.shared.loader;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponseEntry;
+import nl.sense_os.commonsense.common.client.communication.httpresponse.BatchAvailServicesResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.common.client.model.Sensor;
-import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.common.client.util.Constants;
-import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -23,40 +24,45 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 
-public class UserInfoLoader implements PreLoader {
+public class SensorListLoader implements Loader {
 
-    private static final Logger LOG = Logger.getLogger(UserInfoLoader.class.getName());
-    private boolean isCurrentUserLoaded = false;
-    private MainClientFactory clientFactory;
-    private Callback callback;
-    private boolean isSensorListLoaded = false;
     private static final int PER_PAGE = 1000;
-
-    public UserInfoLoader(MainClientFactory clientFactory) {
-        this.clientFactory = clientFactory;
-    }
+    private static final Logger LOG = Logger.getLogger(SensorListLoader.class.getName());
+    private Callback callback;
 
     /**
-     * Requests the current user's details from CommonSense
+     * Requests a list of all available services for all sensors the user owns.
+     * 
+     * @param groupId
+     *            Optional parameter to get the available services for sensors that are not shared
+     *            directly with the user but with a group.
      */
-    private void getCurrentUser() {
-        LOG.fine("Get current user");
+    private void getAvailableServices(final int page, final String groupId) {
 
         // prepare request callback
-        RequestCallback callback = new RequestCallback() {
+        RequestCallback reqCallback = new RequestCallback() {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                onGetCurrentUserFailure(-1, exception);
+                onAvailServicesFailure(-1, exception);
             }
 
             @Override
             public void onResponseReceived(Request request, Response response) {
-                onGetCurrentUserResponse(response);
+                int statusCode = response.getStatusCode();
+                if (Response.SC_OK == statusCode) {
+                    onAvailServicesSuccess(response.getText(), page, groupId);
+                } else if (Response.SC_NO_CONTENT == statusCode) {
+                    onAvailServicesSuccess(null, page, groupId);
+                } else {
+                    onAvailServicesFailure(statusCode, new Throwable(response.getStatusText()));
+                }
             }
         };
 
-        CommonSenseApi.getCurrentUser(callback);
+        // send request
+        CommonSenseApi.getAvailableServices(reqCallback, Integer.toString(PER_PAGE),
+                Integer.toString(page), groupId);
     }
 
     private void getGroups(final List<GxtSensor> library) {
@@ -133,12 +139,8 @@ public class UserInfoLoader implements PreLoader {
 
         } else {
 
-            // save the library
-            Registry.register(Constants.REG_SENSOR_LIST, library);
-
             // notify the view that the list is complete
-            isSensorListLoaded = true;
-            onLoadComplete();
+            onLoadComplete(library);
         }
     }
 
@@ -174,56 +176,42 @@ public class UserInfoLoader implements PreLoader {
     @Override
     public void load(Callback callback) {
         this.callback = callback;
-        getCurrentUser();
-        
         List<GxtSensor> library = new ArrayList<GxtSensor>();
         getSensors(library, 0, false);
     }
 
-    /**
-     * Handles failed request to get the current user details by redirecting to the login page.
-     * 
-     * @param code
-     * @param error
-     */
-    private void onGetCurrentUserFailure(int code, Throwable error) {
-        if (null != callback) {
-            callback.onFailure(code, error);
-        }
+    private void onAvailServicesFailure(int code, Throwable error) {
+        LOG.warning("Failed to load available services! Code: " + code + ", error: " + error);
     }
 
-    /**
-     * Parses the response from CommonSense
-     * 
-     * @param response
-     */
-    private void onGetCurrentUserResponse(Response response) {
-        int statusCode = response.getStatusCode();
-        if (Response.SC_OK == statusCode) {
-            CurrentUserResponse jso = JsonUtils.safeEval(response.getText());
-            onGetCurrentUserSuccess(jso.getUser());
-        } else {
-            onGetCurrentUserFailure(statusCode, new Throwable(response.getStatusText()));
+    private void onAvailServicesSuccess(String response, int page, String groupId) {
+
+        List<GxtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
+
+        // parse list of services from response
+        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+            BatchAvailServicesResponse jso = JsonUtils.unsafeEval(response);
+            JsArray<AvailServicesResponseEntry> entries = jso.getEntries();
+            for (int i = 0; i < entries.length(); i++) {
+                String id = entries.get(i).getSensorId();
+                List<Service> availServices = entries.get(i).getServices();
+                List<GxtService> gxtServices = new ArrayList<GxtService>();
+                for (Service service : availServices) {
+                    gxtServices.add(new GxtService(service));
+                }
+                for (GxtSensor sensor : library) {
+                    if (sensor.getId().equals(id)) {
+                        sensor.setAvailServices(gxtServices);
+                    }
+                }
+            }
+
+            if (entries.length() < jso.getTotal()) {
+                page++;
+                getAvailableServices(page, groupId);
+                return;
+            }
         }
-    }
-
-    /**
-     * Handles the new user details
-     * 
-     * @param user
-     */
-    private void onGetCurrentUserSuccess(User user) {
-        LOG.fine("Current user: " + user.getUsername());
-
-        // store in registry
-        GxtUser gxtUser = new GxtUser(user);
-        Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, gxtUser);
-
-        // fire event
-        clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
-
-        isCurrentUserLoaded = true;
-        onLoadComplete();
     }
 
     private void onGroupSensorsFailure(int code, Throwable error) {
@@ -259,6 +247,11 @@ public class UserInfoLoader implements PreLoader {
             getGroupSensors(groups, index, page, library);
 
         } else {
+            // get available services for this group
+            if (page > 0 || groupSensors.length() > 0) {
+                getAvailableServices(0, groups.get(index).getId());
+            }
+
             // next group
             index++;
             getGroupSensors(groups, index, 0, library);
@@ -282,9 +275,9 @@ public class UserInfoLoader implements PreLoader {
         getGroupSensors(groups, 0, 0, library);
     }
 
-    private synchronized void onLoadComplete() {
-        if (isCurrentUserLoaded && isSensorListLoaded && null != callback) {
-            callback.onSuccess();
+    private void onLoadComplete(List<GxtSensor> sensors) {
+        if (null != callback) {
+            callback.onSuccess(sensors);
         }
     }
 
@@ -337,6 +330,8 @@ public class UserInfoLoader implements PreLoader {
             getSensors(library, page, true);
 
         } else {
+            // request available services for these sensors
+            getAvailableServices(0, null);
 
             // continue by getting the group sensors
             getGroups(library);
@@ -370,4 +365,5 @@ public class UserInfoLoader implements PreLoader {
             getSensors(library, page, true);
         }
     }
+
 }

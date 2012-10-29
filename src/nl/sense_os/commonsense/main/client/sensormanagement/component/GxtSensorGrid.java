@@ -70,7 +70,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
     private Button publishButton;
 	private Button vizButton;
 	private ToolBar filterBar;
-	private boolean forceRefresh = true;
+    private boolean forceRefresh;
 	private Presenter presenter;
 
 	public GxtSensorGrid() {
@@ -96,8 +96,6 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 				refreshLoader(false);
 			}
 		});
-
-		forceRefresh = true;
 
 		initGrid();
 		initFilters();
