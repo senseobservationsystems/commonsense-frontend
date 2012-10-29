@@ -3,15 +3,15 @@ package nl.sense_os.commonsense.main.client.env.create;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateEnvironmentResponse;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateSensorResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.Sensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateEnvironmentResponse;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateSensorResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.Sensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -291,7 +291,7 @@ public class EnvCreateController extends Controller {
 				if (sensor.getDevice() != null && sensor.getDevice().equals(device)) {
 					// make sure we are the owner of the sensor
 					GxtUser user = Registry
-							.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+							.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_USER);
 					if (sensor.getOwner() == null || sensor.getOwner().equals(user)) {
 						positionSensor = sensor;
 						break;
@@ -375,7 +375,7 @@ public class EnvCreateController extends Controller {
 
 			// update global environment list
 			Registry.<List<GxtEnvironment>> get(
-					nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).add(
+					nl.sense_os.commonsense.shared.client.util.Constants.REG_ENVIRONMENT_LIST).add(
 					environment);
 
 			// continue with adding sensors
@@ -396,7 +396,7 @@ public class EnvCreateController extends Controller {
 
 		// add the devices's sensors
 		List<GxtSensor> library = Registry
-				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		for (GxtSensor sensor : library) {
 			if (sensor.getDevice() != null && devices.contains(sensor.getDevice())) {
 				LOG.finest("Add device sensor \'" + sensor + "\' to list of environment sensors");
@@ -431,7 +431,7 @@ public class EnvCreateController extends Controller {
 
 			// add the new sensor to the global library
 			Registry.<List<GxtSensor>> get(
-					nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).add(
+					nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST).add(
 					gxtSensor);
 
 			// add the new position sensor to the proper device

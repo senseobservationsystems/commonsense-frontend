@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.model.ServiceMethod;
+import nl.sense_os.commonsense.shared.client.model.ServiceMethod;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 

@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.main.client.visualization.data.cache;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.shared.client.model.BackEndDataPoint;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;

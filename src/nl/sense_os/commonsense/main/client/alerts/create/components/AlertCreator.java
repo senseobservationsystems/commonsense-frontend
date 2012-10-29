@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.main.client.alerts.create.components;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;

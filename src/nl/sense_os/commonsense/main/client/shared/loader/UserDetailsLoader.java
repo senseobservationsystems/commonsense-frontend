@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.main.client.shared.loader;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
-import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.CurrentUserResponse;
+import nl.sense_os.commonsense.shared.client.model.User;
 
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;

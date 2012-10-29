@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.alerts.create.components.AlertCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
 import nl.sense_os.commonsense.main.client.visualization.data.GxtDataRequestEvent;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;

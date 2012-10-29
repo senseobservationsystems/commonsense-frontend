@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvironmentsResponse;
-import nl.sense_os.commonsense.common.client.model.Environment;
-import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetEnvironmentsResponse;
+import nl.sense_os.commonsense.shared.client.model.Environment;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -118,7 +118,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 
 		// update sensor library
 		List<GxtSensor> library = Registry
-				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		for (GxtSensor sensor : library) {
 			if (sensor.getEnvironment() != null && sensor.getEnvironment().equals(environment)) {
 				sensor.setEnvironment(null);
@@ -127,7 +127,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 
 		// update global environment list
 		Registry.<List<GxtEnvironment>> get(
-				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).remove(
+				nl.sense_os.commonsense.shared.client.util.Constants.REG_ENVIRONMENT_LIST).remove(
 				environment);
 
         // TODO notify the rest of the app

@@ -17,12 +17,12 @@ package nl.sense_os.commonsense.login.client;
 import java.util.List;
 import java.util.Map.Entry;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.login.client.application.LoginApplicationView;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorPlace;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordPlace;
 import nl.sense_os.commonsense.login.client.openidconnect.OpenIdConnectPlace;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
 
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;

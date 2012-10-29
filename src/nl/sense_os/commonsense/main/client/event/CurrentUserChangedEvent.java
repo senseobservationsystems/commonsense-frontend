@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client.event;
 
-import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent.Handler;
+import nl.sense_os.commonsense.shared.client.model.User;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.web.bindery.event.shared.Event;

@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.model.Group;
-import nl.sense_os.commonsense.common.client.model.User;
-import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
+import nl.sense_os.commonsense.shared.client.model.Group;
+import nl.sense_os.commonsense.shared.client.model.User;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;

@@ -3,10 +3,10 @@ package nl.sense_os.commonsense.main.client.sensors.unshare;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -63,7 +63,7 @@ public class UnshareController extends Controller {
 
 		// update library
 		List<GxtSensor> library = Registry
-				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		int index = library.indexOf(sensor);
 		if (index != -1) {
 			LOG.fine("Updating sensor's users in the library");
@@ -102,7 +102,7 @@ public class UnshareController extends Controller {
 			GxtUser user = users.get(index);
 
 			GxtUser currentUser = Registry
-					.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+					.<GxtUser> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_USER);
 			if (currentUser.equals(user)) {
 				LOG.finest("Skipped unsharing with the current user...");
 				unshare(sensor, users, index + 1);

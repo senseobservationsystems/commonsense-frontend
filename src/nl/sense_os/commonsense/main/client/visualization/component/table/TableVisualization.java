@@ -5,10 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi.Urls;
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.VisualizationView;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi.Urls;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelType;

@@ -6,7 +6,7 @@
 	<inherits name="com.google.gwt.logging.Logging" />
 	<inherits name="com.google.gwt.resources.Resources" />
 	<!-- Other modules -->
-	<inherits name="nl.sense_os.commonsense.common.Common" />
+	<inherits name="nl.sense_os.commonsense.shared.Shared" />
 	<!-- Entry point -->
 	<entry-point class="nl.sense_os.commonsense.login.client.LoginEntryPoint" />
 	<replace-with class="nl.sense_os.commonsense.login.client.LoginEntryPoint">

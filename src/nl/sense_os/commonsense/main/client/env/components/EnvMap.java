@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.DataPoint;
-import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.gxt.component.VizPanel;
@@ -18,6 +15,9 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.data.DataEvents;
+import nl.sense_os.commonsense.shared.client.model.DataPoint;
+import nl.sense_os.commonsense.shared.client.model.FloatDataPoint;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -414,7 +414,7 @@ public class EnvMap extends VizPanel {
 
 		// only display devices that are not added to the map yet
 		List<GxtDevice> myDevices = Registry
-				.<List<GxtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST);
+				.<List<GxtDevice>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_DEVICE_LIST);
 		List<GxtDevice> selectable = new ArrayList<GxtDevice>();
 		for (GxtDevice device : myDevices) {
 

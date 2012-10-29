@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetServicesResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetServicesResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.Service;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -98,7 +98,7 @@ public class StateConnectController extends Controller {
 		List<GxtSensor> result = new ArrayList<GxtSensor>();
 
 		List<GxtSensor> library = Registry
-				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		for (GxtSensor sensor : library) {
 			List<GxtService> availableServices = sensor.getAvailServices();
 			if (null != availableServices) {

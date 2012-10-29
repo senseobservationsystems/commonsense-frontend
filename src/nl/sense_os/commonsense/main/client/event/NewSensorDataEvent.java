@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.main.client.event;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.shared.EventHandler;

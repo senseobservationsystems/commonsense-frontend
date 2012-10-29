@@ -1,8 +1,8 @@
 package nl.sense_os.commonsense.main.client.gxt.util;
 
-import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.store.Store;

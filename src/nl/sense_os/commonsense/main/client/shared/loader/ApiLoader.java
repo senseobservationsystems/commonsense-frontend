@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.main.client.shared.loader;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.util.Constants;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.google.gwt.maps.client.Maps;
 import com.google.gwt.visualization.client.VisualizationUtils;

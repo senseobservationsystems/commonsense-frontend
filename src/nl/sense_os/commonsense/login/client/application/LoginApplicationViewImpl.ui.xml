@@ -3,7 +3,7 @@
 	xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:my="urn:import:nl.sense_os.commonsense.login.client.application.component"
-	xmlns:common="urn:import:nl.sense_os.commonsense.common.client.component">
+	xmlns:common="urn:import:nl.sense_os.commonsense.shared.client.component">
 	<ui:style>
 		.outer {
 			background: url('login/images/bgLeftBottom.png') no-repeat left bottom;

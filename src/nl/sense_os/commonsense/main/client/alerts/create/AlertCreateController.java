@@ -2,10 +2,10 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponse;
-import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorDataResponse;
+import nl.sense_os.commonsense.shared.client.model.BackEndDataPoint;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;

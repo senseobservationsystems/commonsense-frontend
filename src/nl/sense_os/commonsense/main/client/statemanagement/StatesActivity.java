@@ -18,17 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.model.Sensor;
-import nl.sense_os.commonsense.common.client.model.ServiceMethod;
-import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.TreeCopier;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetMethodsResponse;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorsResponse;
+import nl.sense_os.commonsense.shared.client.model.Sensor;
+import nl.sense_os.commonsense.shared.client.model.ServiceMethod;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;

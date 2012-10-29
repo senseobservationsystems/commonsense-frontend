@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.visualization.component.table;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;

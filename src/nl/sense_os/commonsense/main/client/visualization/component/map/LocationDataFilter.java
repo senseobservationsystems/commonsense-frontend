@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.main.client.visualization.component.map;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
-import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.shared.client.model.FloatDataPoint;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsonUtils;

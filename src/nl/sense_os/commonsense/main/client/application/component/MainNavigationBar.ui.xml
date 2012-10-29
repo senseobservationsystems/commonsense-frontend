@@ -121,7 +121,7 @@
 		}
 	</ui:style>
 	<ui:with
-		type="nl.sense_os.commonsense.common.client.resource.CSResources"
+		type="nl.sense_os.commonsense.shared.client.resource.CSResources"
 		field="res" />
 	<g:FlowPanel styleName="{style.navBar}">
 		<g:Image

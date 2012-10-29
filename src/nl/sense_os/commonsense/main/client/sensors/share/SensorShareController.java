@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.User;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -167,7 +167,7 @@ public class SensorShareController extends Controller {
 		// update library
 		for (GxtSensor sensor : sensors) {
 			List<GxtSensor> library = Registry
-					.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+					.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 			int index = library.indexOf(sensor);
 			if (index != -1) {
 				LOG.fine("Updating sensor users in the library");

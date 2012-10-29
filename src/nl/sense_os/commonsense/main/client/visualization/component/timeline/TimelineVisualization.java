@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.DataPoint;
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.visualization.VisualizationView;
+import nl.sense_os.commonsense.shared.client.model.DataPoint;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.chap.links.client.Graph;
 import com.chap.links.client.Timeline;

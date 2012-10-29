@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.login.client.application.component;
 
-import nl.sense_os.commonsense.common.client.resource.CSResources;
-import nl.sense_os.commonsense.common.client.util.Constants;
+import nl.sense_os.commonsense.shared.client.resource.CSResources;
+import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;

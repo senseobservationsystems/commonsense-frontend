@@ -115,7 +115,7 @@ public class StateDefaultsDialog extends CenteredWindow {
 	private void initGrid() {
 		store = new ListStore<GxtDevice>();
 		store.add(Registry
-				.<List<GxtDevice>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_DEVICE_LIST));
+				.<List<GxtDevice>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_DEVICE_LIST));
 
 		ColumnConfig id = new ColumnConfig(GxtDevice.ID, "ID", 50);
 		ColumnConfig type = new ColumnConfig(GxtDevice.TYPE, "Type", 150);

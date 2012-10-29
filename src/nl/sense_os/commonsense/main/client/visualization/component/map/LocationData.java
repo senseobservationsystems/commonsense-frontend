@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client.visualization.component.map;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 public class LocationData {
 

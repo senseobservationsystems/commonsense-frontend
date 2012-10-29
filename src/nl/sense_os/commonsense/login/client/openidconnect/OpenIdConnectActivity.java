@@ -14,11 +14,11 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.openidconnect;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
+import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.LoginResponse;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.core.client.JsonUtils;

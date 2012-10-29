@@ -3,7 +3,6 @@ package nl.sense_os.commonsense.main.client.application.component;
 import java.util.HashMap;
 import java.util.List;
 
-import nl.sense_os.commonsense.common.client.component.FooterBar;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
@@ -13,6 +12,7 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesPlace;
 import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
+import nl.sense_os.commonsense.shared.client.component.FooterBar;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;

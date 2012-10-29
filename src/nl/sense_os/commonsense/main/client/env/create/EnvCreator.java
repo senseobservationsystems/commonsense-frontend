@@ -417,7 +417,7 @@ public class EnvCreator extends View {
 
 		sensorsStore = new GroupingStore<GxtSensor>();
 		List<GxtSensor> library = Registry
-				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		sensorsStore.add(library);
 
 		initSensorsFilters();

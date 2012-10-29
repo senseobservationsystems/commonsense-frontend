@@ -3,9 +3,9 @@ package nl.sense_os.commonsense.main.client.sensors.delete;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -147,7 +147,7 @@ public class SensorDeleteController extends Controller {
 
 		// remove the sensor from the cached library
 		boolean removed = Registry.<List<GxtSensor>> get(
-				nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST).remove(
+				nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST).remove(
 				sensors.get(index));
 		if (!removed) {
 			LOG.warning("Failed to remove the sensor from the library!");

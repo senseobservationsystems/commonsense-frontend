@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.FloatDataPoint;
 import nl.sense_os.commonsense.main.client.visualization.component.map.resource.MapResources;
+import nl.sense_os.commonsense.shared.client.model.FloatDataPoint;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.maps.client.MapWidget;

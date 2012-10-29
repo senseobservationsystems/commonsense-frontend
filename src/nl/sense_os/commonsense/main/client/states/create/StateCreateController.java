@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.Service;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.AvailServicesResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.Service;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -208,7 +208,7 @@ public class StateCreateController extends Controller {
 		isLoadingSensors = true;
 
 		List<GxtSensor> sensors = Registry
-				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		if (null == sensors) {
             // TODO request sensors
 			return;

@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client.gxt.component;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;

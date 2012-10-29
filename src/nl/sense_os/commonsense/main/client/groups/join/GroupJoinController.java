@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupDetailsResponse;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupDetailsResponse;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.Group;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -184,7 +184,7 @@ public class GroupJoinController extends Controller {
 		final String sessionId = SessionManager.getSessionId();
 
 		GxtUser user = Registry
-				.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+				.<GxtUser> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_USER);
 
 		JSONObject userJson = new JSONObject();
         userJson.put("id", new JSONString(user.getId()));

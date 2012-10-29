@@ -4,7 +4,7 @@
 	xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:login="urn:import:nl.sense_os.commonsense.login.client.login.component"
-	xmlns:common="urn:import:nl.sense_os.commonsense.common.client.component">
+	xmlns:common="urn:import:nl.sense_os.commonsense.shared.client.component">
 	<ui:style>
 		.centerContent {
 			max-width: 800px;
@@ -50,7 +50,7 @@
 		}
 	</ui:style>
 	<ui:with
-		type="nl.sense_os.commonsense.common.client.resource.CSResources"
+		type="nl.sense_os.commonsense.shared.client.resource.CSResources"
 		field="resources" />
 	<g:DockLayoutPanel
 		height="100%"

@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client.visualization;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.ui.IsWidget;

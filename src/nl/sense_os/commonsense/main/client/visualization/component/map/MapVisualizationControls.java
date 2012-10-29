@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.model.Timeseries;
 import nl.sense_os.commonsense.main.client.visualization.component.map.resource.MapResources;
+import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;

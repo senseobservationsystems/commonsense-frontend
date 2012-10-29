@@ -120,9 +120,9 @@ public class GroupJoinView extends View {
 
 		// sensor list loader
 		List<GxtSensor> sensors = Registry
-				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		List<GxtSensor> ownedSensors = new ArrayList<GxtSensor>();
-		GxtUser user = Registry.get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+		GxtUser user = Registry.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_USER);
 		for (GxtSensor sensor : sensors) {
 			if (sensor.getOwner().equals(user)) {
 				ownedSensors.add(sensor);

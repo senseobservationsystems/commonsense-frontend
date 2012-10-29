@@ -14,7 +14,7 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.forgotpassword;
 
-import nl.sense_os.commonsense.common.client.component.Resettable;
+import nl.sense_os.commonsense.shared.client.component.Resettable;
 
 import com.google.gwt.user.client.ui.IsWidget;
 

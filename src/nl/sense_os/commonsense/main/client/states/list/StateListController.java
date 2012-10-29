@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetMethodsResponse;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
-import nl.sense_os.commonsense.common.client.model.Sensor;
-import nl.sense_os.commonsense.common.client.model.ServiceMethod;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
@@ -18,6 +12,12 @@ import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
+import nl.sense_os.commonsense.shared.client.communication.SessionManager;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetMethodsResponse;
+import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorsResponse;
+import nl.sense_os.commonsense.shared.client.constant.Urls;
+import nl.sense_os.commonsense.shared.client.model.Sensor;
+import nl.sense_os.commonsense.shared.client.model.ServiceMethod;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -309,7 +309,7 @@ public class StateListController extends Controller {
 		// get details from library
 		List<GxtSensor> result = new ArrayList<GxtSensor>();
 		List<GxtSensor> library = Registry
-				.<List<GxtSensor>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.<List<GxtSensor>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		for (GxtSensor sensor : sensors) {
 			int index = -1;
 			for (GxtSensor libSensor : library) {
@@ -394,7 +394,7 @@ public class StateListController extends Controller {
 		}
 
 		GxtUser user = Registry
-				.<GxtUser> get(nl.sense_os.commonsense.common.client.util.Constants.REG_USER);
+				.<GxtUser> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_USER);
 		List<GxtSensor> states = new ArrayList<GxtSensor>();
 		for (int i = 0; i < sensors.length(); i++) {
 			GxtSensor sensor = new GxtSensor(sensors.get(i));

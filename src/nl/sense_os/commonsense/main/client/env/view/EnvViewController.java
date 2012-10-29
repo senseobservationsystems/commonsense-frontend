@@ -54,7 +54,7 @@ public class EnvViewController extends Controller {
 
 		// get the position sensors for the devices
 		List<GxtSensor> library = Registry
-				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
+				.get(nl.sense_os.commonsense.shared.client.util.Constants.REG_SENSOR_LIST);
 		List<GxtSensor> envSensors = new ArrayList<GxtSensor>();
 		for (GxtSensor sensor : library) {
 			if (environment.equals(sensor.getEnvironment())) {

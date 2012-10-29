@@ -10,7 +10,7 @@
 	<!-- Inherit the default GWT style sheet.                       -->
 	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
 	<!-- Other module inherits                                      -->
-	<inherits name="nl.sense_os.commonsense.common.Common" />
+	<inherits name="nl.sense_os.commonsense.shared.Shared" />
 	<inherits name='com.google.gwt.maps.GoogleMaps' />
 	<inherits name='com.extjs.gxt.ui.GXT'/>
 	<inherits name='com.chap.links.Graph'/>

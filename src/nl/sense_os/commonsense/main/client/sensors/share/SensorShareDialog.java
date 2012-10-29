@@ -176,7 +176,7 @@ public class SensorShareDialog extends View {
 	private void onShow(AppEvent event) {
 		sensors = event.<List<GxtSensor>> getData("sensors");
 		List<TreeModel> users = Registry
-				.<List<TreeModel>> get(nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS);
+				.<List<TreeModel>> get(nl.sense_os.commonsense.shared.client.util.Constants.REG_GROUPS);
 		store.removeAll();
 		store.add(users);
 
