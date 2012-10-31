@@ -21,6 +21,10 @@ public class VisualizationViewFactory {
         return INSTANCE;
     }
 
+    private VisualizationViewFactory() {
+        // private constructor to enforce singleton pattern
+    }
+
     public VisualizationView getView(VisualizePlace place) {
 
         // see if the visualization is already in our map
