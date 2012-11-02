@@ -44,7 +44,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
                 for (int j = 0; j < oldData.length(); j++) {
                     Timeseries original = oldData.get(j);
                     if (toAppend.getLabel().equals(original.getLabel())
-                            && toAppend.getId() == original.getId()) {
+                            && toAppend.getId().equals(original.getId())) {
                         LOG.fine("Append data to " + original.getLabel());
                         original.append(toAppend);
                         appended = true;
@@ -114,7 +114,7 @@ public class VisualizeActivity extends AbstractActivity implements Visualization
                 long refreshStart = start;
                 for (int i = 0; i < data.length(); i++) {
                     Timeseries ts = data.get(i);
-                    if (ts.getId() == sensor.getId()) {
+                    if (ts.getId().equals(sensor.getId())) {
                         refreshStart = ts.getEnd() > refreshStart ? ts.getEnd() : refreshStart;
                     }
                 }
