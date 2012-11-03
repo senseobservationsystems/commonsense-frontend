@@ -23,6 +23,7 @@ import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.sensormanagement.delete.SensorDeleter;
 import nl.sense_os.commonsense.main.client.shared.loader.Loader;
 import nl.sense_os.commonsense.main.client.shared.loader.SensorListLoader;
 import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
@@ -202,4 +203,10 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
 
 		view.refreshLoader(false);
 	}
+
+    @Override
+    public void onDeleteClick(List<GxtSensor> sensors) {
+        SensorDeleter deleter = new SensorDeleter();
+        deleter.start(sensors);
+    }
 }

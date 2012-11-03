@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
-import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.sensors.publish.PublishEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
@@ -355,9 +354,9 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
 
 		if (sensors.size() > 0) {
-			AppEvent event = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
-			event.setData("sensors", sensors);
-			Dispatcher.forwardEvent(event);
+            if (null != presenter) {
+                presenter.onDeleteClick(sensors);
+            }
 
 		} else {
 			MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);

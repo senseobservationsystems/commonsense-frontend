@@ -27,20 +27,22 @@ import com.google.gwt.user.client.ui.IsWidget;
  */
 public interface SensorListView extends IsWidget {
 
-	public interface Presenter {
+    public interface Presenter {
 
-		void loadData(AsyncCallback<ListLoadResult<GxtSensor>> callback, boolean force);
+        void loadData(AsyncCallback<ListLoadResult<GxtSensor>> callback, boolean force);
 
-		void onVisualizeClick(List<GxtSensor> sensors);
-	}
+        void onDeleteClick(List<GxtSensor> sensors);
 
-	void onListUpdate();
+        void onVisualizeClick(List<GxtSensor> sensors);
+    }
 
-	void onLibChanged();
+    void onListUpdate();
 
-	void setPresenter(Presenter presenter);
+    void onLibChanged();
 
-	void setBusy(boolean busy);
+    void setPresenter(Presenter presenter);
 
-	void refreshLoader(boolean force);
+    void setBusy(boolean busy);
+
+    void refreshLoader(boolean force);
 }

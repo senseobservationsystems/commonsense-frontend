@@ -525,4 +525,23 @@ public class CommonSenseApi {
         // TODO Auto-generated method stub
 
     }
+
+    public static void deleteSensor(String id, RequestCallback callback) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.DELETE;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSORS + "/" + id);
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+    }
 }
