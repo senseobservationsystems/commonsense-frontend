@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.TreeCopier;
-import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
@@ -45,7 +44,7 @@ public class StateListController extends Controller {
 
 		// external triggers to initiate a list update
 		registerEventTypes(StateCreateEvents.CreateServiceComplete,
-				StateConnectEvents.ConnectSuccess, SensorDeleteEvents.DeleteSuccess,
+                StateConnectEvents.ConnectSuccess,
 				StateDefaultsEvents.CheckDefaultsSuccess);
 
 		// events to update the list of groups

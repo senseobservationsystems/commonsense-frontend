@@ -1,6 +1,5 @@
 package nl.sense_os.commonsense.main.client.states.list;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -9,7 +8,6 @@ import nl.sense_os.commonsense.main.client.gxt.util.LibraryColumnsFactory;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorComparator;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
-import nl.sense_os.commonsense.main.client.sensors.delete.SensorDeleteEvents;
 import nl.sense_os.commonsense.main.client.states.connect.StateConnectEvents;
 import nl.sense_os.commonsense.main.client.states.create.StateCreateEvents;
 import nl.sense_os.commonsense.main.client.states.defaults.StateDefaultsEvents;
@@ -110,10 +108,7 @@ public class StateGrid extends View {
 	 * Dispatches request to show "delete dialog" for the selected state.
 	 */
 	private void deleteState() {
-		GxtSensor state = getSelectedState();
-		AppEvent delete = new AppEvent(SensorDeleteEvents.ShowDeleteDialog);
-		delete.setData("sensors", Arrays.asList(state));
-		Dispatcher.forwardEvent(delete);
+        // TODO
 	}
 
 	private void disconnectSensor() {
@@ -167,8 +162,7 @@ public class StateGrid extends View {
 
 		} else if (type.equals(StateConnectEvents.ConnectSuccess)
 				|| type.equals(StateCreateEvents.CreateServiceComplete)
-				|| type.equals(StateDefaultsEvents.CheckDefaultsSuccess)
-				|| type.equals(SensorDeleteEvents.DeleteSuccess)) {
+                || type.equals(StateDefaultsEvents.CheckDefaultsSuccess)) {
 			// LOG.fine( "External trigger for update");
 			refreshLoader(true);
 
