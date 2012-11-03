@@ -1,7 +1,7 @@
-package nl.sense_os.commonsense.main.client.sensormanagement.delete.component;
+package nl.sense_os.commonsense.main.client.sensormanagement.deleter.component;
 
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.ConfirmRemovalView.Presenter;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.RemovalCompleteView;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.RemovalCompleteView;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.ConfirmRemovalView.Presenter;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;

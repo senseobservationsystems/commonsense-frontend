@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensormanagement.delete;
+package nl.sense_os.commonsense.main.client.sensormanagement.deleter;
 
 import com.google.gwt.user.client.ui.IsWidget;
 

@@ -1,7 +1,7 @@
-package nl.sense_os.commonsense.main.client.sensormanagement.delete.component;
+package nl.sense_os.commonsense.main.client.sensormanagement.deleter.component;
 
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.ConfirmRemovalView;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.ConfirmRemovalView;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;

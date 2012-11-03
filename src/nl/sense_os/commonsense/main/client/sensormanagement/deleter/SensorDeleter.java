@@ -1,14 +1,13 @@
-package nl.sense_os.commonsense.main.client.sensormanagement.delete;
+package nl.sense_os.commonsense.main.client.sensormanagement.deleter;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.component.GxtConfirmRemovalDialog;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.component.GxtRemovalCompleteDialog;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.component.GxtRemovalFailedDialog;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.component.GxtConfirmRemovalDialog;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.component.GxtRemovalCompleteDialog;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.component.GxtRemovalFailedDialog;
 import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -16,7 +15,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 
-public class SensorDeleter implements ConfirmRemovalView.Presenter, AlertDialogContent.Presenter {
+public class SensorDeleter implements ConfirmRemovalView.Presenter {
 
     private static final Logger LOG = Logger.getLogger(SensorDeleter.class.getName());
     private List<GxtSensor> sensors;
@@ -69,6 +68,55 @@ public class SensorDeleter implements ConfirmRemovalView.Presenter, AlertDialogC
             // done!
             onDeleteComplete();
         }
+    }
+
+    private String getConfirmationText() {
+        String message = "Are you sure you want to remove the selected sensor from your list?";
+        if (sensors.size() > 1) {
+            message = "Are you sure you want to remove all " + sensors.size()
+                    + " selected sensors from your list?";
+        }
+        message += "<br><br>";
+        if (sensors.size() > 1) {
+            message += "Warning: the removal can not be undone! Any data you stored for these sensors will be lost. Forever.";
+        } else {
+            message += "Warning: the removal can not be undone! Any data you stored for this sensor will be lost. Forever.";
+        }
+        return message;
+    }
+
+    @Override
+    public void onCancelClick() {
+        confirmationDialog.hide();
+        if (null != successDialog) {
+            successDialog.hide();
+            successDialog = null;
+        }
+        if (null != failureDialog) {
+            failureDialog.hide();
+            failureDialog = null;
+        }
+    }
+
+    @Override
+    public void onDeleteClick() {
+        confirmationDialog.setBusy(true);
+
+        if (null != failureDialog) {
+            failureDialog.hide();
+            failureDialog = null;
+        }
+
+        delete(sensors, 0, 0);
+    }
+
+    private void onDeleteComplete() {
+        confirmationDialog.setBusy(false);
+
+        // show info
+        successDialog = new GxtRemovalCompleteDialog();
+        successDialog.setPresenter(this);
+        successDialog.show();
     }
 
     /**
@@ -126,60 +174,11 @@ public class SensorDeleter implements ConfirmRemovalView.Presenter, AlertDialogC
         delete(sensors, index, 0);
     }
 
-    private void onDeleteComplete() {
-        confirmationDialog.setBusy(false);
-
-        // show info
-        successDialog = new GxtRemovalCompleteDialog();
-        successDialog.setPresenter(this);
-        successDialog.show();
-    }
-
-    @Override
-    public void onCancelClick() {
-        confirmationDialog.hide();
-        if (null != successDialog) {
-            successDialog.hide();
-            successDialog = null;
-        }
-        if (null != failureDialog) {
-            failureDialog.hide();
-            failureDialog = null;
-        }
-    }
-
-    @Override
-    public void onDeleteClick() {
-        confirmationDialog.setBusy(true);
-        delete(sensors, 0, 0);
-    }
-
     public void start(List<GxtSensor> sensors) {
         this.sensors = sensors;
         confirmationDialog = new GxtConfirmRemovalDialog();
         confirmationDialog.setConfirmationText(getConfirmationText());
         confirmationDialog.setPresenter(this);
         confirmationDialog.show();
-    }
-
-    private String getConfirmationText() {
-        String message = "Are you sure you want to remove the selected sensor from your list?";
-        if (sensors.size() > 1) {
-            message = "Are you sure you want to remove all " + sensors.size()
-                    + " selected sensors from your list?";
-        }
-        message += "<br><br>";
-        if (sensors.size() > 1) {
-            message += "Warning: the removal can not be undone! Any data you stored for these sensors will be lost. Forever.";
-        } else {
-            message += "Warning: the removal can not be undone! Any data you stored for this sensor will be lost. Forever.";
-        }
-        return message;
-    }
-
-    @Override
-    public void dismissAlert() {
-        // TODO Auto-generated method stub
-
     }
 }

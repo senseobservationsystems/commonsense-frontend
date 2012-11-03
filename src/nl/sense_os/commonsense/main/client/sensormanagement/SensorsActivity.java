@@ -22,7 +22,7 @@ import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.sensormanagement.delete.SensorDeleter;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleter.SensorDeleter;
 import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooser;
 import nl.sense_os.commonsense.main.client.shared.loader.Loader;
 import nl.sense_os.commonsense.main.client.shared.loader.SensorListLoader;
