@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensormanagement;
+package nl.sense_os.commonsense.main.client.sensormanagement.vischoice;
 
 import java.util.List;
 

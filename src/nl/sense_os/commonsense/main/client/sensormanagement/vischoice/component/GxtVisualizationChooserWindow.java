@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.sensormanagement.component;
+package nl.sense_os.commonsense.main.client.sensormanagement.vischoice.component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 import nl.sense_os.commonsense.main.client.gxt.component.TimeRangeForm;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
+import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooserView;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;

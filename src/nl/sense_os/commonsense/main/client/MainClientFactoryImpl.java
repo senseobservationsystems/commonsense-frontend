@@ -9,9 +9,9 @@ import nl.sense_os.commonsense.main.client.groupmanagement.component.GxtGroupGri
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.logout.component.LogoutViewImpl;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
-import nl.sense_os.commonsense.main.client.sensormanagement.VisualizationChooserView;
 import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtSensorGrid;
-import nl.sense_os.commonsense.main.client.sensormanagement.component.GxtVisualizationChooserWindow;
+import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooserView;
+import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.component.GxtVisualizationChooserWindow;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 import nl.sense_os.commonsense.main.client.statemanagement.component.GxtStateGrid;
 import nl.sense_os.commonsense.main.client.visualization.data.ProgressView;
