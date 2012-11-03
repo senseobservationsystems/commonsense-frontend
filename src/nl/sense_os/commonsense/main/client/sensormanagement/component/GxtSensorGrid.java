@@ -11,7 +11,6 @@ import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
-import nl.sense_os.commonsense.main.client.sensors.publish.PublishEvents;
 import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
 import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
 
@@ -309,21 +308,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		toolBar.add(alertButton);
 	}
 
-    private void onPublishClick() {
-        // get sensor models from the selection
-        final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
-
-        if (sensors.size() > 0) {
-            AppEvent event = new AppEvent(PublishEvents.ShowPublisher);
-            event.setData("sensors", sensors);
-            Dispatcher.forwardEvent(event);
-
-        } else {
-            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
-        }
-    }
-
-	private void onAlertClick() {
+    private void onAlertClick() {
 		// get sensor models from the selection
 		final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
 
@@ -348,6 +333,20 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		store.clearFilters();
 		store.applyFilters(null);
 	}
+
+	private void onPublishClick() {
+        // get sensor models from the selection
+        final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
+
+        if (sensors.size() > 0) {
+            if (null != presenter) {
+                presenter.onPublishClick(sensors);
+            }
+
+        } else {
+            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+        }
+    }
 
 	private void onRemoveClick() {
 		// get sensor models from the selection

@@ -23,6 +23,7 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.deleter.SensorDeleter;
+import nl.sense_os.commonsense.main.client.sensormanagement.publisher.SensorPublisher;
 import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooser;
 import nl.sense_os.commonsense.main.client.shared.loader.Loader;
 import nl.sense_os.commonsense.main.client.shared.loader.SensorListLoader;
@@ -182,5 +183,11 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
         parent.layout();
 
         view.refreshLoader(false);
+    }
+
+    @Override
+    public void onPublishClick(List<GxtSensor> sensors) {
+        SensorPublisher publisher = new SensorPublisher(clientFactory);
+        publisher.start(sensors);
     }
 }

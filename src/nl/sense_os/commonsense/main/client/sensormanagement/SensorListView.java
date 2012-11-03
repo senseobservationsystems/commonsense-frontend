@@ -33,16 +33,18 @@ public interface SensorListView extends IsWidget {
 
         void onDeleteClick(List<GxtSensor> sensors);
 
+        void onPublishClick(List<GxtSensor> sensors);
+
         void onVisualizeClick(List<GxtSensor> sensors);
     }
 
-    void onListUpdate();
-
     void onLibChanged();
 
-    void setPresenter(Presenter presenter);
+    void onListUpdate();
+
+    void refreshLoader(boolean force);
 
     void setBusy(boolean busy);
 
-    void refreshLoader(boolean force);
+    void setPresenter(Presenter presenter);
 }
