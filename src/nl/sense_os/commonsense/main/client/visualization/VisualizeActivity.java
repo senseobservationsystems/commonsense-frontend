@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.MainClientFactory;
-import nl.sense_os.commonsense.main.client.event.DataRequestEvent;
-import nl.sense_os.commonsense.main.client.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.shared.event.DataRequestEvent;
+import nl.sense_os.commonsense.main.client.shared.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;

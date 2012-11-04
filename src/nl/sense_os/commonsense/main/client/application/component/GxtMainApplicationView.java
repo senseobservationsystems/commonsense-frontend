@@ -5,11 +5,11 @@ import java.util.List;
 
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
-import nl.sense_os.commonsense.main.client.event.CurrentUserChangedEvent;
-import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
+import nl.sense_os.commonsense.main.client.shared.event.CurrentUserChangedEvent;
+import nl.sense_os.commonsense.main.client.shared.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.statemanagement.StatesPlace;
 import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
 import nl.sense_os.commonsense.shared.client.component.FooterBar;

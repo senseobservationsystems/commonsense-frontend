@@ -1,9 +1,9 @@
-package nl.sense_os.commonsense.main.client.event;
+package nl.sense_os.commonsense.main.client.shared.event;
 
 import java.util.List;
 
-import nl.sense_os.commonsense.main.client.event.DataRequestEvent.Handler;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.shared.event.DataRequestEvent.Handler;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.web.bindery.event.shared.Event;

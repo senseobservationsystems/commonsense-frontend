@@ -1,32 +1,29 @@
-package nl.sense_os.commonsense.main.client.event;
+package nl.sense_os.commonsense.main.client.shared.event;
 
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.shared.client.model.Timeseries;
+import nl.sense_os.commonsense.main.client.shared.event.LatestValuesRequestEvent.Handler;
 
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.web.bindery.event.shared.Event;
 
-public class NewSensorDataEvent extends Event<NewSensorDataEvent.Handler> {
+public class LatestValuesRequestEvent extends Event<Handler> {
 
 	public interface Handler extends EventHandler {
-		void onNewSensorData(NewSensorDataEvent event);
+		void onLatestValuesRequest(LatestValuesRequestEvent event);
 	}
 
 	public static final Type<Handler> TYPE = new Type<Handler>();
 	private List<GxtSensor> sensors;
-	private JsArray<Timeseries> sensorData;
 
-	public NewSensorDataEvent(List<GxtSensor> sensors, JsArray<Timeseries> sensorData) {
+	public LatestValuesRequestEvent(List<GxtSensor> sensors) {
 		this.sensors = sensors;
-		this.sensorData = sensorData;
 	}
 
 	@Override
 	protected void dispatch(Handler handler) {
-		handler.onNewSensorData(this);
+		handler.onLatestValuesRequest(this);
 	}
 
 	@Override
@@ -34,11 +31,8 @@ public class NewSensorDataEvent extends Event<NewSensorDataEvent.Handler> {
 		return TYPE;
 	}
 
-	public JsArray<Timeseries> getSensorData() {
-		return sensorData;
-	}
-
 	public List<GxtSensor> getSensors() {
 		return sensors;
 	}
+
 }

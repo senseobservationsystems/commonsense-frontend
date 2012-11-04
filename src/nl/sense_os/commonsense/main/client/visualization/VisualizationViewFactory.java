@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.visualization;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
+import nl.sense_os.commonsense.main.client.shared.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.visualization.component.map.MapVisualization;
 import nl.sense_os.commonsense.main.client.visualization.component.table.TableVisualization;
 import nl.sense_os.commonsense.main.client.visualization.component.timeline.TimelineVisualization;

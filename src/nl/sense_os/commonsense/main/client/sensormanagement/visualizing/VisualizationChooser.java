@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.MainClientFactory;
-import nl.sense_os.commonsense.main.client.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.visualizing.VisualizationChooserView.Presenter;
+import nl.sense_os.commonsense.main.client.shared.event.NewVisualizationEvent;
 import nl.sense_os.commonsense.main.client.visualization.VisualizePlace;
 
 public class VisualizationChooser implements Presenter {
