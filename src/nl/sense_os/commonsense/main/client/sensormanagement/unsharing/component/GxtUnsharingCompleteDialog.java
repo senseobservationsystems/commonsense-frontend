@@ -34,7 +34,7 @@ public class GxtUnsharingCompleteDialog implements UnsharingCompleteView {
 
     @Override
     public void show() {
-        messageBox = MessageBox.info("Success!", "Sharing complete",
+        messageBox = MessageBox.info("Success!", "Unsharing complete",
                 new Listener<MessageBoxEvent>() {
 
                     @Override

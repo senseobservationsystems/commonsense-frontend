@@ -42,7 +42,7 @@ public class GxtUnsharingFailureDialog implements UnsharingFailureView {
     @Override
     public void show(int code, Throwable error) {
         messageBox = MessageBox.confirm("Failure",
-                "Removal failed! Code: " + code + " " + error.getMessage() + "."
+                "Unsharing failed! Code: " + code + " " + error.getMessage() + "."
                         + "<br/><br/>Retry?", new Listener<MessageBoxEvent>() {
 
                     @Override

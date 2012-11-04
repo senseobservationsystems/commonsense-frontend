@@ -41,7 +41,7 @@ public class GxtSharingFailureDialog implements SharingFailureView {
     @Override
     public void show(int code, Throwable error) {
         messageBox = MessageBox.confirm("Failure",
-                "Removal failed! Code: " + code + " " + error.getMessage() + "."
+                "Sharing failed! Code: " + code + " " + error.getMessage() + "."
                         + "<br/><br/>Retry?", new Listener<MessageBoxEvent>() {
 
                     @Override
