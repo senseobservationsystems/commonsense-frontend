@@ -8,7 +8,6 @@ import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
-import nl.sense_os.commonsense.main.client.groups.create.GroupCreateController;
 import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
 import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveController;
@@ -143,7 +142,6 @@ public class MainEntryPoint implements EntryPoint {
 		Dispatcher dispatcher = Dispatcher.get();
 
 		// group controllers
-		dispatcher.addController(new GroupCreateController());
 		dispatcher.addController(new GroupJoinController());
 		dispatcher.addController(new GroupLeaveController());
 		dispatcher.addController(new GroupInviteController());

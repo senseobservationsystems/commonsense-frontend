@@ -1,23 +1,26 @@
-package nl.sense_os.commonsense.main.client.groups.create.components;
+package nl.sense_os.commonsense.main.client.groupmanagement.creating.component;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.main.client.groupmanagement.creating.GroupCreatorView;
 import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 
-public class GroupCreator extends CenteredWindow {
+public class GxtGroupCreatorForm extends CenteredWindow implements GroupCreatorView {
 
-    private static final Logger LOG = Logger.getLogger(GroupCreator.class.getName());
+    private static final Logger LOG = Logger.getLogger(GxtGroupCreatorForm.class.getName());
 
     private CardLayout layout;
 
@@ -33,7 +36,9 @@ public class GroupCreator extends CenteredWindow {
     private Button btnCancel;
     private FormButtonBinding formButtonBinding;
 
-    public GroupCreator() {
+    private Presenter presenter;
+
+    public GxtGroupCreatorForm() {
         super();
 
         // LOG.setLevel(Level.ALL);
@@ -70,10 +75,48 @@ public class GroupCreator extends CenteredWindow {
         addButton(btnNext);
         addButton(btnCancel);
 
+        addListeners();
+
         // initialize
         showNameForm();
     }
 
+    private void addListeners() {
+        btnNext.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                Button b = ce.getButton();
+                if (b.getText().equals("Next")) {
+                    goToNext();
+                } else {
+                    if (null != presenter) {
+                        presenter.onCreateClick();
+                    }
+                }
+            }
+        });
+
+        btnBack.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                goToPrev();
+            }
+        });
+
+        btnCancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                if (null != presenter) {
+                    presenter.onCancelClick();
+                }
+            }
+        });
+    }
+
+    @Override
     public String getAccessPassword() {
         String pass = frmPresets.getAccessPassword();
         if (null == pass) {
@@ -94,14 +137,27 @@ public class GroupCreator extends CenteredWindow {
         return btnNext;
     }
 
+    @Override
     public String getGroupDescription() {
         return frmGroupName.getDescriptionValue();
     }
 
+    @Override
     public String getGroupName() {
         return frmGroupName.getNameValue();
     }
 
+    @Override
+    public String getGroupPassword() {
+        return frmGroupLogin.getPassword();
+    }
+
+    @Override
+    public String getGroupUsername() {
+        return frmGroupLogin.getLogin();
+    }
+
+    @Override
     public List<String> getOptSensors() {
         String reqSensors = frmReqSharing.getOptSensors();
         if (null != reqSensors && reqSensors.length() > 0) {
@@ -111,10 +167,12 @@ public class GroupCreator extends CenteredWindow {
         }
     }
 
+    @Override
     public String getPresetChoice() {
         return frmPresets.getPresetChoice();
     }
 
+    @Override
     public List<String> getReqSensors() {
         String reqSensors = frmReqSharing.getReqSensors();
         if (null != reqSensors && reqSensors.length() > 0) {
@@ -122,14 +180,6 @@ public class GroupCreator extends CenteredWindow {
         } else {
             return null;
         }
-    }
-
-    public String getGroupUsername() {
-        return frmGroupLogin.getLogin();
-    }
-
-    public String getGroupPassword() {
-        return frmGroupLogin.getPassword();
     }
 
     public void goToNext() {
@@ -168,70 +218,87 @@ public class GroupCreator extends CenteredWindow {
         }
     }
 
+    @Override
     public boolean isCreateMembers() {
         return frmMemberRights.isCreateMembers();
     }
 
+    @Override
     public boolean isCreateSensors() {
         return frmMemberRights.isCreateSensors();
     }
 
+    @Override
     public boolean isDeleteMembers() {
         return frmMemberRights.isDeleteMembers();
     }
 
+    @Override
     public boolean isDeleteSensors() {
         return frmMemberRights.isDeleteSensors();
     }
 
+    @Override
     public boolean isEmailRequired() {
         return frmReqSharing.isEmailRequired();
     }
 
+    @Override
     public boolean isFirstNameRequired() {
         return frmReqSharing.isFirstNameRequired();
     }
 
+    @Override
     public boolean isGroupAnonymous() {
         return frmReqSharing.isGroupAnonymous();
     }
 
+    @Override
     public boolean isGroupHidden() {
         return frmAccessMgmt.isGroupHidden();
     }
 
-    public boolean isGroupPublic() {
-        return frmAccessMgmt.isGroupPublic();
-    }
-
+    @Override
     public boolean isGroupLogin() {
         return frmGroupLogin.isGroupLogin();
     }
 
+    @Override
+    public boolean isGroupPublic() {
+        return frmAccessMgmt.isGroupPublic();
+    }
+
+    @Override
     public boolean isPhoneRequired() {
         return frmReqSharing.isPhoneRequired();
     }
 
+    @Override
     public boolean isReadMembers() {
         return frmMemberRights.isReadMembers();
     }
 
+    @Override
     public boolean isReadSensors() {
         return frmMemberRights.isReadSensors();
     }
 
+    @Override
     public boolean isSurnameRequired() {
         return frmReqSharing.isSurnameRequired();
     }
 
+    @Override
     public boolean isUserIdRequired() {
         return frmReqSharing.isUserIdRequired();
     }
 
+    @Override
     public boolean isUsernameRequired() {
         return frmReqSharing.isUsernameRequired();
     }
 
+    @Override
     public void setBusy(boolean busy) {
         if (busy) {
             btnNext.setIconStyle("sense-btn-icon-loading");
@@ -240,6 +307,11 @@ public class GroupCreator extends CenteredWindow {
         }
         btnNext.setEnabled(!busy);
         btnBack.setEnabled(!busy);
+    }
+
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
     }
 
     private void showAccessMgmt() {

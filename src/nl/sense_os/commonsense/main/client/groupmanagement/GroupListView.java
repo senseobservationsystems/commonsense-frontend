@@ -17,6 +17,7 @@ package nl.sense_os.commonsense.main.client.groupmanagement;
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
+import nl.sense_os.commonsense.main.client.shared.ui.HasBusyState;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -24,18 +25,26 @@ import com.google.gwt.user.client.ui.IsWidget;
 /**
  * View base interface. Extends IsWidget so a view impl can easily provide its container widget.
  */
-public interface GroupListView extends IsWidget {
+public interface GroupListView extends IsWidget, HasBusyState {
 
-	public interface Presenter {
+    public interface Presenter {
 
-		void loadData(AsyncCallback<List<GxtUser>> callback, Object loadConfig);
-	}
+        void loadData(AsyncCallback<List<GxtUser>> callback, Object loadConfig);
 
-	void onListUpdate();
+        void onAddUserClick();
 
-	void onLibChanged();
+        void onCreateClick();
 
-	void setPresenter(Presenter presenter);
+        void onJoinClick();
 
-	void setBusy(boolean busy);
+        void onLeaveClick();
+    }
+
+    List<GxtUser> getSelection();
+
+    void onLibChanged();
+
+    void onListUpdate();
+
+    void setPresenter(Presenter presenter);
 }

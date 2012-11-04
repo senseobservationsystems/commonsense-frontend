@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.shared.client.model.Group;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 import nl.sense_os.commonsense.shared.client.util.Md5Hasher;
 
@@ -12,6 +13,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window.Location;
 
 public class CommonSenseApi {
@@ -58,12 +60,34 @@ public class CommonSenseApi {
     private static final String JSON_TYPE = "application/json";
     private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
+    public static void createGroup(RequestCallback callback, Group group) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUPS);
+        String url = urlBuilder.buildString();
+        String groupString = new JSONObject(group).toString();
+        String data = "{\"group\":" + groupString + "}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
+
     public static void deleteEnvironment(RequestCallback callback, int environmentId) {
         // TODO Auto-generated method stub
 
     }
 
-    public static void deleteSensor(String id, RequestCallback callback) {
+    public static void deleteSensor(RequestCallback callback, String id) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();

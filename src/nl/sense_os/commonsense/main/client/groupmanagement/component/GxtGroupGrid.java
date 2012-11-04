@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
-import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
-import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteEvents;
-import nl.sense_os.commonsense.main.client.groups.join.GroupJoinEvents;
-import nl.sense_os.commonsense.main.client.groups.leave.GroupLeaveEvents;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseIconProvider;
@@ -29,14 +25,11 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
@@ -96,6 +89,11 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 
 		initComponent(panel);
 	}
+
+	@Override
+    public List<GxtUser> getSelection() {
+        return grid.getSelectionModel().getSelection();
+    }
 
 	private void initFilter() {
 		filterBar = new ToolBar();
@@ -202,13 +200,21 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 			public void componentSelected(ButtonEvent ce) {
 				Button source = ce.getButton();
 				if (source.equals(createButton)) {
-					Dispatcher.forwardEvent(GroupCreateEvents.ShowCreator);
+                    if (null != presenter) {
+                        presenter.onCreateClick();
+                    }
 				} else if (source.equals(leaveButton)) {
-					onLeaveClick();
+                    if (null != presenter) {
+                        presenter.onLeaveClick();
+                    }
 				} else if (source.equals(joinButton)) {
-					Dispatcher.forwardEvent(GroupJoinEvents.Show);
+                    if (null != presenter) {
+                        presenter.onJoinClick();
+                    }
 				} else if (source.equals(addUserButton)) {
-					onAddUserClick();
+                    if (null != presenter) {
+                        presenter.onAddUserClick();
+                    }
 				} else {
 					LOG.warning("Unexpected button pressed: " + source);
 				}
@@ -252,31 +258,9 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 		toolBar.add(leaveButton);
 	}
 
-	private void onAddUserClick() {
-		GxtUser selected = grid.getSelectionModel().getSelectedItem();
-		GxtGroup group = null;
-		if (selected instanceof GxtGroup) {
-			group = (GxtGroup) selected;
-		} else if (selected.getParent() instanceof GxtGroup) {
-			group = (GxtGroup) selected.getParent();
-		} else {
-			MessageBox.alert(null, "Cannot add user to group: no group selected.", null);
-			return;
-		}
-
-		AppEvent invite = new AppEvent(GroupInviteEvents.ShowInviter);
-		invite.setData("group", group);
-		Dispatcher.forwardEvent(invite);
-	}
-
-	private void onLeaveClick() {
-		GxtUser group = grid.getSelectionModel().getSelectedItem();
-		while (!(group instanceof GxtGroup)) {
-			group = (GxtUser) group.getParent();
-		}
-		AppEvent event = new AppEvent(GroupLeaveEvents.LeaveRequest);
-		event.setData("group", group);
-		Dispatcher.forwardEvent(event);
+	@Override
+	public void onLibChanged() {
+		onListDirty();
 	}
 
 	private void onListDirty() {
@@ -289,25 +273,15 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 		}.schedule(100);
 	}
 
-	private void refreshLoader(boolean force) {
-		if (force || store.getChildCount() == 0) {
-			loader.load();
-		}
-	}
-
 	@Override
 	public void onListUpdate() {
 		onListDirty();
 	}
 
-	@Override
-	public void onLibChanged() {
-		onListDirty();
-	}
-
-	@Override
-	public void setPresenter(Presenter presenter) {
-		this.presenter = presenter;
+	private void refreshLoader(boolean force) {
+		if (force || store.getChildCount() == 0) {
+			loader.load();
+		}
 	}
 
 	@Override
@@ -319,4 +293,8 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 		}
 	}
 
+    @Override
+	public void setPresenter(Presenter presenter) {
+		this.presenter = presenter;
+	}
 }

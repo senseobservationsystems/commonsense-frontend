@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
+import nl.sense_os.commonsense.main.client.groupmanagement.creating.GroupCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
@@ -39,6 +40,47 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 		if (null == Registry.get(Constants.REG_GROUPS)) {
 			Registry.register(Constants.REG_GROUPS, new ArrayList<GxtGroup>());
 		}
+	}
+
+	/**
+	 * Gets a list of groups that the user is a member of, using an Ajax request to CommonSense. The
+	 * response is handled by {@link #onGroupsSuccess(String, AsyncCallback)} or
+	 * {@link #onGroupsFailure(AsyncCallback)}. Afterwards, the members of the group are fetched by
+	 * {@link #getGroupMembers(int, List, AsyncCallback)}.
+	 * 
+	 * @param callback
+	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
+	 *            complete.
+	 */
+	private void getGroups(final AsyncCallback<List<GxtUser>> callback) {
+		LOG.fine("Get groups");
+
+		// notify view
+		view.setBusy(true);
+
+		// clear registry
+		Registry.<List<GxtGroup>> get(Constants.REG_GROUPS).clear();
+
+		// prepare request callback
+		RequestCallback reqCallback = new RequestCallback() {
+
+			@Override
+			public void onError(Request request, Throwable exception) {
+				onGroupsFailure(-1, exception, callback);
+			}
+
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				int statusCode = response.getStatusCode();
+				if (Response.SC_OK == statusCode) {
+					onGroupsSuccess(response.getText(), callback);
+				} else {
+					onGroupsFailure(statusCode, new Throwable(response.getStatusText()), callback);
+				}
+			}
+		};
+
+		CommonSenseApi.getGroups(reqCallback, null, null);
 	}
 
 	/**
@@ -86,47 +128,6 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 		CommonSenseApi.getGroupUsers(reqCallback, group.getId(), null, null);
 	}
 
-	/**
-	 * Gets a list of groups that the user is a member of, using an Ajax request to CommonSense. The
-	 * response is handled by {@link #onGroupsSuccess(String, AsyncCallback)} or
-	 * {@link #onGroupsFailure(AsyncCallback)}. Afterwards, the members of the group are fetched by
-	 * {@link #getGroupMembers(int, List, AsyncCallback)}.
-	 * 
-	 * @param callback
-	 *            Optional callback for a DataProxy. Will be called when the list of sensors is
-	 *            complete.
-	 */
-	private void getGroups(final AsyncCallback<List<GxtUser>> callback) {
-		LOG.fine("Get groups");
-
-		// notify view
-		view.setBusy(true);
-
-		// clear registry
-		Registry.<List<GxtGroup>> get(Constants.REG_GROUPS).clear();
-
-		// prepare request callback
-		RequestCallback reqCallback = new RequestCallback() {
-
-			@Override
-			public void onError(Request request, Throwable exception) {
-				onGroupsFailure(-1, exception, callback);
-			}
-
-			@Override
-			public void onResponseReceived(Request request, Response response) {
-				int statusCode = response.getStatusCode();
-				if (Response.SC_OK == statusCode) {
-					onGroupsSuccess(response.getText(), callback);
-				} else {
-					onGroupsFailure(statusCode, new Throwable(response.getStatusText()), callback);
-				}
-			}
-		};
-
-		CommonSenseApi.getGroups(reqCallback, null, null);
-	}
-
 	@Override
 	public void loadData(AsyncCallback<List<GxtUser>> callback, Object loadConfig) {
 
@@ -142,26 +143,17 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 		}
 	}
 
-	private void onGroupUsersFailure(int code, Throwable error, GxtGroup group,
-			AsyncCallback<List<GxtUser>> callback) {
-		LOG.warning("Failed to get group " + group.getId() + " users! Code: " + code + " "
-				+ error.getMessage());
+	@Override
+    public void onAddUserClick() {
+        // TODO Auto-generated method stub
 
-		view.setBusy(false);
+    }
 
-		if (null != callback) {
-			callback.onFailure(null);
-		}
-	}
-
-	private void onGroupUsersForbidden(GxtGroup group, AsyncCallback<List<GxtUser>> callback) {
-		// user is not allowed to view the group members
-		view.setBusy(false);
-
-		if (null != callback) {
-			callback.onSuccess(new ArrayList<GxtUser>());
-		}
-	}
+	@Override
+    public void onCreateClick() {
+        GroupCreator creator = new GroupCreator(clientFactory);
+        creator.start();
+    }
 
 	/**
 	 * Handles the response from CommonSense to the request for group members. Parses the JSON array
@@ -249,7 +241,40 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 		}
 	}
 
-	@Override
+	private void onGroupUsersFailure(int code, Throwable error, GxtGroup group,
+			AsyncCallback<List<GxtUser>> callback) {
+		LOG.warning("Failed to get group " + group.getId() + " users! Code: " + code + " "
+				+ error.getMessage());
+
+		view.setBusy(false);
+
+		if (null != callback) {
+			callback.onFailure(null);
+		}
+	}
+
+    private void onGroupUsersForbidden(GxtGroup group, AsyncCallback<List<GxtUser>> callback) {
+		// user is not allowed to view the group members
+		view.setBusy(false);
+
+		if (null != callback) {
+			callback.onSuccess(new ArrayList<GxtUser>());
+		}
+	}
+
+    @Override
+    public void onJoinClick() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onLeaveClick() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
 	public void start(AcceptsOneWidget panel, EventBus eventBus) {
 		LOG.info("Starting 'groupmanagement' activity");
 

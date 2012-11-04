@@ -62,7 +62,7 @@ public class SensorDeleter implements ConfirmRemovalView.Presenter {
             };
 
             // send request
-            CommonSenseApi.deleteSensor(sensor.getId(), callback);
+            CommonSenseApi.deleteSensor(callback, sensor.getId());
 
         } else {
             // done!

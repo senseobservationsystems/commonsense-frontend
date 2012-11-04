@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.groups.create.components;
+package nl.sense_os.commonsense.main.client.groupmanagement.creating.component;
 
 import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
 
