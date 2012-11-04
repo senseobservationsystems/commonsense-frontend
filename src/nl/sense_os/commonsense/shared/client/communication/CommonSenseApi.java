@@ -537,6 +537,10 @@ public class CommonSenseApi {
                 builder.setHeader("X-SESSION_ID", sessionId);
             }
             builder.setHeader("Accept", JSON_TYPE);
+            if (null != data && data.startsWith("{")) {
+                builder.setHeader("Content-Type", JSON_TYPE);
+            }
+
             builder.sendRequest(data, callback);
         } catch (Exception e) {
             LOG.warning(method + " " + url + " request threw exception: " + e.getMessage());
