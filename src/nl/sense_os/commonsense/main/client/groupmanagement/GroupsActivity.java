@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.GroupCreator;
+import nl.sense_os.commonsense.main.client.groupmanagement.leaving.GroupLeaveController;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
@@ -270,8 +271,19 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 
     @Override
     public void onLeaveClick() {
-        // TODO Auto-generated method stub
-
+        List<GxtUser> selection = view.getSelection();
+        if (selection != null && selection.size() > 0) {
+            GxtUser user = selection.get(0);
+            while (user.getParent() != null) {
+                user = (GxtUser) user.getParent();
+            }
+            if (user instanceof GxtGroup) {
+                GroupLeaveController leaver = new GroupLeaveController(clientFactory);
+                leaver.start((GxtGroup) user);
+            } else {
+                LOG.warning("Could not find parent group!");
+            }
+        }
     }
 
     @Override

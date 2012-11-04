@@ -485,6 +485,25 @@ public class CommonSenseApi {
                 .buildString());
     }
 
+    public static void removeGroupUser(RequestCallback callback, String id, String userId) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.DELETE;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUP_USERS.replace("%1", id) + "/" + userId);
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+    }
+
     /**
      * @param callback
      *            RequestCallback to handle HTTP response
