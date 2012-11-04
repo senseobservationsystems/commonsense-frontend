@@ -22,9 +22,11 @@ import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.main.client.sensormanagement.deleter.SensorDeleter;
-import nl.sense_os.commonsense.main.client.sensormanagement.publisher.SensorPublisher;
-import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooser;
+import nl.sense_os.commonsense.main.client.sensormanagement.deleting.SensorDeleter;
+import nl.sense_os.commonsense.main.client.sensormanagement.publishing.SensorPublisher;
+import nl.sense_os.commonsense.main.client.sensormanagement.sharing.SensorSharer;
+import nl.sense_os.commonsense.main.client.sensormanagement.unsharing.SensorUnsharer;
+import nl.sense_os.commonsense.main.client.sensormanagement.visualizing.VisualizationChooser;
 import nl.sense_os.commonsense.main.client.shared.loader.Loader;
 import nl.sense_os.commonsense.main.client.shared.loader.SensorListLoader;
 import nl.sense_os.commonsense.shared.client.util.Constants;
@@ -128,7 +130,14 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
     }
 
     @Override
-    public void onDeleteClick(List<GxtSensor> sensors) {
+    public void onAlertClick() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onDeleteClick() {
+        List<GxtSensor> sensors = view.getSelection();
         SensorDeleter deleter = new SensorDeleter();
         deleter.start(sensors);
     }
@@ -165,7 +174,29 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
     }
 
     @Override
-    public void onVisualizeClick(List<GxtSensor> sensors) {
+    public void onPublishClick() {
+        List<GxtSensor> sensors = view.getSelection();
+        SensorPublisher publisher = new SensorPublisher(clientFactory);
+        publisher.start(sensors);
+    }
+
+    @Override
+    public void onShareClick() {
+        List<GxtSensor> sensors = view.getSelection();
+        SensorSharer sharer = new SensorSharer(clientFactory);
+        sharer.start(sensors);
+    }
+
+    @Override
+    public void onUnshareClick() {
+        List<GxtSensor> sensors = view.getSelection();
+        SensorUnsharer unsharer = new SensorUnsharer(clientFactory);
+        unsharer.start(sensors);
+    }
+
+    @Override
+    public void onVisualizeClick() {
+        List<GxtSensor> sensors = view.getSelection();
         VisualizationChooser chooser = new VisualizationChooser(clientFactory);
         chooser.start(sensors);
     }
@@ -183,11 +214,5 @@ public class SensorsActivity extends AbstractActivity implements SensorListView.
         parent.layout();
 
         view.refreshLoader(false);
-    }
-
-    @Override
-    public void onPublishClick(List<GxtSensor> sensors) {
-        SensorPublisher publisher = new SensorPublisher(clientFactory);
-        publisher.start(sensors);
     }
 }

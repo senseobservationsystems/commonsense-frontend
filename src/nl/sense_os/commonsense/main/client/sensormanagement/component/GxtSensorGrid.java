@@ -11,8 +11,6 @@ import nl.sense_os.commonsense.main.client.gxt.util.SensorOwnerFilter;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorProcessor;
 import nl.sense_os.commonsense.main.client.gxt.util.SensorTextFilter;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
-import nl.sense_os.commonsense.main.client.sensors.share.SensorShareEvents;
-import nl.sense_os.commonsense.main.client.sensors.unshare.UnshareEvents;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
@@ -31,12 +29,9 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -113,6 +108,11 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 
 		initComponent(panel);
 	}
+
+	@Override
+    public List<GxtSensor> getSelection() {
+        return grid.getSelectionModel().getSelection();
+    }
 
 	/**
 	 * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
@@ -220,7 +220,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		panel.getHeader().addTool(refresh);
 	}
 
-	private void initToolBar() {
+    private void initToolBar() {
 
 		// listen to toolbar button clicks
 		final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
@@ -229,17 +229,30 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 			public void componentSelected(ButtonEvent ce) {
 				Button source = ce.getButton();
 				if (source.equals(vizButton)) {
-					onVizClick();
+                    if (null != presenter) {
+                        presenter.onVisualizeClick();
+                    }
 				} else if (source.equals(shareButton)) {
-					onShareClick();
+                    if (null != presenter) {
+                        presenter.onShareClick();
+                    }
 				} else if (source.equals(unshareButton)) {
-					onUnshareClick();
+                    if (null != presenter) {
+                        presenter.onUnshareClick();
+                    }
 				} else if (source.equals(removeButton)) {
-					onRemoveClick();
+                    if (null != presenter) {
+                        presenter.onDeleteClick();
+                    }
 				} else if (source.equals(alertButton)) {
-					onAlertClick();
+                    if (null != presenter) {
+                        presenter.onAlertClick();
+                    }
                 } else if (source.equals(publishButton)) {
-                    onPublishClick();
+
+                    if (null != presenter) {
+                        presenter.onPublishClick();
+                    }
                 } else {
 					LOG.warning("Unexpected button pressed");
 				}
@@ -308,21 +321,6 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		toolBar.add(alertButton);
 	}
 
-    private void onAlertClick() {
-		// get sensor models from the selection
-		final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
-
-		if (sensors.size() > 0) {
-			// AppEvent event = new AppEvent(AlertCreateEvents.ShowCreator);
-			// event.setData("sensor", sensors.get(0));
-			// Dispatcher.forwardEvent(event);
-
-		} else {
-			MessageBox.info(null, "No sensors selected. You can only create alerts for sensors!",
-					null);
-		}
-	}
-
 	public void onLibChanged() {
 		refreshLoader(false);
 	}
@@ -332,52 +330,6 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		// re-filter the sensors store
 		store.clearFilters();
 		store.applyFilters(null);
-	}
-
-	private void onPublishClick() {
-        // get sensor models from the selection
-        final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
-
-        if (sensors.size() > 0) {
-            if (null != presenter) {
-                presenter.onPublishClick(sensors);
-            }
-
-        } else {
-            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
-        }
-    }
-
-	private void onRemoveClick() {
-		// get sensor models from the selection
-		final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
-
-		if (sensors.size() > 0) {
-            if (null != presenter) {
-                presenter.onDeleteClick(sensors);
-            }
-
-		} else {
-			MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
-		}
-	}
-
-	private void onShareClick() {
-		List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
-		AppEvent shareEvent = new AppEvent(SensorShareEvents.ShowShareDialog);
-		shareEvent.setData("sensors", sensors);
-		Dispatcher.forwardEvent(shareEvent);
-	}
-
-	private void onUnshareClick() {
-		AppEvent shareEvent = new AppEvent(UnshareEvents.ShowUnshareDialog);
-		shareEvent.setData("sensor", grid.getSelectionModel().getSelectedItem());
-		Dispatcher.forwardEvent(shareEvent);
-	}
-
-	private void onVizClick() {
-		List<GxtSensor> selection = grid.getSelectionModel().getSelection();
-		presenter.onVisualizeClick(selection);
 	}
 
 	@Override
@@ -400,7 +352,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		this.presenter = presenter;
 	}
 
-	/**
+    /**
 	 * Sets up the grid for drag and drop of the sensors.
 	 */
 	private void setupDragDrop() {

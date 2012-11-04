@@ -5,7 +5,7 @@ import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;
-import nl.sense_os.commonsense.main.client.sensormanagement.vischoice.VisualizationChooserView;
+import nl.sense_os.commonsense.main.client.sensormanagement.visualizing.VisualizationChooserView;
 import nl.sense_os.commonsense.main.client.statemanagement.StateListView;
 import nl.sense_os.commonsense.main.client.visualization.data.ProgressView;
 

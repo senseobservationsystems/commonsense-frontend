@@ -17,6 +17,7 @@ package nl.sense_os.commonsense.main.client.sensormanagement;
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
+import nl.sense_os.commonsense.main.client.shared.ui.HasBusyState;
 
 import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,26 +26,32 @@ import com.google.gwt.user.client.ui.IsWidget;
 /**
  * View base interface. Extends IsWidget so a view impl can easily provide its container widget.
  */
-public interface SensorListView extends IsWidget {
+public interface SensorListView extends IsWidget, HasBusyState {
 
     public interface Presenter {
 
         void loadData(AsyncCallback<ListLoadResult<GxtSensor>> callback, boolean force);
 
-        void onDeleteClick(List<GxtSensor> sensors);
+        void onAlertClick();
 
-        void onPublishClick(List<GxtSensor> sensors);
+        void onDeleteClick();
 
-        void onVisualizeClick(List<GxtSensor> sensors);
+        void onPublishClick();
+
+        void onShareClick();
+
+        void onUnshareClick();
+
+        void onVisualizeClick();
     }
+
+    List<GxtSensor> getSelection();
 
     void onLibChanged();
 
     void onListUpdate();
 
     void refreshLoader(boolean force);
-
-    void setBusy(boolean busy);
 
     void setPresenter(Presenter presenter);
 }

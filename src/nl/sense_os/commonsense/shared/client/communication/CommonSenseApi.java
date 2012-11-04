@@ -20,8 +20,8 @@ public class CommonSenseApi {
         private static final String PATH_PREFIX = Constants.STABLE_MODE || Constants.RC_MODE
                 || Constants.DEV_MODE ? "api/" : "";
         public static final String HOST = Constants.STABLE_MODE ? "common.sense-os.nl"
-                : Constants.RC_MODE ? "rc.sense-os.nl" : Constants.DEV_MODE ? "common.dev.sense-os.nl"
-                        : "api.sense-os.nl";
+                : Constants.RC_MODE ? "rc.sense-os.nl"
+                        : Constants.DEV_MODE ? "common.dev.sense-os.nl" : "api.sense-os.nl";
         public static final String PROTOCOL = "http";
 
         // main paths
@@ -38,6 +38,7 @@ public class CommonSenseApi {
         // sensors paths
         public static final String PATH_AVAIL_SERVICES = PATH_SENSORS + "/services/available";
         public static final String PATH_SENSOR_DATA = PATH_SENSORS + "/%1/data";
+        public static final String PATH_SENSOR_USERS = PATH_SENSORS + "/%1/users";
         public static final String PATH_SERVICE = PATH_SENSORS + "/%1/services/%2";
         public static final String PATH_SERVICE_METHODS = PATH_SERVICE + "/methods";
         public static final String PATH_CONNECTED_SENSORS = PATH_SENSORS + "/%1/sensors";
@@ -57,6 +58,30 @@ public class CommonSenseApi {
     private static final String JSON_TYPE = "application/json";
     private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
+    public static void deleteEnvironment(RequestCallback callback, int environmentId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public static void deleteSensor(String id, RequestCallback callback) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.DELETE;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSORS + "/" + id);
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+    }
+
     public static void disconnectService(RequestCallback callback, String sensorId, String serviceId) {
 
         // check if there is a session ID
@@ -68,9 +93,7 @@ public class CommonSenseApi {
 
         // prepare request properties
         Method method = RequestBuilder.DELETE;
-        UrlBuilder urlBuilder = new UrlBuilder()
-                .setProtocol(Urls.PROTOCOL)
-                .setHost(Urls.HOST)
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
                 .setPath(Urls.PATH_SERVICE.replace("%1", sensorId).replace("%2", serviceId));
         String url = urlBuilder.buildString();
 
@@ -521,12 +544,27 @@ public class CommonSenseApi {
         }
     }
 
-    public static void deleteEnvironment(RequestCallback callback, int environmentId) {
-        // TODO Auto-generated method stub
+    public static void shareSensor(RequestCallback callback, String sensorId, String username) {
 
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSOR_USERS.replace("%1", sensorId));
+        String url = urlBuilder.buildString();
+        String data = "{\"user\":{\"username\":\"" + username + "\"}}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
     }
 
-    public static void deleteSensor(String id, RequestCallback callback) {
+    public static void unshareSensor(RequestCallback callback, String sensorId, String userId) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -538,7 +576,7 @@ public class CommonSenseApi {
         // prepare request properties
         Method method = RequestBuilder.DELETE;
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_SENSORS + "/" + id);
+                .setPath(Urls.PATH_SENSOR_USERS.replace("%1", sensorId) + "/" + userId);
         String url = urlBuilder.buildString();
 
         // send request
