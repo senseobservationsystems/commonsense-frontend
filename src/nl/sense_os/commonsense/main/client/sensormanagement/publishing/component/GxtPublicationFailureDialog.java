@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client.sensormanagement.publishing.component;
 
-import nl.sense_os.commonsense.main.client.sensormanagement.publishing.PublicationFailureView;
 import nl.sense_os.commonsense.main.client.sensormanagement.publishing.ConfirmPublicationView.Presenter;
+import nl.sense_os.commonsense.main.client.sensormanagement.publishing.PublicationFailureView;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -42,7 +42,7 @@ public class GxtPublicationFailureDialog implements PublicationFailureView {
     public void show(int code, Throwable error) {
         String message = "Publication failed! Error: " + code + ", message: '" + error.getMessage()
                 + "'.<br/><br/>Do you want to try again?";
-        messageBox = MessageBox.prompt("Fail!", message, new Listener<MessageBoxEvent>() {
+        messageBox = MessageBox.confirm("Fail!", message, new Listener<MessageBoxEvent>() {
 
             @Override
             public void handleEvent(MessageBoxEvent be) {
