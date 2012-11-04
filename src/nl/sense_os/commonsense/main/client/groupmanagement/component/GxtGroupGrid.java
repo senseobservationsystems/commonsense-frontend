@@ -91,8 +91,19 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 	}
 
 	@Override
-    public List<GxtUser> getSelection() {
-        return grid.getSelectionModel().getSelection();
+    public GxtGroup getSelectedGroup() {
+        GxtUser selection = grid.getSelectionModel().getSelectedItem();
+        GxtUser parent = (GxtUser) store.getParent(selection);
+        while (null != parent) {
+            selection = parent;
+            parent = (GxtUser) store.getParent(selection);
+        }
+        if (selection instanceof GxtGroup) {
+            return (GxtGroup) selection;
+        } else {
+            LOG.warning("Cannot find selected group!");
+            return null;
+        }
     }
 
 	private void initFilter() {

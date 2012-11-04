@@ -16,15 +16,15 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 
-public class GroupLeaveController implements ConfirmGroupLeaveView.Presenter {
+public class GroupLeaver implements ConfirmGroupLeaveView.Presenter {
 
-    private static final Logger LOG = Logger.getLogger(GroupLeaveController.class.getName());
+    private static final Logger LOG = Logger.getLogger(GroupLeaver.class.getName());
     private GxtGroup group;
     private ConfirmGroupLeaveView confirmDialog;
     private LeavingCompleteView successDialog;
     private LeavingFailureView failureDialog;
 
-    public GroupLeaveController(MainClientFactory clientFactory) {
+    public GroupLeaver(MainClientFactory clientFactory) {
 
     }
 

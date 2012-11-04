@@ -16,6 +16,7 @@ package nl.sense_os.commonsense.main.client.groupmanagement;
 
 import java.util.List;
 
+import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.shared.ui.HasBusyState;
 
@@ -40,7 +41,7 @@ public interface GroupListView extends IsWidget, HasBusyState {
         void onLeaveClick();
     }
 
-    List<GxtUser> getSelection();
+    GxtGroup getSelectedGroup();
 
     void onLibChanged();
 
