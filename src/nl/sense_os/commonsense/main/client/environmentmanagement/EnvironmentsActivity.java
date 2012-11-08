@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.environments;
+package nl.sense_os.commonsense.main.client.environmentmanagement;
 
 import java.util.ArrayList;
 import java.util.List;

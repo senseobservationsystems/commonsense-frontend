@@ -2,8 +2,8 @@ package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.application.component.GxtMainApplicationView;
-import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
-import nl.sense_os.commonsense.main.client.environments.component.GxtEnvironmentGrid;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentListView;
+import nl.sense_os.commonsense.main.client.environmentmanagement.component.GxtEnvironmentGrid;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
 import nl.sense_os.commonsense.main.client.groupmanagement.component.GxtGroupGrid;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;

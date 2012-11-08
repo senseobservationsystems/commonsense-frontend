@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
-import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;

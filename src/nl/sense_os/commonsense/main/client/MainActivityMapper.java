@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client;
 
-import nl.sense_os.commonsense.main.client.environments.EnvironmentsActivity;
-import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentsActivity;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsActivity;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
 import nl.sense_os.commonsense.main.client.logout.LogoutActivity;

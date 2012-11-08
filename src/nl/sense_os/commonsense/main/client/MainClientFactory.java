@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.main.client;
 
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
-import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentListView;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView;
 import nl.sense_os.commonsense.main.client.logout.LogoutView;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorListView;

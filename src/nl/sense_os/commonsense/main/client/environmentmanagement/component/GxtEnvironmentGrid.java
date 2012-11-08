@@ -1,10 +1,10 @@
-package nl.sense_os.commonsense.main.client.environments.component;
+package nl.sense_os.commonsense.main.client.environmentmanagement.component;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
-import nl.sense_os.commonsense.main.client.environments.EnvironmentListView;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentListView;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;

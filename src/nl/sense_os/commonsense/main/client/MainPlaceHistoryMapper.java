@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client;
 
-import nl.sense_os.commonsense.main.client.environments.EnvironmentsPlace;
+import nl.sense_os.commonsense.main.client.environmentmanagement.EnvironmentsPlace;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupsPlace;
 import nl.sense_os.commonsense.main.client.logout.LogoutPlace;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;

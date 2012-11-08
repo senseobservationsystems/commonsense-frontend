@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.main.client.environments;
+package nl.sense_os.commonsense.main.client.environmentmanagement;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
