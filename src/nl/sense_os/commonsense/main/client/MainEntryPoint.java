@@ -8,8 +8,6 @@ import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewController;
-import nl.sense_os.commonsense.main.client.groups.invite.GroupInviteController;
-import nl.sense_os.commonsense.main.client.groups.join.GroupJoinController;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.sensormanagement.SensorsPlace;
 import nl.sense_os.commonsense.main.client.shared.event.CurrentUserChangedEvent;
@@ -139,10 +137,6 @@ public class MainEntryPoint implements EntryPoint {
 	private void initGxt() {
 
 		Dispatcher dispatcher = Dispatcher.get();
-
-		// group controllers
-		dispatcher.addController(new GroupJoinController());
-		dispatcher.addController(new GroupInviteController());
 
 		// state controllers
 		dispatcher.addController(new StateListController());

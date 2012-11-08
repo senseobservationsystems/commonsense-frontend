@@ -1,9 +1,12 @@
-package nl.sense_os.commonsense.main.client.groups.invite;
+package nl.sense_os.commonsense.main.client.groupmanagement.inviting.component;
 
-import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
+import nl.sense_os.commonsense.main.client.groupmanagement.inviting.InviteUserView;
+import nl.sense_os.commonsense.main.client.gxt.component.CenteredWindow;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -12,18 +15,18 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 
-public class GroupInviteWindow extends Window {
+public class GxtInviteUserDialog extends CenteredWindow implements InviteUserView {
+
     private Button btnAdd;
     private Button btnCancel;
     private TextField<String> txtfldUsername;
+    private Presenter presenter;
 
-    public GroupInviteWindow(GxtGroup group) {
+    public GxtInviteUserDialog() {
         setSize("300px", "210px");
         setClosable(false);
-        setHeading("Add user to " + group.getName());
+        setHeading("Add user to group");
         setLayout(new FitLayout());
 
         FormPanel frmpnlNewFormpanel = new FormPanel();
@@ -58,24 +61,47 @@ public class GroupInviteWindow extends Window {
         frmpnlNewFormpanel.addButton(btnCancel);
         add(frmpnlNewFormpanel);
 
-        com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
+        addListeners();
+    }
+
+    private void addListeners() {
+        btnAdd.addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
             @Override
-            public void onResize(ResizeEvent event) {
-                center();
+            public void handleEvent(ButtonEvent be) {
+                if (null != presenter) {
+                    presenter.onSubmitClick();
+                }
+            }
+        });
+        
+        btnCancel.addListener(Events.OnClick, new Listener<ButtonEvent>() {
+
+            @Override
+            public void handleEvent(ButtonEvent be) {
+                if (null != presenter) {
+                    presenter.onCancelClick();
+                }
             }
         });
     }
 
-    public TextField<String> getUsername() {
-        return txtfldUsername;
+    @Override
+    public String getUsername() {
+        return txtfldUsername.getValue();
     }
 
-    public Button getBtnAdd() {
-        return btnAdd;
+    @Override
+    public void setBusy(boolean busy) {
+        if (busy) {
+            btnAdd.setIconStyle("sense-btn-icon-loading");
+        } else {
+            btnAdd.setIconStyle("sense-btn-icon-go");
+        }
     }
 
-    public Button getBtnCancel() {
-        return btnCancel;
+    @Override
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
     }
 }

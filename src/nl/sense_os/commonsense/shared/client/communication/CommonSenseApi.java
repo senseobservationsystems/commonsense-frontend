@@ -13,7 +13,9 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window.Location;
 
 public class CommonSenseApi {
@@ -50,6 +52,7 @@ public class CommonSenseApi {
 
         // groups paths
         public static final String PATH_GROUP_USERS = PATH_GROUPS + "/%1/users";
+        public static final String PATH_ALL_GROUPS = PATH_GROUPS + "/all";
 
         private Urls() {
             // do not instantiate
@@ -59,6 +62,27 @@ public class CommonSenseApi {
     private static final Logger LOG = Logger.getLogger(CommonSenseApi.class.getName());
     private static final String JSON_TYPE = "application/json";
     private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+    public static void addGroupUser(RequestCallback callback, String groupId, String username) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUP_USERS.replace("%1", groupId));
+        String url = urlBuilder.buildString();
+        String data = "{\"user\":{\"username\":\"" + username + "\"}}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
 
     public static void createGroup(RequestCallback callback, Group group) {
 
@@ -154,6 +178,31 @@ public class CommonSenseApi {
         }
     }
 
+    public static void getAllGroups(RequestCallback callback, Integer perPage, Integer page) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.GET;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_ALL_GROUPS);
+        if (null != page) {
+            urlBuilder.setParameter("page", page.toString());
+        }
+        if (null != perPage) {
+            urlBuilder.setParameter("per_page", perPage.toString());
+        }
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+    }
+
     public static void getAvailableServices(RequestCallback callback, String perPage, String page,
             String groupId) {
 
@@ -247,7 +296,28 @@ public class CommonSenseApi {
         sendRequest(method, url, sessionId, null, callback);
     }
 
-    public static void getGroups(RequestCallback callback, String perPage, String page) {
+    public static void getGroupDetails(RequestCallback callback, String groupId) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.GET;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUPS + "/" + groupId);
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+
+    }
+
+    public static void getGroups(RequestCallback callback, Integer perPage, Integer page) {
+
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
         if (null == sessionId) {
@@ -260,10 +330,10 @@ public class CommonSenseApi {
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
                 .setPath(Urls.PATH_GROUPS);
         if (null != page) {
-            urlBuilder.setParameter("page", page);
+            urlBuilder.setParameter("page", page.toString());
         }
         if (null != perPage) {
-            urlBuilder.setParameter("per_page", perPage);
+            urlBuilder.setParameter("per_page", perPage.toString());
         }
         String url = urlBuilder.buildString();
 
@@ -369,8 +439,8 @@ public class CommonSenseApi {
      * @param details
      * @param groupId
      */
-    public static void getSensors(RequestCallback callback, String perPage, String page,
-            String shared, String owned, String physical, String details, String groupId) {
+    public static void getSensors(RequestCallback callback, Integer perPage, Integer page,
+            Boolean shared, Boolean owned, Boolean physical, String details, String groupId) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -384,19 +454,19 @@ public class CommonSenseApi {
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
                 .setPath(Urls.PATH_SENSORS);
         if (null != page) {
-            urlBuilder.setParameter("page", page);
+            urlBuilder.setParameter("page", page.toString());
         }
         if (null != perPage) {
-            urlBuilder.setParameter("per_page", perPage);
+            urlBuilder.setParameter("per_page", perPage.toString());
         }
         if (null != shared) {
-            urlBuilder.setParameter("shared", shared);
+            urlBuilder.setParameter("shared", shared ? "1" : "0");
         }
         if (null != owned) {
-            urlBuilder.setParameter("owned", owned);
+            urlBuilder.setParameter("owned", owned ? "1" : "0");
         }
         if (null != physical) {
-            urlBuilder.setParameter("physical", physical);
+            urlBuilder.setParameter("physical", physical ? "1" : "0");
         }
         if (null != details) {
             urlBuilder.setParameter("details", details);
@@ -485,7 +555,8 @@ public class CommonSenseApi {
                 .buildString());
     }
 
-    public static void removeGroupUser(RequestCallback callback, String id, String userId) {
+    public static void joinGroup(RequestCallback callback, String groupId, String userId,
+            List<String> sensorIds) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -495,13 +566,27 @@ public class CommonSenseApi {
         }
 
         // prepare request properties
-        Method method = RequestBuilder.DELETE;
-        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_GROUP_USERS.replace("%1", id) + "/" + userId);
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder()
+                .setProtocol(Urls.PROTOCOL)
+                .setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUP_USERS.replace("%1", groupId));
         String url = urlBuilder.buildString();
 
+        // prepare data
+        JSONObject userJson = new JSONObject();
+        userJson.put("id", new JSONString(userId));
+        JSONArray sensorsJson = new JSONArray();
+        for (String sensorId : sensorIds) {
+            sensorsJson.set(sensorsJson.size(), new JSONString(sensorId));
+        }
+        JSONObject bodyJson = new JSONObject();
+        bodyJson.put("user", userJson);
+        bodyJson.put("sensors", sensorsJson);
+        String data = bodyJson.toString();
+
         // send request
-        sendRequest(method, url, sessionId, null, callback);
+        sendRequest(method, url, sessionId, data, callback);
     }
 
     /**
@@ -545,6 +630,25 @@ public class CommonSenseApi {
         Method method = RequestBuilder.GET;
         String url = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
                 .setPath(Urls.PATH_LOGOUT).buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+    }
+
+    public static void removeGroupUser(RequestCallback callback, String id, String userId) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.DELETE;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_GROUP_USERS.replace("%1", id) + "/" + userId);
+        String url = urlBuilder.buildString();
 
         // send request
         sendRequest(method, url, sessionId, null, callback);

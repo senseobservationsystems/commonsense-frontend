@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.GroupCreator;
+import nl.sense_os.commonsense.main.client.groupmanagement.inviting.GroupInviter;
+import nl.sense_os.commonsense.main.client.groupmanagement.joining.GroupJoiner;
 import nl.sense_os.commonsense.main.client.groupmanagement.leaving.GroupLeaver;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
@@ -146,8 +148,11 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 
     @Override
     public void onAddUserClick() {
-        // TODO Auto-generated method stub
-
+        GxtGroup group = view.getSelectedGroup();
+        if (null != group) {
+            GroupInviter inviter = new GroupInviter(clientFactory);
+            inviter.start(group);
+        }
     }
 
     @Override
@@ -265,8 +270,8 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 
     @Override
     public void onJoinClick() {
-        // TODO Auto-generated method stub
-
+        GroupJoiner joiner = new GroupJoiner(clientFactory);
+        joiner.start();
     }
 
     @Override

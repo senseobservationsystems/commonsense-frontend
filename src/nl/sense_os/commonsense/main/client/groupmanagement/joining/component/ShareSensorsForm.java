@@ -1,4 +1,4 @@
-package nl.sense_os.commonsense.main.client.groups.join.components;
+package nl.sense_os.commonsense.main.client.groupmanagement.joining.component;
 
 import java.util.ArrayList;
 import java.util.List;

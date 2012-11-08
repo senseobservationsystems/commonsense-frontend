@@ -163,7 +163,7 @@ public class StatesActivity extends AbstractActivity implements
 			}
 		};
 
-		CommonSenseApi.getSensors(reqCallback, "1000", null, null, null, null, "full", null);
+        CommonSenseApi.getSensors(reqCallback, 1000, null, null, null, null, "full", null);
 	}
 
 	@Override

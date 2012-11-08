@@ -1,6 +1,7 @@
-package nl.sense_os.commonsense.main.client.groups.join.components;
+package nl.sense_os.commonsense.main.client.groupmanagement.joining.component;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.gxt.component.WizardFormPanel;
@@ -9,8 +10,13 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.SenseKeyProvider;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -41,9 +47,11 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 	private TextField<String> hiddenField;
 	private GxtGroup selected;
 
-	public AllVisibleGroupsForm(PagingLoader<PagingLoadResult<GxtGroup>> loader) {
+    public AllVisibleGroupsForm(List<GxtGroup> groups) {
 
-		this.loader = loader;
+        // GXT group loader
+        PagingModelMemoryProxy groupProxy = new PagingModelMemoryProxy(groups);
+        loader = new BasePagingLoader<PagingLoadResult<GxtGroup>>(groupProxy);
 
 		initGrid();
 		initFilters();
@@ -137,6 +145,12 @@ public class AllVisibleGroupsForm extends WizardFormPanel {
 		grid.setStateful(true);
 		grid.setLoadMask(true);
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        grid.addListener(Events.Attach, new Listener<GridEvent<GxtGroup>>() {
+            public void handleEvent(GridEvent<GxtGroup> be) {
+                loader.load(0, 15);
+            }
+        });
 	}
 
 	public GxtGroup getGroup() {

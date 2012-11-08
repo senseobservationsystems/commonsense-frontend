@@ -93,7 +93,7 @@ public class SensorListLoader implements Loader {
             }
         };
 
-        CommonSenseApi.getGroups(reqCallback, Integer.toString(PER_PAGE), null);
+        CommonSenseApi.getGroups(reqCallback, PER_PAGE, null);
     }
 
     private void getGroupSensors(final List<Group> groups, final int index, final int page,
@@ -134,8 +134,8 @@ public class SensorListLoader implements Loader {
 
             String groupId = groups.get(index).getId();
 
-            CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE),
-                    Integer.toString(page), null, null, null, "full", groupId);
+            CommonSenseApi.getSensors(reqCallback, PER_PAGE, page, null, null, null, "full",
+                    groupId);
 
         } else {
 
@@ -169,8 +169,8 @@ public class SensorListLoader implements Loader {
             }
         };
 
-        CommonSenseApi.getSensors(reqCallback, Integer.toString(PER_PAGE), Integer.toString(page),
-                shared ? "1" : null, null, null, "full", null);
+        CommonSenseApi.getSensors(reqCallback, PER_PAGE, page, shared, null, null,
+                "full", null);
     }
 
     @Override
