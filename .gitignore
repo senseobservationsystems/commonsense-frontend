@@ -1,14 +1,22 @@
-build/
-classes/
-*.jar
 *.class
-*~
+
+# Package Files #
+*.jar
+*.war
+
+# gwt caches and compiled units #
 war/commonsense/
 war/login/
-war/WEB-INF/classes/
-war/WEB-INF/deploy/
-target/
-.gwt/
 gwt-unitCache/
-www-test/
+
+# boilerplate generated classes #
+.apt_generated/
+
+# more caches and things from deploy #
+war/WEB-INF/deploy/
+war/WEB-INF/classes/
+
+.gwt/
+
+# eclipse settings
 .settings/
