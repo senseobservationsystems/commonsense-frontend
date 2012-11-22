@@ -29,7 +29,7 @@
 		<when-type-is class="nl.sense_os.commonsense.main.client.MainEntryPoint" />
 	</replace-with>
 	<!-- Replace entry point class for ancient browsers -->
-	<replace-with class="nl.sense_os.commonsense.common.client.entrypoint.UnsupportedBrowserEntryPoint">
+	<replace-with class="nl.sense_os.commonsense.shared.client.entrypoint.UnsupportedBrowserEntryPoint">
 		<when-type-is class="nl.sense_os.commonsense.main.client.MainEntryPoint" />
 		<any>
       		<when-property-is name="user.agent" value="ie6"/>
