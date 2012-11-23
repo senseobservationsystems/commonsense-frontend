@@ -19,7 +19,7 @@ import nl.sense_os.commonsense.login.client.application.LoginApplicationViewImpl
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordView;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordViewImpl;
 import nl.sense_os.commonsense.login.client.login.LoginView;
-import nl.sense_os.commonsense.login.client.login.LoginViewImpl;
+import nl.sense_os.commonsense.login.client.login.component.LoginForm;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorView;
 import nl.sense_os.commonsense.login.client.loginerror.LoginErrorViewImpl;
 import nl.sense_os.commonsense.login.client.newpassword.NewPasswordView;
@@ -35,7 +35,7 @@ public class LoginClientFactoryImpl implements LoginClientFactory {
 
 	private static final EventBus eventBus = new SimpleEventBus();
 	private static final PlaceController placeController = new PlaceController(eventBus);
-	private static final LoginView login = new LoginViewImpl();
+    private static final LoginView login = new LoginForm();
 	private static final NewPasswordViewImpl newPassword = new NewPasswordViewImpl();
 	private static final ForgotPasswordViewImpl forgotPassword = new ForgotPasswordViewImpl();
 	private static final LoginApplicationViewImpl main = new LoginApplicationViewImpl();

@@ -207,5 +207,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		view = clientFactory.getLoginView();
 		view.setPresenter(this);
 		containerWidget.setWidget(view.asWidget());
+
+        view.setFocus(true);
 	}
 }

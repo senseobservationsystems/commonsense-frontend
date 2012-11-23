@@ -43,7 +43,9 @@ public interface LoginView extends IsWidget, Resettable {
 		void login(String username, String password);
 	}
 
-	void setBusy(boolean busy);
+    void setBusy(boolean busy);
+
+    void setFocus(boolean focus);
 
 	void setPresenter(Presenter presenter);
 }
