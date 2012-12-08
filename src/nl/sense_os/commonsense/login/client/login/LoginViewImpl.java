@@ -121,6 +121,11 @@ public class LoginViewImpl extends Composite implements LoginView {
 		googleBtn.setEnabled(!busy);
 	}
 
+    @Override
+    public void setFocus(boolean focus) {
+        username.setFocus(focus);
+    }
+
 	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
