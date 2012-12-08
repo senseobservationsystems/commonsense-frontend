@@ -13,6 +13,7 @@ import com.google.gwt.http.client.RequestBuilder.Method;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.http.client.UrlBuilder;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -43,6 +44,7 @@ public class CommonSenseApi {
         public static final String PATH_AVAIL_SERVICES = PATH_SENSORS + "/services/available";
         public static final String PATH_SENSOR_DATA = PATH_SENSORS + "/%1/data";
         public static final String PATH_SENSOR_USERS = PATH_SENSORS + "/%1/users";
+        public static final String PATH_SENSOR_DEVICE = PATH_SENSORS + "/%1/device";
         public static final String PATH_SERVICE = PATH_SENSORS + "/%1/services/%2";
         public static final String PATH_SERVICE_METHODS = PATH_SERVICE + "/methods";
         public static final String PATH_CONNECTED_SENSORS = PATH_SENSORS + "/%1/sensors";
@@ -54,6 +56,9 @@ public class CommonSenseApi {
         public static final String PATH_GROUP_USERS = PATH_GROUPS + "/%1/users";
         public static final String PATH_ALL_GROUPS = PATH_GROUPS + "/all";
 
+        // environments paths
+        public static final String PATH_ENVIRONMENT_SENSORS = PATH_ENVIRONMENTS + "/%1/sensors";
+
         private Urls() {
             // do not instantiate
         }
@@ -62,6 +67,35 @@ public class CommonSenseApi {
     private static final Logger LOG = Logger.getLogger(CommonSenseApi.class.getName());
     private static final String JSON_TYPE = "application/json";
     private static final String WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+    public static void addEnvironmentSensors(RequestCallback callback, String environmentId,
+            List<String> sensorIds) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_ENVIRONMENT_SENSORS.replace("%1", environmentId));
+        String url = urlBuilder.buildString();
+
+        // prepare body
+        String sensorsArray = "[";
+        for (String id : sensorIds) {
+            sensorsArray += "{\"id\":" + id + "},";
+        }
+        sensorsArray = sensorsArray.substring(0, sensorsArray.length() - 1) + "]";
+        String data = "{\"sensors\":" + sensorsArray + "}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
 
     public static void addGroupUser(RequestCallback callback, String groupId, String username) {
 
@@ -78,6 +112,90 @@ public class CommonSenseApi {
                 .setPath(Urls.PATH_GROUP_USERS.replace("%1", groupId));
         String url = urlBuilder.buildString();
         String data = "{\"user\":{\"username\":\"" + username + "\"}}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
+
+    public static void addSensorData(RequestCallback callback, String sensorId, String value,
+            long timestamp) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSOR_DATA.replace("%1", sensorId));
+        String url = urlBuilder.buildString();
+
+        // prepare body
+        String data = "{\"data\":[";
+        data += "{\"value\":\"" + value + "\",\"date\":"
+                + NumberFormat.getFormat("#.#").format(timestamp / 1000) + "}";
+        data += "]}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
+
+    public static void addSensorDevice(RequestCallback callback, String sensorId, String deviceId,
+            String deviceType, String deviceUuid) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSOR_DEVICE.replace("%1", sensorId));
+        String url = urlBuilder.buildString();
+
+        // prepare body
+        String data = "{\"device\":{";
+        data += "\"id\":\"" + deviceId + "\",";
+        data += "\"type\":\"" + deviceType + "\",";
+        data += "\"uuid\":\"" + deviceUuid + "\"}";
+        data += "}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
+
+    }
+
+    public static void createEnvironment(RequestCallback callback, String name, int floors,
+            String gpsOutline, String position) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_ENVIRONMENTS);
+        String url = urlBuilder.buildString();
+
+        // prepare data
+        String data = "{\"environment\":{";
+        data += "\"name\":\"" + name + "\",";
+        data += "\"floors\":" + floors + ",";
+        data += "\"gps_outline\":\"" + gpsOutline + "\",";
+        data += "\"position\":\"" + position + "\"}";
+        data += "}";
 
         // send request
         sendRequest(method, url, sessionId, data, callback);
@@ -106,12 +224,37 @@ public class CommonSenseApi {
 
     }
 
-    public static void deleteEnvironment(RequestCallback callback, int environmentId) {
-        // TODO Auto-generated method stub
+    public static void createSensor(RequestCallback callback, String name, String displayName,
+            String description, String dataType, String dataStructure) {
 
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.POST;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSORS);
+        String url = urlBuilder.buildString();
+
+        // prepare body
+        String sensor = "{";
+        sensor += "\"name\":\"position\",";
+        sensor += "\"display_name\":\"position\",";
+        sensor += "\"device_type\":\"position\",";
+        sensor += "\"data_type\":\"json\",";
+        sensor += "\"data_structure\":\"" + dataStructure + "\"";
+        sensor += "}";
+        String data = "{\"sensor\":" + sensor + "}";
+
+        // send request
+        sendRequest(method, url, sessionId, data, callback);
     }
 
-    public static void deleteSensor(RequestCallback callback, String id) {
+    public static void deleteEnvironment(RequestCallback callback, String environmentId) {
 
         // check if there is a session ID
         String sessionId = SessionManager.getSessionId();
@@ -123,7 +266,27 @@ public class CommonSenseApi {
         // prepare request properties
         Method method = RequestBuilder.DELETE;
         UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
-                .setPath(Urls.PATH_SENSORS + "/" + id);
+                .setPath(Urls.PATH_ENVIRONMENTS + "/" + environmentId);
+        String url = urlBuilder.buildString();
+
+        // send request
+        sendRequest(method, url, sessionId, null, callback);
+
+    }
+
+    public static void deleteSensor(RequestCallback callback, String sensorId) {
+
+        // check if there is a session ID
+        String sessionId = SessionManager.getSessionId();
+        if (null == sessionId) {
+            callback.onError(null, new Exception("Not logged in"));
+            return;
+        }
+
+        // prepare request properties
+        Method method = RequestBuilder.DELETE;
+        UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL).setHost(Urls.HOST)
+                .setPath(Urls.PATH_SENSORS + "/" + sensorId);
         String url = urlBuilder.buildString();
 
         // send request

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.main.client.MainClientFactory;
-import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
+import nl.sense_os.commonsense.main.client.environmentmanagement.creating.EnvironmentCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
@@ -105,7 +105,8 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 
 	@Override
 	public void onCreateClick() {
-		Dispatcher.forwardEvent(EnvCreateEvents.ShowCreator);
+        EnvironmentCreator creator = new EnvironmentCreator(clientFactory);
+        creator.start();
 	}
 
 	private void onDeleteFailure(int code, Throwable error) {

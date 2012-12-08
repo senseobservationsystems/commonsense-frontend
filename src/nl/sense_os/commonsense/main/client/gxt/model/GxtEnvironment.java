@@ -93,16 +93,8 @@ public class GxtEnvironment extends BaseTreeModel {
 		}
 	}
 
-	public int getId() {
-		Object property = get(ID);
-		if (property instanceof Integer) {
-			return ((Integer) property).intValue();
-		} else if (property instanceof String) {
-			return Integer.parseInt((String) property);
-		} else {
-			LOGGER.severe("Missing property: " + ID);
-			return -1;
-		}
+    public String getId() {
+        return get(ID);
 	}
 
 	public String getName() {
