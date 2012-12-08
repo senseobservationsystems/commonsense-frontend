@@ -14,11 +14,11 @@
  *******************************************************************************/
 package nl.sense_os.commonsense.login.client.openidconnect;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.LoginResponse;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.core.client.JsonUtils;
@@ -65,7 +65,7 @@ public class OpenIdConnectActivity extends AbstractActivity implements OpenIdCon
 				onLoginResponse(response);
 			}
 		};
-		CommonSenseApi.login(callback, username, password);
+        CommonSenseClient.getClient().login(callback, username, password);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class OpenIdConnectActivity extends AbstractActivity implements OpenIdCon
 	 * OpenID.
 	 */
 	private void googleConnect() {
-		CommonSenseApi.googleConnect();
+        CommonSenseClient.getClient().googleConnect();
 	}
 
 	private void onAuthenticationFailure() {

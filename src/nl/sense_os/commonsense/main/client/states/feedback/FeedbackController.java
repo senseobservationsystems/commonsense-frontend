@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.model.httpresponse.ServiceMethodResponse;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.ServiceMethodResponse;
 import nl.sense_os.commonsense.shared.client.constant.Urls;
 
 import com.extjs.gxt.ui.client.data.ModelData;

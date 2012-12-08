@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.main.client.groups.create;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.util.Md5Hasher;
 import nl.sense_os.commonsense.main.client.groups.create.components.GroupCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
-import nl.sense_os.commonsense.shared.client.util.Md5Hasher;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;

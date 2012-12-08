@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.shared.client.constant.Urls;
-import nl.sense_os.commonsense.shared.client.model.User;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

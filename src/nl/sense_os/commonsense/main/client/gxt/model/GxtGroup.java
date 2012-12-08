@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.shared.client.model.Group;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
 
 import com.extjs.gxt.ui.client.data.TreeModel;
 import com.google.gwt.json.client.JSONArray;

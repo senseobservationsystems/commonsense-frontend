@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.client.model.Device;
-import nl.sense_os.commonsense.shared.client.model.Environment;
-import nl.sense_os.commonsense.shared.client.model.Sensor;
-import nl.sense_os.commonsense.shared.client.model.User;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Device;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Environment;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;

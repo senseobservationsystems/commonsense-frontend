@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
 import nl.sense_os.commonsense.shared.client.component.AlertDialogContent;
 
@@ -153,7 +153,7 @@ public class NewPasswordActivity extends AbstractActivity implements NewPassword
 		};
 
 		// send request
-		CommonSenseApi.resetPassword(callback, password, token);
+        CommonSenseClient.getClient().resetPassword(callback, password, token);
 	}
 
 	@Override

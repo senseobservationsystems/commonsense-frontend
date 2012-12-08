@@ -1,7 +1,7 @@
 package nl.sense_os.commonsense.shared.client.storage;
 
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
 import nl.sense_os.commonsense.shared.client.component.Resettable;
-import nl.sense_os.commonsense.shared.client.model.User;
 
 public interface AppStorage extends Resettable {
 

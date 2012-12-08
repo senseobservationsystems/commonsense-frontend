@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupUsersResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.shared.client.model.Group;
-import nl.sense_os.commonsense.shared.client.model.User;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -83,7 +83,7 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 			}
 		};
 
-		CommonSenseApi.getGroupUsers(reqCallback, group.getId(), null, null);
+        CommonSenseClient.getClient().getGroupUsers(reqCallback, group.getId(), null, null);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
 			}
 		};
 
-		CommonSenseApi.getGroups(reqCallback, null, null);
+        CommonSenseClient.getClient().getGroups(reqCallback, null, null, null, null);
 	}
 
 	@Override

@@ -3,15 +3,15 @@ package nl.sense_os.commonsense.main.client.env.create;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateEnvironmentResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateEnvironmentResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.shared.client.constant.Urls;
-import nl.sense_os.commonsense.shared.client.model.Sensor;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;

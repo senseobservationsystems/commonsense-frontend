@@ -2,9 +2,9 @@ package nl.sense_os.commonsense.main.client.shared.loader;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.CurrentUserResponse;
-import nl.sense_os.commonsense.shared.client.model.User;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.CurrentUserResponse;
 
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
@@ -36,7 +36,7 @@ public class UserDetailsLoader implements Loader {
             }
         };
 
-        CommonSenseApi.getCurrentUser(callback);
+        CommonSenseClient.getClient().getCurrentUser(callback);
     }
 
     @Override
