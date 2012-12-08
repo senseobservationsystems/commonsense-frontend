@@ -2,6 +2,7 @@ package nl.sense_os.commonsense.shared.client.communication;
 
 import java.util.Date;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.google.gwt.core.client.GWT;
@@ -47,6 +48,7 @@ public class SessionManager {
 			Cookies.setCookie(KEY, "", new Date(), domain, null, false);
 		}
 		Cookies.removeCookie(KEY);
+        CommonSenseClient.getClient().setSessionId(null);
 	}
 
 	/**
@@ -61,6 +63,7 @@ public class SessionManager {
 		} else {
 			Cookies.setCookie(KEY, sessionId);
 		}
+        CommonSenseClient.getClient().setSessionId(sessionId);
 	}
 
 	private SessionManager() {
