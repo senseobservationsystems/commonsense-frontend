@@ -1,12 +1,11 @@
 package nl.sense_os.commonsense.shared.client.constant;
 
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 /**
  * Contains URLs and other constants for use in communication with the CommonSense API.
  * 
- * @deprecated Use {@link CommonSenseApi} class for communication with CommonSense
+ * @deprecated Use CommonSense client library for communication with CommonSense
  */
 public class Urls {
 

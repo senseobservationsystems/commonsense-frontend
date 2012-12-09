@@ -18,16 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
+import nl.sense_os.commonsense.lib.client.model.apiclass.ServiceMethod;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetMethodsResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtServiceMethod;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
 import nl.sense_os.commonsense.main.client.gxt.util.TreeCopier;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetMethodsResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.shared.client.model.Sensor;
-import nl.sense_os.commonsense.shared.client.model.ServiceMethod;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -82,7 +82,8 @@ public class StatesActivity extends AbstractActivity implements
 			}
 		};
 
-		CommonSenseApi.disconnectService(reqCallback, sensor.getId(), stateSensor.getId());
+        CommonSenseClient.getClient().disconnectService(reqCallback, sensor.getId(),
+                stateSensor.getId());
 	}
 
 	private void getConnected(final GxtSensor state, final AsyncCallback<List<GxtSensor>> callback) {
@@ -107,7 +108,7 @@ public class StatesActivity extends AbstractActivity implements
 			}
 		};
 
-		CommonSenseApi.getConnectedSensors(reqCallback, state.getId());
+        CommonSenseClient.getClient().getConnectedSensors(reqCallback, state.getId());
 	}
 
 	private void getMethods(final GxtSensor state, final List<GxtSensor> sensors) {
@@ -134,7 +135,8 @@ public class StatesActivity extends AbstractActivity implements
 				}
 			};
 
-			CommonSenseApi.getServiceMethods(reqCallback, sensors.get(0).getId(), state.getId());
+            CommonSenseClient.getClient().getServiceMethods(reqCallback, sensors.get(0).getId(),
+                    state.getId());
 
 		} else {
 			LOG.warning("State \'" + state + "\' has no connected sensors!");
@@ -163,7 +165,8 @@ public class StatesActivity extends AbstractActivity implements
 			}
 		};
 
-        CommonSenseApi.getSensors(reqCallback, 1000, null, null, null, null, "full", null);
+        CommonSenseClient.getClient().getSensors(reqCallback, 1000, null, null, null, null,
+                "full", null);
 	}
 
 	@Override

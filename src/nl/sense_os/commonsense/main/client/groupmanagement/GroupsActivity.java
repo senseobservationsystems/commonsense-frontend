@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupUsersResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.GroupListView.Presenter;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.GroupCreator;
@@ -12,11 +17,6 @@ import nl.sense_os.commonsense.main.client.groupmanagement.joining.GroupJoiner;
 import nl.sense_os.commonsense.main.client.groupmanagement.leaving.GroupLeaver;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.shared.client.model.Group;
-import nl.sense_os.commonsense.shared.client.model.User;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -33,16 +33,16 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class GroupsActivity extends AbstractActivity implements Presenter {
 
-    private static final Logger LOG = Logger.getLogger(GroupsActivity.class.getName());
-    private MainClientFactory clientFactory;
-    private GroupListView view;
+	private static final Logger LOG = Logger.getLogger(GroupsActivity.class.getName());
+	private MainClientFactory clientFactory;
+	private GroupListView view;
 
-    public GroupsActivity(GroupsPlace place, MainClientFactory clientFactory) {
-        this.clientFactory = clientFactory;
+	public GroupsActivity(GroupsPlace place, MainClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
 
-        if (null == Registry.get(Constants.REG_GROUPS)) {
-            Registry.register(Constants.REG_GROUPS, new ArrayList<GxtGroup>());
-        }
+		if (null == Registry.get(Constants.REG_GROUPS)) {
+			Registry.register(Constants.REG_GROUPS, new ArrayList<GxtGroup>());
+		}
     }
 
     /**
@@ -59,32 +59,32 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
         LOG.fine("Get groups");
 
         // notify view
-        view.setBusy(true);
+		view.setBusy(true);
 
         // clear registry
         Registry.<List<GxtGroup>> get(Constants.REG_GROUPS).clear();
 
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
+		// prepare request callback
+		RequestCallback reqCallback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
+			@Override
+			public void onError(Request request, Throwable exception) {
                 onGroupsFailure(-1, exception, callback);
-            }
+			}
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				int statusCode = response.getStatusCode();
+				if (Response.SC_OK == statusCode) {
                     onGroupsSuccess(response.getText(), callback);
-                } else {
+				} else {
                     onGroupsFailure(statusCode, new Throwable(response.getStatusText()), callback);
-                }
-            }
-        };
+				}
+			}
+		};
 
-        CommonSenseApi.getGroups(reqCallback, null, null);
-    }
+        CommonSenseClient.getClient().getGroups(reqCallback, null, null, null, null);
+	}
 
     /**
      * Gets the members of a group (UserModels) from CommonSense, using an Ajax request. The
@@ -104,47 +104,47 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
     private void getGroupUsers(final GxtGroup group, final AsyncCallback<List<GxtUser>> callback) {
 
         // notify the view
-        view.setBusy(true);
+		view.setBusy(true);
 
-        // prepare request callback
-        RequestCallback reqCallback = new RequestCallback() {
+		// prepare request callback
+		RequestCallback reqCallback = new RequestCallback() {
 
-            @Override
-            public void onError(Request request, Throwable exception) {
+			@Override
+			public void onError(Request request, Throwable exception) {
                 onGroupUsersFailure(-1, exception, group, callback);
-            }
+			}
 
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                int statusCode = response.getStatusCode();
-                if (Response.SC_OK == statusCode) {
+			@Override
+			public void onResponseReceived(Request request, Response response) {
+				int statusCode = response.getStatusCode();
+				if (Response.SC_OK == statusCode) {
                     onGroupMembersSuccess(response.getText(), group, callback);
                 } else if (Response.SC_FORBIDDEN == statusCode) {
                     onGroupUsersForbidden(group, callback);
-                } else {
+				} else {
                     onGroupUsersFailure(statusCode, new Throwable(response.getStatusText()), group,
                             callback);
-                }
-            }
-        };
+				}
+			}
+		};
 
-        CommonSenseApi.getGroupUsers(reqCallback, group.getId(), null, null);
-    }
+        CommonSenseClient.getClient().getGroupUsers(reqCallback, group.getId(), null, null);
+	}
 
     @Override
-    public void loadData(AsyncCallback<List<GxtUser>> callback, Object loadConfig) {
+	public void loadData(AsyncCallback<List<GxtUser>> callback, Object loadConfig) {
 
-        if (null == loadConfig) {
-            getGroups(callback);
+		if (null == loadConfig) {
+			getGroups(callback);
 
-        } else if (loadConfig instanceof GxtGroup) {
-            GxtGroup group = (GxtGroup) loadConfig;
-            getGroupUsers(group, callback);
+		} else if (loadConfig instanceof GxtGroup) {
+			GxtGroup group = (GxtGroup) loadConfig;
+			getGroupUsers(group, callback);
 
-        } else {
-            callback.onSuccess(new ArrayList<GxtUser>());
-        }
-    }
+		} else {
+			callback.onSuccess(new ArrayList<GxtUser>());
+		}
+	}
 
     @Override
     public void onAddUserClick() {
@@ -161,91 +161,91 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
         creator.start();
     }
 
-    /**
-     * Handles the response from CommonSense to the request for group members. Parses the JSON array
-     * with user information, and calls back to {@link #getGroupMembers(int, List, AsyncCallback)}
-     * to get the members for the next group.
-     * 
-     * @param response
-     *            Response from CommonSense (JSON String).
-     * @param details
-     *            List of group details that were received earlier. The new details will be added to
-     *            this list.
-     * @param count
-     *            Count for the number of groups that already have members.
-     * @param callback
-     *            Optional callback for a DataProxy. Will be called when the list of groups is
-     *            complete.
-     */
-    private void onGroupMembersSuccess(String response, GxtGroup group,
-            AsyncCallback<List<GxtUser>> callback) {
+	/**
+	 * Handles the response from CommonSense to the request for group members. Parses the JSON array
+	 * with user information, and calls back to {@link #getGroupMembers(int, List, AsyncCallback)}
+	 * to get the members for the next group.
+	 * 
+	 * @param response
+	 *            Response from CommonSense (JSON String).
+	 * @param details
+	 *            List of group details that were received earlier. The new details will be added to
+	 *            this list.
+	 * @param count
+	 *            Count for the number of groups that already have members.
+	 * @param callback
+	 *            Optional callback for a DataProxy. Will be called when the list of groups is
+	 *            complete.
+	 */
+	private void onGroupMembersSuccess(String response, GxtGroup group,
+			AsyncCallback<List<GxtUser>> callback) {
 
-        // parse list of users from the response
-        List<User> users = new ArrayList<User>();
-        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-            GetGroupUsersResponse jso = JsonUtils.unsafeEval(response);
-            users = jso.getUsers();
-        }
+		// parse list of users from the response
+		List<User> users = new ArrayList<User>();
+		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+			GetGroupUsersResponse jso = JsonUtils.unsafeEval(response);
+			users = jso.getUsers();
+		}
 
-        // add users to the group
-        List<GxtUser> gxtUsers = new ArrayList<GxtUser>(users.size());
-        for (User user : users) {
-            gxtUsers.add(new GxtUser(user));
-        }
+		// add users to the group
+		List<GxtUser> gxtUsers = new ArrayList<GxtUser>(users.size());
+		for (User user : users) {
+			gxtUsers.add(new GxtUser(user));
+		}
 
-        view.setBusy(false);
+		view.setBusy(false);
 
-        if (null != callback) {
-            callback.onSuccess(new ArrayList<GxtUser>(gxtUsers));
-        }
-    }
+		if (null != callback) {
+			callback.onSuccess(new ArrayList<GxtUser>(gxtUsers));
+		}
+	}
 
-    private void onGroupsFailure(int code, Throwable error, AsyncCallback<List<GxtUser>> callback) {
-        LOG.warning("Failed to get groups! Code: " + code + " " + error);
+	private void onGroupsFailure(int code, Throwable error, AsyncCallback<List<GxtUser>> callback) {
+		LOG.warning("Failed to get groups! Code: " + code + " " + error);
 
-        view.setBusy(false);
+		view.setBusy(false);
 
-        if (null != callback) {
-            callback.onFailure(null);
-        }
-    }
+		if (null != callback) {
+			callback.onFailure(null);
+		}
+	}
 
-    /**
-     * Handles the response from CommonSense to the request for groups. Parses the JSON array with
-     * group details, and calls through to {@link #getGroupMembers(int, List, AsyncCallback)}.
-     * 
-     * @param response
-     *            Response from CommonSense (JSON String).
-     * @param callback
-     *            Optional callback for a DataProxy. Will be called when the list of groups is
-     *            complete.
-     */
-    private void onGroupsSuccess(String response, AsyncCallback<List<GxtUser>> callback) {
+	/**
+	 * Handles the response from CommonSense to the request for groups. Parses the JSON array with
+	 * group details, and calls through to {@link #getGroupMembers(int, List, AsyncCallback)}.
+	 * 
+	 * @param response
+	 *            Response from CommonSense (JSON String).
+	 * @param callback
+	 *            Optional callback for a DataProxy. Will be called when the list of groups is
+	 *            complete.
+	 */
+	private void onGroupsSuccess(String response, AsyncCallback<List<GxtUser>> callback) {
 
-        // parse list of groups from the response
-        JsArray<Group> groups = null;
-        if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-            GetGroupsResponse jso = JsonUtils.unsafeEval(response);
-            groups = jso.getRawGroups();
-        }
+		// parse list of groups from the response
+		JsArray<Group> groups = null;
+		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
+			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
+			groups = jso.getRawGroups();
+		}
 
-        if (null != groups) {
-            // convert to Ext
-            List<GxtGroup> gxtGroups = new ArrayList<GxtGroup>(groups.length());
-            for (int i = 0; i < groups.length(); i++) {
-                gxtGroups.add(new GxtGroup(groups.get(i)));
-            }
+		if (null != groups) {
+			// convert to Ext
+			List<GxtGroup> gxtGroups = new ArrayList<GxtGroup>(groups.length());
+			for (int i = 0; i < groups.length(); i++) {
+				gxtGroups.add(new GxtGroup(groups.get(i)));
+			}
 
-            Registry.<List<GxtGroup>> get(Constants.REG_GROUPS).addAll(gxtGroups);
+			Registry.<List<GxtGroup>> get(Constants.REG_GROUPS).addAll(gxtGroups);
 
-            view.setBusy(false);
+			view.setBusy(false);
 
-            callback.onSuccess(new ArrayList<GxtUser>(gxtGroups));
+			callback.onSuccess(new ArrayList<GxtUser>(gxtGroups));
 
-        } else {
-            onGroupsFailure(-1, new Throwable("No groups"), callback);
-        }
-    }
+		} else {
+			onGroupsFailure(-1, new Throwable("No groups"), callback);
+		}
+	}
 
     private void onGroupUsersFailure(int code, Throwable error, GxtGroup group,
             AsyncCallback<List<GxtUser>> callback) {
@@ -283,16 +283,16 @@ public class GroupsActivity extends AbstractActivity implements Presenter {
         }
     }
 
-    @Override
-    public void start(AcceptsOneWidget panel, EventBus eventBus) {
-        LOG.info("Starting 'groupmanagement' activity");
+	@Override
+	public void start(AcceptsOneWidget panel, EventBus eventBus) {
+		LOG.info("Starting 'groupmanagement' activity");
 
-        view = clientFactory.getGroupListView();
-        view.setPresenter(this);
+		view = clientFactory.getGroupListView();
+		view.setPresenter(this);
 
-        LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
-        parent.removeAll();
-        parent.add(view.asWidget());
-        parent.layout();
-    }
+		LayoutContainer parent = clientFactory.getMainView().getGxtActivityPanel();
+		parent.removeAll();
+		parent.add(view.asWidget());
+		parent.layout();
+	}
 }

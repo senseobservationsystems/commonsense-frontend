@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
@@ -25,7 +27,6 @@ import nl.sense_os.commonsense.main.client.states.feedback.FeedbackController;
 import nl.sense_os.commonsense.main.client.states.list.StateListController;
 import nl.sense_os.commonsense.main.client.visualization.data.DataHandler;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
-import nl.sense_os.commonsense.shared.client.model.User;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -162,6 +163,9 @@ public class MainEntryPoint implements EntryPoint {
 			goToLoginPage();
 
         } else {
+            // save the session ID
+            CommonSenseClient.getClient().setSessionId(sessionId);
+
             // initialize application
             init();
 
@@ -221,7 +225,7 @@ public class MainEntryPoint implements EntryPoint {
             public void onFailure(int code, Throwable error) {
                 LOG.severe("Failed to get sensor list! Code: " + code + " " + error);
                 SessionManager.removeSessionId();
-                MainEntryPoint.goToLoginPage();
+                // MainEntryPoint.goToLoginPage();
             }
 
             @Override

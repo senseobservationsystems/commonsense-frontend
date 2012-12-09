@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Environment;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetEnvironmentsResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.env.view.EnvViewEvents;
 import nl.sense_os.commonsense.main.client.environmentmanagement.creating.EnvironmentCreator;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetEnvironmentsResponse;
-import nl.sense_os.commonsense.shared.client.model.Environment;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -69,7 +69,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 			}
 		};
 
-		CommonSenseApi.deleteEnvironment(callback, environment.getId());
+        CommonSenseClient.getClient().deleteEnvironment(callback, "" + environment.getId());
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 			}
 		};
 
-		CommonSenseApi.getEnvironments(reqCallback, null, null);
+        CommonSenseClient.getClient().getEnvironments(reqCallback, null, null);
 	}
 
 	@Override

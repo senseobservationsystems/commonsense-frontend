@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
@@ -11,9 +14,6 @@ import nl.sense_os.commonsense.main.client.sensormanagement.sharing.ShareWithUse
 import nl.sense_os.commonsense.main.client.sensormanagement.sharing.component.GxtShareWithUserDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.sharing.component.GxtSharingCompleteDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.sharing.component.GxtSharingFailureDialog;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupUsersResponse;
-import nl.sense_os.commonsense.shared.client.model.User;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.core.client.JsonUtils;
@@ -173,7 +173,7 @@ public class SensorSharer implements Presenter {
             };
 
             // send request
-            CommonSenseApi.shareSensor(callback, sensorId, username);
+            CommonSenseClient.getClient().shareSensor(callback, sensorId, null, username);
 
         } else {
             // done

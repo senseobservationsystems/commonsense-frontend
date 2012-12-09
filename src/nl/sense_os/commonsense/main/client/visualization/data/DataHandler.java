@@ -3,14 +3,14 @@ package nl.sense_os.commonsense.main.client.visualization.data;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetSensorDataResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.shared.event.DataRequestEvent;
 import nl.sense_os.commonsense.main.client.shared.event.LatestValuesRequestEvent;
 import nl.sense_os.commonsense.main.client.shared.event.NewSensorDataEvent;
 import nl.sense_os.commonsense.main.client.visualization.data.cache.Cache;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorDataResponse;
 import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -18,7 +18,6 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataHandler implements DataRequestEvent.Handler, LatestValuesRequestEvent.Handler {
 
@@ -84,8 +83,9 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 			};
 
 			// send request
-			CommonSenseApi.getSensorData(callback, sensor.getId(), null, null, null, null, null,
-					null, null, "1", null);
+            CommonSenseClient.getClient().getSensorData(callback, sensor.getId(), null, null, null,
+                    null, null,
+                    null, null, true, null);
 
 		} else {
 			// hoooray we're done!
@@ -129,9 +129,9 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 			}
 
 			// request parameters
-			String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-			String endDate = end != -1 ? NumberFormat.getFormat("#.000").format(end / 1000d) : null;
-			String interval = subsample ? "" + calcInterval(start, end) : null;
+            Long startDate = start;
+            Long endDate = end != -1 ? end : null;
+            Integer interval = subsample ? calcInterval(start, end) : null;
 
 			// prepare request callback
 			RequestCallback callback = new RequestCallback() {
@@ -159,9 +159,8 @@ public class DataHandler implements DataRequestEvent.Handler, LatestValuesReques
 			};
 
 			// send request
-			CommonSenseApi.getSensorData(callback, sensor.getId(), startDate, endDate, null,
-					Integer.toString(PER_PAGE), Integer.toString(pageIndex), interval, null, null,
-					null);
+            CommonSenseClient.getClient().getSensorData(callback, sensor.getId(), startDate,
+                    endDate, null, PER_PAGE, pageIndex, interval, null, null, null);
 
 		} else {
 			// should not happen, but just in case...

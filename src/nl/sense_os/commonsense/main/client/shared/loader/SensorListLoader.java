@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Service;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.AvailServicesResponseEntry;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.BatchAvailServicesResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupsResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetSensorsResponse;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtService;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.AvailServicesResponseEntry;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.BatchAvailServicesResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorsResponse;
-import nl.sense_os.commonsense.shared.client.model.Group;
-import nl.sense_os.commonsense.shared.client.model.Sensor;
-import nl.sense_os.commonsense.shared.client.model.Service;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -61,8 +61,7 @@ public class SensorListLoader implements Loader {
         };
 
         // send request
-        CommonSenseApi.getAvailableServices(reqCallback, Integer.toString(PER_PAGE),
-                Integer.toString(page), groupId);
+        CommonSenseClient.getClient().getAvailableServices(reqCallback, PER_PAGE, page, groupId);
     }
 
     private void getGroups(final List<GxtSensor> library) {
@@ -93,7 +92,7 @@ public class SensorListLoader implements Loader {
             }
         };
 
-        CommonSenseApi.getGroups(reqCallback, PER_PAGE, null);
+        CommonSenseClient.getClient().getGroups(reqCallback, PER_PAGE, null, null, null);
     }
 
     private void getGroupSensors(final List<Group> groups, final int index, final int page,
@@ -134,8 +133,8 @@ public class SensorListLoader implements Loader {
 
             String groupId = groups.get(index).getId();
 
-            CommonSenseApi.getSensors(reqCallback, PER_PAGE, page, null, null, null, "full",
-                    groupId);
+            CommonSenseClient.getClient().getSensors(reqCallback, PER_PAGE, page, null, null, null,
+                    "full", groupId);
 
         } else {
 
@@ -169,8 +168,8 @@ public class SensorListLoader implements Loader {
             }
         };
 
-        CommonSenseApi.getSensors(reqCallback, PER_PAGE, page, shared, null, null,
-                "full", null);
+        CommonSenseClient.getClient().getSensors(reqCallback, PER_PAGE, page, shared ? true : null,
+                null, null, "full", null);
     }
 
     @Override

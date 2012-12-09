@@ -3,11 +3,11 @@ package nl.sense_os.commonsense.main.client.sensormanagement.deleting;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.sensormanagement.deleting.component.GxtConfirmRemovalDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.deleting.component.GxtRemovalCompleteDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.deleting.component.GxtRemovalFailedDialog;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -62,7 +62,7 @@ public class SensorDeleter implements ConfirmRemovalView.Presenter {
             };
 
             // send request
-            CommonSenseApi.deleteSensor(callback, sensor.getId());
+            CommonSenseClient.getClient().deleteSensor(callback, sensor.getId());
 
         } else {
             // done!

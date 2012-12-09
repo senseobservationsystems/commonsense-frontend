@@ -2,12 +2,12 @@ package nl.sense_os.commonsense.main.client.groupmanagement.inviting;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.inviting.component.GxtInvitationCompleteDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.inviting.component.GxtInvitationFailureDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.inviting.component.GxtInviteUserDialog;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -49,7 +49,8 @@ public class GroupInviter implements InviteUserView.Presenter {
 		};
 
 		// send request
-        CommonSenseApi.addGroupUser(callback, group.getId(), username);
+        CommonSenseClient.getClient().addGroupUser(callback, group.getId(), null, username, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Override

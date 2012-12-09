@@ -3,6 +3,7 @@ package nl.sense_os.commonsense.main.client.sensormanagement.unsharing;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
@@ -10,7 +11,6 @@ import nl.sense_os.commonsense.main.client.sensormanagement.unsharing.ConfirmUns
 import nl.sense_os.commonsense.main.client.sensormanagement.unsharing.component.GxtConfirmUnshareDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.unsharing.component.GxtUnsharingCompleteDialog;
 import nl.sense_os.commonsense.main.client.sensormanagement.unsharing.component.GxtUnsharingFailureDialog;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -145,7 +145,7 @@ public class SensorUnsharer implements Presenter {
             };
 
             // send request
-            CommonSenseApi.unshareSensor(callback, sensor.getId(), user.getId());
+            CommonSenseClient.getClient().unshareSensor(callback, sensor.getId(), user.getId());
 
         } else {
             onUnshareComplete(sensor);

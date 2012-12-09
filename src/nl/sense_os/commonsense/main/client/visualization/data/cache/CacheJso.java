@@ -1,6 +1,6 @@
 package nl.sense_os.commonsense.main.client.visualization.data.cache;
 
-import nl.sense_os.commonsense.shared.client.model.BackEndDataPoint;
+import nl.sense_os.commonsense.lib.client.model.apiclass.DataPoint;
 import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -131,7 +131,7 @@ final class CacheJso extends JavaScriptObject {
      *            JsArray with sensor value objects.
      */
     protected native void store(String id, String label, double start, double end,
-            JsArray<BackEndDataPoint> values) /*-{
+            JsArray<DataPoint> values) /*-{
 
 		// check all values in the array 
 		for ( var i = 0, len = values.length; i < len; i++) {

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.client.model.Environment;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Environment;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;

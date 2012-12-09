@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupDetailsResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetGroupsResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.joining.component.GxtGroupDetailsFailureDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.joining.component.GxtGroupJoinDialog;
@@ -14,10 +18,6 @@ import nl.sense_os.commonsense.main.client.groupmanagement.joining.component.Gxt
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupDetailsResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.shared.client.model.Group;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -65,7 +65,7 @@ public class GroupJoiner implements GroupJoinView.Presenter {
 		};
 
 		// send request
-        CommonSenseApi.getAllGroups(callback, PER_PAGE, page);
+        CommonSenseClient.getClient().getAllGroups(callback, PER_PAGE, page, null);
 	}
 
     private void getGroupDetails(GxtGroup group) {
@@ -91,7 +91,7 @@ public class GroupJoiner implements GroupJoinView.Presenter {
 		};
 
 		// send request
-		CommonSenseApi.getGroupDetails(callback, group.getId());
+        CommonSenseClient.getClient().getGroupDetails(callback, group.getId());
 	}
 
     private void join(GxtGroup group, List<GxtSensor> sensors) {
@@ -123,7 +123,9 @@ public class GroupJoiner implements GroupJoinView.Presenter {
         }
 
 		// send request
-        CommonSenseApi.joinGroup(reqCallback, group.getId(), user.getId(), sensorIds);
+        CommonSenseClient.getClient().addGroupUser(reqCallback, group.getId(), user.getId(),
+                user.getUsername(), null, null, null, null, null, null, null, null, null, null,
+                null, null, null, sensorIds, null);
 	}
 
     private void onAllGroupsComplete(List<GxtGroup> groups) {

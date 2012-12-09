@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateEnvironmentResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.environmentmanagement.creating.EnvironmentCreatorView.Presenter;
@@ -11,10 +15,6 @@ import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateEnvironmentResponse;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.CreateSensorResponse;
-import nl.sense_os.commonsense.shared.client.model.Sensor;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -146,7 +146,8 @@ public class EnvironmentCreator implements Presenter {
             };
 
             // send request
-            CommonSenseApi.addEnvironmentSensors(callback, environment.getId(), sensorIds);
+            CommonSenseClient.getClient().addEnvironmentSensors(callback, environment.getId(),
+                    sensorIds);
 
         } else {
             onCreateComplete();
@@ -180,7 +181,8 @@ public class EnvironmentCreator implements Presenter {
         };
 
         // send request
-        CommonSenseApi.addSensorDevice(callback, sensor.getId(), device.getId(), device.getType(),
+        CommonSenseClient.getClient().addSensorDevice(callback, sensor.getId(), device.getId(),
+                device.getType(),
                 device.getUuid());
     }
 
@@ -218,7 +220,8 @@ public class EnvironmentCreator implements Presenter {
         };
 
         // send request
-        CommonSenseApi.createEnvironment(callback, name, floors, gpsOutline, position);
+        CommonSenseClient.getClient().createEnvironment(callback, name, floors, gpsOutline,
+                position);
     }
 
     private void createSensor(final List<GxtDevice> devices, final int index, final String name,
@@ -247,8 +250,8 @@ public class EnvironmentCreator implements Presenter {
         };
 
         // send request
-        CommonSenseApi.createSensor(callback, "position", "position", "position", "json",
-                dataStructure);
+        CommonSenseClient.getClient().createSensor(callback, "position", "position", "position",
+                "json", dataStructure);
     }
 
     private void onAddSensorsFailure(GxtEnvironment environment, int code, Throwable error) {
@@ -392,7 +395,7 @@ public class EnvironmentCreator implements Presenter {
         };
 
         // send request
-        CommonSenseApi.addSensorData(callback, positionSensor.getId(), value,
+        CommonSenseClient.getClient().createSensorData(callback, positionSensor.getId(), value,
                 System.currentTimeMillis());
     }
 

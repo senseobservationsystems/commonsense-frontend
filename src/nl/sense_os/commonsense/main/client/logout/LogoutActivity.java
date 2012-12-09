@@ -16,9 +16,9 @@ package nl.sense_os.commonsense.main.client.logout;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.MainEntryPoint;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.communication.SessionManager;
 
 import com.google.gwt.activity.shared.AbstractActivity;
@@ -61,7 +61,7 @@ public class LogoutActivity extends AbstractActivity implements LogoutView.Prese
 				onLogoutResponse(response);
 			}
 		};
-		CommonSenseApi.logout(callback);
+        CommonSenseClient.getClient().logout(callback);
 	}
 
 	/**

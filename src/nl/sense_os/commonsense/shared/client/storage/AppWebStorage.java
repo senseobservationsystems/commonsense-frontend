@@ -2,7 +2,7 @@ package nl.sense_os.commonsense.shared.client.storage;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.shared.client.model.User;
+import nl.sense_os.commonsense.lib.client.model.apiclass.User;
 
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.storage.client.Storage;

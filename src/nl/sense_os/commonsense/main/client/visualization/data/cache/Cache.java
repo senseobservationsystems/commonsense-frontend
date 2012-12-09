@@ -3,8 +3,8 @@ package nl.sense_os.commonsense.main.client.visualization.data.cache;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.model.apiclass.DataPoint;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.shared.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.shared.client.model.Timeseries;
 
 import com.google.gwt.core.client.JsArray;
@@ -88,7 +88,7 @@ public class Cache {
      * @return The total number of values in the request.
      */
     public static void store(GxtSensor sensor, long start, long end,
-            JsArray<BackEndDataPoint> data) {
+ JsArray<DataPoint> data) {
         // LOG.setLevel(Level.ALL);
         LOG.fine("Caching " + data.length() + " data points for " + sensor.getDisplayName());
 

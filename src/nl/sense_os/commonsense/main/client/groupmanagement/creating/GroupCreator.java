@@ -3,13 +3,13 @@ package nl.sense_os.commonsense.main.client.groupmanagement.creating;
 import java.util.List;
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Group;
+import nl.sense_os.commonsense.lib.client.util.Md5Hasher;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.component.GxtCreationFailureDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.component.GxtCreationSuccessDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.creating.component.GxtGroupCreatorForm;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.model.Group;
-import nl.sense_os.commonsense.shared.client.util.Md5Hasher;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
@@ -50,7 +50,7 @@ public class GroupCreator implements GroupCreatorView.Presenter {
         };
 
         // send request
-        CommonSenseApi.createGroup(callback, group);
+        CommonSenseClient.getClient().createGroup(callback, group);
     }
 
     public Group getGroupDetails() {

@@ -2,10 +2,10 @@ package nl.sense_os.commonsense.main.client.alerts.create;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.DataPoint;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.GetSensorDataResponse;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
-import nl.sense_os.commonsense.shared.client.communication.httpresponse.GetSensorDataResponse;
-import nl.sense_os.commonsense.shared.client.model.BackEndDataPoint;
 
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -65,15 +65,15 @@ public class AlertCreateController extends Controller {
 			}
 		};
 
-		CommonSenseApi.getSensorData(reqCallback, sensor.getId(), null, null, null, null, null,
-				null, null, "1", null);
+        CommonSenseClient.getClient().getSensorData(reqCallback, sensor.getId(), null, null, null,
+                null, null, null, null, true, null);
 	}
 
 	private void onLastDataPointSuccess(String response, GxtSensor sensor) {
 		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
-		JsArray<BackEndDataPoint> data = jso.getData();
+        JsArray<DataPoint> data = jso.getData();
 		if (data.length() > 0) {
-			BackEndDataPoint dataPoint = data.get(0);
+            DataPoint dataPoint = data.get(0);
 			long timestamp = Math.round(Double.parseDouble("" + dataPoint.getDate()) * 1000);
 
 			AppEvent showCreator = new AppEvent(AlertCreateEvents.ShowCreator);

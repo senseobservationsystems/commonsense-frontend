@@ -3,7 +3,7 @@ package nl.sense_os.commonsense.main.client.gxt.model;
 import java.util.List;
 import java.util.Map;
 
-import nl.sense_os.commonsense.shared.client.model.Service;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Service;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;

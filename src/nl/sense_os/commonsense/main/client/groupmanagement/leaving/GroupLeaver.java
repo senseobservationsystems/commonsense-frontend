@@ -2,13 +2,13 @@ package nl.sense_os.commonsense.main.client.groupmanagement.leaving;
 
 import java.util.logging.Logger;
 
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.groupmanagement.leaving.component.GxtConfirmLeaveDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.leaving.component.GxtLeavingCompleteDialog;
 import nl.sense_os.commonsense.main.client.groupmanagement.leaving.component.GxtLeavingFailureDialog;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtGroup;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtUser;
-import nl.sense_os.commonsense.shared.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.shared.client.util.Constants;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -53,7 +53,7 @@ public class GroupLeaver implements ConfirmGroupLeaveView.Presenter {
         };
 
         // send request
-        CommonSenseApi.removeGroupUser(callback, group.getId(), user.getId());
+        CommonSenseClient.getClient().removeGroupUser(callback, group.getId(), user.getId());
     }
 
     @Override
