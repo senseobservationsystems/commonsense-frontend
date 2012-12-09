@@ -2,15 +2,19 @@ package nl.sense_os.commonsense.main.client.environmentmanagement.creating;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Device;
 import nl.sense_os.commonsense.lib.client.model.apiclass.Sensor;
 import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateEnvironmentResponse;
 import nl.sense_os.commonsense.lib.client.model.httpresponse.CreateSensorResponse;
 import nl.sense_os.commonsense.main.client.MainClientFactory;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
-import nl.sense_os.commonsense.main.client.environmentmanagement.creating.EnvironmentCreatorView.Presenter;
+import nl.sense_os.commonsense.main.client.environmentmanagement.creating.EnvironmentCreationView.Presenter;
+import nl.sense_os.commonsense.main.client.environmentmanagement.creating.component.GxtEnvironmentCreationDialog;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtEnvironment;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
@@ -29,7 +33,8 @@ import com.google.gwt.maps.client.overlay.Polygon;
 public class EnvironmentCreator implements Presenter {
 
     private static final Logger LOG = Logger.getLogger(EnvironmentCreator.class.getName());
-    private EnvironmentCreatorView creatorWindow;
+    private EnvironmentCreationView creatorWindow;
+    private EnvironmentCreationView creationView;
 
     public EnvironmentCreator(MainClientFactory clientFactory) {
 
@@ -43,33 +48,34 @@ public class EnvironmentCreator implements Presenter {
 
     @Override
     public void onSubmitClick() {
+        creationView.setBusy(true);
 
         String name = creatorWindow.getName();
         int floors = creatorWindow.getFloors();
         Polygon outline = creatorWindow.getOutline();
         List<GxtSensor> sensors = creatorWindow.getSensors();
-        List<GxtDevice> devices = creatorWindow.getDevices();
+        Map<Device, LatLng> devicePositions = creatorWindow.getDevicePositions();
 
         // add the devices's sensors
         List<GxtSensor> library = Registry.get(Constants.REG_SENSOR_LIST);
         for (GxtSensor sensor : library) {
-            if (sensor.getDevice() != null && devices.contains(sensor.getDevice())) {
-                LOG.finest("Add device sensor \'" + sensor + "\' to list of environment sensors");
-                sensors.add(sensor);
-            }
+            // TODO
         }
 
         // start by updating the position of all devices
+        List<Entry<Device, LatLng>> devices = new ArrayList(devicePositions.entrySet());
         updatePosition(devices, 0, name, floors, outline, sensors);
 
     }
 
-    private void updatePosition(List<GxtDevice> devices, int index, String name, int floors,
-            Polygon outline, List<GxtSensor> sensors) {
+    private void updatePosition(List<Entry<Device, LatLng>> devicePositions, int index,
+            String name,
+            int floors, Polygon outline, List<GxtSensor> sensors) {
 
-        if (index < devices.size()) {
+
+        if (index < devicePositions.size()) {
             // update the position sensor for the device
-            getPositionSensor(devices, index, name, floors, outline, sensors);
+            getPositionSensor(devicePositions, index, name, floors, outline, sensors);
 
         } else {
             // all devices are positioned! continue with actually creating the environment
@@ -77,11 +83,13 @@ public class EnvironmentCreator implements Presenter {
         }
     }
 
-    private void getPositionSensor(List<GxtDevice> devices, int index, String name, int floors,
+    private void getPositionSensor(List<Entry<Device, LatLng>> devices, int index, String name,
+            int floors,
             Polygon outline, List<GxtSensor> sensors) {
 
         // get the device
-        GxtDevice device = devices.get(index);
+        Entry<Device, LatLng> entry = devices.get(index);
+        Device device = entry.getKey();
 
         // try to find the position sensor of the device
         GxtSensor positionSensor = null;
@@ -89,7 +97,7 @@ public class EnvironmentCreator implements Presenter {
             // only check position sensors
             if (sensor.getName().equals("position")) {
                 // check if it is the right device
-                if (sensor.getDevice() != null && sensor.getDevice().equals(device)) {
+                if (sensor.getDevice() != null && sensor.getDevice().getId().equals(device.getId())) {
                     // make sure we are the owner of the sensor
                     GxtUser user = Registry.get(Constants.REG_USER);
                     if (sensor.getOwner() == null || sensor.getOwner().equals(user)) {
@@ -112,8 +120,9 @@ public class EnvironmentCreator implements Presenter {
     }
 
     public void start() {
-        // TODO Auto-generated method stub
-
+        creationView = new GxtEnvironmentCreationDialog();
+        creationView.setPresenter(this);
+        creationView.show();
     }
 
     private void addSensors(final GxtEnvironment environment, final List<GxtSensor> sensors) {
@@ -154,11 +163,13 @@ public class EnvironmentCreator implements Presenter {
         }
     }
 
-    private void addSensorToDevice(final GxtSensor sensor, final List<GxtDevice> devices,
+    private void addSensorToDevice(final GxtSensor sensor,
+            final List<Entry<Device, LatLng>> devices,
             final int index, final String name, final int floors, final Polygon outline,
             final List<GxtSensor> sensors) {
 
-        GxtDevice device = devices.get(index);
+        Entry<Device, LatLng> entry = devices.get(index);
+        Device device = entry.getKey();
 
         // prepare request callback
         RequestCallback callback = new RequestCallback() {
@@ -224,7 +235,8 @@ public class EnvironmentCreator implements Presenter {
                 position);
     }
 
-    private void createSensor(final List<GxtDevice> devices, final int index, final String name,
+    private void createSensor(final List<Entry<Device, LatLng>> devices, final int index,
+            final String name,
             final int floors, final Polygon outline, final List<GxtSensor> sensors) {
 
         String dataStructure = "{\\\"latitude\\\":\\\"string\\\",\\\"longitude\\\":\\\"string\\\",\\\"altitude\\\":\\\"string\\\"}";
@@ -301,15 +313,17 @@ public class EnvironmentCreator implements Presenter {
     }
 
     private void onCreateFailure(int code, Throwable error) {
-        // TODO show error dialog
+        creationView.setBusy(false);
 
+        // TODO show error dialog
     }
 
     private void onCreateSensorFailure(int code, Throwable error) {
         onCreateEnvironmentFailure(code, error);
     }
 
-    private void onCreateSensorSuccess(String response, List<GxtDevice> devices, int index,
+    private void onCreateSensorSuccess(String response, List<Entry<Device, LatLng>> devices,
+            int index,
             String name, int floors, Polygon outline, List<GxtSensor> sensors) {
 
         // parse the new sensor details from the response
@@ -344,11 +358,14 @@ public class EnvironmentCreator implements Presenter {
     }
 
     private void onSensorToDeviceSuccess(String response, GxtSensor sensor,
-            List<GxtDevice> devices, int index, String name, int floors, Polygon outline,
+            List<Entry<Device, LatLng>> devices, int index, String name, int floors,
+            Polygon outline,
             List<GxtSensor> sensors) {
 
         // update the sensor model
-        sensor.setDevice(devices.get(index));
+        Entry<Device, LatLng> entry = devices.get(index);
+        Device device = entry.getKey();
+        sensor.setDevice(new GxtDevice(device));
         sensor.setType(1);
 
         setPosition(sensor, devices, index, name, floors, outline, sensors);
@@ -358,18 +375,19 @@ public class EnvironmentCreator implements Presenter {
         onCreateFailure(code, error);
     }
 
-    private void onSetPositionSuccess(String response, List<GxtDevice> devices, int index,
-            String name, int floors, Polygon outline, List<GxtSensor> sensors) {
+    private void onSetPositionSuccess(String response, List<Entry<Device, LatLng>> devices,
+            int index, String name, int floors, Polygon outline, List<GxtSensor> sensors) {
         index++;
         updatePosition(devices, index, name, floors, outline, sensors);
     }
 
-    private void setPosition(GxtSensor positionSensor, final List<GxtDevice> devices,
+    private void setPosition(GxtSensor positionSensor, final List<Entry<Device, LatLng>> devices,
             final int index, final String name, final int floors, final Polygon outline,
             final List<GxtSensor> sensors) {
 
-        GxtDevice device = devices.get(index);
-        LatLng latLng = device.<LatLng> get("latlng");
+        Entry<Device, LatLng> entry = devices.get(index);
+        Device device = entry.getKey();
+        LatLng latLng = entry.getValue();
         String value = "{\\\"latitude\\\":" + latLng.getLatitude() + ",\\\"longitude\\\":"
                 + latLng.getLongitude() + ",\\\"provider\\\":\\\"environment\\\"}";
 

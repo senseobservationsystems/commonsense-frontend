@@ -1,14 +1,16 @@
 package nl.sense_os.commonsense.main.client.environmentmanagement.creating;
 
 import java.util.List;
+import java.util.Map;
 
-import nl.sense_os.commonsense.main.client.gxt.model.GxtDevice;
+import nl.sense_os.commonsense.lib.client.model.apiclass.Device;
 import nl.sense_os.commonsense.main.client.gxt.model.GxtSensor;
 import nl.sense_os.commonsense.main.client.shared.ui.HasBusyState;
 
+import com.google.gwt.maps.client.geom.LatLng;
 import com.google.gwt.maps.client.overlay.Polygon;
 
-public interface EnvironmentCreatorView extends HasBusyState {
+public interface EnvironmentCreationView extends HasBusyState {
 
     public interface Presenter {
 
@@ -17,7 +19,7 @@ public interface EnvironmentCreatorView extends HasBusyState {
         void onSubmitClick();
     }
 
-    List<GxtDevice> getDevices();
+    Map<Device, LatLng> getDevicePositions();
 
     int getFloors();
 
@@ -27,5 +29,9 @@ public interface EnvironmentCreatorView extends HasBusyState {
 
     List<GxtSensor> getSensors();
 
+    void hide();
+
     void setPresenter(Presenter presenter);
+
+    void show();
 }

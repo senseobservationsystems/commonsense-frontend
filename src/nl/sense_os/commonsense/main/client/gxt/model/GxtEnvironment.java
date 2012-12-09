@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.lib.client.model.apiclass.Environment;
+import nl.sense_os.commonsense.main.client.shared.util.MapTools;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.TreeModel;
@@ -25,26 +26,7 @@ public class GxtEnvironment extends BaseTreeModel {
 	public final static String POSITION = "position";
 	public final static String DATE = "date";
 
-	private static Polygon outlineToPolygon(String outline) {
-		if (null != outline && outline.length() > 0) {
-			String[] values = outline.split(";");
-			LatLng[] points = new LatLng[values.length];
-			for (int i = 0; i < values.length; i++) {
-				points[i] = LatLng.fromUrlValue(values[i]);
-			}
-			return new Polygon(points);
-		} else {
-			return null;
-		}
-	}
 
-	private static LatLng positionToLatLng(String position) {
-		if (null != position && position.length() > 0) {
-			return LatLng.fromUrlValue(position);
-		} else {
-			return null;
-		}
-	}
 
 	public GxtEnvironment() {
 		super();
@@ -55,8 +37,8 @@ public class GxtEnvironment extends BaseTreeModel {
 		setId(environment.getId());
 		setName(environment.getName());
 		setFloors(environment.getFloors());
-        setOutline(outlineToPolygon(environment.getRawOutline()));
-		setPosition(positionToLatLng(environment.getPosition()));
+        setOutline(MapTools.outlineToPolygon(environment.getRawOutline()));
+        setPosition(MapTools.positionToLatLng(environment.getPosition()));
         setDate(environment.getDate());
 	}
 
