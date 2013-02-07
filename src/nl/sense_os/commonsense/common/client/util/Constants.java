@@ -9,6 +9,8 @@ public class Constants {
 
 	public static class MapsKeys {
 
+        private static final String MAPS_KEY_BACKEND_RC = "AIzaSyBV-Ekd5C3GWDT4gkfBUA-BldCtt0TwXwY";
+
 		/**
 		 * Google Maps API key, generated for http://rc.sense-os.nl
 		 */
@@ -27,13 +29,14 @@ public class Constants {
 		/**
 		 * Maps key for "regular" deployments: either stable version or test version.
 		 */
-		private static final String MAPS_KEY_REGULAR = Constants.RC_MODE ? MAPS_KEY_RC
-				: MAPS_KEY_STABLE;
+        private static final String MAPS_KEY_REGULAR = Constants.RC_MODE ? MAPS_KEY_RC
+                : MAPS_KEY_STABLE;
 
 		/**
 		 * Google Maps API key.
 		 */
-		public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV : MAPS_KEY_REGULAR;
+        public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV
+                : Constants.BACKEND_RC_MODE ? MAPS_KEY_BACKEND_RC : MAPS_KEY_REGULAR;
 
 		private MapsKeys() {
 			// empty private constructor to prevent instantiation
@@ -67,130 +70,137 @@ public class Constants {
 				+ "],\"total\":5}";
 
 		public static final native JsArray<Timeseries> getTimeseriesPosition(int maxPoints) /*-{
-			var start = 1304208000000; // 01/05/2011
-			var lat = {
-				'id' : 1,
-				'label' : 'latitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			var lng = {
-				'id' : 1,
-				'label' : 'longitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			for ( var i = 0; i < maxPoints; i++) {
-				var date = start + (i * 3600000);
-				var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints);
-				var lngValue = 180 * i / maxPoints;
+            var start = 1304208000000; // 01/05/2011
+            var lat = {
+                'id' : 1,
+                'label' : 'latitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            var lng = {
+                'id' : 1,
+                'label' : 'longitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            for ( var i = 0; i < maxPoints; i++) {
+                var date = start + (i * 3600000);
+                var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints);
+                var lngValue = 180 * i / maxPoints;
 
-				lat.data.push({
-					'date' : date,
-					'value' : latValue
+                lat.data.push({
+                    'date' : date,
+                    'value' : latValue
 
-				});
-				lat.end = date;
+                });
+                lat.end = date;
 
-				lng.data.push({
-					'date' : date,
-					'value' : lngValue
+                lng.data.push({
+                    'date' : date,
+                    'value' : lngValue
 
-				});
-				lng.end = date;
-			}
-			return [ lat, lng ];
-		}-*/;
+                });
+                lng.end = date;
+            }
+            return [ lat, lng ];
+        }-*/;
 
 		public static final native JsArray<Timeseries> getTimeseriesPosition1(int maxPoints) /*-{
-			var start = 1304208000000; // 01/05/2011
-			var lat = {
-				'id' : 2,
-				'label' : 'latitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			var lng = {
-				'id' : 2,
-				'label' : 'longitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			for ( var i = 0; i < maxPoints; i++) {
-				var date = start + (i * 3600000);
-				var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 20;
-				var lngValue = 180 * i / maxPoints;
+            var start = 1304208000000; // 01/05/2011
+            var lat = {
+                'id' : 2,
+                'label' : 'latitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            var lng = {
+                'id' : 2,
+                'label' : 'longitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            for ( var i = 0; i < maxPoints; i++) {
+                var date = start + (i * 3600000);
+                var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 20;
+                var lngValue = 180 * i / maxPoints;
 
-				lat.data.push({
-					'date' : date,
-					'value' : latValue
-				});
-				lat.end = date;
+                lat.data.push({
+                    'date' : date,
+                    'value' : latValue
+                });
+                lat.end = date;
 
-				lng.data.push({
-					'date' : date,
-					'value' : lngValue
-				});
-				lng.end = date;
-			}
-			return [ lat, lng ];
-		}-*/;
+                lng.data.push({
+                    'date' : date,
+                    'value' : lngValue
+                });
+                lng.end = date;
+            }
+            return [ lat, lng ];
+        }-*/;
 
 		public static final native JsArray<Timeseries> getTimeseriesPosition2(int maxPoints) /*-{
-			var start = 1304208000000; // 01/05/2011
-			var lat = {
-				'id' : 3,
-				'label' : 'latitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			var lng = {
-				'id' : 3,
-				'label' : 'longitude',
-				'end' : 0,
-				'start' : start,
-				'type' : 'number',
-				'data' : []
-			};
-			for ( var i = 0; i < maxPoints; i++) {
-				var date = start + (i * 3600000);
-				var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 40;
-				var lngValue = 180 * i / maxPoints;
+            var start = 1304208000000; // 01/05/2011
+            var lat = {
+                'id' : 3,
+                'label' : 'latitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            var lng = {
+                'id' : 3,
+                'label' : 'longitude',
+                'end' : 0,
+                'start' : start,
+                'type' : 'number',
+                'data' : []
+            };
+            for ( var i = 0; i < maxPoints; i++) {
+                var date = start + (i * 3600000);
+                var latValue = 45 * Math.sin(2 * Math.PI * i / maxPoints) - 40;
+                var lngValue = 180 * i / maxPoints;
 
-				lat.data.push({
-					'date' : date,
-					'value' : latValue
-				});
-				lat.end = date;
+                lat.data.push({
+                    'date' : date,
+                    'value' : latValue
+                });
+                lat.end = date;
 
-				lng.data.push({
-					'date' : date,
-					'value' : lngValue
-				});
-				lng.end = date;
-			}
-			return [ lat, lng ];
-		}-*/;
+                lng.data.push({
+                    'date' : date,
+                    'value' : lngValue
+                });
+                lng.end = date;
+            }
+            return [ lat, lng ];
+        }-*/;
 
 		private TestData() {
 			// private constructor to make sure this class is not instantiated
 		}
 	}
 
-	/**
-	 * Flag for Stable mode. <code>true</code> if the app is deployed to common.sense-os.nl.
-	 */
-	public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
+    /**
+     * Flag for Stable mode. <code>true</code> if the app is deployed to common.sense-os.nl.
+     */
+    public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
+
+    /**
+     * Flag for backend release candidate mode. <code>true</code> if the app is deployed to
+     * rc.dev.sense-os.nl.
+     */
+    public static final boolean BACKEND_RC_MODE = GWT.getModuleBaseURL().contains(
+            "rc.dev.sense-os.nl");
 
 	/**
 	 * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
