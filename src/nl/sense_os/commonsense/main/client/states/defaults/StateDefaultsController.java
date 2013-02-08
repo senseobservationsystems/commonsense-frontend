@@ -35,7 +35,7 @@ public class StateDefaultsController extends Controller {
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
 		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_STATES + "/default/check.json");
+        urlBuilder.setPath(Urls.PATH_STATES + "/default.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
