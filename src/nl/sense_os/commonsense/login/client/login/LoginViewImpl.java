@@ -52,6 +52,8 @@ public class LoginViewImpl extends Composite implements LoginView {
 
 	private Presenter presenter;
 
+    private int tabIndex;
+
 	public LoginViewImpl() {
 		initWidget(binder.createAndBindUi(this));
 	}
@@ -130,4 +132,19 @@ public class LoginViewImpl extends Composite implements LoginView {
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
 	}
+
+    @Override
+    public int getTabIndex() {
+        return tabIndex;
+    }
+
+    @Override
+    public void setAccessKey(char key) {
+        // do nothing
+    }
+
+    @Override
+    public void setTabIndex(int index) {
+        tabIndex = index;
+    }
 }

@@ -12,12 +12,14 @@ public class Urls {
 
 	private static final String _STABLE_BASE = "common.sense-os.nl/api";
 	private static final String _RC_BASE = "rc.sense-os.nl/api";
+    private static final String _BACKEND_RC_BASE = "rc.dev.sense-os.nl/api";
 	private static final String _DEV_BASE = "api.dev.sense-os.nl";
 	private static final String _GENERIC_BASE = "api.sense-os.nl";
 
 	// find out which base URL to use
 	public static final String HOST = Constants.STABLE_MODE ? _STABLE_BASE
-			: Constants.RC_MODE ? _RC_BASE : Constants.DEV_MODE ? _DEV_BASE : _GENERIC_BASE;
+            : Constants.RC_MODE ? _RC_BASE : Constants.DEV_MODE ? _DEV_BASE
+                    : Constants.BACKEND_RC_MODE ? _BACKEND_RC_BASE : _GENERIC_BASE;
 
 	public static final String PATH_ENV = "environments";
 	public static final String PATH_GROUPS = "groups";

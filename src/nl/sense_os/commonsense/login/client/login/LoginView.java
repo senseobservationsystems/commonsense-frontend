@@ -16,9 +16,10 @@ package nl.sense_os.commonsense.login.client.login;
 
 import nl.sense_os.commonsense.shared.client.component.Resettable;
 
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.IsWidget;
 
-public interface LoginView extends IsWidget, Resettable {
+public interface LoginView extends IsWidget, Resettable, Focusable {
 
 	public interface Presenter {
 
@@ -43,9 +44,7 @@ public interface LoginView extends IsWidget, Resettable {
 		void login(String username, String password);
 	}
 
-    void setBusy(boolean busy);
-
-    void setFocus(boolean focus);
+	void setBusy(boolean busy);
 
 	void setPresenter(Presenter presenter);
 }

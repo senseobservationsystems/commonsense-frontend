@@ -26,6 +26,7 @@ public class LoginForm extends Composite implements LoginView {
     private static LoginFormUiBinder uiBinder = GWT.create(LoginFormUiBinder.class);
 
     private Presenter presenter;
+    private int tabIndex;
 
     @UiField
     FormPanel form;
@@ -42,6 +43,11 @@ public class LoginForm extends Composite implements LoginView {
 
     public LoginForm() {
         initWidget(uiBinder.createAndBindUi(this));
+    }
+
+    @Override
+    public int getTabIndex() {
+        return tabIndex;
     }
 
     private boolean isValid() {
@@ -94,6 +100,11 @@ public class LoginForm extends Composite implements LoginView {
     }
 
     @Override
+    public void setAccessKey(char key) {
+        // do nothing
+    }
+
+    @Override
     public void setBusy(boolean busy) {
         username.setReadOnly(busy);
         password.setReadOnly(busy);
@@ -110,5 +121,10 @@ public class LoginForm extends Composite implements LoginView {
     @Override
     public void setPresenter(Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void setTabIndex(int index) {
+        tabIndex = index;
     }
 }
