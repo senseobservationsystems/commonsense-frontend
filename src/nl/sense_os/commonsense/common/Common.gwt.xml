@@ -8,6 +8,7 @@
 	
 	<!-- Other modules -->
 	<inherits name='com.google.gwt.maps.GoogleMaps' />
+    <inherits name='nl.sense_os.commonsense.lib.CommonSenseClient' />
 
 	<!-- External style sheets -->
 	<stylesheet src="gwt/commonsense/commonsense.css" />

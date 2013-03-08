@@ -22,6 +22,7 @@ import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 
@@ -121,7 +122,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		};
 
 		// send request
-		CommonSenseApi.login(callback, username, password);
+        CommonSenseClient.getClient().login(callback, username, password);
 	}
 
 	private void onAuthenticationFailure() {
@@ -207,5 +208,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		view = clientFactory.getLoginView();
 		view.setPresenter(this);
 		containerWidget.setWidget(view.asWidget());
+
+        view.setFocus(true);
 	}
 }
