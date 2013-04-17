@@ -40,8 +40,6 @@ import nl.sense_os.commonsense.main.client.viz.tabs.VizMainController;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.Viewport;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
@@ -158,10 +156,12 @@ public class MainEntryPoint implements EntryPoint {
 		historyHandler = new PlaceHistoryHandler(historyMapper);
 		historyHandler.register(placeController, eventBus, new SensorsPlace());
 
-		Viewport viewport = new Viewport();
-		viewport.setLayout(new FitLayout());
-		viewport.add(main.asWidget());
-		RootPanel.get().add(viewport);
+        // Viewport viewport = new Viewport();
+        // viewport.setLayout(new FitLayout());
+        // viewport.add(main.asWidget());
+
+        RootPanel.get("csfe").add(main.asWidget());
+        // RootPanel.get().add(viewport);
 
 		/* initialize GXT MVC */
 		initDispatcher();

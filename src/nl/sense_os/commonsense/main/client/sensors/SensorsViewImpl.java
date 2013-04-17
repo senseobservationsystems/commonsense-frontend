@@ -6,27 +6,31 @@ import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
 import nl.sense_os.commonsense.main.client.states.list.StateListEvents;
 import nl.sense_os.commonsense.main.client.viz.tabs.VizEvents;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Composite;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 public class SensorsViewImpl extends Composite implements SensorsView {
 
-	private LayoutContainer container;
-	private LayoutContainer centerContent;
-	private LayoutContainer westContent;
+    private ContentPanel container;
+    private ContentPanel centerContent;
+    private ContentPanel westContent;
 
 	public SensorsViewImpl() {
 
-		container = new LayoutContainer(new BorderLayout());
+        container = new ContentPanel(new RowLayout(Orientation.HORIZONTAL));
+        container.setHeaderVisible(false);
+        container.setBodyBorder(false);
+        container.setSize("100%", "100%");
+        container.setId("sensors-view");
 
 		initWest();
 		initCenter();
@@ -36,26 +40,23 @@ public class SensorsViewImpl extends Composite implements SensorsView {
 
 	private void initCenter() {
 
-		this.centerContent = new LayoutContainer(new FitLayout());
-		this.centerContent.setId("center-content");
+        centerContent = new ContentPanel(new FitLayout());
+        centerContent.setId("center-content");
+        centerContent.setHeaderVisible(false);
+        centerContent.setBodyBorder(false);
 
-		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-		centerData.setMargins(new Margins(10));
-		container.add(this.centerContent, centerData);
+        container.add(centerContent, new RowData(.7, 1, new Margins(10)));
 	}
 
 	private void initWest() {
 
-		// real content
-		this.westContent = new LayoutContainer(new FitLayout());
-		this.westContent.setId("west-content");
-		this.westContent.setScrollMode(Scroll.AUTOY);
+        westContent = new ContentPanel(new FitLayout());
+        westContent.setId("west-content");
+        westContent.setHeaderVisible(false);
+        westContent.setBodyBorder(false);
+        westContent.setScrollMode(Scroll.AUTOY);
 
-		// add to viewport
-		final BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 0.33f, 275, 2000);
-		westData.setMargins(new Margins(10, 0, 10, 10));
-		westData.setSplit(true);
-		container.add(this.westContent, westData);
+        container.add(westContent, new RowData(.3, 1, new Margins(10, 0, 10, 10)));
 	}
 
 	@Override
@@ -99,4 +100,11 @@ public class SensorsViewImpl extends Composite implements SensorsView {
 		displayVisualization.setData("parent", this.centerContent);
 		Dispatcher.forwardEvent(displayVisualization);
 	}
+
+    @Override
+    public void foo() {
+
+        container.layout(true);
+
+    }
 }

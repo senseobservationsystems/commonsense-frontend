@@ -1,60 +1,28 @@
 package nl.sense_os.commonsense.main.client.application;
 
-import nl.sense_os.commonsense.common.client.component.FooterBar;
 import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
-import nl.sense_os.commonsense.main.client.application.component.MainNavigationBar;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class MainApplicationViewGxt extends Composite implements MainApplicationView {
 
-	private LayoutContainer center;
-	private MainNavigationBar mainNavigationBar;
-	private SimplePanel simplePanel;
+    private ContentPanel center;
+    private SimplePanel simplePanel = new SimplePanel();
 
 	public MainApplicationViewGxt() {
 
-		LayoutContainer wrapper = new LayoutContainer(new FitLayout());
-		wrapper.setStyleAttribute("background",
-				"url('commonsense/images/bgLeftBottom.png') no-repeat left bottom;");
+        center = new ContentPanel(new FitLayout());
+        center.setId("gxt-center");
+        center.setHeight("100%");
+        center.setHeaderVisible(false);
+        center.setBodyBorder(false);
 
-		LayoutContainer borderLayout = new LayoutContainer(new BorderLayout());
-		borderLayout.setStyleAttribute("background",
-				"url('commonsense/images/bgRightTop.png') no-repeat right top;");
-
-		// north: navigation bar
-		mainNavigationBar = new MainNavigationBar();
-		LayoutContainer north = new LayoutContainer(new FitLayout());
-		north.add(mainNavigationBar);
-		borderLayout.add(north, new BorderLayoutData(LayoutRegion.NORTH, 30.0f));
-
-		// south: footer bar
-		FooterBar footerBar = new FooterBar();
-		LayoutContainer south = new LayoutContainer(new FitLayout());
-		south.add(footerBar);
-		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
-
-		// east: hidden simple panel for place/activities API
-		simplePanel = new SimplePanel();
-		LayoutContainer east = new LayoutContainer();
-		east.add(simplePanel);
-		east.setVisible(false);
-		borderLayout.add(east, new BorderLayoutData(LayoutRegion.EAST, 0.0f));
-
-		// center
-		center = new LayoutContainer(new FitLayout());
-		borderLayout.add(center, new BorderLayoutData(LayoutRegion.CENTER));
-
-		wrapper.add(borderLayout);
-
-		initComponent(wrapper);
+        initComponent(center);
 	}
 
 	@Override
@@ -63,12 +31,12 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 	}
 
 	@Override
-	public LayoutContainer getActivityPanelGxt() {
-		return center;
+    public LayoutContainer getActivityPanelGxt() {
+        return center;
 	}
 
 	@Override
 	public void onCurrentUserChanged(CurrentUserChangedEvent event) {
-		mainNavigationBar.setUserLabel(event.getUser().getUsername());
+        // do nothing
 	}
 }

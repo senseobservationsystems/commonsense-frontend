@@ -36,5 +36,8 @@ public class SensorsActivity extends AbstractActivity implements SensorsView.Pre
 
 		view.setPresenter(this);
 		parent.layout();
+
+        view.asWidget().setSize("100%", "100%");
+        view.foo();
 	}
 }

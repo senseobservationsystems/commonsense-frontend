@@ -41,9 +41,9 @@ public class MainClientFactoryImpl implements MainClientFactory {
 
 	@Override
 	public SensorsView getSensorsView() {
-		if (null == sensors) {
+        if (null == sensors) {
 			sensors = new SensorsViewImpl();
-		}
+        }
 		return sensors;
 	}
 }

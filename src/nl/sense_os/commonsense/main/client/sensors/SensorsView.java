@@ -9,4 +9,6 @@ public interface SensorsView extends IsWidget {
 	}
 
 	void setPresenter(Presenter presenter);
+
+    void foo();
 }
