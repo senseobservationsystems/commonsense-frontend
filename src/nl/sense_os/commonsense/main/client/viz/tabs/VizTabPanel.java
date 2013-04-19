@@ -1,8 +1,5 @@
 package nl.sense_os.commonsense.main.client.viz.tabs;
 
-import nl.sense_os.commonsense.main.client.ext.util.SenseIconProvider;
-
-import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -27,11 +24,11 @@ public class VizTabPanel extends TabPanel {
         addStyleName("transparent");
 
         // Welcome tab item
-        final Frame frameWelcome = new Frame("http://welcome.sense-os.nl/node/9");
+        final Frame frameWelcome = new Frame("/csfe/intro.html");
         frameWelcome.setStylePrimaryName("senseFrame");
 
         tabItemWelcome = new TabItem("Welcome");
-        tabItemWelcome.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "help.png"));
+        //tabItemWelcome.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "help.png"));
         tabItemWelcome.setLayout(new FitLayout());
         LayoutData data = new FitData(new Margins(0));
         tabItemWelcome.add(frameWelcome, data);

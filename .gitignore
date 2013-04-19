@@ -12,3 +12,4 @@ target/
 gwt-unitCache/
 www-test/
 .settings/
+*.DS_STORE

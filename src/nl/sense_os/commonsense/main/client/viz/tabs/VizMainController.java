@@ -2,7 +2,6 @@ package nl.sense_os.commonsense.main.client.viz.tabs;
 
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.util.Constants;
 import nl.sense_os.commonsense.main.client.viz.choice.VizTypeChooser;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -65,8 +64,8 @@ public class VizMainController extends Controller {
 			return;
 		}
 
-		Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
-
+		//Maps.loadMapsApi(Constants.MapsKeys.MAPS_KEY, "2", false, new Runnable() {
+		Maps.loadMapsApi("AIzaSyB4khOS82GtGOLzitfpJmskILGIr3ZOW1E", "2", false, new Runnable() {
 			@Override
 			public void run() {
 				// LOGGER.fine( "Google Maps API (version " + Maps.getVersion() + ") loaded...");

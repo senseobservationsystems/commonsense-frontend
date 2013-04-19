@@ -5,6 +5,7 @@ import java.util.Date;
 import nl.sense_os.commonsense.common.client.util.Constants;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window.Location;
 
@@ -14,13 +15,14 @@ public class SessionManager {
 
 	/**
 	 * Tries to get a session ID from either the URL parameters or from the domain cookies.
-	 * 
+	 *
 	 * @return The session ID or null
 	 */
 	public static String getSessionId() {
 
 		// check session ID cookie
 		String sessionId = Cookies.getCookie(KEY);
+
 
         if (null == sessionId || "".equals(sessionId)) {
 
@@ -31,8 +33,12 @@ public class SessionManager {
             if (null != sessionId && !"".equals(sessionId)) {
                 setSessionId(sessionId);
             } else {
-                sessionId = null;
+                sessionId = Storage.getSessionStorageIfSupported().getItem(KEY);
+                if (null == sessionId || "".equals(sessionId)) {
+                	sessionId = null;
+                }
 			}
+
 		}
 
 		return sessionId;
@@ -51,7 +57,7 @@ public class SessionManager {
 
 	/**
 	 * Stores the session ID in the sense-os.nl cookie
-	 * 
+	 *
 	 * @param sessionId
 	 */
 	public static void setSessionId(String sessionId) {
