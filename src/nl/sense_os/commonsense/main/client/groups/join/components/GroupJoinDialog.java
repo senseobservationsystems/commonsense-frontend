@@ -42,7 +42,7 @@ public class GroupJoinDialog extends CenteredWindow {
 			List<GxtSensor> sensors) {
 
 		// main window properties
-		setHeading("Join a public group");
+        setHeadingText("Join a public group");
 		setClosable(false);
 		setSize(540, 480);
 

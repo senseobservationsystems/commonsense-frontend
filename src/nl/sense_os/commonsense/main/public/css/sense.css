@@ -93,11 +93,11 @@
 }
 
 .sense-btn-icon-go {
-	background-image: url('../ExtGWT/images/gxt/icons/page-next.gif');
+	background-image: url('../gxt/images/gxt/icons/page-next.gif');
 }
 
 .sense-btn-icon-loading {
-	background-image: url('../ExtGWT/images/gxt/icons/loading.gif');
+	background-image: url('../gxt/images/gxt/icons/loading.gif');
 }
 
 .senseFrame {

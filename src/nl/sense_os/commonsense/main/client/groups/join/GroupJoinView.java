@@ -133,7 +133,7 @@ public class GroupJoinView extends View {
 		window.getBtnSubmit().addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				if (ce.getButton().getText().equalsIgnoreCase("next")) {
+                if (ce.getButton().getHtml().equalsIgnoreCase("next")) {
 					goToNext();
 				} else {
 					submitForm();
@@ -165,7 +165,7 @@ public class GroupJoinView extends View {
 
 			@Override
 			public void handleEvent(MessageBoxEvent be) {
-				if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 					submitForm();
 				} else {
 					hideWindow();

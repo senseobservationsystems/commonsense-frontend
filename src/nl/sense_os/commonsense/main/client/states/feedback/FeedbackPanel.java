@@ -104,7 +104,7 @@ public class FeedbackPanel extends VizPanel {
 	tlineOpts.setGroupsWidth(135);
 
 	// set up layout
-	setHeading("Feedback: " + stateSensor.getDisplayName());
+        setHeadingText("Feedback: " + stateSensor.getDisplayName());
 	setBodyBorder(false);
 	setLayout(new RowLayout(Orientation.VERTICAL));
 
@@ -702,7 +702,7 @@ public class FeedbackPanel extends VizPanel {
 	final CenteredWindow choiceWindow = new CenteredWindow();
 	choiceWindow.setSize(300, 100);
 	choiceWindow.setLayout(new FitLayout());
-	choiceWindow.setHeading("State label selection");
+        choiceWindow.setHeadingText("State label selection");
 	choiceWindow.addListener(Events.Close, new Listener<ComponentEvent>() {
 
 	    @Override

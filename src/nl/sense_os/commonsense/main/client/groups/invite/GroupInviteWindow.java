@@ -23,7 +23,7 @@ public class GroupInviteWindow extends Window {
     public GroupInviteWindow(GxtGroup group) {
         setSize("300px", "210px");
         setClosable(false);
-        setHeading("Add user to " + group.getName());
+        setHeadingText("Add user to " + group.getName());
         setLayout(new FitLayout());
 
         FormPanel frmpnlNewFormpanel = new FormPanel();
@@ -31,7 +31,7 @@ public class GroupInviteWindow extends Window {
         frmpnlNewFormpanel.setBodyBorder(false);
         frmpnlNewFormpanel.setLabelAlign(LabelAlign.TOP);
         frmpnlNewFormpanel.setHeaderVisible(false);
-        frmpnlNewFormpanel.setHeading("New FormPanel");
+        frmpnlNewFormpanel.setHeadingText("New FormPanel");
         frmpnlNewFormpanel.setCollapsible(true);
 
         LabelField lblfldExplanation = new LabelField(

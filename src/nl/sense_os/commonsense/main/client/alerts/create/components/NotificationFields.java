@@ -24,7 +24,7 @@ public class NotificationFields extends FieldSet {
 
     public NotificationFields() {
 
-        setHeading("Notification details");
+        setHeadingHtml("Notification details");
         setHeight(225);
         setLayout(new FormLayout(LabelAlign.TOP));
 

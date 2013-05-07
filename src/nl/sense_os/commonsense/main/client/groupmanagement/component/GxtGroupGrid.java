@@ -69,15 +69,15 @@ public class GxtGroupGrid extends Composite implements GroupListView {
 
 	public GxtGroupGrid() {
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage group memberships");
+		panel.setHeadingText("Manage group memberships");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
 		panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
-			@Override
+	@Override
 			public void handleEvent(ComponentEvent be) {
-				refreshLoader(false);
+			refreshLoader(false);
 			}
 		});
 

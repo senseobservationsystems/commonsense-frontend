@@ -39,7 +39,7 @@ public class GroupCreator extends CenteredWindow {
         // LOG.setLevel(Level.ALL);
 
         // basic stuff
-        setHeading("Create new group");
+        setHeadingText("Create new group");
         setClosable(false);
         setSize(500, 450);
 

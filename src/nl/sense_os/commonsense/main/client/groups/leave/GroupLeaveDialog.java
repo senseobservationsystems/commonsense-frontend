@@ -62,7 +62,7 @@ public class GroupLeaveDialog extends View {
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
 						Button clicked = be.getButtonClicked();
-						if ("yes".equalsIgnoreCase(clicked.getText())) {
+                        if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 							leave();
 						}
 					}
@@ -79,7 +79,7 @@ public class GroupLeaveDialog extends View {
 			@Override
 			public void handleEvent(MessageBoxEvent be) {
 				Button clicked = be.getButtonClicked();
-				if ("yes".equalsIgnoreCase(clicked.getText())) {
+                if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 					leave();
 				}
 			}

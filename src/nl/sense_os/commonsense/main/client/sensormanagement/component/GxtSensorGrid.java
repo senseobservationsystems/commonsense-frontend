@@ -56,8 +56,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class GxtSensorGrid extends Composite implements SensorListView {
 
-    private static final Logger LOG = Logger.getLogger(GxtSensorGrid.class.getName());
-
+	private static final Logger LOG = Logger.getLogger(GxtSensorGrid.class.getName());
 	private ContentPanel panel;
 	private BaseListLoader<ListLoadResult<GxtSensor>> loader;
 	private GroupingStore<GxtSensor> store;
@@ -67,16 +66,16 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 	private Button unshareButton;
 	private Button removeButton;
 	private Button alertButton;
-    private Button publishButton;
+	private Button publishButton;
 	private Button vizButton;
 	private ToolBar filterBar;
-    private boolean forceRefresh;
+	private boolean forceRefresh;
 	private Presenter presenter;
 
 	public GxtSensorGrid() {
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Sensor library");
+		panel.setHeadingText("Sensor library");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
@@ -240,9 +239,9 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 					onRemoveClick();
 				} else if (source.equals(alertButton)) {
 					onAlertClick();
-                } else if (source.equals(publishButton)) {
-                    onPublishClick();
-                } else {
+				} else if (source.equals(publishButton)) {
+					onPublishClick();
+				} else {
 					LOG.warning("Unexpected button pressed");
 				}
 			}
@@ -258,8 +257,8 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		unshareButton = new Button("Unshare", l);
 		unshareButton.disable();
 
-        publishButton = new Button("Publish", l);
-        publishButton.disable();
+		publishButton = new Button("Publish", l);
+		publishButton.disable();
 
 		removeButton = new Button("Remove", l);
 		removeButton.disable();
@@ -278,7 +277,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 				if (selection != null && selection.size() > 0) {
 					vizButton.enable();
 					shareButton.enable();
-                    publishButton.enable();
+					publishButton.enable();
 					if (selection.size() == 1 && selection.get(0).getUsers() != null) {
 						alertButton.enable();
 					}
@@ -288,13 +287,13 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 					} else {
 						unshareButton.disable();
 					}
-                    removeButton.enable();
+					removeButton.enable();
 				} else {
 					vizButton.disable();
 					shareButton.disable();
 					unshareButton.disable();
 					removeButton.disable();
-                    publishButton.disable();
+					publishButton.disable();
 				}
 			}
 		});
@@ -305,24 +304,24 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		toolBar.add(vizButton);
 		toolBar.add(shareButton);
 		toolBar.add(unshareButton);
-        toolBar.add(publishButton);
+		toolBar.add(publishButton);
 		toolBar.add(removeButton);
 		toolBar.add(alertButton);
 	}
 
-    private void onPublishClick() {
-        // get sensor models from the selection
-        final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
+	private void onPublishClick() {
+		// get sensor models from the selection
+		final List<GxtSensor> sensors = grid.getSelectionModel().getSelection();
 
-        if (sensors.size() > 0) {
-            AppEvent event = new AppEvent(PublishEvents.ShowPublisher);
-            event.setData("sensors", sensors);
-            Dispatcher.forwardEvent(event);
+		if (sensors.size() > 0) {
+			AppEvent event = new AppEvent(PublishEvents.ShowPublisher);
+			event.setData("sensors", sensors);
+			Dispatcher.forwardEvent(event);
 
-        } else {
-            MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
-        }
-    }
+		} else {
+			MessageBox.info(null, "No sensors selected. You can only remove sensors!", null);
+		}
+	}
 
 	private void onAlertClick() {
 		// get sensor models from the selection

@@ -58,7 +58,7 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 
 	public GxtVisualizationChooserWindow() {
 
-		setHeading("Visualization wizard");
+		setHeadingText("Visualization wizard");
 		setMinWidth(425);
 		setMinHeight(305);
 		setClosable(false);
@@ -186,7 +186,7 @@ public class GxtVisualizationChooserWindow extends CenteredWindow implements
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				if (ce.getButton().equals(buttonToTimeRange)) {
-					String buttonLabel = buttonToTimeRange.getText();
+					String buttonLabel = buttonToTimeRange.getHtml();
 					if (buttonLabel.equalsIgnoreCase("next")) {
 						layout.setActiveItem(timeRangeForm);
 					} else if (buttonLabel.equalsIgnoreCase("go!")) {
