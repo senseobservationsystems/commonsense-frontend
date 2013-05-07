@@ -11,4 +11,8 @@ target/
 .gwt
 gwt-unitCache/
 www-test/
+
+# eclipse stuff
 .settings/
+.project
+.classpath
