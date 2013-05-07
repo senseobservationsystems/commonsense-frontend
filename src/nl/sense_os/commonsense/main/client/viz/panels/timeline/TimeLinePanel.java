@@ -232,13 +232,13 @@ public class TimeLinePanel extends VizPanel {
         JsArray<Timeseries> stringData = JavaScriptObject.createArray().cast();
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
-            if (ts.getType().equalsIgnoreCase("number")) {
+            if (ts.getDataType().equalsIgnoreCase("number")) {
                 LOG.finest(ts.getLabel() + ": " + ts.getData().length()
                         + " data points (number data)");
                 numberData.push(ts);
             } else {
                 LOG.finest(ts.getLabel() + ": " + ts.getData().length() + " data points ("
-                        + ts.getType() + " data)");
+                        + ts.getDataType() + " data)");
                 stringData.push(ts);
             }
         }

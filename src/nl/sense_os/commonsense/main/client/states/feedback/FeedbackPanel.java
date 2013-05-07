@@ -571,13 +571,13 @@ public class FeedbackPanel extends VizPanel {
 	    if (ts.getId() == stateSensor.getId()) {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length() + " data points (state data)");
 		stateData.push(ts);
-	    } else if (ts.getType().equalsIgnoreCase("number")) {
+	    } else if (ts.getDataType().equalsIgnoreCase("number")) {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length()
 			+ " data points (number data)");
 		numberData.push(ts);
 	    } else {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length() + " data points ("
-			+ ts.getType() + " data)");
+			+ ts.getDataType() + " data)");
 		stringData.push(ts);
 	    }
 	}
