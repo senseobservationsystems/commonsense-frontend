@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -159,8 +158,8 @@ public class GroupJoinController extends Controller {
 
 	private void onGroupDetailsSuccess(String response, View source) {
 		Group group = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupDetailsResponse jso = JsonUtils.unsafeEval(response);
+		GetGroupDetailsResponse jso = GetGroupDetailsResponse.create(response).cast();
+		if (null != jso) {
 			group = jso.getGroup();
 		}
 
@@ -256,8 +255,8 @@ public class GroupJoinController extends Controller {
 
 		// parse list of groups from the response
 		int total = -1;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
+		GetGroupsResponse jso = GetGroupsResponse.create(response).cast();
+		if (null != response) {
 			total = jso.getGroups().size();
 			JsArray<Group> newGroups = jso.getRawGroups();
 			for (int i = 0; i < newGroups.length(); i++) {

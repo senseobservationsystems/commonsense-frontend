@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
-public class GetGroupUsersResponse extends JavaScriptObject {
+public class GetGroupUsersResponse extends SenseApiResponse {
 
 	protected GetGroupUsersResponse() {
 		// empty protected constructor

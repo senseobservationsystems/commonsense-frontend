@@ -27,7 +27,6 @@ import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -122,7 +121,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		};
 
 		// send request
-        CommonSenseClient.getClient().login(callback, username, password);
+		CommonSenseClient.getClient().login(callback, username, password);
 	}
 
 	private void onAuthenticationFailure() {
@@ -179,8 +178,8 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 			// try to get "session_id" object
 			String sessionId = null;
-			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-				LoginResponse jso = JsonUtils.unsafeEval(response);
+			LoginResponse jso = LoginResponse.create(response).cast();
+			if (null != jso) {
 				sessionId = jso.getSessionId();
 			}
 
@@ -209,6 +208,6 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		view.setPresenter(this);
 		containerWidget.setWidget(view.asWidget());
 
-        view.setFocus(true);
+		view.setFocus(true);
 	}
 }

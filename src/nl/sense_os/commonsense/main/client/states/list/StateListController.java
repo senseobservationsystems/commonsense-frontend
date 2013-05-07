@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -297,8 +296,8 @@ public class StateListController extends Controller {
 
 		// parse list of sensors from response
 		List<ExtSensor> sensors = new ArrayList<ExtSensor>();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+		GetSensorsResponse responseJso = GetSensorsResponse.create(response).cast();
+		if (null != responseJso) {
 			JsArray<Sensor> rawSensors = responseJso.getRawSensors();
 			for (int i = 0; i < rawSensors.length(); i++) {
 				ExtSensor sensor = new ExtSensor(rawSensors.get(i));
@@ -366,8 +365,8 @@ public class StateListController extends Controller {
 
 		// parse list of methods from the response
 		JsArray<ServiceMethod> methods = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetMethodsResponse jso = JsonUtils.unsafeEval(response);
+		GetMethodsResponse jso = GetMethodsResponse.create(response).cast();
+		if (jso != null) {
 			methods = jso.getRawMethods();
 		}
 
@@ -388,8 +387,8 @@ public class StateListController extends Controller {
 
 		// parse list of sensors from response
 		JsArray<Sensor> sensors = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+		GetSensorsResponse responseJso = GetSensorsResponse.create(response).cast();
+		if (null != responseJso) {
 			sensors = responseJso.getRawSensors();
 		}
 

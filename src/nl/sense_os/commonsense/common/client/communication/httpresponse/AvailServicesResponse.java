@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.common.client.model.Service;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
-public class AvailServicesResponse extends JavaScriptObject {
+public class AvailServicesResponse extends SenseApiResponse {
 
 	protected AvailServicesResponse() {
 		// empty protected constructor
 	}
 
-	public final native JsArray<Service> getRawServices() /*-{
+	public native final JsArray<Service> getRawServices() /*-{
 		if (undefined != this.available_services) {
 			return this.available_services;
 		} else {

@@ -17,7 +17,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -231,8 +230,8 @@ public class StateConnectController extends Controller {
 
 		// parse list of running services from the response
 		List<Service> services = new ArrayList<Service>();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetServicesResponse jso = JsonUtils.unsafeEval(response);
+		GetServicesResponse jso = GetServicesResponse.create(response).cast();
+		if (null != jso) {
 			services = jso.getServices();
 		}
 

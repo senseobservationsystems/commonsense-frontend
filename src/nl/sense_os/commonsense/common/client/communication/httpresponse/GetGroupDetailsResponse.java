@@ -1,10 +1,9 @@
 package nl.sense_os.commonsense.common.client.communication.httpresponse;
 
 import nl.sense_os.commonsense.common.client.model.Group;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
-public class GetGroupDetailsResponse extends JavaScriptObject {
+public class GetGroupDetailsResponse extends SenseApiResponse {
 
 	protected GetGroupDetailsResponse() {
 		// empty protected constructor

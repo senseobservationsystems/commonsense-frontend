@@ -241,7 +241,7 @@ public class DataController extends Controller {
 		LOG.fine("Data page success...");
 
 		// parse the incoming data
-		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
+		GetSensorDataResponse jsoResponse = GetSensorDataResponse.createFixedJson(response);
 
 		// store data in cache
 		ExtSensor sensor = sensors.get(sensorIndex);
@@ -293,7 +293,7 @@ public class DataController extends Controller {
 			int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
 
 		// parse the incoming data
-		GetSensorDataResponse jsoResponse = GetSensorDataResponse.create(response);
+		GetSensorDataResponse jsoResponse = GetSensorDataResponse.createFixedJson(response);
 
 		// store data in cache
 		ExtSensor sensor = sensors.get(sensorIndex);
@@ -379,7 +379,7 @@ public class DataController extends Controller {
 	private void onLatestValueSuccess(String response, List<ExtSensor> sensors, int index,
 			View source) {
 
-		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
+		GetSensorDataResponse jso = GetSensorDataResponse.createFixedJson(response);
 		Cache.store(sensors.get(index), 0, 0, jso.getData());
 
 		index++;

@@ -46,7 +46,6 @@ import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -228,7 +227,7 @@ public class MainEntryPoint implements EntryPoint {
 	private void onGetCurrentUserResponse(Response response) {
 		int statusCode = response.getStatusCode();
 		if (Response.SC_OK == statusCode) {
-			CurrentUserResponse jso = JsonUtils.safeEval(response.getText());
+			CurrentUserResponse jso = CurrentUserResponse.create(response.getText()).cast();
 			onGetCurrentUserSuccess(jso.getUser());
 		} else {
 			onGetCurrentUserFailure(statusCode, new Throwable(response.getStatusText()));
