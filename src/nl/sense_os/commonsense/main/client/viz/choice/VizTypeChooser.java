@@ -115,7 +115,7 @@ public class VizTypeChooser extends View {
         submitEvent = new AppEvent(VizPanelEvents.ShowTimeLine);
 
         window = new CenteredWindow();
-        window.setHeading("Visualization wizard");
+        window.setHeadingText("Visualization wizard");
         window.setMinWidth(425);
         window.setMinHeight(305);
         window.setClosable(false);
@@ -188,7 +188,7 @@ public class VizTypeChooser extends View {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 if (ce.getButton().equals(buttonToTimeRange)) {
-                    String buttonLabel = buttonToTimeRange.getText();
+                    String buttonLabel = buttonToTimeRange.getHtml();
                     if (buttonLabel.equalsIgnoreCase("next")) {
                         layout.setActiveItem(timeRangeForm);
                     } else if (buttonLabel.equalsIgnoreCase("go!")) {

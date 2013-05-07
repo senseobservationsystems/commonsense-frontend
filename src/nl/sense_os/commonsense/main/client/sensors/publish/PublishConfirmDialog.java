@@ -123,7 +123,7 @@ public class PublishConfirmDialog extends View {
 		super.initialize();
 
 		window = new CenteredWindow();
-		window.setHeading("Publish sensors");
+        window.setHeadingText("Publish sensors");
 		// window.setLayout(new FitLayout());
 		window.setSize(400, 250);
 		window.setScrollMode(Scroll.AUTOY);

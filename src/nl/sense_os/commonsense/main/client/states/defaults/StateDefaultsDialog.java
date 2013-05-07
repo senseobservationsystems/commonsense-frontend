@@ -38,7 +38,7 @@ public class StateDefaultsDialog extends CenteredWindow {
 	public StateDefaultsDialog() {
 		super();
 
-		setHeading("Create default states");
+        setHeadingText("Create default states");
 		setLayout(new FitLayout());
 		setSize(600, 400);
 		setClosable(false);

@@ -70,7 +70,7 @@ public class GroupCreateView extends View {
 
 			@Override
 			public void handleEvent(MessageBoxEvent be) {
-				if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 					submit();
 				} else {
 					hideDialog();
@@ -88,7 +88,7 @@ public class GroupCreateView extends View {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				Button b = ce.getButton();
-				if (b.getText().equals("Next")) {
+                if (b.getHtml().equals("Next")) {
 					window.goToNext();
 				} else {
 					submit();

@@ -264,7 +264,7 @@ public class StateCreator extends View {
         super.initialize();
 
         window = new CenteredWindow();
-        window.setHeading("Create state sensor");
+        window.setHeadingText("Create state sensor");
         window.setSize(720, 550);
         window.setLayout(new FitLayout());
 
@@ -352,7 +352,7 @@ public class StateCreator extends View {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
                             submitForm();
                         } else {
                             window.hide();

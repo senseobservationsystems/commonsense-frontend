@@ -62,14 +62,14 @@ public class SensorDataGrid extends VizPanel {
 
         ColumnConfig idCol = new ColumnConfig();
         idCol.setId("id");
-        idCol.setHeader("row id");
+        idCol.setHeaderText("row id");
         idCol.setDataIndex("id");
         idCol.setWidth(50);
         colConf.add(idCol);
 
         ColumnConfig sensorCol = new ColumnConfig();
         sensorCol.setId("sensor_id");
-        sensorCol.setHeader("sensor id");
+        sensorCol.setHeaderText("sensor id");
         sensorCol.setDataIndex("sensor_id");
         sensorCol.setWidth(250);
         sensorCol.setRenderer(new GridCellRenderer<ModelData>() {
@@ -95,7 +95,7 @@ public class SensorDataGrid extends VizPanel {
 
         ColumnConfig valueCol = new ColumnConfig();
         valueCol.setId("value");
-        valueCol.setHeader("value");
+        valueCol.setHeaderText("value");
         valueCol.setDataIndex("value");
         valueCol.setWidth(300);
         valueCol.setRenderer(new GridCellRenderer<ModelData>() {
@@ -122,7 +122,7 @@ public class SensorDataGrid extends VizPanel {
 
         ColumnConfig timeCol = new ColumnConfig();
         timeCol.setId("date");
-        timeCol.setHeader("date");
+        timeCol.setHeaderText("date");
         timeCol.setDataIndex("date");
         timeCol.setWidth(150);
         timeCol.setRenderer(new GridCellRenderer<ModelData>() {

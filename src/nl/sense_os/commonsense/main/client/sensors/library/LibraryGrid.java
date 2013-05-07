@@ -237,7 +237,7 @@ public class LibraryGrid extends View {
 		LOG.finest("Initialize...");
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Sensor library");
+        panel.setHeadingText("Sensor library");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded

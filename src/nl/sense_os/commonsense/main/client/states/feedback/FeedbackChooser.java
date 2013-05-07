@@ -48,7 +48,7 @@ public class FeedbackChooser extends View {
             final List<String> labels) {
         final Window w = new Window();
         w.setLayout(new FitLayout());
-        w.setHeading("Feedback panel settings");
+        w.setHeadingText("Feedback panel settings");
         w.setMinWidth(425);
         w.setMinHeight(305);
 

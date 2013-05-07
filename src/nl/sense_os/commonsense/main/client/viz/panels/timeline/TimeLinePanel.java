@@ -43,7 +43,7 @@ public class TimeLinePanel extends VizPanel {
         // LOG.setLevel(Level.ALL);
 
         // set up layout
-        setHeading("Time line: " + title);
+        setHeadingText("Time line: " + title);
         setBodyBorder(false);
         setLayout(new FillLayout());
 

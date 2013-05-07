@@ -86,7 +86,7 @@ public class SensorDeleteDialog extends View {
         super.initialize();
 
         window = new CenteredWindow();
-        window.setHeading("Remove sensors");
+        window.setHeadingText("Remove sensors");
         window.setLayout(new FitLayout());
         window.setSize(323, 200);
 

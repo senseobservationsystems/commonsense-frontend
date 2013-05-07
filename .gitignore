@@ -1,14 +1,17 @@
 /build
 /classes
-*.jar
 *.class
 *~
 war/commonsense/
 war/login/
 war/WEB-INF/classes/
 war/WEB-INF/deploy/
+war/WEB-INF/lib/gwt-servlet.jar
 target/
 .gwt
 gwt-unitCache/
 www-test/
+# eclipse stuff
 .settings/
+.classpath
+.project

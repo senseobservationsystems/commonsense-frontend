@@ -270,7 +270,7 @@ public class StateConnecter extends View {
         super.initialize();
 
         window = new CenteredWindow();
-        window.setHeading("Connect sensor(s) to state");
+        window.setHeadingText("Connect sensor(s) to state");
         window.setSize(540, 480);
         window.setLayout(new FitLayout());
 
@@ -283,7 +283,7 @@ public class StateConnecter extends View {
 
             @Override
             public void handleEvent(MessageBoxEvent be) {
-                if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
                     submitForm();
                 } else {
                     hideWindow();
@@ -301,7 +301,7 @@ public class StateConnecter extends View {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
                             requestServiceName();
                         } else {
                             hideWindow();

@@ -211,7 +211,7 @@ public class GroupGrid extends View {
 		super.initialize();
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage group memberships");
+        panel.setHeadingText("Manage group memberships");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded

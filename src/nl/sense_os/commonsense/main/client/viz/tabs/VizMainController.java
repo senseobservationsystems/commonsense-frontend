@@ -85,7 +85,7 @@ public class VizMainController extends Controller {
 								@Override
 								public void handleEvent(MessageBoxEvent be) {
 									final Button b = be.getButtonClicked();
-									if ("yes".equalsIgnoreCase(b.getText())) {
+                                    if ("yes".equalsIgnoreCase(b.getHtml())) {
 										loadMapsApi();
 									}
 								}
@@ -121,7 +121,7 @@ public class VizMainController extends Controller {
 								@Override
 								public void handleEvent(MessageBoxEvent be) {
 									final Button b = be.getButtonClicked();
-									if ("yes".equalsIgnoreCase(b.getText())) {
+                                    if ("yes".equalsIgnoreCase(b.getHtml())) {
 										loadVizApi();
 									}
 								}

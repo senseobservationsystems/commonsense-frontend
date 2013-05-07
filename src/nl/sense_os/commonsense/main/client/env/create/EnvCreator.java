@@ -84,11 +84,11 @@ public class EnvCreator extends View {
 	private void checkValidity() {
 
 		if (isFormValid) {
-			form.setHeading("Step 1: Basic info");
+            form.setHeadingText("Step 1: Basic info");
 		}
 
 		if (isOutlineValid) {
-			outlinePanel.setHeading("Step 2: Outline");
+            outlinePanel.setHeadingText("Step 2: Outline");
 		}
 
 		// submit button
@@ -167,7 +167,7 @@ public class EnvCreator extends View {
 	private void initDevicesPanel() {
 		devicesPanel = new ContentPanel();
 		// this.sensorsPanel.setStyleAttribute("background-color", "white");
-		devicesPanel.setHeading("Step 3: Position devices");
+        devicesPanel.setHeadingText("Step 3: Position devices");
 
 		Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -231,7 +231,7 @@ public class EnvCreator extends View {
 	private void initForm() {
 
 		form = new FormPanel();
-		form.setHeading("Step 1: Basic info");
+        form.setHeadingText("Step 1: Basic info");
 		form.setBodyBorder(false);
 
 		Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
@@ -240,9 +240,9 @@ public class EnvCreator extends View {
 			public void handleEvent(ComponentEvent be) {
 				if (be.getType().equals(Events.Collapse)) {
 					if (isFormValid) {
-						form.setHeading("Step 1: Basic info");
+                        form.setHeadingText("Step 1: Basic info");
 					} else {
-						form.setHeading("Step 1: Basic info [UNFINISHED]");
+                        form.setHeadingText("Step 1: Basic info [UNFINISHED]");
 					}
 				}
 			}
@@ -315,7 +315,7 @@ public class EnvCreator extends View {
 		LOGGER.finest("Initialize...");
 
 		window = new CenteredWindow();
-		window.setHeading("Create new environment");
+        window.setHeadingText("Create new environment");
 		window.setLayout(new BorderLayout());
 		window.setMinWidth(720);
 		window.setSize("85%", "600px");
@@ -349,7 +349,7 @@ public class EnvCreator extends View {
 	private void initOutlinePanel() {
 		outlinePanel = new ContentPanel();
 		// this.outlinePanel.setStyleAttribute("background-color", "white");
-		outlinePanel.setHeading("Step 2: Outline");
+        outlinePanel.setHeadingText("Step 2: Outline");
 
 		Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -365,9 +365,9 @@ public class EnvCreator extends View {
 
 				if (hasBeenExpanded && be.getType().equals(Events.Collapse)) {
 					if (isOutlineValid) {
-						outlinePanel.setHeading("Step 2: Outline");
+                        outlinePanel.setHeadingText("Step 2: Outline");
 					} else {
-						outlinePanel.setHeading("Step 2: Outline [UNFINISHED]");
+                        outlinePanel.setHeadingText("Step 2: Outline [UNFINISHED]");
 					}
 				}
 			}
@@ -397,7 +397,7 @@ public class EnvCreator extends View {
 
 		sensorsPanel = new ContentPanel(new FitLayout());
 		// this.sensorsPanel.setStyleAttribute("background-color", "white");
-		sensorsPanel.setHeading("Step 4: Other sensors");
+        sensorsPanel.setHeadingText("Step 4: Other sensors");
 
 		Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -443,7 +443,7 @@ public class EnvCreator extends View {
 
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 							submit();
 						} else {
 							hidePanel();
