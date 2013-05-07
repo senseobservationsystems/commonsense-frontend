@@ -15,8 +15,9 @@ gwt-unitCache/
 # more caches and things from deploy #
 war/WEB-INF/deploy/
 war/WEB-INF/classes/
-
 .gwt/
 
-# eclipse settings
+# eclipse stuff
 .settings/
+.project
+.classpath
