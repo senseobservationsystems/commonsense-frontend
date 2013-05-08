@@ -72,7 +72,7 @@
 			display: inline-block;
 			top: 0px;
 			right: 70px;
-			left: 426px;
+			left: 376px;
 			padding: 1px 5px 0px 5px;
 			font-weight: bold;
 			text-align: right;
@@ -142,9 +142,9 @@
 			href="http://accounts.sense-os.nl"
 			target="_blank"
 			text="my account" />
-		<g:Label
-			styleName="{style.help} {style.menuItem} {style.disabled}"
-			text="help" />
+<!-- 		<g:Label -->
+<!-- 			styleName="{style.help} {style.menuItem} {style.disabled}" -->
+<!-- 			text="help" /> -->
 		<g:Label
 			styleName="{style.username} {style.menuItem}"
 			ui:field="userLabel"
