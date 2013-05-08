@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CurrentUserResponse;
 import nl.sense_os.commonsense.common.client.event.CurrentUserChangedEvent;
 import nl.sense_os.commonsense.common.client.model.User;
 import nl.sense_os.commonsense.common.client.util.Constants;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
 import nl.sense_os.commonsense.main.client.alerts.create.AlertCreateController;
 import nl.sense_os.commonsense.main.client.application.MainApplicationView;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateController;
@@ -121,7 +121,7 @@ public class MainEntryPoint implements EntryPoint {
 			}
 		};
 
-		CommonSenseApi.getCurrentUser(callback);
+		CommonSenseClient.getClient().getCurrentUser(callback);
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class MainEntryPoint implements EntryPoint {
 
 		// store in registry
 		ExtUser extUser = new ExtUser(user);
-		Registry.register(nl.sense_os.commonsense.common.client.util.Constants.REG_USER, extUser);
+		Registry.register(Constants.REG_USER, extUser);
 
 		// fire event
 		clientFactory.getEventBus().fireEvent(new CurrentUserChangedEvent(user));
@@ -259,6 +259,7 @@ public class MainEntryPoint implements EntryPoint {
 		if (null == sessionId || null != newPasswordToken) {
 			goToLoginPage();
 		} else {
+			CommonSenseClient.getClient().setSessionId(sessionId);
 			init();
 			getCurrentUser();
 		}
