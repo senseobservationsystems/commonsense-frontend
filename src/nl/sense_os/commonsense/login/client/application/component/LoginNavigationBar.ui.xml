@@ -62,7 +62,7 @@
 			top: 0px;
 			right: 0px;
 			bottom: 0px;
-			left: 244px;
+			left: 204px;
 		}
 		
 		.link {
@@ -107,10 +107,10 @@
 				target="_blank"
 				text="register" />
 		</g:SimplePanel>
-		<g:SimplePanel styleName="{style.help} {style.menuItem} {style.disabled}">
-			<g:Label				
-				text="help" />
-		</g:SimplePanel>
+<!-- 		<g:SimplePanel styleName="{style.help} {style.menuItem} {style.disabled}"> -->
+<!-- 			<g:Label				 -->
+<!-- 				text="help" /> -->
+<!-- 		</g:SimplePanel> -->
 		<g:HTML styleName="{style.stretch} {style.menuItem} " />
 	</g:FlowPanel>
 </ui:UiBinder>

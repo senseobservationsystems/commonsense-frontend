@@ -18,11 +18,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 
@@ -73,7 +72,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 	@Override
 	public void googleLogin() {
-		CommonSenseApi.googleLogin();
+		CommonSenseClient.getClient().googleLogin();
 	}
 
 	private void goToMainPage() {
@@ -139,6 +138,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 		alertDialog.setWidget(content);
 		alertDialog.center();
+		content.setFocus(true);
 	}
 
 	private void onLoginFailure(int code, Throwable error) {
@@ -207,7 +207,6 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		view = clientFactory.getLoginView();
 		view.setPresenter(this);
 		containerWidget.setWidget(view.asWidget());
-
 		view.setFocus(true);
 	}
 }

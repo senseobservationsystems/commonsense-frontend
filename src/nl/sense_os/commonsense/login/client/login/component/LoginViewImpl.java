@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package nl.sense_os.commonsense.login.client.login;
+package nl.sense_os.commonsense.login.client.login.component;
+
+import nl.sense_os.commonsense.login.client.login.LoginView;
+import nl.sense_os.commonsense.login.client.login.LoginView.Presenter;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -37,37 +40,34 @@ public class LoginViewImpl extends Composite implements LoginView {
 
 	private static final Binder binder = GWT.create(Binder.class);
 
+	private Presenter presenter;
+	private int tabIndex;
+
 	@UiField
 	FormPanel form;
 	@UiField
-	TextBox username;
+	Button googleBtn;
+	@UiField
+	Button loginBtn;
 	@UiField
 	PasswordTextBox password;
 	@UiField
 	CheckBox rememberMe;
 	@UiField
-	Button loginBtn;
-	@UiField
-	Button googleBtn;
-
-	private Presenter presenter;
-
-    private int tabIndex;
+	TextBox username;
 
 	public LoginViewImpl() {
 		initWidget(binder.createAndBindUi(this));
 	}
 
+	@Override
+	public int getTabIndex() {
+		return tabIndex;
+	}
+
 	private boolean isValid() {
 		return username.getValue().length() > 0 && password.getValue().length() > 0;
 	}
-
-	// @UiHandler("forgotPassword")
-	// void onForgotPassword(ClickEvent event) {
-	// if (null != presenter) {
-	// presenter.forgotPassword();
-	// }
-	// }
 
 	@UiHandler("form")
 	void onFormSubmit(SubmitEvent event) {
@@ -115,6 +115,11 @@ public class LoginViewImpl extends Composite implements LoginView {
 	}
 
 	@Override
+	public void setAccessKey(char key) {
+		// do nothing
+	}
+
+	@Override
 	public void setBusy(boolean busy) {
 		username.setReadOnly(busy);
 		password.setReadOnly(busy);
@@ -124,27 +129,17 @@ public class LoginViewImpl extends Composite implements LoginView {
 	}
 
 	@Override
+	public void setFocus(boolean focus) {
+		username.setFocus(focus);
+	}
+
+	@Override
 	public void setPresenter(Presenter presenter) {
 		this.presenter = presenter;
 	}
 
-    @Override
-    public int getTabIndex() {
-        return tabIndex;
-    }
-
-    @Override
-    public void setAccessKey(char key) {
-        // do nothing
-    }
-
-    @Override
-    public void setFocus(boolean focused) {
-        username.setFocus(focused);
-    }
-
-    @Override
-    public void setTabIndex(int index) {
-        tabIndex = index;
-    }
+	@Override
+	public void setTabIndex(int index) {
+		tabIndex = index;
+	}
 }

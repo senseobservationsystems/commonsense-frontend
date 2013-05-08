@@ -16,7 +16,7 @@ package nl.sense_os.commonsense.login.client.openidconnect;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
