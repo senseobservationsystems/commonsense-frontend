@@ -1,6 +1,7 @@
 package nl.sense_os.commonsense.main.client.viz.panels.table;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
@@ -25,8 +26,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
 /**
  * An object of this class renders a grid and a tool bar in a content panel.
@@ -47,7 +50,14 @@ public class PaginationGridPanel extends ContentPanel {
 
 		@Override
 		public PagingLoadResult<ModelData> read(Object loadConfig, Object data) {
-			PagingLoadResult<ModelData> result = super.read(loadConfig, data);
+
+			String escapedResponse = SafeHtmlUtils.htmlEscape((String) data);
+			escapedResponse = escapedResponse.replace("&quot;", "\"");
+			if (!JsonUtils.safeToEval(escapedResponse)) {
+				LOG.warning("Unsafe to eval response from CommonSense!");
+				return null;
+			}
+			PagingLoadResult<ModelData> result = super.read(loadConfig, escapedResponse);
 			int offset = result.getOffset();
 			int size = result.getData().size();
 
@@ -108,6 +118,8 @@ public class PaginationGridPanel extends ContentPanel {
 	 */
 	public PaginationGridPanel(String url, ModelType mt, List<ColumnConfig> colConf, int pageSize,
 			long startDate, long endDate) {
+
+		LOG.setLevel(Level.FINE);
 
 		this.pageSize = pageSize;
 		this.startDate = startDate;
