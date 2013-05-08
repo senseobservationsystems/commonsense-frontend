@@ -26,7 +26,7 @@ public class MainNavigationBar extends Composite {
 	public MainNavigationBar() {
 		initWidget(uiBinder.createAndBindUi(this));
 
-        if (Constants.RC_MODE || Constants.BACKEND_RC_MODE) {
+		if (Constants.RC_MODE || Constants.BACKEND_RC_MODE) {
 			logo.setResource(CSResources.INSTANCE.logoTest());
 		} else if (Constants.DEV_MODE) {
 			logo.setResource(CSResources.INSTANCE.logoDev());

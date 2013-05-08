@@ -39,7 +39,7 @@ public class MainApplicationViewGxt extends Composite implements MainApplication
 		FooterBar footerBar = new FooterBar();
 		LayoutContainer south = new LayoutContainer(new FitLayout());
 		south.add(footerBar);
-		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 30.0f));
+		borderLayout.add(south, new BorderLayoutData(LayoutRegion.SOUTH, 23.0f));
 
 		// east: hidden simple panel for place/activities API
 		simplePanel = new SimplePanel();

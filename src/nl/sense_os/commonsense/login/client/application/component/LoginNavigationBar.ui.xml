@@ -1,116 +1,107 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder
-	xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<ui:style>
-		.navBar {
-			position: relative;
-			border-bottom: solid 1px #ff7f00;
-			background-color: rgba(255, 255, 255, 0.7);
-			overflow: hidden;
-		}
-		
-		.logo {
-			position: absolute;
-			display: inline-block;
-			top: 0px;
-			left: 0px;
-			border-top: solid 3px #bbb;
-		}
-		
-		.menuItem {
-			border-top: solid 3px #bbb;
-			text-align: center;
-			color: #555;
-			cursor: default;
-		}
-		
-		.menuItem a {
-			text-decoration: none;
-			color: #555;
-		}
-		
-		.login {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 103px;
-			width: 35px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.register {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 151px;
-			width: 40px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.help {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 204px;
-			width: 27px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.stretch {
-			position: absolute;
-			top: 0px;
-			right: 0px;
-			bottom: 0px;
-			left: 204px;
-		}
-		
-		.link {
-			cursor: pointer;
-		}
-		
-		.link:hover {
-			border-top: solid 3px #ff7f00;
-			background-color: #ffd5aa;
-		}		
-		
-		.active {
-			cursor: default;
-			font-weight: bold;
-			border-top: solid 3px #ff7f00;
-		}
-		
-		.active a {
-			cursor: default;
-		}
-		
-		.disabled {
-			color: #aaa;
-		}
-	</ui:style>
-	<ui:with
-		type="nl.sense_os.commonsense.common.client.resource.CSResources"
-		field="res" />
-	<g:FlowPanel styleName="{style.navBar}">
-		<g:Image
-		    ui:field="logo"
-			styleName="{style.logo}"
-			resource='{res.logoSense}' />
-		<g:SimplePanel styleName="{style.login} {style.menuItem} {style.link} {style.active}">
-			<g:Hyperlink
-				targetHistoryToken="login"
-				text="login" />
-		</g:SimplePanel>
-		<g:SimplePanel styleName="{style.register} {style.menuItem} {style.link}">
-			<g:Anchor
-				href="http://accounts.sense-os.nl"
-				target="_blank"
-				text="register" />
-		</g:SimplePanel>
-<!-- 		<g:SimplePanel styleName="{style.help} {style.menuItem} {style.disabled}"> -->
-<!-- 			<g:Label				 -->
-<!-- 				text="help" /> -->
-<!-- 		</g:SimplePanel> -->
-		<g:HTML styleName="{style.stretch} {style.menuItem} " />
-	</g:FlowPanel>
+    xmlns:ui="urn:ui:com.google.gwt.uibinder"
+    xmlns:g="urn:import:com.google.gwt.user.client.ui">
+    <ui:style>
+        .navBar {
+            position: relative;
+            border-bottom: solid 1px #ff7f00;
+            background-color: rgba(255, 255, 255, 0.7);
+            overflow: hidden;
+        }
+        
+        .navBar a {
+            text-decoration: none;
+            color: #555;
+        }
+        
+        .logo {
+            position: absolute;
+            display: inline-block;
+            top: 0px;
+            left: 0px;
+            border-top: solid 3px #bbb;
+        }
+        
+        .menuItem {
+            border-top: solid 3px #bbb;
+            text-align: center;
+            color: #555;
+            cursor: default;
+        }
+        
+        .login {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 103px;
+            width: 45px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .register {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 161px;
+            width: 50px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .devportal {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 224px;
+            width: 110px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .stretch {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            bottom: 0px;
+            left: 347px;
+        }
+        
+        .link {
+            cursor: pointer;
+        }
+        
+        .link:hover {
+            border-top: solid 3px #ff7f00;
+            background-color: #ffd5aa;
+        }
+        
+        .active {
+            font-weight: bold;
+            border-top: solid 3px #ff7f00;
+        }
+    </ui:style>
+    <ui:with
+        type="nl.sense_os.commonsense.common.client.resource.CSResources"
+        field="res" />
+    <g:FlowPanel styleName="{style.navBar}">
+        <g:HTMLPanel styleName="{style.logo} {style.link}">
+            <a href="http://www.sense-os.nl">
+                <g:Image
+                    ui:field="logo"
+                    resource='{res.logoSense}' />
+            </a>
+        </g:HTMLPanel>
+        <g:Hyperlink
+            styleName="{style.login} {style.menuItem} {style.link} {style.active}"
+            targetHistoryToken="login"
+            text="login" />
+        <g:Anchor
+            styleName="{style.register} {style.menuItem} {style.link}"
+            href="https://accounts.sense-os.nl"
+            text="register" />
+        <g:Anchor
+            styleName="{style.devportal} {style.menuItem} {style.link}"
+            href="http://developer.sense-os.nl"
+            text="developer portal" />
+        <g:HTML styleName="{style.stretch} {style.menuItem} " />
+    </g:FlowPanel>
 </ui:UiBinder>
