@@ -9,34 +9,34 @@ public class Constants {
 
 	public static class MapsKeys {
 
-        private static final String MAPS_KEY_BACKEND_RC = "AIzaSyBV-Ekd5C3GWDT4gkfBUA-BldCtt0TwXwY";
+		private static final String MAPS_KEY_BACKEND_RC = "AIzaSyB4khOS82GtGOLzitfpJmskILGIr3ZOW1E";
 
 		/**
 		 * Google Maps API key, generated for http://rc.sense-os.nl
 		 */
-		private static final String MAPS_KEY_RC = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQsjUjcByiCivvn1ppG43l0EBYmuxQJjoQuotfoMFzKYEK6QgwlJRD2Pg";
+		private static final String MAPS_KEY_RC = "AIzaSyB4khOS82GtGOLzitfpJmskILGIr3ZOW1E";
 
 		/**
 		 * Google Maps API key, generated for http://common.sense-os.nl
 		 */
-		private static final String MAPS_KEY_STABLE = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBQRZw5PnBZuDX77DtiPDAIQJTIImRRXR2NlGlzF15dD3pzgYJu67vgxTw";
+		private static final String MAPS_KEY_STABLE = "AIzaSyB4khOS82GtGOLzitfpJmskILGIr3ZOW1E";
 
 		/**
 		 * Google Maps API key, generated for http://common.dev.sense-os.nl
 		 */
-		private static final String MAPS_KEY_DEV = "ABQIAAAAcc8ibe_QaK2XBw4Vp-cVyBSkBEmSOMRgjngroDitmgRTGdBMeRTbwc1k-RzAZgpJJ7UzaCSpp5AFyQ";
+		private static final String MAPS_KEY_DEV = "AIzaSyB4khOS82GtGOLzitfpJmskILGIr3ZOW1E";
 
 		/**
 		 * Maps key for "regular" deployments: either stable version or test version.
 		 */
-        private static final String MAPS_KEY_REGULAR = Constants.RC_MODE ? MAPS_KEY_RC
-                : MAPS_KEY_STABLE;
+		private static final String MAPS_KEY_REGULAR = Constants.RC_MODE ? MAPS_KEY_RC
+				: MAPS_KEY_STABLE;
 
 		/**
 		 * Google Maps API key.
 		 */
-        public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV
-                : Constants.BACKEND_RC_MODE ? MAPS_KEY_BACKEND_RC : MAPS_KEY_REGULAR;
+		public static final String MAPS_KEY = Constants.DEV_MODE ? MAPS_KEY_DEV
+				: Constants.BACKEND_RC_MODE ? MAPS_KEY_BACKEND_RC : MAPS_KEY_REGULAR;
 
 		private MapsKeys() {
 			// empty private constructor to prevent instantiation
@@ -107,7 +107,7 @@ public class Constants {
                 lng.end = date;
             }
             return [ lat, lng ];
-        }-*/;
+		}-*/;
 
 		public static final native JsArray<Timeseries> getTimeseriesPosition1(int maxPoints) /*-{
             var start = 1304208000000; // 01/05/2011
@@ -145,7 +145,7 @@ public class Constants {
                 lng.end = date;
             }
             return [ lat, lng ];
-        }-*/;
+		}-*/;
 
 		public static final native JsArray<Timeseries> getTimeseriesPosition2(int maxPoints) /*-{
             var start = 1304208000000; // 01/05/2011
@@ -183,24 +183,24 @@ public class Constants {
                 lng.end = date;
             }
             return [ lat, lng ];
-        }-*/;
+		}-*/;
 
 		private TestData() {
 			// private constructor to make sure this class is not instantiated
 		}
 	}
 
-    /**
-     * Flag for Stable mode. <code>true</code> if the app is deployed to common.sense-os.nl.
-     */
-    public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
+	/**
+	 * Flag for Stable mode. <code>true</code> if the app is deployed to common.sense-os.nl.
+	 */
+	public static final boolean STABLE_MODE = GWT.getModuleBaseURL().contains("common.sense-os.nl");
 
-    /**
-     * Flag for backend release candidate mode. <code>true</code> if the app is deployed to
-     * rc.dev.sense-os.nl.
-     */
-    public static final boolean BACKEND_RC_MODE = GWT.getModuleBaseURL().contains(
-            "rc.dev.sense-os.nl");
+	/**
+	 * Flag for backend release candidate mode. <code>true</code> if the app is deployed to
+	 * rc.dev.sense-os.nl.
+	 */
+	public static final boolean BACKEND_RC_MODE = GWT.getModuleBaseURL().contains(
+			"rc.dev.sense-os.nl");
 
 	/**
 	 * Flag for dev mode. <code>true</code> if the app is deployed to common.dev.sense-os.nl.
