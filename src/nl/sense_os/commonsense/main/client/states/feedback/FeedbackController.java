@@ -104,11 +104,14 @@ public class FeedbackController extends Controller {
 	private void getLabels(final ExtSensor state, final List<ExtSensor> sensors) {
 
 		List<ModelData> methods = state.<List<ModelData>> get("methods");
-		boolean canHazClassLabels = false;
-		for (ModelData method : methods) {
-			if (method.get("name").equals("GetClassLabels")) {
-				canHazClassLabels = true;
-				break;
+		boolean canHazClassLabels = true; // assume we can give feedback
+		if (null != methods) {
+			canHazClassLabels = false;
+			for (ModelData method : methods) {
+				if (method.get("name").equals("GetClassLabels")) {
+					canHazClassLabels = true;
+					break;
+				}
 			}
 		}
 		if (false == canHazClassLabels) {
