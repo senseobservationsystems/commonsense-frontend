@@ -342,8 +342,9 @@ public class StateGrid extends View {
 					// only able to give feedback if state has manualLearn method
 					ExtSensor state = getSelectedState();
 					List<ModelData> methods = state.get("methods");
-					boolean canHazFeedback = false;
+					boolean canHazFeedback = true; // assume we can give feedback until proven wrong
 					if (null != methods) {
+						canHazFeedback = false;
 						for (ModelData method : methods) {
 							if (method.get("name").equals("GetManualInputMode")) {
 								canHazFeedback = true;

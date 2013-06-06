@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -103,11 +104,14 @@ public class FeedbackController extends Controller {
 	private void getLabels(final ExtSensor state, final List<ExtSensor> sensors) {
 
 		List<ModelData> methods = state.<List<ModelData>> get("methods");
-		boolean canHazClassLabels = false;
-		for (ModelData method : methods) {
-			if (method.get("name").equals("GetClassLabels")) {
-				canHazClassLabels = true;
-				break;
+		boolean canHazClassLabels = true; // assume we can give feedback
+		if (null != methods) {
+			canHazClassLabels = false;
+			for (ModelData method : methods) {
+				if (method.get("name").equals("GetClassLabels")) {
+					canHazClassLabels = true;
+					break;
+				}
 			}
 		}
 		if (false == canHazClassLabels) {
@@ -393,9 +397,11 @@ public class FeedbackController extends Controller {
 
 		// parse result from the GetClassLabels response
 		String resultString = null;
-		ServiceMethodResponse jso = ServiceMethodResponse.create(response).cast();
-		if (null != jso) {
-			resultString = jso.getResult();
+		if (JsonUtils.safeToEval(response)) {
+			ServiceMethodResponse jso = JsonUtils.safeEval(response).cast();
+			if (null != jso) {
+				resultString = jso.getResult();
+			}
 		}
 
 		// parse labels from raw result String
