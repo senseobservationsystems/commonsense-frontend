@@ -1,10 +1,9 @@
 package nl.sense_os.commonsense.common.client.communication.httpresponse;
 
 import nl.sense_os.commonsense.common.client.model.Environment;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
-public class CreateEnvironmentResponse extends JavaScriptObject {
+public class CreateEnvironmentResponse extends SenseApiResponse {
 
 	protected CreateEnvironmentResponse() {
 		// empty protected constructor

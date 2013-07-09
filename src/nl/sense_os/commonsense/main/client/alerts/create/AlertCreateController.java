@@ -70,7 +70,7 @@ public class AlertCreateController extends Controller {
 	}
 
 	private void onLastDataPointSuccess(String response, ExtSensor sensor) {
-		GetSensorDataResponse jso = GetSensorDataResponse.create(response);
+		GetSensorDataResponse jso = GetSensorDataResponse.createFixedJson(response);
 		JsArray<BackEndDataPoint> data = jso.getData();
 		if (data.length() > 0) {
 			BackEndDataPoint dataPoint = data.get(0);

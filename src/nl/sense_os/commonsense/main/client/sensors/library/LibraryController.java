@@ -37,7 +37,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -53,8 +52,6 @@ public class LibraryController extends Controller {
 	private boolean isLoadingServices;
 
 	public LibraryController() {
-
-		// LOG.setLevel(Level.WARNING);
 
 		registerEventTypes(VizEvents.Show);
 
@@ -292,8 +289,8 @@ public class LibraryController extends Controller {
 				.get(nl.sense_os.commonsense.common.client.util.Constants.REG_SENSOR_LIST);
 
 		// parse list of services from response
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			BatchAvailServicesResponse jso = JsonUtils.unsafeEval(response);
+		BatchAvailServicesResponse jso = BatchAvailServicesResponse.create(response).cast();
+		if (null != jso) {
 			JsArray<AvailServicesResponseEntry> entries = jso.getEntries();
 			for (int i = 0; i < entries.length(); i++) {
 				int id = entries.get(i).getSensorId();
@@ -331,8 +328,8 @@ public class LibraryController extends Controller {
 		// parse group sensors
 		JsArray<Sensor> groupSensors = JsArray.createArray().cast();
 		int total = 0;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+		GetSensorsResponse responseJso = GetSensorsResponse.create(response).cast();
+		if (null != responseJso) {
 			groupSensors = responseJso.getRawSensors();
 			total = responseJso.getTotal();
 		}
@@ -376,8 +373,8 @@ public class LibraryController extends Controller {
 
 		// parse list of groups from the response
 		List<Group> groups = new ArrayList<Group>();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetGroupsResponse jso = JsonUtils.unsafeEval(response);
+		GetGroupsResponse jso = GetGroupsResponse.create(response).cast();
+		if (null != response) {
 			groups = jso.getGroups();
 		}
 
@@ -463,9 +460,8 @@ public class LibraryController extends Controller {
 
 		// parse response
 		int total = library.size();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-
-			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+		GetSensorsResponse responseJso = GetSensorsResponse.create(response).cast();
+		if (null != responseJso) {
 			total = responseJso.getTotal();
 
 			ExtUser user = Registry
@@ -502,8 +498,8 @@ public class LibraryController extends Controller {
 
 		// parse response
 		int total = library.size();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetSensorsResponse responseJso = JsonUtils.unsafeEval(response);
+		GetSensorsResponse responseJso = GetSensorsResponse.create(response).cast();
+		if (null != responseJso) {
 			total = responseJso.getTotal();
 			JsArray<Sensor> sensors = responseJso.getRawSensors();
 			for (int i = 0; i < sensors.length(); i++) {

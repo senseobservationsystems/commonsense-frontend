@@ -366,8 +366,8 @@ public class EnvCreateController extends Controller {
 
 		// parse the response
 		ExtEnvironment environment = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			CreateEnvironmentResponse jso = JsonUtils.unsafeEval(response);
+		CreateEnvironmentResponse jso = CreateEnvironmentResponse.create(response).cast();
+		if (null != jso) {
 			environment = new ExtEnvironment(jso.getEnvironment());
 		}
 
@@ -417,8 +417,8 @@ public class EnvCreateController extends Controller {
 
 		// parse the new sensor details from the response
 		Sensor positionSensor = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			CreateSensorResponse jso = JsonUtils.unsafeEval(response);
+		CreateSensorResponse jso = CreateSensorResponse.create(response).cast();
+		if (null != jso) {
 			positionSensor = jso.getSensor();
 		}
 

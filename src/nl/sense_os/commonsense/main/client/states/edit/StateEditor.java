@@ -141,7 +141,7 @@ public class StateEditor extends View {
 	paramFields.addListener(Events.Collapse, l);
 	paramFields.addListener(Events.Expand, l);
 	paramFields.setLayout(new FormLayout());
-	paramFields.setHeading("Parameters");
+        paramFields.setHeadingHtml("Parameters");
 	LabelField temp = new LabelField("no parameters");
 	paramFields.add(temp);
 	paramFields.disable();
@@ -174,7 +174,7 @@ public class StateEditor extends View {
 	super.initialize();
 
 	window = new CenteredWindow();
-	window.setHeading("Set or get algorithm parameters");
+        window.setHeadingText("Set or get algorithm parameters");
 	window.setSize(640, 360);
 	window.setLayout(new FitLayout());
 
@@ -250,7 +250,7 @@ public class StateEditor extends View {
 
 	    @Override
 	    public void handleEvent(MessageBoxEvent be) {
-		if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 		    onSubmit();
 		}
 	    }

@@ -19,7 +19,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -156,8 +155,8 @@ public class EnvController extends Controller {
 
 		// parse the list of environments from the response
 		List<Environment> environments = new ArrayList<Environment>();
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			GetEnvironmentsResponse jso = JsonUtils.unsafeEval(response);
+		GetEnvironmentsResponse jso = GetEnvironmentsResponse.create(response).cast();
+		if (null != jso) {
 			environments = jso.getEnvironments();
 		}
 

@@ -15,9 +15,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 public class PublishConfirmDialog extends View {
 
 	private CenteredWindow window;
-	private Text text;
+	private Label text;
 	private Button publishButton;
 	private Button cancelButton;
 	private List<ExtSensor> sensors;
@@ -108,9 +108,8 @@ public class PublishConfirmDialog extends View {
 		anonymous.setHideLabel(true);
 		form.add(anonymous);
 
-		text = new Text();
+		text = new Label();
 		text.setStyleAttribute("font-size", "13px");
-		text.setStyleAttribute("margin", "10px");
 
 		LayoutContainer container = new LayoutContainer();
 		container.add(text);
@@ -123,7 +122,7 @@ public class PublishConfirmDialog extends View {
 		super.initialize();
 
 		window = new CenteredWindow();
-		window.setHeading("Publish sensors");
+        window.setHeadingText("Publish sensors");
 		// window.setLayout(new FitLayout());
 		window.setSize(400, 250);
 		window.setScrollMode(Scroll.AUTOY);
@@ -141,8 +140,8 @@ public class PublishConfirmDialog extends View {
 	}
 
 	private void onPublicationFailure(int code, Throwable error) {
-		text.setText("Publication failed! Error: " + code + ", message: '" + error.getMessage()
-				+ "'.<br/><br/>Do you want to try again?");
+		text.setHtml("<p>Publication failed! Error: " + code + ", message: '" + error.getMessage()
+				+ "'.</p><br/><p>Do you want to try again?</p>");
 		setBusy(false);
 		window.show();
 	}
@@ -160,16 +159,17 @@ public class PublishConfirmDialog extends View {
 
 		this.sensors = sensors;
 
-		String message = "This will add a link to your sensor data on the Rotterdam Open Data Store (RODS). For more information, please go to <a href=\"http://data.rotterdamopendata.nl\" target=\"_blank\">data.rotterdamopendata.nl</a>.";
-		message += "<br/><br/>";
+		String html = "<p>This will add a link to your sensor data on the Rotterdam Open Data Store (RODS). For more information, please go to <a href=\"http://data.rotterdamopendata.nl\" target=\"_blank\">data.rotterdamopendata.nl</a>.</p>";
+		html += "<br/>";
 		if (sensors.size() > 1) {
-			message += "Are you sure you want to continue with the publication of the "
-					+ sensors.size() + " selected sensors?";
+			html += "<p>Are you sure you want to continue with the publication of the "
+					+ sensors.size() + " selected sensors?</p>";
 		} else {
-			message += "Are you sure you want to continue with the publication of the selected sensor?";
+			html += "<p>Are you sure you want to continue with the publication of the selected sensor?</p>";
 		}
 
-		text.setText(message);
+
+		text.setHtml(html);
 		window.show();
 		window.center();
 	}

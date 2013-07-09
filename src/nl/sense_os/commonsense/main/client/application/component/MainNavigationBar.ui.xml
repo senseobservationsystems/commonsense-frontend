@@ -1,158 +1,147 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder
-	xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<ui:style>
-		.navBar {
-			position: relative;
-			border-bottom: solid 1px #ff7f00;
-			background-color: rgba(255, 255, 255, 0.7);
-			overflow: hidden;
-		}
-		
-		.logo {
-			position: absolute;
-			display: inline-block;
-			top: 0px;
-			left: 0px;
-			border-top: solid 3px #bbb;
-		}
-		
-		.menuItem {
-			border-top: solid 3px #bbb;
-			text-align: center;
-			color: #555;
-			cursor: default;
-			text-decoration: none;
-		}
-		
-		.menuItem a {
-			text-decoration: none;
-			color: #555;
-		}
-		
-		.sensors {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 103px;
-			width: 80px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.dashboard {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 196px;
-			width: 82px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.account {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 291px;
-			width: 72px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.help {
-			position: absolute;
-			top: 0px;
-			bottom: 0px;
-			left: 376px;
-			width: 37px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.username {
-			position: absolute;
-			display: inline-block;
-			top: 0px;
-			right: 70px;
-			left: 426px;
-			padding: 1px 5px 0px 5px;
-			font-weight: bold;
-			text-align: right;
-		}
-		
-		.logout {
-			position: absolute;
-			display: inline-block;
-			top: 0px;
-			right: 13px;
-			bottom: 0px;
-			width: 44px;
-			padding: 1px 5px 0px 5px;
-		}
-		
-		.stretch {
-			position: absolute;
-			display: inline-block;
-			top: 0px;
-			right: 0px;
-			bottom: 0px;
-			width: 10px;
-		}
-		
-		.link {
-			cursor: pointer;
-		}
-		
-		.link:hover {
-			border-top: solid 3px #ff7f00;
-			background-color: #ffd5aa;
-		}
-		
-		.active {
-			cursor: default;
-			font-weight: bold;
-			border-top: solid 3px #ff7f00;
-		}
-		
-		.active a {
-			cursor: default;
-		}
-		
-		.disabled {
-			color: #aaa;
-		}
-	</ui:style>
-	<ui:with
-		type="nl.sense_os.commonsense.common.client.resource.CSResources"
-		field="res" />
-	<g:FlowPanel styleName="{style.navBar}">
-		<g:Image
-			ui:field="logo"
-			styleName="{style.logo}"
-			resource='{res.logoSense}' />
-		<g:Hyperlink
-			styleName="{style.sensors} {style.menuItem} {style.link} {style.active}"
-			targetHistoryToken="sensors:"
-			text="my sensors" />
-		<g:Anchor
-			styleName="{style.dashboard} {style.menuItem} {style.link}"
-			href="http://my.sense-os.nl"
-			target="_blank"
-			text="my dashboard" />
-		<g:Anchor
-			styleName="{style.account} {style.menuItem} {style.link}"
-			href="http://accounts.sense-os.nl"
-			target="_blank"
-			text="my account" />
-		<g:Label
-			styleName="{style.help} {style.menuItem} {style.disabled}"
-			text="help" />
-		<g:Label
-			styleName="{style.username} {style.menuItem}"
-			ui:field="userLabel"
-			text="loading username..." />
-		<g:Hyperlink
-			styleName="{style.logout} {style.menuItem} {style.link}"
-			targetHistoryToken="logout:"
-			text="log out" />
-		<g:HTML styleName="{style.stretch} {style.menuItem} " />
-	</g:FlowPanel>
+    xmlns:ui="urn:ui:com.google.gwt.uibinder"
+    xmlns:g="urn:import:com.google.gwt.user.client.ui">
+    <ui:style>
+        .navBar {
+            position: relative;
+            border-bottom: solid 1px #ff7f00;
+            background-color: rgba(255, 255, 255, 0.7);
+            overflow: hidden;
+        }
+        
+        .navBar a {
+            text-decoration: none;
+            color: #555;
+        }
+        
+        .logo {
+            position: absolute;
+            display: inline-block;
+            top: 0px;
+            left: 0px;
+            border-top: solid 3px #bbb;
+        }
+        
+        .menuItem {
+            border-top: solid 3px #bbb;
+            text-align: center;
+            color: #555;
+            cursor: default;
+            text-decoration: none;
+        }
+        
+        .sensors {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 103px;
+            width: 84px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .dashboard {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 200px;
+            width: 90px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .account {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 200px;
+            width: 76px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .devportal {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 289px;
+            width: 110px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .username {
+            position: absolute;
+            display: inline-block;
+            top: 0px;
+            right: 70px;
+            left: 412px;
+            padding: 1px 5px 0px 5px;
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .logout {
+            position: absolute;
+            display: inline-block;
+            top: 0px;
+            right: 13px;
+            bottom: 0px;
+            width: 44px;
+            padding: 1px 5px 0px 5px;
+        }
+        
+        .stretch {
+            position: absolute;
+            display: inline-block;
+            top: 0px;
+            right: 0px;
+            bottom: 0px;
+            width: 10px;
+        }
+        
+        .link {
+            cursor: pointer;
+        }
+        
+        .link:hover {
+            border-top: solid 3px #ff7f00;
+            background-color: #ffd5aa;
+        }
+        
+        .active {
+            font-weight: bold;
+            border-top: solid 3px #ff7f00;
+        }
+    </ui:style>
+    <ui:with
+        type="nl.sense_os.commonsense.common.client.resource.CSResources"
+        field="res" />
+    <g:FlowPanel styleName="{style.navBar}">
+        <g:HTMLPanel styleName="{style.logo} {style.link}">
+            <a href="http://www.sense-os.nl">
+                <g:Image
+                    ui:field="logo"
+                    resource='{res.logoSense}' />
+            </a>
+        </g:HTMLPanel>
+        <g:Hyperlink
+            styleName="{style.sensors} {style.menuItem} {style.link} {style.active}"
+            targetHistoryToken="sensors:"
+            text="my sensors" />
+        <g:Anchor
+            styleName="{style.account} {style.menuItem} {style.link}"
+            href="https://accounts.sense-os.nl"
+            text="my account" />
+        <g:Anchor
+            styleName="{style.devportal} {style.menuItem} {style.link}"
+            href="http://developer.sense-os.nl"
+            text="developer portal" />
+        <g:Label
+            styleName="{style.username} {style.menuItem}"
+            ui:field="userLabel"
+            text="loading username..." />
+        <g:Hyperlink
+            styleName="{style.logout} {style.menuItem} {style.link}"
+            targetHistoryToken="logout:"
+            text="log out" />
+        <g:HTML styleName="{style.stretch} {style.menuItem} " />
+    </g:FlowPanel>
 </ui:UiBinder>

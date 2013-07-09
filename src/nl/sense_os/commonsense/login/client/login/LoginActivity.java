@@ -18,16 +18,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.common.client.component.AlertDialogContent;
 import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.forgotpassword.ForgotPasswordPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -74,7 +72,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 	@Override
 	public void googleLogin() {
-		CommonSenseApi.googleLogin();
+		CommonSenseClient.getClient().googleLogin();
 	}
 
 	private void goToMainPage() {
@@ -122,7 +120,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		};
 
 		// send request
-        CommonSenseClient.getClient().login(callback, username, password);
+		CommonSenseClient.getClient().login(callback, username, password);
 	}
 
 	private void onAuthenticationFailure() {
@@ -140,6 +138,7 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 		alertDialog.setWidget(content);
 		alertDialog.center();
+		content.setFocus(true);
 	}
 
 	private void onLoginFailure(int code, Throwable error) {
@@ -179,8 +178,8 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 
 			// try to get "session_id" object
 			String sessionId = null;
-			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-				LoginResponse jso = JsonUtils.unsafeEval(response);
+			LoginResponse jso = LoginResponse.create(response).cast();
+			if (null != jso) {
 				sessionId = jso.getSessionId();
 			}
 
@@ -208,7 +207,6 @@ public class LoginActivity extends AbstractActivity implements LoginView.Present
 		view = clientFactory.getLoginView();
 		view.setPresenter(this);
 		containerWidget.setWidget(view.asWidget());
-
-        view.setFocus(true);
+		view.setFocus(true);
 	}
 }

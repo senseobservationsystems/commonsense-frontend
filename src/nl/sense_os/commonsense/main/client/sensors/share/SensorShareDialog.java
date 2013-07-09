@@ -136,7 +136,7 @@ public class SensorShareDialog extends View {
 		super.initialize();
 
 		window = new CenteredWindow();
-		window.setHeading("Manage data sharing");
+        window.setHeadingText("Manage data sharing");
 		window.setLayout(new FitLayout());
 		window.setSize(323, 200);
 
@@ -164,7 +164,7 @@ public class SensorShareDialog extends View {
 
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 							onSubmit();
 						} else {
 							hideWindow();

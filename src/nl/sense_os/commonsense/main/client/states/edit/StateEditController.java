@@ -13,7 +13,6 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -131,8 +130,8 @@ public class StateEditController extends Controller {
 
 		// parse result from the response
 		String result = null;
-		if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-			ServiceMethodResponse jso = JsonUtils.unsafeEval(response);
+		ServiceMethodResponse jso = ServiceMethodResponse.create(response).cast();
+		if (null != jso) {
 			result = jso.getResult();
 		}
 

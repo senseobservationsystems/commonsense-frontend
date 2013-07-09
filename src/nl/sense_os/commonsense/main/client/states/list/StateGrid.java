@@ -100,7 +100,7 @@ public class StateGrid extends View {
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
 						Button clicked = be.getButtonClicked();
-						if ("yes".equalsIgnoreCase(clicked.getText())) {
+                        if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 							disconnectSensor();
 						}
 					}
@@ -288,7 +288,7 @@ public class StateGrid extends View {
 		super.initialize();
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage states");
+        panel.setHeadingText("Manage states");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
@@ -342,8 +342,9 @@ public class StateGrid extends View {
 					// only able to give feedback if state has manualLearn method
 					ExtSensor state = getSelectedState();
 					List<ModelData> methods = state.get("methods");
-					boolean canHazFeedback = false;
+					boolean canHazFeedback = true; // assume we can give feedback until proven wrong
 					if (null != methods) {
+						canHazFeedback = false;
 						for (ModelData method : methods) {
 							if (method.get("name").equals("GetManualInputMode")) {
 								canHazFeedback = true;
@@ -469,7 +470,7 @@ public class StateGrid extends View {
 
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 							disconnectSensor();
 						}
 					}

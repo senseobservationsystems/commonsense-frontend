@@ -302,7 +302,7 @@ public class EnvMap extends VizPanel {
 	private void initDeviceChooser() {
 		window.setLayout(new FitLayout());
 		window.setSize(300, 300);
-		window.setHeading("Select the devices for this position");
+        window.setHeadingText("Select the devices for this position");
 
 		store = new ListStore<ExtDevice>();
 

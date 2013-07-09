@@ -1,0 +1,95 @@
+//
+CSS styles for javascript scrolling line graph 
+div.graph-legend,div.graph-canvas {
+    background-color: white;
+}
+
+.timeline-frame {
+    background-color: white;
+}
+
+.timeline-frame,.timeline-axis,.timeline-groups-axis {
+    border-color: #A6A6A6;
+}
+
+.graph-frame {
+    background-color: white;
+}
+
+.graph-legend,.graph-axis {
+    border-color: #A6A6A6;
+}
+
+div.timeline-event-content {
+    margin: 0px;
+}
+
+div.timeline-event-label {
+    padding: 5px;
+    color: white;
+}
+
+div.timeline-event-label-0 {
+    background-color: #3366CC;
+}
+
+div.timeline-event-label-1 {
+    background-color: #DC3912;
+}
+
+div.timeline-event-label-2 {
+    background-color: #FF9900;
+    color: #333
+}
+
+div.timeline-event-label-3 {
+    background-color: #109618;
+}
+
+div.timeline-event-label-4 {
+    background-color: #990099;
+}
+
+div.timeline-event-label-5 {
+    background-color: #0099C6;
+}
+
+div.timeline-event-label-6 {
+    background-color: #DD4477;
+}
+
+div.timeline-event-label-7 {
+    background-color: #66AA00;
+}
+
+div.timeline-event-label-8 {
+    background-color: #B82E2E;
+}
+
+div.timeline-event-label-9 {
+    background-color: #316395;
+}
+
+div.timeline-event-label-10 {
+    background-color: #994499;
+}
+
+div.timeline-event-label-11 {
+    background-color: #22AA99;
+}
+
+div.timeline-event-label-12 {
+    background-color: #AAAA11;
+}
+
+div.timeline-event-label-13 {
+    background-color: #6633CC;
+}
+
+div.timeline-event-label-14 {
+    background-color: #E67300;
+}
+
+div.timeline-event-label-15 {
+    background-color: #8B0707;
+}

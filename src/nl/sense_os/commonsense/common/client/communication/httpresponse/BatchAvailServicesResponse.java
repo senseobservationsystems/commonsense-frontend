@@ -3,11 +3,11 @@ package nl.sense_os.commonsense.common.client.communication.httpresponse;
 import java.util.List;
 
 import nl.sense_os.commonsense.common.client.model.Service;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
-public class BatchAvailServicesResponse extends JavaScriptObject {
+public class BatchAvailServicesResponse extends SenseApiResponse {
 
 	protected BatchAvailServicesResponse() {
 		// empty protected constructor

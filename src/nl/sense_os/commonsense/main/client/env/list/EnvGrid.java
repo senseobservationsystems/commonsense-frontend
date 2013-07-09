@@ -196,7 +196,7 @@ public class EnvGrid extends View {
 		super.initialize();
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage environments");
+        panel.setHeadingText("Manage environments");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
@@ -284,7 +284,7 @@ public class EnvGrid extends View {
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
 						Button clicked = be.getButtonClicked();
-						if ("yes".equalsIgnoreCase(clicked.getText())) {
+                        if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 							deleteEnvironment();
 						}
 					}

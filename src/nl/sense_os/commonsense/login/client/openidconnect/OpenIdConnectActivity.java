@@ -16,12 +16,11 @@ package nl.sense_os.commonsense.login.client.openidconnect;
 
 import nl.sense_os.commonsense.common.client.communication.CommonSenseApi;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.communication.httpresponse.LoginResponse;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.LoginResponse;
 import nl.sense_os.commonsense.login.client.LoginClientFactory;
 import nl.sense_os.commonsense.login.client.login.LoginPlace;
 
 import com.google.gwt.activity.shared.AbstractActivity;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -102,8 +101,8 @@ public class OpenIdConnectActivity extends AbstractActivity implements OpenIdCon
 
 			// try to get "session_id" object
 			String sessionId = null;
-			if (response != null && response.length() > 0 && JsonUtils.safeToEval(response)) {
-				LoginResponse jso = JsonUtils.unsafeEval(response);
+			LoginResponse jso = LoginResponse.create(response).cast();
+			if (null != jso) {
 				sessionId = jso.getSessionId();
 			}
 

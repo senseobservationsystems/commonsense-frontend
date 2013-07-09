@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Frame;
 
 /**
@@ -24,11 +25,11 @@ public class VizTabPanel extends TabPanel {
         addStyleName("transparent");
 
         // Welcome tab item
-        final Frame frameWelcome = new Frame("/csfe/intro.html");
+		final Frame frameWelcome = new Frame(GWT.getModuleBaseForStaticFiles()
+				+ "/intro/intro.html");
         frameWelcome.setStylePrimaryName("senseFrame");
 
         tabItemWelcome = new TabItem("Welcome");
-        //tabItemWelcome.setIcon(IconHelper.create(SenseIconProvider.SENSE_ICONS_PATH + "help.png"));
         tabItemWelcome.setLayout(new FitLayout());
         LayoutData data = new FitData(new Margins(0));
         tabItemWelcome.add(frameWelcome, data);

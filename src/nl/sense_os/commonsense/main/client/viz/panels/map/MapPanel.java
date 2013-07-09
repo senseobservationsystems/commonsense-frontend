@@ -165,7 +165,7 @@ public class MapPanel extends VizPanel {
 
         // LOG.setLevel(Level.ALL);
 
-        setHeading("My map: " + title);
+        setHeadingText("My map: " + title);
         setLayout(new BorderLayout());
         setId("viz-map-" + title);
         initPlaySlider();

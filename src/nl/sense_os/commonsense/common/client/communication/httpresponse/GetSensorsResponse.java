@@ -4,28 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.sense_os.commonsense.common.client.model.Sensor;
+import nl.sense_os.commonsense.lib.client.model.httpresponse.SenseApiResponse;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 /**
  * Overlay for list of sensors sent from CommonSense back end using JSON.
  */
-public class GetSensorsResponse extends JavaScriptObject {
+public class GetSensorsResponse extends SenseApiResponse {
 
 	protected GetSensorsResponse() {
 		// empty protected constructor
 	}
 
-	public final native int getTotal() /*-{
-		if (undefined != this.total) {
-			return this.total;
-		} else {
-			return this.sensors.length;
-		}
-	}-*/;
-
-	public final native JsArray<Sensor> getRawSensors() /*-{
+	public native final JsArray<Sensor> getRawSensors() /*-{
 		if (undefined != this.sensors) {
 			return this.sensors;
 		} else {
@@ -45,4 +37,12 @@ public class GetSensorsResponse extends JavaScriptObject {
 
 		return list;
 	}
+
+	public native final int getTotal() /*-{
+		if (undefined != this.total) {
+			return this.total;
+		} else {
+			return this.sensors.length;
+		}
+	}-*/;
 }
