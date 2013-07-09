@@ -69,7 +69,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 	public GxtSensorGrid() {
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Sensor library");
+		panel.setHeadingText("Sensor library");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
@@ -112,7 +112,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 	@Override
     public List<GxtSensor> getSelection() {
         return grid.getSelectionModel().getSelection();
-    }
+	}
 
 	/**
 	 * Initializes filter toolbar for the grid with sensors. The bar contains text filter and an
@@ -220,7 +220,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		panel.getHeader().addTool(refresh);
 	}
 
-    private void initToolBar() {
+	private void initToolBar() {
 
 		// listen to toolbar button clicks
 		final SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
@@ -249,7 +249,6 @@ public class GxtSensorGrid extends Composite implements SensorListView {
                         presenter.onAlertClick();
                     }
                 } else if (source.equals(publishButton)) {
-
                     if (null != presenter) {
                         presenter.onPublishClick();
                     }
@@ -352,7 +351,7 @@ public class GxtSensorGrid extends Composite implements SensorListView {
 		this.presenter = presenter;
 	}
 
-    /**
+	/**
 	 * Sets up the grid for drag and drop of the sensors.
 	 */
 	private void setupDragDrop() {

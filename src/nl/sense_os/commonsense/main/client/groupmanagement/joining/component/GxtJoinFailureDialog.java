@@ -28,7 +28,7 @@ public class GxtJoinFailureDialog implements JoinFailureView {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
                             if (null != presenter) {
                                 presenter.onSubmitClick();
                             }

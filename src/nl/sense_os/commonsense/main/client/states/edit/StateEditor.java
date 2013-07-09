@@ -41,298 +41,298 @@ import com.google.gwt.core.client.JsonUtils;
 
 public class StateEditor extends View {
 
-    private static final Logger LOG = Logger.getLogger(StateEditor.class.getName());
-    private GxtSensor stateSensor;
-    private ComboBox<GxtServiceMethod> methodField;
-    private FieldSet paramFields;
-    private LabelField returnField;
-    private ListStore<GxtServiceMethod> methodStore;
-    private Window window;
-    private FormPanel form;
-    private Button submitButton;
-    private Button cancelButton;
+	private static final Logger LOG = Logger.getLogger(StateEditor.class.getName());
+	private GxtSensor stateSensor;
+	private ComboBox<GxtServiceMethod> methodField;
+	private FieldSet paramFields;
+	private LabelField returnField;
+	private ListStore<GxtServiceMethod> methodStore;
+	private Window window;
+	private FormPanel form;
+	private Button submitButton;
+	private Button cancelButton;
 
-    public StateEditor(Controller c) {
-	super(c);
-    }
-
-    @Override
-    protected void handleEvent(AppEvent event) {
-	EventType type = event.getType();
-	if (type.equals(StateEditEvents.ShowEditor)) {
-	    LOG.finest("Show");
-	    onShow(event);
-
-	} else if (type.equals(StateEditEvents.InvokeMethodComplete)) {
-	    LOG.finest("InvokeMethodComplete");
-	    onInvokeComplete(event);
-
-	} else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
-	    LOG.warning("InvokeMethodFailed");
-	    onInvokeFailed(event);
-
-	} else {
-	    LOG.warning("Unexpected event type: " + type);
+	public StateEditor(Controller c) {
+		super(c);
 	}
-    }
 
-    private void hideWindow() {
-	window.hide();
-    }
+	@Override
+	protected void handleEvent(AppEvent event) {
+		EventType type = event.getType();
+		if (type.equals(StateEditEvents.ShowEditor)) {
+			LOG.finest("Show");
+			onShow(event);
 
-    private void initButtons() {
-	SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
+		} else if (type.equals(StateEditEvents.InvokeMethodComplete)) {
+			LOG.finest("InvokeMethodComplete");
+			onInvokeComplete(event);
 
-	    @Override
-	    public void componentSelected(ButtonEvent ce) {
-		final Button pressed = ce.getButton();
-		if (pressed.equals(submitButton)) {
-		    if (form.isValid()) {
-			onSubmit();
-		    }
-		} else if (pressed.equals(cancelButton)) {
-		    hideWindow();
+		} else if (type.equals(StateEditEvents.InvokeMethodFailed)) {
+			LOG.warning("InvokeMethodFailed");
+			onInvokeFailed(event);
+
 		} else {
-		    LOG.warning("Unexpected button pressed");
+			LOG.warning("Unexpected event type: " + type);
 		}
-	    }
-	};
-	submitButton = new Button("Submit", l);
-	submitButton.setIconStyle("sense-btn-icon-go");
+	}
 
-	cancelButton = new Button("Cancel", l);
+	private void hideWindow() {
+		window.hide();
+	}
 
-	final FormButtonBinding binding = new FormButtonBinding(form);
-	binding.addButton(submitButton);
+	private void initButtons() {
+		SelectionListener<ButtonEvent> l = new SelectionListener<ButtonEvent>() {
 
-	form.addButton(submitButton);
-	form.addButton(cancelButton);
-    }
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				final Button pressed = ce.getButton();
+				if (pressed.equals(submitButton)) {
+					if (form.isValid()) {
+						onSubmit();
+					}
+				} else if (pressed.equals(cancelButton)) {
+					hideWindow();
+				} else {
+					LOG.warning("Unexpected button pressed");
+				}
+			}
+		};
+		submitButton = new Button("Submit", l);
+		submitButton.setIconStyle("sense-btn-icon-go");
 
-    private void initFields() {
-	methodStore = new ListStore<GxtServiceMethod>();
+		cancelButton = new Button("Cancel", l);
 
-	methodField = new ComboBox<GxtServiceMethod>();
-	methodField.setFieldLabel("Method");
-	methodField.setDisplayField(GxtServiceMethod.NAME);
-	methodField.setEmptyText("Select state service method...");
-	methodField.setStore(methodStore);
-	methodField.setTypeAhead(true);
-	methodField.setTriggerAction(TriggerAction.ALL);
+		final FormButtonBinding binding = new FormButtonBinding(form);
+		binding.addButton(submitButton);
 
-	methodField.addSelectionChangedListener(new SelectionChangedListener<GxtServiceMethod>() {
+		form.addButton(submitButton);
+		form.addButton(cancelButton);
+	}
 
-	    @Override
-	    public void selectionChanged(SelectionChangedEvent<GxtServiceMethod> se) {
-		GxtServiceMethod method = se.getSelectedItem();
-		updateParametersField(method);
-		updateReturnField(method);
-		form.layout();
-	    }
-	});
+	private void initFields() {
+		methodStore = new ListStore<GxtServiceMethod>();
 
-	Listener<FieldSetEvent> l = new Listener<FieldSetEvent>() {
-	    @Override
-	    public void handleEvent(FieldSetEvent be) {
-		form.layout(true);
-	    }
-	};
-	paramFields = new FieldSet();
-	paramFields.addListener(Events.Collapse, l);
-	paramFields.addListener(Events.Expand, l);
-	paramFields.setLayout(new FormLayout());
-	paramFields.setHeading("Parameters");
-	LabelField temp = new LabelField("no parameters");
-	paramFields.add(temp);
-	paramFields.disable();
+		methodField = new ComboBox<GxtServiceMethod>();
+		methodField.setFieldLabel("Method");
+		methodField.setDisplayField(GxtServiceMethod.NAME);
+		methodField.setEmptyText("Select state service method...");
+		methodField.setStore(methodStore);
+		methodField.setTypeAhead(true);
+		methodField.setTriggerAction(TriggerAction.ALL);
 
-	returnField = new LabelField();
-	returnField.setFieldLabel("Result:");
-	returnField.disable();
+		methodField.addSelectionChangedListener(new SelectionChangedListener<GxtServiceMethod>() {
 
-	final FormData formData = new FormData("-10");
-	form.add(methodField, formData);
-	form.add(paramFields, formData);
-	form.add(returnField, formData);
-    }
+			@Override
+			public void selectionChanged(SelectionChangedEvent<GxtServiceMethod> se) {
+				GxtServiceMethod method = se.getSelectedItem();
+				updateParametersField(method);
+				updateReturnField(method);
+				form.layout();
+			}
+		});
 
-    private void initForm() {
+		Listener<FieldSetEvent> l = new Listener<FieldSetEvent>() {
+			@Override
+			public void handleEvent(FieldSetEvent be) {
+				form.layout(true);
+			}
+		};
+		paramFields = new FieldSet();
+		paramFields.addListener(Events.Collapse, l);
+		paramFields.addListener(Events.Expand, l);
+		paramFields.setLayout(new FormLayout());
+		paramFields.setHeadingHtml("Parameters");
+		LabelField temp = new LabelField("no parameters");
+		paramFields.add(temp);
+		paramFields.disable();
 
-	form = new FormPanel();
-	form.setHeaderVisible(false);
-	form.setBodyBorder(false);
-	form.setScrollMode(Scroll.AUTOY);
+		returnField = new LabelField();
+		returnField.setFieldLabel("Result:");
+		returnField.disable();
 
-	initFields();
-	initButtons();
+		final FormData formData = new FormData("-10");
+		form.add(methodField, formData);
+		form.add(paramFields, formData);
+		form.add(returnField, formData);
+	}
 
-	window.add(form);
-    }
+	private void initForm() {
 
-    @Override
-    protected void initialize() {
-	super.initialize();
+		form = new FormPanel();
+		form.setHeaderVisible(false);
+		form.setBodyBorder(false);
+		form.setScrollMode(Scroll.AUTOY);
 
-	window = new CenteredWindow();
-	window.setHeading("Set or get algorithm parameters");
-	window.setSize(640, 360);
-	window.setLayout(new FitLayout());
+		initFields();
+		initButtons();
 
-	initForm();
-    }
+		window.add(form);
+	}
 
-    private String makePrettyJson(String response) {
-	response = response.replace("&quot;", "\"");
-	String pretty = "";
-	if (JsonUtils.safeToEval(response)) {
-	    int indentAmount = 0;
-	    String indentString = "  ";
-	    for (int i = 0; i < response.length(); i++) {
+	@Override
+	protected void initialize() {
+		super.initialize();
 
-		// check for new lines
-		if (response.charAt(i) == '{') {
-		    pretty += "{\n";
-		    indentAmount++;
-		    // indent
-		    for (int j = 0; j < indentAmount; j++) {
-			pretty += indentString;
-		    }
-		} else if (response.charAt(i) == '[') {
-		    pretty += "[\n";
-		    indentAmount++;
-		    // indent
-		    for (int j = 0; j < indentAmount; j++) {
-			pretty += indentString;
-		    }
-		} else if (response.charAt(i) == ',') {
-		    pretty += ",\n";
-		    // indent
-		    for (int j = 0; j < indentAmount; j++) {
-			pretty += indentString;
-		    }
-		} else if (response.charAt(i) == '}') {
-		    pretty += "\n";
-		    indentAmount--;
-		    // indent
-		    for (int j = 0; j < indentAmount; j++) {
-			pretty += indentString;
-		    }
-		    pretty += "}";
-		} else if (response.charAt(i) == ']') {
-		    pretty += "\n";
-		    indentAmount--;
-		    // indent
-		    for (int j = 0; j < indentAmount; j++) {
-			pretty += indentString;
-		    }
-		    pretty += "]";
+		window = new CenteredWindow();
+		window.setHeadingHtml("Set or get algorithm parameters");
+		window.setSize(640, 360);
+		window.setLayout(new FitLayout());
+
+		initForm();
+	}
+
+	private String makePrettyJson(String response) {
+		response = response.replace("&quot;", "\"");
+		String pretty = "";
+		if (JsonUtils.safeToEval(response)) {
+			int indentAmount = 0;
+			String indentString = "  ";
+			for (int i = 0; i < response.length(); i++) {
+
+				// check for new lines
+				if (response.charAt(i) == '{') {
+					pretty += "{\n";
+					indentAmount++;
+					// indent
+					for (int j = 0; j < indentAmount; j++) {
+						pretty += indentString;
+					}
+				} else if (response.charAt(i) == '[') {
+					pretty += "[\n";
+					indentAmount++;
+					// indent
+					for (int j = 0; j < indentAmount; j++) {
+						pretty += indentString;
+					}
+				} else if (response.charAt(i) == ',') {
+					pretty += ",\n";
+					// indent
+					for (int j = 0; j < indentAmount; j++) {
+						pretty += indentString;
+					}
+				} else if (response.charAt(i) == '}') {
+					pretty += "\n";
+					indentAmount--;
+					// indent
+					for (int j = 0; j < indentAmount; j++) {
+						pretty += indentString;
+					}
+					pretty += "}";
+				} else if (response.charAt(i) == ']') {
+					pretty += "\n";
+					indentAmount--;
+					// indent
+					for (int j = 0; j < indentAmount; j++) {
+						pretty += indentString;
+					}
+					pretty += "]";
+				} else {
+					pretty += response.charAt(i);
+				}
+			}
 		} else {
-		    pretty += response.charAt(i);
+			pretty = response;
 		}
-	    }
-	} else {
-	    pretty = response;
+		return "<pre>" + pretty + "</pre>";
 	}
-	return "<pre>" + pretty + "</pre>";
-    }
 
-    private void onInvokeComplete(AppEvent event) {
-	setBusy(false);
-	String response = event.<String> getData();
-	String pretty = makePrettyJson(response);
-	returnField.setValue(pretty);
-	returnField.enable();
-    }
+	private void onInvokeComplete(AppEvent event) {
+		setBusy(false);
+		String response = event.<String> getData();
+		String pretty = makePrettyJson(response);
+		returnField.setValue(pretty);
+		returnField.enable();
+	}
 
-    private void onInvokeFailed(AppEvent event) {
-	setBusy(false);
-	MessageBox.confirm(null, "Method failed, retry?", new Listener<MessageBoxEvent>() {
+	private void onInvokeFailed(AppEvent event) {
+		setBusy(false);
+		MessageBox.confirm(null, "Method failed, retry?", new Listener<MessageBoxEvent>() {
 
-	    @Override
-	    public void handleEvent(MessageBoxEvent be) {
-		if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-		    onSubmit();
+			@Override
+			public void handleEvent(MessageBoxEvent be) {
+				if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
+					onSubmit();
+				}
+			}
+		});
+	}
+
+	private void onShow(AppEvent event) {
+		stateSensor = event.<GxtSensor> getData();
+		List<GxtServiceMethod> methods = stateSensor.get("methods");
+
+		if (null != methods) {
+			methodStore.removeAll();
+			methodStore.add(methods);
+			methodField.clear();
+
+			window.show();
+			window.center();
+
+		} else {
+			MessageBox.alert(null, "This state algorithm cannot be edited!", null);
 		}
-	    }
-	});
-    }
-
-    private void onShow(AppEvent event) {
-	stateSensor = event.<GxtSensor> getData();
-	List<GxtServiceMethod> methods = stateSensor.get("methods");
-
-	if (null != methods) {
-	    methodStore.removeAll();
-	    methodStore.add(methods);
-	    methodField.clear();
-
-	    window.show();
-	    window.center();
-
-	} else {
-	    MessageBox.alert(null, "This state algorithm cannot be edited!", null);
 	}
-    }
 
-    @SuppressWarnings("unchecked")
-    private void onSubmit() {
-	setBusy(true);
+	@SuppressWarnings("unchecked")
+	private void onSubmit() {
+		setBusy(true);
 
-	GxtServiceMethod method = methodField.getValue();
-	List<String> params = new ArrayList<String>();
-	for (Component c : paramFields.getItems()) {
-	    if (c instanceof TextField<?>) {
-		params.add(((TextField<String>) c).getValue());
-	    }
+		GxtServiceMethod method = methodField.getValue();
+		List<String> params = new ArrayList<String>();
+		for (Component c : paramFields.getItems()) {
+			if (c instanceof TextField<?>) {
+				params.add(((TextField<String>) c).getValue());
+			}
+		}
+		AppEvent event = new AppEvent(StateEditEvents.InvokeMethodRequested);
+		event.setData("stateSensor", stateSensor);
+		event.setData("method", method);
+		event.setData("parameters", params);
+		Dispatcher.forwardEvent(event);
 	}
-	AppEvent event = new AppEvent(StateEditEvents.InvokeMethodRequested);
-	event.setData("stateSensor", stateSensor);
-	event.setData("method", method);
-	event.setData("parameters", params);
-	Dispatcher.forwardEvent(event);
-    }
 
-    private void setBusy(boolean busy) {
-	if (busy) {
-	    submitButton.setIconStyle("sense-btn-icon-loading");
-	    cancelButton.disable();
-	} else {
-	    submitButton.setIconStyle("sense-btn-icon-go");
-	    cancelButton.enable();
+	private void setBusy(boolean busy) {
+		if (busy) {
+			submitButton.setIconStyle("sense-btn-icon-loading");
+			cancelButton.disable();
+		} else {
+			submitButton.setIconStyle("sense-btn-icon-go");
+			cancelButton.enable();
+		}
 	}
-    }
 
-    private void updateParametersField(GxtServiceMethod method) {
-	List<String> params = method != null ? method.getParameters() : new ArrayList<String>();
+	private void updateParametersField(GxtServiceMethod method) {
+		List<String> params = method != null ? method.getParameters() : new ArrayList<String>();
 
-	paramFields.removeAll();
-	if (params.size() > 0) {
-	    for (String param : params) {
-		TextField<String> field = new TextField<String>();
-		field.setFieldLabel(param);
-		field.setName(param);
-		field.setAllowBlank(false);
-		paramFields.add(field, new FormData("-10"));
-	    }
+		paramFields.removeAll();
+		if (params.size() > 0) {
+			for (String param : params) {
+				TextField<String> field = new TextField<String>();
+				field.setFieldLabel(param);
+				field.setName(param);
+				field.setAllowBlank(false);
+				paramFields.add(field, new FormData("-10"));
+			}
 
-	    paramFields.enable();
-	} else {
-	    LabelField temp = new LabelField("no parameters");
-	    paramFields.add(temp);
+			paramFields.enable();
+		} else {
+			LabelField temp = new LabelField("no parameters");
+			paramFields.add(temp);
 
-	    paramFields.disable();
+			paramFields.disable();
+		}
+		paramFields.layout();
 	}
-	paramFields.layout();
-    }
 
-    private void updateReturnField(GxtServiceMethod method) {
-	String returns = method != null ? method.getReturnValue() : "";
+	private void updateReturnField(GxtServiceMethod method) {
+		String returns = method != null ? method.getReturnValue() : "";
 
-	if (returns.length() > 0) {
-	    returnField.setFieldLabel("Result (" + returns + "):");
-	} else {
-	    returnField.setFieldLabel("Result:");
+		if (returns.length() > 0) {
+			returnField.setFieldLabel("Result (" + returns + "):");
+		} else {
+			returnField.setFieldLabel("Result:");
+		}
+		returnField.disable();
 	}
-	returnField.disable();
-    }
 }

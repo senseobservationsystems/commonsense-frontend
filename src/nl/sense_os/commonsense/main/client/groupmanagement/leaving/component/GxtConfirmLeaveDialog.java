@@ -40,7 +40,7 @@ public class GxtConfirmLeaveDialog implements ConfirmGroupLeaveView {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 Button clicked = be.getButtonClicked();
-                if ("yes".equalsIgnoreCase(clicked.getText())) {
+                if ("yes".equalsIgnoreCase(clicked.getHtml())) {
                     if (null != presenter) {
                         presenter.onLeaveClick();
                     }

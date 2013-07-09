@@ -42,7 +42,7 @@ final class CacheJso extends JavaScriptObject {
 				timeseries.data = [];
 			}
 		}
-    }-*/;
+	}-*/;
 
     /**
      * Gets sensor data from the cache, if available.
@@ -76,7 +76,7 @@ final class CacheJso extends JavaScriptObject {
 						'label' : timeseries.label,
 						'start' : Infinity,
 						'end' : -Infinity,
-						'type' : timeseries.type,
+						'data_type' : timeseries.data_type,
 						'data' : []
 					};
 
@@ -112,7 +112,7 @@ final class CacheJso extends JavaScriptObject {
 			}
 		}
 		return result;
-    }-*/;
+	}-*/;
 
     /**
      * Stores sensor values in the cache.
@@ -192,7 +192,7 @@ final class CacheJso extends JavaScriptObject {
 					'label' : label,
 					'start' : start,
 					'end' : datapoint.date,
-					'type' : typeof (datapoint.value),
+					'data_type' : typeof (datapoint.value),
 					'data' : [ datapoint ]
 				};
 
@@ -229,10 +229,10 @@ final class CacheJso extends JavaScriptObject {
 				}
 
 				// update data type
-				if (cache.content[index].type == 'number') {
-					cache.content[index].type = typeof (datapoint.value);
+				if (cache.content[index].data_type == 'number') {
+					cache.content[index].data_type = typeof (datapoint.value);
 				}
 			}
 		}
-    }-*/;
+	}-*/;
 }

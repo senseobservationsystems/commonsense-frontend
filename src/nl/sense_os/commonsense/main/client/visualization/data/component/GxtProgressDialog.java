@@ -20,7 +20,7 @@ public class GxtProgressDialog extends CenteredWindow implements ProgressView {
 
 	public GxtProgressDialog() {
 		setLayout(new FitLayout());
-		setHeading("Please wait...");
+		setHeadingText("Please wait...");
 		setSize(300, 165);
 
 		subProgress = new ProgressBar();

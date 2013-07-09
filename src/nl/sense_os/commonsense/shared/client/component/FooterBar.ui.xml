@@ -24,7 +24,7 @@
 		type='nl.sense_os.commonsense.shared.client.resource.CSResources' />
 	<g:FlowPanel styleName="{style.footerBar}">
 		<g:HTML styleName="{style.footerText}">
-			©2011 Sense  •  
+			© 2011-2013 Sense  •  
 			<a
 				href="http://www.sense-os.nl"
 				target="_blank">Sense Home</a>

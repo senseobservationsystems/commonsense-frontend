@@ -34,7 +34,7 @@ public class AlertCreator extends CenteredWindow {
     public AlertCreator() {
         super();
 
-        setHeading("Create new alert");
+        setHeadingText("Create new alert");
         setSize(500, 500);
         setResizable(true);
         setClosable(false);

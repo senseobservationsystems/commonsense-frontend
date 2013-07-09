@@ -310,7 +310,7 @@ public class TimeRangeForm extends FormPanel {
      *            The label to display above the time range selection field.
      */
     public void setLabel(String label) {
-        mainLabel.setText(label);
+        mainLabel.setValue(label);
     }
 
     /**

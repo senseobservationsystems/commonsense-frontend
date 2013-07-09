@@ -44,7 +44,7 @@ public class GxtGroupCreatorForm extends CenteredWindow implements GroupCreatorV
         // LOG.setLevel(Level.ALL);
 
         // basic stuff
-        setHeading("Create new group");
+        setHeadingText("Create new group");
         setClosable(false);
         setSize(500, 450);
 
@@ -87,7 +87,7 @@ public class GxtGroupCreatorForm extends CenteredWindow implements GroupCreatorV
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Button b = ce.getButton();
-                if (b.getText().equals("Next")) {
+                if (b.getHtml().equals("Next")) {
                     goToNext();
                 } else {
                     if (null != presenter) {

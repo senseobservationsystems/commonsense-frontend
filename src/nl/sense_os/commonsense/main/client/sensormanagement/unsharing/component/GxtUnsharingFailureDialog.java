@@ -48,7 +48,7 @@ public class GxtUnsharingFailureDialog implements UnsharingFailureView {
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
                         Button b = be.getButtonClicked();
-                        if (b.getText().equalsIgnoreCase("no")) {
+                        if (b.getHtml().equalsIgnoreCase("no")) {
                             onCancelClick();
                         } else {
                             onOkClick();

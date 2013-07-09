@@ -24,7 +24,7 @@ public class SensorGroupRenderer implements GridGroupRenderer {
     @Override
     public String render(GroupColumnData data) {
 
-        String field = this.cm.getColumnById(data.field).getHeader();
+        String field = this.cm.getColumnById(data.field).getHeaderHtml();
         String count = data.models.size() + ((data.models.size() == 1) ? " sensor" : " sensors");
 
         String group = data.group;

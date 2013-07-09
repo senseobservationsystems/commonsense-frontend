@@ -17,7 +17,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 public class GxtInviteUserDialog extends CenteredWindow implements InviteUserView {
-
     private Button btnAdd;
     private Button btnCancel;
     private TextField<String> txtfldUsername;
@@ -26,7 +25,7 @@ public class GxtInviteUserDialog extends CenteredWindow implements InviteUserVie
     public GxtInviteUserDialog() {
         setSize("300px", "210px");
         setClosable(false);
-        setHeading("Add user to group");
+        setHeadingText("Add user to group");
         setLayout(new FitLayout());
 
         FormPanel frmpnlNewFormpanel = new FormPanel();
@@ -34,7 +33,7 @@ public class GxtInviteUserDialog extends CenteredWindow implements InviteUserVie
         frmpnlNewFormpanel.setBodyBorder(false);
         frmpnlNewFormpanel.setLabelAlign(LabelAlign.TOP);
         frmpnlNewFormpanel.setHeaderVisible(false);
-        frmpnlNewFormpanel.setHeading("New FormPanel");
+        frmpnlNewFormpanel.setHeadingText("New FormPanel");
         frmpnlNewFormpanel.setCollapsible(true);
 
         LabelField lblfldExplanation = new LabelField(

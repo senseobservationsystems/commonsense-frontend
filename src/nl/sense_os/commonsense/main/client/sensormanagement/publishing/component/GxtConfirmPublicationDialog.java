@@ -24,7 +24,7 @@ public class GxtConfirmPublicationDialog extends CenteredWindow implements Confi
 
     public GxtConfirmPublicationDialog() {
 
-        setHeading("Publish sensors");
+        setHeadingText("Publish sensors");
         setSize(400, 250);
         setScrollMode(Scroll.AUTOY);
 

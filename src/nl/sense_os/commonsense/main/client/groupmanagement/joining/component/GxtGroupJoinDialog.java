@@ -44,7 +44,7 @@ public class GxtGroupJoinDialog extends CenteredWindow implements GroupJoinView 
     public GxtGroupJoinDialog(List<GxtGroup> groups, List<GxtSensor> sensors) {
 
         // main window properties
-        setHeading("Join a public group");
+        setHeadingText("Join a public group");
         setClosable(false);
         setSize(540, 480);
 
@@ -78,7 +78,7 @@ public class GxtGroupJoinDialog extends CenteredWindow implements GroupJoinView 
         btnNext.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-                if (ce.getButton().getText().equalsIgnoreCase("next")) {
+                if (ce.getButton().getHtml().equalsIgnoreCase("next")) {
                     goToNext();
                 } else {
                     if (null != presenter) {

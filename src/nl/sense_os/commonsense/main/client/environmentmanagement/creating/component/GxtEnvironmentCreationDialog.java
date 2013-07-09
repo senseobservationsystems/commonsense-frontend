@@ -79,7 +79,7 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
     private Presenter presenter;
 
     public GxtEnvironmentCreationDialog() {
-        setHeading("Create new environment");
+        setHeadingText("Create new environment");
         setLayout(new BorderLayout());
         setMinWidth(720);
         setSize("85%", "600px");
@@ -108,11 +108,11 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
     private void checkValidity() {
 
         if (isFormValid) {
-            form.setHeading("Step 1: Basic info");
+            form.setHeadingText("Step 1: Basic info");
         }
 
         if (isOutlineValid) {
-            outlinePanel.setHeading("Step 2: Outline");
+            outlinePanel.setHeadingText("Step 2: Outline");
         }
 
         // submit button
@@ -163,7 +163,7 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
     private void initDevicesPanel() {
         devicesPanel = new ContentPanel();
         // this.sensorsPanel.setStyleAttribute("background-color", "white");
-        devicesPanel.setHeading("Step 3: Position devices");
+        devicesPanel.setHeadingText("Step 3: Position devices");
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -227,7 +227,7 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
     private void initForm() {
 
         form = new FormPanel();
-        form.setHeading("Step 1: Basic info");
+        form.setHeadingText("Step 1: Basic info");
         form.setBodyBorder(false);
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
@@ -236,9 +236,9 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
             public void handleEvent(ComponentEvent be) {
                 if (be.getType().equals(Events.Collapse)) {
                     if (isFormValid) {
-                        form.setHeading("Step 1: Basic info");
+                        form.setHeadingText("Step 1: Basic info");
                     } else {
-                        form.setHeading("Step 1: Basic info [UNFINISHED]");
+                        form.setHeadingText("Step 1: Basic info [UNFINISHED]");
                     }
                 }
             }
@@ -313,7 +313,7 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
     private void initOutlinePanel() {
         outlinePanel = new ContentPanel();
         // this.outlinePanel.setStyleAttribute("background-color", "white");
-        outlinePanel.setHeading("Step 2: Outline");
+        outlinePanel.setHeadingText("Step 2: Outline");
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 
@@ -329,9 +329,9 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
 
                 if (hasBeenExpanded && be.getType().equals(Events.Collapse)) {
                     if (isOutlineValid) {
-                        outlinePanel.setHeading("Step 2: Outline");
+                        outlinePanel.setHeadingText("Step 2: Outline");
                     } else {
-                        outlinePanel.setHeading("Step 2: Outline [UNFINISHED]");
+                        outlinePanel.setHeadingText("Step 2: Outline [UNFINISHED]");
                     }
                 }
             }
@@ -361,7 +361,7 @@ public class GxtEnvironmentCreationDialog extends CenteredWindow implements Envi
 
         sensorsPanel = new ContentPanel(new FitLayout());
         // this.sensorsPanel.setStyleAttribute("background-color", "white");
-        sensorsPanel.setHeading("Step 4: Other sensors");
+        sensorsPanel.setHeadingText("Step 4: Other sensors");
 
         Listener<ComponentEvent> enabler = new Listener<ComponentEvent>() {
 

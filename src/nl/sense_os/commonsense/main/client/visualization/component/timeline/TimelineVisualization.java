@@ -60,6 +60,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
 
     private Presenter presenter;
 
+
     public TimelineVisualization(List<GxtSensor> sensors, long start, long end, boolean subsample) {
 
         initGraphOptions();
@@ -67,7 +68,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
         initTimelineOptions();
 
         panel = new ContentPanel();
-        panel.setHeading("Time line: " + getChartTitle(sensors));
+        panel.setHeadingText("Time line: " + getChartTitle(sensors));
         panel.setBodyBorder(false);
         panel.setLayout(new FillLayout());
 
@@ -235,7 +236,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
         title = title.substring(0, title.length() - 2);
 
         return title;
-    }
+        }
 
     private void initGraphOptions() {
         graphOpts.setLineStyle(Graph.Options.LINESTYLE.DOTLINE);
@@ -244,7 +245,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
         graphOpts.setHeight("100%");
         graphOpts.setLegendCheckboxes(true);
         graphOpts.setLegendWidth(125);
-    }
+        }
 
     private void initTimelineOptions() {
         tlineOpts.setWidth("100%");
@@ -255,7 +256,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
         tlineOpts.setStackEvents(false);
         tlineOpts.setGroupsOnRight(true);
         tlineOpts.setGroupsWidth(135);
-    }
+        }
 
     private void initToolButtons() {
         // regular refresh button
@@ -267,7 +268,7 @@ public class TimelineVisualization extends Composite implements VisualizationVie
             public void componentSelected(IconButtonEvent ce) {
                 if (null != presenter) {
                     presenter.refreshData();
-                }
+        }
             }
         });
 
@@ -286,8 +287,8 @@ public class TimelineVisualization extends Composite implements VisualizationVie
                     stopAutoRefresh();
                     autoRefresh.setToolTip("start autorefresh");
                     autoRefresh.setStylePrimaryName("x-tool-right");
-                }
-            }
+        }
+    }
         });
 
         // add buttons to the panel's header
@@ -337,7 +338,6 @@ public class TimelineVisualization extends Composite implements VisualizationVie
     public void setPresenter(Presenter presenter) {
         this.presenter = presenter;
     }
-
     private void showNumberData(JsArray<Timeseries> data) {
         LOG.fine("Show number data...");
 
@@ -366,13 +366,11 @@ public class TimelineVisualization extends Composite implements VisualizationVie
             LOG.warning("No data for time line visualization!");
         }
     }
-
     private void startAutoRefresh() {
         // request data refresh
         if (null != presenter) {
             presenter.refreshData();
-        }
-
+}
         // start timer
         refreshTimer.scheduleRepeating(REFRESH_PERIOD);
         isAutoRefresh = true;
@@ -398,13 +396,13 @@ public class TimelineVisualization extends Composite implements VisualizationVie
         JsArray<Timeseries> stringData = JavaScriptObject.createArray().cast();
         for (int i = 0; i < data.length(); i++) {
             Timeseries ts = data.get(i);
-            if (ts.getType().equalsIgnoreCase("number")) {
+            if (ts.getDataType().equalsIgnoreCase("number")) {
                 LOG.finest(ts.getLabel() + ": " + ts.getData().length()
                         + " data points (number data)");
                 numberData.push(ts);
             } else {
                 LOG.finest(ts.getLabel() + ": " + ts.getData().length() + " data points ("
-                        + ts.getType() + " data)");
+                        + ts.getDataType() + " data)");
                 stringData.push(ts);
             }
         }

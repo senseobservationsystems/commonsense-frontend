@@ -47,7 +47,7 @@ public class GxtPublicationFailureDialog implements PublicationFailureView {
             @Override
             public void handleEvent(MessageBoxEvent be) {
                 Button b = be.getButtonClicked();
-                if (b.getText().equalsIgnoreCase("yes")) {
+                if (b.getHtml().equalsIgnoreCase("yes")) {
                     onConfirmClick();
                 } else {
                     onCancelClick();

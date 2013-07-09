@@ -18,7 +18,7 @@ public class GxtConfirmRemovalDialog extends CenteredWindow implements ConfirmRe
     private Button cancelButton;
 
     public GxtConfirmRemovalDialog() {
-        setHeading("Remove sensors");
+        setHeadingText("Remove sensors");
         setLayout(new FitLayout());
         setSize(323, 200);
 

@@ -177,7 +177,7 @@ public class EnvironmentsActivity extends AbstractActivity implements Environmen
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
 						Button clicked = be.getButtonClicked();
-						if ("yes".equalsIgnoreCase(clicked.getText())) {
+                        if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 							delete(environment);
 						}
 					}

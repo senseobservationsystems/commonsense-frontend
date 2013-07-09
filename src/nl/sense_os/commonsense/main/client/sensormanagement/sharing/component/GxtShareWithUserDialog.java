@@ -28,7 +28,7 @@ public class GxtShareWithUserDialog extends CenteredWindow implements ShareWithU
 
     public GxtShareWithUserDialog() {
 
-        setHeading("Manage data sharing");
+        setHeadingText("Manage data sharing");
         setLayout(new FitLayout());
         setSize(323, 200);
 

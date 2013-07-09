@@ -49,7 +49,7 @@ public class GxtConfirmUnshareDialog implements ConfirmUnshareView {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+                        if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
                             onConfirmClick();
                         } else {
                             onCancelClick();

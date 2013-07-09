@@ -104,7 +104,7 @@ public class FeedbackPanel extends VizPanel {
 	tlineOpts.setGroupsWidth(135);
 
 	// set up layout
-	setHeading("Feedback: " + stateSensor.getDisplayName());
+        setHeadingText("Feedback: " + stateSensor.getDisplayName());
 	setBodyBorder(false);
 	setLayout(new RowLayout(Orientation.VERTICAL));
 
@@ -571,13 +571,13 @@ public class FeedbackPanel extends VizPanel {
 	    if (ts.getId() == stateSensor.getId()) {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length() + " data points (state data)");
 		stateData.push(ts);
-	    } else if (ts.getType().equalsIgnoreCase("number")) {
+	    } else if (ts.getDataType().equalsIgnoreCase("number")) {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length()
 			+ " data points (number data)");
 		numberData.push(ts);
 	    } else {
 		LOG.fine(ts.getLabel() + ": " + ts.getData().length() + " data points ("
-			+ ts.getType() + " data)");
+			+ ts.getDataType() + " data)");
 		stringData.push(ts);
 	    }
 	}
@@ -702,7 +702,7 @@ public class FeedbackPanel extends VizPanel {
 	final CenteredWindow choiceWindow = new CenteredWindow();
 	choiceWindow.setSize(300, 100);
 	choiceWindow.setLayout(new FitLayout());
-	choiceWindow.setHeading("State label selection");
+        choiceWindow.setHeadingText("State label selection");
 	choiceWindow.addListener(Events.Close, new Listener<ComponentEvent>() {
 
 	    @Override

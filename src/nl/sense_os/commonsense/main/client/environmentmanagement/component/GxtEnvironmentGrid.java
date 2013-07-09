@@ -60,15 +60,15 @@ public class GxtEnvironmentGrid extends Composite implements EnvironmentListView
 	public GxtEnvironmentGrid() {
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage environments");
+        panel.setHeadingText("Manage environments");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
 		panel.addListener(Events.Expand, new Listener<ComponentEvent>() {
 
-			@Override
+	@Override
 			public void handleEvent(ComponentEvent be) {
-				refreshLoader(false);
+			refreshLoader(false);
 			}
 		});
 
@@ -220,6 +220,19 @@ public class GxtEnvironmentGrid extends Composite implements EnvironmentListView
 			}
 		});
 		grid.setSelectionModel(selectionModel);
+	}
+
+	private void onDeleteClick() {
+        presenter.onDeleteClick(grid.getSelectionModel().getSelectedItem());
+	}
+
+	protected void onEditClick() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onListUpdated(AppEvent event) {
+		isListDirty = false;
 	}
 
 	protected void onViewClick() {

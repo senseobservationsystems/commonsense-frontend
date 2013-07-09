@@ -48,7 +48,7 @@ public class AlertCreatorView extends View {
 	private void determineTriggerType(JsArray<Timeseries> data) {
 		if (data.length() == 1) {
 			// show different trigger creator screens for different data types
-			String type = data.get(0).getType();
+			String type = data.get(0).getDataType();
 			if (type.equalsIgnoreCase("number")) {
 				triggerType = TriggerTypes.NUMBER;
 

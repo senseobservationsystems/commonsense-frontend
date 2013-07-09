@@ -198,7 +198,7 @@ public class ShareSensorsForm extends WizardFormPanel {
 			visible = false;
 		}
 
-		lblReqSensors.setText(labelTxt);
+        lblReqSensors.setValue(labelTxt);
 		lblReqSensors.setVisible(visible);
 
 		selectRequiredSensors();

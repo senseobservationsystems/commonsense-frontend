@@ -27,7 +27,7 @@ public class GxtDeviceChooser extends CenteredWindow implements DeviceChooserVie
     public GxtDeviceChooser() {
         setLayout(new FitLayout());
         setSize(300, 300);
-        setHeading("Select the devices for this position");
+        setHeadingText("Select the devices for this position");
 
         store = new ListStore<GxtDevice>();
 

@@ -85,7 +85,7 @@ public class GxtStateGrid extends Composite implements StateListView {
 	public GxtStateGrid() {
 
 		panel = new ContentPanel(new FitLayout());
-		panel.setHeading("Manage states");
+		panel.setHeadingText("Manage states");
 		panel.setAnimCollapse(false);
 
 		// track whether the panel is expanded
@@ -129,7 +129,7 @@ public class GxtStateGrid extends Composite implements StateListView {
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
 						Button clicked = be.getButtonClicked();
-						if ("yes".equalsIgnoreCase(clicked.getText())) {
+						if ("yes".equalsIgnoreCase(clicked.getHtml())) {
 							disconnectSensor();
 						}
 					}
@@ -452,7 +452,7 @@ public class GxtStateGrid extends Composite implements StateListView {
 
 					@Override
 					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
+						if (be.getButtonClicked().getHtml().equalsIgnoreCase("yes")) {
 							disconnectSensor();
 						}
 					}

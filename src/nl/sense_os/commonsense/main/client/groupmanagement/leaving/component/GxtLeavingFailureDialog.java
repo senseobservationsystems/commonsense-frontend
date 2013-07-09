@@ -33,7 +33,7 @@ public class GxtLeavingFailureDialog implements LeavingFailureView {
 
                     @Override
                     public void handleEvent(MessageBoxEvent be) {
-                        if (be.getButtonClicked().getText().equals("yes")) {
+                        if (be.getButtonClicked().getHtml().equals("yes")) {
                             if (null != presenter) {
                                 presenter.onLeaveClick();
                             }
