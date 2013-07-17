@@ -15,7 +15,6 @@
 package nl.sense_os.commonsense.login.client.login.component;
 
 import nl.sense_os.commonsense.login.client.login.LoginView;
-import nl.sense_os.commonsense.login.client.login.LoginView.Presenter;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;

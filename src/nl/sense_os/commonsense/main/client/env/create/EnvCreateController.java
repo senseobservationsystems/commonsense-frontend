@@ -6,8 +6,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateEnvironmentResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.CreateSensorResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Sensor;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
 import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
@@ -19,7 +20,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestBuilder.Method;
@@ -57,8 +57,10 @@ public class EnvCreateController extends Controller {
 
 			// prepare request properties
 			final Method method = RequestBuilder.POST;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			urlBuilder.setPath(Urls.PATH_ENV + "/" + environment.getId() + "/sensors.json");
+			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(
+					CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
+			urlBuilder
+					.setPath(Urls.PATH_ENVIRONMENTS + "/" + environment.getId() + "/sensors.json");
 			final String url = urlBuilder.buildString();
 			final String sessionId = SessionManager.getSessionId();
 
@@ -91,7 +93,7 @@ public class EnvCreateController extends Controller {
 			try {
 				RequestBuilder builder = new RequestBuilder(method, url);
 				builder.setHeader("X-SESSION_ID", sessionId);
-				builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+				builder.setHeader("Content-Type", "application/json");
 				builder.sendRequest(body, reqCallback);
 			} catch (Exception e) {
 				LOG.warning("POST environment sensors request threw exception: " + e.getMessage());
@@ -118,7 +120,8 @@ public class EnvCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/device.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -150,7 +153,7 @@ public class EnvCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST sensor device request threw exception: " + e.getMessage());
@@ -174,8 +177,9 @@ public class EnvCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_ENV + ".json");
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
+		urlBuilder.setPath(Urls.PATH_ENVIRONMENTS + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
@@ -212,7 +216,7 @@ public class EnvCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST environments request threw exception: " + e.getMessage());
@@ -236,7 +240,8 @@ public class EnvCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -268,7 +273,7 @@ public class EnvCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST sensor request threw exception: " + e.getMessage());
@@ -476,7 +481,8 @@ public class EnvCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + positionSensor.getId() + "/data.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -515,7 +521,7 @@ public class EnvCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST position request threw exception: " + e.getMessage());

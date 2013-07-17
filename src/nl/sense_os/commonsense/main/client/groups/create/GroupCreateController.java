@@ -3,7 +3,8 @@ package nl.sense_os.commonsense.main.client.groups.create;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -30,7 +31,8 @@ public class GroupCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -63,7 +65,7 @@ public class GroupCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST group request threw exception: " + e.getMessage());

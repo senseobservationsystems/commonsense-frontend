@@ -12,8 +12,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.viz.panels.VizPanel;
 
@@ -165,7 +166,8 @@ public class SensorDataGrid extends VizPanel {
 
 		int id = sensors.get(0).getId();
 
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + id + "/data.json");
 
 		final int alias = sensors.get(0).getAlias();

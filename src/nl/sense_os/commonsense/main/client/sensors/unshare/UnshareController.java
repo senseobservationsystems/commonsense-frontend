@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 
@@ -112,7 +113,8 @@ public class UnshareController extends Controller {
 
 			// prepare request properties
 			final Method method = RequestBuilder.DELETE;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(
+					CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
 			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/users/" + user.getId()
 					+ ".json");
 			final String url = urlBuilder.buildString();

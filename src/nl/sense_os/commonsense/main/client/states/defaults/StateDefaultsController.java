@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
+import nl.sense_os.commonsense.lib.client.communication.Constants;
 import nl.sense_os.commonsense.main.client.ext.model.ExtDevice;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
@@ -34,8 +35,9 @@ public class StateDefaultsController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-        urlBuilder.setPath(Urls.PATH_STATES + "/default.json");
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(Urls.PROTOCOL)
+				.setHost(Urls.HOST);
+		urlBuilder.setPath((Constants.GENERIC_MODE ? "" : "api/") + "states/default.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
@@ -82,7 +84,7 @@ public class StateDefaultsController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST default services request threw exception: " + e.getMessage());

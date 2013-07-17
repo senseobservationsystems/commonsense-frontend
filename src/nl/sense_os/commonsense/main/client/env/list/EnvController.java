@@ -6,8 +6,9 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetEnvironmentsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Environment;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.env.create.EnvCreateEvents;
 import nl.sense_os.commonsense.main.client.ext.model.ExtEnvironment;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
@@ -47,8 +48,9 @@ public class EnvController extends Controller {
 	private void delete(final ExtEnvironment environment) {
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-		urlBuilder.setPath(Urls.PATH_ENV + "/" + environment.getId() + ".json");
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
+		urlBuilder.setPath(Urls.PATH_ENVIRONMENTS + "/" + environment.getId() + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
 
@@ -183,7 +185,8 @@ public class EnvController extends Controller {
 				nl.sense_os.commonsense.common.client.util.Constants.REG_ENVIRONMENT_LIST).clear();
 
 		// prepare request properties
-		final String url = new UrlBuilder().setHost(Urls.HOST).setPath(Urls.PATH_ENV + ".json")
+		final String url = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST).setPath(Urls.PATH_ENVIRONMENTS + ".json")
 				.buildString();
 		final String sessionId = SessionManager.getSessionId();
 

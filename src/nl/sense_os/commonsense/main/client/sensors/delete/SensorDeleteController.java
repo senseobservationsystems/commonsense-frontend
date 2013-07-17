@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -46,7 +47,8 @@ public class SensorDeleteController extends Controller {
 			ExtSensor sensor = sensors.get(index);
 
 			// prepare request properties
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(
+					CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
 			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + ".json");
 			final String url = urlBuilder.buildString();
 			final Method method = RequestBuilder.DELETE;

@@ -3,7 +3,8 @@ package nl.sense_os.commonsense.main.client.groups.leave;
 import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
-import nl.sense_os.commonsense.common.client.constant.Urls;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 
 import com.extjs.gxt.ui.client.event.EventType;
@@ -48,7 +49,8 @@ public class GroupLeaveController extends Controller {
 	private void leave(ExtGroup group, final View source) {
 
 		// prepare request property
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();

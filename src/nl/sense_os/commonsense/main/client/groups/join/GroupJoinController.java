@@ -7,8 +7,9 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupDetailsResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Group;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
@@ -43,7 +44,8 @@ public class GroupJoinController extends Controller {
 	private void getAllGroups(final List<ExtGroup> groups, final int page, final View source) {
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + "/all");
 		urlBuilder.setParameter("per_page", "" + PER_PAGE);
 		final String url = urlBuilder.buildString();
@@ -117,7 +119,8 @@ public class GroupJoinController extends Controller {
 	private void onGroupsDetailsRequest(ExtGroup group, final View source) {
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -178,7 +181,8 @@ public class GroupJoinController extends Controller {
 	private void join(ExtGroup group, List<ExtSensor> sensors, final View source) {
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();

@@ -6,9 +6,10 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetSensorDataResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.BackEndDataPoint;
 import nl.sense_os.commonsense.common.client.model.Timeseries;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.viz.data.cache.Cache;
 
@@ -26,7 +27,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.i18n.client.NumberFormat;
 
 public class DataController extends Controller {
 
@@ -74,7 +74,8 @@ public class DataController extends Controller {
 			ExtSensor sensor = sensors.get(index);
 
 			final Method method = RequestBuilder.GET;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(
+					CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
 			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
 			urlBuilder.setParameter("last", "1");
 			if (-1 != sensor.getAlias()) {
@@ -423,28 +424,28 @@ public class DataController extends Controller {
 				Cache.remove(sensor);
 			}
 
-			final Method method = RequestBuilder.GET;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-
-			// paging parameters
-			urlBuilder.setParameter("per_page", "" + PER_PAGE);
-			urlBuilder.setParameter("page", "" + pageIndex);
-
-			// only need a total count for the first page request
-			if (0 == pageIndex) {
-				urlBuilder.setParameter("total", "1");
-			}
-
-			// start date parameter
-			final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-			urlBuilder.setParameter("start_date", startDate);
-
-			// end date is optional
-			if (end != -1) {
-				final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
-				urlBuilder.setParameter("end_date", endDate);
-			}
+			// final Method method = RequestBuilder.GET;
+			// final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+			// urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+			//
+			// // paging parameters
+			// urlBuilder.setParameter("per_page", "" + PER_PAGE);
+			// urlBuilder.setParameter("page", "" + pageIndex);
+			//
+			// // only need a total count for the first page request
+			// if (0 == pageIndex) {
+			// urlBuilder.setParameter("total", "1");
+			// }
+			//
+			// // start date parameter
+			// final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
+			// urlBuilder.setParameter("start_date", startDate);
+			//
+			// // end date is optional
+			// if (end != -1) {
+			// final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
+			// urlBuilder.setParameter("end_date", endDate);
+			// }
 
 			// prepare request callback
 			RequestCallback reqCallback = new RequestCallback() {
@@ -470,15 +471,19 @@ public class DataController extends Controller {
 			};
 
 			// send request
-			try {
-				final String sessionId = SessionManager.getSessionId();
-				RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-				builder.setHeader("X-SESSION_ID", sessionId);
-				builder.sendRequest(null, reqCallback);
-			} catch (Exception e) {
-				LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
-				reqCallback.onError(null, e);
-			}
+			CommonSenseClient client = CommonSenseClient.getClient();
+			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start,
+					end != -1 ? end : null, null, PER_PAGE,
+					pageIndex, null, null, null, null);
+			// try {
+			// final String sessionId = SessionManager.getSessionId();
+			// RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+			// builder.setHeader("X-SESSION_ID", sessionId);
+			// builder.sendRequest(null, reqCallback);
+			// } catch (Exception e) {
+			// LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
+			// reqCallback.onError(null, e);
+			// }
 
 		} else {
 			// should not happen, but just in case...
@@ -523,33 +528,33 @@ public class DataController extends Controller {
 				Cache.remove(sensor);
 			}
 
-			final Method method = RequestBuilder.GET;
-			final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-			urlBuilder.setParameter("per_page", "" + PER_PAGE);
-			urlBuilder.setParameter("page", "" + pageIndex);
-
-			// start date parameter
-			final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-			urlBuilder.setParameter("start_date", startDate);
-
-			// end date is optional
-			if (end != -1) {
-				final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
-				urlBuilder.setParameter("end_date", endDate);
-			}
-
-			// set subsample interval
-			if (subsample) {
-				urlBuilder.setParameter("interval", "" + calcInterval(start, end));
-			}
-
-			// use alias if necessary
-			if (-1 != sensor.getAlias()) {
-				urlBuilder.setParameter("alias", "" + sensor.getAlias());
-			}
-
-			final String sessionId = SessionManager.getSessionId();
+			// final Method method = RequestBuilder.GET;
+			// final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+			// urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
+			// urlBuilder.setParameter("per_page", "" + PER_PAGE);
+			// urlBuilder.setParameter("page", "" + pageIndex);
+			//
+			// // start date parameter
+			// final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
+			// urlBuilder.setParameter("start_date", startDate);
+			//
+			// // end date is optional
+			// if (end != -1) {
+			// final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
+			// urlBuilder.setParameter("end_date", endDate);
+			// }
+			//
+			// // set subsample interval
+			// if (subsample) {
+			// urlBuilder.setParameter("interval", "" + calcInterval(start, end));
+			// }
+			//
+			// // use alias if necessary
+			// if (-1 != sensor.getAlias()) {
+			// urlBuilder.setParameter("alias", "" + sensor.getAlias());
+			// }
+			//
+			// final String sessionId = SessionManager.getSessionId();
 
 			// prepare request callback
 			RequestCallback reqCallback = new RequestCallback() {
@@ -577,14 +582,18 @@ public class DataController extends Controller {
 			};
 
 			// send request
-			try {
-				RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-				builder.setHeader("X-SESSION_ID", sessionId);
-				builder.sendRequest(null, reqCallback);
-			} catch (Exception e) {
-				LOG.warning("GET data (subsampled) request threw exception: " + e.getMessage());
-				reqCallback.onError(null, e);
-			}
+			CommonSenseClient client = CommonSenseClient.getClient();
+			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start,
+					end != -1 ? end : null, null, PER_PAGE, pageIndex, calcInterval(start, end),
+					null, null, null);
+			// try {
+			// RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
+			// builder.setHeader("X-SESSION_ID", sessionId);
+			// builder.sendRequest(null, reqCallback);
+			// } catch (Exception e) {
+			// LOG.warning("GET data (subsampled) request threw exception: " + e.getMessage());
+			// reqCallback.onError(null, e);
+			// }
 
 		} else {
 			// should not happen, but just in case...

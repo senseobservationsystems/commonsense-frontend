@@ -7,9 +7,10 @@ import java.util.logging.Logger;
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupUsersResponse;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.GetGroupsResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Group;
 import nl.sense_os.commonsense.common.client.model.User;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtGroup;
 import nl.sense_os.commonsense.main.client.ext.model.ExtUser;
 import nl.sense_os.commonsense.main.client.groups.create.GroupCreateEvents;
@@ -70,7 +71,8 @@ public class GroupController extends Controller {
 		forwardToView(this.tree, new AppEvent(GroupEvents.Working));
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + "/" + group.getId() + "/users.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -136,7 +138,8 @@ public class GroupController extends Controller {
 				nl.sense_os.commonsense.common.client.util.Constants.REG_GROUPS).clear();
 
 		// prepare request properties
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_GROUPS + ".json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();

@@ -6,8 +6,9 @@ import java.util.logging.Logger;
 
 import nl.sense_os.commonsense.common.client.communication.SessionManager;
 import nl.sense_os.commonsense.common.client.communication.httpresponse.AvailServicesResponse;
-import nl.sense_os.commonsense.common.client.constant.Urls;
 import nl.sense_os.commonsense.common.client.model.Service;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient;
+import nl.sense_os.commonsense.lib.client.communication.CommonSenseClient.Urls;
 import nl.sense_os.commonsense.main.client.ext.model.ExtSensor;
 import nl.sense_os.commonsense.main.client.ext.model.ExtService;
 import nl.sense_os.commonsense.main.client.sensors.library.LibraryEvents;
@@ -52,7 +53,8 @@ public class StateCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.POST;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services.json");
 		final String url = urlBuilder.buildString();
 		final String sessionId = SessionManager.getSessionId();
@@ -98,7 +100,7 @@ public class StateCreateController extends Controller {
 		try {
 			RequestBuilder builder = new RequestBuilder(method, url);
 			builder.setHeader("X-SESSION_ID", sessionId);
-			builder.setHeader("Content-Type", Urls.HEADER_JSON_TYPE);
+			builder.setHeader("Content-Type", "application/json");
 			builder.sendRequest(body, reqCallback);
 		} catch (Exception e) {
 			LOG.warning("POST sensor service request threw exception: " + e.getMessage());
@@ -110,7 +112,8 @@ public class StateCreateController extends Controller {
 
 		// prepare request properties
 		final Method method = RequestBuilder.GET;
-		final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
+		final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL)
+				.setHost(CommonSenseClient.Urls.HOST);
 		urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/services/available.json");
 		if (sensor.getAlias() != -1) {
 			urlBuilder.setParameter("alias", "" + sensor.getAlias());
