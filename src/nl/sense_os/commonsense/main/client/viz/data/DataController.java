@@ -74,8 +74,7 @@ public class DataController extends Controller {
 			ExtSensor sensor = sensors.get(index);
 
 			final Method method = RequestBuilder.GET;
-			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(
-					CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
+			final UrlBuilder urlBuilder = new UrlBuilder().setProtocol(CommonSenseClient.Urls.PROTOCOL).setHost(CommonSenseClient.Urls.HOST);
 			urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
 			urlBuilder.setParameter("last", "1");
 			if (-1 != sensor.getAlias()) {
@@ -173,8 +172,7 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Handles the callbacks when data requests are completed. Hides the progress dialog and passes
-	 * the data on to the panel that requested the data.
+	 * Handles the callbacks when data requests are completed. Hides the progress dialog and passes the data on to the panel that requested the data.
 	 * 
 	 * @param start
 	 *            Start of time range of the finished requests.
@@ -198,8 +196,7 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Handles the event that a data request fails. If progress was being shown, it notifies the
-	 * user that we failed.
+	 * Handles the event that a data request fails. If progress was being shown, it notifies the user that we failed.
 	 * 
 	 * @param code
 	 *            Response code of the failed request.
@@ -214,8 +211,7 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Handles successful requests for subsampled data. Parses the response, stores it and moves on
-	 * to the next sensor in the list.
+	 * Handles successful requests for subsampled data. Parses the response, stores it and moves on to the next sensor in the list.
 	 * 
 	 * @param response
 	 *            Response from CommonSense back end, should contain sensor data points.
@@ -236,9 +232,7 @@ public class DataController extends Controller {
 	 * @param source
 	 *            View that requested the data.
 	 */
-	private void onReqSubsampledSuccess(String response, long start, long end,
-			List<ExtSensor> sensors, int sensorIndex, int pageIndex, boolean subsampled,
-			boolean showProgress, View source) {
+	private void onReqSubsampledSuccess(String response, long start, long end, List<ExtSensor> sensors, int sensorIndex, int pageIndex, boolean subsampled, boolean showProgress, View source) {
 		LOG.fine("Data page success...");
 
 		// parse the incoming data
@@ -251,8 +245,7 @@ public class DataController extends Controller {
 		if (jsoResponse.getData().length() == PER_PAGE) {
 			// get next page
 			pageIndex++;
-			reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsampled,
-					showProgress, source);
+			reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsampled, showProgress, source);
 		} else if (sensorIndex < sensors.size()) {
 			// next sensor
 			sensorIndex++;
@@ -267,8 +260,7 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Handles successful requests for paged data. Parses the response, stores it and moves on to
-	 * the next page, or the next sensor in the list.
+	 * Handles successful requests for paged data. Parses the response, stores it and moves on to the next page, or the next sensor in the list.
 	 * 
 	 * @param response
 	 *            Response from CommonSense back end, should contain sensor data points.
@@ -283,15 +275,13 @@ public class DataController extends Controller {
 	 * @param pageIndex
 	 *            Index of the current page of data for the current sensor.
 	 * @param total
-	 *            Total amount of data that should be retrieved for the current sensor. This count
-	 *            is returned along with the first page of data.
+	 *            Total amount of data that should be retrieved for the current sensor. This count is returned along with the first page of data.
 	 * @param source
 	 *            View that requested the data.
 	 * @param showProgress
 	 *            Boolean to indicate whether to update the user of the progress.
 	 */
-	private void onReqRawSuccess(String response, long start, long end, List<ExtSensor> sensors,
-			int sensorIndex, int pageIndex, int total, View source, boolean showProgress) {
+	private void onReqRawSuccess(String response, long start, long end, List<ExtSensor> sensors, int sensorIndex, int pageIndex, View source, boolean showProgress) {
 
 		// parse the incoming data
 		GetSensorDataResponse jsoResponse = GetSensorDataResponse.createFixedJson(response);
@@ -301,23 +291,19 @@ public class DataController extends Controller {
 		JsArray<BackEndDataPoint> data = jsoResponse.getData();
 		Cache.store(sensor, start, end, data);
 
-		// the first page also contains a total count, otherwise reuse the total from earlier pages
-		if (pageIndex == 0) {
-			total = jsoResponse.getTotal();
-		}
-
 		// check if we need to fetch additional pages
-		if (pageIndex * PER_PAGE + data.length() < total && data.length() > 0) {
-			reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, total, source, showProgress);
+		if (jsoResponse.getData().length() == PER_PAGE) {
+			// get next page
+			reqDataRaw(start, end, sensors, sensorIndex, pageIndex + 1, source, showProgress);
 		} else {
+			// get the next sensor
 			updateProgress(Math.min(sensorIndex + 1, sensors.size()), sensors.size());
-			reqDataRaw(start, end, sensors, sensorIndex + 1, 0, 0, source, showProgress);
+			reqDataRaw(start, end, sensors, sensorIndex + 1, 0, source, showProgress);
 		}
 	}
 
 	/**
-	 * Handles request for data from the user. Shows the progress dialog and starts requesting the
-	 * data.
+	 * Handles request for data from the user. Shows the progress dialog and starts requesting the data.
 	 * 
 	 * @param start
 	 *            Start of the requested time range.
@@ -332,8 +318,7 @@ public class DataController extends Controller {
 	 * @param source
 	 *            View that the request originated from.
 	 */
-	private void onDataRequest(long start, long end, List<ExtSensor> sensors, boolean subsample,
-			boolean showProgress, View source) {
+	private void onDataRequest(long start, long end, List<ExtSensor> sensors, boolean subsample, boolean showProgress, View source) {
 		final int sensorIndex = 0;
 		final int pageIndex = 0;
 
@@ -341,11 +326,13 @@ public class DataController extends Controller {
 			showProgress(sensors.size());
 		}
 
-		LOG.fine("request start: "
-				+ DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
+		LOG.fine("request start: " + DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_FULL).format(new Date(start)));
 
-		reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress,
-				source);
+		if (subsample) {
+			reqDataSubsampled(start, end, sensors, sensorIndex, pageIndex, subsample, showProgress, source);
+		} else {
+			reqDataRaw(start, end, sensors, sensorIndex, pageIndex, source, showProgress);
+		}
 	}
 
 	/**
@@ -377,8 +364,7 @@ public class DataController extends Controller {
 		getLatestValues(sensors, index, source);
 	}
 
-	private void onLatestValueSuccess(String response, List<ExtSensor> sensors, int index,
-			View source) {
+	private void onLatestValueSuccess(String response, List<ExtSensor> sensors, int index, View source) {
 
 		GetSensorDataResponse jso = GetSensorDataResponse.createFixedJson(response);
 		Cache.store(sensors.get(index), 0, 0, jso.getData());
@@ -388,14 +374,12 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Requests data from a list of sensors, between a given start and end date. CommonSense will
-	 * page the data to ensure that we get all data.
+	 * Requests data from a list of sensors, between a given start and end date. CommonSense will page the data to ensure that we get all data.
 	 * 
 	 * @param start
 	 *            Start time of the time range, in milliseconds.
 	 * @param end
-	 *            End time of the time range, in milliseconds. Set to -1 to leave the end data
-	 *            unspecified.
+	 *            End time of the time range, in milliseconds. Set to -1 to leave the end data unspecified.
 	 * @param sensors
 	 *            List of sensors to request data for. The data is fetched for one sensor at a time.
 	 * @param sensorIndex
@@ -403,15 +387,13 @@ public class DataController extends Controller {
 	 * @param pageIndex
 	 *            Index of the current page.
 	 * @param sensorTotal
-	 *            Total amount of data points to retrieve for the current sensor. This number is
-	 *            supplied by CommonSense with the first page of data.
+	 *            Total amount of data points to retrieve for the current sensor. This number is supplied by CommonSense with the first page of data.
 	 * @param vizPanel
 	 *            Panel that requested the data.
 	 * @param showProgress
 	 *            Set to true to display a progress dialog.
 	 */
-	private void reqDataRaw(final long start, final long end, final List<ExtSensor> sensors,
-			final int sensorIndex, final int pageIndex, final int sensorTotal, final View source,
+	private void reqDataRaw(final long start, final long end, final List<ExtSensor> sensors, final int sensorIndex, final int pageIndex, final View source,
 			final boolean showProgress) {
 		LOG.fine("Request paged data...");
 
@@ -423,29 +405,6 @@ public class DataController extends Controller {
 			if (pageIndex == 0) {
 				Cache.remove(sensor);
 			}
-
-			// final Method method = RequestBuilder.GET;
-			// final UrlBuilder urlBuilder = new UrlBuilder().setHost(Urls.HOST);
-			// urlBuilder.setPath(Urls.PATH_SENSORS + "/" + sensor.getId() + "/data.json");
-			//
-			// // paging parameters
-			// urlBuilder.setParameter("per_page", "" + PER_PAGE);
-			// urlBuilder.setParameter("page", "" + pageIndex);
-			//
-			// // only need a total count for the first page request
-			// if (0 == pageIndex) {
-			// urlBuilder.setParameter("total", "1");
-			// }
-			//
-			// // start date parameter
-			// final String startDate = NumberFormat.getFormat("#.000").format(start / 1000d);
-			// urlBuilder.setParameter("start_date", startDate);
-			//
-			// // end date is optional
-			// if (end != -1) {
-			// final String endDate = NumberFormat.getFormat("#.000").format(end / 1000d);
-			// urlBuilder.setParameter("end_date", endDate);
-			// }
 
 			// prepare request callback
 			RequestCallback reqCallback = new RequestCallback() {
@@ -461,8 +420,7 @@ public class DataController extends Controller {
 					LOG.finest("GET data (paged) response received: " + response.getStatusText());
 					int statusCode = response.getStatusCode();
 					if (Response.SC_OK == statusCode) {
-						onReqRawSuccess(response.getText(), start, end, sensors, sensorIndex,
-								pageIndex, sensorTotal, source, showProgress);
+						onReqRawSuccess(response.getText(), start, end, sensors, sensorIndex, pageIndex, source, showProgress);
 					} else {
 						LOG.warning("GET data (paged) returned incorrect status: " + statusCode);
 						onDataFailed(statusCode, showProgress);
@@ -472,18 +430,7 @@ public class DataController extends Controller {
 
 			// send request
 			CommonSenseClient client = CommonSenseClient.getClient();
-			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start,
-					end != -1 ? end : null, null, PER_PAGE,
-					pageIndex, null, null, null, null);
-			// try {
-			// final String sessionId = SessionManager.getSessionId();
-			// RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
-			// builder.setHeader("X-SESSION_ID", sessionId);
-			// builder.sendRequest(null, reqCallback);
-			// } catch (Exception e) {
-			// LOG.warning("GET data (paged) request threw exception: " + e.getMessage());
-			// reqCallback.onError(null, e);
-			// }
+			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start, end != -1 ? end : null, null, PER_PAGE, pageIndex, null, null, null, null);
 
 		} else {
 			// should not happen, but just in case...
@@ -492,15 +439,12 @@ public class DataController extends Controller {
 	}
 
 	/**
-	 * Requests one page of data points from a list of sensors, between a given start and end date.
-	 * CommonSense will subsample the data to ensure that all data fits on that one page (1000
-	 * points).
+	 * Requests one page of data points from a list of sensors, between a given start and end date. CommonSense will subsample the data to ensure that all data fits on that one page (1000 points).
 	 * 
 	 * @param start
 	 *            Start time of the time range, in milliseconds.
 	 * @param end
-	 *            End time of the time range, in milliseconds. Set to -1 to leave the end data
-	 *            unspecified.
+	 *            End time of the time range, in milliseconds. Set to -1 to leave the end data unspecified.
 	 * @param sensors
 	 *            List of sensors to request data for. The data is fetched for one sensor at a time.
 	 * @param sensorIndex
@@ -514,9 +458,8 @@ public class DataController extends Controller {
 	 * @param source
 	 *            View that requested the data.
 	 */
-	private void reqDataSubsampled(final long start, final long end,
-			final List<ExtSensor> sensors, final int sensorIndex, final int pageIndex,
-			final boolean subsample, final boolean showProgress, final View source) {
+	private void reqDataSubsampled(final long start, final long end, final List<ExtSensor> sensors, final int sensorIndex, final int pageIndex, final boolean subsample, final boolean showProgress,
+			final View source) {
 		LOG.fine("Request data...");
 
 		if (sensorIndex < sensors.size()) {
@@ -567,15 +510,12 @@ public class DataController extends Controller {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-					LOG.finest("GET data (subsampled) response received: "
-							+ response.getStatusText());
+					LOG.finest("GET data (subsampled) response received: " + response.getStatusText());
 					int statusCode = response.getStatusCode();
 					if (Response.SC_OK == statusCode) {
-						onReqSubsampledSuccess(response.getText(), start, end, sensors,
-								sensorIndex, pageIndex, subsample, showProgress, source);
+						onReqSubsampledSuccess(response.getText(), start, end, sensors, sensorIndex, pageIndex, subsample, showProgress, source);
 					} else {
-						LOG.warning("GET data (subsampled) returned incorrect status: "
-								+ statusCode);
+						LOG.warning("GET data (subsampled) returned incorrect status: " + statusCode);
 						onDataFailed(statusCode, showProgress);
 					}
 				}
@@ -583,9 +523,7 @@ public class DataController extends Controller {
 
 			// send request
 			CommonSenseClient client = CommonSenseClient.getClient();
-			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start,
-					end != -1 ? end : null, null, PER_PAGE, pageIndex, calcInterval(start, end),
-					null, null, null);
+			client.getSensorData(reqCallback, Integer.toString(sensor.getId()), start, end != -1 ? end : null, null, PER_PAGE, pageIndex, calcInterval(start, end), null, null, null);
 			// try {
 			// RequestBuilder builder = new RequestBuilder(method, urlBuilder.buildString());
 			// builder.setHeader("X-SESSION_ID", sessionId);
